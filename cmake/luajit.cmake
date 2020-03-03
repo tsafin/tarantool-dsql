@@ -224,6 +224,13 @@ macro(luajit_build)
         set(luajit_xcflags ${luajit_xcflags} -D${def})
     endforeach()
 
+    # Enablibg LTO for luajit if DENABLE_LTO set.
+    if (${ENABLE_LTO})
+	message(STATUS "Enablig LTO for luajit")
+	set (luajit_ld ${CMAKE_C_LINK_OPTIONS_IPO})
+	set (luajit_cflags ${luajit_cflags} ${CFLAGS_LTO})
+	set (CMAKE_AR ${AR_LTO})
+    endif()
     # Pass the same toolchain that is used for building of
     # tarantool itself, because tools from different toolchains
     # can be incompatible. A compiler and a linker are already set
