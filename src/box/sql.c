@@ -311,6 +311,12 @@ int64_t
 tarantoolsqlCount(struct BtCursor *pCur)
 {
 	assert(pCur->curFlags & BTCF_TaCursor);
+	if (pCur->index->def->type == HASH) {
+		diag_set(ClientError, ER_SQL_EXECUTE, 
+			"Can't use count with hash indices");
+		return -1;
+
+	}
 	return index_count(pCur->index, pCur->iter_type, NULL, 0);
 }
 
