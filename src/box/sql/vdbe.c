@@ -2900,6 +2900,8 @@ case OP_Count: {         /* out2 */
 		assert((pCrsr->curFlags & BTCF_TEphemCursor) != 0);
 		nEntry = tarantoolsqlEphemeralCount(pCrsr);
 	}
+	if (nEntry < 0)
+		goto abort_due_to_error;
 	pOut = vdbe_prepare_null_out(p, pOp->p2);
 	mem_set_u64(pOut, nEntry);
 	break;
