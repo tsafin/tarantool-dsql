@@ -139,7 +139,9 @@ macro(luajit_build)
     # will most certainly wreak havok.
     #
     # This stuff is extremely fragile, proceed with caution.
-    set (luajit_cflags ${CMAKE_C_FLAGS})
+    string (TOUPPER ${CMAKE_BUILD_TYPE} upper_build_type)
+    set (c_flags_init "CMAKE_C_FLAGS_${upper_build_type}")
+    set (luajit_cflags ${${c_flags_init}})
     set (luajit_ldflags ${CMAKE_EXE_LINKER_FLAGS})
     separate_arguments(luajit_cflags)
     separate_arguments(luajit_ldflags)
@@ -168,19 +170,12 @@ macro(luajit_build)
             "-pagezero_size 10000 -image_base 100000000")
     endif()
 
-    # We are consciously ommiting debug info in RelWithDebInfo mode
+    set (upper_build_type)
+    set (c_flags_init)
+
     if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-        set (luajit_ccopt -O0)
-        if (CC_HAS_GGDB)
-            set (luajit_ccdebug -g -ggdb)
-        else ()
-            set (luajit_ccdebug -g)
-        endif ()
         add_definitions(-DLUA_USE_APICHECK=1)
         add_definitions(-DLUA_USE_ASSERT=1)
-    else ()
-        set (luajit_ccopt -O2)
-        set (luajit_ccdbebug "")
     endif()
     if (${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
         # Pass sysroot - prepended in front of system header/lib dirs,
