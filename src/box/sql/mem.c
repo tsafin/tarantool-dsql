@@ -897,7 +897,7 @@ mem_cast_implicit(struct Mem *mem, enum field_type type)
 			return double_to_uint(mem);
 		return -1;
 	case FIELD_TYPE_STRING:
-		if ((mem->flags & MEM_Str) != 0)
+		if ((mem->flags & (MEM_Str | MEM_Blob)) != 0)
 			return 0;
 		return -1;
 	case FIELD_TYPE_DOUBLE:
@@ -923,6 +923,8 @@ mem_cast_implicit(struct Mem *mem, enum field_type type)
 	case FIELD_TYPE_NUMBER:
 		if ((mem->flags & (MEM_Int | MEM_UInt | MEM_Real)) != 0)
 			return 0;
+		if ((mem->flags & MEM_Str) != 0)
+			return mem_to_number(mem);
 		return -1;
 	case FIELD_TYPE_MAP:
 		if (mem_is_map(mem))
