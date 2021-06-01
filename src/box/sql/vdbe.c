@@ -1625,6 +1625,12 @@ case OP_Ge: {             /* same as TK_GE, jump, in1, in3 */
 			}
 			break;
 		}
+	} else if (!mem_is_same_type_class(pIn1, pIn3)) {
+		/* scalar comparison mode - use type classes */
+		int diff_type = mem_type_class(pIn3->type) -
+				mem_type_class(pIn1->type);
+		res = (diff_type < 0) ? -1 : (diff_type > 0);
+
 	} else if (mem_is_bool(pIn3) || mem_is_bool(pIn1)) {
 		if (mem_cmp_bool(pIn3, pIn1, &res) != 0) {
 			char *str = !mem_is_bool(pIn3) ?

@@ -53,6 +53,18 @@ enum mem_type {
 	MEM_TYPE_AGG		= 1 << 12,
 };
 
+enum mem_type_class {
+	MEM_CLASS_NIL = 0,
+	MEM_CLASS_BOOL,
+	MEM_CLASS_NUMBER,
+	MEM_CLASS_STR,
+	MEM_CLASS_BIN,
+	MEM_CLASS_UUID,
+	MEM_CLASS_ARRAY,
+	MEM_CLASS_MAP,
+	MEM_CLASS_MAX,
+};
+
 /*
  * Internally, the vdbe manipulates nearly all SQL values as Mem
  * structures. Each Mem struct may cache multiple representations (string,
@@ -253,6 +265,38 @@ static inline bool
 mem_is_any_null(const struct Mem *mem1, const struct Mem *mem2)
 {
 	return ((mem1->type| mem2->type) & MEM_TYPE_NULL) != 0;
+}
+
+/**
+ * mem type class to distinguish comparator classes
+ */
+static inline enum mem_type_class
+mem_type_class(enum mem_type type)
+{
+	if (type & MEM_TYPE_NULL)
+		return MEM_CLASS_NIL;
+	else if (type & (MEM_TYPE_UINT | MEM_TYPE_INT | MEM_TYPE_DOUBLE))
+		return MEM_CLASS_NUMBER;
+	else if (type & MEM_TYPE_STR)
+		return MEM_CLASS_STR;
+	else if (type & MEM_TYPE_BIN)
+		return MEM_CLASS_BIN;
+	else if (type & MEM_TYPE_ARRAY)
+		return MEM_CLASS_ARRAY;
+	else if (type & MEM_TYPE_MAP)
+		return MEM_CLASS_MAP;
+	else if (type & MEM_TYPE_BOOL)
+		return MEM_CLASS_BOOL;
+	return MEM_CLASS_NIL;
+}
+
+/**
+ * Compare mem type class, whether they should use same comparator
+ */
+static inline bool
+mem_is_same_type_class(const struct Mem *lhs, const struct Mem *rhs)
+{
+	return mem_type_class(lhs->type) == mem_type_class(rhs->type);
 }
 
 /**
