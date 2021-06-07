@@ -113,6 +113,10 @@ local enabled_type = {
     [t_scalar]    = true,
 }
 
+-- Enabled types which may be targets for explicit casts
+local enabled_type_cast = table.deepcopy(enabled_type)
+enabled_type_cast[t_any] = true
+
 -- table of _TSV_ (tab separated values)
 -- copied from sql-lua-tables-v5.xls // TNT implicit today
 local explicit_casts_table_spec = {
@@ -172,13 +176,13 @@ local function human_cast(v)
     return xlat[v ~= nil and v or c_no]
 end
 
-local function load_casts_spec(spec_table)
+local function load_casts_spec(spec_table, enabled_from, enabled_to)
     local casts = {}
     for i, t_from  in ipairs(proper_order) do
         local row = spec_table[t_from]
         casts[t_from] = {}
         for j, t_to  in ipairs(proper_order) do
-            if enabled_type[t_from] and enabled_type[t_to] then
+            if enabled_from[t_from] and enabled_to[t_to] then
                 casts[t_from][t_to] = normalize_cast(spec_table[t_from][j])
             end
         end
@@ -220,8 +224,8 @@ local function show_casts_table(table)
     print(string.format("%"..max_len.."s%s", "", banner))
 end
 
-explicit_casts = load_casts_spec(explicit_casts_table_spec)
-implicit_casts = load_casts_spec(implicit_casts_table_spec)
+explicit_casts = load_casts_spec(explicit_casts_table_spec, enabled_type, enabled_type_cast)
+implicit_casts = load_casts_spec(implicit_casts_table_spec, enabled_type, enabled_type)
 
 if verbose > 0 then
     show_casts_table(explicit_casts)
@@ -238,14 +242,12 @@ local function test_check_table_consistency(test)
     test:plan(169)
     for i, from in ipairs(proper_order) do
         for j, to in ipairs(proper_order) do
-            -- if enabled_type[from] and enabled_type[to] then
-                test:ok((normalize_cast(implicit_casts[from][to]) ~= c_no) ==
-                        (normalize_cast(implicit_casts[to][from]) ~= c_no),
-                        label_for(from, to, 
-                                    string.format("%s ~= %s", 
-                                                implicit_casts[from][to],
-                                                implicit_casts[to][from])))
-            -- end
+            test:ok((normalize_cast(implicit_casts[from][to]) ~= c_no) ==
+                    (normalize_cast(implicit_casts[to][from]) ~= c_no),
+                    label_for(from, to,
+                              string.format("%s ~= %s",
+                                            implicit_casts[from][to],
+                                            implicit_casts[to][from])))
         end
     end
 end
@@ -316,11 +318,11 @@ end
 -- 1. Check explicit casts table
 local function test_check_explicit_casts(test)
     -- checking validity of all `CAST(from AS to)` combinations
-    test:plan(232)
+    test:plan(299)
     for i, from in ipairs(proper_order) do
         for j, to in ipairs(proper_order) do
             -- skip ANY, DECIMAL, UUID, etc.
-            if enabled_type[from] and enabled_type[to] then
+            if enabled_type[from] and enabled_type_cast[to] then
                 local gen = gen_explicit_cast_from_to(from, to)
                 local failures = {}
                 local successes = {}
