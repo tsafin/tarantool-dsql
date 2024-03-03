@@ -84,8 +84,7 @@ while read line; do
         IFS=" "
         set -- $line
         IFS="$newline"
-        label=${1%):}
-        name=${label#*(}
+        name=`expr match $1 'EXECUTE(\(OP_[A-Za-z0-9]*\)'`
         eval "ARRAY_op_$name=-1"
         eval "ARRAY_jump_$name=0"
         eval "ARRAY_in1_$name=0"
