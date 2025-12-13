@@ -127,6 +127,7 @@ set(sql_sources
     sql/update.c
     sql/util.c
     sql/vdbe.c
+    sql/vdbe_field_ref.c
     sql/vdbeapi.c
     sql/vdbeaux.c
     sql/vdbesort.c
@@ -145,6 +146,7 @@ set_property(DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES ${lua_sources})
 include_directories(${ZSTD_INCLUDE_DIRS})
 include_directories(${PROJECT_BINARY_DIR}/src/box/sql)
 include_directories(${PROJECT_BINARY_DIR}/src/box)
+include_directories(${PROJECT_SOURCE_DIR}/src/box)
 include_directories(${EXTRA_CORE_INCLUDE_DIRS})
 include_directories(${EXTRA_BOX_INCLUDE_DIRS})
 

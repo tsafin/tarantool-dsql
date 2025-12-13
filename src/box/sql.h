@@ -34,6 +34,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+/* Forward-declare `struct Mem` here to avoid pulling in heavy
+ * sql/mem.h which depends on other sql internal typedefs. Files
+ * that need the full definition should include "sql/mem.h"
+ * themselves.
+ */
+struct Mem;
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -72,6 +79,7 @@ struct Table;
 struct sql_trigger;
 struct space_def;
 struct func;
+/* `Mem` is defined in sql/mem.h included above. */
 
 /**
  * Perform parsing of provided expression. This is done by
@@ -390,6 +398,21 @@ vdbe_field_ref_prepare_array(struct vdbe_field_ref *ref, uint32_t field_count,
 /** Initialize a new vdbe_field_ref instance. */
 void
 vdbe_field_ref_create(struct vdbe_field_ref *ref, uint32_t capacity);
+
+/* Helpers for vdbe_field_ref access (implemented in vdbe_field_ref.c). */
+const struct tuple_field *
+vdbe_field_ref_fetch_field(struct vdbe_field_ref *field_ref, uint32_t fieldno);
+
+uint32_t
+vdbe_field_ref_closest_slotno(struct vdbe_field_ref *field_ref,
+							  uint32_t fieldno);
+
+const char *
+vdbe_field_ref_fetch_data(struct vdbe_field_ref *field_ref, uint32_t fieldno);
+
+int
+vdbe_field_ref_fetch(struct vdbe_field_ref *field_ref, uint32_t fieldno,
+					 struct Mem *dest_mem);
 
 /**
  * Check if SQL_EXPR func has single arg. If the name is not NULL, also check
