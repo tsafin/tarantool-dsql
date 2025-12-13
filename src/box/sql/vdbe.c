@@ -130,23 +130,6 @@ int sql_sort_count = 0;
 #endif
 
 /*
- * The next global variable records the size of the largest varbinary
- * or string that has been used by a VDBE opcode.  The test procedures
- * use this information to make sure that the zero-blob functionality
- * is working correctly.   This variable has no function other than to
- * help verify the correct operation of the library.
- */
-#ifdef SQL_TEST
-size_t sql_max_blobsize = 0;
-static void
-updateMaxBlobsize(Mem *p)
-{
-	if (mem_is_bytes(p) && p->n > sql_max_blobsize)
-		sql_max_blobsize = p->n;
-}
-#endif
-
-/*
  * The next global variable is incremented each time the OP_Found opcode
  * is executed.
  */
@@ -154,8 +137,7 @@ updateMaxBlobsize(Mem *p)
 int sql_found_count = 0;
 #endif
 
-/*
- * Test a register to see if it exceeds the current maximum blob size.
+/* Test a register to see if it exceeds the current maximum blob size.
  * If it does, record the new maximum blob size.
  */
 #if defined(SQL_TEST)

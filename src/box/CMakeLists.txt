@@ -128,6 +128,7 @@ set(sql_sources
     sql/util.c
     sql/vdbe.c
     sql/vdbe_field_ref.c
+    sql/vdbe_blob.c
     sql/vdbeapi.c
     sql/vdbeaux.c
     sql/vdbesort.c

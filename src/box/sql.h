@@ -33,6 +33,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 
 /* Forward-declare `struct Mem` here to avoid pulling in heavy
  * sql/mem.h which depends on other sql internal typedefs. Files
@@ -430,6 +431,17 @@ func_sql_expr_check_fields(const struct func *base,
 uint32_t
 sql_default_session_flags(void);
 
+#if defined(SQL_TEST)
+
+/** Prototype and storage for test instrumentation. */
+extern size_t sql_max_blobsize;
+void updateMaxBlobsize(struct Mem *p);
+
+# define UPDATE_MAX_BLOBSIZE(P)  updateMaxBlobsize(P)
+#else
+# define UPDATE_MAX_BLOBSIZE(P)
+#endif
+
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
 /**
  * Entrypoint for fuzzing SQL engine.
@@ -439,6 +451,7 @@ sql_default_session_flags(void);
  */
 int
 sql_fuzz(const char *sql, int bytes_count);
+
 #endif /* FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION */
 
 #if defined(__cplusplus)

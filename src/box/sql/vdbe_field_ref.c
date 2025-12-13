@@ -8,14 +8,9 @@
 #include "tuple.h"
 #include "msgpuck/msgpuck.h"
 
-/* If SQL_TEST is enabled, `vdbe.c` defines UPDATE_MAX_BLOBSIZE and a
- * static helper. In this separate compilation unit we don't have access to
- * that static helper, so provide a no-op fallback for the macro when it is
- * not already defined. This preserves behaviour when SQL_TEST is off and
- * avoids linker errors in test builds. */
-#ifndef UPDATE_MAX_BLOBSIZE
-# define UPDATE_MAX_BLOBSIZE(P)
-#endif
+/* Use UPDATE_MAX_BLOBSIZE macro, which is now backed by a shared
+ * non-static wrapper implemented in `vdbe.c`.
+ */
 
 /* Fetch a tuple field descriptor by fieldno. */
 const struct tuple_field *
