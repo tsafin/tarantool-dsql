@@ -10,9 +10,10 @@ This document tracks the extraction of VDBE opcode handlers from the monolithic 
 
 1. **Arithmetic Operators** (`vdbe_ops_arith.c`)
    - OP_Add, OP_Subtract, OP_Multiply, OP_Divide, OP_Remainder
-   - Status: STUB implementations
-   - These are straightforward and use mem_xxx() functions
-   - Can be fully extracted once the dispatcher is ready
+   - Status: FUNCTIONAL implementations (✓ COMPLETED & INTEGRATED)
+   - All handlers use mem_xxx() functions (mem_add, mem_sub, mem_mul, mem_div, mem_rem)
+   - Integrated into main loop at vdbe.c:948-1012
+   - Return 0 on success, -1 on error
 
 2. **Data/Constant Operators** (`vdbe_ops_data.c`)
    - OP_Integer, OP_Bool, OP_Int64, OP_Real, OP_String

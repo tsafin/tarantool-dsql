@@ -15,7 +15,10 @@ This file tracks progress for the `src/box/sql/vdbe.c` refactor.
 - [x] Move generated outputs to build dir
   - Generator now emits into `${CMAKE_BINARY_DIR}/src/box/sql/generated` and CMake variables updated (DONE)
 - [~] Split Handlers into Files
-  - Arithmetic handlers: `src/box/sql/vdbe_ops_arith.c` (DONE - stubs)
+  - Arithmetic handlers: `src/box/sql/vdbe_ops_arith.c` (DONE - functional & integrated)
+    - All 5 arithmetic ops extracted and integrated into main loop
+    - OP_Add, OP_Subtract, OP_Multiply, OP_Divide, OP_Remainder
+    - Clean implementations using mem_add(), mem_sub(), mem_mul(), mem_div(), mem_rem()
   - Data/constant handlers: `src/box/sql/vdbe_ops_data.c` (DONE - functional)
   - Comparison handlers: `src/box/sql/vdbe_ops_compare.c` (DONE - functional & integrated)
     - Successfully extracted after adding `iCompare` to `struct Vdbe` (Option A from extraction plan)
