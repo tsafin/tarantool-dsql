@@ -1239,14 +1239,9 @@ EXECUTE(OP_MustBeInt,(P1,P2)): {            /* jump, in1 */
  * A NULL value is not changed by this routine.  It remains NULL.
  */
 EXECUTE(OP_Cast,(P1,P2)): {                  /* in1 */
-	pIn1 = &aMem[P1];
-	rc = mem_cast_explicit(pIn1, P2);
-	UPDATE_MAX_BLOBSIZE(pIn1);
-	if (rc == 0)
-		DISPATCH();
-	diag_set(ClientError, ER_SQL_TYPE_MISMATCH, mem_str(pIn1),
-		 field_type_strs[P2]);
-	goto abort_due_to_error;
+	if (vdbe_op_cast(p, pOp, aMem))
+		goto abort_due_to_error;
+	DISPATCH();
 }
 
 /* Opcode: Array P1 P2 P3 * *
@@ -1826,19 +1821,8 @@ EXECUTE(OP_Fetch,(P1,P2,P3)): {
  * this opcode attempts to convert the value to the type.
  */
 EXECUTE(OP_ApplyType,(P1,P2,P4)): {
-	enum field_type *types = pOp->p4.types;
-	assert(types != NULL);
-	pIn1 = &aMem[P1];
-	for (int i = 0; i < P2; ++i, ++pIn1) {
-		enum field_type type = types[i];
-		assert(pIn1 <= &p->aMem[(p->nMem+1 - p->nCursor)]);
-		assert(memIsValid(pIn1));
-		if (mem_cast_implicit(pIn1, type) != 0) {
-			diag_set(ClientError, ER_SQL_TYPE_MISMATCH,
-				 mem_str(pIn1), field_type_strs[type]);
-			goto abort_due_to_error;
-		}
-	}
+	if (vdbe_op_applytype(p, pOp, aMem))
+		goto abort_due_to_error;
 	DISPATCH();
 }
 
@@ -1853,70 +1837,8 @@ EXECUTE(OP_ApplyType,(P1,P2,P4)): {
  * into ephemeral space. Thus, sort of memory optimization can be performed.
  */
 EXECUTE(OP_MakeRecord,(P1,P2,P3)): {
-	Mem *pData0;           /* First field to be combined into the record */
-	int nField;            /* Number of fields in the record */
-	u8 bIsEphemeral;
-
-	/* Assuming the record contains N fields, the record format looks
-	 * like this:
-	 *
-	 * ------------------------------------------------------------------------
-	 * | hdr-size | type 0 | type 1 | ... | type N-1 | data0 | ... | data N-1 |
-	 * ------------------------------------------------------------------------
-	 *
-	 * Data(0) is taken from register P1.  Data(1) comes from register P1+1
-	 * and so forth.
-	 *
-	 * Each type field is a varint representing the serial type of the
-	 * corresponding data element. The hdr-size field is also a varint which
-	 * is the offset from the beginning of the record to data0.
-	 */
-	nField = P1;
-	bIsEphemeral = pOp->p5;
-	assert(nField>0 && P2>0 && P2+nField<=(p->nMem+1 - p->nCursor)+1);
-	pData0 = &aMem[nField];
-	nField = P2;
-
-	/* Identify the output register */
-	assert(P3 < P1 || P3 >= P1 + P2);
-	pOut = vdbe_prepare_null_out(p, P3);
-
-	struct region *region = &fiber()->gc;
-	size_t used = region_used(region);
-	uint32_t tuple_size;
-	char *tuple = mem_encode_array(pData0, nField, &tuple_size, region);
-	if (tuple == NULL)
+	if (vdbe_op_makerecord(p, pOp, aMem))
 		goto abort_due_to_error;
-	if (tuple_size > SQL_MAX_LENGTH)
-		goto too_big;
-
-	/* In case of ephemeral space, it is possible to save some memory
-	 * allocating one by ordinary malloc: instead of cutting pieces
-	 * from region and waiting while they will be freed after
-	 * statement commitment, it is better to reuse the same chunk.
-	 * Such optimization is prohibited for ordinary spaces, since
-	 * memory shouldn't be reused until it is written into WAL.
-	 *
-	 * However, if memory for ephemeral space is allocated
-	 * on region, it will be freed only in sql_stmt_finalize()
-	 * routine.
-	 */
-	if (bIsEphemeral) {
-		if (mem_copy_bin(pOut, tuple, tuple_size) != 0)
-			goto abort_due_to_error;
-		region_truncate(region, used);
-	} else {
-		/* Allocate memory on the region for the tuple
-		 * to be passed to Tarantool. Before that, make
-		 * sure previously allocated memory has gone.
-		 */
-		mem_destroy(pOut);
-		mem_set_bin_ephemeral(pOut, tuple, tuple_size);
-	}
-	assert(sqlVdbeCheckMemInvariants(pOut));
-	assert(P3 > 0 && P3 <= (p->nMem + 1 - p->nCursor));
-	REGISTER_TRACE(p, P3, pOut);
-	UPDATE_MAX_BLOBSIZE(pOut);
 	DISPATCH();
 }
 
