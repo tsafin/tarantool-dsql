@@ -69,15 +69,21 @@ def gen_header(opcodes):
     lines.append('/* Forward declarations */')
     lines.append('struct Vdbe; struct Op; struct Mem;')
 
-    lines.append('\n/* Opcode enum */')
+    lines.append('/* Opcode enum (namespaced to avoid conflicts) */')
     lines.append('typedef enum {')
     for op in opcodes:
-        lines.append('    %s = %d,' % (op['name'], op['id']))
+        # Normalize name: strip leading "OP_" if present, then namespace
+        raw = op['name']
+        base = raw
+        if raw.startswith('OP_'):
+            base = raw[3:]
+        base = base.upper()
+        lines.append('    VDBE_OP_%s = %d,' % (base, op['id']))
     lines.append('} VdbeOpcode;\n')
 
     lines.append('/* Opcode property flags */')
     for name, bit in FLAG_BITS.items():
-        lines.append('#define OPFLG_%s 0x%04x' % (name, bit))
+        lines.append('#define VDBE_OPFLG_%s 0x%04x' % (name, bit))
     lines.append('\n/* Property table */')
     lines.append('static const unsigned short vdbeOpcodeProperty[] = {')
     # build a table indexed by opcode id; fill missing ids with 0
@@ -112,8 +118,13 @@ def gen_dispatch_c(opcodes, header_name='vdbe_opcodes_generated.h'):
 
     lines.append('static const struct VdbeDispatch vdbe_dispatch_table[] = {')
     for op in opcodes:
-        lines.append('    { %s, vdbe_op_%s, 0x%04x }, /* %s */' % (
-            op['name'], op['name'].lower().replace('op_', ''), sum(FLAG_BITS.get(f, 0) for f in op.get('flags', [])), op.get('doc', '')))
+            raw = op['name']
+            base = raw
+            if raw.startswith('OP_'):
+                base = raw[3:]
+            base = base.upper()
+            lines.append('    { VDBE_OP_%s, vdbe_op_%s, 0x%04x }, /* %s */' % (
+                base, op['name'].lower().replace('op_', ''), sum(FLAG_BITS.get(f, 0) for f in op.get('flags', [])), op.get('doc', '')))
     lines.append('};\n')
 
     lines.append('/* Number of entries */')

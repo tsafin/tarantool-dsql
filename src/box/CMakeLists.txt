@@ -400,6 +400,9 @@ add_custom_command(
 add_custom_target(vdbe_codegen DEPENDS ${VDBE_GEN_C} ${VDBE_GEN_H})
 include_directories(${SQL_SRC_DIR}/generated)
 
+# Add generated dispatch C to sql sources so it is built with box
+list(APPEND sql_sources ${VDBE_GEN_C})
+
 add_custom_target(generate_sql_files DEPENDS
     sql/parse.h
     sql/keywordhash.h
