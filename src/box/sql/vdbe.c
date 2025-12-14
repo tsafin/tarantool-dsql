@@ -1139,12 +1139,8 @@ EXECUTE(OP_FunctionByName,(P1,P2,P3,P4)): {
  * If either input is NULL, the result is NULL.
  */
 EXECUTE(OP_BitAnd,(P1,P2,P3)): {               /* same as TK_BITAND, in1, in2, out3 */
-	pIn1 = &aMem[P1];
-	pIn2 = &aMem[P2];
-	pOut = &aMem[P3];
-	if (mem_bit_and(pIn2, pIn1, pOut) != 0)
+	if (vdbe_op_bitand(p, pOp, aMem))
 		goto abort_due_to_error;
-	assert(pOut->type == MEM_TYPE_UINT || pOut->type == MEM_TYPE_NULL);
 	DISPATCH();
 }
 
@@ -1156,12 +1152,8 @@ EXECUTE(OP_BitAnd,(P1,P2,P3)): {               /* same as TK_BITAND, in1, in2, o
  * If either input is NULL, the result is NULL.
  */
 EXECUTE(OP_BitOr,(P1,P2,P3)): {                /* same as TK_BITOR, in1, in2, out3 */
-	pIn1 = &aMem[P1];
-	pIn2 = &aMem[P2];
-	pOut = &aMem[P3];
-	if (mem_bit_or(pIn2, pIn1, pOut) != 0)
+	if (vdbe_op_bitor(p, pOp, aMem))
 		goto abort_due_to_error;
-	assert(pOut->type == MEM_TYPE_UINT || pOut->type == MEM_TYPE_NULL);
 	DISPATCH();
 }
 
@@ -1575,41 +1567,14 @@ EXECUTE(OP_Jump,(P1,P2,P3)): {             /* jump */
  * even if the other input is NULL.  A NULL and false or two NULLs
  * give a NULL output.
  */
-EXECUTE(OP_And,(P1,P2,P3)):	/* same as TK_AND, in1, in2, out3 */
+EXECUTE(OP_And,(P1,P2,P3)): {	/* same as TK_AND, in1, in2, out3 */
+	if (vdbe_op_and(p, pOp, aMem))
+		goto abort_due_to_error;
+	DISPATCH();
+}
 EXECUTE(OP_Or,(P1,P2,P3)): {    /* same as TK_OR, in1, in2, out3 */
-	int v1;    /* Left operand:  0==FALSE, 1==TRUE, 2==UNKNOWN or NULL */
-	int v2;    /* Right operand: 0==FALSE, 1==TRUE, 2==UNKNOWN or NULL */
-
-	pIn1 = &aMem[P1];
-	if (mem_is_null(pIn1)) {
-		v1 = 2;
-	} else if (mem_is_bool(pIn1)) {
-		v1 = pIn1->u.b;
-	} else {
-		diag_set(ClientError, ER_SQL_TYPE_MISMATCH,
-			 mem_str(pIn1), "boolean");
+	if (vdbe_op_or(p, pOp, aMem))
 		goto abort_due_to_error;
-	}
-	pIn2 = &aMem[P2];
-	if (mem_is_null(pIn2)) {
-		v2 = 2;
-	} else if (mem_is_bool(pIn2)) {
-		v2 = pIn2->u.b;
-	} else {
-		diag_set(ClientError, ER_SQL_TYPE_MISMATCH,
-			 mem_str(pIn2), "boolean");
-		goto abort_due_to_error;
-	}
-	if (pOp->opcode==OP_And) {
-		static const unsigned char and_logic[] = { 0, 0, 0, 0, 1, 2, 0, 2, 2 };
-		v1 = and_logic[v1*3+v2];
-	} else {
-		static const unsigned char or_logic[] = { 0, 1, 2, 1, 1, 1, 2, 1, 2 };
-		v1 = or_logic[v1*3+v2];
-	}
-	pOut = vdbe_prepare_null_out(p, P3);
-	if (v1 != 2)
-		mem_set_bool(pOut, v1);
 	DISPATCH();
 }
 
@@ -1621,16 +1586,8 @@ EXECUTE(OP_Or,(P1,P2,P3)): {    /* same as TK_OR, in1, in2, out3 */
  * NULL, then a NULL is stored in P2.
  */
 EXECUTE(OP_Not,(P1,P2)): {	/* same as TK_NOT, in1, out2 */
-	pIn1 = &aMem[P1];
-	pOut = vdbe_prepare_null_out(p, P2);
-	if (!mem_is_null(pIn1)) {
-		if (!mem_is_bool(pIn1)) {
-			diag_set(ClientError, ER_SQL_TYPE_MISMATCH,
-				 mem_str(pIn1), "boolean");
-			goto abort_due_to_error;
-		}
-		mem_set_bool(pOut, ! pIn1->u.b);
-	}
+	if (vdbe_op_not(p, pOp, aMem))
+		goto abort_due_to_error;
 	DISPATCH();
 }
 
@@ -1642,9 +1599,7 @@ EXECUTE(OP_Not,(P1,P2)): {	/* same as TK_NOT, in1, out2 */
  * a NULL then store a NULL in P2.
  */
 EXECUTE(OP_BitNot,(P1,P2)): {             /* same as TK_BITNOT, in1, out2 */
-	pIn1 = &aMem[P1];
-	pOut = &aMem[P2];
-	if (mem_bit_not(pIn1, pOut) != 0)
+	if (vdbe_op_bitnot(p, pOp, aMem))
 		goto abort_due_to_error;
 	DISPATCH();
 }

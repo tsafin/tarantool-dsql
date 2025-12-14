@@ -30,6 +30,11 @@ This file tracks progress for the `src/box/sql/vdbe.c` refactor.
     - Control flow ops (Goto, Jump, If/IfNot, Gosub/Return) remain in vdbe.c
     - Reason: PC manipulation complexity - better handled with dispatcher refactoring
     - See vdbe_ops_control.c for detailed extraction options (A/B/C)
+  - Logical/bitwise handlers: `src/box/sql/vdbe_ops_logical.c` (DONE - functional & integrated)
+    - All 6 logical/bitwise ops extracted and integrated
+    - Boolean logic: OP_And, OP_Or, OP_Not (three-valued SQL logic)
+    - Bitwise ops: OP_BitAnd, OP_BitOr, OP_BitNot
+    - Clean implementations with proper NULL handling
   - Remaining extraction work will continue with dispatcher refactoring (IN-PROGRESS)
 - [ ] Replace Switch with Dispatcher
   - Replace big `switch` in `vdbe.c` with generated dispatcher/jump-table (NOT STARTED)
