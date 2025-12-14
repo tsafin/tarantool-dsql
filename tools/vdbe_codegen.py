@@ -96,7 +96,7 @@ def gen_header(opcodes):
     lines.append('/* Handler prototypes (implementations live in vdbe_ops_*.c) */')
     for op in opcodes:
         lname = op['name'].lower().replace('op_', '')
-        lines.append('void vdbe_op_%s(struct Vdbe *p, struct Op *pOp, struct Mem *aMem);' % lname)
+        lines.append('int vdbe_op_%s(struct Vdbe *p, struct Op *pOp, struct Mem *aMem);' % lname)
 
     lines.append('\n#ifdef __cplusplus')
     lines.append('}')
@@ -112,7 +112,7 @@ def gen_dispatch_c(opcodes, header_name='vdbe_opcodes_generated.h'):
     lines.append('#include <stddef.h>')
     lines.append('\nstruct VdbeDispatch {')
     lines.append('    int opcode;')
-    lines.append('    void (*handler)(struct Vdbe*, struct Op*, struct Mem*);')
+    lines.append('    int (*handler)(struct Vdbe*, struct Op*, struct Mem*);')
     lines.append('    unsigned short flags;')
     lines.append('};\n')
 

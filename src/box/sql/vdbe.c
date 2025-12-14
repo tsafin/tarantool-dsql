@@ -56,6 +56,8 @@
 #include "box/space.h"
 #include "box/sequence.h"
 #include "box/session_settings.h"
+/* Prototypes for extracted opcode handlers */
+#include "vdbe_ops.h"
 
 /*
  * We use computed-goto-based dispatch only within compilers supporting goto by
@@ -1021,10 +1023,8 @@ EXECUTE(OP_Concat,(P1,P2,P3)): {           /* same as TK_CONCAT, in1, in2, out3 
  * If either input is NULL, the result is NULL.
  */
 EXECUTE(OP_Add,(P1,P2,P3)): {                 /* same as TK_PLUS, in1, in2, out3 */
-	pIn1 = &aMem[P1];
-	pIn2 = &aMem[P2];
-	pOut = &aMem[P3];
-	if (mem_add(pIn2, pIn1, pOut) != 0)
+	/* Delegate to extracted handler */
+	if (vdbe_op_add(p, pOp, aMem))
 		goto abort_due_to_error;
 	DISPATCH();
 }
@@ -1054,10 +1054,8 @@ EXECUTE(OP_Multiply,(P1,P2,P3)): {            /* same as TK_STAR, in1, in2, out3
  * If either input is NULL, the result is NULL.
  */
 EXECUTE(OP_Subtract,(P1,P2,P3)): {           /* same as TK_MINUS, in1, in2, out3 */
-	pIn1 = &aMem[P1];
-	pIn2 = &aMem[P2];
-	pOut = &aMem[P3];
-	if (mem_sub(pIn2, pIn1, pOut) != 0)
+	/* Delegate to extracted handler */
+	if (vdbe_op_sub(p, pOp, aMem))
 		goto abort_due_to_error;
 	DISPATCH();
 }
