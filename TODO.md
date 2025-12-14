@@ -19,7 +19,10 @@ This file tracks progress for the `src/box/sql/vdbe.c` refactor.
     - All 5 arithmetic ops extracted and integrated into main loop
     - OP_Add, OP_Subtract, OP_Multiply, OP_Divide, OP_Remainder
     - Clean implementations using mem_add(), mem_sub(), mem_mul(), mem_div(), mem_rem()
+    - Full opcode documentation added (matching vdbe.c format)
   - Data/constant handlers: `src/box/sql/vdbe_ops_data.c` (DONE - functional & integrated)
+    - All 11 data/constant ops with full opcode documentation
+    - OP_Integer, OP_Bool, OP_Int64, OP_Real, OP_String, OP_Null, OP_Blob, OP_Variable, OP_Move, OP_Copy, OP_SCopy
   - Comparison handlers: `src/box/sql/vdbe_ops_compare.c` (DONE - functional & integrated)
     - Successfully extracted after adding `iCompare` to `struct Vdbe` (Option A from extraction plan)
     - Handlers return special values (0=continue, 1=jump, -1=error) for jump control
@@ -47,11 +50,13 @@ Notes and current decisions:
 
 - The generator has been added and run locally; generated files were produced under the build directory.
 - To avoid immediate macro/enum conflicts while iterating, the generated dispatch source was temporarily removed from `sql_sources`. The generator output remains in the build tree and can be re-enabled once the generated header and opcodes are reconciled with `sql/opcodes.h`.
-- Next recommended step: reconcile generated opcode names/flags with existing `sql/opcodes.h` (or scope the generated names to avoid macro collisions), then re-enable `vdbe_dispatch_generated.c` in the build and begin moving a small set of real handlers into separate `vdbe_ops_*.c` files with tests.
+- Full opcode documentation has been added to all extracted handler files (vdbe_ops_arith.c and vdbe_ops_data.c), making them self-documenting and matching the format in vdbe.c.
+- vdbe_ops_compare.c and vdbe_ops_logical.c already had adequate/excellent documentation.
 
 Next actions you can request:
 
 - Reconcile the generator output (rename or guard generated macros to avoid conflicts) and re-enable the generated dispatch in the build.
-- Start moving a small opcode group (arithmetic) from `vdbe.c` into `src/box/sql/vdbe_ops_arith.c` with proper implementations and add focused tests.
+- Add unit tests for extracted opcode handlers.
+- Continue extracting more opcode groups (cursor operations, aggregate functions, etc.).
 
-Progress recorded: generator, CMake wiring, build-dir generation, temporary handler stubs, and fixes to keep build green.
+Progress recorded: generator, CMake wiring, build-dir generation, handler extraction with full documentation, and fixes to keep build green.
