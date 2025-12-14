@@ -39,11 +39,14 @@ This file tracks progress for the `src/box/sql/vdbe.c` refactor.
     - Bitwise ops: OP_BitAnd, OP_BitOr, OP_BitNot
     - Clean implementations with proper NULL handling
   - Remaining extraction work will continue with dispatcher refactoring (IN-PROGRESS)
-  - **Next extraction phases** (32 opcodes planned):
-    - Phase 1: String operations - `vdbe_ops_string.c` (1 opcode: Concat)
-    - Phase 2: Type conversions - `vdbe_ops_type.c` (3 opcodes: Cast, MakeRecord, ApplyType)
-    - Phase 3: Aggregate functions - `vdbe_ops_aggregate.c` (2 opcodes: AggStep, AggFinal)
-    - Phase 4a: Cursor data access - `vdbe_ops_cursor_data.c` (3 opcodes: Column, RowData, ResultRow)
+  - **Extraction phases completed** (9 opcodes extracted):
+    - Phase 1: String operations - `vdbe_ops_string.c` (DONE - 1 opcode: Concat)
+    - Phase 2: Type conversions - `vdbe_ops_type.c` (DONE - 3 opcodes: Cast, MakeRecord, ApplyType)
+    - Phase 3: Aggregate functions - `vdbe_ops_aggregate.c` (DONE - 2 opcodes: AggStep, AggFinal)
+    - Phase 4a: Cursor data access - `vdbe_ops_cursor_data.c` (DONE - 3 opcodes: Column, RowData, ResultRow)
+      - OP_ResultRow uses special return value (1) to signal SQL_ROW, similar to comparison ops
+      - Trace functionality removed from ResultRow (db not accessible in handler)
+  - **Next extraction phases** (23 opcodes remaining):
     - Phase 4b: Cursor navigation - `vdbe_ops_cursor_nav.c` (6 opcodes: Next, Prev, Rewind, Last, etc.)
     - Phase 4c: Cursor seek - `vdbe_ops_cursor_seek.c` (4 opcodes: SeekGE, SeekGT, SeekLE, SeekLT)
     - Phase 4d: Index operations - `vdbe_ops_index.c` (8 opcodes: IdxInsert, IdxGE, Found, etc.)
@@ -60,13 +63,26 @@ Notes and current decisions:
 
 - The generator has been added and run locally; generated files were produced under the build directory.
 - To avoid immediate macro/enum conflicts while iterating, the generated dispatch source was temporarily removed from `sql_sources`. The generator output remains in the build tree and can be re-enabled once the generated header and opcodes are reconciled with `sql/opcodes.h`.
-- Full opcode documentation has been added to all extracted handler files (vdbe_ops_arith.c and vdbe_ops_data.c), making them self-documenting and matching the format in vdbe.c.
-- vdbe_ops_compare.c and vdbe_ops_logical.c already had adequate/excellent documentation.
+- Full opcode documentation has been added to all extracted handler files, making them self-documenting and matching the format in vdbe.c.
+- All extracted handlers follow consistent patterns:
+  - Return 0 on success, -1 on error
+  - Special return values for control flow (comparison ops return 1 for jump, OP_ResultRow returns 1 for SQL_ROW)
+  - Unused parameters marked with (void) to suppress warnings
+  - Full opcode documentation blocks preserved from vdbe.c
+
+Recent extraction sessions (Phases 1-4a):
+- Phase 1: String operations (OP_Concat) - committed
+- Phase 2: Type conversions (Cast, MakeRecord, ApplyType) - committed
+- Phase 3: Aggregate functions (AggStep, AggFinal) - committed
+- Phase 4a: Cursor data access (ResultRow, Column, RowData) - committed
+- Total: 9 opcodes extracted across 4 new files
+- All builds verified with -Wall -Wextra -Werror
 
 Next actions you can request:
 
-- Reconcile the generator output (rename or guard generated macros to avoid conflicts) and re-enable the generated dispatch in the build.
-- Add unit tests for extracted opcode handlers.
-- Continue extracting more opcode groups (cursor operations, aggregate functions, etc.).
+- Continue with Phase 4b: Cursor navigation operations (6 opcodes)
+- Continue with Phase 4c-4e: Remaining cursor operations (17 opcodes)
+- Reconcile the generator output and re-enable the generated dispatch in the build
+- Add unit tests for extracted opcode handlers
 
-Progress recorded: generator, CMake wiring, build-dir generation, handler extraction with full documentation, and fixes to keep build green.
+Progress recorded: generator, CMake wiring, build-dir generation, handler extraction with full documentation, and continuous integration keeping build green.
