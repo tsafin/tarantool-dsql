@@ -929,12 +929,8 @@ EXECUTE(OP_ResultRow,(P1,P2)): {
  * types (i.e. TEXT and BLOB).
  */
 EXECUTE(OP_Concat,(P1,P2,P3)): {           /* same as TK_CONCAT, in1, in2, out3 */
-	pIn1 = &aMem[P1];
-	pIn2 = &aMem[P2];
-	pOut = &aMem[P3];
-	if (mem_concat(pIn2, pIn1, pOut) != 0)
+	if (vdbe_op_concat(p, pOp, aMem))
 		goto abort_due_to_error;
-	UPDATE_MAX_BLOBSIZE(pOut);
 	DISPATCH();
 }
 

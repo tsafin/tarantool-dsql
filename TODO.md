@@ -39,6 +39,16 @@ This file tracks progress for the `src/box/sql/vdbe.c` refactor.
     - Bitwise ops: OP_BitAnd, OP_BitOr, OP_BitNot
     - Clean implementations with proper NULL handling
   - Remaining extraction work will continue with dispatcher refactoring (IN-PROGRESS)
+  - **Next extraction phases** (32 opcodes planned):
+    - Phase 1: String operations - `vdbe_ops_string.c` (1 opcode: Concat)
+    - Phase 2: Type conversions - `vdbe_ops_type.c` (3 opcodes: Cast, MakeRecord, ApplyType)
+    - Phase 3: Aggregate functions - `vdbe_ops_aggregate.c` (2 opcodes: AggStep, AggFinal)
+    - Phase 4a: Cursor data access - `vdbe_ops_cursor_data.c` (3 opcodes: Column, RowData, ResultRow)
+    - Phase 4b: Cursor navigation - `vdbe_ops_cursor_nav.c` (6 opcodes: Next, Prev, Rewind, Last, etc.)
+    - Phase 4c: Cursor seek - `vdbe_ops_cursor_seek.c` (4 opcodes: SeekGE, SeekGT, SeekLE, SeekLT)
+    - Phase 4d: Index operations - `vdbe_ops_index.c` (8 opcodes: IdxInsert, IdxGE, Found, etc.)
+    - Phase 4e: Data modification - `vdbe_ops_modify.c` (5 opcodes: Delete, Update, SInsert, etc.)
+  - See `~/.claude/plans/handler-extraction-plan.md` for detailed breakdown
 - [ ] Replace Switch with Dispatcher
   - Replace big `switch` in `vdbe.c` with generated dispatcher/jump-table (NOT STARTED)
 - [ ] Add Tests & Fixtures

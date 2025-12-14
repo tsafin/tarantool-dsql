@@ -40,6 +40,8 @@ int vdbe_op_not(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_bitand(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_bitor(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_bitnot(Vdbe *p, Op *pOp, Mem *aMem);
+/* String opcodes */
+int vdbe_op_concat(Vdbe *p, Op *pOp, Mem *aMem);
 /* Control flow opcodes - reserved for dispatcher refactoring
  * See vdbe_ops_control.c for extraction plan.
  * These remain in vdbe.c for now due to PC manipulation complexity. */
