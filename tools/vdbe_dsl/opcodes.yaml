@@ -1,0 +1,24 @@
+---
+# Sample VDBE opcode DSL (YAML)
+# Each item describes one opcode. Fields:
+#  name: opcode name (required)
+#  id: numeric id (optional; if omitted the generator will assign sequential values)
+#  flags: list of opcode flags (IN1, IN2, OUT2, JUMP, etc.)
+#  doc: short description
+
+- name: OP_Noop
+  id: 0
+  flags: []
+  doc: "No operation"
+
+- name: OP_Add
+  flags: [IN1, IN2, OUT2]
+  doc: "Compute A+B -> C"
+
+- name: OP_Sub
+  flags: [IN1, IN2, OUT2]
+  doc: "Compute A-B -> C"
+
+- name: OP_Jump
+  flags: [JUMP]
+  doc: "Unconditional jump"

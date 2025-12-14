@@ -129,6 +129,7 @@ set(sql_sources
     sql/vdbe.c
     sql/vdbe_field_ref.c
     sql/vdbe_blob.c
+    sql/generated/vdbe_dispatch_generated.c
     sql/vdbeapi.c
     sql/vdbeaux.c
     sql/vdbesort.c
@@ -361,6 +362,9 @@ endif()
 
 add_library(box STATIC ${box_sources})
 
+# Ensure generated VDBE sources are produced before building box
+add_dependencies(box vdbe_codegen)
+
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_definitions(-DSQL_DEBUG=1)
 endif()
@@ -377,6 +381,24 @@ set(SQL_BIN_DIR ${PROJECT_BINARY_DIR}/src/box/sql)
 
 include_directories(${SQL_SRC_DIR})
 include_directories(${SQL_BIN_DIR})
+set(VDBE_DSL ${PROJECT_SOURCE_DIR}/tools/vdbe_dsl/opcodes.yaml)
+set(VDBE_CODEGEN ${PROJECT_SOURCE_DIR}/tools/vdbe_codegen.py)
+set(VDBE_GEN_DIR ${SQL_SRC_DIR}/generated)
+set(VDBE_GEN_C ${VDBE_GEN_DIR}/vdbe_dispatch_generated.c)
+set(VDBE_GEN_H ${VDBE_GEN_DIR}/vdbe_opcodes_generated.h)
+
+# Generate VDBE opcode sources from DSL
+add_custom_command(
+    OUTPUT ${VDBE_GEN_C} ${VDBE_GEN_H}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${VDBE_GEN_DIR}
+    COMMAND python3 ${VDBE_CODEGEN} --in ${VDBE_DSL} --out ${VDBE_GEN_DIR}
+    DEPENDS ${VDBE_CODEGEN} ${VDBE_DSL}
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    COMMENT "Generating VDBE opcode headers and dispatch from DSL"
+)
+
+add_custom_target(vdbe_codegen DEPENDS ${VDBE_GEN_C} ${VDBE_GEN_H})
+include_directories(${SQL_SRC_DIR}/generated)
 
 add_custom_target(generate_sql_files DEPENDS
     sql/parse.h
