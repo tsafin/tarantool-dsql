@@ -1,4 +1,3 @@
-```markdown
 # TODO: VDBE Refactor — Current Status
 
 This file tracks progress for the `src/box/sql/vdbe.c` refactor.
@@ -7,24 +6,32 @@ This file tracks progress for the `src/box/sql/vdbe.c` refactor.
   - Map responsibilities, data structures, helpers, and the execution loop. (DONE)
 - [x] Define Module Boundaries
   - Proposed modules and file mapping; low-risk helper extraction decided. (DONE)
-- [~] Design DSL for Op Spec
-  - Small YAML sketch created at `tools/vdbe_dsl/opcodes.yaml` and a generator `tools/vdbe_codegen.py` (IN-PROGRESS)
-- [ ] Implement Code Generator
-  - Emit `vdbe_opcodes_generated.h` and `vdbe_dispatch_generated.c` from the DSL (NOT STARTED — generator added, needs run)
-- [ ] Split Handlers into Files
-  - Move opcode handlers to `vdbe_ops_*.c/.h` and extract shared utilities (NOT STARTED)
+- [x] Design DSL for Op Spec
+  - YAML DSL at `tools/vdbe_dsl/opcodes.yaml` and generator `tools/vdbe_codegen.py` (DONE)
+- [x] Implement Code Generator
+  - Generator implemented and executed locally; writes `vdbe_opcodes_generated.h` and `vdbe_dispatch_generated.c` (DONE)
+- [x] Integrate Codegen in Build
+  - CMake custom command/target added; generator runs during build (DONE)
+- [x] Move generated outputs to build dir
+  - Generator now emits into `${CMAKE_BINARY_DIR}/src/box/sql/generated` and CMake variables updated (DONE)
+- [~] Split Handlers into Files
+  - Temporary handler stubs added in `src/box/sql/vdbe_ops_arith.c`; gradual extraction planned (IN-PROGRESS)
 - [ ] Replace Switch with Dispatcher
-  - Generate dispatcher/jump-table and integrate into `vdbe.c` (NOT STARTED)
+  - Replace big `switch` in `vdbe.c` with generated dispatcher/jump-table (NOT STARTED)
 - [ ] Add Tests & Fixtures
-  - Unit and integration tests for generator outputs and execution loop (NOT STARTED)
-- [ ] Integrate Codegen in Build
-  - Wire generator into CMake so generated sources are produced during build (NOT STARTED)
+  - Unit tests for generator outputs and integration tests for the execution loop (NOT STARTED)
 - [ ] Documentation & Handoff
-  - Add `docs/VDBe-Refactor.md` and contributor instructions (NOT STARTED)
+  - Add docs describing the DSL, generator usage, and contributor instructions (NOT STARTED)
 
-Notes:
-- The DSL generator and a small opcode sample were added under `tools/`.
-- Next concrete actions: run the generator to produce skeletal generated files, review outputs, then incrementally move a small group of opcode handlers into `vdbe_ops_*.c`.
+Notes and current decisions:
 
-```
+- The generator has been added and run locally; generated files were produced under the build directory.
+- To avoid immediate macro/enum conflicts while iterating, the generated dispatch source was temporarily removed from `sql_sources`. The generator output remains in the build tree and can be re-enabled once the generated header and opcodes are reconciled with `sql/opcodes.h`.
+- Next recommended step: reconcile generated opcode names/flags with existing `sql/opcodes.h` (or scope the generated names to avoid macro collisions), then re-enable `vdbe_dispatch_generated.c` in the build and begin moving a small set of real handlers into separate `vdbe_ops_*.c` files with tests.
 
+Next actions you can request:
+
+- Reconcile the generator output (rename or guard generated macros to avoid conflicts) and re-enable the generated dispatch in the build.
+- Start moving a small opcode group (arithmetic) from `vdbe.c` into `src/box/sql/vdbe_ops_arith.c` with proper implementations and add focused tests.
+
+Progress recorded: generator, CMake wiring, build-dir generation, temporary handler stubs, and fixes to keep build green.

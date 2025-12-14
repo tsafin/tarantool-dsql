@@ -130,7 +130,6 @@ set(sql_sources
     sql/vdbe_field_ref.c
     sql/vdbe_blob.c
     sql/vdbe_ops_arith.c
-    sql/generated/vdbe_dispatch_generated.c
     sql/vdbeapi.c
     sql/vdbeaux.c
     sql/vdbesort.c
@@ -384,7 +383,7 @@ include_directories(${SQL_SRC_DIR})
 include_directories(${SQL_BIN_DIR})
 set(VDBE_DSL ${PROJECT_SOURCE_DIR}/tools/vdbe_dsl/opcodes.yaml)
 set(VDBE_CODEGEN ${PROJECT_SOURCE_DIR}/tools/vdbe_codegen.py)
-set(VDBE_GEN_DIR ${SQL_SRC_DIR}/generated)
+set(VDBE_GEN_DIR ${SQL_BIN_DIR}/generated)
 set(VDBE_GEN_C ${VDBE_GEN_DIR}/vdbe_dispatch_generated.c)
 set(VDBE_GEN_H ${VDBE_GEN_DIR}/vdbe_opcodes_generated.h)
 

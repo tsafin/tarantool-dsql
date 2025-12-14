@@ -245,35 +245,35 @@ check_vdbe_operands(Vdbe *p, Op *pOp, Op *aOp, Mem *aMem)
 	{
 		u8 opProperty = sqlOpcodeProperty[pOp->opcode];
 		if ((opProperty & OPFLG_IN1) != 0) {
-			assert(P1 > 0);
-			assert(P1 <= (p->nMem + 1 - p->nCursor));
-			assert(memIsValid(&aMem[P1]));
-			assert(sqlVdbeCheckMemInvariants(&aMem[P1]));
-			REGISTER_TRACE(p, P1, &aMem[P1]);
+			assert(pOp->p1 > 0);
+			assert(pOp->p1 <= (p->nMem + 1 - p->nCursor));
+			assert(memIsValid(&aMem[pOp->p1]));
+			assert(sqlVdbeCheckMemInvariants(&aMem[pOp->p1]));
+			REGISTER_TRACE(p, pOp->p1, &aMem[pOp->p1]);
 		}
 		if ((opProperty & OPFLG_IN2) != 0) {
-			assert(P2 > 0);
-			assert(P2 <= (p->nMem + 1 - p->nCursor));
-			assert(memIsValid(&aMem[P2]));
-			assert(sqlVdbeCheckMemInvariants(&aMem[P2]));
-			REGISTER_TRACE(p, P2, &aMem[P2]);
+			assert(pOp->p2 > 0);
+			assert(pOp->p2 <= (p->nMem + 1 - p->nCursor));
+			assert(memIsValid(&aMem[pOp->p2]));
+			assert(sqlVdbeCheckMemInvariants(&aMem[pOp->p2]));
+			REGISTER_TRACE(p, pOp->p2, &aMem[pOp->p2]);
 		}
 		if ((opProperty & OPFLG_IN3) != 0) {
-			assert(P3 > 0);
-			assert(P3 <= (p->nMem + 1 - p->nCursor));
-			assert(memIsValid(&aMem[P3]));
-			assert(sqlVdbeCheckMemInvariants(&aMem[P3]));
-			REGISTER_TRACE(p, P3, &aMem[P3]);
+			assert(pOp->p3 > 0);
+			assert(pOp->p3 <= (p->nMem + 1 - p->nCursor));
+			assert(memIsValid(&aMem[pOp->p3]));
+			assert(sqlVdbeCheckMemInvariants(&aMem[pOp->p3]));
+			REGISTER_TRACE(p, pOp->p3, &aMem[pOp->p3]);
 		}
 		if ((opProperty & OPFLG_OUT2) != 0) {
-			assert(P2 > 0);
-			assert(P2 <= (p->nMem + 1 - p->nCursor));
-			memAboutToChange(p, &aMem[P2]);
+			assert(pOp->p2 > 0);
+			assert(pOp->p2 <= (p->nMem + 1 - p->nCursor));
+			memAboutToChange(p, &aMem[pOp->p2]);
 		}
 		if ((opProperty & OPFLG_OUT3) != 0) {
-			assert(P3 > 0);
-			assert(P3 <= (p->nMem + 1 - p->nCursor));
-			memAboutToChange(p, &aMem[P3]);
+			assert(pOp->p3 > 0);
+			assert(pOp->p3 <= (p->nMem + 1 - p->nCursor));
+			memAboutToChange(p, &aMem[pOp->p3]);
 		}
 	}
 }
