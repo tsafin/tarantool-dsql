@@ -129,6 +129,7 @@ set(sql_sources
     sql/vdbe.c
     sql/vdbe_field_ref.c
     sql/vdbe_blob.c
+    sql/vdbe_ops_arith.c
     sql/generated/vdbe_dispatch_generated.c
     sql/vdbeapi.c
     sql/vdbeaux.c
