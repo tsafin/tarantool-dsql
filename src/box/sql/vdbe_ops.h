@@ -53,6 +53,13 @@ int vdbe_op_aggfinal(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_resultrow(Vdbe *p, Op *pOp, Mem *aMem);  /* Returns 1 for SQL_ROW */
 int vdbe_op_column(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_rowdata(Vdbe *p, Op *pOp, Mem *aMem);
+/* Cursor navigation opcodes */
+int vdbe_op_last(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_rewind(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_next(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_nextifopen(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_prev(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_previfopen(Vdbe *p, Op *pOp, Mem *aMem);
 /* Control flow opcodes - reserved for dispatcher refactoring
  * See vdbe_ops_control.c for extraction plan.
  * These remain in vdbe.c for now due to PC manipulation complexity. */

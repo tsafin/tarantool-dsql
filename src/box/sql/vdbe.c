@@ -2884,31 +2884,8 @@ EXECUTE(OP_NullRow,(P1)): {
  * the cursor.
  */
 EXECUTE(OP_Last,(P1,P2,P3)): {        /* jump */
-	VdbeCursor *pC;
-	BtCursor *pCrsr;
-	int res;
-
-	assert(P1 >= 0 && P1 < p->nCursor);
-	pC = p->apCsr[P1];
-	assert(pC != 0);
-	assert(pC->eCurType == CURTYPE_TARANTOOL);
-	pCrsr = pC->uc.pCursor;
-	res = 0;
-	assert(pCrsr!=0);
-	pC->seekResult = P3;
-#ifdef SQL_DEBUG
-	pC->seekOp = OP_Last;
-#endif
-	if (P3==0 || !sqlCursorIsValidNN(pCrsr)) {
-		if (tarantoolsqlLast(pCrsr, &res) != 0)
-			goto abort_due_to_error;
-		pC->nullRow = (u8)res;
-		pC->cacheStatus = CACHE_STALE;
-		if (P2 > 0 && res != 0)
-			JUMP_P2();
-	} else {
-		assert(P2 == 0);
-	}
+	if (vdbe_op_last(p, pOp, aMem))
+		goto abort_due_to_error;
 	DISPATCH();
 }
 
@@ -2959,32 +2936,10 @@ EXECUTE(OP_Sort,(P1,P2)): {        /* jump */
  * configured to use Next, not Prev.
  */
 EXECUTE(OP_Rewind,(P1,P2)): {        /* jump */
-	VdbeCursor *pC;
-	BtCursor *pCrsr;
-	int res;
-
-	assert(P1 >= 0 && P1 < p->nCursor);
-	pC = p->apCsr[P1];
-	assert(pC != 0);
-	assert(isSorter(pC)==(pOp->opcode == OP_SorterSort));
-	res = 1;
-#ifdef SQL_DEBUG
-	pC->seekOp = OP_Rewind;
-#endif
-	if (isSorter(pC)) {
-		if (sqlVdbeSorterRewind(pC, &res) != 0)
-			goto abort_due_to_error;
-	} else {
-		assert(pC->eCurType == CURTYPE_TARANTOOL);
-		pCrsr = pC->uc.pCursor;
-		assert(pCrsr);
-		if (tarantoolsqlFirst(pCrsr, &res) != 0)
-			goto abort_due_to_error;
-		pC->cacheStatus = CACHE_STALE;
-	}
-	pC->nullRow = (u8)res;
-	assert(P2 > 0 && P2 < p->nOp);
-	if (res)
+	int res = 0;
+	if ((res = vdbe_op_rewind(p, pOp, aMem)) < 0)
+		goto abort_due_to_error;
+	if (res == 1)
 		JUMP_P2();
 	DISPATCH();
 }
@@ -3066,37 +3021,40 @@ EXECUTE(OP_SorterNext,(P1,P2)): {  /* jump */
 	goto next_tail;
 
 EXECUTE(OP_PrevIfOpen,(P1,P2,P3,P4)):    /* jump */
+	if (p->apCsr[P1] == 0) {
+		DISPATCH();
+	}
+	res = vdbe_op_prev(p, pOp, aMem);
+	if (res < 0)
+		goto abort_due_to_error;
+	pC = p->apCsr[P1];
+	goto next_tail;
+
 EXECUTE(OP_NextIfOpen,(P1,P2,P3,P4)):    /* jump */
 	if (p->apCsr[P1] == 0) {
 		DISPATCH();
 	}
-	/* Fall through */
-EXECUTE(OP_Prev,(P1,P2,P3,P4)):          /* jump */
-EXECUTE(OP_Next,(P1,P2,P3,P4)):          /* jump */
-	assert(P1 >= 0 && P1 < p->nCursor);
-	pC = p->apCsr[P1];
-	res = P3;
-	assert(pC != 0);
-	assert(pC->eCurType == CURTYPE_TARANTOOL);
-	assert(res == 0 || res == 1);
-	assert(pOp->opcode != OP_Next || pOp->p4.xAdvance == sqlCursorNext);
-	assert(pOp->opcode != OP_Prev || pOp->p4.xAdvance == sqlCursorPrevious);
-	assert(pOp->opcode != OP_NextIfOpen || pOp->p4.xAdvance == sqlCursorNext);
-	assert(pOp->opcode != OP_PrevIfOpen || pOp->p4.xAdvance == sqlCursorPrevious);
-
-	/* The Next opcode is only used after SeekGT, SeekGE, and Rewind.
-	 * The Prev opcode is only used after SeekLT, SeekLE, and Last.
-	 */
-	assert(pOp->opcode != OP_Next || pOp->opcode != OP_NextIfOpen
-	       || pC->seekOp == OP_SeekGT || pC->seekOp == OP_SeekGE
-	       || pC->seekOp == OP_Rewind || pC->seekOp == OP_Found);
-	assert(pOp->opcode != OP_Prev || pOp->opcode != OP_PrevIfOpen
-	       || pC->seekOp == OP_SeekLT || pC->seekOp == OP_SeekLE
-	       || pC->seekOp == OP_Last);
-
-	if (pOp->p4.xAdvance(pC->uc.pCursor, &res) != 0)
+	res = vdbe_op_next(p, pOp, aMem);
+	if (res < 0)
 		goto abort_due_to_error;
-			next_tail:
+	pC = p->apCsr[P1];
+	goto next_tail;
+
+EXECUTE(OP_Prev,(P1,P2,P3,P4)):          /* jump */
+	res = vdbe_op_prev(p, pOp, aMem);
+	if (res < 0)
+		goto abort_due_to_error;
+	pC = p->apCsr[P1];
+	goto next_tail;
+
+EXECUTE(OP_Next,(P1,P2,P3,P4)):          /* jump */
+	res = vdbe_op_next(p, pOp, aMem);
+	if (res < 0)
+		goto abort_due_to_error;
+	pC = p->apCsr[P1];
+	goto next_tail;
+
+next_tail:
 	pC->cacheStatus = CACHE_STALE;
 	if (res == 0) {
 		pC->nullRow = 0;
