@@ -41,3 +41,39 @@ int vdbe_op_jump(Vdbe *p, Op *pOp, Mem *aMem)
     (void)p; (void)pOp; (void)aMem;
     return 0;
 }
+
+/* Multiply handler */
+int vdbe_op_multiply(Vdbe *p, Op *pOp, Mem *aMem)
+{
+    (void)p;
+    Mem *pIn1 = &aMem[pOp->p1];
+    Mem *pIn2 = &aMem[pOp->p2];
+    Mem *pOut = &aMem[pOp->p3];
+    if (mem_mul(pIn2, pIn1, pOut) != 0)
+        return -1;
+    return 0;
+}
+
+/* Divide handler */
+int vdbe_op_divide(Vdbe *p, Op *pOp, Mem *aMem)
+{
+    (void)p;
+    Mem *pIn1 = &aMem[pOp->p1];
+    Mem *pIn2 = &aMem[pOp->p2];
+    Mem *pOut = &aMem[pOp->p3];
+    if (mem_div(pIn2, pIn1, pOut) != 0)
+        return -1;
+    return 0;
+}
+
+/* Remainder handler */
+int vdbe_op_remainder(Vdbe *p, Op *pOp, Mem *aMem)
+{
+    (void)p;
+    Mem *pIn1 = &aMem[pOp->p1];
+    Mem *pIn2 = &aMem[pOp->p2];
+    Mem *pOut = &aMem[pOp->p3];
+    if (mem_rem(pIn2, pIn1, pOut) != 0)
+        return -1;
+    return 0;
+}

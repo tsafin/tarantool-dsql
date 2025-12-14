@@ -1038,10 +1038,8 @@ EXECUTE(OP_Add,(P1,P2,P3)): {                 /* same as TK_PLUS, in1, in2, out3
  * If either input is NULL, the result is NULL.
  */
 EXECUTE(OP_Multiply,(P1,P2,P3)): {            /* same as TK_STAR, in1, in2, out3 */
-	pIn1 = &aMem[P1];
-	pIn2 = &aMem[P2];
-	pOut = &aMem[P3];
-	if (mem_mul(pIn2, pIn1, pOut) != 0)
+	/* Delegate multiply to extracted handler */
+	if (vdbe_op_multiply(p, pOp, aMem))
 		goto abort_due_to_error;
 	DISPATCH();
 }
@@ -1069,10 +1067,8 @@ EXECUTE(OP_Subtract,(P1,P2,P3)): {           /* same as TK_MINUS, in1, in2, out3
  * NULL, the result is NULL.
  */
 EXECUTE(OP_Divide,(P1,P2,P3)): {             /* same as TK_SLASH, in1, in2, out3 */
-	pIn1 = &aMem[P1];
-	pIn2 = &aMem[P2];
-	pOut = &aMem[P3];
-	if (mem_div(pIn2, pIn1, pOut) != 0)
+	/* Delegate divide to extracted handler */
+	if (vdbe_op_divide(p, pOp, aMem))
 		goto abort_due_to_error;
 	DISPATCH();
 }
@@ -1086,10 +1082,8 @@ EXECUTE(OP_Divide,(P1,P2,P3)): {             /* same as TK_SLASH, in1, in2, out3
  * If either operand is NULL, the result is NULL.
  */
 EXECUTE(OP_Remainder,(P1,P2,P3)): {           /* same as TK_REM, in1, in2, out3 */
-	pIn1 = &aMem[P1];
-	pIn2 = &aMem[P2];
-	pOut = &aMem[P3];
-	if (mem_rem(pIn2, pIn1, pOut) != 0)
+	/* Delegate remainder to extracted handler */
+	if (vdbe_op_remainder(p, pOp, aMem))
 		goto abort_due_to_error;
 	DISPATCH();
 }
