@@ -137,6 +137,7 @@ set(sql_sources
     sql/vdbe_ops_string.c
     sql/vdbe_ops_type.c
     sql/vdbe_ops_aggregate.c
+    sql/vdbe_ops_cursor_data.c
     sql/vdbe_helpers.c
     sql/vdbeapi.c
     sql/vdbeaux.c
