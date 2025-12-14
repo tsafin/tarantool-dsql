@@ -691,8 +691,8 @@ EXECUTE(OP_Halt,(P1,P2)): {
  * The 32-bit integer value P1 is written into register P2.
  */
 EXECUTE(OP_Integer,(P1,P2)): {         /* out2 */
-	pOut = vdbe_prepare_null_out(p, P2);
-	mem_set_int(pOut, P1, P1 < 0);
+	if (vdbe_op_integer(p, pOp, aMem))
+		goto abort_due_to_error;
 	DISPATCH();
 }
 
@@ -702,9 +702,8 @@ EXECUTE(OP_Integer,(P1,P2)): {         /* out2 */
  * The boolean value P1 is written into register P2.
  */
 EXECUTE(OP_Bool,(P1,P2)): {         /* out2 */
-	pOut = vdbe_prepare_null_out(p, P2);
-	assert(P1 == 1 || P1 == 0);
-	mem_set_bool(pOut, P1);
+	if (vdbe_op_bool(p, pOp, aMem))
+		goto abort_due_to_error;
 	DISPATCH();
 }
 
@@ -715,9 +714,8 @@ EXECUTE(OP_Bool,(P1,P2)): {         /* out2 */
  * Write that value into register P2.
  */
 EXECUTE(OP_Int64,(P2,P4)): {           /* out2 */
-	pOut = vdbe_prepare_null_out(p, P2);
-	assert(pOp->p4.pI64 != 0);
-	mem_set_int(pOut, *pOp->p4.pI64, pOp->p4type == P4_INT64);
+	if (vdbe_op_int64(p, pOp, aMem))
+		goto abort_due_to_error;
 	DISPATCH();
 }
 
@@ -728,9 +726,8 @@ EXECUTE(OP_Int64,(P2,P4)): {           /* out2 */
  * Write that value into register P2.
  */
 EXECUTE(OP_Real,(P2,P4)): {            /* same as TK_FLOAT, out2 */
-	pOut = vdbe_prepare_null_out(p, P2);
-	assert(!sqlIsNaN(*pOp->p4.pReal));
-	mem_set_double(pOut, *pOp->p4.pReal);
+	if (vdbe_op_real(p, pOp, aMem))
+		goto abort_due_to_error;
 	DISPATCH();
 }
 
@@ -781,11 +778,8 @@ EXECUTE(OP_String8,(P2,P4)): {         /* same as TK_STRING, out2 */
  * if (P3!=0 and reg[P3]==P5) reg[P2] := CAST(reg[P2] as BLOB)
  */
 EXECUTE(OP_String,(P1,P2,P3,P4)): {          /* out2 */
-	assert(pOp->p4.z!=0);
-	pOut = vdbe_prepare_null_out(p, P2);
-	assert(strlen(pOp->p4.z) == (size_t)P1);
-	mem_set_str0_static(pOut, pOp->p4.z);
-	UPDATE_MAX_BLOBSIZE(pOut);
+	if (vdbe_op_string(p, pOp, aMem))
+		goto abort_due_to_error;
 	DISPATCH();
 }
 
@@ -802,21 +796,8 @@ EXECUTE(OP_String,(P1,P2,P3,P4)): {          /* out2 */
  * OP_Ne or OP_Eq.
  */
 EXECUTE(OP_Null,(P1,P2,P3)): {           /* out2 */
-	int cnt;
-	pOut = vdbe_prepare_null_out(p, P2);
-	cnt = P3 - P2;
-	assert(P3<=(p->nMem+1 - p->nCursor));
-	if (P1 != 0)
-		mem_set_null_clear(pOut);
-	while (cnt > 0) {
-		pOut++;
-		memAboutToChange(p, pOut);
-		if (P1 != 0)
-			mem_set_null_clear(pOut);
-		else
-			mem_set_null(pOut);
-		cnt--;
-	}
+	if (vdbe_op_null(p, pOp, aMem))
+		goto abort_due_to_error;
 	DISPATCH();
 }
 
@@ -827,23 +808,8 @@ EXECUTE(OP_Null,(P1,P2,P3)): {           /* out2 */
  * blob in register P2.  Set subtype to P3.
  */
 EXECUTE(OP_Blob,(P1,P2,P3,P4)): {                /* out2 */
-	assert(P1 <= SQL_MAX_LENGTH);
-	pOut = vdbe_prepare_null_out(p, P2);
-	if (P3 == 0) {
-		/*
-		 * TODO: It is possible that vabinary should be stored as
-		 * ephemeral or static depending on value. There is no way to
-		 * determine right now, so it is stored as static.
-		 */
-		mem_set_bin_static(pOut, pOp->p4.z, P1);
-	} else {
-		assert(P3 == SQL_SUBTYPE_MSGPACK);
-		if (mp_typeof(*pOp->p4.z) == MP_MAP)
-			mem_set_map_static(pOut, pOp->p4.z, P1);
-		else
-			mem_set_array_static(pOut, pOp->p4.z, P1);
-	}
-	UPDATE_MAX_BLOBSIZE(pOut);
+	if (vdbe_op_blob(p, pOp, aMem))
+		goto abort_due_to_error;
 	DISPATCH();
 }
 
@@ -856,17 +822,8 @@ EXECUTE(OP_Blob,(P1,P2,P3,P4)): {                /* out2 */
  * The P4 value is used by sql_bind_parameter_name().
  */
 EXECUTE(OP_Variable,(P1,P2,P4)): {            /* out2 */
-	Mem *pVar;       /* Value being transferred */
-
-	assert(P1 > 0 && P1 <= p->nVar);
-	assert(pOp->p4.z==0 || pOp->p4.z==sqlVListNumToName(p->pVList,P1));
-	pVar = &p->aVar[P1 - 1];
-	if (sqlVdbeMemTooBig(pVar)) {
-		goto too_big;
-	}
-	pOut = vdbe_prepare_null_out(p, P2);
-	mem_copy_as_ephemeral(pOut, pVar);
-	UPDATE_MAX_BLOBSIZE(pOut);
+	if (vdbe_op_variable(p, pOp, aMem))
+		goto abort_due_to_error;
 	DISPATCH();
 }
 
@@ -880,26 +837,8 @@ EXECUTE(OP_Variable,(P1,P2,P4)): {            /* out2 */
  * for P3 to be less than 1.
  */
 EXECUTE(OP_Move,(P1,P2,P3)): {
-	int n = P3;      /* Number of registers left to copy */
-	int p1 = P1;     /* Register to copy from */
-	int p2 = P2;     /* Register to copy to */
-
-	n = P3;
-	assert(n > 0 && p1 >0 && p2 > 0);
-	assert(p1 + n <= p2 || p2 + n <= p1);
-
-	pIn1 = &aMem[p1];
-	pOut = &aMem[p2];
-	do {
-		assert(pOut<=&aMem[(p->nMem + 1 - p->nCursor)]);
-		assert(pIn1<=&aMem[(p->nMem + 1 - p->nCursor)]);
-		assert(memIsValid(pIn1));
-		memAboutToChange(p, pOut);
-		mem_move(pOut, pIn1);
-		REGISTER_TRACE(p, p2++, pOut);
-		pIn1++;
-		pOut++;
-	} while (--n);
+	if (vdbe_op_move(p, pOp, aMem))
+		goto abort_due_to_error;
 	DISPATCH();
 }
 
@@ -912,18 +851,8 @@ EXECUTE(OP_Move,(P1,P2,P3)): {
  * is made of any string or blob constant.  See also OP_SCopy.
  */
 EXECUTE(OP_Copy,(P1,P2,P3)): {
-	int n = P3;
-	pIn1 = &aMem[P1];
-	pOut = &aMem[P2];
-	assert(pOut!=pIn1);
-	while (true) {
-		if (mem_copy(pOut, pIn1) != 0)
-			goto abort_due_to_error;
-		REGISTER_TRACE(p, P2 + P3 - n, pOut);
-		if ((n--)==0) break;
-		pOut++;
-		pIn1++;
-	}
+	if (vdbe_op_copy(p, pOp, aMem))
+		goto abort_due_to_error;
 	DISPATCH();
 }
 
@@ -941,13 +870,8 @@ EXECUTE(OP_Copy,(P1,P2,P3)): {
  * copy.
  */
 EXECUTE(OP_SCopy,(P1,P2)): {            /* out2 */
-	pIn1 = &aMem[P1];
-	pOut = &aMem[P2];
-	assert(pOut!=pIn1);
-	mem_copy_as_ephemeral(pOut, pIn1);
-#ifdef SQL_DEBUG
-	if (pOut->pScopyFrom==0) pOut->pScopyFrom = pIn1;
-#endif
+	if (vdbe_op_scopy(p, pOp, aMem))
+		goto abort_due_to_error;
 	DISPATCH();
 }
 
