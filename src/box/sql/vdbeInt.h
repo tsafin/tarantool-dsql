@@ -231,6 +231,7 @@ struct Vdbe {
 	int nCursor;		/* Number of slots in apCsr[] */
 	u32 cacheCtr;		/* VdbeCursor row cache generation counter */
 	int pc;			/* The program counter */
+	int iCompare;		/* Result of last comparison (for OP_Jump) */
 	/** True, if error occured during VDBE execution. */
 	bool is_aborted;
 	int nChange;		/* Number of db changes made since last reset */

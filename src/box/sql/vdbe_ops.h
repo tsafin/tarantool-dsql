@@ -26,7 +26,7 @@ int vdbe_op_variable(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_move(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_copy(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_scopy(Vdbe *p, Op *pOp, Mem *aMem);
-/* Comparison opcodes (STUBS - see vdbe_ops_compare.c for extraction plan) */
+/* Comparison opcodes (FUNCTIONAL - extracted after adding iCompare to Vdbe struct) */
 int vdbe_op_eq(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_ne(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_lt(Vdbe *p, Op *pOp, Mem *aMem);

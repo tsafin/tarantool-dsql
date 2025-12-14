@@ -326,7 +326,6 @@ int sqlVdbeExec(Vdbe *p)
 	int rc = 0;        /* Value to return */
 	/* The database */
 	struct sql *db = sql_get();
-	int iCompare = 0;          /* Result of last comparison */
 	Mem *aMem = p->aMem;       /* Copy of p->aMem */
 	Mem *pIn1 = 0;             /* 1st input operand */
 	Mem *pIn2 = 0;             /* 2nd input operand */
@@ -1360,7 +1359,7 @@ EXECUTE(OP_Ne,(P1,P2,P3,P4)): { /* same as TK_NE, jump, in1, in3 */
 		 */
 		if ((pOp->p5 & SQL_STOREP2) != 0) {
 			pOut = vdbe_prepare_null_out(p, P2);
-			iCompare = 1;
+			p->iCompare = 1;
 			REGISTER_TRACE(p, P2, pOut);
 			DISPATCH();
 		}
@@ -1373,7 +1372,7 @@ EXECUTE(OP_Ne,(P1,P2,P3,P4)): { /* same as TK_NE, jump, in1, in3 */
 		goto abort_due_to_error;
 	bool result = pOp->opcode == OP_Eq ? cmp_res == 0 : cmp_res != 0;
 	if ((pOp->p5 & SQL_STOREP2) != 0) {
-		iCompare = cmp_res;
+		p->iCompare = cmp_res;
 		pOut = &aMem[P2];
 		mem_set_bool(pOut, result);
 		REGISTER_TRACE(p, P2, pOut);
@@ -1420,7 +1419,7 @@ EXECUTE(OP_Ge,(P1,P2,P3,P4)): { /* same as TK_GE, jump, in1, in3 */
 	if (mem_is_any_null(pIn1, pIn3)) {
 		if ((pOp->p5 & SQL_STOREP2) != 0) {
 			pOut = vdbe_prepare_null_out(p, P2);
-			iCompare = 1;
+			p->iCompare = 1;
 			REGISTER_TRACE(p, P2, pOut);
 			DISPATCH();
 		}
@@ -1451,7 +1450,7 @@ EXECUTE(OP_Ge,(P1,P2,P3,P4)): { /* same as TK_GE, jump, in1, in3 */
 	}
 
 	if ((pOp->p5 & SQL_STOREP2) != 0) {
-		iCompare = cmp_res;
+		p->iCompare = cmp_res;
 		pOut = &aMem[P2];
 		mem_set_bool(pOut, result);
 		REGISTER_TRACE(p, P2, pOut);
@@ -1474,7 +1473,7 @@ EXECUTE(OP_ElseNotEq,(P2)): {       /* same as TK_ESCAPE, jump */
 	assert(pOp>aOp);
 	assert(pOp[-1].opcode==OP_Lt || pOp[-1].opcode==OP_Gt);
 	assert(pOp[-1].p5 & SQL_STOREP2);
-	if (iCompare!=0)
+	if (p->iCompare!=0)
 		JUMP_P2();
 	DISPATCH();
 }
@@ -1566,10 +1565,10 @@ EXECUTE(OP_Compare,(P1,P2,P3,P4)): {
 				 "comparable type");
 			goto abort_due_to_error;
 		}
-		iCompare = mem_cmp_scalar(a, b, coll);
-		if (iCompare) {
+		p->iCompare = mem_cmp_scalar(a, b, coll);
+		if (p->iCompare) {
 			if (is_rev)
-				iCompare = -iCompare;
+				p->iCompare = -p->iCompare;
 			break;
 		}
 	}
@@ -1584,9 +1583,9 @@ EXECUTE(OP_Compare,(P1,P2,P3,P4)): {
  * equal to, or greater than the P2 vector, respectively.
  */
 EXECUTE(OP_Jump,(P1,P2,P3)): {             /* jump */
-	if (iCompare < 0)
+	if (p->iCompare < 0)
 		pOp = &aOp[P1 - 1];
-	else if (iCompare == 0)
+	else if (p->iCompare == 0)
 		pOp = &aOp[P2 - 1];
 	else
 		pOp = &aOp[P3 - 1];

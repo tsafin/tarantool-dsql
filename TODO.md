@@ -17,9 +17,10 @@ This file tracks progress for the `src/box/sql/vdbe.c` refactor.
 - [~] Split Handlers into Files
   - Arithmetic handlers: `src/box/sql/vdbe_ops_arith.c` (DONE - stubs)
   - Data/constant handlers: `src/box/sql/vdbe_ops_data.c` (DONE - functional)
-  - Comparison handlers: `src/box/sql/vdbe_ops_compare.c` (DOCUMENTED - stubs with extraction plan)
-    - Comparison ops (Eq, Ne, Lt, Le, Gt, Ge) need special handling for iCompare and jumps
-    - See vdbe_ops_compare.c header comments for extraction options
+  - Comparison handlers: `src/box/sql/vdbe_ops_compare.c` (DONE - functional)
+    - Successfully extracted after adding `iCompare` to `struct Vdbe` (Option A from extraction plan)
+    - Handlers return special values (0=continue, 1=jump, -1=error) for jump control
+    - Main loop integration pending (handlers are ready but not yet called from vdbe.c)
   - Gradual extraction of remaining opcodes planned (IN-PROGRESS)
 - [ ] Replace Switch with Dispatcher
   - Replace big `switch` in `vdbe.c` with generated dispatcher/jump-table (NOT STARTED)
