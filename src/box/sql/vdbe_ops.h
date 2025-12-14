@@ -46,6 +46,9 @@ int vdbe_op_concat(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_cast(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_applytype(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_makerecord(Vdbe *p, Op *pOp, Mem *aMem);
+/* Aggregate function opcodes */
+int vdbe_op_aggstep(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_aggfinal(Vdbe *p, Op *pOp, Mem *aMem);
 /* Control flow opcodes - reserved for dispatcher refactoring
  * See vdbe_ops_control.c for extraction plan.
  * These remain in vdbe.c for now due to PC manipulation complexity. */

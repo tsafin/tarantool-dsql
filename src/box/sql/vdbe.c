@@ -4014,35 +4014,8 @@ EXECUTE(OP_DecrJumpZero,(P1,P2)): {	/* jump, in1 */
  * successors.
  */
 EXECUTE(OP_AggStep,(P1,P2,P3,P4)): {
-	int argc = P1;
-	sql_context *pCtx;
-	Mem *pMem;
-
-	assert(pOp->p4type == P4_FUNCCTX);
-	pCtx = pOp->p4.pCtx;
-	pMem = &aMem[P3];
-
-	if (pCtx->pOut != pMem)
-		pCtx->pOut = pMem;
-
-#ifdef SQL_DEBUG
-	for(int i = 0; i < argc; i++) {
-		assert(memIsValid(&aMem[P2 + i]));
-		REGISTER_TRACE(p, P2 + i, &aMem[P2 + i]);
-	}
-#endif
-
-	pCtx->skipFlag = 0;
-	assert(pCtx->func->def->language == FUNC_LANGUAGE_SQL_BUILTIN);
-	struct func_sql_builtin *func = (struct func_sql_builtin *)pCtx->func;
-	func->call(pCtx, argc, &aMem[P2]);
-	if (pCtx->is_aborted)
+	if (vdbe_op_aggstep(p, pOp, aMem))
 		goto abort_due_to_error;
-	if (pCtx->skipFlag) {
-		assert(pOp[-1].opcode == OP_SkipLoad);
-		int i = pOp[-1].p1;
-		if (i)	mem_set_bool(&aMem[i], true);
-	}
 	DISPATCH();
 }
 
@@ -4053,15 +4026,8 @@ EXECUTE(OP_AggStep,(P1,P2,P3,P4)): {
  * that is the accumulator for the aggregate. P4 is a pointer to the function.
  */
 EXECUTE(OP_AggFinal,(P1,P4)): {
-	assert(P1 > 0 && P1 <= (p->nMem + 1 - p->nCursor));
-	struct func_sql_builtin *func = (struct func_sql_builtin *)pOp->p4.func;
-	struct Mem *pIn1 = &aMem[P1];
-
-	if (func->finalize != NULL && func->finalize(pIn1) != 0)
+	if (vdbe_op_aggfinal(p, pOp, aMem))
 		goto abort_due_to_error;
-	UPDATE_MAX_BLOBSIZE(pIn1);
-	if (sqlVdbeMemTooBig(pIn1) != 0)
-		goto too_big;
 	DISPATCH();
 }
 
