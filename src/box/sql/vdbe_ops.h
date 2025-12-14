@@ -33,5 +33,8 @@ int vdbe_op_lt(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_le(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_gt(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_ge(Vdbe *p, Op *pOp, Mem *aMem);
+/* Control flow opcodes - reserved for dispatcher refactoring
+ * See vdbe_ops_control.c for extraction plan.
+ * These remain in vdbe.c for now due to PC manipulation complexity. */
 
 #endif /* SRC_BOX_SQL_VDBE_OPS_H */

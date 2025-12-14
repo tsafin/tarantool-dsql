@@ -19,13 +19,18 @@ This file tracks progress for the `src/box/sql/vdbe.c` refactor.
     - All 5 arithmetic ops extracted and integrated into main loop
     - OP_Add, OP_Subtract, OP_Multiply, OP_Divide, OP_Remainder
     - Clean implementations using mem_add(), mem_sub(), mem_mul(), mem_div(), mem_rem()
-  - Data/constant handlers: `src/box/sql/vdbe_ops_data.c` (DONE - functional)
+  - Data/constant handlers: `src/box/sql/vdbe_ops_data.c` (DONE - functional & integrated)
   - Comparison handlers: `src/box/sql/vdbe_ops_compare.c` (DONE - functional & integrated)
     - Successfully extracted after adding `iCompare` to `struct Vdbe` (Option A from extraction plan)
     - Handlers return special values (0=continue, 1=jump, -1=error) for jump control
     - Main loop integration complete (✓ all 6 comparison ops now use extracted handlers)
     - Build verified: compiles cleanly with -Wall -Wextra -Werror
-  - Gradual extraction of remaining opcodes planned (IN-PROGRESS)
+  - Control flow handlers: `src/box/sql/vdbe_ops_control.c` (DEFERRED)
+    - File created with extraction plan documentation
+    - Control flow ops (Goto, Jump, If/IfNot, Gosub/Return) remain in vdbe.c
+    - Reason: PC manipulation complexity - better handled with dispatcher refactoring
+    - See vdbe_ops_control.c for detailed extraction options (A/B/C)
+  - Remaining extraction work will continue with dispatcher refactoring (IN-PROGRESS)
 - [ ] Replace Switch with Dispatcher
   - Replace big `switch` in `vdbe.c` with generated dispatcher/jump-table (NOT STARTED)
 - [ ] Add Tests & Fixtures
