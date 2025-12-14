@@ -1347,38 +1347,19 @@ EXECUTE(OP_Getitem,(P1,P2,P3)): {
  * This works just like the Eq opcode except that the action is performed if
  * r[P3] != r[P1]. See the Eq opcode for additional information.
  */
-EXECUTE(OP_Eq,(P1,P2,P3,P4)):	/* same as TK_EQ, jump, in1, in3 */
-EXECUTE(OP_Ne,(P1,P2,P3,P4)): { /* same as TK_NE, jump, in1, in3 */
-	pIn1 = &aMem[P1];
-	pIn3 = &aMem[P3];
-	if (mem_is_any_null(pIn1, pIn3) && (pOp->p5 & SQL_NULLEQ) == 0) {
-		/*
-		 * SQL_NULLEQ is clear and at least one operand is NULL, then
-		 * the result is always NULL. The jump is taken if the
-		 * SQL_JUMPIFNULL bit is set.
-		 */
-		if ((pOp->p5 & SQL_STOREP2) != 0) {
-			pOut = vdbe_prepare_null_out(p, P2);
-			p->iCompare = 1;
-			REGISTER_TRACE(p, P2, pOut);
-			DISPATCH();
-		}
-		if ((pOp->p5 & SQL_JUMPIFNULL) != 0)
-			JUMP_P2();
-		DISPATCH();
-	}
-	int cmp_res;
-	if (mem_cmp(pIn3, pIn1, &cmp_res, pOp->p4.pColl) != 0)
+EXECUTE(OP_Eq,(P1,P2,P3,P4)): {	/* same as TK_EQ, jump, in1, in3 */
+	int rc = vdbe_op_eq(p, pOp, aMem);
+	if (rc < 0)
 		goto abort_due_to_error;
-	bool result = pOp->opcode == OP_Eq ? cmp_res == 0 : cmp_res != 0;
-	if ((pOp->p5 & SQL_STOREP2) != 0) {
-		p->iCompare = cmp_res;
-		pOut = &aMem[P2];
-		mem_set_bool(pOut, result);
-		REGISTER_TRACE(p, P2, pOut);
-		DISPATCH();
-	}
-	if (result)
+	if (rc == 1)
+		JUMP_P2();
+	DISPATCH();
+}
+EXECUTE(OP_Ne,(P1,P2,P3,P4)): { /* same as TK_NE, jump, in1, in3 */
+	int rc = vdbe_op_ne(p, pOp, aMem);
+	if (rc < 0)
+		goto abort_due_to_error;
+	if (rc == 1)
 		JUMP_P2();
 	DISPATCH();
 }
@@ -1410,53 +1391,35 @@ EXECUTE(OP_Ne,(P1,P2,P3,P4)): { /* same as TK_NE, jump, in1, in3 */
  * This works just like the Lt opcode except that the action is performed if
  * r[P3] >= r[P1]. See the Lt opcode for additional information.
  */
-EXECUTE(OP_Lt,(P1,P2,P3,P4)):	/* same as TK_LT, jump, in1, in3 */
-EXECUTE(OP_Le,(P1,P2,P3,P4)):   /* same as TK_LE, jump, in1, in3 */
-EXECUTE(OP_Gt,(P1,P2,P3,P4)):   /* same as TK_GT, jump, in1, in3 */
-EXECUTE(OP_Ge,(P1,P2,P3,P4)): { /* same as TK_GE, jump, in1, in3 */
-	pIn1 = &aMem[P1];
-	pIn3 = &aMem[P3];
-	if (mem_is_any_null(pIn1, pIn3)) {
-		if ((pOp->p5 & SQL_STOREP2) != 0) {
-			pOut = vdbe_prepare_null_out(p, P2);
-			p->iCompare = 1;
-			REGISTER_TRACE(p, P2, pOut);
-			DISPATCH();
-		}
-		if ((pOp->p5 & SQL_JUMPIFNULL) != 0)
-			JUMP_P2();
-		DISPATCH();
-	}
-	int cmp_res;
-	if (mem_cmp(pIn3, pIn1, &cmp_res, pOp->p4.pColl) != 0)
+EXECUTE(OP_Lt,(P1,P2,P3,P4)): {	/* same as TK_LT, jump, in1, in3 */
+	int rc = vdbe_op_lt(p, pOp, aMem);
+	if (rc < 0)
 		goto abort_due_to_error;
-
-	bool result;
-	switch(pOp->opcode) {
-	case OP_Lt:
-		result = cmp_res < 0;
-		break;
-	case OP_Le:
-		result = cmp_res <= 0;
-		break;
-	case OP_Gt:
-		result = cmp_res > 0;
-		break;
-	case OP_Ge:
-		result = cmp_res >= 0;
-		break;
-	default:
-		unreachable();
-	}
-
-	if ((pOp->p5 & SQL_STOREP2) != 0) {
-		p->iCompare = cmp_res;
-		pOut = &aMem[P2];
-		mem_set_bool(pOut, result);
-		REGISTER_TRACE(p, P2, pOut);
-		DISPATCH();
-	}
-	if (result)
+	if (rc == 1)
+		JUMP_P2();
+	DISPATCH();
+}
+EXECUTE(OP_Le,(P1,P2,P3,P4)): {   /* same as TK_LE, jump, in1, in3 */
+	int rc = vdbe_op_le(p, pOp, aMem);
+	if (rc < 0)
+		goto abort_due_to_error;
+	if (rc == 1)
+		JUMP_P2();
+	DISPATCH();
+}
+EXECUTE(OP_Gt,(P1,P2,P3,P4)): {   /* same as TK_GT, jump, in1, in3 */
+	int rc = vdbe_op_gt(p, pOp, aMem);
+	if (rc < 0)
+		goto abort_due_to_error;
+	if (rc == 1)
+		JUMP_P2();
+	DISPATCH();
+}
+EXECUTE(OP_Ge,(P1,P2,P3,P4)): { /* same as TK_GE, jump, in1, in3 */
+	int rc = vdbe_op_ge(p, pOp, aMem);
+	if (rc < 0)
+		goto abort_due_to_error;
+	if (rc == 1)
 		JUMP_P2();
 	DISPATCH();
 }
