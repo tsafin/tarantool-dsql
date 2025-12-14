@@ -131,6 +131,7 @@ set(sql_sources
     sql/vdbe_blob.c
     sql/vdbe_ops_arith.c
     sql/vdbe_ops_data.c
+    sql/vdbe_ops_compare.c
     sql/vdbe_helpers.c
     sql/vdbeapi.c
     sql/vdbeaux.c
