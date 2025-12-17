@@ -55,8 +55,12 @@ This file tracks progress for the `src/box/sql/vdbe.c` refactor.
       - Handlers return 0 (continue), 1 (jump to P2), 2 (skip next opcode for SEEKEQ), or -1 (error)
       - SeekLE/SeekGE support OPFLAG_SEEKEQ for equality seeking with automatic next opcode skip
       - Full type checking and implicit numeric conversions implemented
-  - **Next extraction phases** (13 opcodes remaining):
-    - Phase 4d: Index operations - `vdbe_ops_index.c` (8 opcodes: IdxInsert, IdxGE, Found, etc.)
+    - Phase 4d: Index operations - `vdbe_ops_index.c` (DONE - 9 opcodes: IdxGE/GT/LE/LT, Found/NotFound/NoConflict, IdxInsert/IdxReplace)
+      - Index comparisons: vdbe_op_idx_compare() for IdxGE/GT/LE/LT
+      - Index lookups: vdbe_op_found_notfound_noconflict() for Found/NotFound/NoConflict
+      - Index modifications: vdbe_op_idx_insert_replace() for IdxInsert/IdxReplace
+      - Made vdbe_add_new_autoinc_id() non-static for use in handlers
+  - **Next extraction phases** (remaining opcodes):
     - Phase 4e: Data modification - `vdbe_ops_modify.c` (5 opcodes: Delete, Update, SInsert, etc.)
   - See `~/.claude/plans/handler-extraction-plan.md` for detailed breakdown
 - [ ] Replace Switch with Dispatcher
@@ -77,7 +81,7 @@ Notes and current decisions:
   - Unused parameters marked with (void) to suppress warnings
   - Full opcode documentation blocks preserved from vdbe.c
 
-Recent extraction sessions (Phases 1-4c):
+Recent extraction sessions (Phases 1-4d):
 - Phase 1: String operations (OP_Concat) - committed
 - Phase 2: Type conversions (Cast, MakeRecord, ApplyType) - committed
 - Phase 3: Aggregate functions (AggStep, AggFinal) - committed
@@ -88,13 +92,16 @@ Recent extraction sessions (Phases 1-4c):
 - Phase 4c: Cursor seek (SeekGE, SeekGT, SeekLE, SeekLT) - committed
   - Special return value 2 for skipping next opcode (OPFLAG_SEEKEQ)
   - Handlers include full type checking and implicit numeric conversions
-- Total: 19 opcodes extracted across 6 new files
-- All builds verified with -Wall -Wextra -Werror
+- Phase 4d: Index operations (IdxGE/GT/LE/LT, Found/NotFound/NoConflict, IdxInsert/IdxReplace) - committed
+  - 3 handlers covering 9 opcodes with consistent return value patterns
+  - Made vdbe_add_new_autoinc_id() non-static and exposed in vdbe.h
+- Total: 28 opcodes extracted across 7 new files
+- All builds verified
 
 Next actions you can request:
 
-- Continue with Phase 4d: Index operations (8 opcodes: IdxInsert, IdxGE, Found, etc.)
 - Continue with Phase 4e: Data modification operations (5 opcodes: Delete, Update, SInsert, etc.)
+- Continue with Phase 5: Additional cursor/data operations
 - Reconcile the generator output and re-enable the generated dispatch in the build
 - Add unit tests for extracted opcode handlers
 
