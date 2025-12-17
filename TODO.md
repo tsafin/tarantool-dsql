@@ -58,10 +58,11 @@ This file tracks progress for the `src/box/sql/vdbe.c` refactor.
     - Phase 4d: Index operations - `vdbe_ops_index.c` (DONE - 9 opcodes: IdxGE/GT/LE/LT, Found/NotFound/NoConflict, IdxInsert/IdxReplace)
       - Index comparisons: vdbe_op_idx_compare() for IdxGE/GT/LE/LT
       - Index lookups: vdbe_op_found_notfound_noconflict() for Found/NotFound/NoConflict
-      - Index modifications: vdbe_op_idx_insert_replace() for IdxInsert/IdxReplace
+      - Index insert/replace: vdbe_op_idx_insert_replace() for IdxInsert/IdxReplace
       - Made vdbe_add_new_autoinc_id() non-static for use in handlers
+      - Note: OP_IdxDelete is a data modification op, belongs to Phase 4e
   - **Next extraction phases** (remaining opcodes):
-    - Phase 4e: Data modification - `vdbe_ops_modify.c` (5 opcodes: Delete, Update, SInsert, etc.)
+    - Phase 4e: Data modification - `vdbe_ops_modify.c` (5 opcodes: Delete, Update, SInsert, SDelete, IdxDelete)
   - See `~/.claude/plans/handler-extraction-plan.md` for detailed breakdown
 - [ ] Replace Switch with Dispatcher
   - Replace big `switch` in `vdbe.c` with generated dispatcher/jump-table (NOT STARTED)
@@ -100,8 +101,8 @@ Recent extraction sessions (Phases 1-4d):
 
 Next actions you can request:
 
-- Continue with Phase 4e: Data modification operations (5 opcodes: Delete, Update, SInsert, etc.)
-- Continue with Phase 5: Additional cursor/data operations
+- Continue with Phase 4e: Data modification operations (5 opcodes: Delete, Update, SInsert, SDelete, IdxDelete)
+- Continue with additional cursor/data operations (sorter, ephemeral tables, etc.)
 - Reconcile the generator output and re-enable the generated dispatch in the build
 - Add unit tests for extracted opcode handlers
 
