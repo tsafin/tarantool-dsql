@@ -2261,6 +2261,7 @@ EXECUTE(OP_Close,(P1)): {
  *
  * See also: Found, NotFound, SeekGt, SeekGe, SeekLe
  */
+EXECUTE(OP_SeekLT,(P1,P2,P3,P4)): 	/* jump, in3 */
 /* Opcode: SeekGT P1 P2 P3 P4 *
  * Synopsis: key=r[P3@P4]
  *
@@ -2277,7 +2278,6 @@ EXECUTE(OP_Close,(P1)): {
  * from the beginning toward the end.  In other words, the cursor is
  * configured to use Next, not Prev.
  */
-EXECUTE(OP_SeekLT,(P1,P2,P3,P4)): 	/* jump, in3 */
 EXECUTE(OP_SeekGT,(P1,P2,P3,P4)): {     /* jump, in3 */
 	int res = vdbe_op_seek_lt_gt(p, pOp, aMem);
 	if (res < 0)
@@ -2313,6 +2313,7 @@ EXECUTE(OP_SeekGT,(P1,P2,P3,P4)): {     /* jump, in3 */
  *
  * See also: Found, NotFound, SeekGt, SeekGe, SeekLt
  */
+EXECUTE(OP_SeekLE,(P1,P2,P3,P4)):	/* jump, in3 */
 /* Opcode: SeekGE P1 P2 P3 P4 *
  * Synopsis: key=r[P3@P4]
  *
@@ -2338,7 +2339,6 @@ EXECUTE(OP_SeekGT,(P1,P2,P3,P4)): {     /* jump, in3 */
  *
  * See also: Found, NotFound, SeekLt, SeekGt, SeekLe
  */
-EXECUTE(OP_SeekLE,(P1,P2,P3,P4)):	/* jump, in3 */
 EXECUTE(OP_SeekGE,(P1,P2,P3,P4)): {	/* jump, in3 */
 	int res = vdbe_op_seek_le_ge(p, pOp, aMem);
 	if (res < 0)
@@ -2352,42 +2352,6 @@ EXECUTE(OP_SeekGE,(P1,P2,P3,P4)): {	/* jump, in3 */
 	DISPATCH();
 }
 
-/* Opcode: Found P1 P2 P3 P4 *
- * Synopsis: key=r[P3@P4]
- *
- * If P4==0 then register P3 holds a blob constructed by MakeRecord.  If
- * P4>0 then register P3 is the first of P4 registers that form an unpacked
- * record.
- *
- * Cursor P1 is on an index btree.  If the record identified by P3 and P4
- * is a prefix of any entry in P1 then a jump is made to P2 and
- * P1 is left pointing at the matching entry.
- *
- * This operation leaves the cursor in a state where it can be
- * advanced in the forward direction.  The Next instruction will work,
- * but not the Prev instruction.
- *
- * See also: NotFound, NoConflict, NotExists. SeekGe
- */
-/* Opcode: NotFound P1 P2 P3 P4 *
- * Synopsis: key=r[P3@P4]
- *
- * If P4==0 then register P3 holds a blob constructed by MakeRecord.  If
- * P4>0 then register P3 is the first of P4 registers that form an unpacked
- * record.
- *
- * Cursor P1 is on an index btree.  If the record identified by P3 and P4
- * is not the prefix of any entry in P1 then a jump is made to P2.  If P1
- * does contain an entry whose prefix matches the P3/P4 record then control
- * falls through to the next instruction and P1 is left pointing at the
- * matching entry.
- *
- * This operation leaves the cursor in a state where it cannot be
- * advanced in either direction.  In other words, the Next and Prev
- * opcodes do not work after this operation.
- *
- * See also: Found, NotExists, NoConflict
- */
 /* Opcode: NoConflict P1 P2 P3 P4 *
  * Synopsis: key=r[P3@P4]
  *
@@ -2412,7 +2376,43 @@ EXECUTE(OP_SeekGE,(P1,P2,P3,P4)): {	/* jump, in3 */
  * See also: NotFound, Found, NotExists
  */
 EXECUTE(OP_NoConflict,(P1,P2,P3,P4)):	/* jump, in3 */
+/* Opcode: NotFound P1 P2 P3 P4 *
+ * Synopsis: key=r[P3@P4]
+ *
+ * If P4==0 then register P3 holds a blob constructed by MakeRecord.  If
+ * P4>0 then register P3 is the first of P4 registers that form an unpacked
+ * record.
+ *
+ * Cursor P1 is on an index btree.  If the record identified by P3 and P4
+ * is not the prefix of any entry in P1 then a jump is made to P2.  If P1
+ * does contain an entry whose prefix matches the P3/P4 record then control
+ * falls through to the next instruction and P1 is left pointing at the
+ * matching entry.
+ *
+ * This operation leaves the cursor in a state where it cannot be
+ * advanced in either direction.  In other words, the Next and Prev
+ * opcodes do not work after this operation.
+ *
+ * See also: Found, NotExists, NoConflict
+ */
 EXECUTE(OP_NotFound,(P1,P2,P3,P4)):	/* jump, in3 */
+/* Opcode: Found P1 P2 P3 P4 *
+ * Synopsis: key=r[P3@P4]
+ *
+ * If P4==0 then register P3 holds a blob constructed by MakeRecord.  If
+ * P4>0 then register P3 is the first of P4 registers that form an unpacked
+ * record.
+ *
+ * Cursor P1 is on an index btree.  If the record identified by P3 and P4
+ * is a prefix of any entry in P1 then a jump is made to P2 and
+ * P1 is left pointing at the matching entry.
+ *
+ * This operation leaves the cursor in a state where it can be
+ * advanced in the forward direction.  The Next instruction will work,
+ * but not the Prev instruction.
+ *
+ * See also: NotFound, NoConflict, NotExists. SeekGe
+ */
 EXECUTE(OP_Found,(P1,P2,P3,P4)): {	/* jump, in3 */
 	int res = vdbe_op_found_notfound_noconflict(p, pOp, aMem);
 	if (res < 0)
@@ -2787,6 +2787,82 @@ EXECUTE(OP_Rewind,(P1,P2)): {        /* jump */
 	DISPATCH();
 }
 
+/* Opcode: SorterNext P1 P2 * * P5
+ *
+ * This opcode works just like OP_Next except that P1 must be a
+ * sorter object for which the OP_SorterSort opcode has been
+ * invoked.  This opcode advances the cursor to the next sorted
+ * record, or jumps to P2 if there are no more sorted records.
+ */
+EXECUTE(OP_SorterNext,(P1,P2)): {  /* jump */
+	VdbeCursor *pC = p->apCsr[P1];
+	assert(isSorter(pC));
+	int res = 0;
+	if (sqlVdbeSorterNext(pC, &res) != 0)
+		goto abort_due_to_error;
+	goto next_tail;
+
+/* Opcode: PrevIfOpen P1 P2 P3 P4 P5
+ *
+ * This opcode works just like Prev except that if cursor P1 is not
+ * open it behaves a no-op.
+ */
+EXECUTE(OP_PrevIfOpen,(P1,P2,P3,P4)):    /* jump */
+	if (p->apCsr[P1] == 0) {
+		DISPATCH();
+	}
+	res = vdbe_op_prev(p, pOp, aMem);
+	if (res < 0)
+		goto abort_due_to_error;
+	pC = p->apCsr[P1];
+	goto next_tail;
+
+/* Opcode: NextIfOpen P1 P2 P3 P4 P5
+ *
+ * This opcode works just like Next except that if cursor P1 is not
+ * open it behaves a no-op.
+ */
+EXECUTE(OP_NextIfOpen,(P1,P2,P3,P4)):    /* jump */
+	if (p->apCsr[P1] == 0) {
+		DISPATCH();
+	}
+	res = vdbe_op_next(p, pOp, aMem);
+	if (res < 0)
+		goto abort_due_to_error;
+	pC = p->apCsr[P1];
+	goto next_tail;
+
+/* Opcode: Prev P1 P2 P3 P4 P5
+ *
+ * Back up cursor P1 so that it points to the previous key/data pair in its
+ * table or index.  If there is no previous key/value pairs then fall through
+ * to the following instruction.
+ *
+ * The Prev opcode is only valid following an SeekLT, SeekLE, or
+ * OP_Last opcode used to position the cursor.  Prev is not allowed
+ * to follow SeekGT, SeekGE, or OP_Rewind.
+ *
+ * The P1 cursor must be for a real table, not a pseudo-table.  If P1 is
+ * not open then the behavior is undefined.
+ *
+ * The P3 value is a hint to the btree implementation. If P3==1, that
+ * means P1 is an SQL index and that this instruction could have been
+ * omitted if that index had been unique.  P3 is usually 0.  P3 is
+ * always either 0 or 1.
+ *
+ * P4 is always of type P4_ADVANCE. The function pointer points to
+ * sqlBtreePrevious().
+ *
+ * If P5 is positive and the jump is taken, then event counter
+ * number P5-1 in the prepared statement is incremented.
+ */
+EXECUTE(OP_Prev,(P1,P2,P3,P4)):          /* jump */
+	res = vdbe_op_prev(p, pOp, aMem);
+	if (res < 0)
+		goto abort_due_to_error;
+	pC = p->apCsr[P1];
+	goto next_tail;
+
 /* Opcode: Next P1 P2 P3 P4 P5
  *
  * Advance cursor P1 so that it points to the next key/data pair in its
@@ -2814,82 +2890,6 @@ EXECUTE(OP_Rewind,(P1,P2)): {        /* jump */
  *
  * See also: Prev, NextIfOpen
  */
-/* Opcode: NextIfOpen P1 P2 P3 P4 P5
- *
- * This opcode works just like Next except that if cursor P1 is not
- * open it behaves a no-op.
- */
-/* Opcode: Prev P1 P2 P3 P4 P5
- *
- * Back up cursor P1 so that it points to the previous key/data pair in its
- * table or index.  If there is no previous key/value pairs then fall through
- * to the following instruction.
- *
- * The Prev opcode is only valid following an SeekLT, SeekLE, or
- * OP_Last opcode used to position the cursor.  Prev is not allowed
- * to follow SeekGT, SeekGE, or OP_Rewind.
- *
- * The P1 cursor must be for a real table, not a pseudo-table.  If P1 is
- * not open then the behavior is undefined.
- *
- * The P3 value is a hint to the btree implementation. If P3==1, that
- * means P1 is an SQL index and that this instruction could have been
- * omitted if that index had been unique.  P3 is usually 0.  P3 is
- * always either 0 or 1.
- *
- * P4 is always of type P4_ADVANCE. The function pointer points to
- * sqlBtreePrevious().
- *
- * If P5 is positive and the jump is taken, then event counter
- * number P5-1 in the prepared statement is incremented.
- */
-/* Opcode: PrevIfOpen P1 P2 P3 P4 P5
- *
- * This opcode works just like Prev except that if cursor P1 is not
- * open it behaves a no-op.
- */
-/* Opcode: SorterNext P1 P2 * * P5
- *
- * This opcode works just like OP_Next except that P1 must be a
- * sorter object for which the OP_SorterSort opcode has been
- * invoked.  This opcode advances the cursor to the next sorted
- * record, or jumps to P2 if there are no more sorted records.
- */
-EXECUTE(OP_SorterNext,(P1,P2)): {  /* jump */
-	VdbeCursor *pC = p->apCsr[P1];
-	assert(isSorter(pC));
-	int res = 0;
-	if (sqlVdbeSorterNext(pC, &res) != 0)
-		goto abort_due_to_error;
-	goto next_tail;
-
-EXECUTE(OP_PrevIfOpen,(P1,P2,P3,P4)):    /* jump */
-	if (p->apCsr[P1] == 0) {
-		DISPATCH();
-	}
-	res = vdbe_op_prev(p, pOp, aMem);
-	if (res < 0)
-		goto abort_due_to_error;
-	pC = p->apCsr[P1];
-	goto next_tail;
-
-EXECUTE(OP_NextIfOpen,(P1,P2,P3,P4)):    /* jump */
-	if (p->apCsr[P1] == 0) {
-		DISPATCH();
-	}
-	res = vdbe_op_next(p, pOp, aMem);
-	if (res < 0)
-		goto abort_due_to_error;
-	pC = p->apCsr[P1];
-	goto next_tail;
-
-EXECUTE(OP_Prev,(P1,P2,P3,P4)):          /* jump */
-	res = vdbe_op_prev(p, pOp, aMem);
-	if (res < 0)
-		goto abort_due_to_error;
-	pC = p->apCsr[P1];
-	goto next_tail;
-
 EXECUTE(OP_Next,(P1,P2,P3,P4)):          /* jump */
 	res = vdbe_op_next(p, pOp, aMem);
 	if (res < 0)
@@ -3149,39 +3149,6 @@ EXECUTE(OP_IdxDelete,(P1,P2,P3)): {
 	DISPATCH();
 }
 
-/* Opcode: IdxGE P1 P2 P3 P4 P5
- * Synopsis: key=r[P3@P4]
- *
- * The P4 register values beginning with P3 form an unpacked index
- * key that omits the PRIMARY KEY.  Compare this key value against the index
- * that P1 is currently pointing to, ignoring the PRIMARY KEY
- * fields at the end.
- *
- * If the P1 index entry is greater than or equal to the key value
- * then jump to P2.  Otherwise fall through to the next instruction.
- */
-/* Opcode: IdxGT P1 P2 P3 P4 P5
- * Synopsis: key=r[P3@P4]
- *
- * The P4 register values beginning with P3 form an unpacked index
- * key that omits the PRIMARY KEY.  Compare this key value against the index
- * that P1 is currently pointing to, ignoring the PRIMARY KEY
- * fields at the end.
- *
- * If the P1 index entry is greater than the key value
- * then jump to P2.  Otherwise fall through to the next instruction.
- */
-/* Opcode: IdxLT P1 P2 P3 P4 P5
- * Synopsis: key=r[P3@P4]
- *
- * The P4 register values beginning with P3 form an unpacked index
- * key that omits the PRIMARY KEY.  Compare this key value against
- * the index that P1 is currently pointing to, ignoring the PRIMARY KEY
- * on the P1 index.
- *
- * If the P1 index entry is less than the key value then jump to P2.
- * Otherwise fall through to the next instruction.
- */
 /* Opcode: IdxLE P1 P2 P3 P4 P5
  * Synopsis: key=r[P3@P4]
  *
@@ -3194,8 +3161,41 @@ EXECUTE(OP_IdxDelete,(P1,P2,P3)): {
  * to P2. Otherwise fall through to the next instruction.
  */
 EXECUTE(OP_IdxLE,(P1,P2,P3,P4)):	/* jump */
+/* Opcode: IdxGT P1 P2 P3 P4 P5
+ * Synopsis: key=r[P3@P4]
+ *
+ * The P4 register values beginning with P3 form an unpacked index
+ * key that omits the PRIMARY KEY.  Compare this key value against the index
+ * that P1 is currently pointing to, ignoring the PRIMARY KEY
+ * fields at the end.
+ *
+ * If the P1 index entry is greater than the key value
+ * then jump to P2.  Otherwise fall through to the next instruction.
+ */
 EXECUTE(OP_IdxGT,(P1,P2,P3,P4)):	/* jump */
+/* Opcode: IdxLT P1 P2 P3 P4 P5
+ * Synopsis: key=r[P3@P4]
+ *
+ * The P4 register values beginning with P3 form an unpacked index
+ * key that omits the PRIMARY KEY.  Compare this key value against
+ * the index that P1 is currently pointing to, ignoring the PRIMARY KEY
+ * on the P1 index.
+ *
+ * If the P1 index entry is less than the key value then jump to P2.
+ * Otherwise fall through to the next instruction.
+ */
 EXECUTE(OP_IdxLT,(P1,P2,P3,P4)):	/* jump */
+/* Opcode: IdxGE P1 P2 P3 P4 P5
+ * Synopsis: key=r[P3@P4]
+ *
+ * The P4 register values beginning with P3 form an unpacked index
+ * key that omits the PRIMARY KEY.  Compare this key value against the index
+ * that P1 is currently pointing to, ignoring the PRIMARY KEY
+ * fields at the end.
+ *
+ * If the P1 index entry is greater than or equal to the key value
+ * then jump to P2.  Otherwise fall through to the next instruction.
+ */
 EXECUTE(OP_IdxGE,(P1,P2,P3,P4)): {	/* jump */
 	int res = vdbe_op_idx_compare(p, pOp, aMem);
 	if (res < 0)
