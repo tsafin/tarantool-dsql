@@ -63,6 +63,10 @@ int vdbe_op_previfopen(Vdbe *p, Op *pOp, Mem *aMem);
 /* Cursor seek opcodes - return 2 for skip next opcode (SEEKEQ) */
 int vdbe_op_seek_lt_gt(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_seek_le_ge(Vdbe *p, Op *pOp, Mem *aMem);
+/* Index operation opcodes */
+int vdbe_op_idx_compare(Vdbe *p, Op *pOp, Mem *aMem);  /* IdxGE/GT/LE/LT */
+int vdbe_op_found_notfound_noconflict(Vdbe *p, Op *pOp, Mem *aMem);  /* Found/NotFound/NoConflict */
+int vdbe_op_idx_insert_replace(Vdbe *p, Op *pOp, Mem *aMem);  /* IdxInsert/IdxReplace */
 /* Control flow opcodes - reserved for dispatcher refactoring
  * See vdbe_ops_control.c for extraction plan.
  * These remain in vdbe.c for now due to PC manipulation complexity. */

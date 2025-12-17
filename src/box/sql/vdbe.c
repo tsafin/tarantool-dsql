@@ -299,7 +299,7 @@ vdbe_autoinc_id_list(struct Vdbe *vdbe)
 	return &vdbe->autoinc_id_list;
 }
 
-static int
+int
 vdbe_add_new_autoinc_id(struct Vdbe *vdbe, int64_t id)
 {
 	assert(vdbe != NULL);
@@ -2414,82 +2414,11 @@ EXECUTE(OP_SeekGE,(P1,P2,P3,P4)): {	/* jump, in3 */
 EXECUTE(OP_NoConflict,(P1,P2,P3,P4)):	/* jump, in3 */
 EXECUTE(OP_NotFound,(P1,P2,P3,P4)):	/* jump, in3 */
 EXECUTE(OP_Found,(P1,P2,P3,P4)): {	/* jump, in3 */
-	int alreadyExists;
-	int takeJump;
-	int ii;
-	VdbeCursor *pC;
-	int res;
-	UnpackedRecord *pFree;
-	UnpackedRecord *pIdxKey;
-	UnpackedRecord r;
-
-#ifdef SQL_TEST
-	if (pOp->opcode!=OP_NoConflict) sql_found_count++;
-#endif
-
-	assert(P1 >= 0 && P1 < p->nCursor);
-	assert(pOp->p4type == P4_INT32);
-	pC = p->apCsr[P1];
-	assert(pC != 0);
-#ifdef SQL_DEBUG
-	pC->seekOp = pOp->opcode;
-#endif
-	pIn3 = &aMem[P3];
-	assert(pC->eCurType == CURTYPE_TARANTOOL);
-	assert(pC->uc.pCursor != 0);
-	if (pOp->p4.i>0) {
-		r.key_def = pC->key_def;
-		r.nField = (u16)pOp->p4.i;
-		r.aMem = pIn3;
-#ifdef SQL_DEBUG
-		for(ii=0; ii<r.nField; ii++) {
-			assert(memIsValid(&r.aMem[ii]));
-			if (ii != 0)
-				REGISTER_TRACE(p, P3+ii, &r.aMem[ii]);
-		}
-#endif
-		pIdxKey = &r;
-		pFree = 0;
-	} else {
-		pIdxKey = sqlVdbeAllocUnpackedRecord(pC->key_def);
-		pFree = pIdxKey;
-		assert(mem_is_bin(pIn3));
-		sqlVdbeRecordUnpackMsgpack(pC->key_def,
-					       pIn3->z, pIdxKey);
-	}
-	pIdxKey->default_rc = 0;
-	pIdxKey->opcode = pOp->opcode;
-	takeJump = 0;
-	if (pOp->opcode == OP_NoConflict) {
-		/* For the OP_NoConflict opcode, take the jump if any of the
-		 * input fields are NULL, since any key with a NULL will not
-		 * conflict
-		 */
-		for(ii = 0; ii < pIdxKey->nField; ii++) {
-			if (mem_is_null(&pIdxKey->aMem[ii])) {
-				takeJump = 1;
-				break;
-			}
-		}
-	}
-	pC->uc.pCursor->iter_type = ITER_EQ;
-	rc = sql_cursor_seek(pC->uc.pCursor, pIdxKey->aMem, pIdxKey->nField,
-			     &res);
-	if (pFree != NULL)
-		sql_xfree(pFree);
-	if (rc != 0)
+	int res = vdbe_op_found_notfound_noconflict(p, pOp, aMem);
+	if (res < 0)
 		goto abort_due_to_error;
-	pC->seekResult = res;
-	alreadyExists = (res==0);
-	pC->nullRow = 1-alreadyExists;
-	pC->cacheStatus = CACHE_STALE;
-	if (pOp->opcode == OP_Found) {
-		if (alreadyExists)
-			JUMP_P2();
-	} else {
-		if (takeJump || !alreadyExists)
-			JUMP_P2();
-	}
+	if (res == 1)
+		JUMP_P2();
 	DISPATCH();
 }
 
@@ -3025,54 +2954,9 @@ EXECUTE(OP_SorterInsert,(P1,P2)): {      /* in2 */
  */
 EXECUTE(OP_IdxReplace,(P1,P2,P3)):
 EXECUTE(OP_IdxInsert,(P1,P2,P3)): {
-	pIn2 = &aMem[P1];
-	assert(mem_is_bin(pIn2));
-	struct space *space = aMem[P2].u.p;
-	assert(space != NULL);
-	if (space->def->id != 0) {
-		/* Make sure that memory has been allocated on region. */
-		assert(mem_is_ephemeral(&aMem[P1]));
-		if (pOp->opcode == OP_IdxInsert) {
-			rc = tarantoolsqlInsert(space, pIn2->z,
-						pIn2->z + pIn2->n);
-		} else {
-			rc = tarantoolsqlReplace(space, pIn2->z,
-						pIn2->z + pIn2->n);
-		}
-	} else {
-		rc = tarantoolsqlEphemeralInsert(space, pIn2->z,
-						pIn2->z + pIn2->n);
-	}
-	if (rc != 0) {
-		if ((pOp->p5 & OPFLAG_OE_IGNORE) != 0) {
-			/*
-			 * Ignore any kind of fails and do not
-			 * raise error message. If we are in
-			 * trigger, increment ignore raised
-			 * counter.
-			 */
-			rc = 0;
-			if (p->pFrame != NULL)
-				p->ignoreRaised++;
-			DISPATCH();
-		}
-		if ((pOp->p5 & OPFLAG_OE_FAIL) != 0) {
-			p->errorAction = ON_CONFLICT_ACTION_FAIL;
-		} else if ((pOp->p5 & OPFLAG_OE_ROLLBACK) != 0) {
-			p->errorAction = ON_CONFLICT_ACTION_ROLLBACK;
-		}
+	rc = vdbe_op_idx_insert_replace(p, pOp, aMem);
+	if (rc < 0)
 		goto abort_due_to_error;
-	}
-	if ((pOp->p5 & OPFLAG_NCHANGE) != 0)
-		p->nChange++;
-	if (P3 > 0 && mem_is_null(&aMem[P3])) {
-		assert(space->sequence != NULL);
-		int64_t value;
-		if (sequence_get_value(space->sequence, &value) != 0)
-			goto abort_due_to_error;
-		if (vdbe_add_new_autoinc_id(p, value) != 0)
-			goto abort_due_to_error;
-	}
 	DISPATCH();
 }
 
@@ -3313,44 +3197,10 @@ EXECUTE(OP_IdxLE,(P1,P2,P3,P4)):	/* jump */
 EXECUTE(OP_IdxGT,(P1,P2,P3,P4)):	/* jump */
 EXECUTE(OP_IdxLT,(P1,P2,P3,P4)):	/* jump */
 EXECUTE(OP_IdxGE,(P1,P2,P3,P4)): {	/* jump */
-	VdbeCursor *pC;
-	UnpackedRecord r;
-
-	assert(P1 >= 0 && P1 < p->nCursor);
-	pC = p->apCsr[P1];
-	assert(pC!=0);
-	assert(pC->eCurType == CURTYPE_TARANTOOL);
-	assert(pC->uc.pCursor != 0);
-	assert(pOp->p5 == 0 || pOp->p5 == 1);
-	assert(pOp->p4type == P4_INT32);
-	r.key_def = pC->key_def;
-	r.nField = (u16)pOp->p4.i;
-	if (pOp->opcode < OP_IdxLT) {
-		assert(pOp->opcode == OP_IdxLE || pOp->opcode == OP_IdxGT);
-		r.default_rc = -1;
-	} else {
-		assert(pOp->opcode == OP_IdxGE || pOp->opcode == OP_IdxLT);
-		r.default_rc = 0;
-	}
-	r.aMem = &aMem[P3];
-#ifdef SQL_DEBUG
-	{
-		int i;
-		for(i = 0; i < r.nField; i++)
-			assert(memIsValid(&r.aMem[i]));
-	}
-#endif
-	int res = tarantoolsqlIdxKeyCompare(pC->uc.pCursor, &r);
-	assert((OP_IdxLE & 1) == (OP_IdxLT & 1) && 
-		(OP_IdxGE & 1) == (OP_IdxGT & 1));
-	if ((pOp->opcode & 1) == (OP_IdxLT & 1)) {
-		assert(pOp->opcode == OP_IdxLE || pOp->opcode == OP_IdxLT);
-		res = -res;
-	} else {
-		assert(pOp->opcode == OP_IdxGE || pOp->opcode == OP_IdxGT);
-		res++;
-	}
-	if (res > 0)
+	int res = vdbe_op_idx_compare(p, pOp, aMem);
+	if (res < 0)
+		goto abort_due_to_error;
+	if (res == 1)
 		JUMP_P2();
 	DISPATCH();
 }

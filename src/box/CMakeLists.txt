@@ -140,6 +140,7 @@ set(sql_sources
     sql/vdbe_ops_cursor_data.c
     sql/vdbe_ops_cursor_nav.c
     sql/vdbe_ops_cursor_seek.c
+    sql/vdbe_ops_index.c
     sql/vdbe_helpers.c
     sql/vdbeapi.c
     sql/vdbeaux.c

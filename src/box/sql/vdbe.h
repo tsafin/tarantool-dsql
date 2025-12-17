@@ -187,6 +187,15 @@ sql_vdbe_prepare(struct Vdbe *vdbe);
 struct stailq *
 vdbe_autoinc_id_list(struct Vdbe *vdbe);
 
+/**
+ * Add a new autoincrement id to the VDBE's list.
+ * @param vdbe VDBE instance.
+ * @param id The autoincrement id value to add.
+ * @retval 0 on success, -1 on error.
+ */
+int
+vdbe_add_new_autoinc_id(struct Vdbe *vdbe, int64_t id);
+
 int sqlVdbeAddOp0(Vdbe *, int);
 int sqlVdbeAddOp1(Vdbe *, int, int);
 int sqlVdbeAddOp2(Vdbe *, int, int, int);
