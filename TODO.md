@@ -39,7 +39,7 @@ This file tracks progress for the `src/box/sql/vdbe.c` refactor.
     - Bitwise ops: OP_BitAnd, OP_BitOr, OP_BitNot
     - Clean implementations with proper NULL handling
   - Remaining extraction work will continue with dispatcher refactoring (IN-PROGRESS)
-  - **Extraction phases completed** (15 opcodes extracted):
+  - **Extraction phases completed** (19 opcodes extracted):
     - Phase 1: String operations - `vdbe_ops_string.c` (DONE - 1 opcode: Concat)
     - Phase 2: Type conversions - `vdbe_ops_type.c` (DONE - 3 opcodes: Cast, MakeRecord, ApplyType)
     - Phase 3: Aggregate functions - `vdbe_ops_aggregate.c` (DONE - 2 opcodes: AggStep, AggFinal)
@@ -51,8 +51,11 @@ This file tracks progress for the `src/box/sql/vdbe.c` refactor.
       - vdbe.c shares next_tail code for all navigation ops + SorterNext
       - Eliminates 5x duplication of cache invalidation and jump logic
       - IfOpen variants check cursor in vdbe.c, then delegate to core handlers
-  - **Next extraction phases** (17 opcodes remaining):
-    - Phase 4c: Cursor seek - `vdbe_ops_cursor_seek.c` (4 opcodes: SeekGE, SeekGT, SeekLE, SeekLT)
+    - Phase 4c: Cursor seek - `vdbe_ops_cursor_seek.c` (DONE - 4 opcodes: SeekGE, SeekGT, SeekLE, SeekLT)
+      - Handlers return 0 (continue), 1 (jump to P2), 2 (skip next opcode for SEEKEQ), or -1 (error)
+      - SeekLE/SeekGE support OPFLAG_SEEKEQ for equality seeking with automatic next opcode skip
+      - Full type checking and implicit numeric conversions implemented
+  - **Next extraction phases** (13 opcodes remaining):
     - Phase 4d: Index operations - `vdbe_ops_index.c` (8 opcodes: IdxInsert, IdxGE, Found, etc.)
     - Phase 4e: Data modification - `vdbe_ops_modify.c` (5 opcodes: Delete, Update, SInsert, etc.)
   - See `~/.claude/plans/handler-extraction-plan.md` for detailed breakdown
@@ -74,7 +77,7 @@ Notes and current decisions:
   - Unused parameters marked with (void) to suppress warnings
   - Full opcode documentation blocks preserved from vdbe.c
 
-Recent extraction sessions (Phases 1-4b):
+Recent extraction sessions (Phases 1-4c):
 - Phase 1: String operations (OP_Concat) - committed
 - Phase 2: Type conversions (Cast, MakeRecord, ApplyType) - committed
 - Phase 3: Aggregate functions (AggStep, AggFinal) - committed
@@ -82,13 +85,16 @@ Recent extraction sessions (Phases 1-4b):
 - Phase 4b: Cursor navigation (Last, Rewind, Next, NextIfOpen, Prev, PrevIfOpen) - committed
   - Refactored to share next_tail code, eliminating duplication
   - Code sharing: 5 opcodes share common tail logic in vdbe.c
-- Total: 15 opcodes extracted across 5 new files
+- Phase 4c: Cursor seek (SeekGE, SeekGT, SeekLE, SeekLT) - committed
+  - Special return value 2 for skipping next opcode (OPFLAG_SEEKEQ)
+  - Handlers include full type checking and implicit numeric conversions
+- Total: 19 opcodes extracted across 6 new files
 - All builds verified with -Wall -Wextra -Werror
 
 Next actions you can request:
 
-- Continue with Phase 4c: Cursor seek operations (4 opcodes)
-- Continue with Phase 4d-4e: Index and data modification operations (13 opcodes)
+- Continue with Phase 4d: Index operations (8 opcodes: IdxInsert, IdxGE, Found, etc.)
+- Continue with Phase 4e: Data modification operations (5 opcodes: Delete, Update, SInsert, etc.)
 - Reconcile the generator output and re-enable the generated dispatch in the build
 - Add unit tests for extracted opcode handlers
 

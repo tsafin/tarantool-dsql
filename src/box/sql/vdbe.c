@@ -2279,46 +2279,11 @@ EXECUTE(OP_Close,(P1)): {
  */
 EXECUTE(OP_SeekLT,(P1,P2,P3,P4)): 	/* jump, in3 */
 EXECUTE(OP_SeekGT,(P1,P2,P3,P4)): {     /* jump, in3 */
-	bool is_lt = pOp->opcode == OP_SeekLT;
-	struct VdbeCursor *cur = p->apCsr[P1];
-#ifdef SQL_DEBUG
-	cur->seekOp = pOp->opcode;
-#endif
-	cur->nullRow = 0;
-	cur->uc.pCursor->iter_type = is_lt ? ITER_LT : ITER_GT;
-
-	uint32_t len = pOp->p4.i;
-	assert(pOp->p4type == P4_INT32);
-	assert(len <= cur->key_def->part_count);
-	struct Mem *mems = &aMem[P3];
-	bool is_op_change = false;
-	for (uint32_t i = 0; i < len; ++i) {
-		enum field_type type = cur->key_def->parts[i].type;
-		struct Mem *mem = &mems[i];
-		if (mem_is_field_compatible(mem, type))
-			continue;
-		if (!sql_type_is_numeric(type) || !mem_is_num(mem)) {
-			diag_set(ClientError, ER_SQL_TYPE_MISMATCH,
-				 mem_str(mem), field_type_strs[type]);
-			goto abort_due_to_error;
-		}
-		int cmp = mem_cast_implicit_number(mem, type);
-		is_op_change = is_op_change || (is_lt && cmp > 0) ||
-			       (!is_lt && cmp < 0);
-	}
-	if (is_op_change)
-		cur->uc.pCursor->iter_type = is_lt ? ITER_LE : ITER_GE;
-
-	int res;
-	if (sql_cursor_seek(cur->uc.pCursor, mems, len, &res) != 0)
+	int res = vdbe_op_seek_lt_gt(p, pOp, aMem);
+	if (res < 0)
 		goto abort_due_to_error;
-	assert((res != 0) == (cur->uc.pCursor->eState == CURSOR_INVALID));
-	cur->cacheStatus = CACHE_STALE;
-#ifdef SQL_TEST
-	sql_search_count++;
-#endif
 	assert(P2 > 0);
-	if (res != 0)
+	if (res == 1)
 		JUMP_P2();
 	DISPATCH();
 }
@@ -2375,65 +2340,14 @@ EXECUTE(OP_SeekGT,(P1,P2,P3,P4)): {     /* jump, in3 */
  */
 EXECUTE(OP_SeekLE,(P1,P2,P3,P4)):	/* jump, in3 */
 EXECUTE(OP_SeekGE,(P1,P2,P3,P4)): {	/* jump, in3 */
-	bool is_le = pOp->opcode == OP_SeekLE;
-	struct VdbeCursor *cur = p->apCsr[P1];
-#ifdef SQL_DEBUG
-	cur->seekOp = pOp->opcode;
-#endif
-	cur->nullRow = 0;
-	bool is_eq = (cur->uc.pCursor->hints & OPFLAG_SEEKEQ) != 0;
-	if (is_le)
-		cur->uc.pCursor->iter_type = is_eq ? ITER_REQ : ITER_LE;
-	else
-		cur->uc.pCursor->iter_type = is_eq ? ITER_EQ : ITER_GE;
-	assert(!is_eq || pOp[1].opcode == OP_IdxLT ||
-	       pOp[1].opcode == OP_IdxGT);
-
-	uint32_t len = pOp->p4.i;
-	assert(pOp->p4type == P4_INT32);
-	assert(len <= cur->key_def->part_count);
-	struct Mem *mems = &aMem[P3];
-	bool is_op_change = false;
-	bool is_zero = false;
-	for (uint32_t i = 0; i < len; ++i) {
-		enum field_type type = cur->key_def->parts[i].type;
-		struct Mem *mem = &mems[i];
-		if (mem_is_field_compatible(mem, type))
-			continue;
-		if (!sql_type_is_numeric(type) || !mem_is_num(mem)) {
-			diag_set(ClientError, ER_SQL_TYPE_MISMATCH,
-				 mem_str(mem), field_type_strs[type]);
-			goto abort_due_to_error;
-		}
-		int cmp = mem_cast_implicit_number(mem, type);
-		is_op_change = is_op_change || (is_le && cmp < 0) ||
-			       (!is_le && cmp > 0);
-		/*
-		 * In case search using EQ or REQ, we will not find anything if
-		 * conversion cannot be precise.
-		 */
-		is_zero = is_zero || (is_eq && cmp != 0);
-	}
-	if (is_zero) {
-		assert(P2 > 0);
-		JUMP_P2();
-	}
-	if (!is_eq && is_op_change)
-		cur->uc.pCursor->iter_type = is_le ? ITER_LT : ITER_GT;
-
-	int res;
-	if (sql_cursor_seek(cur->uc.pCursor, mems, len, &res) != 0)
+	int res = vdbe_op_seek_le_ge(p, pOp, aMem);
+	if (res < 0)
 		goto abort_due_to_error;
-	assert((res != 0) == (cur->uc.pCursor->eState == CURSOR_INVALID));
-	cur->cacheStatus = CACHE_STALE;
-#ifdef SQL_TEST
-	sql_search_count++;
-#endif
 	assert(P2 > 0);
-	if (res != 0)
+	if (res == 1)
 		JUMP_P2();
-	/* Skip the OP_IdxLT/OP_IdxGT that follows if we have EQ. */
-	if (is_eq)
+	/* Skip the OP_IdxLT/OP_IdxGT that follows if we have EQ (res == 2). */
+	if (res == 2)
 		pOp++;
 	DISPATCH();
 }

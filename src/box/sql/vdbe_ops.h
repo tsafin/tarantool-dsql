@@ -60,6 +60,9 @@ int vdbe_op_next(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_nextifopen(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_prev(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_previfopen(Vdbe *p, Op *pOp, Mem *aMem);
+/* Cursor seek opcodes - return 2 for skip next opcode (SEEKEQ) */
+int vdbe_op_seek_lt_gt(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_seek_le_ge(Vdbe *p, Op *pOp, Mem *aMem);
 /* Control flow opcodes - reserved for dispatcher refactoring
  * See vdbe_ops_control.c for extraction plan.
  * These remain in vdbe.c for now due to PC manipulation complexity. */
