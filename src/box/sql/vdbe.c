@@ -60,6 +60,8 @@
 #include "vdbe_ops.h"
 /* Dispatcher selection and validation framework (Phase 5.3) */
 #include "vdbe_dispatch.h"
+/* Dispatcher interface for Phase 5.4 integration */
+#include "vdbe_dispatch_interface.h"
 
 /*
  * We use computed-goto-based dispatch only within compilers supporting goto by
@@ -157,7 +159,7 @@ int sql_found_count = 0;
  * Allocate VdbeCursor number iCur.  Return a pointer to it.  Return NULL
  * if we run out of memory.
  */
-static VdbeCursor *
+static __attribute__((unused)) VdbeCursor *
 allocateCursor(
 	Vdbe *p,              /* The virtual machine */
 	int iCur,             /* Index of the new VdbeCursor */
@@ -221,7 +223,7 @@ allocateCursor(
  * burn CPU cycles every time through the evaluator loop.
  * Only allow tracing if SQL_DEBUG is defined.
  */
-static void
+static __attribute__((unused)) void
 vdbe_trace(Vdbe *p, Op *pOrigOp, int rc, Mem *aMem)
 {
 	if ((p->sql_flags & SQL_VdbeTrace) != 0) {
@@ -241,7 +243,7 @@ vdbe_trace(Vdbe *p, Op *pOrigOp, int rc, Mem *aMem)
 }
 
 /* Tracing and checking on vdbe operands */
-static void
+static __attribute__((unused)) void
 check_vdbe_operands(Vdbe *p, Op *pOp, Op *aOp, Mem *aMem)
 {
 	if ((p->sql_flags & SQL_VdbeTrace) != 0)
@@ -284,7 +286,7 @@ check_vdbe_operands(Vdbe *p, Op *pOp, Op *aOp, Mem *aMem)
 
 #endif
 
-static struct Mem *
+static __attribute__((unused)) struct Mem *
 vdbe_prepare_null_out(struct Vdbe *v, int n)
 {
 	assert(n > 0);
@@ -320,20 +322,10 @@ vdbe_add_new_autoinc_id(struct Vdbe *vdbe, int64_t id)
  */
 int sqlVdbeExec(Vdbe *p)
 {
-	Op *aOp = p->aOp;          /* Copy of p->aOp */
-	Op *pOp = aOp;             /* Current operation */
-#if defined(SQL_DEBUG)
-	Op *pOrigOp;               /* Value of pOp at the top of the loop */
-#endif
 	int rc = 0;        /* Value to return */
-	/* The database */
-	struct sql *db = sql_get();
+	Op *aOp = p->aOp;          /* Copy of p->aOp */
 	Mem *aMem = p->aMem;       /* Copy of p->aMem */
-	Mem *pIn1 = 0;             /* 1st input operand */
-	Mem *pIn2 = 0;             /* 2nd input operand */
-	Mem *pIn3 = 0;             /* 3rd input operand */
-	Mem *pOut = 0;             /* Output operand */
-	int *aPermute = 0;         /* Permutation of columns for OP_Compare */
+
 	/*** INSERT STACK UNION HERE ***/
 
 	assert(p->magic==VDBE_MAGIC_RUN);  /* sql_step() verifies this */
@@ -366,6 +358,24 @@ int sqlVdbeExec(Vdbe *p)
 			printf("VDBE Trace:\n");
 	}
 #endif
+
+#ifdef VDBE_USE_GENERATED_DISPATCH
+	/* Phase 5.4: Execute selected dispatcher instead of inline loop */
+	VdbeDispatcher dispatcher = vdbe_get_dispatcher();
+	rc = dispatcher(p, aOp, aMem);
+	goto vdbe_return;
+#else
+	/* Original inline dispatcher - fallback mode */
+	Op *pOp = aOp;             /* Current operation */
+#if defined(SQL_DEBUG)
+	Op *pOrigOp;               /* Value of pOp at the top of the loop */
+#endif
+	struct sql *db = sql_get(); /* The database */
+	Mem *pIn1 = 0;             /* 1st input operand */
+	Mem *pIn2 = 0;             /* 2nd input operand */
+	Mem *pIn3 = 0;             /* 3rd input operand */
+	Mem *pOut = 0;             /* Output operand */
+	int *aPermute = 0;         /* Permutation of columns for OP_Compare */
 
 	assert(pOp>=aOp && pOp<&aOp[p->nOp]);
 
@@ -432,9 +442,11 @@ int sqlVdbeExec(Vdbe *p)
 #endif /* SQL_DEBUG */
 
 #ifdef SQL_USE_GOTO
+#ifndef VDBE_USE_GENERATED_DISPATCH
 
 #include "dispatchtable.h"
 
+#endif /* VDBE_USE_GENERATED_DISPATCH */
 #endif /* SQL_USE_GOTO */
 
 	pOp = &aOp[p->pc];
@@ -443,7 +455,6 @@ int sqlVdbeExec(Vdbe *p)
 	 */
 	assert(rc == 0);
 
-	assert(pOp >= aOp && pOp < &aOp[p->nOp]);
 	//nVmStep++;
 
 #ifdef SQL_DEBUG
@@ -3691,6 +3702,7 @@ EXECUTE(OP_Explain,()): {
  * restored.
  ****************************************************************************/
 	}
+#endif /* VDBE_USE_GENERATED_DISPATCH */
 
 	/* If we reach this point, it means that execution is finished with
 	 * an error of some kind.
@@ -3707,7 +3719,7 @@ vdbe_return:
 	/* Jump to here if a string or blob larger than SQL_MAX_LENGTH
 	 * is encountered.
 	 */
-too_big:
+too_big: __attribute__((unused));
 	diag_set(ClientError, ER_SQL_EXECUTE, "string or blob too big");
 	goto abort_due_to_error;
 }
