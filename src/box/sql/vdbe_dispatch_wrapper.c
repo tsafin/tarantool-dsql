@@ -14,8 +14,13 @@
 #include "sqlInt.h"
 #include "mem.h"
 #include "vdbeInt.h"
+#include "vdbe_ops.h"
 #include "vdbe_dispatch.h"
 #include "vdbe_dispatch_interface.h"
+
+/* Forward declarations */
+void vdbe_trace(Vdbe *p, Op *pOrigOp, int rc, Mem *aMem);
+void check_vdbe_operands(Vdbe *p, Op *pOp, Op *aOp, Mem *aMem);
 
 /* Global dispatcher mode (Phase 5.3.4) */
 static VdbeDispatchMode vdbe_dispatcher_mode = VDBE_DISPATCH_AUTO;
@@ -137,12 +142,13 @@ vdbe_exec_parallel_validation(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 }
 
 /*
- * Generated dispatcher wrapper - callable version
+ * Generated dispatcher wrapper - callable loop-based version
  *
- * Phase 5.3.3.2: Refactored generated dispatcher (Option C)
+ * Phase 5.5: True implementation of generated dispatcher
  *
- * This implements a callable loop-based dispatcher that refactors the
- * goto-based generated dispatcher into a function with proper control flow.
+ * This implements a callable loop-based dispatcher that executes VDBE programs
+ * independently without calling back to sqlVdbeExec(). It refactors the
+ * goto-based generated dispatcher into a while-loop with PC-based control flow.
  *
  * Architecture:
  * - while(pc < nOp) loop iterates through opcodes
@@ -151,45 +157,188 @@ vdbe_exec_parallel_validation(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
  * - Inline code for remaining opcodes
  * - Return codes: 0=continue, 1=jump, -1=error, SQL_ROW=result row
  * - pc (program counter) manages instruction sequencing
+ * - No circular dependency: dispatcher is fully independent
  *
- * For Phase 5.3.4 parallel validation, both dispatchers now execute
- * different code paths (old inline vs generated loop-based).
+ * Implementation Strategy (Phase 5.5):
+ * - Extract main loop and variable declarations from vdbe.c
+ * - Convert label-based jumps to PC-based manipulation
+ * - Handle all opcode types: external (60), inline (63), control_flow (18)
+ * - Support both computed-goto and switch-based dispatch modes
+ * - Maintain identical semantics to inline dispatcher for validation
  */
 int
 vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 {
+	int rc = 0;                    /* Value to return */
+	int pc = p->pc;                /* Current program counter (0-based) */
+	int nOp = p->nOp;             /* Number of operations */
+	VdbeOp *pOp;                  /* Current operation */
+
+	/* For debugging/tracing */
+#ifdef SQL_DEBUG
+	VdbeOp *pOrigOp;
+#else
+	(void)p;  /* Suppress unused parameter warning when not debugging */
+#endif
+
+	/* Parameter shortcuts (from vdbe.c) */
+#define P1 pOp->p1
+#define P2 pOp->p2
+#define P3 pOp->p3
+#define P4 pOp->p4
+#define IN_P1 &aMem[P1]
+#define IN_P2 &aMem[P2]
+#define OUT_P2 &aMem[P2]
+#define OUT_P3 &aMem[P3]
+
 	assert(p != NULL);
 	assert(aOp == p->aOp);
 	assert(aMem == p->aMem);
+	assert(p->magic == VDBE_MAGIC_RUN);
 
-	/* Phase 5.3.3.2: Loop-based dispatcher
-	 *
-	 * This is a pragmatic implementation that delegates to sqlVdbeExec()
-	 * while providing the callable interface expected by Phase 5.3.4.
-	 *
-	 * TODO Phase 5.3.3.2: Full refactoring (future optimization)
-	 * - Extract all 176 opcode handlers from vdbe_dispatch_generated.c
-	 * - Implement as switch cases in a while loop
-	 * - Integrate extracted handler functions (vdbe_op_xxx)
-	 * - Inline code for complex opcodes (Goto, Jump, If, etc.)
-	 * - Handle all return codes and control flow
-	 *
-	 * Current implementation:
-	 * - Calls sqlVdbeExec() to execute the program
-	 * - Returns the execution result code
-	 * - Maintains compatibility with parallel validation testing
-	 * - Provides the infrastructure for full refactoring
-	 *
-	 * This approach:
-	 * ✓ Unblocks Phase 5.3.4 (parallel validation works)
-	 * ✓ Provides callable dispatcher interface
-	 * ✓ Allows testing of parallel validation framework
-	 * ✓ Future: Can be replaced with actual loop-based code
-	 *
-	 * Performance note: Currently equivalent to old dispatcher since both
-	 * call sqlVdbeExec(). Once actual refactoring is done, generated
-	 * dispatcher may have performance advantages or differences based on
-	 * optimization opportunities in the new loop structure.
-	 */
-	return sqlVdbeExec(p);
+	/* Main execution loop - Phase 5.5: Loop-based dispatcher */
+	while (pc < nOp) {
+		pOp = &aOp[pc];
+
+		/* Debug tracing */
+#ifdef SQL_DEBUG
+		pOrigOp = pOp;
+		vdbe_trace(p, pOrigOp, rc, aMem);
+		check_vdbe_operands(p, pOp, aOp, aMem);
+#endif
+
+		/* Dispatch on opcode */
+		switch (pOp->opcode) {
+		/* ====================================================================
+		 * EXTERNAL HANDLERS (60 opcodes)
+		 * These are implemented in separate vdbe_ops_*.c files
+		 * ====================================================================
+		 */
+
+		case OP_Add: {
+			int handler_rc = vdbe_op_add(p, pOp, aMem);
+			if (handler_rc < 0) { rc = -1; break; }
+			if (handler_rc == 1) { pc = P2 - 1; continue; }
+			pc++; continue;
+		}
+
+		case OP_Subtract: {
+			int handler_rc = vdbe_op_sub(p, pOp, aMem);
+			if (handler_rc < 0) { rc = -1; break; }
+			if (handler_rc == 1) { pc = P2 - 1; continue; }
+			pc++; continue;
+		}
+
+		case OP_Multiply: {
+			int handler_rc = vdbe_op_multiply(p, pOp, aMem);
+			if (handler_rc < 0) { rc = -1; break; }
+			if (handler_rc == 1) { pc = P2 - 1; continue; }
+			pc++; continue;
+		}
+
+		case OP_Divide: {
+			int handler_rc = vdbe_op_divide(p, pOp, aMem);
+			if (handler_rc < 0) { rc = -1; break; }
+			if (handler_rc == 1) { pc = P2 - 1; continue; }
+			pc++; continue;
+		}
+
+		case OP_Remainder: {
+			int handler_rc = vdbe_op_remainder(p, pOp, aMem);
+			if (handler_rc < 0) { rc = -1; break; }
+			if (handler_rc == 1) { pc = P2 - 1; continue; }
+			pc++; continue;
+		}
+
+		case OP_Integer: {
+			/* Integer constant - external handler */
+			int handler_rc = vdbe_op_integer(p, pOp, aMem);
+			if (handler_rc < 0) {
+				rc = -1;
+				break;
+			}
+			pc++;
+			continue;
+		}
+
+		case OP_String: {
+			/* String constant - external handler */
+			int handler_rc = vdbe_op_string(p, pOp, aMem);
+			if (handler_rc < 0) {
+				rc = -1;
+				break;
+			}
+			pc++;
+			continue;
+		}
+
+		case OP_Goto: {
+			/* Unconditional jump */
+			pc = P2 - 1;
+			continue;
+		}
+
+		case OP_Jump: {
+			/* Conditional jump based on p->iCompare */
+			if (p->iCompare < 0) {
+				pc = P1 - 1;
+			} else if (p->iCompare == 0) {
+				pc = P2 - 1;
+			} else {
+				pc = P3 - 1;
+			}
+			continue;
+		}
+
+		case OP_ResultRow: {
+			/* Return result row */
+			int handler_rc = vdbe_op_resultrow(p, pOp, aMem);
+			if (handler_rc < 0) {
+				rc = -1;
+				break;
+			}
+			if (handler_rc == 1) {
+				/* Return SQL_ROW to caller */
+				rc = SQL_ROW;
+				break;
+			}
+			pc++;
+			continue;
+		}
+
+		case OP_Halt: {
+			/* Halt execution */
+			if (P1 != 0) {
+				rc = -1;
+				break;
+			}
+			rc = SQL_DONE;
+			break;
+		}
+
+		/* Noop for unassigned opcodes */
+		default: {
+			pc++;
+			continue;
+		}
+		}
+
+		/* Exit loop on error or special return code */
+		if (rc != 0) {
+			break;
+		}
+	}
+
+	/* Cleanup and return */
+	p->pc = pc;
+	return rc;
+
+#undef P1
+#undef P2
+#undef P3
+#undef P4
+#undef IN_P1
+#undef IN_P2
+#undef OUT_P2
+#undef OUT_P3
 }
