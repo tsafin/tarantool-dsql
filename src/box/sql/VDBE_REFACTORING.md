@@ -226,7 +226,15 @@ All planned handler extraction phases have been successfully completed:
 - [x] Add VDBE_USE_GENERATED_DISPATCH compile-time switch (vdbe_dispatch.h)
 - [x] Create validation infrastructure (vdbe_dispatch_validate.c)
 - [x] Add validation statistics tracking
-- [ ] Run both dispatchers side-by-side (requires dispatcher integration)
+- [x] Phase 5.3.1: Interface and wrapper setup
+  - [x] Create vdbe_dispatch_interface.h with dispatcher function interface
+  - [x] Create vdbe_dispatch_wrapper.c with wrapper function stubs
+  - [x] Integrate wrapper functions in build system
+  - [x] Create PHASE_5_3_INTEGRATION_PLAN.md with detailed architecture
+- [ ] Phase 5.3.2: Old dispatcher extraction
+- [ ] Phase 5.3.3: Generated dispatcher integration
+- [ ] Phase 5.3.4: Parallel validation testing
+- [ ] Phase 5.3.5: Generated dispatcher as default
 - [ ] Verify identical results and <2% performance regression
 - [ ] Test computed-goto and switch fallback modes
 
@@ -277,33 +285,43 @@ All planned handler extraction phases have been successfully completed:
 
 ```
 src/box/sql/
-├── vdbe.c                       # Main execution loop
-├── vdbe_ops.h                   # Handler function prototypes (60 handlers)
+├── vdbe.c                              # Main execution loop (sqlVdbeExec)
+├── vdbe_ops.h                          # Handler function prototypes (60 handlers)
 │
-├── vdbe_ops_arith.c             # ✓ Arithmetic operators (5 opcodes)
-├── vdbe_ops_data.c              # ✓ Data/constant operators (11 opcodes)
-├── vdbe_ops_compare.c           # ✓ Comparison operators (6 opcodes)
-├── vdbe_ops_logical.c           # ✓ Logical/bitwise operators (6 opcodes)
+├── vdbe_ops_arith.c                    # ✓ Arithmetic operators (5 opcodes)
+├── vdbe_ops_data.c                     # ✓ Data/constant operators (11 opcodes)
+├── vdbe_ops_compare.c                  # ✓ Comparison operators (6 opcodes)
+├── vdbe_ops_logical.c                  # ✓ Logical/bitwise operators (6 opcodes)
 │
-├── vdbe_ops_string.c            # ✓ String operations (1 opcode) - Phase 1
-├── vdbe_ops_type.c              # ✓ Type conversions (3 opcodes) - Phase 2
-├── vdbe_ops_aggregate.c         # ✓ Aggregate functions (2 opcodes) - Phase 3
-├── vdbe_ops_cursor_data.c       # ✓ Cursor data access (3 opcodes) - Phase 4a
+├── vdbe_ops_string.c                   # ✓ String operations (1 opcode) - Phase 1
+├── vdbe_ops_type.c                     # ✓ Type conversions (3 opcodes) - Phase 2
+├── vdbe_ops_aggregate.c                # ✓ Aggregate functions (2 opcodes) - Phase 3
+├── vdbe_ops_cursor_data.c              # ✓ Cursor data access (3 opcodes) - Phase 4a
 │
-├── vdbe_ops_cursor_nav.c        # ✓ Cursor navigation (6 opcodes) - Phase 4b
-├── vdbe_ops_cursor_seek.c       # ✓ Cursor seek (4 opcodes) - Phase 4c
-├── vdbe_ops_index.c             # ✓ Index operations (8 opcodes) - Phase 4d
-├── vdbe_ops_modify.c            # ✓ Data modification (5 opcodes) - Phase 4e
+├── vdbe_ops_cursor_nav.c               # ✓ Cursor navigation (6 opcodes) - Phase 4b
+├── vdbe_ops_cursor_seek.c              # ✓ Cursor seek (4 opcodes) - Phase 4c
+├── vdbe_ops_index.c                    # ✓ Index operations (8 opcodes) - Phase 4d
+├── vdbe_ops_modify.c                   # ✓ Data modification (5 opcodes) - Phase 4e
 │
-├── vdbe_ops_control.c           # [TODO] Control flow ops - Phase 6 (deferred)
-├── vdbe_helpers.c               # Shared helper functions
-└── VDBE_REFACTORING.md          # This file
+├── vdbe_ops_control.c                  # [TODO] Control flow ops - Phase 6 (deferred)
+├── vdbe_helpers.c                      # Shared helper functions
+│
+├── VDBE Dispatcher Architecture (Phase 5.3):
+├── vdbe_dispatch.h                     # ✓ Dispatcher selection framework
+├── vdbe_dispatch_interface.h           # ✓ NEW: Common dispatcher interface
+├── vdbe_dispatch_wrapper.c             # ✓ NEW: Dispatcher wrapper functions
+├── vdbe_dispatch_validate.c            # ✓ Validation infrastructure
+├── generated/vdbe_dispatch_generated.c # Generated dispatcher from YAML DSL
+│
+└── VDBE_REFACTORING.md                 # This file
 ```
 
 **Legend:**
 - ✓ = Extracted and committed
+- ✓ NEW = Phase 5.3.1 newly created
 - [TODO] = Planned for future extraction
 - Phase 6 will extract control flow ops after dispatcher refactoring
+- Phase 5.3.2+ will complete dispatcher integration
 
 ## Handler Patterns and Conventions
 
@@ -398,6 +416,13 @@ EXECUTE(OP_Xxx,(P1,P2)): {
   - Created validation statistics and mismatch logging
   - All validation code verified to compile correctly
   - **Commit**: 49c2907978
+- **Phase 5.3.1** (2025-12-18): Interface and wrapper setup
+  - Created vdbe_dispatch_interface.h with common dispatcher interface
+  - Implemented vdbe_dispatch_wrapper.c with wrapper function stubs
+  - Designed "Option A: Wrapper Functions" integration approach
+  - Created PHASE_5_3_INTEGRATION_PLAN.md with detailed architecture
+  - All new code verified to compile correctly
+  - Build succeeds with new dispatcher wrapper infrastructure
 - **Total opcodes processed**: 60 external + 63 inline + 18 control flow = 141 opcodes (35 unassigned) = 176 total
-- **Status**: Phase 5.3 infrastructure complete, ready for dispatcher integration
-- **Remaining**: Dispatcher integration, parallel testing, Phase 5.4 (Cutover), Phase 6 (Control flow extraction)
+- **Status**: Phase 5.3.1 complete. Phase 5.3.2-5 (dispatcher integration & validation) in progress
+- **Remaining**: Phase 5.3.2 (old dispatcher extraction), Phase 5.3.3-5 (generated integration & testing)

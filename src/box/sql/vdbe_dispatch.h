@@ -25,9 +25,10 @@
  * - Uses original inline dispatcher from vdbe.c
  * - Original behavior and performance characteristics
  *
- * Comment out to use original dispatcher:
+ * Currently DISABLED - Phase 5.3 integration still in progress
+ * Uncomment to enable when dispatcher integration is complete:
  */
-#define VDBE_USE_GENERATED_DISPATCH
+/* #define VDBE_USE_GENERATED_DISPATCH */
 
 /*
  * VDBE_PARALLEL_VALIDATION: Run both dispatchers and compare results

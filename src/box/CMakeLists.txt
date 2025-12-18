@@ -143,6 +143,7 @@ set(sql_sources
     sql/vdbe_ops_index.c
     sql/vdbe_ops_modify.c
     sql/vdbe_dispatch_validate.c
+    sql/vdbe_dispatch_wrapper.c
     sql/vdbe_helpers.c
     sql/vdbeapi.c
     sql/vdbeaux.c
@@ -414,8 +415,9 @@ add_custom_command(
 add_custom_target(vdbe_codegen DEPENDS ${VDBE_GEN_C} ${VDBE_GEN_H})
 include_directories(${SQL_SRC_DIR}/generated)
 
-# Add generated dispatch C to sql sources so it is built with box
-list(APPEND sql_sources ${VDBE_GEN_C})
+# Generated dispatch code is included directly in vdbe.c, not compiled separately
+# (Phase 5.3: kept in build for reference, will be integrated into vdbe.c)
+# list(APPEND sql_sources ${VDBE_GEN_C})
 
 add_custom_target(generate_sql_files DEPENDS
     sql/parse.h
