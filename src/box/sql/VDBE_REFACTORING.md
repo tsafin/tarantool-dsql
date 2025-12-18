@@ -147,60 +147,66 @@ Comparison operators (Eq, Ne, Lt, Le, Gt, Ge) needed to:
 
 ## Extraction Statistics
 
-**Total opcodes extracted: 37 across 8 files**
+**Total opcodes extracted: 60 across 9 files - ALL NON-CONTROL-FLOW HANDLERS EXTRACTED ✓**
 
 - Initial phase: 28 opcodes (arithmetic, data, comparison, logical/bitwise)
-- Recent sessions (Phases 1-4a): 9 opcodes (string, type, aggregates, cursor data)
+- Phases 1-4a: 9 opcodes (string, type, aggregates, cursor data access)
+- Phases 4b-4e: 23 opcodes (cursor navigation, seeking, indexing, data modification)
 - All builds verified with `-Wall -Wextra -Werror`
 - All extractions committed to git
 
-## Remaining Extraction Phases
+## Completed Extraction Phases ✓
 
-According to the extraction plan (see TODO.md), 23 opcodes remain across 4 phases:
+All planned handler extraction phases have been successfully completed:
 
-### Phase 4b: Cursor Navigation Operations - 6 opcodes
+### ✓ Phase 4b: Cursor Navigation Operations - 6 opcodes
 - OP_Next, OP_NextIfOpen, OP_Prev, OP_PrevIfOpen
 - OP_Rewind, OP_Last
-- File: `vdbe_ops_cursor_nav.c`
+- File: `vdbe_ops_cursor_nav.c` - **COMPLETED**
 - Complexity: High - iterator control and cursor state management
 
-### Phase 4c: Cursor Seek Operations - 4 opcodes
+### ✓ Phase 4c: Cursor Seek Operations - 4 opcodes
 - OP_SeekGE, OP_SeekGT, OP_SeekLE, OP_SeekLT
-- File: `vdbe_ops_cursor_seek.c`
+- File: `vdbe_ops_cursor_seek.c` - **COMPLETED**
 - Complexity: High - B-tree seeking
 
-### Phase 4d: Index Operations - 8 opcodes
+### ✓ Phase 4d: Index Operations - 8 opcodes
 - OP_IdxGE, OP_IdxGT, OP_IdxLE, OP_IdxLT
 - OP_Found, OP_NotFound, OP_NoConflict
 - OP_IdxInsert
-- File: `vdbe_ops_index.c`
+- File: `vdbe_ops_index.c` - **COMPLETED**
 - Complexity: High - index manipulation
 
-### Phase 4e: Data Modification Operations - 5 opcodes
+### ✓ Phase 4e: Data Modification Operations - 5 opcodes
 - OP_Delete, OP_Update
 - OP_SInsert, OP_SDelete
 - OP_IdxDelete
-- File: `vdbe_ops_modify.c`
+- File: `vdbe_ops_modify.c` - **COMPLETED**
 - Complexity: High - storage engine interaction
 
-### Deferred Operations
-- Control flow ops (OP_Goto, OP_Jump, OP_If, OP_IfNot, etc.) remain in vdbe.c
+### Deferred Operations (Remaining Work)
+- Control flow ops (OP_Goto, OP_Jump, OP_If, OP_IfNot, etc.) remain in vdbe.c - 18 opcodes
 - Reason: PC manipulation complexity - better handled with dispatcher refactoring
 - See `vdbe_ops_control.c` for extraction options
 
 ## Next Steps
 
-1. **Continue Handler Extraction** (Phases 4b-4e)
-   - Follow established workflow: Extract → Build → Commit → Next Phase
-   - Each phase independently buildable and testable
-   - Update TODO.md and this file after each phase
+### Immediate (Handler Extraction Complete - Phase 5)
 
-2. **Generate Dispatcher**
-   - Once handlers are extracted, generate the dispatcher
+1. **Generate Dispatcher** (Phase 5)
+   - Create dispatcher for 60 extracted handlers
    - Options:
-     - Jump table (computed goto)
-     - Function pointer array
-     - Generated switch statement
+     - Jump table (computed goto) - highest performance
+     - Function pointer array - good balance
+     - Generated switch statement - maintainability
+   - Current dispatch uses EXECUTE() macros which can be replaced
+
+2. **Control Flow Handler Extraction** (Phase 6 - Deferred)
+   - Extract 18 control flow operations once dispatcher refactoring is complete
+   - Operations: OP_Goto, OP_Jump, OP_If, OP_IfNot, etc.
+   - Reason for deferral: PC manipulation works best with new dispatcher architecture
+
+### Future
 
 3. **Add Tests**
    - Unit tests for individual handlers
@@ -217,7 +223,7 @@ According to the extraction plan (see TODO.md), 23 opcodes remain across 4 phase
 ```
 src/box/sql/
 ├── vdbe.c                       # Main execution loop
-├── vdbe_ops.h                   # Handler function prototypes (all 37 handlers)
+├── vdbe_ops.h                   # Handler function prototypes (60 handlers)
 │
 ├── vdbe_ops_arith.c             # ✓ Arithmetic operators (5 opcodes)
 ├── vdbe_ops_data.c              # ✓ Data/constant operators (11 opcodes)
@@ -229,20 +235,20 @@ src/box/sql/
 ├── vdbe_ops_aggregate.c         # ✓ Aggregate functions (2 opcodes) - Phase 3
 ├── vdbe_ops_cursor_data.c       # ✓ Cursor data access (3 opcodes) - Phase 4a
 │
-├── vdbe_ops_cursor_nav.c        # [ ] Cursor navigation (6 opcodes) - Phase 4b
-├── vdbe_ops_cursor_seek.c       # [ ] Cursor seek (4 opcodes) - Phase 4c
-├── vdbe_ops_index.c             # [ ] Index operations (8 opcodes) - Phase 4d
-├── vdbe_ops_modify.c            # [ ] Data modification (5 opcodes) - Phase 4e
+├── vdbe_ops_cursor_nav.c        # ✓ Cursor navigation (6 opcodes) - Phase 4b
+├── vdbe_ops_cursor_seek.c       # ✓ Cursor seek (4 opcodes) - Phase 4c
+├── vdbe_ops_index.c             # ✓ Index operations (8 opcodes) - Phase 4d
+├── vdbe_ops_modify.c            # ✓ Data modification (5 opcodes) - Phase 4e
 │
-├── vdbe_ops_control.c           # [DEFERRED] Control flow ops (extraction plan only)
+├── vdbe_ops_control.c           # [TODO] Control flow ops - Phase 6 (deferred)
 ├── vdbe_helpers.c               # Shared helper functions
 └── VDBE_REFACTORING.md          # This file
 ```
 
 **Legend:**
 - ✓ = Extracted and committed
-- [ ] = Planned for extraction
-- [DEFERRED] = Postponed until dispatcher refactoring
+- [TODO] = Planned for future extraction
+- Phase 6 will extract control flow ops after dispatcher refactoring
 
 ## Handler Patterns and Conventions
 
@@ -305,7 +311,7 @@ EXECUTE(OP_Xxx,(P1,P2)): {
 - **Extraction plan**: [~/.claude/plans/handler-extraction-plan.md](/home/tsafin/.claude/plans/handler-extraction-plan.md)
 - **VDBE internals**: [vdbeInt.h](vdbeInt.h) - struct Vdbe, VdbeCursor, Op definitions
 - **Main execution loop**: [vdbe.c](vdbe.c) - sqlVdbeExec() function
-- **Handler prototypes**: [vdbe_ops.h](vdbe_ops.h) - all 37 handler declarations
+- **Handler prototypes**: [vdbe_ops.h](vdbe_ops.h) - all 60 handler declarations
 
 ## History
 
@@ -314,4 +320,9 @@ EXECUTE(OP_Xxx,(P1,P2)): {
 - **Phase 2** (2025-01): Type conversions - 3 opcodes
 - **Phase 3** (2025-01): Aggregate functions - 2 opcodes
 - **Phase 4a** (2025-01): Cursor data access - 3 opcodes
-- **Total**: 37 opcodes extracted, 23 remaining in planned phases 4b-4e
+- **Phase 4b** (2025-12): Cursor navigation - 6 opcodes
+- **Phase 4c** (2025-12): Cursor seek operations - 4 opcodes
+- **Phase 4d** (2025-12): Index operations - 8 opcodes
+- **Phase 4e** (2025-12): Data modification - 5 opcodes
+- **Total**: 60 opcodes extracted and integrated ✓
+- **Remaining**: 18 control flow opcodes (deferred for Phase 6 after dispatcher refactoring)
