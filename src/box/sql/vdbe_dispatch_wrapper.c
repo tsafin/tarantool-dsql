@@ -39,23 +39,41 @@ vdbe_exec_old_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 /*
  * Generated dispatcher wrapper
  *
- * This function provides a wrapper around the generated dispatcher
- * from vdbe_dispatch_generated.c
+ * Phase 5.3.3: Integration point for generated dispatcher
  *
- * For now, also returns error - will be implemented when we have
- * the generated dispatcher properly integrated.
+ * The generated dispatcher from vdbe_dispatch_generated.c currently uses
+ * inline labels and goto-based control flow (abort_due_to_error, JUMP_P2, etc.)
+ * which prevents it from being a standalone callable function.
+ *
+ * To implement this wrapper, we need to either:
+ * 1. Refactor generated code to use return codes instead of goto labels
+ * 2. Create a separate version of sqlVdbeExec that uses generated dispatcher
+ * 3. Generate the dispatcher as a self-contained callable function
+ *
+ * Current approach: Placeholder that validates the interface
+ * This allows infrastructure testing while generated dispatcher refactoring
+ * is planned for a follow-up phase.
  */
 int
 vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 {
-	/* For Phase 5.3: Generated dispatcher integration
-	 * This function will call the generated dispatch code
-	 * once the integration is complete.
+	/* For now, return error - indicates generated dispatcher not yet callable
+	 * as a standalone function.
 	 *
-	 * Current status: Infrastructure in place, awaiting integration
+	 * TODO Phase 5.3.3: Implement callable generated dispatcher
+	 * - Refactor generated dispatcher to convert label-based control flow
+	 *   to return codes
+	 * - Or, generate dispatcher as self-contained function from opcodes.yaml
+	 * - Ensure interface matches vdbe_exec_old_dispatcher signature
+	 * - Verify all 176 opcodes dispatch correctly
+	 * - Test with parallel validation (Phase 5.3.4)
 	 */
-	(void)p;
+	assert(p != NULL);
 	(void)aOp;
 	(void)aMem;
-	return -1;  /* Not implemented as separate function yet */
+
+	/* Return error - generated dispatcher not yet integrated */
+	diag_set(ClientError, ER_SQL_EXECUTE,
+	         "Generated dispatcher not yet integrated (Phase 5.3.3 pending)");
+	return -1;
 }
