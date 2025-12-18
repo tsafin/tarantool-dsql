@@ -1,881 +1,1124 @@
----
-# VDBE Opcode DSL (YAML) - Complete opcode specification
-#
-# This file defines all VDBE opcodes and their dispatch strategy:
-# - handler_type: 'external' = extracted to vdbe_ops_*.c files
-# - handler_type: 'inline' = inline implementation in vdbe.c (Phase 5.2)
-# - handler_type: 'control_flow' = deferred to Phase 6 after dispatcher refactoring
-#
-# Phases completed:
-# Phase 1-4e: 60 opcodes extracted to external handler files
-# Phase 5: Generate dispatcher from this specification
-# Phase 6: Control flow ops extraction (deferred)
-
-# Phase 1-4e: Extracted Handlers (60 opcodes)
-
-# Phase 1: String Operations (1 opcode)
 - name: OP_Concat
   id: 29
   handler_type: external
-  flags: [IN1, IN2, OUT3]
-  doc: "String concatenation r[P3]=r[P1]+r[P2]"
-
-# Phase 2: Type Conversions (3 opcodes)
+  flags:
+  - IN1
+  - IN2
+  - OUT3
+  doc: String concatenation r[P3]=r[P1]+r[P2]
 - name: OP_Cast
   id: 68
   handler_type: external
-  flags: [IN1]
-  doc: "Explicit type cast r[P1]"
-
+  flags:
+  - IN1
+  doc: Explicit type cast r[P1]
 - name: OP_ApplyType
   id: 79
   handler_type: external
-  flags: [IN1, IN2]
-  doc: "Apply type checking r[P1@P2]"
-
+  flags:
+  - IN1
+  - IN2
+  doc: Apply type checking r[P1@P2]
 - name: OP_MakeRecord
   id: 80
   handler_type: external
-  flags: [IN1, IN2, OUT3]
-  doc: "Create msgpack record r[P3]=mkrec(r[P1@P2])"
-
-# Phase 3: Aggregate Functions (2 opcodes)
+  flags:
+  - IN1
+  - IN2
+  - OUT3
+  doc: Create msgpack record r[P3]=mkrec(r[P1@P2])
 - name: OP_AggStep
   id: 132
   handler_type: external
-  flags: [IN1, IN2, IN3]
-  doc: "Aggregate step accum=r[P3] step(r[P2@P1])"
-
+  flags:
+  - IN1
+  - IN2
+  - IN3
+  doc: Aggregate step accum=r[P3] step(r[P2@P1])
 - name: OP_AggFinal
   id: 133
   handler_type: external
-  flags: [IN1, OUT3]
-  doc: "Aggregate finalize accum=r[P1]"
-
-# Phase 4a: Cursor Data Access (3 opcodes)
+  flags:
+  - IN1
+  - OUT3
+  doc: Aggregate finalize accum=r[P1]
 - name: OP_ResultRow
   id: 63
   handler_type: external
-  flags: [IN1, IN2]
-  doc: "Return result row output=r[P1@P2]"
-
+  flags:
+  - IN1
+  - IN2
+  doc: Return result row output=r[P1@P2]
 - name: OP_Column
   id: 76
   handler_type: external
-  flags: [IN1, IN2, OUT3]
-  doc: "Extract column from cursor r[P3]=PX"
-
+  flags:
+  - IN1
+  - IN2
+  - OUT3
+  doc: Extract column from cursor r[P3]=PX
 - name: OP_RowData
   id: 112
   handler_type: external
-  flags: [IN1, OUT2]
-  doc: "Get complete row data r[P2]=data"
-
-# Phase 4b: Cursor Navigation (6 opcodes)
+  flags:
+  - IN1
+  - OUT2
+  doc: Get complete row data r[P2]=data
 - name: OP_Rewind
   id: 42
   handler_type: external
-  flags: [IN1, JUMP]
-  doc: "Rewind cursor to first row"
-
+  flags:
+  - IN1
+  - JUMP
+  doc: Rewind cursor to first row
 - name: OP_Last
   id: 39
   handler_type: external
-  flags: [IN1, JUMP]
-  doc: "Position cursor to last row"
-
+  flags:
+  - IN1
+  - JUMP
+  doc: Position cursor to last row
 - name: OP_Next
   id: 6
   handler_type: external
-  flags: [IN1, JUMP]
-  doc: "Advance cursor to next row"
-
+  flags:
+  - IN1
+  - JUMP
+  doc: Advance cursor to next row
 - name: OP_NextIfOpen
   id: 3
   handler_type: external
-  flags: [IN1, JUMP]
-  doc: "Advance cursor if open"
-
+  flags:
+  - IN1
+  - JUMP
+  doc: Advance cursor if open
 - name: OP_Prev
   id: 4
   handler_type: external
-  flags: [IN1, JUMP]
-  doc: "Move cursor to previous row"
-
+  flags:
+  - IN1
+  - JUMP
+  doc: Move cursor to previous row
 - name: OP_PrevIfOpen
   id: 2
   handler_type: external
-  flags: [IN1, JUMP]
-  doc: "Move cursor to previous row if open"
-
-# Phase 4c: Cursor Seek Operations (4 opcodes)
+  flags:
+  - IN1
+  - JUMP
+  doc: Move cursor to previous row if open
 - name: OP_SeekLE
   id: 101
   handler_type: external
-  flags: [IN1, IN3, JUMP]
-  doc: "Seek to LE key position key=r[P3@P4]"
-
+  flags:
+  - IN1
+  - IN3
+  - JUMP
+  doc: Seek to LE key position key=r[P3@P4]
 - name: OP_SeekGT
   id: 36
   handler_type: external
-  flags: [IN1, IN3, JUMP]
-  doc: "Seek to GT key position key=r[P3@P4]"
-
+  flags:
+  - IN1
+  - IN3
+  - JUMP
+  doc: Seek to GT key position key=r[P3@P4]
 - name: OP_SeekGE
   id: 37
   handler_type: external
-  flags: [IN1, IN3, JUMP]
-  doc: "Seek to GE key position key=r[P3@P4]"
-
+  flags:
+  - IN1
+  - IN3
+  - JUMP
+  doc: Seek to GE key position key=r[P3@P4]
 - name: OP_SeekLT
   id: 35
   handler_type: external
-  flags: [IN1, IN3, JUMP]
-  doc: "Seek to LT key position key=r[P3@P4]"
-
-# Phase 4d: Index Operations (9 opcodes)
+  flags:
+  - IN1
+  - IN3
+  - JUMP
+  doc: Seek to LT key position key=r[P3@P4]
 - name: OP_IdxGE
   id: 43
   handler_type: external
-  flags: [IN1, IN3, JUMP]
-  doc: "Index comparison GE key=r[P3@P4]"
-
+  flags:
+  - IN1
+  - IN3
+  - JUMP
+  doc: Index comparison GE key=r[P3@P4]
 - name: OP_IdxGT
   id: 122
   handler_type: external
-  flags: [IN1, IN3, JUMP]
-  doc: "Index comparison GT key=r[P3@P4]"
-
+  flags:
+  - IN1
+  - IN3
+  - JUMP
+  doc: Index comparison GT key=r[P3@P4]
 - name: OP_IdxLE
   id: 121
   handler_type: external
-  flags: [IN1, IN3, JUMP]
-  doc: "Index comparison LE key=r[P3@P4]"
-
+  flags:
+  - IN1
+  - IN3
+  - JUMP
+  doc: Index comparison LE key=r[P3@P4]
 - name: OP_IdxLT
   id: 125
   handler_type: external
-  flags: [IN1, IN3, JUMP]
-  doc: "Index comparison LT key=r[P3@P4]"
-
+  flags:
+  - IN1
+  - IN3
+  - JUMP
+  doc: Index comparison LT key=r[P3@P4]
 - name: OP_Found
   id: 38
   handler_type: external
-  flags: [IN1, IN3, JUMP]
-  doc: "Index lookup - exact match key=r[P3@P4]"
-
+  flags:
+  - IN1
+  - IN3
+  - JUMP
+  doc: Index lookup - exact match key=r[P3@P4]
 - name: OP_NotFound
   id: 103
   handler_type: external
-  flags: [IN1, IN3, JUMP]
-  doc: "Index lookup - not found key=r[P3@P4]"
-
+  flags:
+  - IN1
+  - IN3
+  - JUMP
+  doc: Index lookup - not found key=r[P3@P4]
 - name: OP_NoConflict
   id: 102
   handler_type: external
-  flags: [IN1, IN3, JUMP]
-  doc: "Index conflict check key=r[P3@P4]"
-
+  flags:
+  - IN1
+  - IN3
+  - JUMP
+  doc: Index conflict check key=r[P3@P4]
 - name: OP_IdxInsert
   id: 116
   handler_type: external
-  flags: [IN1, IN2, IN3]
-  doc: "Insert index entry key=r[P1]"
-
+  flags:
+  - IN1
+  - IN2
+  - IN3
+  doc: Insert index entry key=r[P1]
 - name: OP_IdxReplace
   id: 115
   handler_type: external
-  flags: [IN1, IN2, IN3]
-  doc: "Replace index entry key=r[P1]"
-
-# Phase 4e: Data Modification (5 opcodes)
+  flags:
+  - IN1
+  - IN2
+  - IN3
+  doc: Replace index entry key=r[P1]
 - name: OP_Delete
   id: 108
   handler_type: external
-  flags: [IN1, IN2]
-  doc: "Delete record from table key=r[P1]"
-
+  flags:
+  - IN1
+  - IN2
+  doc: Delete record from table key=r[P1]
 - name: OP_Update
   id: 117
   handler_type: external
-  flags: [IN1, IN2, IN3]
-  doc: "Update record in table key=r[P1]"
-
+  flags:
+  - IN1
+  - IN2
+  - IN3
+  doc: Update record in table key=r[P1]
 - name: OP_SInsert
   id: 118
   handler_type: external
-  flags: [IN1, IN2, IN3]
-  doc: "Insert into system space space id = P1, key = r[P2]"
-
+  flags:
+  - IN1
+  - IN2
+  - IN3
+  doc: Insert into system space space id = P1, key = r[P2]
 - name: OP_SDelete
   id: 119
   handler_type: external
-  flags: [IN1, IN2, IN3]
-  doc: "Delete from system space space id = P1, key = r[P2]"
-
+  flags:
+  - IN1
+  - IN2
+  - IN3
+  doc: Delete from system space space id = P1, key = r[P2]
 - name: OP_IdxDelete
   id: 120
   handler_type: external
-  flags: [IN1, IN2, IN3]
-  doc: "Delete index entry key=r[P2@P3]"
-
-# Pre-extracted: Arithmetic Operators (5 opcodes)
+  flags:
+  - IN1
+  - IN2
+  - IN3
+  doc: Delete index entry key=r[P2@P3]
 - name: OP_Add
   id: 24
   handler_type: external
-  flags: [IN1, IN2, OUT3]
-  doc: "Addition r[P3]=r[P1]+r[P2]"
-
+  flags:
+  - IN1
+  - IN2
+  - OUT3
+  doc: Addition r[P3]=r[P1]+r[P2]
 - name: OP_Subtract
   id: 25
   handler_type: external
-  flags: [IN1, IN2, OUT3]
-  doc: "Subtraction r[P3]=r[P2]-r[P1]"
-
+  flags:
+  - IN1
+  - IN2
+  - OUT3
+  doc: Subtraction r[P3]=r[P2]-r[P1]
 - name: OP_Multiply
   id: 26
   handler_type: external
-  flags: [IN1, IN2, OUT3]
-  doc: "Multiplication r[P3]=r[P1]*r[P2]"
-
+  flags:
+  - IN1
+  - IN2
+  - OUT3
+  doc: Multiplication r[P3]=r[P1]*r[P2]
 - name: OP_Divide
   id: 27
   handler_type: external
-  flags: [IN1, IN2, OUT3]
-  doc: "Division r[P3]=r[P2]/r[P1]"
-
+  flags:
+  - IN1
+  - IN2
+  - OUT3
+  doc: Division r[P3]=r[P2]/r[P1]
 - name: OP_Remainder
   id: 28
   handler_type: external
-  flags: [IN1, IN2, OUT3]
-  doc: "Modulo r[P3]=r[P2]%r[P1]"
-
-# Pre-extracted: Comparison Operators (6 opcodes)
+  flags:
+  - IN1
+  - IN2
+  - OUT3
+  doc: Modulo r[P3]=r[P2]%r[P1]
 - name: OP_Eq
   id: 17
   handler_type: external
-  flags: [IN1, IN3, JUMP]
-  doc: "Equality comparison if r[P3]==r[P1] goto P2"
-
+  flags:
+  - IN1
+  - IN3
+  - JUMP
+  doc: Equality comparison if r[P3]==r[P1] goto P2
 - name: OP_Ne
   id: 13
   handler_type: external
-  flags: [IN1, IN3, JUMP]
-  doc: "Not equal comparison if r[P3]!=r[P1] goto P2"
-
+  flags:
+  - IN1
+  - IN3
+  - JUMP
+  doc: Not equal comparison if r[P3]!=r[P1] goto P2
 - name: OP_Lt
   id: 30
   handler_type: external
-  flags: [IN1, IN3, JUMP]
-  doc: "Less than comparison if r[P3]<r[P1] goto P2"
-
+  flags:
+  - IN1
+  - IN3
+  - JUMP
+  doc: Less than comparison if r[P3]<r[P1] goto P2
 - name: OP_Le
   id: 16
   handler_type: external
-  flags: [IN1, IN3, JUMP]
-  doc: "Less or equal comparison if r[P3]<=r[P1] goto P2"
-
+  flags:
+  - IN1
+  - IN3
+  - JUMP
+  doc: Less or equal comparison if r[P3]<=r[P1] goto P2
 - name: OP_Gt
   id: 15
   handler_type: external
-  flags: [IN1, IN3, JUMP]
-  doc: "Greater than comparison if r[P3]>r[P1] goto P2"
-
+  flags:
+  - IN1
+  - IN3
+  - JUMP
+  doc: Greater than comparison if r[P3]>r[P1] goto P2
 - name: OP_Ge
   id: 18
   handler_type: external
-  flags: [IN1, IN3, JUMP]
-  doc: "Greater or equal comparison if r[P3]>=r[P1] goto P2"
-
-# Pre-extracted: Logical/Bitwise Operators (6 opcodes)
+  flags:
+  - IN1
+  - IN3
+  - JUMP
+  doc: Greater or equal comparison if r[P3]>=r[P1] goto P2
 - name: OP_And
   id: 74
   handler_type: external
-  flags: [IN1, IN2, OUT3]
-  doc: "Logical AND r[P3]=(r[P1] && r[P2])"
-
+  flags:
+  - IN1
+  - IN2
+  - OUT3
+  doc: Logical AND r[P3]=(r[P1] && r[P2])
 - name: OP_Or
   id: 5
   handler_type: external
-  flags: [IN1, IN2, OUT3]
-  doc: "Logical OR r[P3]=(r[P1] || r[P2])"
-
+  flags:
+  - IN1
+  - IN2
+  - OUT3
+  doc: Logical OR r[P3]=(r[P1] || r[P2])
 - name: OP_Not
   id: 7
   handler_type: external
-  flags: [IN1, OUT2]
-  doc: "Logical NOT r[P2]= !r[P1]"
-
+  flags:
+  - IN1
+  - OUT2
+  doc: Logical NOT r[P2]= !r[P1]
 - name: OP_BitAnd
   id: 20
   handler_type: external
-  flags: [IN1, IN2, OUT3]
-  doc: "Bitwise AND r[P3]=r[P1]&r[P2]"
-
+  flags:
+  - IN1
+  - IN2
+  - OUT3
+  doc: Bitwise AND r[P3]=r[P1]&r[P2]
 - name: OP_BitOr
   id: 21
   handler_type: external
-  flags: [IN1, IN2, OUT3]
-  doc: "Bitwise OR r[P3]=r[P1]|r[P2]"
-
+  flags:
+  - IN1
+  - IN2
+  - OUT3
+  doc: Bitwise OR r[P3]=r[P1]|r[P2]
 - name: OP_BitNot
   id: 31
   handler_type: external
-  flags: [IN1, OUT2]
-  doc: "Bitwise NOT r[P1]= ~r[P1]"
-
-# Pre-extracted: Data/Constant Operators (11 opcodes)
+  flags:
+  - IN1
+  - OUT2
+  doc: Bitwise NOT r[P1]= ~r[P1]
 - name: OP_Integer
   id: 53
   handler_type: external
-  flags: [OUT2]
-  doc: "Load integer constant r[P2]=P1"
-
+  flags:
+  - OUT2
+  doc: Load integer constant r[P2]=P1
 - name: OP_Bool
   id: 54
   handler_type: external
-  flags: [OUT2]
-  doc: "Load boolean constant r[P2]=P1"
-
+  flags:
+  - OUT2
+  doc: Load boolean constant r[P2]=P1
 - name: OP_Int64
   id: 55
   handler_type: external
-  flags: [OUT2]
-  doc: "Load 64-bit integer r[P2]=P4"
-
+  flags:
+  - OUT2
+  doc: Load 64-bit integer r[P2]=P4
 - name: OP_Real
   id: 123
   handler_type: external
-  flags: [OUT2]
-  doc: "Load floating point r[P2]=P4"
-
+  flags:
+  - OUT2
+  doc: Load floating point r[P2]=P4
 - name: OP_String
   id: 56
   handler_type: external
-  flags: [OUT2]
-  doc: "Load string r[P2]='P4' (len=P1)"
-
+  flags:
+  - OUT2
+  doc: Load string r[P2]='P4' (len=P1)
 - name: OP_Null
   id: 57
   handler_type: external
-  flags: [OUT2, OUT3]
-  doc: "Load NULL r[P2..P3]=NULL"
-
+  flags:
+  - OUT2
+  - OUT3
+  doc: Load NULL r[P2..P3]=NULL
 - name: OP_Blob
   id: 58
   handler_type: external
-  flags: [OUT2]
-  doc: "Load blob r[P2]=P4 (len=P1, subtype=P3)"
-
+  flags:
+  - OUT2
+  doc: Load blob r[P2]=P4 (len=P1, subtype=P3)
 - name: OP_Variable
   id: 59
   handler_type: external
-  flags: [OUT2]
-  doc: "Load parameter r[P2]=parameter(P1,P4)"
-
+  flags:
+  - OUT2
+  doc: Load parameter r[P2]=parameter(P1,P4)
 - name: OP_Move
   id: 60
   handler_type: external
-  flags: [IN1, OUT2]
-  doc: "Move register r[P2@P3]=r[P1@P3]"
-
+  flags:
+  - IN1
+  - OUT2
+  doc: Move register r[P2@P3]=r[P1@P3]
 - name: OP_Copy
   id: 61
   handler_type: external
-  flags: [IN1, OUT2]
-  doc: "Copy registers r[P2@P3+1]=r[P1@P3+1]"
-
+  flags:
+  - IN1
+  - OUT2
+  doc: Copy registers r[P2@P3+1]=r[P1@P3+1]
 - name: OP_SCopy
   id: 62
   handler_type: external
-  flags: [IN1, OUT2]
-  doc: "Copy single register r[P2]=r[P1]"
-
-# Control Flow Operators (18 opcodes) - Deferred to Phase 6
+  flags:
+  - IN1
+  - OUT2
+  doc: Copy single register r[P2]=r[P1]
 - name: OP_Goto
   id: 8
   handler_type: control_flow
-  flags: [JUMP]
-  doc: "Unconditional jump to P2"
-
+  flags:
+  - JUMP
+  doc: Unconditional jump to P2
 - name: OP_Jump
   id: 32
   handler_type: control_flow
-  flags: [JUMP]
-  doc: "Jump based on condition"
-
+  flags:
+  - JUMP
+  doc: Jump based on condition
 - name: OP_If
   id: 75
   handler_type: control_flow
-  flags: [IN1, JUMP]
-  doc: "Jump if r[P1] is true"
-
+  flags:
+  - IN1
+  - JUMP
+  doc: Jump if r[P1] is true
 - name: OP_IfNot
   id: 34
   handler_type: control_flow
-  flags: [IN1, JUMP]
-  doc: "Jump if r[P1] is false"
-
+  flags:
+  - IN1
+  - JUMP
+  doc: Jump if r[P1] is false
 - name: OP_Once
   id: 33
   handler_type: control_flow
-  flags: [JUMP]
-  doc: "Execute body once"
-
+  flags:
+  - JUMP
+  doc: Execute body once
 - name: OP_Gosub
   id: 10
   handler_type: control_flow
-  flags: [JUMP]
-  doc: "Subroutine call"
-
+  flags:
+  - JUMP
+  doc: Subroutine call
 - name: OP_Return
   id: 50
   handler_type: control_flow
-  flags: [IN1]
-  doc: "Return from subroutine"
-
+  flags:
+  - IN1
+  doc: Return from subroutine
 - name: OP_InitCoroutine
   id: 11
   handler_type: control_flow
-  flags: [IN1, OUT2, JUMP]
-  doc: "Initialize coroutine"
-
+  flags:
+  - IN1
+  - OUT2
+  - JUMP
+  doc: Initialize coroutine
 - name: OP_Yield
   id: 12
   handler_type: control_flow
-  flags: [IN1, JUMP]
-  doc: "Yield from coroutine"
-
+  flags:
+  - IN1
+  - JUMP
+  doc: Yield from coroutine
 - name: OP_EndCoroutine
   id: 51
   handler_type: control_flow
-  flags: [IN1]
-  doc: "End coroutine"
-
+  flags:
+  - IN1
+  doc: End coroutine
 - name: OP_ElseNotEq
   id: 19
   handler_type: control_flow
-  flags: [JUMP]
-  doc: "Jump if comparison was not equal"
-
+  flags:
+  - JUMP
+  doc: Jump if comparison was not equal
 - name: OP_MustBeInt
   id: 14
   handler_type: control_flow
-  flags: [IN1, JUMP]
-  doc: "Assert operand is integer"
-
+  flags:
+  - IN1
+  - JUMP
+  doc: Assert operand is integer
 - name: OP_IfPos
   id: 45
   handler_type: control_flow
-  flags: [IN1, JUMP]
-  doc: "If r[P1]>0 then r[P1]-=P3, goto P2"
-
+  flags:
+  - IN1
+  - JUMP
+  doc: If r[P1]>0 then r[P1]-=P3, goto P2
 - name: OP_IfNotZero
   id: 46
   handler_type: control_flow
-  flags: [IN1, JUMP]
-  doc: "If r[P1]!=0 then r[P1]--, goto P2"
-
+  flags:
+  - IN1
+  - JUMP
+  doc: If r[P1]!=0 then r[P1]--, goto P2
 - name: OP_DecrJumpZero
   id: 47
   handler_type: control_flow
-  flags: [IN1, JUMP]
-  doc: "If (--r[P1])==0 goto P2"
-
+  flags:
+  - IN1
+  - JUMP
+  doc: If (--r[P1])==0 goto P2
 - name: OP_SetDiag
   id: 9
   handler_type: control_flow
-  flags: [JUMP]
-  doc: "Set diagnostic and jump"
-
+  flags:
+  - JUMP
+  doc: Set diagnostic and jump
 - name: OP_Halt
   id: 52
   handler_type: control_flow
   flags: []
-  doc: "Stop execution"
-
+  doc: Stop execution
 - name: OP_Init
   id: 49
   handler_type: control_flow
-  flags: [JUMP]
-  doc: "Start execution at P2"
-
-# Remaining Inline Opcodes (64 opcodes) - Phase 5.2
-# These remain inline in vdbe.c and are not extracted yet
+  flags:
+  - JUMP
+  doc: Start execution at P2
 - name: OP_Savepoint
   id: 0
   handler_type: inline
   flags: []
-  doc: "Savepoint handling"
-
+  doc: Savepoint handling
+  inline_code: "int p1;                         /* Value of P1 operand */\n\tchar *zName;                    /* Name of savepoint\
+    \ */\n\tstruct txn *txn = in_txn();\n\n\tif (txn == NULL) {\n\t\tassert(!box_txn());\n\t\tdiag_set(ClientError, ER_NO_TRANSACTION);\n\
+    \t\tgoto abort_due_to_error;"
 - name: OP_SorterNext
   id: 1
   handler_type: inline
-  flags: [JUMP]
-  doc: "Sorter next row"
-
+  flags:
+  - JUMP
+  doc: Sorter next row
+  inline_code: "/* jump */\n\tVdbeCursor *pC = p->apCsr[P1];\n\tassert(isSorter(pC));\n\tint res = 0;\n\tif (sqlVdbeSorterNext(pC,\
+    \ &res) != 0)\n\t\tgoto abort_due_to_error;\n\tgoto next_tail;\n\n/* Opcode: PrevIfOpen P1 P2 P3 P4 P5\n *\n * This opcode\
+    \ works just like Prev except that if cursor P1 is not\n * open it behaves a no-op.\n */\nEXECUTE(OP_PrevIfOpen,(P1,P2,P3,P4)):\
+    \    /* jump */\n\tif (p->apCsr[P1] == 0) {\n\t\tDISPATCH();"
 - name: OP_String8
   id: 48
   handler_type: inline
-  flags: [OUT2]
-  doc: "Load C string r[P2]='P4'"
-
+  flags:
+  - OUT2
+  doc: Load C string r[P2]='P4'
+  inline_code: "/* same as TK_STRING, out2 */\n\tassert(pOp->p4.z!=0);\n\tpOp->opcode = OP_String;\n\tP1 = sqlStrlen30(pOp->p4.z);\n\
+    \n\tif (P1 > SQL_MAX_LENGTH)\n\t\tgoto too_big;\n\tassert(rc == 0);\n\t/* Fall through to the next case, OP_String */\n\
+    #ifndef SQL_USE_GOTO\n\tFALLTHROUGH;\n#endif /* SQL_USE_GOTO */"
 - name: OP_SkipLoad
   id: 64
   handler_type: inline
   flags: []
-  doc: "Skip load"
-
+  doc: Skip load
+  inline_code: "if (P1) {\n\t\tmem_set_bool(&aMem[P1], false);"
 - name: OP_BuiltinFunction
   id: 65
   handler_type: inline
-  flags: [IN1, IN2, OUT3]
-  doc: "Call builtin function"
-
+  flags:
+  - IN1
+  - IN2
+  - OUT3
+  doc: Call builtin function
+  inline_code: "int argc = P1;\n\tsql_context *pCtx;\n\n\tassert(pOp->p4type == P4_FUNCCTX);\n\tpCtx = pOp->p4.pCtx;\n\n\t\
+    pOut = vdbe_prepare_null_out(p, P3);\n\tif (pCtx->pOut != pOut)\n\t\tpCtx->pOut = pOut;\n\n#ifdef SQL_DEBUG\n\tfor(int\
+    \ i = 0; i < argc; i++) {\n\t\tassert(memIsValid(&aMem[P2 + i]));\n\t\tREGISTER_TRACE(p, P2 + i, &aMem[P2 + i]);"
 - name: OP_FunctionByName
   id: 66
   handler_type: inline
-  flags: [IN1, IN2, OUT3]
-  doc: "Call function by name"
-
+  flags:
+  - IN1
+  - IN2
+  - OUT3
+  doc: Call function by name
+  inline_code: "assert(pOp->p4type == P4_DYNAMIC);\n\tstruct func *func = func_by_name(pOp->p4.z, strlen(pOp->p4.z));\n\t\
+    if (unlikely(func == NULL)) {\n\t\tdiag_set(ClientError, ER_NO_SUCH_FUNCTION, pOp->p4.z);\n\t\tgoto abort_due_to_error;"
 - name: OP_AddImm
   id: 67
   handler_type: inline
-  flags: [IN1]
-  doc: "Add immediate r[P1]=r[P1]+P2"
-
+  flags:
+  - IN1
+  doc: Add immediate r[P1]=r[P1]+P2
+  inline_code: "/* in1 */\n\tpIn1 = &aMem[P1];\n\tmemAboutToChange(p, pIn1);\n\tassert(mem_is_uint(pIn1) && P2 >= 0);\n\t\
+    pIn1->u.u += P2;\n\tDISPATCH();"
 - name: OP_Array
   id: 69
   handler_type: inline
-  flags: [OUT2]
-  doc: "Create array"
-
+  flags:
+  - OUT2
+  doc: Create array
+  inline_code: "pOut = &aMem[P2];\n\n\tuint32_t size;\n\tstruct region *region = &fiber()->gc;\n\tsize_t svp = region_used(region);\n\
+    \tchar *val = mem_encode_array(&aMem[P3], P1, &size, region);\n\tif (val == NULL || mem_copy_array(pOut, val, size) !=\
+    \ 0) {\n\t\tregion_truncate(region, svp);\n\t\tgoto abort_due_to_error;"
 - name: OP_Map
   id: 70
   handler_type: inline
-  flags: [OUT2]
-  doc: "Create map"
-
+  flags:
+  - OUT2
+  doc: Create map
+  inline_code: "pOut = &aMem[P2];\n\n\tuint32_t size;\n\tstruct region *region = &fiber()->gc;\n\tsize_t svp = region_used(region);\n\
+    \tchar *val = mem_encode_map(&aMem[P3], P1, &size, region);\n\tif (val == NULL || mem_copy_map(pOut, val, size) != 0)\
+    \ {\n\t\tregion_truncate(region, svp);\n\t\tgoto abort_due_to_error;"
 - name: OP_Getitem
   id: 71
   handler_type: inline
-  flags: [IN1, IN2, OUT3]
-  doc: "Get array/map item"
-
+  flags:
+  - IN1
+  - IN2
+  - OUT3
+  doc: Get array/map item
+  inline_code: "int count = P1;\n\tassert(count > 0);\n\tstruct Mem *value = &aMem[P3 + count];\n\tif (mem_is_null(value))\
+    \ {\n\t\tdiag_set(ClientError, ER_SQL_EXECUTE, \"Selecting is not \"\n\t\t\t \"possible from NULL\");\n\t\tgoto abort_due_to_error;"
 - name: OP_Permutation
   id: 72
   handler_type: inline
   flags: []
-  doc: "Permutation"
-
+  doc: Permutation
+  inline_code: "assert(pOp->p4type == P4_INTARRAY);\n\tassert(pOp->p4.ai);\n\taPermute = pOp->p4.ai + 1;\n\tDISPATCH();"
 - name: OP_Compare
   id: 73
   handler_type: inline
-  flags: [IN1, IN2]
-  doc: "Compare registers"
-
+  flags:
+  - IN1
+  - IN2
+  doc: Compare registers
+  inline_code: "if ((pOp->p5 & OPFLAG_PERMUTE) == 0)\n\t\taPermute = 0;\n\n\tint n = P3;\n\tassert(pOp->p4type == P4_KEYINFO);\n\
+    \tassert(n > 0);\n\tint p1 = P1;\n\tint p2 = P2;\n\n\tstruct key_def *def = sql_key_info_to_key_def(pOp->p4.key_info);\n\
+    \tif (def == NULL)\n\t\tgoto abort_due_to_error;\n#if SQL_DEBUG\n\tif (aPermute) {\n\t\tint mx = 0;\n\t\tfor(uint32_t\
+    \ k = 0; k < (uint32_t)n; k++)\n\t\t\tif (aPermute[k] > mx)\n\t\t\t\tmx = aPermute[k];\n\t\tassert(p1>0 && p1+mx<=(p->nMem+1\
+    \ - p->nCursor)+1);\n\t\tassert(p2>0 && p2+mx<=(p->nMem+1 - p->nCursor)+1);"
 - name: OP_FetchByName
   id: 77
   handler_type: inline
-  flags: [IN1, OUT3]
-  doc: "Fetch by name"
-
+  flags:
+  - IN1
+  - OUT3
+  doc: Fetch by name
+  inline_code: "struct vdbe_field_ref *ref = p->aMem[P1].u.p;\n\tassert(pOp->p4type == P4_DYNAMIC);\n\tuint32_t id;\n\tif\
+    \ (ref->format != NULL) {\n\t\tconst char *name = pOp->p4.z;\n\t\tuint32_t len = strlen(name);\n\t\tuint32_t hash = field_name_hash(name,\
+    \ len);\n\t\tstruct tuple_dictionary *dict = ref->format->dict;\n\t\tif (tuple_fieldno_by_name(dict, name, len, hash,\
+    \ &id) != 0) {\n\t\t\tdiag_set(ClientError, ER_SQL_CANT_RESOLVE_FIELD, name);\n\t\t\tgoto abort_due_to_error;"
 - name: OP_Fetch
   id: 78
   handler_type: inline
-  flags: [IN1, OUT3]
-  doc: "Fetch record"
-
+  flags:
+  - IN1
+  - OUT3
+  doc: Fetch record
+  inline_code: "struct vdbe_field_ref *ref = p->aMem[P1].u.p;\n\tstruct Mem *res = vdbe_prepare_null_out(p, P3);\n\tif (vdbe_field_ref_fetch(ref,\
+    \ P2, res) != 0)\n\t\tgoto abort_due_to_error;\n\tREGISTER_TRACE(p, P3, res);\n\tDISPATCH();"
 - name: OP_Count
   id: 81
   handler_type: inline
-  flags: [OUT2]
-  doc: "Count records"
-
+  flags:
+  - OUT2
+  doc: Count records
+  inline_code: "/* out2 */\n\ti64 nEntry;\n\tBtCursor *pCrsr;\n\n\tassert(p->apCsr[P1]->eCurType == CURTYPE_TARANTOOL);\n\t\
+    pCrsr = p->apCsr[P1]->uc.pCursor;\n\tassert(pCrsr);\n\tif (pCrsr->curFlags & BTCF_TaCursor) {\n\t\tnEntry = tarantoolsqlCount(pCrsr);"
 - name: OP_CreateForeignKey
   id: 82
   handler_type: inline
   flags: []
-  doc: "Create foreign key constraint"
-
+  doc: Create foreign key constraint
+  inline_code: "assert(P1 >= 0);\n\tstruct Mem *mems = &aMem[P1];\n\tassert(mem_is_uint(&mems[0]) && mem_is_uint(&mems[1]));\n\
+    \tuint32_t child_id = mems[0].u.u;\n\tuint32_t parent_id = mems[1].u.u;\n\tconst char *name = pOp->p4.z;\n\tconst char\
+    \ *mapping = NULL;\n\tuint32_t child_fieldno = 0;\n\tuint32_t parent_fieldno = 0;\n\tif (mem_is_uint(&mems[2])) {\n\t\t\
+    assert(mem_is_uint(&mems[3]));\n\t\tchild_fieldno = mems[2].u.u;\n\t\tparent_fieldno = mems[3].u.u;"
 - name: OP_CreateCheck
   id: 83
   handler_type: inline
   flags: []
-  doc: "Create check constraint"
-
+  doc: Create check constraint
+  inline_code: "assert(P1 >= 0 && P2 >= 0 && P3 >= 0);\n\tuint32_t space_id = aMem[P1].u.u;\n\tuint32_t func_id = aMem[P2].u.u;\n\
+    \tconst char *name = pOp->p4.z;\n\tbool is_field_ck = pOp->p5 != 0;\n\tuint32_t fieldno = P3;\n\tif (sql_check_create(name,\
+    \ space_id, func_id, fieldno,\n\t\t\t     is_field_ck) != 0)\n\t\tgoto abort_due_to_error;\n\tif (p->nChange == 0)\n\t\
+    \tp->nChange = 1;\n\tDISPATCH();"
 - name: OP_DropTupleForeignKey
   id: 84
   handler_type: inline
   flags: []
-  doc: "Drop tuple foreign key"
-
+  doc: Drop tuple foreign key
+  inline_code: "assert(P1 >= 0 && pOp->p4.z != NULL);\n\tif (sql_tuple_foreign_key_drop(P1, pOp->p4.z) != 0)\n\t\tgoto abort_due_to_error;\n\
+    \tassert(p->nChange == 0);\n\tp->nChange = 1;\n\tDISPATCH();"
 - name: OP_DropTupleCheck
   id: 85
   handler_type: inline
   flags: []
-  doc: "Drop tuple check"
-
+  doc: Drop tuple check
+  inline_code: "assert(P1 >= 0 && pOp->p4.z != NULL);\n\tif (sql_tuple_check_drop(P1, pOp->p4.z) != 0)\n\t\tgoto abort_due_to_error;\n\
+    \tassert(p->nChange == 0);\n\tp->nChange = 1;\n\tDISPATCH();"
 - name: OP_DropFieldForeignKey
   id: 86
   handler_type: inline
   flags: []
-  doc: "Drop field foreign key"
-
+  doc: Drop field foreign key
+  inline_code: "assert(P1 >= 0 && pOp->p4.z != NULL);\n\tif (sql_field_foreign_key_drop(P1, P3, pOp->p4.z) != 0)\n\t\tgoto\
+    \ abort_due_to_error;\n\tassert(p->nChange == 0);\n\tp->nChange = 1;\n\tDISPATCH();"
 - name: OP_DropFieldCheck
   id: 87
   handler_type: inline
   flags: []
-  doc: "Drop field check"
-
+  doc: Drop field check
+  inline_code: "assert(P1 >= 0 && pOp->p4.z != NULL);\n\tif (sql_field_check_drop(P1, P3, pOp->p4.z) != 0)\n\t\tgoto abort_due_to_error;\n\
+    \tassert(p->nChange == 0);\n\tp->nChange = 1;\n\tDISPATCH();"
 - name: OP_AddFuncDefault
   id: 88
   handler_type: inline
   flags: []
-  doc: "Add function as default"
-
+  doc: Add function as default
+  inline_code: "assert(aMem[P1].type == MEM_TYPE_UINT);\n\tuint32_t space_id = aMem[P1].u.u;\n\tuint32_t fieldno = P3;\n\t\
+    assert(aMem[P2].type == MEM_TYPE_UINT);\n\tuint32_t func_id = aMem[P2].u.u;\n\tif (sql_add_default(space_id, fieldno,\
+    \ func_id) != 0)\n\t\tgoto abort_due_to_error;\n\tDISPATCH();"
 - name: OP_CheckViewReferences
   id: 89
   handler_type: inline
-  flags: [IN1]
-  doc: "Check view references"
-
+  flags:
+  - IN1
+  doc: Check view references
+  inline_code: "assert(P1 > 0);\n\tpIn1 = &aMem[P1];\n\tuint64_t space_id = pIn1->u.u;\n\tassert(space_id <= INT32_MAX);\n\
+    \tstruct space *space = space_by_id(space_id);\n\tassert(space != NULL);\n\tif (space->def->view_ref_count > 0) {\n\t\t\
+    diag_set(ClientError, ER_DROP_SPACE, space->def->name,\n\t\t\t \"other views depend on this space\");\n\t\tgoto abort_due_to_error;"
 - name: OP_TransactionBegin
   id: 90
   handler_type: inline
   flags: []
-  doc: "Begin transaction"
-
+  doc: Begin transaction
+  inline_code: "if (in_txn()) {\n\t\tdiag_set(ClientError, ER_ACTIVE_TRANSACTION);\n\t\tgoto abort_due_to_error;"
 - name: OP_TransactionCommit
   id: 91
   handler_type: inline
   flags: []
-  doc: "Commit transaction"
-
+  doc: Commit transaction
+  inline_code: "struct txn *txn = in_txn();\n\tif (txn != NULL) {\n\t\tif (txn_commit(txn) != 0)\n\t\t\tgoto abort_due_to_error;"
 - name: OP_TransactionRollback
   id: 92
   handler_type: inline
   flags: []
-  doc: "Rollback transaction"
-
+  doc: Rollback transaction
+  inline_code: "if (box_txn()) {\n\t\tif (box_txn_rollback() != 0)\n\t\t\tgoto abort_due_to_error;"
 - name: OP_TTransaction
   id: 93
   handler_type: inline
   flags: []
-  doc: "Tarantool transaction"
-
+  doc: Tarantool transaction
+  inline_code: "if (!box_txn()) {\n\t\tif (txn_begin() == NULL)\n\t\t\tgoto abort_due_to_error;"
 - name: OP_IteratorOpen
   id: 94
   handler_type: inline
-  flags: [IN3]
-  doc: "Open iterator"
-
+  flags:
+  - IN3
+  doc: Open iterator
+  inline_code: "struct VdbeCursor *cur = p->apCsr[P1];\n\tif (box_schema_version() != p->schema_ver &&\n\t    (pOp->p5 & OPFLAG_SYSTEMSP)\
+    \ == 0) {\n\t\tp->expired = 1;\n\t\tdiag_set(ClientError, ER_SQL_EXECUTE, \"schema version has \"\\\n\t\t\t \"changed:\
+    \ need to re-compile SQL statement\");\n\t\tgoto abort_due_to_error;"
 - name: OP_OpenSpace
   id: 95
   handler_type: inline
-  flags: [IN3]
-  doc: "Open space cursor"
-
+  flags:
+  - IN3
+  doc: Open space cursor
+  inline_code: "assert(P1 >= 0 && P1 > 0);\n\tstruct space *space = space_by_id(P2);\n\tassert(space != NULL);\n\tmem_set_ptr(&aMem[P1],\
+    \ space);\n\tDISPATCH();"
 - name: OP_OpenTEphemeral
   id: 96
   handler_type: inline
   flags: []
-  doc: "Open temporary table"
-
+  doc: Open temporary table
+  inline_code: "assert(P1 >= 0);\n\n\tassert(pOp->p4type == P4_DYNAMIC || pOp->p4type == P4_STATIC);\n\tstruct sql_space_info\
+    \ *info = pOp->p4.space_info;\n\tassert(info != NULL);\n\tstruct space *space = sql_ephemeral_space_new(info);\n\n\tif\
+    \ (space == NULL)\n\t\tgoto abort_due_to_error;\n\tmem_set_ptr(&aMem[P1], space);\n\tDISPATCH();"
 - name: OP_SorterOpen
   id: 97
   handler_type: inline
   flags: []
-  doc: "Open sorter"
-
+  doc: Open sorter
+  inline_code: "VdbeCursor *pCx;\n\n\tassert(P1 >= 0);\n\tassert(P2 >= 0);\n\tstruct key_def *def = sql_key_info_to_key_def(pOp->p4.key_info);\n\
+    \tif (def == NULL)\n\t\tgoto abort_due_to_error;\n\tpCx = allocateCursor(p, P1, P2, CURTYPE_SORTER);\n\tif (pCx == NULL)\n\
+    \t\tgoto abort_due_to_error;\n\tpCx->key_def = def;\n\tif (sqlVdbeSorterInit(pCx) != 0)\n\t\tgoto abort_due_to_error;\n\
+    \tDISPATCH();"
 - name: OP_SequenceTest
   id: 98
   handler_type: inline
-  flags: [JUMP]
-  doc: "Test sequence counter"
-
+  flags:
+  - JUMP
+  doc: Test sequence counter
+  inline_code: "VdbeCursor *pC;\n\tassert(P1 >= 0 && P1 < p->nCursor);\n\tpC = p->apCsr[P1];\n\tassert(isSorter(pC));\n\t\
+    if ((pC->seqCount++) == 0)\n\t\tJUMP_P2();\n\n\tDISPATCH();"
 - name: OP_OpenPseudo
   id: 99
   handler_type: inline
-  flags: [OUT2]
-  doc: "Open pseudo-cursor"
-
+  flags:
+  - OUT2
+  doc: Open pseudo-cursor
+  inline_code: "VdbeCursor *pCx;\n\n\tassert(P1 >= 0);\n\tassert(P3 >= 0);\n\tpCx = allocateCursor(p, P1, P3, CURTYPE_PSEUDO);\n\
+    \tif (pCx == NULL)\n\t\tgoto abort_due_to_error;\n\tpCx->nullRow = 1;\n\tpCx->uc.pseudoTableReg = P2;\n\tassert(pOp->p5==0);\n\
+    \tDISPATCH();"
 - name: OP_Close
   id: 100
   handler_type: inline
-  flags: [IN1]
-  doc: "Close cursor"
-
+  flags:
+  - IN1
+  doc: Close cursor
+  inline_code: "assert(P1 >= 0 && P1 < p->nCursor);\n\tsqlVdbeFreeCursor(p->apCsr[P1]);\n\tp->apCsr[P1] = 0;\n\tDISPATCH();"
 - name: OP_Sequence
   id: 104
   handler_type: inline
-  flags: [IN1, OUT2]
-  doc: "Get sequence value"
-
+  flags:
+  - IN1
+  - OUT2
+  doc: Get sequence value
+  inline_code: "/* out2 */\n\tassert(P1>=0 && P1<p->nCursor);\n\tassert(p->apCsr[P1]!=0);\n\tpOut = vdbe_prepare_null_out(p,\
+    \ P2);\n\tint64_t seq_val = p->apCsr[P1]->seqCount++;\n\tmem_set_uint(pOut, seq_val);\n\tDISPATCH();"
 - name: OP_NextSystemSpaceId
   id: 105
   handler_type: inline
-  flags: [IN1, OUT2]
-  doc: "Get next system space ID"
-
+  flags:
+  - IN1
+  - OUT2
+  doc: Get next system space ID
+  inline_code: "assert(P1 >= 0 && P3 >= 0);\n\tuint32_t space_id = P1;\n\tassert(space_id == BOX_SEQUENCE_ID || space_id ==\
+    \ BOX_FUNC_ID);\n\tstruct Mem *res = &p->aMem[P2];\n\tchar key[1];\n\tstruct tuple *tuple;\n\tchar *key_end = mp_encode_array(key,\
+    \ 0);\n\tassert(key_end - key == 1);\n\tif (box_index_max(space_id, 0, key, key_end, &tuple) != 0)\n\t\tgoto abort_due_to_error;\n\
+    \tif (tuple == NULL) {\n\t\tmem_set_uint(res, 1);\n\t\tDISPATCH();"
 - name: OP_NextIdEphemeral
   id: 106
   handler_type: inline
-  flags: [IN1, OUT2]
-  doc: "Get next ephemeral ID"
-
+  flags:
+  - IN1
+  - OUT2
+  doc: Get next ephemeral ID
+  inline_code: "struct space *space = (struct space*)p->aMem[P1].u.p;\n\tassert(space->def->id == 0);\n\tuint64_t rowid;\n\
+    \tif (space->vtab->ephemeral_rowid_next(space, &rowid) != 0)\n\t\tgoto abort_due_to_error;\n\t/*\n\t * FIXME: since memory\
+    \ cell can comprise only 32-bit\n\t * integer, make sure it can fit in. This check should\n\t * be removed when memory\
+    \ cell is extended with unsigned\n\t * 64-bit integer.\n\t */\n\tif (rowid > INT32_MAX) {\n\t\tdiag_set(ClientError, ER_ROWID_OVERFLOW);\n\
+    \t\tgoto abort_due_to_error;"
 - name: OP_FCopy
   id: 107
   handler_type: inline
-  flags: [IN1, OUT2]
-  doc: "Frame copy"
-
+  flags:
+  - IN1
+  - OUT2
+  doc: Frame copy
+  inline_code: "/* out2 */\n\tVdbeFrame *pFrame;\n\tMem *pIn1, *pOut;\n\tif (p->pFrame && ((P3 & OPFLAG_SAME_FRAME) == 0))\
+    \ {\n\t\tfor(pFrame=p->pFrame; pFrame->pParent; pFrame=pFrame->pParent);\n\t\tpIn1 = &pFrame->aMem[P1];"
 - name: OP_ResetCount
   id: 109
   handler_type: inline
   flags: []
-  doc: "Reset counter"
-
+  doc: Reset counter
+  inline_code: "sqlVdbeSetChanges(p->nChange);\n\tp->nChange = 0;\n\tp->ignoreRaised = 0;\n\tDISPATCH();"
 - name: OP_SorterCompare
   id: 110
   handler_type: inline
-  flags: [IN1, IN3, JUMP]
-  doc: "Sorter comparison"
-
+  flags:
+  - IN1
+  - IN3
+  - JUMP
+  doc: Sorter comparison
+  inline_code: "VdbeCursor *pC;\n\tint res;\n\tint nKeyCol;\n\n\tpC = p->apCsr[P1];\n\tassert(isSorter(pC));\n\tassert(pOp->p4type\
+    \ == P4_INT32);\n\tpIn3 = &aMem[P3];\n\tnKeyCol = pOp->p4.i;\n\tif (sqlVdbeSorterCompare(pC, pIn3, nKeyCol, &res) != 0)\n\
+    \t\tgoto abort_due_to_error;\n\tif (res) JUMP_P2();\n\tDISPATCH();"
 - name: OP_SorterData
   id: 111
   handler_type: inline
-  flags: [IN1, OUT2]
-  doc: "Get sorter data"
-
+  flags:
+  - IN1
+  - OUT2
+  doc: Get sorter data
+  inline_code: "VdbeCursor *pC;\n\n\tpOut = vdbe_prepare_null_out(p, P2);\n\tpC = p->apCsr[P1];\n\tassert(isSorter(pC));\n\
+    \tif (sqlVdbeSorterRowkey(pC, pOut) != 0)\n\t\tgoto abort_due_to_error;\n\tassert(mem_is_bin(pOut));\n\tassert(P1 >= 0\
+    \ && P1 < p->nCursor);\n\tp->apCsr[P3]->cacheStatus = CACHE_STALE;\n\tDISPATCH();"
 - name: OP_NullRow
   id: 113
   handler_type: inline
-  flags: [IN1]
-  doc: "Null row marker"
-
+  flags:
+  - IN1
+  doc: Null row marker
+  inline_code: "VdbeCursor *pC;\n\n\tassert(P1 >= 0 && P1 < p->nCursor);\n\tpC = p->apCsr[P1];\n\tassert(pC!=0);\n\tpC->nullRow\
+    \ = 1;\n\tpC->cacheStatus = CACHE_STALE;\n\tif (pC->eCurType==CURTYPE_TARANTOOL) {\n\t\tassert(pC->uc.pCursor!=0);\n\t\
+    \tsql_cursor_cleanup(pC->uc.pCursor);"
 - name: OP_SorterInsert
   id: 114
   handler_type: inline
-  flags: [IN1, IN2]
-  doc: "Insert into sorter"
-
+  flags:
+  - IN1
+  - IN2
+  doc: Insert into sorter
+  inline_code: "/* in2 */\n\tassert(P1 >= 0 && P1 < p->nCursor);\n\tstruct VdbeCursor *cursor = p->apCsr[P1];\n\tassert(cursor\
+    \ != NULL);\n\tassert(isSorter(cursor));\n\tpIn2 = &aMem[P2];\n\tassert(mem_is_bin(pIn2));\n\tif (sqlVdbeSorterWrite(cursor,\
+    \ pIn2) != 0)\n\t\tgoto abort_due_to_error;\n\tDISPATCH();"
 - name: OP_Clear
   id: 126
   handler_type: inline
-  flags: [IN1]
-  doc: "Clear space"
-
+  flags:
+  - IN1
+  doc: Clear space
+  inline_code: "assert(P1 > 0);\n\tuint32_t space_id = P1;\n\tstruct space *space = space_by_id(space_id);\n\tassert(space\
+    \ != NULL);\n\tif (P2 > 0) {\n\t\tif (box_truncate(space_id) != 0)\n\t\t\tgoto abort_due_to_error;"
 - name: OP_ResetSorter
   id: 127
   handler_type: inline
-  flags: [IN1]
-  doc: "Reset sorter"
-
+  flags:
+  - IN1
+  doc: Reset sorter
+  inline_code: "VdbeCursor *pC;\n\n\tassert(P1 >= 0 && P1 < p->nCursor);\n\tpC = p->apCsr[P1];\n\tassert(pC != 0);\n\tif (isSorter(pC))\
+    \ {\n\t\tsqlVdbeSorterReset(pC->uc.pSorter);"
 - name: OP_RenameTable
   id: 128
   handler_type: inline
   flags: []
-  doc: "Rename table"
-
+  doc: Rename table
+  inline_code: "uint32_t space_id;\n\tstruct space *space;\n\tchar *zOldTableName;\n\tconst char *zNewTableName;\n\n\tspace_id\
+    \ = P1;\n\tspace = space_by_id(space_id);\n\tassert(space);\n\t/* Rename space op doesn't change triggers. */\n\tstruct\
+    \ sql_trigger *triggers = space->sql_triggers;\n\tassert(space->def->name != NULL);\n\tzNewTableName = pOp->p4.z;\n\t\
+    zOldTableName = sql_xstrdup(space_name(space));\n\tif (sql_rename_table(space_id, zNewTableName) != 0)\n\t\tgoto abort_due_to_error;\n\
+    \t/*\n\t * Rebuild 'CREATE TRIGGER' expressions of all triggers\n\t * created on this table. Sure, this action is not\
+    \ atomic\n\t * due to lack of transactional DDL, but just do the best\n\t * effort.\n\t */\n\tfor (struct sql_trigger\
+    \ *trigger = triggers; trigger != NULL; ) {\n\t\t/* Store pointer as trigger will be destructed. */\n\t\tstruct sql_trigger\
+    \ *next_trigger = trigger->next;\n\t\t/*\n\t\t * FIXME: In the case of error, part of triggers\n\t\t * would have invalid\
+    \ space name in tuple so can\n\t\t * not been persisted. Server could be restarted.\n\t\t * In this case, rename table\
+    \ back and try again.\n\t\t */\n\t\tif (tarantoolsqlRenameTrigger(trigger->zName, zOldTableName,\n\t\t\t\t\t      zNewTableName)\
+    \ != 0)\n\t\t\tgoto abort_due_to_error;\n\t\ttrigger = next_trigger;"
 - name: OP_LoadAnalysis
   id: 129
   handler_type: inline
   flags: []
-  doc: "Load analysis"
-
+  doc: Load analysis
+  inline_code: "assert(P1 == 0);\n\t/* TODO: Enable analysis. */\n\t/*\n\tif (sql_analysis_load(db) != 0)\n\t\tgoto abort_due_to_error;\n\
+    \t*/\n\tDISPATCH();"
 - name: OP_Param
   id: 130
   handler_type: inline
-  flags: [OUT2]
-  doc: "Load parameter"
-
+  flags:
+  - OUT2
+  doc: Load parameter
+  inline_code: "/* out2 */\n\tVdbeFrame *pFrame;\n\tMem *pIn;\n\tpOut = vdbe_prepare_null_out(p, P2);\n\tpFrame = p->pFrame;\n\
+    \tpIn = &pFrame->aMem[P1 + pFrame->aOp[pFrame->pc].p1];\n\tmem_copy_as_ephemeral(pOut, pIn);\n\tDISPATCH();"
 - name: OP_OffsetLimit
   id: 131
   handler_type: inline
-  flags: [IN1, IN3, OUT2]
-  doc: "Calculate offset limit"
-
+  flags:
+  - IN1
+  - IN3
+  - OUT2
+  doc: Calculate offset limit
+  inline_code: "/* in1, out2, in3 */\n\tpIn1 = &aMem[P1];\n\tpIn3 = &aMem[P3];\n\tpOut = vdbe_prepare_null_out(p, P2);\n\n\
+    \tassert(mem_is_uint(pIn1));\n\tassert(mem_is_uint(pIn3));\n\tuint64_t x = pIn1->u.u;\n\tuint64_t rhs = pIn3->u.u;\n\t\
+    bool unused;\n\tif (sql_add_int(x, false, rhs, false, (int64_t *) &x, &unused) != 0) {\n\t\tdiag_set(ClientError, ER_SQL_EXECUTE,\
+    \ \"sum of LIMIT and OFFSET \"\n\t\t\t\"values should not result in integer overflow\");\n\t\tgoto abort_due_to_error;"
 - name: OP_Expire
   id: 134
   handler_type: inline
   flags: []
-  doc: "Expire entry"
-
+  doc: Expire entry
+  inline_code: "if (!P1) {\n\t\tsqlExpirePreparedStatements();"
 - name: OP_GenSpaceid
   id: 135
   handler_type: inline
-  flags: [IN1, OUT2]
-  doc: "Generate space ID"
-
+  flags:
+  - IN1
+  - OUT2
+  doc: Generate space ID
+  inline_code: "assert(P1 > 0);\n\tpOut = vdbe_prepare_null_out(p, P1);\n\tuint32_t u;\n\tif (box_generate_space_id(&u, false)\
+    \ != 0)\n\t\tgoto abort_due_to_error;\n\tmem_set_uint(pOut, u);\n\tDISPATCH();"
 - name: OP_SetSession
   id: 136
   handler_type: inline
   flags: []
-  doc: "Set session"
-
+  doc: Set session
+  inline_code: "assert(pOp->p4type == P4_DYNAMIC);\n\tconst char *setting_name = pOp->p4.z;\n\tint sid = session_setting_find(setting_name);\n\
+    \tif (sid < 0) {\n\t\tdiag_set(ClientError, ER_NO_SUCH_SESSION_SETTING, setting_name);\n\t\tgoto abort_due_to_error;"
 - name: OP_ShowCreateTable
   id: 137
   handler_type: inline
-  flags: [IN1, OUT2]
-  doc: "Show create table"
-
+  flags:
+  - IN1
+  - OUT2
+  doc: Show create table
+  inline_code: "struct Mem *ret = &aMem[P2];\n\tstruct Mem *err = &aMem[P2 + 1];\n\tsql_show_create_table(aMem[P1].u.i, ret,\
+    \ err);\n\tDISPATCH();"
 - name: OP_Noop
   id: 138
   handler_type: inline
   flags: []
-  doc: "No operation"
-
+  doc: No operation
+  inline_code: DISPATCH();
 - name: OP_Explain
   id: 139
   handler_type: inline
   flags: []
-  doc: "Explain query"
-
+  doc: Explain query
+  inline_code: DISPATCH();
 - name: OP_IsNull
   id: 174
   handler_type: inline
-  flags: [IN1, JUMP]
-  doc: "Test for NULL"
-
+  flags:
+  - IN1
+  - JUMP
+  doc: Test for NULL
+  inline_code: "/* same as TK_ISNULL, jump, in1 */\n\tpIn1 = &aMem[P1];\n\tif (mem_is_null(pIn1))\n\t\tJUMP_P2();\n\tDISPATCH();"
 - name: OP_NotNull
   id: 175
   handler_type: inline
-  flags: [IN1, JUMP]
-  doc: "Test for not NULL"
-
+  flags:
+  - IN1
+  - JUMP
+  doc: Test for not NULL
+  inline_code: "/* same as TK_NOTNULL, jump, in1 */\n\tpIn1 = &aMem[P1];\n\tif (!mem_is_null(pIn1)) {\n\t\tJUMP_P2();"
 - name: OP_Decimal
   id: 124
   handler_type: inline
-  flags: [OUT2]
-  doc: "Load decimal r[P2]=P4"
-
+  flags:
+  - OUT2
+  doc: Load decimal r[P2]=P4
+  inline_code: "/* same as TK_DECIMAL, out2 */\n\tpOut = vdbe_prepare_null_out(p, P2);\n\tmem_set_dec(pOut, pOp->p4.dec);\n\
+    \tDISPATCH();"
 - name: OP_Program
   id: 44
   handler_type: inline
-  flags: [JUMP]
-  doc: "Execute program"
-
+  flags:
+  - JUMP
+  doc: Execute program
+  inline_code: "/* jump */\n\tint nMem;               /* Number of memory registers for sub-program */\n\tint nByte;     \
+    \         /* Bytes of runtime space required for sub-program */\n\tMem *pRt;               /* Register to allocate runtime\
+    \ space */\n\tMem *pMem;              /* Used to iterate through memory cells */\n\tMem *pEnd;              /* Last memory\
+    \ cell in new array */\n\tVdbeFrame *pFrame;      /* New vdbe frame to execute in */\n\tSubProgram *pProgram;   /* Sub-program\
+    \ to execute */\n\tvoid *t;                /* Token identifying trigger */\n\n\tpProgram = pOp->p4.pProgram;\n\tpRt =\
+    \ &aMem[P3];\n\tassert(pProgram->nOp>0);\n\n\t/* If the p5 flag is clear, then recursive invocation of triggers is\n\t\
+    \ * disabled for backwards compatibility (p5 is set if this sub-program\n\t * is really a trigger, not a foreign key action,\
+    \ and the setting\n\t * 'recursive_triggers' is not set).\n\t *\n\t * It is recursive invocation of triggers, at the SQL\
+    \ level, that is\n\t * disabled. In some cases a single trigger may generate more than one\n\t * SubProgram (if the trigger\
+    \ may be executed with more than one different\n\t * ON CONFLICT algorithm). SubProgram structures associated with a\n\
+    \t * single trigger all have the same value for the SubProgram.token\n\t * variable.\n\t */\n\tif (pOp->p5) {\n\t\tt =\
+    \ pProgram->token;\n\t\tfor(pFrame=p->pFrame; pFrame && pFrame->token!=t; pFrame=pFrame->pParent);\n\t\tif (pFrame) {\n\
+    \t\t\tDISPATCH();"
 - name: OP_Sort
   id: 41
   handler_type: inline
-  flags: [IN1, JUMP]
-  doc: "Sort records"
-
+  flags:
+  - IN1
+  - JUMP
+  doc: Sort records
+  inline_code: "/* jump */\n#ifdef SQL_TEST\n\tsql_sort_count++;\n\tsql_search_count--;\n#endif\n\t/* Fall through into OP_Rewind\
+    \ */\n#ifndef SQL_USE_GOTO\n\tFALLTHROUGH;\n#endif /* SQL_USE_GOTO */"
 - name: OP_SorterSort
   id: 40
   handler_type: inline
-  flags: [IN1, JUMP]
-  doc: "Sort sorter"
-
+  flags:
+  - IN1
+  - JUMP
+  doc: Sort sorter
+  inline_code: "/* jump */\n#ifdef SQL_TEST\n\tsql_sort_count++;\n\tsql_search_count--;\n#endif\n\t/* Fall through into OP_Rewind\
+    \ */\n#ifndef SQL_USE_GOTO\n\tFALLTHROUGH;\n#endif /* SQL_USE_GOTO */"
 - name: OP_ShiftLeft
   id: 22
   handler_type: inline
-  flags: [IN1, IN2, OUT3]
-  doc: "Bitwise left shift"
-
+  flags:
+  - IN1
+  - IN2
+  - OUT3
+  doc: Bitwise left shift
+  inline_code: "/* same as TK_LSHIFT, in1, in2, out3 */\n\tpIn1 = &aMem[P1];\n\tpIn2 = &aMem[P2];\n\tpOut = &aMem[P3];\n\t\
+    if (mem_shift_left(pIn2, pIn1, pOut) != 0)\n\t\tgoto abort_due_to_error;\n\tassert(pOut->type == MEM_TYPE_UINT || pOut->type\
+    \ == MEM_TYPE_NULL);\n\tDISPATCH();"
 - name: OP_ShiftRight
   id: 23
   handler_type: inline
-  flags: [IN1, IN2, OUT3]
-  doc: "Bitwise right shift"
+  flags:
+  - IN1
+  - IN2
+  - OUT3
+  doc: Bitwise right shift
+  inline_code: "/* same as TK_RSHIFT, in1, in2, out3 */\n\tpIn1 = &aMem[P1];\n\tpIn2 = &aMem[P2];\n\tpOut = &aMem[P3];\n\t\
+    if (mem_shift_right(pIn2, pIn1, pOut) != 0)\n\t\tgoto abort_due_to_error;\n\tassert(pOut->type == MEM_TYPE_UINT || pOut->type\
+    \ == MEM_TYPE_NULL);\n\tDISPATCH();"

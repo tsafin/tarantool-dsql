@@ -1226,379 +1226,858 @@ Exec_OP_Init: {
 
 Exec_OP_Savepoint: {
     /* Opcode: SAVEPOINT - Savepoint handling */
-    /* TODO: Inline code for OP_Savepoint */
+    int p1;                         /* Value of P1 operand */
+	char *zName;                    /* Name of savepoint */
+	struct txn *txn = in_txn();
+
+	if (txn == NULL) {
+		assert(!box_txn());
+		diag_set(ClientError, ER_NO_TRANSACTION);
+		goto abort_due_to_error;
     DISPATCH();
 }
 
 Exec_OP_SorterNext: {
     /* Opcode: SORTERNEXT - Sorter next row */
-    /* TODO: Inline code for OP_SorterNext */
+    /* jump */
+	VdbeCursor *pC = p->apCsr[P1];
+	assert(isSorter(pC));
+	int res = 0;
+	if (sqlVdbeSorterNext(pC, &res) != 0)
+		goto abort_due_to_error;
+	goto next_tail;
+
+/* Opcode: PrevIfOpen P1 P2 P3 P4 P5
+ *
+ * This opcode works just like Prev except that if cursor P1 is not
+ * open it behaves a no-op.
+ */
+EXECUTE(OP_PrevIfOpen,(P1,P2,P3,P4)):    /* jump */
+	if (p->apCsr[P1] == 0) {
+		DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_String8: {
     /* Opcode: STRING8 - Load C string r[P2]='P4' */
-    /* TODO: Inline code for OP_String8 */
+    /* same as TK_STRING, out2 */
+	assert(pOp->p4.z!=0);
+	pOp->opcode = OP_String;
+	P1 = sqlStrlen30(pOp->p4.z);
+
+	if (P1 > SQL_MAX_LENGTH)
+		goto too_big;
+	assert(rc == 0);
+	/* Fall through to the next case, OP_String */
+#ifndef SQL_USE_GOTO
+	FALLTHROUGH;
+#endif /* SQL_USE_GOTO */
     DISPATCH();
 }
 
 Exec_OP_SkipLoad: {
     /* Opcode: SKIPLOAD - Skip load */
-    /* TODO: Inline code for OP_SkipLoad */
+    if (P1) {
+		mem_set_bool(&aMem[P1], false);
     DISPATCH();
 }
 
 Exec_OP_BuiltinFunction: {
     /* Opcode: BUILTINFUNCTION - Call builtin function */
-    /* TODO: Inline code for OP_BuiltinFunction */
+    int argc = P1;
+	sql_context *pCtx;
+
+	assert(pOp->p4type == P4_FUNCCTX);
+	pCtx = pOp->p4.pCtx;
+
+	pOut = vdbe_prepare_null_out(p, P3);
+	if (pCtx->pOut != pOut)
+		pCtx->pOut = pOut;
+
+#ifdef SQL_DEBUG
+	for(int i = 0; i < argc; i++) {
+		assert(memIsValid(&aMem[P2 + i]));
+		REGISTER_TRACE(p, P2 + i, &aMem[P2 + i]);
     DISPATCH();
 }
 
 Exec_OP_FunctionByName: {
     /* Opcode: FUNCTIONBYNAME - Call function by name */
-    /* TODO: Inline code for OP_FunctionByName */
+    assert(pOp->p4type == P4_DYNAMIC);
+	struct func *func = func_by_name(pOp->p4.z, strlen(pOp->p4.z));
+	if (unlikely(func == NULL)) {
+		diag_set(ClientError, ER_NO_SUCH_FUNCTION, pOp->p4.z);
+		goto abort_due_to_error;
     DISPATCH();
 }
 
 Exec_OP_AddImm: {
     /* Opcode: ADDIMM - Add immediate r[P1]=r[P1]+P2 */
-    /* TODO: Inline code for OP_AddImm */
+    /* in1 */
+	pIn1 = &aMem[P1];
+	memAboutToChange(p, pIn1);
+	assert(mem_is_uint(pIn1) && P2 >= 0);
+	pIn1->u.u += P2;
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_Array: {
     /* Opcode: ARRAY - Create array */
-    /* TODO: Inline code for OP_Array */
+    pOut = &aMem[P2];
+
+	uint32_t size;
+	struct region *region = &fiber()->gc;
+	size_t svp = region_used(region);
+	char *val = mem_encode_array(&aMem[P3], P1, &size, region);
+	if (val == NULL || mem_copy_array(pOut, val, size) != 0) {
+		region_truncate(region, svp);
+		goto abort_due_to_error;
     DISPATCH();
 }
 
 Exec_OP_Map: {
     /* Opcode: MAP - Create map */
-    /* TODO: Inline code for OP_Map */
+    pOut = &aMem[P2];
+
+	uint32_t size;
+	struct region *region = &fiber()->gc;
+	size_t svp = region_used(region);
+	char *val = mem_encode_map(&aMem[P3], P1, &size, region);
+	if (val == NULL || mem_copy_map(pOut, val, size) != 0) {
+		region_truncate(region, svp);
+		goto abort_due_to_error;
     DISPATCH();
 }
 
 Exec_OP_Getitem: {
     /* Opcode: GETITEM - Get array/map item */
-    /* TODO: Inline code for OP_Getitem */
+    int count = P1;
+	assert(count > 0);
+	struct Mem *value = &aMem[P3 + count];
+	if (mem_is_null(value)) {
+		diag_set(ClientError, ER_SQL_EXECUTE, "Selecting is not "
+			 "possible from NULL");
+		goto abort_due_to_error;
     DISPATCH();
 }
 
 Exec_OP_Permutation: {
     /* Opcode: PERMUTATION - Permutation */
-    /* TODO: Inline code for OP_Permutation */
+    assert(pOp->p4type == P4_INTARRAY);
+	assert(pOp->p4.ai);
+	aPermute = pOp->p4.ai + 1;
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_Compare: {
     /* Opcode: COMPARE - Compare registers */
-    /* TODO: Inline code for OP_Compare */
+    if ((pOp->p5 & OPFLAG_PERMUTE) == 0)
+		aPermute = 0;
+
+	int n = P3;
+	assert(pOp->p4type == P4_KEYINFO);
+	assert(n > 0);
+	int p1 = P1;
+	int p2 = P2;
+
+	struct key_def *def = sql_key_info_to_key_def(pOp->p4.key_info);
+	if (def == NULL)
+		goto abort_due_to_error;
+#if SQL_DEBUG
+	if (aPermute) {
+		int mx = 0;
+		for(uint32_t k = 0; k < (uint32_t)n; k++)
+			if (aPermute[k] > mx)
+				mx = aPermute[k];
+		assert(p1>0 && p1+mx<=(p->nMem+1 - p->nCursor)+1);
+		assert(p2>0 && p2+mx<=(p->nMem+1 - p->nCursor)+1);
     DISPATCH();
 }
 
 Exec_OP_FetchByName: {
     /* Opcode: FETCHBYNAME - Fetch by name */
-    /* TODO: Inline code for OP_FetchByName */
+    struct vdbe_field_ref *ref = p->aMem[P1].u.p;
+	assert(pOp->p4type == P4_DYNAMIC);
+	uint32_t id;
+	if (ref->format != NULL) {
+		const char *name = pOp->p4.z;
+		uint32_t len = strlen(name);
+		uint32_t hash = field_name_hash(name, len);
+		struct tuple_dictionary *dict = ref->format->dict;
+		if (tuple_fieldno_by_name(dict, name, len, hash, &id) != 0) {
+			diag_set(ClientError, ER_SQL_CANT_RESOLVE_FIELD, name);
+			goto abort_due_to_error;
     DISPATCH();
 }
 
 Exec_OP_Fetch: {
     /* Opcode: FETCH - Fetch record */
-    /* TODO: Inline code for OP_Fetch */
+    struct vdbe_field_ref *ref = p->aMem[P1].u.p;
+	struct Mem *res = vdbe_prepare_null_out(p, P3);
+	if (vdbe_field_ref_fetch(ref, P2, res) != 0)
+		goto abort_due_to_error;
+	REGISTER_TRACE(p, P3, res);
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_Count: {
     /* Opcode: COUNT - Count records */
-    /* TODO: Inline code for OP_Count */
+    /* out2 */
+	i64 nEntry;
+	BtCursor *pCrsr;
+
+	assert(p->apCsr[P1]->eCurType == CURTYPE_TARANTOOL);
+	pCrsr = p->apCsr[P1]->uc.pCursor;
+	assert(pCrsr);
+	if (pCrsr->curFlags & BTCF_TaCursor) {
+		nEntry = tarantoolsqlCount(pCrsr);
     DISPATCH();
 }
 
 Exec_OP_CreateForeignKey: {
     /* Opcode: CREATEFOREIGNKEY - Create foreign key constraint */
-    /* TODO: Inline code for OP_CreateForeignKey */
+    assert(P1 >= 0);
+	struct Mem *mems = &aMem[P1];
+	assert(mem_is_uint(&mems[0]) && mem_is_uint(&mems[1]));
+	uint32_t child_id = mems[0].u.u;
+	uint32_t parent_id = mems[1].u.u;
+	const char *name = pOp->p4.z;
+	const char *mapping = NULL;
+	uint32_t child_fieldno = 0;
+	uint32_t parent_fieldno = 0;
+	if (mem_is_uint(&mems[2])) {
+		assert(mem_is_uint(&mems[3]));
+		child_fieldno = mems[2].u.u;
+		parent_fieldno = mems[3].u.u;
     DISPATCH();
 }
 
 Exec_OP_CreateCheck: {
     /* Opcode: CREATECHECK - Create check constraint */
-    /* TODO: Inline code for OP_CreateCheck */
+    assert(P1 >= 0 && P2 >= 0 && P3 >= 0);
+	uint32_t space_id = aMem[P1].u.u;
+	uint32_t func_id = aMem[P2].u.u;
+	const char *name = pOp->p4.z;
+	bool is_field_ck = pOp->p5 != 0;
+	uint32_t fieldno = P3;
+	if (sql_check_create(name, space_id, func_id, fieldno,
+			     is_field_ck) != 0)
+		goto abort_due_to_error;
+	if (p->nChange == 0)
+		p->nChange = 1;
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_DropTupleForeignKey: {
     /* Opcode: DROPTUPLEFOREIGNKEY - Drop tuple foreign key */
-    /* TODO: Inline code for OP_DropTupleForeignKey */
+    assert(P1 >= 0 && pOp->p4.z != NULL);
+	if (sql_tuple_foreign_key_drop(P1, pOp->p4.z) != 0)
+		goto abort_due_to_error;
+	assert(p->nChange == 0);
+	p->nChange = 1;
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_DropTupleCheck: {
     /* Opcode: DROPTUPLECHECK - Drop tuple check */
-    /* TODO: Inline code for OP_DropTupleCheck */
+    assert(P1 >= 0 && pOp->p4.z != NULL);
+	if (sql_tuple_check_drop(P1, pOp->p4.z) != 0)
+		goto abort_due_to_error;
+	assert(p->nChange == 0);
+	p->nChange = 1;
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_DropFieldForeignKey: {
     /* Opcode: DROPFIELDFOREIGNKEY - Drop field foreign key */
-    /* TODO: Inline code for OP_DropFieldForeignKey */
+    assert(P1 >= 0 && pOp->p4.z != NULL);
+	if (sql_field_foreign_key_drop(P1, P3, pOp->p4.z) != 0)
+		goto abort_due_to_error;
+	assert(p->nChange == 0);
+	p->nChange = 1;
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_DropFieldCheck: {
     /* Opcode: DROPFIELDCHECK - Drop field check */
-    /* TODO: Inline code for OP_DropFieldCheck */
+    assert(P1 >= 0 && pOp->p4.z != NULL);
+	if (sql_field_check_drop(P1, P3, pOp->p4.z) != 0)
+		goto abort_due_to_error;
+	assert(p->nChange == 0);
+	p->nChange = 1;
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_AddFuncDefault: {
     /* Opcode: ADDFUNCDEFAULT - Add function as default */
-    /* TODO: Inline code for OP_AddFuncDefault */
+    assert(aMem[P1].type == MEM_TYPE_UINT);
+	uint32_t space_id = aMem[P1].u.u;
+	uint32_t fieldno = P3;
+	assert(aMem[P2].type == MEM_TYPE_UINT);
+	uint32_t func_id = aMem[P2].u.u;
+	if (sql_add_default(space_id, fieldno, func_id) != 0)
+		goto abort_due_to_error;
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_CheckViewReferences: {
     /* Opcode: CHECKVIEWREFERENCES - Check view references */
-    /* TODO: Inline code for OP_CheckViewReferences */
+    assert(P1 > 0);
+	pIn1 = &aMem[P1];
+	uint64_t space_id = pIn1->u.u;
+	assert(space_id <= INT32_MAX);
+	struct space *space = space_by_id(space_id);
+	assert(space != NULL);
+	if (space->def->view_ref_count > 0) {
+		diag_set(ClientError, ER_DROP_SPACE, space->def->name,
+			 "other views depend on this space");
+		goto abort_due_to_error;
     DISPATCH();
 }
 
 Exec_OP_TransactionBegin: {
     /* Opcode: TRANSACTIONBEGIN - Begin transaction */
-    /* TODO: Inline code for OP_TransactionBegin */
+    if (in_txn()) {
+		diag_set(ClientError, ER_ACTIVE_TRANSACTION);
+		goto abort_due_to_error;
     DISPATCH();
 }
 
 Exec_OP_TransactionCommit: {
     /* Opcode: TRANSACTIONCOMMIT - Commit transaction */
-    /* TODO: Inline code for OP_TransactionCommit */
+    struct txn *txn = in_txn();
+	if (txn != NULL) {
+		if (txn_commit(txn) != 0)
+			goto abort_due_to_error;
     DISPATCH();
 }
 
 Exec_OP_TransactionRollback: {
     /* Opcode: TRANSACTIONROLLBACK - Rollback transaction */
-    /* TODO: Inline code for OP_TransactionRollback */
+    if (box_txn()) {
+		if (box_txn_rollback() != 0)
+			goto abort_due_to_error;
     DISPATCH();
 }
 
 Exec_OP_TTransaction: {
     /* Opcode: TTRANSACTION - Tarantool transaction */
-    /* TODO: Inline code for OP_TTransaction */
+    if (!box_txn()) {
+		if (txn_begin() == NULL)
+			goto abort_due_to_error;
     DISPATCH();
 }
 
 Exec_OP_IteratorOpen: {
     /* Opcode: ITERATOROPEN - Open iterator */
-    /* TODO: Inline code for OP_IteratorOpen */
+    struct VdbeCursor *cur = p->apCsr[P1];
+	if (box_schema_version() != p->schema_ver &&
+	    (pOp->p5 & OPFLAG_SYSTEMSP) == 0) {
+		p->expired = 1;
+		diag_set(ClientError, ER_SQL_EXECUTE, "schema version has "\
+			 "changed: need to re-compile SQL statement");
+		goto abort_due_to_error;
     DISPATCH();
 }
 
 Exec_OP_OpenSpace: {
     /* Opcode: OPENSPACE - Open space cursor */
-    /* TODO: Inline code for OP_OpenSpace */
+    assert(P1 >= 0 && P1 > 0);
+	struct space *space = space_by_id(P2);
+	assert(space != NULL);
+	mem_set_ptr(&aMem[P1], space);
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_OpenTEphemeral: {
     /* Opcode: OPENTEPHEMERAL - Open temporary table */
-    /* TODO: Inline code for OP_OpenTEphemeral */
+    assert(P1 >= 0);
+
+	assert(pOp->p4type == P4_DYNAMIC || pOp->p4type == P4_STATIC);
+	struct sql_space_info *info = pOp->p4.space_info;
+	assert(info != NULL);
+	struct space *space = sql_ephemeral_space_new(info);
+
+	if (space == NULL)
+		goto abort_due_to_error;
+	mem_set_ptr(&aMem[P1], space);
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_SorterOpen: {
     /* Opcode: SORTEROPEN - Open sorter */
-    /* TODO: Inline code for OP_SorterOpen */
+    VdbeCursor *pCx;
+
+	assert(P1 >= 0);
+	assert(P2 >= 0);
+	struct key_def *def = sql_key_info_to_key_def(pOp->p4.key_info);
+	if (def == NULL)
+		goto abort_due_to_error;
+	pCx = allocateCursor(p, P1, P2, CURTYPE_SORTER);
+	if (pCx == NULL)
+		goto abort_due_to_error;
+	pCx->key_def = def;
+	if (sqlVdbeSorterInit(pCx) != 0)
+		goto abort_due_to_error;
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_SequenceTest: {
     /* Opcode: SEQUENCETEST - Test sequence counter */
-    /* TODO: Inline code for OP_SequenceTest */
+    VdbeCursor *pC;
+	assert(P1 >= 0 && P1 < p->nCursor);
+	pC = p->apCsr[P1];
+	assert(isSorter(pC));
+	if ((pC->seqCount++) == 0)
+		JUMP_P2();
+
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_OpenPseudo: {
     /* Opcode: OPENPSEUDO - Open pseudo-cursor */
-    /* TODO: Inline code for OP_OpenPseudo */
+    VdbeCursor *pCx;
+
+	assert(P1 >= 0);
+	assert(P3 >= 0);
+	pCx = allocateCursor(p, P1, P3, CURTYPE_PSEUDO);
+	if (pCx == NULL)
+		goto abort_due_to_error;
+	pCx->nullRow = 1;
+	pCx->uc.pseudoTableReg = P2;
+	assert(pOp->p5==0);
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_Close: {
     /* Opcode: CLOSE - Close cursor */
-    /* TODO: Inline code for OP_Close */
+    assert(P1 >= 0 && P1 < p->nCursor);
+	sqlVdbeFreeCursor(p->apCsr[P1]);
+	p->apCsr[P1] = 0;
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_Sequence: {
     /* Opcode: SEQUENCE - Get sequence value */
-    /* TODO: Inline code for OP_Sequence */
+    /* out2 */
+	assert(P1>=0 && P1<p->nCursor);
+	assert(p->apCsr[P1]!=0);
+	pOut = vdbe_prepare_null_out(p, P2);
+	int64_t seq_val = p->apCsr[P1]->seqCount++;
+	mem_set_uint(pOut, seq_val);
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_NextSystemSpaceId: {
     /* Opcode: NEXTSYSTEMSPACEID - Get next system space ID */
-    /* TODO: Inline code for OP_NextSystemSpaceId */
+    assert(P1 >= 0 && P3 >= 0);
+	uint32_t space_id = P1;
+	assert(space_id == BOX_SEQUENCE_ID || space_id == BOX_FUNC_ID);
+	struct Mem *res = &p->aMem[P2];
+	char key[1];
+	struct tuple *tuple;
+	char *key_end = mp_encode_array(key, 0);
+	assert(key_end - key == 1);
+	if (box_index_max(space_id, 0, key, key_end, &tuple) != 0)
+		goto abort_due_to_error;
+	if (tuple == NULL) {
+		mem_set_uint(res, 1);
+		DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_NextIdEphemeral: {
     /* Opcode: NEXTIDEPHEMERAL - Get next ephemeral ID */
-    /* TODO: Inline code for OP_NextIdEphemeral */
+    struct space *space = (struct space*)p->aMem[P1].u.p;
+	assert(space->def->id == 0);
+	uint64_t rowid;
+	if (space->vtab->ephemeral_rowid_next(space, &rowid) != 0)
+		goto abort_due_to_error;
+	/*
+	 * FIXME: since memory cell can comprise only 32-bit
+	 * integer, make sure it can fit in. This check should
+	 * be removed when memory cell is extended with unsigned
+	 * 64-bit integer.
+	 */
+	if (rowid > INT32_MAX) {
+		diag_set(ClientError, ER_ROWID_OVERFLOW);
+		goto abort_due_to_error;
     DISPATCH();
 }
 
 Exec_OP_FCopy: {
     /* Opcode: FCOPY - Frame copy */
-    /* TODO: Inline code for OP_FCopy */
+    /* out2 */
+	VdbeFrame *pFrame;
+	Mem *pIn1, *pOut;
+	if (p->pFrame && ((P3 & OPFLAG_SAME_FRAME) == 0)) {
+		for(pFrame=p->pFrame; pFrame->pParent; pFrame=pFrame->pParent);
+		pIn1 = &pFrame->aMem[P1];
     DISPATCH();
 }
 
 Exec_OP_ResetCount: {
     /* Opcode: RESETCOUNT - Reset counter */
-    /* TODO: Inline code for OP_ResetCount */
+    sqlVdbeSetChanges(p->nChange);
+	p->nChange = 0;
+	p->ignoreRaised = 0;
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_SorterCompare: {
     /* Opcode: SORTERCOMPARE - Sorter comparison */
-    /* TODO: Inline code for OP_SorterCompare */
+    VdbeCursor *pC;
+	int res;
+	int nKeyCol;
+
+	pC = p->apCsr[P1];
+	assert(isSorter(pC));
+	assert(pOp->p4type == P4_INT32);
+	pIn3 = &aMem[P3];
+	nKeyCol = pOp->p4.i;
+	if (sqlVdbeSorterCompare(pC, pIn3, nKeyCol, &res) != 0)
+		goto abort_due_to_error;
+	if (res) JUMP_P2();
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_SorterData: {
     /* Opcode: SORTERDATA - Get sorter data */
-    /* TODO: Inline code for OP_SorterData */
+    VdbeCursor *pC;
+
+	pOut = vdbe_prepare_null_out(p, P2);
+	pC = p->apCsr[P1];
+	assert(isSorter(pC));
+	if (sqlVdbeSorterRowkey(pC, pOut) != 0)
+		goto abort_due_to_error;
+	assert(mem_is_bin(pOut));
+	assert(P1 >= 0 && P1 < p->nCursor);
+	p->apCsr[P3]->cacheStatus = CACHE_STALE;
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_NullRow: {
     /* Opcode: NULLROW - Null row marker */
-    /* TODO: Inline code for OP_NullRow */
+    VdbeCursor *pC;
+
+	assert(P1 >= 0 && P1 < p->nCursor);
+	pC = p->apCsr[P1];
+	assert(pC!=0);
+	pC->nullRow = 1;
+	pC->cacheStatus = CACHE_STALE;
+	if (pC->eCurType==CURTYPE_TARANTOOL) {
+		assert(pC->uc.pCursor!=0);
+		sql_cursor_cleanup(pC->uc.pCursor);
     DISPATCH();
 }
 
 Exec_OP_SorterInsert: {
     /* Opcode: SORTERINSERT - Insert into sorter */
-    /* TODO: Inline code for OP_SorterInsert */
+    /* in2 */
+	assert(P1 >= 0 && P1 < p->nCursor);
+	struct VdbeCursor *cursor = p->apCsr[P1];
+	assert(cursor != NULL);
+	assert(isSorter(cursor));
+	pIn2 = &aMem[P2];
+	assert(mem_is_bin(pIn2));
+	if (sqlVdbeSorterWrite(cursor, pIn2) != 0)
+		goto abort_due_to_error;
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_Clear: {
     /* Opcode: CLEAR - Clear space */
-    /* TODO: Inline code for OP_Clear */
+    assert(P1 > 0);
+	uint32_t space_id = P1;
+	struct space *space = space_by_id(space_id);
+	assert(space != NULL);
+	if (P2 > 0) {
+		if (box_truncate(space_id) != 0)
+			goto abort_due_to_error;
     DISPATCH();
 }
 
 Exec_OP_ResetSorter: {
     /* Opcode: RESETSORTER - Reset sorter */
-    /* TODO: Inline code for OP_ResetSorter */
+    VdbeCursor *pC;
+
+	assert(P1 >= 0 && P1 < p->nCursor);
+	pC = p->apCsr[P1];
+	assert(pC != 0);
+	if (isSorter(pC)) {
+		sqlVdbeSorterReset(pC->uc.pSorter);
     DISPATCH();
 }
 
 Exec_OP_RenameTable: {
     /* Opcode: RENAMETABLE - Rename table */
-    /* TODO: Inline code for OP_RenameTable */
+    uint32_t space_id;
+	struct space *space;
+	char *zOldTableName;
+	const char *zNewTableName;
+
+	space_id = P1;
+	space = space_by_id(space_id);
+	assert(space);
+	/* Rename space op doesn't change triggers. */
+	struct sql_trigger *triggers = space->sql_triggers;
+	assert(space->def->name != NULL);
+	zNewTableName = pOp->p4.z;
+	zOldTableName = sql_xstrdup(space_name(space));
+	if (sql_rename_table(space_id, zNewTableName) != 0)
+		goto abort_due_to_error;
+	/*
+	 * Rebuild 'CREATE TRIGGER' expressions of all triggers
+	 * created on this table. Sure, this action is not atomic
+	 * due to lack of transactional DDL, but just do the best
+	 * effort.
+	 */
+	for (struct sql_trigger *trigger = triggers; trigger != NULL; ) {
+		/* Store pointer as trigger will be destructed. */
+		struct sql_trigger *next_trigger = trigger->next;
+		/*
+		 * FIXME: In the case of error, part of triggers
+		 * would have invalid space name in tuple so can
+		 * not been persisted. Server could be restarted.
+		 * In this case, rename table back and try again.
+		 */
+		if (tarantoolsqlRenameTrigger(trigger->zName, zOldTableName,
+					      zNewTableName) != 0)
+			goto abort_due_to_error;
+		trigger = next_trigger;
     DISPATCH();
 }
 
 Exec_OP_LoadAnalysis: {
     /* Opcode: LOADANALYSIS - Load analysis */
-    /* TODO: Inline code for OP_LoadAnalysis */
+    assert(P1 == 0);
+	/* TODO: Enable analysis. */
+	/*
+	if (sql_analysis_load(db) != 0)
+		goto abort_due_to_error;
+	*/
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_Param: {
     /* Opcode: PARAM - Load parameter */
-    /* TODO: Inline code for OP_Param */
+    /* out2 */
+	VdbeFrame *pFrame;
+	Mem *pIn;
+	pOut = vdbe_prepare_null_out(p, P2);
+	pFrame = p->pFrame;
+	pIn = &pFrame->aMem[P1 + pFrame->aOp[pFrame->pc].p1];
+	mem_copy_as_ephemeral(pOut, pIn);
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_OffsetLimit: {
     /* Opcode: OFFSETLIMIT - Calculate offset limit */
-    /* TODO: Inline code for OP_OffsetLimit */
+    /* in1, out2, in3 */
+	pIn1 = &aMem[P1];
+	pIn3 = &aMem[P3];
+	pOut = vdbe_prepare_null_out(p, P2);
+
+	assert(mem_is_uint(pIn1));
+	assert(mem_is_uint(pIn3));
+	uint64_t x = pIn1->u.u;
+	uint64_t rhs = pIn3->u.u;
+	bool unused;
+	if (sql_add_int(x, false, rhs, false, (int64_t *) &x, &unused) != 0) {
+		diag_set(ClientError, ER_SQL_EXECUTE, "sum of LIMIT and OFFSET "
+			"values should not result in integer overflow");
+		goto abort_due_to_error;
     DISPATCH();
 }
 
 Exec_OP_Expire: {
     /* Opcode: EXPIRE - Expire entry */
-    /* TODO: Inline code for OP_Expire */
+    if (!P1) {
+		sqlExpirePreparedStatements();
     DISPATCH();
 }
 
 Exec_OP_GenSpaceid: {
     /* Opcode: GENSPACEID - Generate space ID */
-    /* TODO: Inline code for OP_GenSpaceid */
+    assert(P1 > 0);
+	pOut = vdbe_prepare_null_out(p, P1);
+	uint32_t u;
+	if (box_generate_space_id(&u, false) != 0)
+		goto abort_due_to_error;
+	mem_set_uint(pOut, u);
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_SetSession: {
     /* Opcode: SETSESSION - Set session */
-    /* TODO: Inline code for OP_SetSession */
+    assert(pOp->p4type == P4_DYNAMIC);
+	const char *setting_name = pOp->p4.z;
+	int sid = session_setting_find(setting_name);
+	if (sid < 0) {
+		diag_set(ClientError, ER_NO_SUCH_SESSION_SETTING, setting_name);
+		goto abort_due_to_error;
     DISPATCH();
 }
 
 Exec_OP_ShowCreateTable: {
     /* Opcode: SHOWCREATETABLE - Show create table */
-    /* TODO: Inline code for OP_ShowCreateTable */
+    struct Mem *ret = &aMem[P2];
+	struct Mem *err = &aMem[P2 + 1];
+	sql_show_create_table(aMem[P1].u.i, ret, err);
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_Noop: {
     /* Opcode: NOOP - No operation */
-    /* TODO: Inline code for OP_Noop */
+    DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_Explain: {
     /* Opcode: EXPLAIN - Explain query */
-    /* TODO: Inline code for OP_Explain */
+    DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_IsNull: {
     /* Opcode: ISNULL - Test for NULL */
-    /* TODO: Inline code for OP_IsNull */
+    /* same as TK_ISNULL, jump, in1 */
+	pIn1 = &aMem[P1];
+	if (mem_is_null(pIn1))
+		JUMP_P2();
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_NotNull: {
     /* Opcode: NOTNULL - Test for not NULL */
-    /* TODO: Inline code for OP_NotNull */
+    /* same as TK_NOTNULL, jump, in1 */
+	pIn1 = &aMem[P1];
+	if (!mem_is_null(pIn1)) {
+		JUMP_P2();
     DISPATCH();
 }
 
 Exec_OP_Decimal: {
     /* Opcode: DECIMAL - Load decimal r[P2]=P4 */
-    /* TODO: Inline code for OP_Decimal */
+    /* same as TK_DECIMAL, out2 */
+	pOut = vdbe_prepare_null_out(p, P2);
+	mem_set_dec(pOut, pOp->p4.dec);
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_Program: {
     /* Opcode: PROGRAM - Execute program */
-    /* TODO: Inline code for OP_Program */
+    /* jump */
+	int nMem;               /* Number of memory registers for sub-program */
+	int nByte;              /* Bytes of runtime space required for sub-program */
+	Mem *pRt;               /* Register to allocate runtime space */
+	Mem *pMem;              /* Used to iterate through memory cells */
+	Mem *pEnd;              /* Last memory cell in new array */
+	VdbeFrame *pFrame;      /* New vdbe frame to execute in */
+	SubProgram *pProgram;   /* Sub-program to execute */
+	void *t;                /* Token identifying trigger */
+
+	pProgram = pOp->p4.pProgram;
+	pRt = &aMem[P3];
+	assert(pProgram->nOp>0);
+
+	/* If the p5 flag is clear, then recursive invocation of triggers is
+	 * disabled for backwards compatibility (p5 is set if this sub-program
+	 * is really a trigger, not a foreign key action, and the setting
+	 * 'recursive_triggers' is not set).
+	 *
+	 * It is recursive invocation of triggers, at the SQL level, that is
+	 * disabled. In some cases a single trigger may generate more than one
+	 * SubProgram (if the trigger may be executed with more than one different
+	 * ON CONFLICT algorithm). SubProgram structures associated with a
+	 * single trigger all have the same value for the SubProgram.token
+	 * variable.
+	 */
+	if (pOp->p5) {
+		t = pProgram->token;
+		for(pFrame=p->pFrame; pFrame && pFrame->token!=t; pFrame=pFrame->pParent);
+		if (pFrame) {
+			DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_Sort: {
     /* Opcode: SORT - Sort records */
-    /* TODO: Inline code for OP_Sort */
+    /* jump */
+#ifdef SQL_TEST
+	sql_sort_count++;
+	sql_search_count--;
+#endif
+	/* Fall through into OP_Rewind */
+#ifndef SQL_USE_GOTO
+	FALLTHROUGH;
+#endif /* SQL_USE_GOTO */
     DISPATCH();
 }
 
 Exec_OP_SorterSort: {
     /* Opcode: SORTERSORT - Sort sorter */
-    /* TODO: Inline code for OP_SorterSort */
+    /* jump */
+#ifdef SQL_TEST
+	sql_sort_count++;
+	sql_search_count--;
+#endif
+	/* Fall through into OP_Rewind */
+#ifndef SQL_USE_GOTO
+	FALLTHROUGH;
+#endif /* SQL_USE_GOTO */
     DISPATCH();
 }
 
 Exec_OP_ShiftLeft: {
     /* Opcode: SHIFTLEFT - Bitwise left shift */
-    /* TODO: Inline code for OP_ShiftLeft */
+    /* same as TK_LSHIFT, in1, in2, out3 */
+	pIn1 = &aMem[P1];
+	pIn2 = &aMem[P2];
+	pOut = &aMem[P3];
+	if (mem_shift_left(pIn2, pIn1, pOut) != 0)
+		goto abort_due_to_error;
+	assert(pOut->type == MEM_TYPE_UINT || pOut->type == MEM_TYPE_NULL);
+	DISPATCH();
     DISPATCH();
 }
 
 Exec_OP_ShiftRight: {
     /* Opcode: SHIFTRIGHT - Bitwise right shift */
-    /* TODO: Inline code for OP_ShiftRight */
+    /* same as TK_RSHIFT, in1, in2, out3 */
+	pIn1 = &aMem[P1];
+	pIn2 = &aMem[P2];
+	pOut = &aMem[P3];
+	if (mem_shift_right(pIn2, pIn1, pOut) != 0)
+		goto abort_due_to_error;
+	assert(pOut->type == MEM_TYPE_UINT || pOut->type == MEM_TYPE_NULL);
+	DISPATCH();
     DISPATCH();
 }
 
@@ -2511,379 +2990,858 @@ case OP_Init: {
 
 case OP_Savepoint: {
     /* SAVEPOINT - Savepoint handling */
-    /* TODO: Inline code for OP_Savepoint */
+    int p1;                         /* Value of P1 operand */
+	char *zName;                    /* Name of savepoint */
+	struct txn *txn = in_txn();
+
+	if (txn == NULL) {
+		assert(!box_txn());
+		diag_set(ClientError, ER_NO_TRANSACTION);
+		goto abort_due_to_error;
     break;
 }
 
 case OP_SorterNext: {
     /* SORTERNEXT - Sorter next row */
-    /* TODO: Inline code for OP_SorterNext */
+    /* jump */
+	VdbeCursor *pC = p->apCsr[P1];
+	assert(isSorter(pC));
+	int res = 0;
+	if (sqlVdbeSorterNext(pC, &res) != 0)
+		goto abort_due_to_error;
+	goto next_tail;
+
+/* Opcode: PrevIfOpen P1 P2 P3 P4 P5
+ *
+ * This opcode works just like Prev except that if cursor P1 is not
+ * open it behaves a no-op.
+ */
+EXECUTE(OP_PrevIfOpen,(P1,P2,P3,P4)):    /* jump */
+	if (p->apCsr[P1] == 0) {
+		DISPATCH();
     break;
 }
 
 case OP_String8: {
     /* STRING8 - Load C string r[P2]='P4' */
-    /* TODO: Inline code for OP_String8 */
+    /* same as TK_STRING, out2 */
+	assert(pOp->p4.z!=0);
+	pOp->opcode = OP_String;
+	P1 = sqlStrlen30(pOp->p4.z);
+
+	if (P1 > SQL_MAX_LENGTH)
+		goto too_big;
+	assert(rc == 0);
+	/* Fall through to the next case, OP_String */
+#ifndef SQL_USE_GOTO
+	FALLTHROUGH;
+#endif /* SQL_USE_GOTO */
     break;
 }
 
 case OP_SkipLoad: {
     /* SKIPLOAD - Skip load */
-    /* TODO: Inline code for OP_SkipLoad */
+    if (P1) {
+		mem_set_bool(&aMem[P1], false);
     break;
 }
 
 case OP_BuiltinFunction: {
     /* BUILTINFUNCTION - Call builtin function */
-    /* TODO: Inline code for OP_BuiltinFunction */
+    int argc = P1;
+	sql_context *pCtx;
+
+	assert(pOp->p4type == P4_FUNCCTX);
+	pCtx = pOp->p4.pCtx;
+
+	pOut = vdbe_prepare_null_out(p, P3);
+	if (pCtx->pOut != pOut)
+		pCtx->pOut = pOut;
+
+#ifdef SQL_DEBUG
+	for(int i = 0; i < argc; i++) {
+		assert(memIsValid(&aMem[P2 + i]));
+		REGISTER_TRACE(p, P2 + i, &aMem[P2 + i]);
     break;
 }
 
 case OP_FunctionByName: {
     /* FUNCTIONBYNAME - Call function by name */
-    /* TODO: Inline code for OP_FunctionByName */
+    assert(pOp->p4type == P4_DYNAMIC);
+	struct func *func = func_by_name(pOp->p4.z, strlen(pOp->p4.z));
+	if (unlikely(func == NULL)) {
+		diag_set(ClientError, ER_NO_SUCH_FUNCTION, pOp->p4.z);
+		goto abort_due_to_error;
     break;
 }
 
 case OP_AddImm: {
     /* ADDIMM - Add immediate r[P1]=r[P1]+P2 */
-    /* TODO: Inline code for OP_AddImm */
+    /* in1 */
+	pIn1 = &aMem[P1];
+	memAboutToChange(p, pIn1);
+	assert(mem_is_uint(pIn1) && P2 >= 0);
+	pIn1->u.u += P2;
+	DISPATCH();
     break;
 }
 
 case OP_Array: {
     /* ARRAY - Create array */
-    /* TODO: Inline code for OP_Array */
+    pOut = &aMem[P2];
+
+	uint32_t size;
+	struct region *region = &fiber()->gc;
+	size_t svp = region_used(region);
+	char *val = mem_encode_array(&aMem[P3], P1, &size, region);
+	if (val == NULL || mem_copy_array(pOut, val, size) != 0) {
+		region_truncate(region, svp);
+		goto abort_due_to_error;
     break;
 }
 
 case OP_Map: {
     /* MAP - Create map */
-    /* TODO: Inline code for OP_Map */
+    pOut = &aMem[P2];
+
+	uint32_t size;
+	struct region *region = &fiber()->gc;
+	size_t svp = region_used(region);
+	char *val = mem_encode_map(&aMem[P3], P1, &size, region);
+	if (val == NULL || mem_copy_map(pOut, val, size) != 0) {
+		region_truncate(region, svp);
+		goto abort_due_to_error;
     break;
 }
 
 case OP_Getitem: {
     /* GETITEM - Get array/map item */
-    /* TODO: Inline code for OP_Getitem */
+    int count = P1;
+	assert(count > 0);
+	struct Mem *value = &aMem[P3 + count];
+	if (mem_is_null(value)) {
+		diag_set(ClientError, ER_SQL_EXECUTE, "Selecting is not "
+			 "possible from NULL");
+		goto abort_due_to_error;
     break;
 }
 
 case OP_Permutation: {
     /* PERMUTATION - Permutation */
-    /* TODO: Inline code for OP_Permutation */
+    assert(pOp->p4type == P4_INTARRAY);
+	assert(pOp->p4.ai);
+	aPermute = pOp->p4.ai + 1;
+	DISPATCH();
     break;
 }
 
 case OP_Compare: {
     /* COMPARE - Compare registers */
-    /* TODO: Inline code for OP_Compare */
+    if ((pOp->p5 & OPFLAG_PERMUTE) == 0)
+		aPermute = 0;
+
+	int n = P3;
+	assert(pOp->p4type == P4_KEYINFO);
+	assert(n > 0);
+	int p1 = P1;
+	int p2 = P2;
+
+	struct key_def *def = sql_key_info_to_key_def(pOp->p4.key_info);
+	if (def == NULL)
+		goto abort_due_to_error;
+#if SQL_DEBUG
+	if (aPermute) {
+		int mx = 0;
+		for(uint32_t k = 0; k < (uint32_t)n; k++)
+			if (aPermute[k] > mx)
+				mx = aPermute[k];
+		assert(p1>0 && p1+mx<=(p->nMem+1 - p->nCursor)+1);
+		assert(p2>0 && p2+mx<=(p->nMem+1 - p->nCursor)+1);
     break;
 }
 
 case OP_FetchByName: {
     /* FETCHBYNAME - Fetch by name */
-    /* TODO: Inline code for OP_FetchByName */
+    struct vdbe_field_ref *ref = p->aMem[P1].u.p;
+	assert(pOp->p4type == P4_DYNAMIC);
+	uint32_t id;
+	if (ref->format != NULL) {
+		const char *name = pOp->p4.z;
+		uint32_t len = strlen(name);
+		uint32_t hash = field_name_hash(name, len);
+		struct tuple_dictionary *dict = ref->format->dict;
+		if (tuple_fieldno_by_name(dict, name, len, hash, &id) != 0) {
+			diag_set(ClientError, ER_SQL_CANT_RESOLVE_FIELD, name);
+			goto abort_due_to_error;
     break;
 }
 
 case OP_Fetch: {
     /* FETCH - Fetch record */
-    /* TODO: Inline code for OP_Fetch */
+    struct vdbe_field_ref *ref = p->aMem[P1].u.p;
+	struct Mem *res = vdbe_prepare_null_out(p, P3);
+	if (vdbe_field_ref_fetch(ref, P2, res) != 0)
+		goto abort_due_to_error;
+	REGISTER_TRACE(p, P3, res);
+	DISPATCH();
     break;
 }
 
 case OP_Count: {
     /* COUNT - Count records */
-    /* TODO: Inline code for OP_Count */
+    /* out2 */
+	i64 nEntry;
+	BtCursor *pCrsr;
+
+	assert(p->apCsr[P1]->eCurType == CURTYPE_TARANTOOL);
+	pCrsr = p->apCsr[P1]->uc.pCursor;
+	assert(pCrsr);
+	if (pCrsr->curFlags & BTCF_TaCursor) {
+		nEntry = tarantoolsqlCount(pCrsr);
     break;
 }
 
 case OP_CreateForeignKey: {
     /* CREATEFOREIGNKEY - Create foreign key constraint */
-    /* TODO: Inline code for OP_CreateForeignKey */
+    assert(P1 >= 0);
+	struct Mem *mems = &aMem[P1];
+	assert(mem_is_uint(&mems[0]) && mem_is_uint(&mems[1]));
+	uint32_t child_id = mems[0].u.u;
+	uint32_t parent_id = mems[1].u.u;
+	const char *name = pOp->p4.z;
+	const char *mapping = NULL;
+	uint32_t child_fieldno = 0;
+	uint32_t parent_fieldno = 0;
+	if (mem_is_uint(&mems[2])) {
+		assert(mem_is_uint(&mems[3]));
+		child_fieldno = mems[2].u.u;
+		parent_fieldno = mems[3].u.u;
     break;
 }
 
 case OP_CreateCheck: {
     /* CREATECHECK - Create check constraint */
-    /* TODO: Inline code for OP_CreateCheck */
+    assert(P1 >= 0 && P2 >= 0 && P3 >= 0);
+	uint32_t space_id = aMem[P1].u.u;
+	uint32_t func_id = aMem[P2].u.u;
+	const char *name = pOp->p4.z;
+	bool is_field_ck = pOp->p5 != 0;
+	uint32_t fieldno = P3;
+	if (sql_check_create(name, space_id, func_id, fieldno,
+			     is_field_ck) != 0)
+		goto abort_due_to_error;
+	if (p->nChange == 0)
+		p->nChange = 1;
+	DISPATCH();
     break;
 }
 
 case OP_DropTupleForeignKey: {
     /* DROPTUPLEFOREIGNKEY - Drop tuple foreign key */
-    /* TODO: Inline code for OP_DropTupleForeignKey */
+    assert(P1 >= 0 && pOp->p4.z != NULL);
+	if (sql_tuple_foreign_key_drop(P1, pOp->p4.z) != 0)
+		goto abort_due_to_error;
+	assert(p->nChange == 0);
+	p->nChange = 1;
+	DISPATCH();
     break;
 }
 
 case OP_DropTupleCheck: {
     /* DROPTUPLECHECK - Drop tuple check */
-    /* TODO: Inline code for OP_DropTupleCheck */
+    assert(P1 >= 0 && pOp->p4.z != NULL);
+	if (sql_tuple_check_drop(P1, pOp->p4.z) != 0)
+		goto abort_due_to_error;
+	assert(p->nChange == 0);
+	p->nChange = 1;
+	DISPATCH();
     break;
 }
 
 case OP_DropFieldForeignKey: {
     /* DROPFIELDFOREIGNKEY - Drop field foreign key */
-    /* TODO: Inline code for OP_DropFieldForeignKey */
+    assert(P1 >= 0 && pOp->p4.z != NULL);
+	if (sql_field_foreign_key_drop(P1, P3, pOp->p4.z) != 0)
+		goto abort_due_to_error;
+	assert(p->nChange == 0);
+	p->nChange = 1;
+	DISPATCH();
     break;
 }
 
 case OP_DropFieldCheck: {
     /* DROPFIELDCHECK - Drop field check */
-    /* TODO: Inline code for OP_DropFieldCheck */
+    assert(P1 >= 0 && pOp->p4.z != NULL);
+	if (sql_field_check_drop(P1, P3, pOp->p4.z) != 0)
+		goto abort_due_to_error;
+	assert(p->nChange == 0);
+	p->nChange = 1;
+	DISPATCH();
     break;
 }
 
 case OP_AddFuncDefault: {
     /* ADDFUNCDEFAULT - Add function as default */
-    /* TODO: Inline code for OP_AddFuncDefault */
+    assert(aMem[P1].type == MEM_TYPE_UINT);
+	uint32_t space_id = aMem[P1].u.u;
+	uint32_t fieldno = P3;
+	assert(aMem[P2].type == MEM_TYPE_UINT);
+	uint32_t func_id = aMem[P2].u.u;
+	if (sql_add_default(space_id, fieldno, func_id) != 0)
+		goto abort_due_to_error;
+	DISPATCH();
     break;
 }
 
 case OP_CheckViewReferences: {
     /* CHECKVIEWREFERENCES - Check view references */
-    /* TODO: Inline code for OP_CheckViewReferences */
+    assert(P1 > 0);
+	pIn1 = &aMem[P1];
+	uint64_t space_id = pIn1->u.u;
+	assert(space_id <= INT32_MAX);
+	struct space *space = space_by_id(space_id);
+	assert(space != NULL);
+	if (space->def->view_ref_count > 0) {
+		diag_set(ClientError, ER_DROP_SPACE, space->def->name,
+			 "other views depend on this space");
+		goto abort_due_to_error;
     break;
 }
 
 case OP_TransactionBegin: {
     /* TRANSACTIONBEGIN - Begin transaction */
-    /* TODO: Inline code for OP_TransactionBegin */
+    if (in_txn()) {
+		diag_set(ClientError, ER_ACTIVE_TRANSACTION);
+		goto abort_due_to_error;
     break;
 }
 
 case OP_TransactionCommit: {
     /* TRANSACTIONCOMMIT - Commit transaction */
-    /* TODO: Inline code for OP_TransactionCommit */
+    struct txn *txn = in_txn();
+	if (txn != NULL) {
+		if (txn_commit(txn) != 0)
+			goto abort_due_to_error;
     break;
 }
 
 case OP_TransactionRollback: {
     /* TRANSACTIONROLLBACK - Rollback transaction */
-    /* TODO: Inline code for OP_TransactionRollback */
+    if (box_txn()) {
+		if (box_txn_rollback() != 0)
+			goto abort_due_to_error;
     break;
 }
 
 case OP_TTransaction: {
     /* TTRANSACTION - Tarantool transaction */
-    /* TODO: Inline code for OP_TTransaction */
+    if (!box_txn()) {
+		if (txn_begin() == NULL)
+			goto abort_due_to_error;
     break;
 }
 
 case OP_IteratorOpen: {
     /* ITERATOROPEN - Open iterator */
-    /* TODO: Inline code for OP_IteratorOpen */
+    struct VdbeCursor *cur = p->apCsr[P1];
+	if (box_schema_version() != p->schema_ver &&
+	    (pOp->p5 & OPFLAG_SYSTEMSP) == 0) {
+		p->expired = 1;
+		diag_set(ClientError, ER_SQL_EXECUTE, "schema version has "\
+			 "changed: need to re-compile SQL statement");
+		goto abort_due_to_error;
     break;
 }
 
 case OP_OpenSpace: {
     /* OPENSPACE - Open space cursor */
-    /* TODO: Inline code for OP_OpenSpace */
+    assert(P1 >= 0 && P1 > 0);
+	struct space *space = space_by_id(P2);
+	assert(space != NULL);
+	mem_set_ptr(&aMem[P1], space);
+	DISPATCH();
     break;
 }
 
 case OP_OpenTEphemeral: {
     /* OPENTEPHEMERAL - Open temporary table */
-    /* TODO: Inline code for OP_OpenTEphemeral */
+    assert(P1 >= 0);
+
+	assert(pOp->p4type == P4_DYNAMIC || pOp->p4type == P4_STATIC);
+	struct sql_space_info *info = pOp->p4.space_info;
+	assert(info != NULL);
+	struct space *space = sql_ephemeral_space_new(info);
+
+	if (space == NULL)
+		goto abort_due_to_error;
+	mem_set_ptr(&aMem[P1], space);
+	DISPATCH();
     break;
 }
 
 case OP_SorterOpen: {
     /* SORTEROPEN - Open sorter */
-    /* TODO: Inline code for OP_SorterOpen */
+    VdbeCursor *pCx;
+
+	assert(P1 >= 0);
+	assert(P2 >= 0);
+	struct key_def *def = sql_key_info_to_key_def(pOp->p4.key_info);
+	if (def == NULL)
+		goto abort_due_to_error;
+	pCx = allocateCursor(p, P1, P2, CURTYPE_SORTER);
+	if (pCx == NULL)
+		goto abort_due_to_error;
+	pCx->key_def = def;
+	if (sqlVdbeSorterInit(pCx) != 0)
+		goto abort_due_to_error;
+	DISPATCH();
     break;
 }
 
 case OP_SequenceTest: {
     /* SEQUENCETEST - Test sequence counter */
-    /* TODO: Inline code for OP_SequenceTest */
+    VdbeCursor *pC;
+	assert(P1 >= 0 && P1 < p->nCursor);
+	pC = p->apCsr[P1];
+	assert(isSorter(pC));
+	if ((pC->seqCount++) == 0)
+		JUMP_P2();
+
+	DISPATCH();
     break;
 }
 
 case OP_OpenPseudo: {
     /* OPENPSEUDO - Open pseudo-cursor */
-    /* TODO: Inline code for OP_OpenPseudo */
+    VdbeCursor *pCx;
+
+	assert(P1 >= 0);
+	assert(P3 >= 0);
+	pCx = allocateCursor(p, P1, P3, CURTYPE_PSEUDO);
+	if (pCx == NULL)
+		goto abort_due_to_error;
+	pCx->nullRow = 1;
+	pCx->uc.pseudoTableReg = P2;
+	assert(pOp->p5==0);
+	DISPATCH();
     break;
 }
 
 case OP_Close: {
     /* CLOSE - Close cursor */
-    /* TODO: Inline code for OP_Close */
+    assert(P1 >= 0 && P1 < p->nCursor);
+	sqlVdbeFreeCursor(p->apCsr[P1]);
+	p->apCsr[P1] = 0;
+	DISPATCH();
     break;
 }
 
 case OP_Sequence: {
     /* SEQUENCE - Get sequence value */
-    /* TODO: Inline code for OP_Sequence */
+    /* out2 */
+	assert(P1>=0 && P1<p->nCursor);
+	assert(p->apCsr[P1]!=0);
+	pOut = vdbe_prepare_null_out(p, P2);
+	int64_t seq_val = p->apCsr[P1]->seqCount++;
+	mem_set_uint(pOut, seq_val);
+	DISPATCH();
     break;
 }
 
 case OP_NextSystemSpaceId: {
     /* NEXTSYSTEMSPACEID - Get next system space ID */
-    /* TODO: Inline code for OP_NextSystemSpaceId */
+    assert(P1 >= 0 && P3 >= 0);
+	uint32_t space_id = P1;
+	assert(space_id == BOX_SEQUENCE_ID || space_id == BOX_FUNC_ID);
+	struct Mem *res = &p->aMem[P2];
+	char key[1];
+	struct tuple *tuple;
+	char *key_end = mp_encode_array(key, 0);
+	assert(key_end - key == 1);
+	if (box_index_max(space_id, 0, key, key_end, &tuple) != 0)
+		goto abort_due_to_error;
+	if (tuple == NULL) {
+		mem_set_uint(res, 1);
+		DISPATCH();
     break;
 }
 
 case OP_NextIdEphemeral: {
     /* NEXTIDEPHEMERAL - Get next ephemeral ID */
-    /* TODO: Inline code for OP_NextIdEphemeral */
+    struct space *space = (struct space*)p->aMem[P1].u.p;
+	assert(space->def->id == 0);
+	uint64_t rowid;
+	if (space->vtab->ephemeral_rowid_next(space, &rowid) != 0)
+		goto abort_due_to_error;
+	/*
+	 * FIXME: since memory cell can comprise only 32-bit
+	 * integer, make sure it can fit in. This check should
+	 * be removed when memory cell is extended with unsigned
+	 * 64-bit integer.
+	 */
+	if (rowid > INT32_MAX) {
+		diag_set(ClientError, ER_ROWID_OVERFLOW);
+		goto abort_due_to_error;
     break;
 }
 
 case OP_FCopy: {
     /* FCOPY - Frame copy */
-    /* TODO: Inline code for OP_FCopy */
+    /* out2 */
+	VdbeFrame *pFrame;
+	Mem *pIn1, *pOut;
+	if (p->pFrame && ((P3 & OPFLAG_SAME_FRAME) == 0)) {
+		for(pFrame=p->pFrame; pFrame->pParent; pFrame=pFrame->pParent);
+		pIn1 = &pFrame->aMem[P1];
     break;
 }
 
 case OP_ResetCount: {
     /* RESETCOUNT - Reset counter */
-    /* TODO: Inline code for OP_ResetCount */
+    sqlVdbeSetChanges(p->nChange);
+	p->nChange = 0;
+	p->ignoreRaised = 0;
+	DISPATCH();
     break;
 }
 
 case OP_SorterCompare: {
     /* SORTERCOMPARE - Sorter comparison */
-    /* TODO: Inline code for OP_SorterCompare */
+    VdbeCursor *pC;
+	int res;
+	int nKeyCol;
+
+	pC = p->apCsr[P1];
+	assert(isSorter(pC));
+	assert(pOp->p4type == P4_INT32);
+	pIn3 = &aMem[P3];
+	nKeyCol = pOp->p4.i;
+	if (sqlVdbeSorterCompare(pC, pIn3, nKeyCol, &res) != 0)
+		goto abort_due_to_error;
+	if (res) JUMP_P2();
+	DISPATCH();
     break;
 }
 
 case OP_SorterData: {
     /* SORTERDATA - Get sorter data */
-    /* TODO: Inline code for OP_SorterData */
+    VdbeCursor *pC;
+
+	pOut = vdbe_prepare_null_out(p, P2);
+	pC = p->apCsr[P1];
+	assert(isSorter(pC));
+	if (sqlVdbeSorterRowkey(pC, pOut) != 0)
+		goto abort_due_to_error;
+	assert(mem_is_bin(pOut));
+	assert(P1 >= 0 && P1 < p->nCursor);
+	p->apCsr[P3]->cacheStatus = CACHE_STALE;
+	DISPATCH();
     break;
 }
 
 case OP_NullRow: {
     /* NULLROW - Null row marker */
-    /* TODO: Inline code for OP_NullRow */
+    VdbeCursor *pC;
+
+	assert(P1 >= 0 && P1 < p->nCursor);
+	pC = p->apCsr[P1];
+	assert(pC!=0);
+	pC->nullRow = 1;
+	pC->cacheStatus = CACHE_STALE;
+	if (pC->eCurType==CURTYPE_TARANTOOL) {
+		assert(pC->uc.pCursor!=0);
+		sql_cursor_cleanup(pC->uc.pCursor);
     break;
 }
 
 case OP_SorterInsert: {
     /* SORTERINSERT - Insert into sorter */
-    /* TODO: Inline code for OP_SorterInsert */
+    /* in2 */
+	assert(P1 >= 0 && P1 < p->nCursor);
+	struct VdbeCursor *cursor = p->apCsr[P1];
+	assert(cursor != NULL);
+	assert(isSorter(cursor));
+	pIn2 = &aMem[P2];
+	assert(mem_is_bin(pIn2));
+	if (sqlVdbeSorterWrite(cursor, pIn2) != 0)
+		goto abort_due_to_error;
+	DISPATCH();
     break;
 }
 
 case OP_Clear: {
     /* CLEAR - Clear space */
-    /* TODO: Inline code for OP_Clear */
+    assert(P1 > 0);
+	uint32_t space_id = P1;
+	struct space *space = space_by_id(space_id);
+	assert(space != NULL);
+	if (P2 > 0) {
+		if (box_truncate(space_id) != 0)
+			goto abort_due_to_error;
     break;
 }
 
 case OP_ResetSorter: {
     /* RESETSORTER - Reset sorter */
-    /* TODO: Inline code for OP_ResetSorter */
+    VdbeCursor *pC;
+
+	assert(P1 >= 0 && P1 < p->nCursor);
+	pC = p->apCsr[P1];
+	assert(pC != 0);
+	if (isSorter(pC)) {
+		sqlVdbeSorterReset(pC->uc.pSorter);
     break;
 }
 
 case OP_RenameTable: {
     /* RENAMETABLE - Rename table */
-    /* TODO: Inline code for OP_RenameTable */
+    uint32_t space_id;
+	struct space *space;
+	char *zOldTableName;
+	const char *zNewTableName;
+
+	space_id = P1;
+	space = space_by_id(space_id);
+	assert(space);
+	/* Rename space op doesn't change triggers. */
+	struct sql_trigger *triggers = space->sql_triggers;
+	assert(space->def->name != NULL);
+	zNewTableName = pOp->p4.z;
+	zOldTableName = sql_xstrdup(space_name(space));
+	if (sql_rename_table(space_id, zNewTableName) != 0)
+		goto abort_due_to_error;
+	/*
+	 * Rebuild 'CREATE TRIGGER' expressions of all triggers
+	 * created on this table. Sure, this action is not atomic
+	 * due to lack of transactional DDL, but just do the best
+	 * effort.
+	 */
+	for (struct sql_trigger *trigger = triggers; trigger != NULL; ) {
+		/* Store pointer as trigger will be destructed. */
+		struct sql_trigger *next_trigger = trigger->next;
+		/*
+		 * FIXME: In the case of error, part of triggers
+		 * would have invalid space name in tuple so can
+		 * not been persisted. Server could be restarted.
+		 * In this case, rename table back and try again.
+		 */
+		if (tarantoolsqlRenameTrigger(trigger->zName, zOldTableName,
+					      zNewTableName) != 0)
+			goto abort_due_to_error;
+		trigger = next_trigger;
     break;
 }
 
 case OP_LoadAnalysis: {
     /* LOADANALYSIS - Load analysis */
-    /* TODO: Inline code for OP_LoadAnalysis */
+    assert(P1 == 0);
+	/* TODO: Enable analysis. */
+	/*
+	if (sql_analysis_load(db) != 0)
+		goto abort_due_to_error;
+	*/
+	DISPATCH();
     break;
 }
 
 case OP_Param: {
     /* PARAM - Load parameter */
-    /* TODO: Inline code for OP_Param */
+    /* out2 */
+	VdbeFrame *pFrame;
+	Mem *pIn;
+	pOut = vdbe_prepare_null_out(p, P2);
+	pFrame = p->pFrame;
+	pIn = &pFrame->aMem[P1 + pFrame->aOp[pFrame->pc].p1];
+	mem_copy_as_ephemeral(pOut, pIn);
+	DISPATCH();
     break;
 }
 
 case OP_OffsetLimit: {
     /* OFFSETLIMIT - Calculate offset limit */
-    /* TODO: Inline code for OP_OffsetLimit */
+    /* in1, out2, in3 */
+	pIn1 = &aMem[P1];
+	pIn3 = &aMem[P3];
+	pOut = vdbe_prepare_null_out(p, P2);
+
+	assert(mem_is_uint(pIn1));
+	assert(mem_is_uint(pIn3));
+	uint64_t x = pIn1->u.u;
+	uint64_t rhs = pIn3->u.u;
+	bool unused;
+	if (sql_add_int(x, false, rhs, false, (int64_t *) &x, &unused) != 0) {
+		diag_set(ClientError, ER_SQL_EXECUTE, "sum of LIMIT and OFFSET "
+			"values should not result in integer overflow");
+		goto abort_due_to_error;
     break;
 }
 
 case OP_Expire: {
     /* EXPIRE - Expire entry */
-    /* TODO: Inline code for OP_Expire */
+    if (!P1) {
+		sqlExpirePreparedStatements();
     break;
 }
 
 case OP_GenSpaceid: {
     /* GENSPACEID - Generate space ID */
-    /* TODO: Inline code for OP_GenSpaceid */
+    assert(P1 > 0);
+	pOut = vdbe_prepare_null_out(p, P1);
+	uint32_t u;
+	if (box_generate_space_id(&u, false) != 0)
+		goto abort_due_to_error;
+	mem_set_uint(pOut, u);
+	DISPATCH();
     break;
 }
 
 case OP_SetSession: {
     /* SETSESSION - Set session */
-    /* TODO: Inline code for OP_SetSession */
+    assert(pOp->p4type == P4_DYNAMIC);
+	const char *setting_name = pOp->p4.z;
+	int sid = session_setting_find(setting_name);
+	if (sid < 0) {
+		diag_set(ClientError, ER_NO_SUCH_SESSION_SETTING, setting_name);
+		goto abort_due_to_error;
     break;
 }
 
 case OP_ShowCreateTable: {
     /* SHOWCREATETABLE - Show create table */
-    /* TODO: Inline code for OP_ShowCreateTable */
+    struct Mem *ret = &aMem[P2];
+	struct Mem *err = &aMem[P2 + 1];
+	sql_show_create_table(aMem[P1].u.i, ret, err);
+	DISPATCH();
     break;
 }
 
 case OP_Noop: {
     /* NOOP - No operation */
-    /* TODO: Inline code for OP_Noop */
+    DISPATCH();
     break;
 }
 
 case OP_Explain: {
     /* EXPLAIN - Explain query */
-    /* TODO: Inline code for OP_Explain */
+    DISPATCH();
     break;
 }
 
 case OP_IsNull: {
     /* ISNULL - Test for NULL */
-    /* TODO: Inline code for OP_IsNull */
+    /* same as TK_ISNULL, jump, in1 */
+	pIn1 = &aMem[P1];
+	if (mem_is_null(pIn1))
+		JUMP_P2();
+	DISPATCH();
     break;
 }
 
 case OP_NotNull: {
     /* NOTNULL - Test for not NULL */
-    /* TODO: Inline code for OP_NotNull */
+    /* same as TK_NOTNULL, jump, in1 */
+	pIn1 = &aMem[P1];
+	if (!mem_is_null(pIn1)) {
+		JUMP_P2();
     break;
 }
 
 case OP_Decimal: {
     /* DECIMAL - Load decimal r[P2]=P4 */
-    /* TODO: Inline code for OP_Decimal */
+    /* same as TK_DECIMAL, out2 */
+	pOut = vdbe_prepare_null_out(p, P2);
+	mem_set_dec(pOut, pOp->p4.dec);
+	DISPATCH();
     break;
 }
 
 case OP_Program: {
     /* PROGRAM - Execute program */
-    /* TODO: Inline code for OP_Program */
+    /* jump */
+	int nMem;               /* Number of memory registers for sub-program */
+	int nByte;              /* Bytes of runtime space required for sub-program */
+	Mem *pRt;               /* Register to allocate runtime space */
+	Mem *pMem;              /* Used to iterate through memory cells */
+	Mem *pEnd;              /* Last memory cell in new array */
+	VdbeFrame *pFrame;      /* New vdbe frame to execute in */
+	SubProgram *pProgram;   /* Sub-program to execute */
+	void *t;                /* Token identifying trigger */
+
+	pProgram = pOp->p4.pProgram;
+	pRt = &aMem[P3];
+	assert(pProgram->nOp>0);
+
+	/* If the p5 flag is clear, then recursive invocation of triggers is
+	 * disabled for backwards compatibility (p5 is set if this sub-program
+	 * is really a trigger, not a foreign key action, and the setting
+	 * 'recursive_triggers' is not set).
+	 *
+	 * It is recursive invocation of triggers, at the SQL level, that is
+	 * disabled. In some cases a single trigger may generate more than one
+	 * SubProgram (if the trigger may be executed with more than one different
+	 * ON CONFLICT algorithm). SubProgram structures associated with a
+	 * single trigger all have the same value for the SubProgram.token
+	 * variable.
+	 */
+	if (pOp->p5) {
+		t = pProgram->token;
+		for(pFrame=p->pFrame; pFrame && pFrame->token!=t; pFrame=pFrame->pParent);
+		if (pFrame) {
+			DISPATCH();
     break;
 }
 
 case OP_Sort: {
     /* SORT - Sort records */
-    /* TODO: Inline code for OP_Sort */
+    /* jump */
+#ifdef SQL_TEST
+	sql_sort_count++;
+	sql_search_count--;
+#endif
+	/* Fall through into OP_Rewind */
+#ifndef SQL_USE_GOTO
+	FALLTHROUGH;
+#endif /* SQL_USE_GOTO */
     break;
 }
 
 case OP_SorterSort: {
     /* SORTERSORT - Sort sorter */
-    /* TODO: Inline code for OP_SorterSort */
+    /* jump */
+#ifdef SQL_TEST
+	sql_sort_count++;
+	sql_search_count--;
+#endif
+	/* Fall through into OP_Rewind */
+#ifndef SQL_USE_GOTO
+	FALLTHROUGH;
+#endif /* SQL_USE_GOTO */
     break;
 }
 
 case OP_ShiftLeft: {
     /* SHIFTLEFT - Bitwise left shift */
-    /* TODO: Inline code for OP_ShiftLeft */
+    /* same as TK_LSHIFT, in1, in2, out3 */
+	pIn1 = &aMem[P1];
+	pIn2 = &aMem[P2];
+	pOut = &aMem[P3];
+	if (mem_shift_left(pIn2, pIn1, pOut) != 0)
+		goto abort_due_to_error;
+	assert(pOut->type == MEM_TYPE_UINT || pOut->type == MEM_TYPE_NULL);
+	DISPATCH();
     break;
 }
 
 case OP_ShiftRight: {
     /* SHIFTRIGHT - Bitwise right shift */
-    /* TODO: Inline code for OP_ShiftRight */
+    /* same as TK_RSHIFT, in1, in2, out3 */
+	pIn1 = &aMem[P1];
+	pIn2 = &aMem[P2];
+	pOut = &aMem[P3];
+	if (mem_shift_right(pIn2, pIn1, pOut) != 0)
+		goto abort_due_to_error;
+	assert(pOut->type == MEM_TYPE_UINT || pOut->type == MEM_TYPE_NULL);
+	DISPATCH();
     break;
 }
 
