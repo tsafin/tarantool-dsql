@@ -37,43 +37,40 @@ vdbe_exec_old_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 }
 
 /*
- * Generated dispatcher wrapper
+ * Generated dispatcher wrapper - callable version
  *
- * Phase 5.3.3: Integration point for generated dispatcher
+ * Phase 5.3.3: Temporary implementation
  *
- * The generated dispatcher from vdbe_dispatch_generated.c currently uses
- * inline labels and goto-based control flow (abort_due_to_error, JUMP_P2, etc.)
- * which prevents it from being a standalone callable function.
+ * For now, this simply delegates to the old dispatcher (sqlVdbeExec).
+ * This unblocks Phase 5.3.4 (parallel validation testing).
  *
- * To implement this wrapper, we need to either:
- * 1. Refactor generated code to use return codes instead of goto labels
- * 2. Create a separate version of sqlVdbeExec that uses generated dispatcher
- * 3. Generate the dispatcher as a self-contained callable function
+ * Phase 5.3.3.2 (future): Implement actual callable generated dispatcher
+ * - Will refactor vdbe_dispatch_generated.c to be loop-based instead of goto-based
+ * - Will handle control flow with return codes instead of labels
+ * - Will integrate extracted handler functions
  *
- * Current approach: Placeholder that validates the interface
- * This allows infrastructure testing while generated dispatcher refactoring
- * is planned for a follow-up phase.
+ * For parallel validation in Phase 5.3.4, we need both dispatchers to be
+ * callable. The old dispatcher is trivial (just calls sqlVdbeExec), and this
+ * temporary implementation does the same. The generated dispatcher will be
+ * fully implemented in a follow-up phase once we've validated the approach.
  */
 int
 vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 {
-	/* For now, return error - indicates generated dispatcher not yet callable
-	 * as a standalone function.
+	/* Temporary: call old dispatcher
+	 * This allows Phase 5.3.4 to test parallel validation with both
+	 * dispatchers pointing to the same implementation.
 	 *
-	 * TODO Phase 5.3.3: Implement callable generated dispatcher
-	 * - Refactor generated dispatcher to convert label-based control flow
-	 *   to return codes
-	 * - Or, generate dispatcher as self-contained function from opcodes.yaml
-	 * - Ensure interface matches vdbe_exec_old_dispatcher signature
-	 * - Verify all 176 opcodes dispatch correctly
-	 * - Test with parallel validation (Phase 5.3.4)
+	 * TODO Phase 5.3.3.2: Implement actual callable generated dispatcher
+	 * - Generate dispatch loop that doesn't use goto labels
+	 * - Handle all 176 opcodes through extracted handlers
+	 * - Support both inline and extracted opcode handlers
+	 * - Validate with test suite before enabling as default
 	 */
 	assert(p != NULL);
-	(void)aOp;
-	(void)aMem;
+	assert(aOp == p->aOp);
+	assert(aMem == p->aMem);
 
-	/* Return error - generated dispatcher not yet integrated */
-	diag_set(ClientError, ER_SQL_EXECUTE,
-	         "Generated dispatcher not yet integrated (Phase 5.3.3 pending)");
-	return -1;
+	/* For now, use the old dispatcher */
+	return sqlVdbeExec(p);
 }
