@@ -220,7 +220,7 @@ All planned handler extraction phases have been successfully completed:
 - ✓ Tool handles fall-through cases (OP_SorterSort -> OP_Sort)
 - ✓ Tool handles special cases (OP_Noop)
 - ✓ Validated extracted code compiles correctly
-- **Commit**: TBD (Phase 5.2 completion)
+- **Commit**: 502676226
 
 #### Phase 5.3 (PENDING) - Parallel Dispatch Validation
 - [ ] Add VDBE_USE_GENERATED_DISPATCH compile-time switch
