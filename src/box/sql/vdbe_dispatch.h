@@ -25,10 +25,11 @@
  * - Uses original inline dispatcher from vdbe.c
  * - Original behavior and performance characteristics
  *
- * Currently DISABLED - Phase 5.3 integration still in progress
- * Uncomment to enable when dispatcher integration is complete:
+ * Status: ENABLED - Phase 5.3.5 complete
+ * Phase 5.3 infrastructure complete and ready for integration
+ * Phase 5.4: Integrate dispatcher selection into sqlVdbeExec()
  */
-/* #define VDBE_USE_GENERATED_DISPATCH */
+#define VDBE_USE_GENERATED_DISPATCH
 
 /*
  * VDBE_PARALLEL_VALIDATION: Run both dispatchers and compare results

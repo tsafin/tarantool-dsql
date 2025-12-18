@@ -87,7 +87,11 @@ This file tracks progress for the `src/box/sql/vdbe.c` refactor.
       - ✓ Added inline_code field for each inline opcode in opcodes.yaml
       - ✓ Regenerated vdbe_dispatch_generated.c with inline code integration
       - Commit: 5026762266
-    - Phase 5.3: Parallel dispatch validation infrastructure ✓ COMPLETED
+    - Phase 5.3: Parallel dispatch validation infrastructure ✓ COMPLETED (2025-12-19)
+      - All 5 sub-phases complete: 5.3.1 → 5.3.2 → 5.3.3 → 5.3.3.1 → 5.3.4 → 5.3.3.2 → 5.3.5
+      - Generated dispatcher callable and testable
+      - Parallel validation framework ready
+      - VDBE_USE_GENERATED_DISPATCH flag enabled
       - ✓ Phase 5.3.1: Interface and wrapper setup (DONE - 2025-12-18)
         - Created vdbe_dispatch_interface.h with dispatcher function interface
         - Created vdbe_dispatch_wrapper.c with wrapper stub implementations
@@ -118,7 +122,11 @@ This file tracks progress for the `src/box/sql/vdbe.c` refactor.
         - Code compiles successfully: box library builds without errors
         - Ready for Phase 5.3.5 (make generated dispatcher default)
         - Commit: 5af1274a4b
-      - [ ] Phase 5.3.5: Make generated dispatcher default (NEXT - 5.3.3.2 COMPLETE)
+      - ✓ Phase 5.3.5: Make generated dispatcher default (DONE - 2025-12-19)
+        - Enabled VDBE_USE_GENERATED_DISPATCH flag in vdbe_dispatch.h
+        - Code compiles successfully with flag enabled
+        - Framework ready for Phase 5.4 integration
+        - Commit: (pending)
     - Phase 5.4: Cut over and deprecate old code (PENDING)
       - Flip VDBE_USE_GENERATED_DISPATCH default to ON
       - Keep old dispatch for 1-2 releases as fallback
