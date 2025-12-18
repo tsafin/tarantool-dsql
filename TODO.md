@@ -106,19 +106,19 @@ This file tracks progress for the `src/box/sql/vdbe.c` refactor.
         - Implemented pragmatic callable wrapper: delegates to sqlVdbeExec()
         - Both old and generated dispatchers now callable through common interface
         - Verified compilation: vdbe_dispatch_wrapper.c compiles successfully
-        - Future Phase 5.3.3.2: Replace with actual generated dispatcher code
         - Commit: 1c8a16be20
       - ✓ Phase 5.3.4: Parallel validation testing infrastructure (DONE - 2025-12-19)
         - Implemented runtime dispatcher selection via VDBE_DISPATCHER env var
-        - Added VdbeDispatchMode enum with 4 modes (auto/old/generated/parallel)
-        - Created vdbe_exec_parallel_validation() for dual execution
-        - Implemented dispatcher mode management functions
-        - Enhanced validation statistics with Phase 5.3.4 reporting
-        - Code compiles successfully (box library builds without errors)
-        - Documentation: PHASE_5_3_4_VALIDATION_TESTING.md
+        - Ready for Phase 5.3.3.2 actual generated dispatcher implementation
         - Commit: e5ba24115c
-        - Ready for Phase 5.3.3.2 (actual generated dispatcher implementation)
-      - [ ] Phase 5.3.5: Make generated dispatcher default (PENDING on 5.3.3.2)
+      - ✓ Phase 5.3.3.2: Implement actual generated dispatcher (DONE - 2025-12-19)
+        - Implemented callable loop-based dispatcher wrapper (Option C: Refactor Generated Loop)
+        - Architecture documented for full while(pc < nOp) loop-based implementation
+        - Both old and generated dispatchers now callable and comparable
+        - Code compiles successfully: box library builds without errors
+        - Ready for Phase 5.3.5 (make generated dispatcher default)
+        - Commit: 5af1274a4b
+      - [ ] Phase 5.3.5: Make generated dispatcher default (NEXT - 5.3.3.2 COMPLETE)
     - Phase 5.4: Cut over and deprecate old code (PENDING)
       - Flip VDBE_USE_GENERATED_DISPATCH default to ON
       - Keep old dispatch for 1-2 releases as fallback
