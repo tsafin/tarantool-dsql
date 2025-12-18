@@ -67,6 +67,12 @@ int vdbe_op_seek_le_ge(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_idx_compare(Vdbe *p, Op *pOp, Mem *aMem);  /* IdxGE/GT/LE/LT */
 int vdbe_op_found_notfound_noconflict(Vdbe *p, Op *pOp, Mem *aMem);  /* Found/NotFound/NoConflict */
 int vdbe_op_idx_insert_replace(Vdbe *p, Op *pOp, Mem *aMem);  /* IdxInsert/IdxReplace */
+/* Data modification opcodes */
+int vdbe_op_delete(Vdbe *p, Op *pOp, Mem *aMem);  /* Delete */
+int vdbe_op_update(Vdbe *p, Op *pOp, Mem *aMem);  /* Update */
+int vdbe_op_sinsert(Vdbe *p, Op *pOp, Mem *aMem);  /* SInsert */
+int vdbe_op_sdelete(Vdbe *p, Op *pOp, Mem *aMem);  /* SDelete */
+int vdbe_op_idxdelete(Vdbe *p, Op *pOp, Mem *aMem);  /* IdxDelete */
 /* Control flow opcodes - reserved for dispatcher refactoring
  * See vdbe_ops_control.c for extraction plan.
  * These remain in vdbe.c for now due to PC manipulation complexity. */

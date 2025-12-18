@@ -2564,32 +2564,9 @@ EXECUTE(OP_FCopy,(P1,P2,P3)): {     /* out2 */
  * P4 is not NULL, and the OPFLAG_NCHANGE flag is set in P2.
  */
 EXECUTE(OP_Delete,(P1,P2,P3,P4)): {
-	VdbeCursor *pC;
-	int opflags;
-
-	opflags = P2;
-	assert(P1 >= 0 && P1 < p->nCursor);
-	pC = p->apCsr[P1];
-	BtCursor *pBtCur = pC->uc.pCursor;
-	assert(pC != 0);
-	assert(pC->eCurType == CURTYPE_TARANTOOL);
-	assert(pC->uc.pCursor != 0);
-	assert(pBtCur->eState == CURSOR_VALID);
-
-	if (pBtCur->curFlags & BTCF_TaCursor) {
-		rc = tarantoolsqlDelete(pBtCur);
-	} else if (pBtCur->curFlags & BTCF_TEphemCursor) {
-		rc = tarantoolsqlEphemeralDelete(pBtCur);
-	} else {
-		unreachable();
-	}
-	pC->cacheStatus = CACHE_STALE;
-	pC->seekResult = 0;
-	if (rc) goto abort_due_to_error;
-
-	if (opflags & OPFLAG_NCHANGE)
-		p->nChange++;
-
+	rc = vdbe_op_delete(p, pOp, aMem);
+	if (rc != 0)
+		goto abort_due_to_error;
 	DISPATCH();
 }
 /* Opcode: ResetCount * * * * *
@@ -2987,68 +2964,7 @@ EXECUTE(OP_IdxInsert,(P1,P2,P3)): {
  *           raise an error.
  */
 EXECUTE(OP_Update,(P1,P2,P3,P4)): {
-	struct Mem *new_tuple = &aMem[P1];
-	if (pOp->p5 & OPFLAG_NCHANGE)
-		p->nChange++;
-
-	struct space *space = aMem[pOp->p4.i].u.p;
-	assert(pOp->p4type == P4_INT32);
-
-	struct Mem *key_mem = &aMem[P2];
-	assert(mem_is_bin(key_mem));
-
-	struct Mem *upd_fields_mem = &aMem[P3];
-	assert(mem_is_bin(upd_fields_mem));
-	uint32_t *upd_fields = (uint32_t *)upd_fields_mem->z;
-	uint32_t upd_fields_cnt = upd_fields_mem->n / sizeof(uint32_t);
-
-	/* Prepare Tarantool update ops msgpack. */
-	struct region *region = &fiber()->gc;
-	size_t used = region_used(region);
-	bool is_error = false;
-	struct mpstream stream;
-	mpstream_init(&stream, region, region_reserve_cb, region_alloc_cb,
-		      set_encode_error, &is_error);
-	mpstream_encode_array(&stream, upd_fields_cnt);
-	for (uint32_t i = 0; i < upd_fields_cnt; i++) {
-		uint32_t field_idx = upd_fields[i];
-		assert(field_idx < space->def->field_count);
-		mpstream_encode_array(&stream, 3);
-		mpstream_encode_strn(&stream, "=", 1);
-		mpstream_encode_uint(&stream, field_idx);
-		mem_to_mpstream(new_tuple + field_idx, &stream);
-	}
-	mpstream_flush(&stream);
-	if (is_error) {
-		region_truncate(&fiber()->gc, used);
-		diag_set(OutOfMemory, stream.pos - stream.buf,
-			"mpstream_flush", "stream");
-		goto abort_due_to_error;
-	}
-	uint32_t ops_size = region_used(region) - used;
-	const char *ops = xregion_join(region, ops_size);
-	assert(rc == 0);
-	rc = box_update(space->def->id, 0, key_mem->z, key_mem->z + key_mem->n,
-			ops, ops + ops_size, 0, NULL);
-	region_truncate(&fiber()->gc, used);
-
-	if (pOp->p5 & OPFLAG_OE_IGNORE) {
-		/*
-		 * Ignore any kind of fails and do not raise
-		 * error message
-		 */
-		rc = 0;
-		/*
-		 * If we are in trigger, increment ignore raised
-		 * counter.
-		 */
-		if (p->pFrame)
-			p->ignoreRaised++;
-	} else if (pOp->p5 & OPFLAG_OE_FAIL) {
-		p->errorAction = ON_CONFLICT_ACTION_FAIL;
-	} else if (pOp->p5 & OPFLAG_OE_ROLLBACK) {
-		p->errorAction = ON_CONFLICT_ACTION_ROLLBACK;
-	}
+	rc = vdbe_op_update(p, pOp, aMem);
 	if (rc != 0)
 		goto abort_due_to_error;
 	DISPATCH();
@@ -3067,18 +2983,9 @@ EXECUTE(OP_Update,(P1,P2,P3,P4)): {
  * made to database.
  */
 EXECUTE(OP_SInsert,(P1,P2)): {
-	assert(P1 > 0);
-	assert(P2 >= 0);
-
-	pIn2 = &aMem[P2];
-	struct space *space = space_by_id(P1);
-	assert(space != NULL);
-	assert(space_is_system(space));
-	assert(p->errorAction == ON_CONFLICT_ACTION_ABORT);
-	if (tarantoolsqlInsert(space, pIn2->z, pIn2->z + pIn2->n) != 0)
+	rc = vdbe_op_sinsert(p, pOp, aMem);
+	if (rc != 0)
 		goto abort_due_to_error;
-	if (pOp->p5 & OPFLAG_NCHANGE)
-		p->nChange++;
 	DISPATCH();
 }
 
@@ -3093,19 +3000,9 @@ EXECUTE(OP_SInsert,(P1,P2)): {
  * made to database.
  */
 EXECUTE(OP_SDelete,(P1,P2,P3)): {
-	assert(P1 > 0);
-	assert(P2 >= 0);
-	assert(P3 >= 0);
-
-	pIn2 = &aMem[P2];
-	struct space *space = space_by_id(P1);
-	assert(space != NULL);
-	assert(space_is_system(space));
-	assert(p->errorAction == ON_CONFLICT_ACTION_ABORT);
-	if (sql_delete_by_key(space, P3, pIn2->z, pIn2->n) != 0)
+	rc = vdbe_op_sdelete(p, pOp, aMem);
+	if (rc != 0)
 		goto abort_due_to_error;
-	if (pOp->p5 & OPFLAG_NCHANGE)
-		p->nChange++;
 	DISPATCH();
 }
 
@@ -3117,35 +3014,9 @@ EXECUTE(OP_SDelete,(P1,P2,P3)): {
  * index opened by cursor P1.
  */
 EXECUTE(OP_IdxDelete,(P1,P2,P3)): {
-	VdbeCursor *pC;
-	BtCursor *pCrsr;
-	int res;
-
-	assert(P3 > 0);
-	assert(P2 > 0 && P2 + P3 <= (p->nMem + 1 - p->nCursor) + 1);
-	assert(P1 >= 0 && P1 < p->nCursor);
-	pC = p->apCsr[P1];
-	assert(pC != 0);
-	assert(pC->eCurType == CURTYPE_TARANTOOL);
-	pCrsr = pC->uc.pCursor;
-	assert(pCrsr != 0);
-	assert(pOp->p5 == 0);
-	if (sql_cursor_seek(pCrsr, &aMem[P2], (u16)P3, &res) != 0)
+	rc = vdbe_op_idxdelete(p, pOp, aMem);
+	if (rc != 0)
 		goto abort_due_to_error;
-	if (res == 0) {
-		assert(pCrsr->eState == CURSOR_VALID);
-		if (pCrsr->curFlags & BTCF_TaCursor) {
-			if (tarantoolsqlDelete(pCrsr) != 0)
-				goto abort_due_to_error;
-		} else if (pCrsr->curFlags & BTCF_TEphemCursor) {
-			if (tarantoolsqlEphemeralDelete(pCrsr) != 0)
-				goto abort_due_to_error;
-		} else {
-			unreachable();
-		}
-	}
-	pC->cacheStatus = CACHE_STALE;
-	pC->seekResult = 0;
 	DISPATCH();
 }
 
