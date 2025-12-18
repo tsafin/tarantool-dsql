@@ -191,20 +191,46 @@ All planned handler extraction phases have been successfully completed:
 
 ## Next Steps
 
-### Immediate (Handler Extraction Complete - Phase 5)
+### Phase 5: Dispatcher Refactoring
 
-1. **Generate Dispatcher** (Phase 5)
-   - Create dispatcher for 60 extracted handlers
-   - Options:
-     - Jump table (computed goto) - highest performance
-     - Function pointer array - good balance
-     - Generated switch statement - maintainability
-   - Current dispatch uses EXECUTE() macros which can be replaced
+#### Phase 5.1 ✓ COMPLETED - Code Generator Enhancement
+- ✓ Enhanced vdbe_codegen.py with full dispatcher generation
+- ✓ Supports both computed-goto (SQL_USE_GOTO) and switch statement modes
+- ✓ Generates complete dispatch loop indexed by opcode ID (0-175)
+- ✓ Proper integration patterns for 60 external handlers
+- ✓ Created comprehensive opcodes.yaml with all 176 opcodes
+- ✓ Generated files: vdbe_opcodes_generated.h, vdbe_dispatch_generated.c
+- **Commit**: d168152b18
 
-2. **Control Flow Handler Extraction** (Phase 6 - Deferred)
-   - Extract 18 control flow operations once dispatcher refactoring is complete
-   - Operations: OP_Goto, OP_Jump, OP_If, OP_IfNot, etc.
-   - Reason for deferral: PC manipulation works best with new dispatcher architecture
+#### Phase 5.2 (IN PROGRESS) - Inline Opcode Extraction
+- [ ] Create tool to extract inline opcodes from vdbe.c
+- [ ] Extract 64 inline opcode implementations
+- [ ] Add inline_code field to opcodes.yaml entries
+- [ ] Populate with 10-20 opcodes per batch
+- [ ] Validate extracted code compiles correctly
+
+#### Phase 5.3 (PENDING) - Parallel Dispatch Validation
+- [ ] Add VDBE_USE_GENERATED_DISPATCH compile-time switch
+- [ ] Run both dispatchers side-by-side
+- [ ] Verify identical results and <2% performance regression
+- [ ] Test computed-goto and switch fallback modes
+
+#### Phase 5.4 (PENDING) - Cutover to Generated Dispatcher
+- [ ] Make generated dispatcher the default
+- [ ] Keep old code as fallback for 1-2 releases
+- [ ] Update documentation
+- [ ] Verify all tests pass
+
+#### Phase 5.5 (PENDING) - Cleanup and Polish
+- [ ] Remove old EXECUTE() macros from vdbe.c
+- [ ] Delete legacy shell script generators
+- [ ] Add unit tests for generator
+- [ ] Final performance validation
+
+### Phase 6: Control Flow Handler Extraction (Deferred)
+- Extract 18 control flow operations after Phase 5
+- Operations: OP_Goto, OP_Jump, OP_If, OP_IfNot, etc.
+- Reason for deferral: PC manipulation works best with new dispatcher architecture
 
 ### Future
 
@@ -324,5 +350,10 @@ EXECUTE(OP_Xxx,(P1,P2)): {
 - **Phase 4c** (2025-12): Cursor seek operations - 4 opcodes
 - **Phase 4d** (2025-12): Index operations - 8 opcodes
 - **Phase 4e** (2025-12): Data modification - 5 opcodes
+- **Phase 5.1** (2025-12-18): Dispatcher code generation - Complete VDBE dispatcher generator
+  - Enhanced vdbe_codegen.py with full dispatch loop generation
+  - Created comprehensive opcodes.yaml with all 176 opcodes
+  - Generated vdbe_dispatch_generated.c with computed-goto and switch modes
+  - Dispatch table indexed by opcode ID for optimal performance
 - **Total**: 60 opcodes extracted and integrated ✓
 - **Remaining**: 18 control flow opcodes (deferred for Phase 6 after dispatcher refactoring)

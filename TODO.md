@@ -68,31 +68,34 @@ This file tracks progress for the `src/box/sql/vdbe.c` refactor.
       - All handlers properly integrated into vdbe.c with EXECUTE() macros
   - **Total extracted so far**: 28 opcodes across 7 new files (Phases 1-4e complete)
   - See `~/.claude/plans/handler-extraction-plan.md` for detailed breakdown
-- [ ] Replace Switch with Dispatcher (Phase 5)
+- [~] Replace Switch with Dispatcher (Phase 5)
   - Generate complete dispatch loop from YAML DSL, replacing EXECUTE() macros
-  - **Detailed plan**: `~/.claude/plans/nested-shimmying-corbato.md`
   - **Architecture**: Generate actual dispatch code (not function pointers) to preserve computed-goto performance
   - **Strategy**: 5-phase incremental migration with parallel testing
-    - Phase 5.1: Enhance vdbe_codegen.py with full dispatch generation (Week 1)
-      - Add generator functions for external/inline/fallthrough handlers
-      - Generate vdbe_dispatch_generated.c with complete dispatch loop
-      - Support both computed-goto and switch fallback modes
-      - Extend YAML schema: dispatch_type, handler, inline_code, return_handling fields
-    - Phase 5.2: Populate opcodes.yaml with all 142 opcodes (Week 2-3)
-      - Add 28 already-extracted opcodes as `dispatch_type: external`
-      - Extract 112 inline opcode implementations from vdbe.c to YAML
-      - Create tool to semi-automate extraction and validation
+    - Phase 5.1: Enhance vdbe_codegen.py with full dispatch generation ✓ COMPLETED
+      - ✓ Added generator functions for external/inline/control_flow handlers
+      - ✓ Generated vdbe_dispatch_generated.c with complete dispatch loop (176 opcodes)
+      - ✓ Support both computed-goto and switch fallback modes
+      - ✓ Extended YAML schema with handler_type field
+      - ✓ Populated opcodes.yaml with all 176 opcodes
+      - ✓ Dispatch table properly indexed by opcode ID (0-175)
+      - ✓ Generated files: vdbe_opcodes_generated.h, vdbe_dispatch_generated.c
+      - Commit: d168152b18
+    - Phase 5.2: Finalize inline opcode extraction (IN PROGRESS)
+      - Create tool to extract inline opcodes from vdbe.c
+      - Extract 64 inline opcode implementations to opcodes.yaml
+      - Add inline_code field for each inline opcode
       - Process incrementally (10-20 opcodes per batch)
-    - Phase 5.3: Parallel dispatch validation (Week 4)
+    - Phase 5.3: Parallel dispatch validation (PENDING)
       - Add VDBE_USE_GENERATED_DISPATCH compile-time switch
       - Run both dispatchers side-by-side for comprehensive testing
       - Verify identical results, performance <2% regression
       - Test computed-goto and switch modes
-    - Phase 5.4: Cut over and deprecate old code (Week 5)
+    - Phase 5.4: Cut over and deprecate old code (PENDING)
       - Flip VDBE_USE_GENERATED_DISPATCH default to ON
       - Keep old dispatch for 1-2 releases as fallback
       - Update documentation and migration guides
-    - Phase 5.5: Cleanup and polish (Week 6)
+    - Phase 5.5: Cleanup and polish (PENDING)
       - Remove old dispatch code from vdbe.c
       - Remove shell script generators (mkopcodeh.sh, etc.)
       - Add unit tests for generator
