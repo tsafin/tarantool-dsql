@@ -397,7 +397,7 @@ EXECUTE(OP_Xxx,(P1,P2)): {
   - Added VDBE_USE_GENERATED_DISPATCH compile-time switch
   - Created validation statistics and mismatch logging
   - All validation code verified to compile correctly
-  - **Commit**: (pending)
+  - **Commit**: 49c2907978
 - **Total opcodes processed**: 60 external + 63 inline + 18 control flow = 141 opcodes (35 unassigned) = 176 total
 - **Status**: Phase 5.3 infrastructure complete, ready for dispatcher integration
 - **Remaining**: Dispatcher integration, parallel testing, Phase 5.4 (Cutover), Phase 6 (Control flow extraction)
