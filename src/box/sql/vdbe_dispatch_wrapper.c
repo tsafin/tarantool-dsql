@@ -15,24 +15,25 @@
 /*
  * Old dispatcher wrapper
  *
- * This currently just returns an error - the actual old dispatcher
- * remains inline in vdbe.c's sqlVdbeExec() function.
- * In the future, we can extract the old dispatcher loop here.
+ * Phase 5.3.2: Implementation
+ * This wrapper calls the existing sqlVdbeExec() function which contains
+ * the inline dispatcher loop. The parameters are provided for interface
+ * consistency, though they're redundant since they're stored in the Vdbe
+ * structure (p->aOp and p->aMem).
+ *
+ * This design allows both old and generated dispatchers to be called through
+ * the same interface, enabling parallel validation testing in Phase 5.3.4.
  */
 int
 vdbe_exec_old_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 {
-	/* For Phase 5.3: Old dispatcher remains inline in vdbe.c
-	 * This function exists for interface compatibility
-	 * and future extraction of the old dispatcher.
-	 *
-	 * Current design: sqlVdbeExec() handles everything
-	 * This wrapper is placeholder for architectural flexibility.
-	 */
-	(void)p;
-	(void)aOp;
-	(void)aMem;
-	return -1;  /* Not implemented as separate function yet */
+	/* Verify the provided parameters match what's in the Vdbe structure */
+	assert(p != NULL);
+	assert(aOp == p->aOp);
+	assert(aMem == p->aMem);
+
+	/* Call the main execution function which contains the inline dispatcher */
+	return sqlVdbeExec(p);
 }
 
 /*
