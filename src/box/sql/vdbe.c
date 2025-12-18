@@ -58,6 +58,8 @@
 #include "box/session_settings.h"
 /* Prototypes for extracted opcode handlers */
 #include "vdbe_ops.h"
+/* Dispatcher selection and validation framework (Phase 5.3) */
+#include "vdbe_dispatch.h"
 
 /*
  * We use computed-goto-based dispatch only within compilers supporting goto by

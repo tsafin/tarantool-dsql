@@ -222,11 +222,27 @@ All planned handler extraction phases have been successfully completed:
 - ✓ Validated extracted code compiles correctly
 - **Commit**: 502676226
 
-#### Phase 5.3 (PENDING) - Parallel Dispatch Validation
-- [ ] Add VDBE_USE_GENERATED_DISPATCH compile-time switch
-- [ ] Run both dispatchers side-by-side
+#### Phase 5.3 (IN PROGRESS) - Parallel Dispatch Validation
+- [x] Add VDBE_USE_GENERATED_DISPATCH compile-time switch (vdbe_dispatch.h)
+- [x] Create validation infrastructure (vdbe_dispatch_validate.c)
+- [x] Add validation statistics tracking
+- [ ] Run both dispatchers side-by-side (requires dispatcher integration)
 - [ ] Verify identical results and <2% performance regression
 - [ ] Test computed-goto and switch fallback modes
+
+**Implementation Details:**
+- `vdbe_dispatch.h`: Dispatcher selection framework with compile-time flags
+  - VDBE_USE_GENERATED_DISPATCH: Switch between dispatchers
+  - VDBE_PARALLEL_VALIDATION: Enable parallel execution mode
+  - VDBE_VALIDATION_STATS: Collect execution statistics
+- `vdbe_dispatch_validate.c`: Validation support infrastructure
+  - Statistics collection and reporting
+  - Mismatch logging to `/tmp/vdbe_validation.log`
+  - State consistency checking functions
+- Modified `vdbe.c`: Added dispatcher header inclusion
+- Updated `CMakeLists.txt`: Added validation support to build
+
+**Status**: Infrastructure complete and compiling. Next: Dispatcher integration testing.
 
 #### Phase 5.4 (PENDING) - Cutover to Generated Dispatcher
 - [ ] Make generated dispatcher the default
@@ -375,6 +391,13 @@ EXECUTE(OP_Xxx,(P1,P2)): {
   - Handled fall-through cases and special cases automatically
   - Regenerated dispatcher with inline code integration
   - All inline code verified to compile correctly
+- **Phase 5.3** (2025-12-18): Parallel dispatch validation infrastructure
+  - Created vdbe_dispatch.h with dispatcher selection framework
+  - Implemented vdbe_dispatch_validate.c validation infrastructure
+  - Added VDBE_USE_GENERATED_DISPATCH compile-time switch
+  - Created validation statistics and mismatch logging
+  - All validation code verified to compile correctly
+  - **Commit**: (pending)
 - **Total opcodes processed**: 60 external + 63 inline + 18 control flow = 141 opcodes (35 unassigned) = 176 total
-- **Status**: Phase 5.2 complete, all inline opcodes ready for Phase 5.3
-- **Remaining**: Phase 5.3 (Parallel dispatch validation) and Phase 6 (Control flow extraction)
+- **Status**: Phase 5.3 infrastructure complete, ready for dispatcher integration
+- **Remaining**: Dispatcher integration, parallel testing, Phase 5.4 (Cutover), Phase 6 (Control flow extraction)
