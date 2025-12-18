@@ -61,11 +61,44 @@ This file tracks progress for the `src/box/sql/vdbe.c` refactor.
       - Index insert/replace: vdbe_op_idx_insert_replace() for IdxInsert/IdxReplace
       - Made vdbe_add_new_autoinc_id() non-static for use in handlers
       - Note: OP_IdxDelete is a data modification op, belongs to Phase 4e
-  - **Next extraction phases** (remaining opcodes):
-    - Phase 4e: Data modification - `vdbe_ops_modify.c` (5 opcodes: Delete, Update, SInsert, SDelete, IdxDelete)
+    - Phase 4e: Data modification - `vdbe_ops_modify.c` (DONE - 5 opcodes: Delete, Update, SInsert, SDelete, IdxDelete)
+      - Table data modification: Delete, Update
+      - System space modification: SInsert, SDelete
+      - Index entry deletion: IdxDelete
+      - All handlers properly integrated into vdbe.c with EXECUTE() macros
+  - **Total extracted so far**: 28 opcodes across 7 new files (Phases 1-4e complete)
   - See `~/.claude/plans/handler-extraction-plan.md` for detailed breakdown
-- [ ] Replace Switch with Dispatcher
-  - Replace big `switch` in `vdbe.c` with generated dispatcher/jump-table (NOT STARTED)
+- [ ] Replace Switch with Dispatcher (Phase 5)
+  - Generate complete dispatch loop from YAML DSL, replacing EXECUTE() macros
+  - **Detailed plan**: `~/.claude/plans/nested-shimmying-corbato.md`
+  - **Architecture**: Generate actual dispatch code (not function pointers) to preserve computed-goto performance
+  - **Strategy**: 5-phase incremental migration with parallel testing
+    - Phase 5.1: Enhance vdbe_codegen.py with full dispatch generation (Week 1)
+      - Add generator functions for external/inline/fallthrough handlers
+      - Generate vdbe_dispatch_generated.c with complete dispatch loop
+      - Support both computed-goto and switch fallback modes
+      - Extend YAML schema: dispatch_type, handler, inline_code, return_handling fields
+    - Phase 5.2: Populate opcodes.yaml with all 142 opcodes (Week 2-3)
+      - Add 28 already-extracted opcodes as `dispatch_type: external`
+      - Extract 112 inline opcode implementations from vdbe.c to YAML
+      - Create tool to semi-automate extraction and validation
+      - Process incrementally (10-20 opcodes per batch)
+    - Phase 5.3: Parallel dispatch validation (Week 4)
+      - Add VDBE_USE_GENERATED_DISPATCH compile-time switch
+      - Run both dispatchers side-by-side for comprehensive testing
+      - Verify identical results, performance <2% regression
+      - Test computed-goto and switch modes
+    - Phase 5.4: Cut over and deprecate old code (Week 5)
+      - Flip VDBE_USE_GENERATED_DISPATCH default to ON
+      - Keep old dispatch for 1-2 releases as fallback
+      - Update documentation and migration guides
+    - Phase 5.5: Cleanup and polish (Week 6)
+      - Remove old dispatch code from vdbe.c
+      - Remove shell script generators (mkopcodeh.sh, etc.)
+      - Add unit tests for generator
+      - Final performance validation
+  - **Critical files**: tools/vdbe_codegen.py, tools/vdbe_dsl/opcodes.yaml, src/box/sql/vdbe.c, src/box/CMakeLists.txt
+  - **Success criteria**: All tests pass, <2% performance regression, maintain debug/trace capability
 - [ ] Add Tests & Fixtures
   - Unit tests for generator outputs and integration tests for the execution loop (NOT STARTED)
 - [ ] Documentation & Handoff
@@ -82,7 +115,7 @@ Notes and current decisions:
   - Unused parameters marked with (void) to suppress warnings
   - Full opcode documentation blocks preserved from vdbe.c
 
-Recent extraction sessions (Phases 1-4d):
+Recent extraction sessions (Phases 1-4e):
 - Phase 1: String operations (OP_Concat) - committed
 - Phase 2: Type conversions (Cast, MakeRecord, ApplyType) - committed
 - Phase 3: Aggregate functions (AggStep, AggFinal) - committed
@@ -96,14 +129,39 @@ Recent extraction sessions (Phases 1-4d):
 - Phase 4d: Index operations (IdxGE/GT/LE/LT, Found/NotFound/NoConflict, IdxInsert/IdxReplace) - committed
   - 3 handlers covering 9 opcodes with consistent return value patterns
   - Made vdbe_add_new_autoinc_id() non-static and exposed in vdbe.h
+- Phase 4e: Data modification operations (Delete, Update, SInsert, SDelete, IdxDelete) - committed
+  - All 5 data modification handlers extracted and integrated
+  - Proper error handling and return value semantics
 - Total: 28 opcodes extracted across 7 new files
 - All builds verified
 
-Next actions you can request:
+Next priority: Phase 5 - Dispatcher Refactoring
 
-- Continue with Phase 4e: Data modification operations (5 opcodes: Delete, Update, SInsert, SDelete, IdxDelete)
-- Continue with additional cursor/data operations (sorter, ephemeral tables, etc.)
-- Reconcile the generator output and re-enable the generated dispatch in the build
-- Add unit tests for extracted opcode handlers
+Immediate next actions:
+
+1. **Phase 5.1 Implementation**: Enhance vdbe_codegen.py
+   - Add generator functions for dispatch loop generation
+   - Extend YAML schema with dispatch_type, handler, inline_code, return_handling
+   - Generate vdbe_dispatch_generated.c with complete dispatch code
+
+2. **Phase 5.2 Implementation**: Populate opcodes.yaml
+   - Add all 28 extracted opcodes as external handlers
+   - Create extraction tool for inline opcodes
+   - Incrementally extract 112 remaining opcodes from vdbe.c
+
+3. **Phase 5.3 Validation**: Parallel dispatch testing
+   - Add VDBE_USE_GENERATED_DISPATCH compile flag
+   - Run test suite with both dispatch modes
+   - Compare performance and functionality
+
+4. **Phase 5.4 Cutover**: Make generated dispatcher default
+   - Update CMake to enable by default
+   - Verify all tests pass
+   - Keep old code as fallback option
+
+5. **Phase 5.5 Cleanup**: Remove legacy code
+   - Delete old shell script generators
+   - Remove EXECUTE() macros from vdbe.c
+   - Update documentation
 
 Progress recorded: generator, CMake wiring, build-dir generation, handler extraction with full documentation, and continuous integration keeping build green.

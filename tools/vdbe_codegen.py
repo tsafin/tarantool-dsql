@@ -2,14 +2,21 @@
 """
 vdbe_codegen.py
 
-Simple generator that reads a YAML (or JSON) opcode spec and emits two files:
+Generator that reads a YAML (or JSON) opcode spec and emits:
 - a header `vdbe_opcodes_generated.h` with enum and properties
-- a C dispatch skeleton `vdbe_dispatch_generated.c`
+- a C dispatch loop `vdbe_dispatch_generated.c` with complete execution dispatcher
 
 Usage:
   python3 tools/vdbe_codegen.py --in tools/vdbe_dsl/opcodes.yaml --out src/box/sql/generated
 
 This script prefers PyYAML if available; otherwise it accepts JSON input.
+
+Features:
+  - Generates enum with opcode IDs
+  - Creates handler prototypes for external handlers
+  - Generates complete dispatch loop (both computed-goto and switch modes)
+  - Supports handler types: external, inline, fallthrough, control_flow
+  - Preserves return value handling for special cases (jumps, SQL_ROW, etc.)
 """
 import os
 import sys
@@ -28,6 +35,14 @@ FLAG_BITS = {
     'OUT2': 0x0004,
     'JUMP': 0x0008,
     'OUT3': 0x0010,
+}
+
+# Handler types and their dispatch strategy
+HANDLER_TYPES = {
+    'external': 'Call external handler function',
+    'inline': 'Inline opcode implementation',
+    'fallthrough': 'Shared fallthrough case (no break)',
+    'control_flow': 'Control flow operation (deferred to Phase 6)',
 }
 
 
@@ -105,30 +120,161 @@ def gen_header(opcodes):
     return '\n'.join(lines)
 
 
-def gen_dispatch_c(opcodes, header_name='vdbe_opcodes_generated.h'):
+def get_opcode_name(op):
+    """Extract clean opcode name."""
+    raw = op['name']
+    if raw.startswith('OP_'):
+        return raw[3:].upper()
+    return raw.upper()
+
+
+def get_handler_name(op):
+    """Extract handler function name."""
+    return op['name'].lower().replace('op_', '')
+
+
+def get_handler_type(op):
+    """Get handler type for an opcode (default: external for handlers)."""
+    return op.get('handler_type', 'external')
+
+
+def gen_dispatch_c_goto(opcodes, header_name='vdbe_opcodes_generated.h'):
+    """Generate dispatch loop using computed-goto (SQL_USE_GOTO mode)."""
     lines = []
-    lines.append('/* Generated dispatch skeleton */')
-    lines.append('#include "%s"' % header_name)
-    lines.append('#include <stddef.h>')
-    lines.append('\nstruct VdbeDispatch {')
-    lines.append('    int opcode;')
-    lines.append('    int (*handler)(struct Vdbe*, struct Op*, struct Mem*);')
-    lines.append('    unsigned short flags;')
-    lines.append('};\n')
+    lines.append('/* Generated dispatch loop - computed-goto version */')
+    lines.append('/* This is included as part of sqlVdbeExec() when SQL_USE_GOTO is defined */')
+    lines.append('')
+    lines.append('/* Dispatch table for computed-goto - indexed by opcode ID */')
+    lines.append('static const void * const dispatch_table[] = {')
 
-    lines.append('static const struct VdbeDispatch vdbe_dispatch_table[] = {')
+    # Create a sorted list of opcodes by ID
+    sorted_opcodes = sorted(opcodes, key=lambda op: op['id'])
+    max_id = max(op['id'] for op in sorted_opcodes)
+
+    # Build table with entries for all IDs (some may be unused)
+    for i in range(max_id + 1):
+        op_for_id = next((op for op in sorted_opcodes if op['id'] == i), None)
+        if op_for_id:
+            lines.append('    &&Exec_%s, /* %d */' % (op_for_id['name'], i))
+        else:
+            lines.append('    &&Exec_OP_Noop, /* %d - unused */' % i)
+
+    lines.append('};')
+    lines.append('')
+    lines.append('/* Labels for each opcode - used in computed-goto dispatch */')
+
     for op in opcodes:
-            raw = op['name']
-            base = raw
-            if raw.startswith('OP_'):
-                base = raw[3:]
-            base = base.upper()
-            lines.append('    { VDBE_OP_%s, vdbe_op_%s, 0x%04x }, /* %s */' % (
-                base, op['name'].lower().replace('op_', ''), sum(FLAG_BITS.get(f, 0) for f in op.get('flags', [])), op.get('doc', '')))
-    lines.append('};\n')
+        handler_type = get_handler_type(op)
+        handler_name = get_handler_name(op)
+        opname = get_opcode_name(op)
 
-    lines.append('/* Number of entries */')
-    lines.append('const size_t vdbe_dispatch_table_len = sizeof(vdbe_dispatch_table)/sizeof(vdbe_dispatch_table[0]);')
+        lines.append('Exec_%s: {' % op['name'])
+        lines.append('    /* Opcode: %s - %s */' % (opname, op.get('doc', '')))
+
+        if handler_type == 'external':
+            lines.append('    int handler_rc = vdbe_op_%s(p, pOp, aMem);' % handler_name)
+            lines.append('    if (handler_rc < 0)')
+            lines.append('        goto abort_due_to_error;')
+            lines.append('    if (handler_rc == 1) {')
+            lines.append('        /* Special return value handling (jump or SQL_ROW) */')
+            lines.append('        if (pOp->opcode == OP_ResultRow)')
+            lines.append('            goto done_returning_row;')
+            lines.append('        /* For comparison ops, jump to P2 */')
+            lines.append('        JUMP_P2();')
+            lines.append('    }')
+        elif handler_type == 'inline':
+            inline_code = op.get('inline_code', '')
+            if inline_code:
+                lines.append('    ' + inline_code)
+            else:
+                lines.append('    /* TODO: Inline code for %s */' % op['name'])
+        elif handler_type == 'control_flow':
+            lines.append('    /* Control flow op (Phase 6): %s */' % op['name'])
+
+        lines.append('    DISPATCH();')
+        lines.append('}')
+        lines.append('')
+
+    return '\n'.join(lines)
+
+
+def gen_dispatch_c_switch(opcodes, header_name='vdbe_opcodes_generated.h'):
+    """Generate dispatch loop using switch statement (fallback mode)."""
+    lines = []
+    lines.append('/* Generated dispatch loop - switch statement version */')
+    lines.append('/* This is included as part of sqlVdbeExec() when SQL_USE_GOTO is not defined */')
+    lines.append('')
+    lines.append('start_eval: switch (pOp->opcode) {')
+    lines.append('')
+
+    for op in opcodes:
+        handler_type = get_handler_type(op)
+        handler_name = get_handler_name(op)
+        opname = get_opcode_name(op)
+
+        lines.append('case %s: {' % op['name'])
+        lines.append('    /* %s - %s */' % (opname, op.get('doc', '')))
+
+        if handler_type == 'external':
+            lines.append('    int handler_rc = vdbe_op_%s(p, pOp, aMem);' % handler_name)
+            lines.append('    if (handler_rc < 0)')
+            lines.append('        goto abort_due_to_error;')
+            lines.append('    if (handler_rc == 1) {')
+            lines.append('        if (pOp->opcode == OP_ResultRow)')
+            lines.append('            goto done_returning_row;')
+            lines.append('        goto jump_to_p2;')
+            lines.append('    }')
+            lines.append('    break;')
+        elif handler_type == 'inline':
+            inline_code = op.get('inline_code', '')
+            if inline_code:
+                lines.append('    ' + inline_code)
+            else:
+                lines.append('    /* TODO: Inline code for %s */' % op['name'])
+            lines.append('    break;')
+        elif handler_type == 'control_flow':
+            lines.append('    /* Control flow op (Phase 6): %s */' % op['name'])
+            lines.append('    break;')
+
+        lines.append('}')
+        lines.append('')
+
+    lines.append('} /* end switch */')
+
+    return '\n'.join(lines)
+
+
+def gen_dispatch_c(opcodes, header_name='vdbe_opcodes_generated.h', use_goto=True):
+    """Generate complete dispatch loop with both computed-goto and switch support."""
+    lines = []
+    lines.append('/* Generated by tools/vdbe_codegen.py - do not edit */')
+    lines.append('#include "%s"' % header_name)
+    lines.append('')
+    lines.append('/*')
+    lines.append(' * Complete VDBE dispatch loop generated from opcodes.yaml')
+    lines.append(' *')
+    lines.append(' * This dispatch replaces the inline EXECUTE() macros in vdbe.c.')
+    lines.append(' * It supports both computed-goto (SQL_USE_GOTO) and switch fallback modes.')
+    lines.append(' *')
+    lines.append(' * External handlers (extracted to vdbe_ops_*.c) are called with:')
+    lines.append(' *   int vdbe_op_xxx(Vdbe *p, Op *pOp, Mem *aMem)')
+    lines.append(' *')
+    lines.append(' * Return values:')
+    lines.append(' *   0 = Success, continue to next instruction')
+    lines.append(' *  -1 = Error, jump to abort_due_to_error')
+    lines.append(' *   1 = Special: comparison ops jump to P2, OP_ResultRow returns SQL_ROW')
+    lines.append(' */')
+    lines.append('')
+
+    if use_goto:
+        lines.append('#ifdef SQL_USE_GOTO')
+        lines.append(gen_dispatch_c_goto(opcodes, header_name))
+        lines.append('#else /* SQL_USE_GOTO */')
+        lines.append(gen_dispatch_c_switch(opcodes, header_name))
+        lines.append('#endif /* SQL_USE_GOTO */')
+    else:
+        lines.append(gen_dispatch_c_switch(opcodes, header_name))
+
     return '\n'.join(lines)
 
 
