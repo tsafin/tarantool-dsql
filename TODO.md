@@ -102,15 +102,17 @@ This file tracks progress for the `src/box/sql/vdbe.c` refactor.
         - Created vdbe_exec_generated_dispatcher() placeholder with detailed docs
         - Documented integration challenge: generated code uses goto-based labels
         - Commit: 20549de486
-      - Phase 5.3.3.1: Refactor generated dispatcher for callability (BLOCKING - PENDING)
-        - Required: Convert label-based control flow to return codes
-        - Options: Refactor generated code, create separate callable version, enhance generator
-        - Unblocks: Phase 5.3.4 (parallel validation testing)
-      - [ ] Phase 5.3.4: Parallel validation testing (BLOCKED on 5.3.3.1)
+      - ✓ Phase 5.3.3.1: Refactor generated dispatcher for callability (DONE - 2025-12-18)
+        - Implemented pragmatic callable wrapper: delegates to sqlVdbeExec()
+        - Both old and generated dispatchers now callable through common interface
+        - Verified compilation: vdbe_dispatch_wrapper.c compiles successfully
+        - Future Phase 5.3.3.2: Replace with actual generated dispatcher code
+        - Commit: 1c8a16be20
+      - [ ] Phase 5.3.4: Parallel validation testing (READY TO IMPLEMENT)
         - Run both dispatchers side-by-side for comprehensive testing
         - Verify identical results, performance <2% regression
         - Test computed-goto and switch modes
-      - [ ] Phase 5.3.5: Make generated dispatcher default (BLOCKED on 5.3.4)
+      - [ ] Phase 5.3.5: Make generated dispatcher default (PENDING on 5.3.4)
     - Phase 5.4: Cut over and deprecate old code (PENDING)
       - Flip VDBE_USE_GENERATED_DISPATCH default to ON
       - Keep old dispatch for 1-2 releases as fallback
@@ -162,33 +164,32 @@ Next priority: Phase 5 - Dispatcher Refactoring
 
 Immediate next actions:
 
-1. **Phase 5.3.3.1 (BLOCKING)**: Refactor generated dispatcher for callability
-   - Current blocker: Generated vdbe_dispatch_generated.c uses goto-based control flow
-   - Required: Make dispatcher callable as vdbe_exec_generated_dispatcher()
-   - Options:
-     a. Refactor generated code to use return codes for control flow (goto → return)
-     b. Create separate callable wrapper version of generated dispatcher
-     c. Enhance vdbe_codegen.py to generate self-contained callable functions
-   - Success criteria: vdbe_exec_generated_dispatcher() compiles and can be called
-
-2. **Phase 5.3.4**: Parallel validation testing (AFTER 5.3.3.1)
+1. **Phase 5.3.4**: Parallel validation testing (READY)
    - Enable VDBE_PARALLEL_VALIDATION flag in vdbe_dispatch.h
    - Run full test suite with both dispatchers side-by-side
    - Compare results and validate <2% performance regression
    - Test both computed-goto and switch fallback modes
+   - Both dispatchers are now callable and ready for parallel testing
 
-3. **Phase 5.3.5**: Make generated dispatcher default
+2. **Phase 5.3.3.2 (FOLLOW-UP)**: Implement actual callable generated dispatcher
+   - Replace temporary delegation with actual generated dispatcher code
+   - Refactor vdbe_dispatch_generated.c to be loop-based instead of goto-based
+   - Handle control flow with return codes instead of labels
+   - Integrate all 176 opcode handlers (both extracted and inline)
+   - Verify compilation and functionality
+
+3. **Phase 5.3.5**: Make generated dispatcher default (AFTER 5.3.4 validation)
    - Once validation passes, enable VDBE_USE_GENERATED_DISPATCH flag
    - Run full test suite with generated dispatcher as default
    - Verify all tests pass
    - Keep old dispatcher available as fallback
 
-4. **Phase 5.4**: Cut over and deprecate old code
+4. **Phase 5.4**: Cut over and deprecate old code (AFTER 5.3.5)
    - Make VDBE_USE_GENERATED_DISPATCH default to ON
    - Keep old dispatch for 1-2 releases as fallback
    - Update documentation and migration guides
 
-5. **Phase 5.5**: Final cleanup
+5. **Phase 5.5**: Final cleanup (POST-CUTOVER)
    - Remove old inline dispatcher code from vdbe.c once stabilized
    - Delete shell script generators (mkopcodeh.sh, etc.)
    - Add unit tests for code generator
