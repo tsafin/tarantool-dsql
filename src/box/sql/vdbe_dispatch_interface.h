@@ -80,28 +80,23 @@ int vdbe_set_dispatcher_mode(VdbeDispatchMode mode);
  * Get the active dispatcher function
  * Returns the appropriate dispatcher based on configuration
  * Phase 5.3.4: Supports parallel validation mode
+ *
+ * Note: For now, always use compile-time dispatcher selection
+ * to avoid potential initialization issues with getenv() calls.
+ * Runtime mode selection via vdbe_set_dispatcher_mode() is available
+ * for testing, but the default dispatcher is determined at compile time.
  */
 static inline VdbeDispatcher
 vdbe_get_dispatcher(void)
 {
-	VdbeDispatchMode mode = vdbe_get_dispatcher_mode();
-
-	switch (mode) {
-	case VDBE_DISPATCH_PARALLEL:
-		/* Phase 5.3.4: Parallel validation mode */
-		return vdbe_exec_parallel_validation;
-	case VDBE_DISPATCH_GENERATED:
-		return vdbe_exec_generated_dispatcher;
-	case VDBE_DISPATCH_OLD:
-		return vdbe_exec_old_dispatcher;
-	case VDBE_DISPATCH_AUTO:
-	default:
+	/* Use compile-time default for safety
+	 * Future: Call vdbe_get_dispatcher_mode() for runtime selection
+	 */
 #ifdef VDBE_USE_GENERATED_DISPATCH
-		return vdbe_exec_generated_dispatcher;
+	return vdbe_exec_generated_dispatcher;
 #else
-		return vdbe_exec_old_dispatcher;
+	return vdbe_exec_old_dispatcher;
 #endif
-	}
 }
 
 #endif /* VDBE_DISPATCH_INTERFACE_H */

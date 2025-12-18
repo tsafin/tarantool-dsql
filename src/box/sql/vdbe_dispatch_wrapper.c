@@ -30,17 +30,24 @@ VdbeDispatchMode
 vdbe_get_dispatcher_mode(void)
 {
 	if (!vdbe_dispatcher_mode_initialized) {
-		const char *env = getenv("VDBE_DISPATCHER");
-		if (env != NULL) {
-			if (strcmp(env, "old") == 0)
+		/* Use getenv with null check safety */
+		const char *env = NULL;
+
+		/* Safely get environment variable */
+		env = getenv("VDBE_DISPATCHER");
+
+		if (env != NULL && *env != '\0') {
+			if (strcmp(env, "old") == 0) {
 				vdbe_dispatcher_mode = VDBE_DISPATCH_OLD;
-			else if (strcmp(env, "generated") == 0)
+			} else if (strcmp(env, "generated") == 0) {
 				vdbe_dispatcher_mode = VDBE_DISPATCH_GENERATED;
-			else if (strcmp(env, "parallel") == 0)
+			} else if (strcmp(env, "parallel") == 0) {
 				vdbe_dispatcher_mode = VDBE_DISPATCH_PARALLEL;
-			else if (strcmp(env, "auto") == 0)
+			} else if (strcmp(env, "auto") == 0) {
 				vdbe_dispatcher_mode = VDBE_DISPATCH_AUTO;
+			}
 		}
+		/* Mark as initialized only after safe completion */
 		vdbe_dispatcher_mode_initialized = 1;
 	}
 	return vdbe_dispatcher_mode;
