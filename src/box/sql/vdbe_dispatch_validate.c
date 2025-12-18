@@ -80,18 +80,27 @@ vdbe_print_validation_stats(void)
 		return;
 
 	fprintf(stderr,
-		"\n=== VDBE Validation Statistics ===\n"
+		"\n=== VDBE Validation Statistics (Phase 5.3.4) ===\n"
 		"Opcodes executed:    %"PRIu64"\n"
 		"Validation passes:   %"PRIu64"\n"
 		"Validation failures: %"PRIu64"\n"
 		"Validation errors:   %"PRIu64"\n"
-		"Success rate:        %.2f%%\n",
+		"Success rate:        %.2f%%\n"
+		"Performance overhead: <2%% target\n"
+		"===================================\n",
 		stats->opcodes_executed,
 		stats->validation_passes,
 		stats->validation_fails,
 		stats->validation_errors,
 		(stats->opcodes_executed > 0) ?
 			(100.0 * stats->validation_passes / stats->opcodes_executed) : 0.0);
+
+	/* Check for validation failures */
+	if (stats->validation_fails > 0) {
+		fprintf(stderr,
+			"WARNING: Validation failures detected!\n"
+			"Review /tmp/vdbe_validation.log for details.\n");
+	}
 }
 
 /*

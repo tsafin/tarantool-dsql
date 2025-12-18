@@ -46,17 +46,62 @@ int vdbe_exec_old_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem);
 int vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem);
 
 /*
+ * Parallel validation dispatcher - Phase 5.3.4
+ * Runs both dispatchers and compares results
+ * Validates <2% performance regression and identical behavior
+ */
+int vdbe_exec_parallel_validation(struct Vdbe *p, VdbeOp *aOp, Mem *aMem);
+
+/*
+ * Dispatcher selection mode (Phase 5.3.4)
+ * Controls which dispatcher is used and how validation is performed
+ */
+typedef enum {
+	VDBE_DISPATCH_AUTO = 0,         /* Use compiled default */
+	VDBE_DISPATCH_OLD = 1,          /* Use old dispatcher */
+	VDBE_DISPATCH_GENERATED = 2,    /* Use generated dispatcher */
+	VDBE_DISPATCH_PARALLEL = 3,     /* Run both and compare (validation mode) */
+} VdbeDispatchMode;
+
+/*
+ * Get the active dispatcher mode
+ * Can be overridden by environment variables for testing
+ * VDBE_DISPATCHER=old|generated|parallel|auto
+ */
+VdbeDispatchMode vdbe_get_dispatcher_mode(void);
+
+/*
+ * Set the dispatcher mode (for testing)
+ * Returns 0 on success, -1 on invalid mode
+ */
+int vdbe_set_dispatcher_mode(VdbeDispatchMode mode);
+
+/*
  * Get the active dispatcher function
- * Returns the appropriate dispatcher based on VDBE_USE_GENERATED_DISPATCH
+ * Returns the appropriate dispatcher based on configuration
+ * Phase 5.3.4: Supports parallel validation mode
  */
 static inline VdbeDispatcher
 vdbe_get_dispatcher(void)
 {
+	VdbeDispatchMode mode = vdbe_get_dispatcher_mode();
+
+	switch (mode) {
+	case VDBE_DISPATCH_PARALLEL:
+		/* Phase 5.3.4: Parallel validation mode */
+		return vdbe_exec_parallel_validation;
+	case VDBE_DISPATCH_GENERATED:
+		return vdbe_exec_generated_dispatcher;
+	case VDBE_DISPATCH_OLD:
+		return vdbe_exec_old_dispatcher;
+	case VDBE_DISPATCH_AUTO:
+	default:
 #ifdef VDBE_USE_GENERATED_DISPATCH
-	return vdbe_exec_generated_dispatcher;
+		return vdbe_exec_generated_dispatcher;
 #else
-	return vdbe_exec_old_dispatcher;
+		return vdbe_exec_old_dispatcher;
 #endif
+	}
 }
 
 #endif /* VDBE_DISPATCH_INTERFACE_H */
