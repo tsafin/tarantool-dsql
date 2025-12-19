@@ -199,12 +199,13 @@ Immediate next actions:
    - ✓ Code compiles cleanly and box library builds successfully
    - ✓ Infrastructure ready for remaining opcode integration
 
-3. **Phase 5.6**: Expand dispatcher with remaining opcodes (READY)
-   - Add inline code for remaining 63 opcodes from opcodes.yaml
-   - Add control flow opcode implementations (18 opcodes)
-   - Handle unassigned opcodes (35 remaining)
-   - Test with simple programs
-   - Generate switch cases for all 176 opcodes
+3. **Phase 5.6**: Expand dispatcher with remaining opcodes (IN PROGRESS)
+   - ✓ Identified challenge: inline code extracted from goto context doesn't work in while-loop
+   - ✓ Created PHASE_5_6_INLINE_CODE_STRATEGY.md documenting solution path
+   - Next: Refactor inline opcodes as handler wrapper functions
+   - Then: Incrementally add simple inline handlers (OP_Noop, OP_AddImm, etc.)
+   - Validate with parallel testing before integrating complex opcodes
+   - See: PHASE_5_6_INLINE_CODE_STRATEGY.md for detailed strategy
 
 4. **Phase 5.7**: Run full test suite validation
    - Run test suite with generated dispatcher as default

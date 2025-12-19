@@ -316,7 +316,90 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 			break;
 		}
 
-		/* Noop for unassigned opcodes */
+		/* ====================================================================
+	 * SIMPLE INLINE OPCODES (Phase 5.6a - 10 opcodes < 100 chars)
+	 * These are refactored inline opcodes that work as handler functions
+	 * ====================================================================
+	 */
+
+	case OP_Noop: {
+		/* No operation */
+		int handler_rc = vdbe_op_noop_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_Explain: {
+		/* Explain query plan */
+		int handler_rc = vdbe_op_explain_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_SkipLoad: {
+		/* Skip load */
+		int handler_rc = vdbe_op_skipload_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_Expire: {
+		/* Expire schema */
+		int handler_rc = vdbe_op_expire_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_TransactionBegin: {
+		/* Begin transaction */
+		int handler_rc = vdbe_op_transactionbegin_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_TransactionCommit: {
+		/* Commit transaction */
+		int handler_rc = vdbe_op_transactioncommit_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_TransactionRollback: {
+		/* Rollback transaction */
+		int handler_rc = vdbe_op_transactionrollback_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_TTransaction: {
+		/* Transaction type */
+		int handler_rc = vdbe_op_ttransaction_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_ResetCount: {
+		/* Reset counter */
+		int handler_rc = vdbe_op_resetcount_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_NotNull: {
+		/* Jump if not null */
+		int handler_rc = vdbe_op_notnull_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2 - 1; continue; }
+		pc++; continue;
+	}
+
+	case OP_Permutation: {
+		/* Permutation */
+		int handler_rc = vdbe_op_permutation_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	/* Noop for unassigned opcodes */
 		default: {
 			pc++;
 			continue;
