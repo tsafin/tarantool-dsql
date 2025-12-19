@@ -415,6 +415,48 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		pc++; continue;
 	}
 
+	case OP_TransactionCommit: {
+		/* Commit current transaction */
+		int handler_rc = vdbe_op_transactioncommit_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_DropTupleCheck: {
+		/* Drop tuple-level check constraint */
+		int handler_rc = vdbe_op_droptuplecheckundidocheck_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_DropTupleForeignKey: {
+		/* Drop tuple-level foreign key constraint */
+		int handler_rc = vdbe_op_droptupleforeignkey_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_DropFieldCheck: {
+		/* Drop field-level check constraint */
+		int handler_rc = vdbe_op_dropfieldcheck_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_DropFieldForeignKey: {
+		/* Drop field-level foreign key constraint */
+		int handler_rc = vdbe_op_dropfieldforeignkey_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_GenSpaceid: {
+		/* Generate unique space ID */
+		int handler_rc = vdbe_op_genspaceid_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
 	/* Noop for unassigned opcodes */
 		default: {
 			pc++;

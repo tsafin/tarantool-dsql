@@ -220,11 +220,17 @@ Immediate next actions:
      - Implemented 4 medium opcodes: OP_Decimal, OP_AddImm, OP_Sequence, OP_OpenSpace
      - Total inline handlers: 12 opcodes (19% of 63 inline opcodes)
      - Helper pattern established for remaining 31 medium opcodes
-   - Next: Phase 5.6d - Implement remaining medium opcode batches (3-5)
-     - Continue with 4-6 medium opcodes per batch using helper extraction pattern
+   - ✓ Phase 5.6d: Implement medium batch 3 (DONE - 2025-12-20)
+     - Analyzed 31 remaining medium opcodes - found 6 high-quality candidates
+     - Implemented 6 opcodes: OP_TransactionCommit, OP_DropTupleCheck, OP_DropTupleForeignKey, OP_DropFieldCheck, OP_DropFieldForeignKey, OP_GenSpaceid
+     - Zero new helpers needed - all use existing infrastructure
+     - Total inline handlers: 18 opcodes (29% of 63 inline opcodes)
+     - Dispatcher coverage: 81/176 opcodes (46%)
+   - Next: Phase 5.6e - Implement remaining medium opcode batches (4-6)
+     - Continue with 4-6 medium opcodes per batch using established pattern
      - Identify and extract additional helpers as needed
-     - Target: 25+ additional medium opcodes in subsequent phases
-   - See: PHASE_5_6c_SESSION_SUMMARY.md, PHASE_5_6_INLINE_CODE_STRATEGY.md for details
+     - Target: 10-15+ additional medium opcodes in next phases
+   - See: PHASE_5_6d_SESSION_SUMMARY.md, PHASE_5_6c_SESSION_SUMMARY.md, PHASE_5_6_INLINE_CODE_STRATEGY.md for details
 
 4. **Phase 5.7**: Run full test suite validation
    - Run test suite with generated dispatcher as default
@@ -243,13 +249,15 @@ Immediate next actions:
    - Phase 5.10: Remove old inline dispatcher code from vdbe.c once stabilized
    - Phase 5.11: Delete shell script generators (mkopcodeh.sh, etc.), add unit tests
 
-**Current Status**: Phase 5.6c Complete (2025-12-20)
+**Current Status**: Phase 5.6d Complete (2025-12-20)
 - ✓ Phase 5.5: True loop-based generated dispatcher implemented
 - ✓ Phase 5.6a: 6 simple inline opcode handlers
 - ✓ Phase 5.6b: 2 medium-complexity opcode handlers
 - ✓ Phase 5.6c: Helper function extraction + 4 additional medium handlers (12 total inline)
-- ✓ Helper pattern established for rapid expansion
-- Ready for Phase 5.6d: Implement remaining 31 medium opcodes
+- ✓ Phase 5.6d: 6 constraint + transaction handlers (18 total inline, 29% coverage)
+- ✓ Helper pattern proven and scaled
+- Dispatcher coverage: 81/176 opcodes (46%)
+- Ready for Phase 5.6e: Continue with remaining 25 medium opcodes
 
 **Phase 5.3.4 Status**: ✓ COMPLETE - Testing infrastructure ready
 - Runtime dispatcher selection: export VDBE_DISPATCHER=parallel|old|generated|auto
@@ -263,6 +271,8 @@ Progress recorded:
 - ✓ Phase 5 dispatcher refactoring infrastructure (phases 5.1-5.5 complete)
 - ✓ True loop-based generated dispatcher (Phase 5.5) - No longer delegates to sqlVdbeExec()
 - ✓ Helper function extraction pattern (Phase 5.6c) - vdbe_helpers.h
-- ✓ Inline opcode handler integration (Phase 5.6a-c) - 12 opcodes
+- ✓ Inline opcode handler integration (Phase 5.6a-d) - 18 opcodes (29% coverage)
+- ✓ Dispatcher coverage improved to 46% (81/176 opcodes)
+- ✓ Zero new helpers needed for batch 3 - pattern proven efficient
 - ✓ Continuous integration keeping build green
-- Ready for Phase 5.6d: Expand inline opcodes and full test suite validation
+- Ready for Phase 5.6e: Continue with medium batch 4 and remaining opcodes
