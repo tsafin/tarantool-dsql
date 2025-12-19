@@ -95,6 +95,13 @@ int vdbe_op_droptupleforeignkey_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* DropTup
 int vdbe_op_dropfieldcheck_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* DropFieldCheck */
 int vdbe_op_dropfieldforeignkey_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* DropFieldForeignKey */
 int vdbe_op_genspaceid_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* GenSpaceid */
+/* Medium complexity inline opcode handlers - Phase 5.6e */
+int vdbe_op_once_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Once */
+int vdbe_op_ifnot_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* IfNot */
+int vdbe_op_ifpos_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* IfPos */
+int vdbe_op_ifnotzero_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* IfNotZero */
+int vdbe_op_decrjumpzero_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* DecrJumpZero */
+int vdbe_op_nullrow_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* NullRow */
 /* Control flow opcodes - reserved for dispatcher refactoring
  * See vdbe_ops_control.c for extraction plan.
  * These remain in vdbe.c for now due to PC manipulation complexity. */
