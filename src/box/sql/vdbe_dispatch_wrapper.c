@@ -387,30 +387,9 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		pc++; continue;
 	}
 
-	case OP_Decimal: {
-		/* Load decimal constant to register */
-		int handler_rc = vdbe_op_decimal_inline(p, pOp, aMem);
-		if (handler_rc < 0) { rc = -1; break; }
-		pc++; continue;
-	}
-
 	case OP_AddImm: {
 		/* Add immediate value to register */
 		int handler_rc = vdbe_op_addimm_inline(p, pOp, aMem);
-		if (handler_rc < 0) { rc = -1; break; }
-		pc++; continue;
-	}
-
-	case OP_Sequence: {
-		/* Get next sequence value from cursor */
-		int handler_rc = vdbe_op_sequence_inline(p, pOp, aMem);
-		if (handler_rc < 0) { rc = -1; break; }
-		pc++; continue;
-	}
-
-	case OP_OpenSpace: {
-		/* Open table space cursor */
-		int handler_rc = vdbe_op_openspace_inline(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }
 		pc++; continue;
 	}
@@ -505,6 +484,72 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	case OP_NullRow: {
 		/* Mark cursor at null row and cleanup */
 		int handler_rc = vdbe_op_nullrow_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_ShowCreateTable: {
+		/* Generate CREATE TABLE statement text */
+		int handler_rc = vdbe_op_showcreatettable_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_ResetSorter: {
+		/* Reset sorter state */
+		int handler_rc = vdbe_op_resetsorter_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_Sort: {
+		/* Sort records (test harness) */
+		int handler_rc = vdbe_op_sort_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_Clear: {
+		/* Clear space/truncate table */
+		int handler_rc = vdbe_op_clear_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_Param: {
+		/* Load parameter from frame */
+		int handler_rc = vdbe_op_param_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_Decimal: {
+		/* Load decimal constant into register */
+		int handler_rc = vdbe_op_decimal_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_OpenSpace: {
+		/* Create space reference cursor by ID */
+		int handler_rc = vdbe_op_openspace_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_Sequence: {
+		/* Get sequence counter value and increment */
+		int handler_rc = vdbe_op_sequence_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_SequenceTest: {
+		/* Test sequence counter, jump if zero */
+		int handler_rc = vdbe_op_sequencetest_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc > 0) { pc = pOp->p2; continue; }  /* Jump to P2 */
+		pc++; continue;
+	}
+	case OP_Fetch: {
+		/* Fetch field value from record */
+		int handler_rc = vdbe_op_fetch_inline(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }
 		pc++; continue;
 	}

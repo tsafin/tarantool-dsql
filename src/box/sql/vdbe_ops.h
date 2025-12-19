@@ -84,10 +84,7 @@ int vdbe_op_permutation_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Permutation */
 int vdbe_op_close_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Close */
 int vdbe_op_isnull_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* IsNull */
 /* Medium complexity inline opcode handlers - Phase 5.6c */
-int vdbe_op_decimal_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Decimal */
 int vdbe_op_addimm_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* AddImm */
-int vdbe_op_sequence_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Sequence */
-int vdbe_op_openspace_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* OpenSpace */
 /* Medium complexity inline opcode handlers - Phase 5.6d */
 int vdbe_op_transactioncommit_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* TransactionCommit */
 int vdbe_op_droptuplecheckundidocheck_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* DropTupleCheck */
@@ -102,6 +99,18 @@ int vdbe_op_ifpos_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* IfPos */
 int vdbe_op_ifnotzero_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* IfNotZero */
 int vdbe_op_decrjumpzero_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* DecrJumpZero */
 int vdbe_op_nullrow_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* NullRow */
+/* Medium complexity inline opcode handlers - Phase 5.6f */
+int vdbe_op_showcreatettable_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* ShowCreateTable */
+int vdbe_op_resetsorter_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* ResetSorter */
+int vdbe_op_sort_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Sort */
+int vdbe_op_clear_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Clear */
+int vdbe_op_param_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Param */
+/* Medium complexity inline opcode handlers - Phase 5.6g */
+int vdbe_op_decimal_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Decimal */
+int vdbe_op_openspace_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* OpenSpace */
+int vdbe_op_sequence_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Sequence */
+int vdbe_op_sequencetest_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* SequenceTest */
+int vdbe_op_fetch_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Fetch */
 /* Control flow opcodes - reserved for dispatcher refactoring
  * See vdbe_ops_control.c for extraction plan.
  * These remain in vdbe.c for now due to PC manipulation complexity. */

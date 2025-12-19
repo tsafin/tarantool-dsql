@@ -147,6 +147,8 @@ set(sql_sources
     sql/vdbe_ops_inline_medium_2.c
     sql/vdbe_ops_inline_medium_3.c
     sql/vdbe_ops_inline_medium_4.c
+    sql/vdbe_ops_inline_medium_5.c
+    sql/vdbe_ops_inline_medium_6.c
     sql/vdbe_dispatch_validate.c
     sql/vdbe_dispatch_wrapper.c
     sql/vdbe_helpers.c

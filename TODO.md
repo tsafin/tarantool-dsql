@@ -226,12 +226,22 @@ Immediate next actions:
      - Zero new helpers needed - all use existing infrastructure
      - Total inline handlers: 18 opcodes (29% of 63 inline opcodes)
      - Dispatcher coverage: 81/176 opcodes (46%)
-   - ⏳ Phase 5.6e: Implement medium batch 4 (READY FOR IMPLEMENTATION)
+   - ✓ Phase 5.6e: Implement medium batch 4 (DONE - 2025-12-20)
+     - ✓ Implemented 6 opcodes: OP_Once, OP_IfNot, OP_IfPos, OP_IfNotZero, OP_DecrJumpZero, OP_NullRow
+     - ✓ Zero new helpers needed
+     - ✓ Total inline handlers: 24 opcodes (38% of 63 inline opcodes)
+     - ✓ Dispatcher coverage: 87/176 opcodes (49%)
+   - ✓ Phase 5.6f: Implement medium batch 5 (DONE - 2025-12-20)
+     - ✓ Implemented 5 opcodes: OP_ShowCreateTable, OP_ResetSorter, OP_Sort, OP_Clear, OP_Param
+     - ✓ Zero new helpers needed
+     - ✓ Total inline handlers: 29 opcodes (46% of 63 inline opcodes)
+     - ✓ Dispatcher coverage: 92/176 opcodes (52%)
+   - ⏳ Phase 5.6g: Implement medium batch 6 (READY FOR IMPLEMENTATION)
      - Continue with 4-6 medium opcodes per batch using established pattern
-     - Identify and extract additional helpers as needed (expect 0-2)
-     - Target: 4-6 opcodes this phase, 10-15+ in remaining batches
-     - Expected outcome: 22-24 total inline handlers (35-38% coverage)
-   - See: PHASE_5_6e_PLAN.md, PHASE_5_6d_SESSION_SUMMARY.md, PHASE_5_6_INLINE_CODE_STRATEGY.md for details
+     - Identify and extract additional helpers as needed (expect 0)
+     - Target: 4-6 opcodes this phase, complete medium opcodes
+     - Expected outcome: 33-35 total inline handlers (52-56% coverage)
+   - See: PHASE_5_6f_PLAN.md, PHASE_5_6f_SESSION_SUMMARY.md, PHASE_5_6_INLINE_CODE_STRATEGY.md for details
 
 4. **Phase 5.7**: Run full test suite validation
    - Run test suite with generated dispatcher as default
@@ -250,15 +260,17 @@ Immediate next actions:
    - Phase 5.10: Remove old inline dispatcher code from vdbe.c once stabilized
    - Phase 5.11: Delete shell script generators (mkopcodeh.sh, etc.), add unit tests
 
-**Current Status**: Phase 5.6d Complete (2025-12-20)
+**Current Status**: Phase 5.6f Complete (2025-12-20)
 - ✓ Phase 5.5: True loop-based generated dispatcher implemented
 - ✓ Phase 5.6a: 6 simple inline opcode handlers
 - ✓ Phase 5.6b: 2 medium-complexity opcode handlers
 - ✓ Phase 5.6c: Helper function extraction + 4 additional medium handlers (12 total inline)
 - ✓ Phase 5.6d: 6 constraint + transaction handlers (18 total inline, 29% coverage)
-- ✓ Helper pattern proven and scaled
-- Dispatcher coverage: 81/176 opcodes (46%)
-- Ready for Phase 5.6e: Continue with remaining 25 medium opcodes
+- ✓ Phase 5.6e: 6 control flow + cursor handlers (24 total inline, 38% coverage)
+- ✓ Phase 5.6f: 5 type/value + space/sorting handlers (29 total inline, 46% coverage)
+- ✓ Helper pattern proven and scaled (0 new helpers in phases 5.6d-f)
+- Dispatcher coverage: 92/176 opcodes (52%)
+- Ready for Phase 5.6g: Final medium batch (14 remaining opcodes)
 
 **Phase 5.3.4 Status**: ✓ COMPLETE - Testing infrastructure ready
 - Runtime dispatcher selection: export VDBE_DISPATCHER=parallel|old|generated|auto
