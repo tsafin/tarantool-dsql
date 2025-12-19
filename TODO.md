@@ -2,6 +2,12 @@
 
 This file tracks progress for the `src/box/sql/vdbe.c` refactor.
 
+**Quick Links**:
+- **[VDBE_REFACTOR_MASTER_PLAN.md](VDBE_REFACTOR_MASTER_PLAN.md)** - Complete project overview and architecture
+- **[PHASE_5_6d_PLAN.md](PHASE_5_6d_PLAN.md)** - Next phase (Medium Batch 3)
+- **[PHASE_5_6c_SESSION_SUMMARY.md](PHASE_5_6c_SESSION_SUMMARY.md)** - Current phase completion details
+- **[PHASE_5_6_INLINE_CODE_STRATEGY.md](PHASE_5_6_INLINE_CODE_STRATEGY.md)** - Overall strategy and approach
+
 - [x] Analyze `vdbe.c`
   - Map responsibilities, data structures, helpers, and the execution loop. (DONE)
 - [x] Define Module Boundaries
@@ -208,12 +214,17 @@ Immediate next actions:
      - OP_IsNull: Jump if register is NULL (103 chars)
      - Identified blocker: 6 of 8 target opcodes require helper function extraction
      - Total inline handlers: 8 opcodes integrated
-   - Next: Phase 5.6c - Extract helper functions to unblock medium opcode batch 2
-     - Extract `vdbe_prepare_null_out()` for OP_Sequence, OP_Decimal, and others
-     - Extract `memAboutToChange()` accessor for register modification opcodes
-     - Resolve OP_OpenSpace space_by_id integration with box/space.h
-     - After helper extraction: implement OP_Decimal, OP_Sequence, and remaining medium opcodes
-   - See: PHASE_5_6_INLINE_CODE_STRATEGY.md and PHASE_5_6b_SESSION_SUMMARY.md for details
+   - ✓ Phase 5.6c: Extract helpers and implement medium batch 2 (DONE - 2025-12-20)
+     - Created vdbe_helpers.h with sqlVdbeMemAboutToChange() and vdbe_prepare_null_out()
+     - Exposed helper functions from vdbe.c (removed static keywords)
+     - Implemented 4 medium opcodes: OP_Decimal, OP_AddImm, OP_Sequence, OP_OpenSpace
+     - Total inline handlers: 12 opcodes (19% of 63 inline opcodes)
+     - Helper pattern established for remaining 31 medium opcodes
+   - Next: Phase 5.6d - Implement remaining medium opcode batches (3-5)
+     - Continue with 4-6 medium opcodes per batch using helper extraction pattern
+     - Identify and extract additional helpers as needed
+     - Target: 25+ additional medium opcodes in subsequent phases
+   - See: PHASE_5_6c_SESSION_SUMMARY.md, PHASE_5_6_INLINE_CODE_STRATEGY.md for details
 
 4. **Phase 5.7**: Run full test suite validation
    - Run test suite with generated dispatcher as default
@@ -232,11 +243,13 @@ Immediate next actions:
    - Phase 5.10: Remove old inline dispatcher code from vdbe.c once stabilized
    - Phase 5.11: Delete shell script generators (mkopcodeh.sh, etc.), add unit tests
 
-**Current Status**: Phase 5.5 Complete (2025-12-19)
+**Current Status**: Phase 5.6c Complete (2025-12-20)
 - ✓ Phase 5.5: True loop-based generated dispatcher implemented
-- ✓ Circular dependency eliminated
-- ✓ All infrastructure in place for opcode expansion
-- Ready for Phase 5.6: Expand with remaining opcodes
+- ✓ Phase 5.6a: 6 simple inline opcode handlers
+- ✓ Phase 5.6b: 2 medium-complexity opcode handlers
+- ✓ Phase 5.6c: Helper function extraction + 4 additional medium handlers (12 total inline)
+- ✓ Helper pattern established for rapid expansion
+- Ready for Phase 5.6d: Implement remaining 31 medium opcodes
 
 **Phase 5.3.4 Status**: ✓ COMPLETE - Testing infrastructure ready
 - Runtime dispatcher selection: export VDBE_DISPATCHER=parallel|old|generated|auto
@@ -249,5 +262,7 @@ Progress recorded:
 - ✓ Handler extraction (60 opcodes across 7 files)
 - ✓ Phase 5 dispatcher refactoring infrastructure (phases 5.1-5.5 complete)
 - ✓ True loop-based generated dispatcher (Phase 5.5) - No longer delegates to sqlVdbeExec()
+- ✓ Helper function extraction pattern (Phase 5.6c) - vdbe_helpers.h
+- ✓ Inline opcode handler integration (Phase 5.6a-c) - 12 opcodes
 - ✓ Continuous integration keeping build green
-- Ready for Phase 5.6: Expand with remaining opcodes and full test suite validation
+- Ready for Phase 5.6d: Expand inline opcodes and full test suite validation
