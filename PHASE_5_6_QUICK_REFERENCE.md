@@ -1,13 +1,13 @@
 # Phase 5.6 - Quick Reference Guide
 
-**Last Updated**: 2025-12-20 (Post Phase 5.6e)
+**Last Updated**: 2025-12-20 (Post Phase 5.6g)
 
 ## Current Status Dashboard
 
 ### Coverage Metrics
 ```
-Total Dispatcher:    87/176 opcodes  (49%)  📈 Growing
-Inline Handlers:     24/63 opcodes   (38%)  📈 Growing
+Total Dispatcher:    97/176 opcodes  (55%)  📈 Growing
+Inline Handlers:     34/63 opcodes   (54%)  📈 Growing
 Helper Functions:    2 available            ✓ Reusable
 Build Status:        ✅ Passing all checks
 Test Status:         ⏳ Ready for validation (Phase 5.8)
@@ -19,9 +19,10 @@ Phase 5.6a (Simple):    6 opcodes  ✅ DONE - 2025-12-19
 Phase 5.6b (Medium 1):  2 opcodes  ✅ DONE - 2025-12-20
 Phase 5.6c (Medium 2):  4 opcodes  ✅ DONE - 2025-12-20
 Phase 5.6d (Medium 3):  6 opcodes  ✅ DONE - 2025-12-20
-Phase 5.6e (Medium 4):  6 opcodes  ✅ DONE - 2025-12-20 ← Current
-Phase 5.6f (Medium 5):  4-6 opcodes 🔄 READY FOR START
-Phase 5.6g (Medium 6):  10-15 opcodes ⏳ PLANNED
+Phase 5.6e (Medium 4):  6 opcodes  ✅ DONE - 2025-12-20
+Phase 5.6f (Medium 5):  5 opcodes  ✅ DONE - 2025-12-20
+Phase 5.6g (Medium 6):  5 opcodes  ✅ DONE - 2025-12-20 ← Current
+Phase 5.6h (Medium 7):  4-6 opcodes 🔄 READY FOR START
 ```
 
 ## Key Files & Locations
@@ -32,12 +33,14 @@ Phase 5.6g (Medium 6):  10-15 opcodes ⏳ PLANNED
 - **[VDBE_REFACTOR_MASTER_PLAN.md](VDBE_REFACTOR_MASTER_PLAN.md)** - Architecture
 
 ### Implementation Plans
-- **[PHASE_5_6f_PLAN.md](PHASE_5_6f_PLAN.md)** - Next phase (ready to start)
-- **[PHASE_5_6e_PLAN.md](PHASE_5_6e_PLAN.md)** - Previous phase (reference)
+- **[PHASE_5_6g_PLAN.md](PHASE_5_6g_PLAN.md)** - Next phase (ready to start)
+- **[PHASE_5_6f_PLAN.md](PHASE_5_6f_PLAN.md)** - Previous phase (reference)
+- **[PHASE_5_6e_PLAN.md](PHASE_5_6e_PLAN.md)** - Reference phase
 - **[PHASE_5_6_INLINE_CODE_STRATEGY.md](PHASE_5_6_INLINE_CODE_STRATEGY.md)** - Overall strategy
 
 ### Session Summaries
-- **[PHASE_5_6e_SESSION_SUMMARY.md](PHASE_5_6e_SESSION_SUMMARY.md)** - Latest completion (control flow)
+- **[PHASE_5_6f_SESSION_SUMMARY.md](PHASE_5_6f_SESSION_SUMMARY.md)** - Latest completion (type/value, space, sorting)
+- **[PHASE_5_6e_SESSION_SUMMARY.md](PHASE_5_6e_SESSION_SUMMARY.md)** - Control flow opcodes
 - **[PHASE_5_6d_SESSION_SUMMARY.md](PHASE_5_6d_SESSION_SUMMARY.md)** - Constraint/transaction ops
 - **[PHASE_5_6c_SESSION_SUMMARY.md](PHASE_5_6c_SESSION_SUMMARY.md)** - Helper extraction
 - **[PHASE_5_6b_SESSION_SUMMARY.md](PHASE_5_6b_SESSION_SUMMARY.md)** - First medium batch
@@ -50,39 +53,76 @@ src/box/sql/
 ├── vdbe_ops_inline_medium_1.c        (2 opcodes)
 ├── vdbe_ops_inline_medium_2.c        (4 opcodes)
 ├── vdbe_ops_inline_medium_3.c        (6 opcodes)
-├── vdbe_ops_inline_medium_4.c        (6 opcodes) ← Latest
+├── vdbe_ops_inline_medium_4.c        (6 opcodes)
+├── vdbe_ops_inline_medium_5.c        (5 opcodes)
+├── vdbe_ops_inline_medium_6.c        (5 opcodes) ← Latest
 ├── vdbe_ops.h                         (prototypes)
 ├── vdbe_dispatch_wrapper.c            (dispatcher cases)
 ├── vdbe_helpers.h                     (2 reusable helpers)
 └── CMakeLists.txt                     (build config)
 ```
 
-## Phase 5.6e Results
+## Phase 5.6f Results
+
+### Opcodes Implemented (5)
+1. **OP_ShowCreateTable** (123 chars)
+   - Generate CREATE TABLE statement text
+   - Handler: `vdbe_op_showcreatettable_inline()`
+
+2. **OP_ResetSorter** (150 chars)
+   - Reset sorter state
+   - Handler: `vdbe_op_resetsorter_inline()`
+
+3. **OP_Sort** (169 chars)
+   - Sort records (test harness)
+   - Handler: `vdbe_op_sort_inline()`
+
+4. **OP_Clear** (188 chars)
+   - Clear space/truncate table
+   - Handler: `vdbe_op_clear_inline()`
+
+5. **OP_Param** (203 chars)
+   - Load parameter from frame
+   - Handler: `vdbe_op_param_inline()`
+
+### Key Achievement
+**Zero new helper functions required** for batch 5, validating 100% efficiency of helper infrastructure (0/5 helpers for 5 opcodes, continuing pattern from batches 3-4).
+
+## Phase 5.6g Results
+
+### Opcodes Implemented (5)
+1. **OP_Decimal** (114 chars)
+   - Load decimal constant into register
+   - Handler: `vdbe_op_decimal_inline()`
+
+2. **OP_OpenSpace** (135 chars)
+   - Create space reference cursor by ID lookup
+   - Handler: `vdbe_op_openspace_inline()`
+
+3. **OP_SequenceTest** (150 chars)
+   - Test sequence counter, jump if zero
+   - Handler: `vdbe_op_sequencetest_inline()`
+
+4. **OP_Sequence** (195 chars)
+   - Get sequence counter value and increment
+   - Handler: `vdbe_op_sequence_inline()`
+
+5. **OP_Fetch** (209 chars)
+   - Fetch field value from record
+   - Handler: `vdbe_op_fetch_inline()`
+
+### Key Achievement
+**Zero new helper functions required** for batch 6, validating sustained efficiency of helper infrastructure (0/5 helpers for 5 opcodes, continuing pattern from batches 3-5). Total pattern: 2 helpers / 29 opcodes = 7% helper:opcode ratio.
+
+## Phase 5.6e Results (Reference)
 
 ### Opcodes Implemented (6)
-1. **OP_Once** (140 chars)
-   - Execute code block at most once
-   - Handler: `vdbe_op_once_inline()`
-
-2. **OP_IfNot** (165 chars)
-   - Jump if register value is false
-   - Handler: `vdbe_op_ifnot_inline()`
-
-3. **OP_IfPos** (180 chars)
-   - Jump if positive with saturated decrement
-   - Handler: `vdbe_op_ifpos_inline()`
-
-4. **OP_IfNotZero** (125 chars)
-   - Jump if non-zero and decrement
-   - Handler: `vdbe_op_ifnotzero_inline()`
-
-5. **OP_DecrJumpZero** (140 chars)
-   - Decrement and jump if zero
-   - Handler: `vdbe_op_decrjumpzero_inline()`
-
-6. **OP_NullRow** (200 chars)
-   - Mark cursor at null row and cleanup
-   - Handler: `vdbe_op_nullrow_inline()`
+1. **OP_Once** (140 chars) - Execute code block at most once
+2. **OP_IfNot** (165 chars) - Jump if register value is false
+3. **OP_IfPos** (180 chars) - Jump if positive with saturated decrement
+4. **OP_IfNotZero** (125 chars) - Jump if non-zero and decrement
+5. **OP_DecrJumpZero** (140 chars) - Decrement and jump if zero
+6. **OP_NullRow** (200 chars) - Mark cursor at null row and cleanup
 
 ### Key Achievement
 **Zero new helper functions required** for batch 4, validating helper infrastructure efficiency.
@@ -173,20 +213,20 @@ mem_is_null(pMem)           // Check if NULL
 mem_is_uint(pMem)           // Check if unsigned int
 ```
 
-## Next Phase (5.6e) Quick Start
+## Next Phase (5.6h) Quick Start
 
 ### What to Do
-1. **Analyze** remaining 25 medium opcodes
-2. **Select** 6-8 best candidates (4-6 for implementation)
-3. **Extract** 0-2 new helpers if needed
+1. **Analyze** remaining 18 medium opcodes
+2. **Select** 4-6 best candidates for implementation
+3. **Extract** 0-2 new helpers if needed (expect 0)
 4. **Implement** following established pattern
 5. **Verify** build system
 6. **Document** findings
 
 ### Expected Outcomes
-- **Inline handlers**: 18 → 22-24 (29% → 35-38%)
-- **Total dispatcher**: 81 → 85-87 opcodes (46% → 48-49%)
-- **New helpers**: 0-2 (if needed)
+- **Inline handlers**: 34 → 38-40 (54% → 60-63%)
+- **Total dispatcher**: 97 → 101-103 opcodes (55% → 57-58%)
+- **New helpers**: 0 (expect full reuse)
 
 ### Selection Criteria
 - Straightforward logic (no complex branching)
@@ -254,7 +294,33 @@ while (pc < nOp) {
 - **vdbe_ops_inline_medium_4.c** - (4-6 opcodes) ← Ready to create
 - Future: Medium batches 5-6, then complex opcodes
 
-## Lessons from Phase 5.6e
+## Lessons from Phase 5.6f
+
+### 1. Type/Value Operations are Straightforward
+OP_ShowCreateTable demonstrates that external function wrappers are simple:
+- Clear input register pattern
+- Output register initialization via helper
+- Direct error propagation
+
+### 2. Space Management Operations are Consistent
+OP_Clear shows proper error handling with optional operations:
+- Cursor-like pattern (space lookup by ID)
+- Conditional execution via P2 flag
+- Error propagation for failures
+
+### 3. Frame-Based Operations are Manageable
+OP_Param validates that frame-based parameter passing is straightforward:
+- Established helpers handle initialization
+- Frame pointer manipulation is clean
+- Memory copying follows standard patterns
+
+### 4. Helper Scaling Validated Completely
+Combined phases 5.6d-f (17 opcodes) required **zero new helpers**:
+- Helper:opcode ratio: 0%
+- Total helper ratio across batches: 2 helpers / 21 opcodes = 10%
+- Infrastructure fully mature for remaining opcodes
+
+## Lessons from Phase 5.6e (Reference)
 
 ### 1. Control Flow Opcodes Cluster Well
 The 5 control flow opcodes share similar patterns:
@@ -331,8 +397,8 @@ Phase 5.6d and 5.6e combined (12 opcodes) required zero new helpers - infrastruc
 
 ---
 
-**Status**: ✅ Phase 5.6e Complete - Phase 5.6f Ready
+**Status**: ✅ Phase 5.6g Complete - Phase 5.6h Ready
 
-**Next**: Proceed with medium batch 5 implementation
+**Next**: Proceed with medium batch 7 implementation (18 opcodes remaining)
 
-**Latest commit**: 4beced5d5d (Phase 5.6e - 6 control flow and cursor opcodes)
+**Latest commit**: (Phase 5.6g - 5 value, cursor, and data retrieval opcodes)
