@@ -395,4 +395,7 @@ set_encode_error(void *error_ctx)
 	*(bool *)error_ctx = true;
 }
 
+/* Include helper functions for VDBE opcodes */
+#include "vdbe_helpers.h"
+
 #endif				/* !defined(SQL_VDBEINT_H) */

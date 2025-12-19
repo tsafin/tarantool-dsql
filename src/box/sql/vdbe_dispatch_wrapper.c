@@ -387,6 +387,34 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		pc++; continue;
 	}
 
+	case OP_Decimal: {
+		/* Load decimal constant to register */
+		int handler_rc = vdbe_op_decimal_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_AddImm: {
+		/* Add immediate value to register */
+		int handler_rc = vdbe_op_addimm_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_Sequence: {
+		/* Get next sequence value from cursor */
+		int handler_rc = vdbe_op_sequence_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_OpenSpace: {
+		/* Open table space cursor */
+		int handler_rc = vdbe_op_openspace_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
 	/* Noop for unassigned opcodes */
 		default: {
 			pc++;

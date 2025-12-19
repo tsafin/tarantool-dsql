@@ -81,7 +81,7 @@
  * This is used for testing and debugging only - to make sure shallow
  * copies are not misused.
  */
-static void
+void
 sqlVdbeMemAboutToChange(Vdbe * pVdbe, Mem * pMem)
 {
 	int i;
@@ -286,7 +286,7 @@ check_vdbe_operands(Vdbe *p, Op *pOp, Op *aOp, Mem *aMem)
 
 #endif
 
-static __attribute__((unused)) struct Mem *
+struct Mem *
 vdbe_prepare_null_out(struct Vdbe *v, int n)
 {
 	assert(n > 0);

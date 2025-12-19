@@ -579,20 +579,56 @@ EXECUTE(OP_Xxx,(P1,P2)): {
   - Framework ready for Phase 5.4 integration
   - **Commit**: 67a045dbb7
 - **Total opcodes processed**: 60 external + 63 inline + 18 control flow = 141 opcodes (35 unassigned) = 176 total
-- **Status**: ✓ PHASE 5.3 COMPLETE (2025-12-19)
-  - All 7 sub-phases successfully completed
-  - Generated dispatcher is callable and testable
-  - Parallel validation framework ready
-  - VDBE_USE_GENERATED_DISPATCH flag enabled
+- **Phase 5.4** (2025-12-19): Integrated dispatcher selection into sqlVdbeExec()
+  - Both generated and inline dispatcher modes compile and work
+  - **Commit**: 9ec3abd095
+- **Phase 5.5** (2025-12-19): Cleanup and polish
+  - Implemented true loop-based generated dispatcher
+  - Replaced circular dependency with independent implementation
+  - **Commit**: 5af1274a4b
+- **Phase 5.6a** (2025-12-19): Simple inline opcode handlers
+  - Implemented 6 simple inline opcodes as handler functions
+  - OP_Noop, OP_Explain, OP_SkipLoad, OP_Expire, OP_NotNull, OP_Permutation
+  - **Commit**: b190c1c5e5
+- **Phase 5.6b** (2025-12-20): Medium-complexity inline opcode handlers
+  - Implemented 2 medium opcodes: OP_Close, OP_IsNull
+  - Total inline handlers: 8 opcodes (12.7% of 63)
+  - **Commits**: 60288830a2
+- **Phase 5.6c** (2025-12-20): Helper extraction + medium batch 2 ✓ COMPLETE
+  - Created vdbe_helpers.h with shared helper functions
+  - Exposed sqlVdbeMemAboutToChange() and vdbe_prepare_null_out()
+  - Implemented 4 medium opcodes: OP_Decimal, OP_AddImm, OP_Sequence, OP_OpenSpace
+  - Total inline handlers: 12 opcodes (19% of 63)
+  - Helper pattern proven and documented for reuse
+  - **Documentation**: PHASE_5_6c_SESSION_SUMMARY.md, PHASE_5_6c_CODE_CHANGES.md
+  - **Status**: ✓ PHASE 5.6c COMPLETE
+- **Status**: ✓ PHASES 5.1-5.6c COMPLETE (2025-12-20)
+  - 60 external handlers extracted
+  - 12 inline handlers extracted (19% of 63)
+  - Total dispatcher coverage: ~75 of 176 opcodes (42.6%)
+  - Helper pattern established for remaining 31 medium opcodes
   - Code compiles cleanly with no errors or warnings
 - **Next Steps**:
-  1. Phase 5.4: Integrate dispatcher selection into sqlVdbeExec()
-     - Modify sqlVdbeExec() to call vdbe_get_dispatcher() at startup
-     - Execute generated dispatcher when flag enabled
-     - Run full test suite and verify performance
-  2. Phase 5.5: Cleanup and deprecation
-     - Remove old dispatcher code from vdbe.c
-     - Delete legacy shell script generators
-     - Add unit tests for generator
-  3. Phase 6: Control flow handler extraction (deferred)
-     - Extract remaining 18 control flow opcodes after Phase 5 complete
+  1. Phase 5.6d: Continue medium opcode batches (4-6 per phase)
+     - Target remaining 31 medium opcodes
+     - Use established helper extraction pattern
+     - Expected completion: Phases 5.6d-h
+  2. Phase 5.7: Complex opcode handlers
+     - Handle 14 complex opcodes (>300 chars)
+     - May require significant refactoring
+  3. Phase 5.8: Full test suite validation
+     - Run complete test suite with generated dispatcher
+     - Parallel validation: VDBE_DISPATCHER=parallel
+     - Performance profiling (<2% regression target)
+
+## Comprehensive Planning Documentation (Phase 5.6c+)
+
+For detailed information about the overall refactoring project, refer to the comprehensive planning documents:
+
+- **[VDBE_REFACTOR_MASTER_PLAN.md](/home/tsafin/tarantool/VDBE_REFACTOR_MASTER_PLAN.md)** - Complete project overview with architecture, timeline, and metrics
+- **[PLANNING_DOCUMENTS_INDEX.md](/home/tsafin/tarantool/PLANNING_DOCUMENTS_INDEX.md)** - Navigation guide to all 18+ planning documents
+- **[PHASE_5_6d_PLAN.md](/home/tsafin/tarantool/PHASE_5_6d_PLAN.md)** - Next phase (Medium Batch 3) roadmap
+- **[VDBE_HANDLER_IMPLEMENTATION_GUIDE.md](/home/tsafin/tarantool/VDBE_HANDLER_IMPLEMENTATION_GUIDE.md)** - Step-by-step guide for implementing new handlers
+- **[PHASE_5_6c_SESSION_SUMMARY.md](/home/tsafin/tarantool/PHASE_5_6c_SESSION_SUMMARY.md)** - Current phase results and lessons learned
+- **[PHASE_5_6c_CODE_CHANGES.md](/home/tsafin/tarantool/PHASE_5_6c_CODE_CHANGES.md)** - Technical code changes and diffs
+- **[TODO.md](/home/tsafin/tarantool/TODO.md)** - Master project status and checklist

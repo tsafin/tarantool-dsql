@@ -100,12 +100,14 @@ Instead of converting all 63 inline opcodes at once:
 3. Make generated dispatcher the default
 4. Archive old code
 
-## Current Status
+## Current Status (Updated 2025-12-20)
 
 - **Phase 5.5**: ✓ Complete - Loop-based dispatcher skeleton works
-- **Phase 5.6a**: PENDING - Need to refactor inline code
-- **Phase 5.6b**: PENDING - Incremental integration strategy
-- **Phase 5.6c**: PENDING - Validation infrastructure in place
+- **Phase 5.6a**: ✓ COMPLETE - 6 simple inline opcodes extracted as handlers
+- **Phase 5.6b**: ✓ COMPLETE - 2 medium-complexity opcodes (OP_Close, OP_IsNull)
+- **Phase 5.6c**: ✓ COMPLETE - Helper extraction + 4 medium opcodes (12 total)
+- **Phase 5.6d**: IN PROGRESS - Remaining 31 medium opcodes using helper pattern
+- **Validation infrastructure**: ✓ Ready - Parallel validation testing available
 
 ## Files Affected
 
