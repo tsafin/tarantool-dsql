@@ -199,13 +199,21 @@ Immediate next actions:
    - ✓ Code compiles cleanly and box library builds successfully
    - ✓ Infrastructure ready for remaining opcode integration
 
-3. **Phase 5.6**: Expand dispatcher with remaining opcodes (IN PROGRESS)
-   - ✓ Identified challenge: inline code extracted from goto context doesn't work in while-loop
-   - ✓ Created PHASE_5_6_INLINE_CODE_STRATEGY.md documenting solution path
-   - Next: Refactor inline opcodes as handler wrapper functions
-   - Then: Incrementally add simple inline handlers (OP_Noop, OP_AddImm, etc.)
-   - Validate with parallel testing before integrating complex opcodes
-   - See: PHASE_5_6_INLINE_CODE_STRATEGY.md for detailed strategy
+3. **Phase 5.6**: Expand dispatcher with inline opcode handlers (IN PROGRESS)
+   - ✓ Phase 5.6a: Refactored 10 simple inline opcodes as handler functions (DONE - 2025-12-19)
+     - 6 simple handlers: OP_Noop, OP_Explain, OP_SkipLoad, OP_Expire, OP_NotNull, OP_Permutation
+     - 4 transaction handlers attempted but failed due to type/signature mismatches (reverted)
+   - ✓ Phase 5.6b: Refactored 2 medium-complexity inline opcodes (DONE - 2025-12-20)
+     - OP_Close: Close cursor (101 chars)
+     - OP_IsNull: Jump if register is NULL (103 chars)
+     - Identified blocker: 6 of 8 target opcodes require helper function extraction
+     - Total inline handlers: 8 opcodes integrated
+   - Next: Phase 5.6c - Extract helper functions to unblock medium opcode batch 2
+     - Extract `vdbe_prepare_null_out()` for OP_Sequence, OP_Decimal, and others
+     - Extract `memAboutToChange()` accessor for register modification opcodes
+     - Resolve OP_OpenSpace space_by_id integration with box/space.h
+     - After helper extraction: implement OP_Decimal, OP_Sequence, and remaining medium opcodes
+   - See: PHASE_5_6_INLINE_CODE_STRATEGY.md and PHASE_5_6b_SESSION_SUMMARY.md for details
 
 4. **Phase 5.7**: Run full test suite validation
    - Run test suite with generated dispatcher as default
