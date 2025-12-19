@@ -457,6 +457,58 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		pc++; continue;
 	}
 
+	case OP_Once: {
+		/* Execute code block at most once */
+		int handler_rc = vdbe_op_once_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc > 0) { pc = pOp->p2; }
+		else { pc++; }
+		continue;
+	}
+
+	case OP_IfNot: {
+		/* Jump if register value is false */
+		int handler_rc = vdbe_op_ifnot_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc > 0) { pc = pOp->p2; }
+		else { pc++; }
+		continue;
+	}
+
+	case OP_IfPos: {
+		/* Jump if positive and apply saturated decrement */
+		int handler_rc = vdbe_op_ifpos_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc > 0) { pc = pOp->p2; }
+		else { pc++; }
+		continue;
+	}
+
+	case OP_IfNotZero: {
+		/* Jump if non-zero and decrement */
+		int handler_rc = vdbe_op_ifnotzero_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc > 0) { pc = pOp->p2; }
+		else { pc++; }
+		continue;
+	}
+
+	case OP_DecrJumpZero: {
+		/* Decrement and jump if zero */
+		int handler_rc = vdbe_op_decrjumpzero_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc > 0) { pc = pOp->p2; }
+		else { pc++; }
+		continue;
+	}
+
+	case OP_NullRow: {
+		/* Mark cursor at null row and cleanup */
+		int handler_rc = vdbe_op_nullrow_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
 	/* Noop for unassigned opcodes */
 		default: {
 			pc++;
