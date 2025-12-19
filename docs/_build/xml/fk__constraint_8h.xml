@@ -1,0 +1,390 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="fk__constraint_8h" kind="file" language="C++">
+    <compoundname>fk_constraint.h</compoundname>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes refid="util_8h" local="yes">trivia/util.h</includes>
+    <includes refid="slab__arena_8h" local="yes">small/slab_arena.h</includes>
+    <includes refid="rlist_8h" local="yes">small/rlist.h</includes>
+    <includedby refid="alter_8cc" local="yes">/home/tsafin/tarantool/src/box/alter.cc</includedby>
+    <includedby refid="parse__def_8h" local="yes">/home/tsafin/tarantool/src/box/sql/parse_def.h</includedby>
+    <includedby refid="fk__constraint_8c" local="yes">/home/tsafin/tarantool/src/box/fk_constraint.c</includedby>
+    <includedby refid="build_8c" local="yes">/home/tsafin/tarantool/src/box/sql/build.c</includedby>
+    <includedby refid="sql_2fk__constraint_8c" local="yes">/home/tsafin/tarantool/src/box/sql/fk_constraint.c</includedby>
+    <includedby refid="pragma_8c" local="yes">/home/tsafin/tarantool/src/box/sql/pragma.c</includedby>
+    <includedby refid="vdbe_8c" local="yes">/home/tsafin/tarantool/src/box/sql/vdbe.c</includedby>
+    <includedby refid="sql_8c" local="yes">/home/tsafin/tarantool/src/box/sql.c</includedby>
+    <incdepgraph>
+      <node id="201">
+        <label>stdbool.h</label>
+      </node>
+      <node id="202">
+        <label>stdint.h</label>
+      </node>
+      <node id="200">
+        <label>/home/tsafin/tarantool/src/box/fk_constraint.h</label>
+        <link refid="fk__constraint_8h"/>
+        <childnode refid="201" relation="include">
+        </childnode>
+        <childnode refid="202" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structfield__link" prot="public">field_link</innerclass>
+    <innerclass refid="structfk__constraint__def" prot="public">fk_constraint_def</innerclass>
+    <innerclass refid="structfk__constraint" prot="public">fk_constraint</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="fk__constraint_8h_1a5ba1a80de61985664d553573818cbc4e" prot="public" static="no">
+        <name>fk_constraint_action</name>
+        <enumvalue id="fk__constraint_8h_1a5ba1a80de61985664d553573818cbc4ea6bf5b813baea767931259d60d51c40a9" prot="public">
+          <name>FKEY_NO_ACTION</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="fk__constraint_8h_1a5ba1a80de61985664d553573818cbc4ea7163537a22714929789c5ee65a820837" prot="public">
+          <name>FKEY_ACTION_SET_NULL</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="fk__constraint_8h_1a5ba1a80de61985664d553573818cbc4ea728c1f0c9d14e38867d03c47467af291" prot="public">
+          <name>FKEY_ACTION_SET_DEFAULT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="fk__constraint_8h_1a5ba1a80de61985664d553573818cbc4eab7cb2b9074b0db8b9935e47fa82d2191" prot="public">
+          <name>FKEY_ACTION_CASCADE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="fk__constraint_8h_1a5ba1a80de61985664d553573818cbc4ea8f104466c5d28ba4d747de65289b4867" prot="public">
+          <name>FKEY_ACTION_RESTRICT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="fk__constraint_8h_1a5ba1a80de61985664d553573818cbc4eae5e136ab15f2ad523aa694e874a99f1e" prot="public">
+          <name>fk_constraint_action_MAX</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/fk_constraint.h" line="45" column="1" bodyfile="/home/tsafin/tarantool/src/box/fk_constraint.h" bodystart="45" bodyend="52"/>
+      </memberdef>
+      <memberdef kind="enum" id="fk__constraint_8h_1a3af3f1dc00410a3bf512c8524d5b74d8" prot="public" static="no">
+        <name>fk_constraint_match</name>
+        <enumvalue id="fk__constraint_8h_1a3af3f1dc00410a3bf512c8524d5b74d8adfe522c997daceadc9fdde5988c85ce1" prot="public">
+          <name>FKEY_MATCH_SIMPLE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="fk__constraint_8h_1a3af3f1dc00410a3bf512c8524d5b74d8a99f63f377f2f84b7e2b3815e7e06c7ff" prot="public">
+          <name>FKEY_MATCH_PARTIAL</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="fk__constraint_8h_1a3af3f1dc00410a3bf512c8524d5b74d8af6389143d31c289a005833ca23833890" prot="public">
+          <name>FKEY_MATCH_FULL</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="fk__constraint_8h_1a3af3f1dc00410a3bf512c8524d5b74d8a631d13e31e0bb0d01e36e1404bd4bbbb" prot="public">
+          <name>fk_constraint_match_MAX</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/fk_constraint.h" line="54" column="1" bodyfile="/home/tsafin/tarantool/src/box/fk_constraint.h" bodystart="54" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="enum" id="fk__constraint_8h_1ac36f475ca5b446f4fde4c9b90bec77c8" prot="public" static="no">
+        <name>@12</name>
+        <enumvalue id="fk__constraint_8h_1ac36f475ca5b446f4fde4c9b90bec77c8a9a4bfbbf1a42c3009391e7ae0220952a" prot="public">
+          <name>FIELD_LINK_PARENT</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="fk__constraint_8h_1ac36f475ca5b446f4fde4c9b90bec77c8a24345b46d29fe7e54f8cde6fc26fca7e" prot="public">
+          <name>FIELD_LINK_CHILD</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/fk_constraint.h" line="61" column="1" bodyfile="/home/tsafin/tarantool/src/box/fk_constraint.h" bodystart="61" bodyend="64"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="fk__constraint_8h_1a4942eaf0499a387e0453ed9e0e1fc379" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* fk_constraint_action_strs[]</definition>
+        <argsstring>[]</argsstring>
+        <name>fk_constraint_action_strs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/fk_constraint.h" line="66" column="1" bodyfile="/home/tsafin/tarantool/src/box/fk_constraint.c" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="fk__constraint_8h_1a6af3a4d8fbc84df93afb7bc605c64c5e" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* fk_constraint_match_strs[]</definition>
+        <argsstring>[]</argsstring>
+        <name>fk_constraint_match_strs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/fk_constraint.h" line="68" column="1" bodyfile="/home/tsafin/tarantool/src/box/fk_constraint.c" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="fk__constraint_8h_1a7f2a5e1b031b79f0aef5bafeb1d8f276" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t fk_constraint_def_sizeof</definition>
+        <argsstring>(uint32_t link_count, uint32_t name_len, uint32_t *links_offset)</argsstring>
+        <name>fk_constraint_def_sizeof</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>link_count</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>name_len</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>links_offset</declname>
+        </param>
+        <briefdescription>
+<para>Alongside with struct <ref refid="structfk__constraint__def" kindref="compound">fk_constraint_def</ref> itself, we reserve memory for string containing its name and for array of links. </para>        </briefdescription>
+        <detaileddescription>
+<para>Memory layout: +-------------------------------<mdash/>+ &lt;- Allocated memory starts here <table rows="6" cols="1"><row>
+<entry thead="yes"><para>struct <ref refid="structfk__constraint__def" kindref="compound">fk_constraint_def</ref>  </para></entry></row>
+<row>
+<entry thead="no"><para>name + \0 </para></entry></row>
+<row>
+<entry thead="no"><para>-------------------------------<mdash/> </para></entry></row>
+<row>
+<entry thead="no"><para>memory align padding </para></entry></row>
+<row>
+<entry thead="no"><para>-------------------------------<mdash/> </para></entry></row>
+<row>
+<entry thead="no"><para>links </para></entry></row>
+</table>
++-------------------------------<mdash/>+ </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/fk_constraint.h" line="135" column="1" bodyfile="/home/tsafin/tarantool/src/box/fk_constraint.h" bodystart="135" bodyend="141"/>
+      </memberdef>
+      <memberdef kind="function" id="fk__constraint_8h_1a986a84b24a377c8b97a319e2ac1bfc7d" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool fk_constraint_is_self_referenced</definition>
+        <argsstring>(const struct fk_constraint_def *fk_c)</argsstring>
+        <name>fk_constraint_is_self_referenced</name>
+        <param>
+          <type>const struct <ref refid="structfk__constraint__def" kindref="compound">fk_constraint_def</ref> *</type>
+          <declname>fk_c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/fk_constraint.h" line="144" column="1" bodyfile="/home/tsafin/tarantool/src/box/fk_constraint.h" bodystart="144" bodyend="147"/>
+      </memberdef>
+      <memberdef kind="function" id="fk__constraint_8h_1a63be652a5e9f43bcf3de082e75da8171" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void fk_constraint_delete</definition>
+        <argsstring>(struct fk_constraint *fkey)</argsstring>
+        <name>fk_constraint_delete</name>
+        <param>
+          <type>struct <ref refid="structfk__constraint" kindref="compound">fk_constraint</ref> *</type>
+          <declname>fkey</declname>
+        </param>
+        <briefdescription>
+<para>Release memory for foreign key and its triggers, if any. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/fk_constraint.h" line="151" column="1" bodyfile="/home/tsafin/tarantool/src/box/fk_constraint.c" bodystart="50" bodyend="56"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_BOX_FK_CONSTRAINT_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_BOX_FK_CONSTRAINT_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2018,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trivia/util.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;small/slab_arena.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;small/rlist.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsql" kindref="compound">sql</ref>;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>fk_constraint_action<sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FKEY_NO_ACTION<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FKEY_ACTION_SET_NULL,</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FKEY_ACTION_SET_DEFAULT,</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FKEY_ACTION_CASCADE,</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FKEY_ACTION_RESTRICT,</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fk_constraint_action_MAX</highlight></codeline>
+<codeline lineno="52"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>fk_constraint_match<sp/>{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FKEY_MATCH_SIMPLE<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FKEY_MATCH_PARTIAL,</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FKEY_MATCH_FULL,</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fk_constraint_match_MAX</highlight></codeline>
+<codeline lineno="59"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FIELD_LINK_PARENT<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FIELD_LINK_CHILD<sp/>=<sp/>1,</highlight></codeline>
+<codeline lineno="64"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*fk_constraint_action_strs[];</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*fk_constraint_match_strs[];</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71" refid="structfield__link" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfield__link" kindref="compound">field_link</ref><sp/>{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>parent_field;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>child_field;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>fields[2];</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="83"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86" refid="structfk__constraint__def" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfk__constraint__def" kindref="compound">fk_constraint_def</ref><sp/>{</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>child_id;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>parent_id;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>field_count;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_deferred;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>fk_constraint_match<sp/>match;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>fk_constraint_action<sp/>on_delete;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>fk_constraint_action<sp/>on_update;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfield__link" kindref="compound">field_link</ref><sp/>*links;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>name[0];</highlight></codeline>
+<codeline lineno="105"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108" refid="structfk__constraint" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfk__constraint" kindref="compound">fk_constraint</ref><sp/>{</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfk__constraint__def" kindref="compound">fk_constraint_def</ref><sp/>*def;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>index_id;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsql__trigger" kindref="compound">sql_trigger</ref><sp/>*on_delete_trigger;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsql__trigger" kindref="compound">sql_trigger</ref><sp/>*on_update_trigger;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>in_parent_space;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>in_child_space;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal">fk_constraint_def_sizeof(uint32_t<sp/>link_count,<sp/>uint32_t<sp/>name_len,</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>*links_offset)</highlight></codeline>
+<codeline lineno="137"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*links_offset<sp/>=<sp/>small_align(</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfk__constraint__def" kindref="compound">fk_constraint_def</ref>)<sp/>+</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>name_len<sp/>+<sp/>1,<sp/></highlight><highlight class="keyword">alignof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfield__link" kindref="compound">field_link</ref>));</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>*links_offset<sp/>+<sp/>link_count<sp/>*<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfield__link" kindref="compound">field_link</ref>);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal">fk_constraint_is_self_referenced(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfk__constraint__def" kindref="compound">fk_constraint_def</ref><sp/>*fk_c)</highlight></codeline>
+<codeline lineno="145"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>fk_c-&gt;<ref refid="structfk__constraint__def_1abd717d1851820c0c826f78fbf3ae87fe" kindref="member">child_id</ref><sp/>==<sp/>fk_c-&gt;<ref refid="structfk__constraint__def_1ae9b9f7450b435dd57aaf7ae1fc77a196" kindref="member">parent_id</ref>;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal">fk_constraint_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfk__constraint" kindref="compound">fk_constraint</ref><sp/>*fkey);</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>__cplusplus<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_BOX_FK_CONSTRAINT_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/fk_constraint.h"/>
+  </compounddef>
+</doxygen>

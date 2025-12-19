@@ -1,0 +1,13 @@
+#!/bin/sh -e
+
+libdir="/home/tsafin/tarantool/build_test/build/nghttp2/work/lib"
+if [ -d "$libdir/.libs" ]; then
+    libdir="$libdir/.libs"
+fi
+
+export CGO_CFLAGS="-I/home/tsafin/tarantool/third_party/nghttp2/lib/includes -I/home/tsafin/tarantool/build_test/build/nghttp2/work/lib/includes "
+export CGO_CPPFLAGS=""
+export CGO_LDFLAGS="-L$libdir "
+export LD_LIBRARY_PATH="$libdir"
+export GODEBUG=cgocheck=0
+"$@"

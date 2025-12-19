@@ -1,0 +1,1207 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structwal__writer" kind="struct" language="C++" prot="public">
+    <compoundname>wal_writer</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structwal__writer_1a9207eada99f1f2493c911845f3a689fb" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structjournal" kindref="compound">journal</ref></type>
+        <definition>struct journal wal_writer::base</definition>
+        <argsstring></argsstring>
+        <name>base</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="1526" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__writer_1ac1de92870eca2fb2485c1cd18e7ff427" prot="public" static="no" mutable="no">
+        <type>wal_on_garbage_collection_f</type>
+        <definition>wal_on_garbage_collection_f wal_writer::on_garbage_collection</definition>
+        <argsstring></argsstring>
+        <name>on_garbage_collection</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="87" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__writer_1ac6cb6c310dd191a06cd14cc48d76fa30" prot="public" static="no" mutable="no">
+        <type>wal_on_checkpoint_threshold_f</type>
+        <definition>wal_on_checkpoint_threshold_f wal_writer::on_checkpoint_threshold</definition>
+        <argsstring></argsstring>
+        <name>on_checkpoint_threshold</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="88" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__writer_1a44f30b12ddb06b0834768e57b127fe70" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structstailq" kindref="compound">stailq</ref></type>
+        <definition>struct stailq wal_writer::rollback</definition>
+        <argsstring></argsstring>
+        <name>rollback</name>
+        <briefdescription>
+<para>The rollback queue. </para>        </briefdescription>
+        <detaileddescription>
+<para>An accumulator for all requests that need to be rolled back. Also acts as a valve in wal_write() so that new requests never enter the wal-tx bus and are rolled back &quot;on arrival&quot;. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="88" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__writer_1a7c84a5d4db5f7b0ceb59e6aa7a334d6a" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcpipe" kindref="compound">cpipe</ref></type>
+        <definition>struct cpipe wal_writer::wal_pipe</definition>
+        <argsstring></argsstring>
+        <name>wal_pipe</name>
+        <briefdescription>
+<para>A pipe from &apos;tx&apos; thread to &apos;wal&apos;. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="88" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__writer_1aca6f0ecead7163708803fdfe0ac88cea" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmempool" kindref="compound">mempool</ref></type>
+        <definition>struct mempool wal_writer::msg_pool</definition>
+        <argsstring></argsstring>
+        <name>msg_pool</name>
+        <briefdescription>
+<para>A memory pool for messages. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="88" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__writer_1a3e7b96fc7e60a177206ac1556e39dc46" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structjournal__entry" kindref="compound">journal_entry</ref> *</type>
+        <definition>struct journal_entry* wal_writer::last_entry</definition>
+        <argsstring></argsstring>
+        <name>last_entry</name>
+        <briefdescription>
+<para>A last journal entry submitted to write. </para>        </briefdescription>
+        <detaileddescription>
+<para>This is a &apos;rollback border&apos;. When rollback starts, all transactions keep being rolled back until this one is rolled back too. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="106" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__writer_1abe9b9b54243581530735f166c0b18cf2" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t wal_writer::wal_max_size</definition>
+        <argsstring></argsstring>
+        <name>wal_max_size</name>
+        <briefdescription>
+<para>A setting from instance configuration - wal_max_size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="109" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__writer_1a37ee612872d89404c47ee24476b16711" prot="public" static="no" mutable="no">
+        <type>enum wal_mode</type>
+        <definition>enum wal_mode wal_writer::wal_mode</definition>
+        <argsstring></argsstring>
+        <name>wal_mode</name>
+        <briefdescription>
+<para>Another one - wal_mode. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="109" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__writer_1aece4ae26fb7d85952717091ddda8dd31" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structxdir" kindref="compound">xdir</ref></type>
+        <definition>struct xdir wal_writer::wal_dir</definition>
+        <argsstring></argsstring>
+        <name>wal_dir</name>
+        <briefdescription>
+<para>wal_dir, from the configuration file. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="109" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__writer_1a4c37ff3190b659b092e6c753e53816fe" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcord" kindref="compound">cord</ref></type>
+        <definition>struct cord wal_writer::cord</definition>
+        <argsstring></argsstring>
+        <name>cord</name>
+        <briefdescription>
+<para>&apos;wal&apos; thread doing the writes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="109" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__writer_1a8f7cdbe8797a17c84b86fe9cdbc04517" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcpipe" kindref="compound">cpipe</ref></type>
+        <definition>struct cpipe wal_writer::tx_prio_pipe</definition>
+        <argsstring></argsstring>
+        <name>tx_prio_pipe</name>
+        <briefdescription>
+<para>Return pipe from &apos;wal&apos; to tx&apos;. </para>        </briefdescription>
+        <detaileddescription>
+<para>This is a priority pipe and DOES NOT support yield. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="109" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__writer_1a23e40926e937d0866f1bc1d7aca4fa5f" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvclock" kindref="compound">vclock</ref></type>
+        <definition>struct vclock wal_writer::vclock</definition>
+        <argsstring></argsstring>
+        <name>vclock</name>
+        <briefdescription>
+<para>The vector clock of the WAL writer. </para>        </briefdescription>
+        <detaileddescription>
+<para>It&apos;s a bit behind the vector clock of the transaction thread, since it &quot;follows&quot; the tx vector clock. By &quot;following&quot; we mean this: whenever a transaction is started in &apos;tx&apos; thread, it&apos;s assigned a tentative LSN. If the transaction is rolled back, this LSN is abandoned. Otherwise, after the transaction is written to the log with this LSN, WAL writer vclock is advanced with this LSN and LSN becomes &quot;real&quot;. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="109" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__writer_1a7c25ae060d8123bce4909f0e5b25f025" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvclock" kindref="compound">vclock</ref></type>
+        <definition>struct vclock wal_writer::checkpoint_vclock</definition>
+        <argsstring></argsstring>
+        <name>checkpoint_vclock</name>
+        <briefdescription>
+<para>VClock of the most recent successfully created checkpoint. </para>        </briefdescription>
+        <detaileddescription>
+<para>The WAL writer must not delete WAL files that are needed to recover from it even if it is running out of disk space. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="109" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="138" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__writer_1a3d13faebb58d22bf9df8012f2824ddaf" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t wal_writer::checkpoint_wal_size</definition>
+        <argsstring></argsstring>
+        <name>checkpoint_wal_size</name>
+        <briefdescription>
+<para>Total size of WAL files written since the last checkpoint. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="140" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="140" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__writer_1a105b83824cdb6f8086c3bf07fff47dda" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t wal_writer::checkpoint_threshold</definition>
+        <argsstring></argsstring>
+        <name>checkpoint_threshold</name>
+        <briefdescription>
+<para>Checkpoint threshold: when the total size of WAL files written since the last checkpoint exceeds the value of this variable, the WAL thread will notify TX that it&apos;s time to trigger checkpointing. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="147" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="147" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__writer_1af901bb8ac27341ce42cccf97d9ccb29e" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool wal_writer::checkpoint_triggered</definition>
+        <argsstring></argsstring>
+        <name>checkpoint_triggered</name>
+        <briefdescription>
+<para>This flag is set if the WAL thread has notified TX that the checkpoint threshold has been exceeded. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is cleared on checkpoint completion. Needed in order not to invoke the TX callback over and over again while checkpointing is in progress. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="155" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="155" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__writer_1a3a50ad348649ed6f8c0d701a3c06170c" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structxlog" kindref="compound">xlog</ref></type>
+        <definition>struct xlog wal_writer::current_wal</definition>
+        <argsstring></argsstring>
+        <name>current_wal</name>
+        <briefdescription>
+<para>The current WAL file. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="155" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="157" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__writer_1ab41f8032cf89e49335ad660d307e013f" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool wal_writer::is_in_rollback</definition>
+        <argsstring></argsstring>
+        <name>is_in_rollback</name>
+        <briefdescription>
+<para>Used if there was a WAL I/O error and we need to keep adding all incoming requests to the rollback queue, until the tx thread has recovered. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="163" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="163" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__writer_1a50fd396b7c87df145d762a37a6760170" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist wal_writer::watchers</definition>
+        <argsstring></argsstring>
+        <name>watchers</name>
+        <briefdescription>
+<para>WAL watchers, i.e. </para>        </briefdescription>
+        <detaileddescription>
+<para>threads that should be alerted whenever there are new records appended to the journal. Used for replication relays. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="163" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="169" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="16355">
+        <label>serializer_opts</label>
+        <link refid="structserializer__opts"/>
+      </node>
+      <node id="16279">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="16347">
+        <label>json_tree</label>
+        <link refid="structjson__tree"/>
+        <childnode refid="16348" relation="usage">
+          <edgelabel>root</edgelabel>
+        </childnode>
+      </node>
+      <node id="16320">
+        <label>ExprList</label>
+        <link refid="structExprList"/>
+        <childnode refid="16321" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="16331">
+        <label>index_stat</label>
+        <link refid="structindex__stat"/>
+        <childnode refid="16332" relation="usage">
+          <edgelabel>samples</edgelabel>
+        </childnode>
+      </node>
+      <node id="16344">
+        <label>iterator</label>
+        <link refid="structiterator"/>
+        <childnode refid="16341" relation="usage">
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="16290">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="16290" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="16352">
+        <label>region</label>
+        <link refid="structregion"/>
+        <childnode refid="16278" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="16281" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="16335">
+        <label>key_part</label>
+        <link refid="structkey__part"/>
+        <childnode refid="16336" relation="usage">
+          <edgelabel>coll</edgelabel>
+        </childnode>
+      </node>
+      <node id="16274">
+        <label>mempool</label>
+        <link refid="structmempool"/>
+        <childnode refid="16275" relation="usage">
+          <edgelabel>spare</edgelabel>
+          <edgelabel>first_hot_slab</edgelabel>
+        </childnode>
+        <childnode refid="16278" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="16280" relation="usage">
+          <edgelabel>link</edgelabel>
+          <edgelabel>delayed</edgelabel>
+        </childnode>
+        <childnode refid="16276" relation="usage">
+          <edgelabel>cold_slabs</edgelabel>
+        </childnode>
+        <childnode refid="16281" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="16332">
+        <label>index_sample</label>
+        <link refid="structindex__sample"/>
+      </node>
+      <node id="16356">
+        <label>session_vtab</label>
+        <link refid="structsession__vtab"/>
+      </node>
+      <node id="16339">
+        <label>TriggerStep</label>
+        <link refid="structTriggerStep"/>
+        <childnode refid="16339" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pLast</edgelabel>
+        </childnode>
+        <childnode refid="16310" relation="usage">
+          <edgelabel>pWhere</edgelabel>
+        </childnode>
+        <childnode refid="16327" relation="usage">
+          <edgelabel>pIdList</edgelabel>
+        </childnode>
+        <childnode refid="16322" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="16320" relation="usage">
+          <edgelabel>pExprList</edgelabel>
+        </childnode>
+      </node>
+      <node id="16358">
+        <label>diag</label>
+        <link refid="structdiag"/>
+      </node>
+      <node id="16348">
+        <label>json_token</label>
+        <link refid="structjson__token"/>
+        <childnode refid="16348" relation="usage">
+          <edgelabel>parent</edgelabel>
+          <edgelabel>children</edgelabel>
+        </childnode>
+      </node>
+      <node id="16295">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="16290" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="16273">
+        <label>wal_writer</label>
+        <link refid="structwal__writer"/>
+        <childnode refid="16274" relation="usage">
+          <edgelabel>msg_pool</edgelabel>
+        </childnode>
+        <childnode refid="16285" relation="usage">
+          <edgelabel>wal_dir</edgelabel>
+        </childnode>
+        <childnode refid="16288" relation="usage">
+          <edgelabel>checkpoint_vclock</edgelabel>
+          <edgelabel>vclock</edgelabel>
+          <edgelabel>on_garbage_collection</edgelabel>
+        </childnode>
+        <childnode refid="16276" relation="usage">
+          <edgelabel>watchers</edgelabel>
+        </childnode>
+        <childnode refid="16289" relation="usage">
+          <edgelabel>last_entry</edgelabel>
+        </childnode>
+        <childnode refid="16292" relation="usage">
+          <edgelabel>wal_pipe</edgelabel>
+          <edgelabel>tx_prio_pipe</edgelabel>
+        </childnode>
+        <childnode refid="16296" relation="usage">
+          <edgelabel>current_wal</edgelabel>
+        </childnode>
+        <childnode refid="16295" relation="usage">
+          <edgelabel>rollback</edgelabel>
+        </childnode>
+        <childnode refid="16299" relation="usage">
+          <edgelabel>base</edgelabel>
+        </childnode>
+        <childnode refid="16300" relation="usage">
+          <edgelabel>cord</edgelabel>
+        </childnode>
+      </node>
+      <node id="16315">
+        <label>access</label>
+        <link refid="structaccess"/>
+      </node>
+      <node id="16285">
+        <label>xdir</label>
+        <link refid="structxdir"/>
+        <childnode refid="16286" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+        <childnode refid="16287" relation="usage">
+          <edgelabel>instance_uuid</edgelabel>
+        </childnode>
+      </node>
+      <node id="16326">
+        <label>SrcList::SrcList_item</label>
+        <link refid="structSrcList_1_1SrcList__item"/>
+        <childnode refid="16306" relation="usage">
+          <edgelabel>space</edgelabel>
+        </childnode>
+        <childnode refid="16310" relation="usage">
+          <edgelabel>pOn</edgelabel>
+        </childnode>
+        <childnode refid="16327" relation="usage">
+          <edgelabel>pUsing</edgelabel>
+        </childnode>
+        <childnode refid="16329" relation="usage">
+          <edgelabel>pIBIndex</edgelabel>
+        </childnode>
+        <childnode refid="16322" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="16320" relation="usage">
+          <edgelabel>pFuncArg</edgelabel>
+        </childnode>
+      </node>
+      <node id="16324">
+        <label>With::Cte</label>
+        <link refid="structWith_1_1Cte"/>
+        <childnode refid="16322" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="16320" relation="usage">
+          <edgelabel>pCols</edgelabel>
+        </childnode>
+      </node>
+      <node id="16322">
+        <label>Select</label>
+        <link refid="structSelect"/>
+        <childnode refid="16310" relation="usage">
+          <edgelabel>pOffset</edgelabel>
+          <edgelabel>pHaving</edgelabel>
+          <edgelabel>pWhere</edgelabel>
+          <edgelabel>pLimit</edgelabel>
+        </childnode>
+        <childnode refid="16323" relation="usage">
+          <edgelabel>pWith</edgelabel>
+        </childnode>
+        <childnode refid="16322" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pPrior</edgelabel>
+        </childnode>
+        <childnode refid="16325" relation="usage">
+          <edgelabel>pSrc</edgelabel>
+        </childnode>
+        <childnode refid="16320" relation="usage">
+          <edgelabel>pEList</edgelabel>
+          <edgelabel>pOrderBy</edgelabel>
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="16319">
+        <label>credentials</label>
+        <link refid="structcredentials"/>
+        <childnode refid="16276" relation="usage">
+          <edgelabel>in_user</edgelabel>
+        </childnode>
+      </node>
+      <node id="16305">
+        <label>engine_vtab</label>
+        <link refid="structengine__vtab"/>
+        <childnode refid="16306" relation="usage">
+          <edgelabel>create_space</edgelabel>
+        </childnode>
+      </node>
+      <node id="16306">
+        <label>space</label>
+        <link refid="structspace"/>
+        <childnode refid="16307" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="16304" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="16338" relation="usage">
+          <edgelabel>sql_triggers</edgelabel>
+        </childnode>
+        <childnode refid="16315" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="16340" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="16345" relation="usage">
+          <edgelabel>format</edgelabel>
+        </childnode>
+        <childnode refid="16349" relation="usage">
+          <edgelabel>ck_constraint_trigger</edgelabel>
+        </childnode>
+        <childnode refid="16276" relation="usage">
+          <edgelabel>before_replace</edgelabel>
+          <edgelabel>on_replace</edgelabel>
+          <edgelabel>child_fk_constraint</edgelabel>
+          <edgelabel>memtx_stories</edgelabel>
+          <edgelabel>parent_fk_constraint</edgelabel>
+          <edgelabel>ck_constraint</edgelabel>
+        </childnode>
+        <childnode refid="16350" relation="usage">
+          <edgelabel>sequence</edgelabel>
+        </childnode>
+        <childnode refid="16341" relation="usage">
+          <edgelabel>index_map</edgelabel>
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="16292">
+        <label>cpipe</label>
+        <link refid="structcpipe"/>
+        <childnode refid="16276" relation="usage">
+          <edgelabel>on_flush</edgelabel>
+        </childnode>
+        <childnode refid="16293" relation="usage">
+          <edgelabel>endpoint</edgelabel>
+        </childnode>
+        <childnode refid="16295" relation="usage">
+          <edgelabel>input</edgelabel>
+        </childnode>
+      </node>
+      <node id="16357">
+        <label>clock_stat</label>
+        <link refid="structclock__stat"/>
+      </node>
+      <node id="16296">
+        <label>xlog</label>
+        <link refid="structxlog"/>
+        <childnode refid="16286" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+        <childnode refid="16297" relation="usage">
+          <edgelabel>obuf</edgelabel>
+          <edgelabel>zbuf</edgelabel>
+        </childnode>
+        <childnode refid="16298" relation="usage">
+          <edgelabel>meta</edgelabel>
+        </childnode>
+      </node>
+      <node id="16312">
+        <label>AggInfo::AggInfo_col</label>
+        <link refid="structAggInfo_1_1AggInfo__col"/>
+        <childnode refid="16307" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="16310" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="16342">
+        <label>index_vtab</label>
+        <link refid="structindex__vtab"/>
+        <childnode refid="16343" relation="usage">
+          <edgelabel>create_snapshot_iterator</edgelabel>
+        </childnode>
+        <childnode refid="16344" relation="usage">
+          <edgelabel>create_iterator</edgelabel>
+        </childnode>
+      </node>
+      <node id="16297">
+        <label>obuf</label>
+        <link refid="structobuf"/>
+        <childnode refid="16281" relation="usage">
+          <edgelabel>slabc</edgelabel>
+        </childnode>
+      </node>
+      <node id="16308">
+        <label>tuple_dictionary</label>
+        <link refid="structtuple__dictionary"/>
+      </node>
+      <node id="16310">
+        <label>Expr</label>
+        <link refid="structExpr"/>
+        <childnode refid="16307" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="16311" relation="usage">
+          <edgelabel>pAggInfo</edgelabel>
+        </childnode>
+        <childnode refid="16310" relation="usage">
+          <edgelabel>pRight</edgelabel>
+          <edgelabel>pLeft</edgelabel>
+        </childnode>
+        <childnode refid="16322" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="16320" relation="usage">
+          <edgelabel>pList</edgelabel>
+        </childnode>
+      </node>
+      <node id="16303">
+        <label>txn</label>
+        <link refid="structtxn"/>
+        <childnode refid="16304" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="16290" relation="usage">
+          <edgelabel>in_txn_cache</edgelabel>
+          <edgelabel>sub_stmt_begin</edgelabel>
+        </childnode>
+        <childnode refid="16352" relation="usage">
+          <edgelabel>region</edgelabel>
+        </childnode>
+        <childnode refid="16302" relation="usage">
+          <edgelabel>fiber</edgelabel>
+        </childnode>
+        <childnode refid="16349" relation="usage">
+          <edgelabel>fiber_on_stop</edgelabel>
+          <edgelabel>fiber_on_yield</edgelabel>
+        </childnode>
+        <childnode refid="16276" relation="usage">
+          <edgelabel>on_wal_write</edgelabel>
+          <edgelabel>read_set</edgelabel>
+          <edgelabel>conflict_list</edgelabel>
+          <edgelabel>in_read_view_txs</edgelabel>
+          <edgelabel>savepoints</edgelabel>
+          <edgelabel>conflicted_by_list</edgelabel>
+        </childnode>
+        <childnode refid="16295" relation="usage">
+          <edgelabel>stmts</edgelabel>
+        </childnode>
+      </node>
+      <node id="16311">
+        <label>AggInfo</label>
+        <link refid="structAggInfo"/>
+        <childnode refid="16312" relation="usage">
+          <edgelabel>aCol</edgelabel>
+        </childnode>
+        <childnode refid="16313" relation="usage">
+          <edgelabel>aFunc</edgelabel>
+        </childnode>
+        <childnode refid="16320" relation="usage">
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="16276">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="16276" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="16343">
+        <label>snapshot_iterator</label>
+        <link refid="structsnapshot__iterator"/>
+      </node>
+      <node id="16278">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="16279" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="16276" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="16325">
+        <label>SrcList</label>
+        <link refid="structSrcList"/>
+        <childnode refid="16326" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="16360">
+        <label>ipc_msg</label>
+        <link refid="structipc__msg"/>
+      </node>
+      <node id="16289">
+        <label>journal_entry</label>
+        <link refid="structjournal__entry"/>
+        <childnode refid="16290" relation="usage">
+          <edgelabel>fifo</edgelabel>
+        </childnode>
+        <childnode refid="16289" relation="usage">
+          <edgelabel>write_async_cb</edgelabel>
+        </childnode>
+        <childnode refid="16291" relation="usage">
+          <edgelabel>rows</edgelabel>
+        </childnode>
+      </node>
+      <node id="16351">
+        <label>sequence_def</label>
+        <link refid="structsequence__def"/>
+      </node>
+      <node id="16327">
+        <label>IdList</label>
+        <link refid="structIdList"/>
+        <childnode refid="16328" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="16341">
+        <label>index</label>
+        <link refid="structindex"/>
+        <childnode refid="16304" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="16342" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="16329" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="16350">
+        <label>sequence</label>
+        <link refid="structsequence"/>
+        <childnode refid="16315" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="16351" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="16309">
+        <label>field_def</label>
+        <link refid="structfield__def"/>
+        <childnode refid="16310" relation="usage">
+          <edgelabel>default_value_expr</edgelabel>
+        </childnode>
+      </node>
+      <node id="16333">
+        <label>key_def</label>
+        <link refid="structkey__def"/>
+        <childnode refid="16334" relation="usage">
+          <edgelabel>tuple_hash</edgelabel>
+          <edgelabel>tuple_compare_with_key</edgelabel>
+          <edgelabel>tuple_compare</edgelabel>
+          <edgelabel>tuple_hint</edgelabel>
+          <edgelabel>tuple_extract_key</edgelabel>
+        </childnode>
+        <childnode refid="16333" relation="usage">
+          <edgelabel>key_hash</edgelabel>
+          <edgelabel>tuple_extract_key_raw</edgelabel>
+          <edgelabel>key_hint</edgelabel>
+        </childnode>
+        <childnode refid="16314" relation="usage">
+          <edgelabel>func_index_func</edgelabel>
+        </childnode>
+        <childnode refid="16335" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="16291">
+        <label>xrow_header</label>
+        <link refid="structxrow__header"/>
+      </node>
+      <node id="16349">
+        <label>trigger</label>
+        <link refid="structtrigger"/>
+        <childnode refid="16349" relation="usage">
+          <edgelabel>run</edgelabel>
+          <edgelabel>destroy</edgelabel>
+        </childnode>
+        <childnode refid="16276" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="16334">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="16283">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="16329">
+        <label>index_def</label>
+        <link refid="structindex__def"/>
+        <childnode refid="16330" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+        <childnode refid="16333" relation="usage">
+          <edgelabel>key_def</edgelabel>
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="16276" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="16337">
+        <label>space_opts</label>
+        <link refid="structspace__opts"/>
+      </node>
+      <node id="16275">
+        <label>mslab</label>
+        <link refid="structmslab"/>
+        <childnode refid="16276" relation="usage">
+          <edgelabel>next_in_cold</edgelabel>
+        </childnode>
+        <childnode refid="16277" relation="usage">
+          <edgelabel>slab</edgelabel>
+        </childnode>
+      </node>
+      <node id="16298">
+        <label>xlog_meta</label>
+        <link refid="structxlog__meta"/>
+        <childnode refid="16287" relation="usage">
+          <edgelabel>instance_uuid</edgelabel>
+        </childnode>
+        <childnode refid="16288" relation="usage">
+          <edgelabel>vclock</edgelabel>
+          <edgelabel>prev_vclock</edgelabel>
+        </childnode>
+      </node>
+      <node id="16314">
+        <label>func</label>
+        <link refid="structfunc"/>
+        <childnode refid="16315" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="16316" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="16317" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="16319" relation="usage">
+          <edgelabel>owner_credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="16316">
+        <label>func_vtab</label>
+        <link refid="structfunc__vtab"/>
+      </node>
+      <node id="16338">
+        <label>sql_trigger</label>
+        <link refid="structsql__trigger"/>
+        <childnode refid="16339" relation="usage">
+          <edgelabel>step_list</edgelabel>
+        </childnode>
+        <childnode refid="16310" relation="usage">
+          <edgelabel>pWhen</edgelabel>
+        </childnode>
+        <childnode refid="16338" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="16327" relation="usage">
+          <edgelabel>pColumns</edgelabel>
+        </childnode>
+      </node>
+      <node id="16284">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="16282">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="16283" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="16284" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="16318">
+        <label>func_opts</label>
+        <link refid="structfunc__opts"/>
+      </node>
+      <node id="16286">
+        <label>xlog_opts</label>
+        <link refid="structxlog__opts"/>
+      </node>
+      <node id="16281">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="16278" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="16282" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="16346">
+        <label>tuple_format_vtab</label>
+        <link refid="structtuple__format__vtab"/>
+        <childnode refid="16334" relation="usage">
+          <edgelabel>tuple_new</edgelabel>
+        </childnode>
+      </node>
+      <node id="16345">
+        <label>tuple_format</label>
+        <link refid="structtuple__format"/>
+        <childnode refid="16308" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="16346" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="16347" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+      </node>
+      <node id="16317">
+        <label>func_def</label>
+        <link refid="structfunc__def"/>
+        <childnode refid="16318" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="16323">
+        <label>With</label>
+        <link refid="structWith"/>
+        <childnode refid="16324" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+        <childnode refid="16323" relation="usage">
+          <edgelabel>pOuter</edgelabel>
+        </childnode>
+      </node>
+      <node id="16288">
+        <label>vclock</label>
+        <link refid="structvclock"/>
+      </node>
+      <node id="16307">
+        <label>space_def</label>
+        <link refid="structspace__def"/>
+        <childnode refid="16308" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="16309" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+        <childnode refid="16337" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="16304">
+        <label>engine</label>
+        <link refid="structengine"/>
+        <childnode refid="16305" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="16276" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="16280">
+        <label>lifo</label>
+        <link refid="structlifo"/>
+      </node>
+      <node id="16294">
+        <label>fiber_cond</label>
+        <link refid="structfiber__cond"/>
+        <childnode refid="16276" relation="usage">
+          <edgelabel>waiters</edgelabel>
+        </childnode>
+      </node>
+      <node id="16301">
+        <label>cpu_stat</label>
+        <link refid="structcpu__stat"/>
+      </node>
+      <node id="16287">
+        <label>tt_uuid</label>
+        <link refid="structtt__uuid"/>
+      </node>
+      <node id="16328">
+        <label>IdList::IdList_item</label>
+        <link refid="structIdList_1_1IdList__item"/>
+      </node>
+      <node id="16359">
+        <label>ipc_wait_pad</label>
+        <link refid="structipc__wait__pad"/>
+        <childnode refid="16360" relation="usage">
+          <edgelabel>msg</edgelabel>
+        </childnode>
+      </node>
+      <node id="16336">
+        <label>coll</label>
+        <link refid="structcoll"/>
+        <childnode refid="16336" relation="usage">
+          <edgelabel>cmp</edgelabel>
+          <edgelabel>hint</edgelabel>
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+      <node id="16302">
+        <label>fiber</label>
+        <link refid="structfiber"/>
+        <childnode refid="16303" relation="usage">
+          <edgelabel>txn</edgelabel>
+        </childnode>
+        <childnode refid="16352" relation="usage">
+          <edgelabel>gc</edgelabel>
+        </childnode>
+        <childnode refid="16302" relation="usage">
+          <edgelabel>caller</edgelabel>
+        </childnode>
+        <childnode refid="16319" relation="usage">
+          <edgelabel>credentials</edgelabel>
+        </childnode>
+        <childnode refid="16353" relation="usage">
+          <edgelabel>session</edgelabel>
+        </childnode>
+        <childnode refid="16357" relation="usage">
+          <edgelabel>clock_stat</edgelabel>
+        </childnode>
+        <childnode refid="16276" relation="usage">
+          <edgelabel>wake</edgelabel>
+          <edgelabel>on_stop</edgelabel>
+          <edgelabel>on_yield</edgelabel>
+          <edgelabel>link</edgelabel>
+          <edgelabel>state</edgelabel>
+        </childnode>
+        <childnode refid="16358" relation="usage">
+          <edgelabel>diag</edgelabel>
+        </childnode>
+        <childnode refid="16277" relation="usage">
+          <edgelabel>stack_slab</edgelabel>
+        </childnode>
+        <childnode refid="16359" relation="usage">
+          <edgelabel>wait_pad</edgelabel>
+        </childnode>
+      </node>
+      <node id="16277">
+        <label>slab</label>
+        <link refid="structslab"/>
+        <childnode refid="16276" relation="usage">
+          <edgelabel>next_in_cache</edgelabel>
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+      <node id="16299">
+        <label>journal</label>
+        <link refid="structjournal"/>
+      </node>
+      <node id="16354">
+        <label>session_meta</label>
+        <link refid="structsession__meta"/>
+        <childnode refid="16355" relation="usage">
+          <edgelabel>serializer_opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="16330">
+        <label>index_opts</label>
+        <link refid="structindex__opts"/>
+        <childnode refid="16331" relation="usage">
+          <edgelabel>stat</edgelabel>
+        </childnode>
+      </node>
+      <node id="16353">
+        <label>session</label>
+        <link refid="structsession"/>
+        <childnode refid="16354" relation="usage">
+          <edgelabel>meta</edgelabel>
+        </childnode>
+        <childnode refid="16356" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="16349" relation="usage">
+          <edgelabel>fiber_on_stop</edgelabel>
+        </childnode>
+        <childnode refid="16319" relation="usage">
+          <edgelabel>credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="16300">
+        <label>cord</label>
+        <link refid="structcord"/>
+        <childnode refid="16274" relation="usage">
+          <edgelabel>fiber_mempool</edgelabel>
+        </childnode>
+        <childnode refid="16301" relation="usage">
+          <edgelabel>cpu_stat</edgelabel>
+        </childnode>
+        <childnode refid="16302" relation="usage">
+          <edgelabel>sched</edgelabel>
+          <edgelabel>fiber</edgelabel>
+        </childnode>
+        <childnode refid="16357" relation="usage">
+          <edgelabel>clock_stat</edgelabel>
+        </childnode>
+        <childnode refid="16276" relation="usage">
+          <edgelabel>dead</edgelabel>
+          <edgelabel>alive</edgelabel>
+          <edgelabel>ready</edgelabel>
+        </childnode>
+        <childnode refid="16281" relation="usage">
+          <edgelabel>slabc</edgelabel>
+        </childnode>
+        <childnode refid="16361" relation="usage">
+          <edgelabel>on_exit</edgelabel>
+        </childnode>
+      </node>
+      <node id="16361">
+        <label>cord_on_exit</label>
+        <link refid="structcord__on__exit"/>
+      </node>
+      <node id="16321">
+        <label>ExprList::ExprList_item</label>
+        <link refid="structExprList_1_1ExprList__item"/>
+        <childnode refid="16310" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="16313">
+        <label>AggInfo::AggInfo_func</label>
+        <link refid="structAggInfo_1_1AggInfo__func"/>
+        <childnode refid="16310" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+        <childnode refid="16314" relation="usage">
+          <edgelabel>func</edgelabel>
+        </childnode>
+      </node>
+      <node id="16293">
+        <label>cbus_endpoint</label>
+        <link refid="structcbus__endpoint"/>
+        <childnode refid="16294" relation="usage">
+          <edgelabel>cond</edgelabel>
+        </childnode>
+        <childnode refid="16276" relation="usage">
+          <edgelabel>in_cbus</edgelabel>
+        </childnode>
+        <childnode refid="16295" relation="usage">
+          <edgelabel>output</edgelabel>
+        </childnode>
+      </node>
+      <node id="16340">
+        <label>space_vtab</label>
+        <link refid="structspace__vtab"/>
+        <childnode refid="16341" relation="usage">
+          <edgelabel>create_index</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/wal.c" line="84" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="83" bodyend="170"/>
+    <listofallmembers>
+      <member refid="structwal__writer_1a9207eada99f1f2493c911845f3a689fb" prot="public" virt="non-virtual"><scope>wal_writer</scope><name>base</name></member>
+      <member refid="structwal__writer_1a105b83824cdb6f8086c3bf07fff47dda" prot="public" virt="non-virtual"><scope>wal_writer</scope><name>checkpoint_threshold</name></member>
+      <member refid="structwal__writer_1af901bb8ac27341ce42cccf97d9ccb29e" prot="public" virt="non-virtual"><scope>wal_writer</scope><name>checkpoint_triggered</name></member>
+      <member refid="structwal__writer_1a7c25ae060d8123bce4909f0e5b25f025" prot="public" virt="non-virtual"><scope>wal_writer</scope><name>checkpoint_vclock</name></member>
+      <member refid="structwal__writer_1a3d13faebb58d22bf9df8012f2824ddaf" prot="public" virt="non-virtual"><scope>wal_writer</scope><name>checkpoint_wal_size</name></member>
+      <member refid="structwal__writer_1a4c37ff3190b659b092e6c753e53816fe" prot="public" virt="non-virtual"><scope>wal_writer</scope><name>cord</name></member>
+      <member refid="structwal__writer_1a3a50ad348649ed6f8c0d701a3c06170c" prot="public" virt="non-virtual"><scope>wal_writer</scope><name>current_wal</name></member>
+      <member refid="structwal__writer_1ab41f8032cf89e49335ad660d307e013f" prot="public" virt="non-virtual"><scope>wal_writer</scope><name>is_in_rollback</name></member>
+      <member refid="structwal__writer_1a3e7b96fc7e60a177206ac1556e39dc46" prot="public" virt="non-virtual"><scope>wal_writer</scope><name>last_entry</name></member>
+      <member refid="structwal__writer_1aca6f0ecead7163708803fdfe0ac88cea" prot="public" virt="non-virtual"><scope>wal_writer</scope><name>msg_pool</name></member>
+      <member refid="structwal__writer_1ac6cb6c310dd191a06cd14cc48d76fa30" prot="public" virt="non-virtual"><scope>wal_writer</scope><name>on_checkpoint_threshold</name></member>
+      <member refid="structwal__writer_1ac1de92870eca2fb2485c1cd18e7ff427" prot="public" virt="non-virtual"><scope>wal_writer</scope><name>on_garbage_collection</name></member>
+      <member refid="structwal__writer_1a44f30b12ddb06b0834768e57b127fe70" prot="public" virt="non-virtual"><scope>wal_writer</scope><name>rollback</name></member>
+      <member refid="structwal__writer_1a8f7cdbe8797a17c84b86fe9cdbc04517" prot="public" virt="non-virtual"><scope>wal_writer</scope><name>tx_prio_pipe</name></member>
+      <member refid="structwal__writer_1a23e40926e937d0866f1bc1d7aca4fa5f" prot="public" virt="non-virtual"><scope>wal_writer</scope><name>vclock</name></member>
+      <member refid="structwal__writer_1aece4ae26fb7d85952717091ddda8dd31" prot="public" virt="non-virtual"><scope>wal_writer</scope><name>wal_dir</name></member>
+      <member refid="structwal__writer_1abe9b9b54243581530735f166c0b18cf2" prot="public" virt="non-virtual"><scope>wal_writer</scope><name>wal_max_size</name></member>
+      <member refid="structwal__writer_1a37ee612872d89404c47ee24476b16711" prot="public" virt="non-virtual"><scope>wal_writer</scope><name>wal_mode</name></member>
+      <member refid="structwal__writer_1a7c84a5d4db5f7b0ceb59e6aa7a334d6a" prot="public" virt="non-virtual"><scope>wal_writer</scope><name>wal_pipe</name></member>
+      <member refid="structwal__writer_1a50fd396b7c87df145d762a37a6760170" prot="public" virt="non-virtual"><scope>wal_writer</scope><name>watchers</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

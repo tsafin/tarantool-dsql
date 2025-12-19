@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structtuple__bloom" kind="struct" language="C++" prot="public">
+    <compoundname>tuple_bloom</compoundname>
+    <includes local="no">tuple_bloom.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structtuple__bloom_1af8dbe5b6d120eee2fadfec1b7012dd88" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tuple_bloom::is_legacy</definition>
+        <argsstring></argsstring>
+        <name>is_legacy</name>
+        <briefdescription>
+<para>If the following flag is set, this is a legacy bloom filter that stores hashes only for full keys (see tuple_bloom_decode_legacy). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_bloom.h" line="60" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_bloom.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__bloom_1a352284c77407dd2633bb518848775175" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t tuple_bloom::part_count</definition>
+        <argsstring></argsstring>
+        <name>part_count</name>
+        <briefdescription>
+<para>Number of key parts. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_bloom.h" line="62" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_bloom.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__bloom_1aa67249c16d4d3a4ca04d974ff8740493" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structbloom" kindref="compound">bloom</ref></type>
+        <definition>struct bloom tuple_bloom::parts[0]</definition>
+        <argsstring>[0]</argsstring>
+        <name>parts</name>
+        <briefdescription>
+<para>Array of bloom filters, one per each partial key. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_bloom.h" line="62" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_bloom.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Tuple bloom filter. </para>    </briefdescription>
+    <detaileddescription>
+<para>Consists of a set of bloom filters, one per each partial key. When a key is checked to be hashed in the bloom, all its partial keys are checked as well, which lowers the probability of false positive results. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="10992">
+        <label>tuple_bloom</label>
+        <link refid="structtuple__bloom"/>
+        <childnode refid="10993" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="10994">
+        <label>bloom_block</label>
+        <link refid="structbloom__block"/>
+      </node>
+      <node id="10993">
+        <label>bloom</label>
+        <link refid="structbloom"/>
+        <childnode refid="10994" relation="usage">
+          <edgelabel>table</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/tuple_bloom.h" line="54" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_bloom.h" bodystart="54" bodyend="65"/>
+    <listofallmembers>
+      <member refid="structtuple__bloom_1af8dbe5b6d120eee2fadfec1b7012dd88" prot="public" virt="non-virtual"><scope>tuple_bloom</scope><name>is_legacy</name></member>
+      <member refid="structtuple__bloom_1a352284c77407dd2633bb518848775175" prot="public" virt="non-virtual"><scope>tuple_bloom</scope><name>part_count</name></member>
+      <member refid="structtuple__bloom_1aa67249c16d4d3a4ca04d974ff8740493" prot="public" virt="non-virtual"><scope>tuple_bloom</scope><name>parts</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

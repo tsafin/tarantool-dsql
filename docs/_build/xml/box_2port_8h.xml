@@ -1,0 +1,404 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="box_2port_8h" kind="file" language="C++">
+    <compoundname>port.h</compoundname>
+    <includes refid="util_8h" local="yes">trivia/util.h</includes>
+    <includes refid="box_2port_8h" local="no">port.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="box_8cc" local="yes">/home/tsafin/tarantool/src/box/box.cc</includedby>
+    <includedby refid="box_2port_8h" local="no">/home/tsafin/tarantool/src/box/port.h</includedby>
+    <includedby refid="call_8c" local="yes">/home/tsafin/tarantool/src/box/call.c</includedby>
+    <includedby refid="execute_8h" local="yes">/home/tsafin/tarantool/src/box/execute.h</includedby>
+    <includedby refid="execute_8c" local="yes">/home/tsafin/tarantool/src/box/execute.c</includedby>
+    <includedby refid="func_8c" local="yes">/home/tsafin/tarantool/src/box/func.c</includedby>
+    <includedby refid="iproto_8cc" local="yes">/home/tsafin/tarantool/src/box/iproto.cc</includedby>
+    <includedby refid="key__list_8c" local="yes">/home/tsafin/tarantool/src/box/key_list.c</includedby>
+    <includedby refid="lua_2call_8c" local="yes">/home/tsafin/tarantool/src/box/lua/call.c</includedby>
+    <includedby refid="console_8c" local="yes">/home/tsafin/tarantool/src/box/lua/console.c</includedby>
+    <includedby refid="lua_2execute_8c" local="yes">/home/tsafin/tarantool/src/box/lua/execute.c</includedby>
+    <includedby refid="misc_8cc" local="yes">/home/tsafin/tarantool/src/box/lua/misc.cc</includedby>
+    <includedby refid="session_8c" local="yes">/home/tsafin/tarantool/src/box/lua/session.c</includedby>
+    <includedby refid="box_2port_8c" local="yes">/home/tsafin/tarantool/src/box/port.c</includedby>
+    <includedby refid="sql_2func_8c" local="yes">/home/tsafin/tarantool/src/box/sql/func.c</includedby>
+    <includedby refid="vdbe_8c" local="yes">/home/tsafin/tarantool/src/box/sql/vdbe.c</includedby>
+    <incdepgraph>
+      <node id="764">
+        <label>stdbool.h</label>
+      </node>
+      <node id="763">
+        <label>/home/tsafin/tarantool/src/box/port.h</label>
+        <link refid="box_2port_8h"/>
+        <childnode refid="764" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structport__msgpack" prot="public">port_msgpack</innerclass>
+    <innerclass refid="structport__lua" prot="public">port_lua</innerclass>
+    <innerclass refid="structport__vdbemem" prot="public">port_vdbemem</innerclass>
+    <innerclass refid="structport__c__entry" prot="public">port_c_entry</innerclass>
+    <innerclass refid="structport__c" prot="public">port_c</innerclass>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="box_2port_8h_1a276d4f6ee6440fbe94195743c2043fdd" prot="public" static="no" mutable="no">
+        <type>const struct <ref refid="structport__vtab" kindref="compound">port_vtab</ref></type>
+        <definition>const struct port_vtab port_c_vtab</definition>
+        <argsstring></argsstring>
+        <name>port_c_vtab</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/port.h" line="236" column="1" bodyfile="/home/tsafin/tarantool/src/box/port.c" bodystart="209" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="box_2port_8h_1a70389b72515e4dce9dded995cbbd006b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void port_msgpack_create</definition>
+        <argsstring>(struct port *port, const char *data, uint32_t data_sz)</argsstring>
+        <name>port_msgpack_create</name>
+        <param>
+          <type>struct <ref refid="structport" kindref="compound">port</ref> *</type>
+          <declname>port</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>data_sz</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a port to dump raw data. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/port.h" line="62" column="1" bodyfile="/home/tsafin/tarantool/src/box/call.c" bodystart="49" bodyend="56"/>
+      </memberdef>
+      <memberdef kind="function" id="box_2port_8h_1a4c82ada97bed8a84b984f9c5c33755f9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void port_msgpack_destroy</definition>
+        <argsstring>(struct port *base)</argsstring>
+        <name>port_msgpack_destroy</name>
+        <param>
+          <type>struct <ref refid="structport" kindref="compound">port</ref> *</type>
+          <declname>base</declname>
+        </param>
+        <briefdescription>
+<para>Destroy a MessagePack port. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/port.h" line="66" column="1" bodyfile="/home/tsafin/tarantool/src/box/call.c" bodystart="86" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="box_2port_8h_1ae5e66e11fde2545e59239e360104b254" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int port_msgpack_set_plain</definition>
+        <argsstring>(struct port *base, const char *plain, uint32_t len)</argsstring>
+        <name>port_msgpack_set_plain</name>
+        <param>
+          <type>struct <ref refid="structport" kindref="compound">port</ref> *</type>
+          <declname>base</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>plain</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Set plain text version of data in the given port. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is copied. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/port.h" line="72" column="1" bodyfile="/home/tsafin/tarantool/src/box/call.c" bodystart="94" bodyend="106"/>
+      </memberdef>
+      <memberdef kind="function" id="box_2port_8h_1a88405d97c3bdea26d8817f7313c8a1be" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void port_lua_create</definition>
+        <argsstring>(struct port *port, struct lua_State *L)</argsstring>
+        <name>port_lua_create</name>
+        <param>
+          <type>struct <ref refid="structport" kindref="compound">port</ref> *</type>
+          <declname>port</declname>
+        </param>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a port to dump from Lua. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/port.h" line="90" column="1" bodyfile="/home/tsafin/tarantool/src/box/lua/call.c" bodystart="301" bodyend="312"/>
+      </memberdef>
+      <memberdef kind="function" id="box_2port_8h_1a9bd6d7993abde0ae8e417351b846d79f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void port_vdbemem_create</definition>
+        <argsstring>(struct port *base, struct sql_value *mem, uint32_t mem_count)</argsstring>
+        <name>port_vdbemem_create</name>
+        <param>
+          <type>struct <ref refid="structport" kindref="compound">port</ref> *</type>
+          <declname>base</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structMem" kindref="compound">sql_value</ref> *</type>
+          <declname>mem</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>mem_count</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a port to dump data in sql vdbe memory. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/port.h" line="106" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/func.c" bodystart="217" bodyend="224"/>
+      </memberdef>
+      <memberdef kind="function" id="box_2port_8h_1acf167cf166091cd5f5adcd67401826a8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void port_c_create</definition>
+        <argsstring>(struct port *base)</argsstring>
+        <name>port_c_create</name>
+        <param>
+          <type>struct <ref refid="structport" kindref="compound">port</ref> *</type>
+          <declname>base</declname>
+        </param>
+        <briefdescription>
+<para>Create a C port object. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/port.h" line="141" column="1" bodyfile="/home/tsafin/tarantool/src/box/port.c" bodystart="220" bodyend="227"/>
+      </memberdef>
+      <memberdef kind="function" id="box_2port_8h_1a1200e6521126ead160a4bf4baa18c459" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int port_c_add_tuple</definition>
+        <argsstring>(struct port *port, struct tuple *tuple)</argsstring>
+        <name>port_c_add_tuple</name>
+        <param>
+          <type>struct <ref refid="structport" kindref="compound">port</ref> *</type>
+          <declname>port</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+          <declname>tuple</declname>
+        </param>
+        <briefdescription>
+<para>Append a tuple to the port. </para>        </briefdescription>
+        <detaileddescription>
+<para>Tuple is referenced. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/port.h" line="145" column="1" bodyfile="/home/tsafin/tarantool/src/box/port.c" bodystart="110" bodyend="121"/>
+      </memberdef>
+      <memberdef kind="function" id="box_2port_8h_1af306364e35b5f062ad27097e7b5ce9ca" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int port_c_add_mp</definition>
+        <argsstring>(struct port *port, const char *mp, const char *mp_end)</argsstring>
+        <name>port_c_add_mp</name>
+        <param>
+          <type>struct <ref refid="structport" kindref="compound">port</ref> *</type>
+          <declname>port</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>mp</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>mp_end</declname>
+        </param>
+        <briefdescription>
+<para>Append raw MessagePack to the port. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is copied. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/port.h" line="149" column="1" bodyfile="/home/tsafin/tarantool/src/box/port.c" bodystart="124" bodyend="161"/>
+      </memberdef>
+      <memberdef kind="function" id="box_2port_8h_1ad8478867d6441d9d94f92819688f15c1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void port_init</definition>
+        <argsstring>(void)</argsstring>
+        <name>port_init</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/port.h" line="152" column="1" bodyfile="/home/tsafin/tarantool/src/box/port.c" bodystart="230" bodyend="233"/>
+      </memberdef>
+      <memberdef kind="function" id="box_2port_8h_1a0e6115de75e6b936c38783dae4df4314" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void port_free</definition>
+        <argsstring>(void)</argsstring>
+        <name>port_free</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/port.h" line="155" column="1" bodyfile="/home/tsafin/tarantool/src/box/port.c" bodystart="236" bodyend="239"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>INCLUDES_TARANTOOL_BOX_PORT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INCLUDES_TARANTOOL_BOX_PORT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trivia/util.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;port.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple" kindref="compound">tuple</ref>;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structport__vtab" kindref="compound">port_vtab</ref><sp/>port_c_vtab;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="structport__msgpack" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structport__msgpack" kindref="compound">port_msgpack</ref><sp/>{</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structport__vtab" kindref="compound">port_vtab</ref><sp/>*vtab;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>data_sz;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structport__msgpack_1a07d405cf2ad8d05cbf408c8e0daaa479" kindref="member">plain</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal">static_assert(</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structport__msgpack" kindref="compound">port_msgpack</ref>)<sp/>&lt;=<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structport" kindref="compound">port</ref>),</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;sizeof(struct<sp/>port_msgpack)<sp/>must<sp/>be<sp/>&lt;=<sp/>sizeof(struct<sp/>port)&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal">port_msgpack_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structport" kindref="compound">port</ref><sp/>*<ref refid="structport" kindref="compound">port</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data,<sp/>uint32_t<sp/>data_sz);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal">port_msgpack_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>port<sp/>*base);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal">port_msgpack_set_plain(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>port<sp/>*base,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structport__msgpack_1a07d405cf2ad8d05cbf408c8e0daaa479" kindref="member">plain</ref>,<sp/>uint32_t<sp/>len);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75" refid="structport__lua" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structport__lua" kindref="compound">port_lua</ref><sp/>{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structport__vtab" kindref="compound">port_vtab</ref><sp/>*vtab;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">lua_State<sp/>*L;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>ref;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>size;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal">static_assert(</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structport__lua" kindref="compound">port_lua</ref>)<sp/>&lt;=<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>port),</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;sizeof(struct<sp/>port_lua)<sp/>must<sp/>be<sp/>&lt;=<sp/>sizeof(struct<sp/>port)&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal">port_lua_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>port<sp/>*port,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structMem" kindref="compound">sql_value</ref>;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95" refid="structport__vdbemem" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structport__vdbemem" kindref="compound">port_vdbemem</ref><sp/>{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structport__vtab" kindref="compound">port_vtab</ref><sp/>*vtab;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structMem" kindref="compound">sql_value</ref><sp/>*mem;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>mem_count;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal">static_assert(</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structport__vdbemem" kindref="compound">port_vdbemem</ref>)<sp/>&lt;=<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>port),</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;sizeof(struct<sp/>port_vdbemem)<sp/>must<sp/>be<sp/>&lt;=<sp/>sizeof(struct<sp/>port)&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal">port_vdbemem_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>port<sp/>*base,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structMem" kindref="compound">sql_value</ref><sp/>*mem,</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>mem_count);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109" refid="structport__c__entry" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structport__c__entry" kindref="compound">port_c_entry</ref><sp/>{</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structport__c__entry" kindref="compound">port_c_entry</ref><sp/>*next;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple" kindref="compound">tuple</ref><sp/>*<ref refid="structtuple" kindref="compound">tuple</ref>;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*mp;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>mp_size;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128" refid="structport__c" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structport__c" kindref="compound">port_c</ref><sp/>{</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structport__vtab" kindref="compound">port_vtab</ref><sp/>*vtab;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structport__c__entry" kindref="compound">port_c_entry</ref><sp/>*first;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structport__c__entry" kindref="compound">port_c_entry</ref><sp/>*last;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structport__c__entry" kindref="compound">port_c_entry</ref><sp/>first_entry;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>size;</highlight></codeline>
+<codeline lineno="134"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal">static_assert(</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structport__c" kindref="compound">port_c</ref>)<sp/>&lt;=<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>port),</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;sizeof(struct<sp/>port_c)<sp/>must<sp/>be<sp/>&lt;=<sp/>sizeof(struct<sp/>port)&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal">port_c_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>port<sp/>*base);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal">port_c_add_tuple(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>port<sp/>*port,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple" kindref="compound">tuple</ref><sp/>*<ref refid="structtuple" kindref="compound">tuple</ref>);</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal">port_c_add_mp(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>port<sp/>*port,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structport__c__entry_1abde0dc07bedef2752a29e608af9a71a1" kindref="member">mp</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*mp_end);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal">port_init(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal">port_free(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined<sp/>__cplusplus<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>INCLUDES_TARANTOOL_BOX_PORT_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/port.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,1128 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structapplier" kind="struct" language="C++" prot="public">
+    <compoundname>applier</compoundname>
+    <includes local="no">applier.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structapplier_1ad990b1bfde746c1ac0b825f60d86980d" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfiber" kindref="compound">fiber</ref> *</type>
+        <definition>struct fiber* applier::reader</definition>
+        <argsstring></argsstring>
+        <name>reader</name>
+        <briefdescription>
+<para>Background fiber. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="78" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1a750cd126a05fafac2bfd7106f0a39dd6" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfiber" kindref="compound">fiber</ref> *</type>
+        <definition>struct fiber* applier::writer</definition>
+        <argsstring></argsstring>
+        <name>writer</name>
+        <briefdescription>
+<para>Background fiber to reply with vclock. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="80" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1ad72b73c2fb9fc209c8845c1184119f93" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfiber__cond" kindref="compound">fiber_cond</ref></type>
+        <definition>struct fiber_cond applier::writer_cond</definition>
+        <argsstring></argsstring>
+        <name>writer_cond</name>
+        <briefdescription>
+<para>Writer cond. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="80" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1a3fc96eb19dc794d523654531fb28d80d" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool applier::has_acks_to_send</definition>
+        <argsstring></argsstring>
+        <name>has_acks_to_send</name>
+        <briefdescription>
+<para>True if the applier has vclocks not sent to the remote master. </para>        </briefdescription>
+        <detaileddescription>
+<para>The flag is needed because during sending one vclock (ACK), it can be updated again. So just one condition variable is not enough. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="89" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1a59b9efd49ca85cc13c76d09e90edc73a" prot="public" static="no" mutable="no">
+        <type>enum applier_state</type>
+        <definition>enum applier_state applier::state</definition>
+        <argsstring></argsstring>
+        <name>state</name>
+        <briefdescription>
+<para>Finite-state machine. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="89" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1a3c273e962bea50b685a53258149caf2d" prot="public" static="no" mutable="no">
+        <type>ev_tstamp</type>
+        <definition>ev_tstamp applier::last_row_time</definition>
+        <argsstring></argsstring>
+        <name>last_row_time</name>
+        <briefdescription>
+<para>Local time of this replica when the last row has been received. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="93" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1a2b6b47490ad5afd796741f4fb184d878" prot="public" static="no" mutable="no">
+        <type>ev_tstamp</type>
+        <definition>ev_tstamp applier::lag</definition>
+        <argsstring></argsstring>
+        <name>lag</name>
+        <briefdescription>
+<para>Number of seconds this replica is behind the remote master. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="95" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1a50f5b4b241eeec974e058840bfc3da49" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t applier::last_logged_errcode</definition>
+        <argsstring></argsstring>
+        <name>last_logged_errcode</name>
+        <briefdescription>
+<para>The last box_error_code() logged to avoid log flooding. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="97" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1abfa88a3a05d6a0b15af3a6bdf2d5a3f4" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t applier::instance_id</definition>
+        <argsstring></argsstring>
+        <name>instance_id</name>
+        <briefdescription>
+<para>Remote instance ID. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="99" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1aec8cb34e75335bfed8b29e14a19d96b5" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref></type>
+        <definition>struct tt_uuid applier::uuid</definition>
+        <argsstring></argsstring>
+        <name>uuid</name>
+        <briefdescription>
+<para>Remote instance UUID. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="99" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1afdec50a5967e61b7f010ba4fe1797fb2" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char applier::source[APPLIER_SOURCE_MAXLEN]</definition>
+        <argsstring>[APPLIER_SOURCE_MAXLEN]</argsstring>
+        <name>source</name>
+        <briefdescription>
+<para>Remote URI (string) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="103" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1ae7f19bee6966a09884b4f903a8af826f" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structuri" kindref="compound">uri</ref></type>
+        <definition>struct uri applier::uri</definition>
+        <argsstring></argsstring>
+        <name>uri</name>
+        <briefdescription>
+<para>Remote URI (parsed) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="103" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="105" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1a9e7a921098d2fed2e619680aa055b528" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t applier::version_id</definition>
+        <argsstring></argsstring>
+        <name>version_id</name>
+        <briefdescription>
+<para>Remote version encoded as a number, see <ref refid="structapplier_1a9e7a921098d2fed2e619680aa055b528" kindref="member">version_id()</ref> macro. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="107" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1a6d0b1bbc419dbf5140f581ad67ece493" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structballot" kindref="compound">ballot</ref></type>
+        <definition>struct ballot applier::ballot</definition>
+        <argsstring></argsstring>
+        <name>ballot</name>
+        <briefdescription>
+<para>Remote ballot at the time of connect. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="107" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1aff58f8e8e16a5bee16c86a876f2c6686" prot="public" static="no" mutable="no">
+        <type>struct sockaddr</type>
+        <definition>struct sockaddr applier::addr</definition>
+        <argsstring></argsstring>
+        <name>addr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="127" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1a57d6920ed98a4391d2095c316795e410" prot="public" static="no" mutable="no">
+        <type>struct sockaddr_storage</type>
+        <definition>struct sockaddr_storage applier::addrstorage</definition>
+        <argsstring></argsstring>
+        <name>addrstorage</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="127" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1a1c7574499e17131a735e4e1c1a9b42e3" prot="public" static="no" mutable="no">
+        <type>union applier::@1</type>
+        <definition>union applier::@1 applier::@2</definition>
+        <argsstring></argsstring>
+        <name>@2</name>
+        <briefdescription>
+<para>Remote address. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="114" column="1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1a9ae687568170245911c58c60ecab1c84" prot="public" static="no" mutable="no">
+        <type>socklen_t</type>
+        <definition>socklen_t applier::addr_len</definition>
+        <argsstring></argsstring>
+        <name>addr_len</name>
+        <briefdescription>
+<para>Length of addr. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="116" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="116" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1a0cf3c3e973f962cfd91ef28db809de82" prot="public" static="no" mutable="no">
+        <type>struct ev_io</type>
+        <definition>struct ev_io applier::io</definition>
+        <argsstring></argsstring>
+        <name>io</name>
+        <briefdescription>
+<para>EV watcher for I/O. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="116" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1a34048f622ff5af44ba6e51fcfba6b6c8" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structibuf" kindref="compound">ibuf</ref></type>
+        <definition>struct ibuf applier::ibuf</definition>
+        <argsstring></argsstring>
+        <name>ibuf</name>
+        <briefdescription>
+<para>Input buffer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="116" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1a614be6ac9c465cc767fbc6cfdceceb15" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist applier::on_state</definition>
+        <argsstring></argsstring>
+        <name>on_state</name>
+        <briefdescription>
+<para>Triggers invoked on state change. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="116" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="122" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1a5fcfd8e2c2b21bbd716a5b5674146791" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool applier::is_paused</definition>
+        <argsstring></argsstring>
+        <name>is_paused</name>
+        <briefdescription>
+<para>Set if the applier was paused (see applier_pause()) and is now waiting on resume_cond to be resumed (see applier_resume()). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="127" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="127" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1a7691d925ef23394f3f96737e0c05d30e" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfiber__cond" kindref="compound">fiber_cond</ref></type>
+        <definition>struct fiber_cond applier::resume_cond</definition>
+        <argsstring></argsstring>
+        <name>resume_cond</name>
+        <briefdescription>
+<para>Condition variable signaled to resume the applier. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="127" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="129" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1a57fe98968f07d628ed9fe2df2540f394" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structdiag" kindref="compound">diag</ref></type>
+        <definition>struct diag applier::diag</definition>
+        <argsstring></argsstring>
+        <name>diag</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="127" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="131" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structapplier_1a5b257815f7f808d3742c474eebcdc3dc" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvclock" kindref="compound">vclock</ref></type>
+        <definition>struct vclock applier::remote_vclock_at_subscribe</definition>
+        <argsstring></argsstring>
+        <name>remote_vclock_at_subscribe</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.h" line="127" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>State of a replication connection to the master. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="461">
+        <label>serializer_opts</label>
+        <link refid="structserializer__opts"/>
+      </node>
+      <node id="453">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="445">
+        <label>json_tree</label>
+        <link refid="structjson__tree"/>
+        <childnode refid="446" relation="usage">
+          <edgelabel>root</edgelabel>
+        </childnode>
+      </node>
+      <node id="418">
+        <label>ExprList</label>
+        <link refid="structExprList"/>
+        <childnode refid="419" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="468">
+        <label>ibuf</label>
+        <link refid="structibuf"/>
+        <childnode refid="454" relation="usage">
+          <edgelabel>slabc</edgelabel>
+        </childnode>
+      </node>
+      <node id="429">
+        <label>index_stat</label>
+        <link refid="structindex__stat"/>
+        <childnode refid="430" relation="usage">
+          <edgelabel>samples</edgelabel>
+        </childnode>
+      </node>
+      <node id="442">
+        <label>iterator</label>
+        <link refid="structiterator"/>
+        <childnode refid="439" relation="usage">
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="450">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="450" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="451">
+        <label>region</label>
+        <link refid="structregion"/>
+        <childnode refid="452" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="454" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="433">
+        <label>key_part</label>
+        <link refid="structkey__part"/>
+        <childnode refid="434" relation="usage">
+          <edgelabel>coll</edgelabel>
+        </childnode>
+      </node>
+      <node id="430">
+        <label>index_sample</label>
+        <link refid="structindex__sample"/>
+      </node>
+      <node id="462">
+        <label>session_vtab</label>
+        <link refid="structsession__vtab"/>
+      </node>
+      <node id="437">
+        <label>TriggerStep</label>
+        <link refid="structTriggerStep"/>
+        <childnode refid="437" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pLast</edgelabel>
+        </childnode>
+        <childnode refid="408" relation="usage">
+          <edgelabel>pWhere</edgelabel>
+        </childnode>
+        <childnode refid="425" relation="usage">
+          <edgelabel>pIdList</edgelabel>
+        </childnode>
+        <childnode refid="420" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="418" relation="usage">
+          <edgelabel>pExprList</edgelabel>
+        </childnode>
+      </node>
+      <node id="464">
+        <label>diag</label>
+        <link refid="structdiag"/>
+      </node>
+      <node id="446">
+        <label>json_token</label>
+        <link refid="structjson__token"/>
+        <childnode refid="446" relation="usage">
+          <edgelabel>parent</edgelabel>
+          <edgelabel>children</edgelabel>
+        </childnode>
+      </node>
+      <node id="458">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="450" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="413">
+        <label>access</label>
+        <link refid="structaccess"/>
+      </node>
+      <node id="424">
+        <label>SrcList::SrcList_item</label>
+        <link refid="structSrcList_1_1SrcList__item"/>
+        <childnode refid="404" relation="usage">
+          <edgelabel>space</edgelabel>
+        </childnode>
+        <childnode refid="408" relation="usage">
+          <edgelabel>pOn</edgelabel>
+        </childnode>
+        <childnode refid="425" relation="usage">
+          <edgelabel>pUsing</edgelabel>
+        </childnode>
+        <childnode refid="427" relation="usage">
+          <edgelabel>pIBIndex</edgelabel>
+        </childnode>
+        <childnode refid="420" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="418" relation="usage">
+          <edgelabel>pFuncArg</edgelabel>
+        </childnode>
+      </node>
+      <node id="422">
+        <label>With::Cte</label>
+        <link refid="structWith_1_1Cte"/>
+        <childnode refid="420" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="418" relation="usage">
+          <edgelabel>pCols</edgelabel>
+        </childnode>
+      </node>
+      <node id="420">
+        <label>Select</label>
+        <link refid="structSelect"/>
+        <childnode refid="408" relation="usage">
+          <edgelabel>pOffset</edgelabel>
+          <edgelabel>pHaving</edgelabel>
+          <edgelabel>pWhere</edgelabel>
+          <edgelabel>pLimit</edgelabel>
+        </childnode>
+        <childnode refid="421" relation="usage">
+          <edgelabel>pWith</edgelabel>
+        </childnode>
+        <childnode refid="420" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pPrior</edgelabel>
+        </childnode>
+        <childnode refid="423" relation="usage">
+          <edgelabel>pSrc</edgelabel>
+        </childnode>
+        <childnode refid="418" relation="usage">
+          <edgelabel>pEList</edgelabel>
+          <edgelabel>pOrderBy</edgelabel>
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="417">
+        <label>credentials</label>
+        <link refid="structcredentials"/>
+        <childnode refid="398" relation="usage">
+          <edgelabel>in_user</edgelabel>
+        </childnode>
+      </node>
+      <node id="403">
+        <label>engine_vtab</label>
+        <link refid="structengine__vtab"/>
+        <childnode refid="404" relation="usage">
+          <edgelabel>create_space</edgelabel>
+        </childnode>
+      </node>
+      <node id="404">
+        <label>space</label>
+        <link refid="structspace"/>
+        <childnode refid="405" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="402" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="436" relation="usage">
+          <edgelabel>sql_triggers</edgelabel>
+        </childnode>
+        <childnode refid="413" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="438" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="443" relation="usage">
+          <edgelabel>format</edgelabel>
+        </childnode>
+        <childnode refid="447" relation="usage">
+          <edgelabel>ck_constraint_trigger</edgelabel>
+        </childnode>
+        <childnode refid="398" relation="usage">
+          <edgelabel>before_replace</edgelabel>
+          <edgelabel>on_replace</edgelabel>
+          <edgelabel>child_fk_constraint</edgelabel>
+          <edgelabel>memtx_stories</edgelabel>
+          <edgelabel>parent_fk_constraint</edgelabel>
+          <edgelabel>ck_constraint</edgelabel>
+        </childnode>
+        <childnode refid="448" relation="usage">
+          <edgelabel>sequence</edgelabel>
+        </childnode>
+        <childnode refid="439" relation="usage">
+          <edgelabel>index_map</edgelabel>
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="463">
+        <label>clock_stat</label>
+        <link refid="structclock__stat"/>
+      </node>
+      <node id="410">
+        <label>AggInfo::AggInfo_col</label>
+        <link refid="structAggInfo_1_1AggInfo__col"/>
+        <childnode refid="405" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="408" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="440">
+        <label>index_vtab</label>
+        <link refid="structindex__vtab"/>
+        <childnode refid="441" relation="usage">
+          <edgelabel>create_snapshot_iterator</edgelabel>
+        </childnode>
+        <childnode refid="442" relation="usage">
+          <edgelabel>create_iterator</edgelabel>
+        </childnode>
+      </node>
+      <node id="406">
+        <label>tuple_dictionary</label>
+        <link refid="structtuple__dictionary"/>
+      </node>
+      <node id="408">
+        <label>Expr</label>
+        <link refid="structExpr"/>
+        <childnode refid="405" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="409" relation="usage">
+          <edgelabel>pAggInfo</edgelabel>
+        </childnode>
+        <childnode refid="408" relation="usage">
+          <edgelabel>pRight</edgelabel>
+          <edgelabel>pLeft</edgelabel>
+        </childnode>
+        <childnode refid="420" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="418" relation="usage">
+          <edgelabel>pList</edgelabel>
+        </childnode>
+      </node>
+      <node id="401">
+        <label>txn</label>
+        <link refid="structtxn"/>
+        <childnode refid="402" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="450" relation="usage">
+          <edgelabel>in_txn_cache</edgelabel>
+          <edgelabel>sub_stmt_begin</edgelabel>
+        </childnode>
+        <childnode refid="451" relation="usage">
+          <edgelabel>region</edgelabel>
+        </childnode>
+        <childnode refid="400" relation="usage">
+          <edgelabel>fiber</edgelabel>
+        </childnode>
+        <childnode refid="447" relation="usage">
+          <edgelabel>fiber_on_stop</edgelabel>
+          <edgelabel>fiber_on_yield</edgelabel>
+        </childnode>
+        <childnode refid="398" relation="usage">
+          <edgelabel>on_wal_write</edgelabel>
+          <edgelabel>read_set</edgelabel>
+          <edgelabel>conflict_list</edgelabel>
+          <edgelabel>in_read_view_txs</edgelabel>
+          <edgelabel>savepoints</edgelabel>
+          <edgelabel>conflicted_by_list</edgelabel>
+        </childnode>
+        <childnode refid="458" relation="usage">
+          <edgelabel>stmts</edgelabel>
+        </childnode>
+      </node>
+      <node id="409">
+        <label>AggInfo</label>
+        <link refid="structAggInfo"/>
+        <childnode refid="410" relation="usage">
+          <edgelabel>aCol</edgelabel>
+        </childnode>
+        <childnode refid="411" relation="usage">
+          <edgelabel>aFunc</edgelabel>
+        </childnode>
+        <childnode refid="418" relation="usage">
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="398">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="398" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="441">
+        <label>snapshot_iterator</label>
+        <link refid="structsnapshot__iterator"/>
+      </node>
+      <node id="452">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="453" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="398" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="423">
+        <label>SrcList</label>
+        <link refid="structSrcList"/>
+        <childnode refid="424" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="467">
+        <label>ipc_msg</label>
+        <link refid="structipc__msg"/>
+      </node>
+      <node id="449">
+        <label>sequence_def</label>
+        <link refid="structsequence__def"/>
+      </node>
+      <node id="425">
+        <label>IdList</label>
+        <link refid="structIdList"/>
+        <childnode refid="426" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="439">
+        <label>index</label>
+        <link refid="structindex"/>
+        <childnode refid="402" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="440" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="427" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="448">
+        <label>sequence</label>
+        <link refid="structsequence"/>
+        <childnode refid="413" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="449" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="407">
+        <label>field_def</label>
+        <link refid="structfield__def"/>
+        <childnode refid="408" relation="usage">
+          <edgelabel>default_value_expr</edgelabel>
+        </childnode>
+      </node>
+      <node id="431">
+        <label>key_def</label>
+        <link refid="structkey__def"/>
+        <childnode refid="432" relation="usage">
+          <edgelabel>tuple_hash</edgelabel>
+          <edgelabel>tuple_compare_with_key</edgelabel>
+          <edgelabel>tuple_compare</edgelabel>
+          <edgelabel>tuple_hint</edgelabel>
+          <edgelabel>tuple_extract_key</edgelabel>
+        </childnode>
+        <childnode refid="431" relation="usage">
+          <edgelabel>key_hash</edgelabel>
+          <edgelabel>tuple_extract_key_raw</edgelabel>
+          <edgelabel>key_hint</edgelabel>
+        </childnode>
+        <childnode refid="412" relation="usage">
+          <edgelabel>func_index_func</edgelabel>
+        </childnode>
+        <childnode refid="433" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="447">
+        <label>trigger</label>
+        <link refid="structtrigger"/>
+        <childnode refid="447" relation="usage">
+          <edgelabel>run</edgelabel>
+          <edgelabel>destroy</edgelabel>
+        </childnode>
+        <childnode refid="398" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="432">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="456">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="427">
+        <label>index_def</label>
+        <link refid="structindex__def"/>
+        <childnode refid="428" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+        <childnode refid="431" relation="usage">
+          <edgelabel>key_def</edgelabel>
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="398" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="435">
+        <label>space_opts</label>
+        <link refid="structspace__opts"/>
+      </node>
+      <node id="412">
+        <label>func</label>
+        <link refid="structfunc"/>
+        <childnode refid="413" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="414" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="415" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="417" relation="usage">
+          <edgelabel>owner_credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="414">
+        <label>func_vtab</label>
+        <link refid="structfunc__vtab"/>
+      </node>
+      <node id="399">
+        <label>uri</label>
+        <link refid="structuri"/>
+      </node>
+      <node id="436">
+        <label>sql_trigger</label>
+        <link refid="structsql__trigger"/>
+        <childnode refid="437" relation="usage">
+          <edgelabel>step_list</edgelabel>
+        </childnode>
+        <childnode refid="408" relation="usage">
+          <edgelabel>pWhen</edgelabel>
+        </childnode>
+        <childnode refid="436" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="425" relation="usage">
+          <edgelabel>pColumns</edgelabel>
+        </childnode>
+      </node>
+      <node id="457">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="455">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="456" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="457" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="416">
+        <label>func_opts</label>
+        <link refid="structfunc__opts"/>
+      </node>
+      <node id="454">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="452" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="455" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="444">
+        <label>tuple_format_vtab</label>
+        <link refid="structtuple__format__vtab"/>
+        <childnode refid="432" relation="usage">
+          <edgelabel>tuple_new</edgelabel>
+        </childnode>
+      </node>
+      <node id="443">
+        <label>tuple_format</label>
+        <link refid="structtuple__format"/>
+        <childnode refid="406" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="444" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="445" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+      </node>
+      <node id="415">
+        <label>func_def</label>
+        <link refid="structfunc__def"/>
+        <childnode refid="416" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="421">
+        <label>With</label>
+        <link refid="structWith"/>
+        <childnode refid="422" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+        <childnode refid="421" relation="usage">
+          <edgelabel>pOuter</edgelabel>
+        </childnode>
+      </node>
+      <node id="396">
+        <label>vclock</label>
+        <link refid="structvclock"/>
+      </node>
+      <node id="405">
+        <label>space_def</label>
+        <link refid="structspace__def"/>
+        <childnode refid="406" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="407" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+        <childnode refid="435" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="402">
+        <label>engine</label>
+        <link refid="structengine"/>
+        <childnode refid="403" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="398" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="397">
+        <label>fiber_cond</label>
+        <link refid="structfiber__cond"/>
+        <childnode refid="398" relation="usage">
+          <edgelabel>waiters</edgelabel>
+        </childnode>
+      </node>
+      <node id="394">
+        <label>tt_uuid</label>
+        <link refid="structtt__uuid"/>
+      </node>
+      <node id="426">
+        <label>IdList::IdList_item</label>
+        <link refid="structIdList_1_1IdList__item"/>
+      </node>
+      <node id="395">
+        <label>ballot</label>
+        <link refid="structballot"/>
+        <childnode refid="396" relation="usage">
+          <edgelabel>gc_vclock</edgelabel>
+          <edgelabel>vclock</edgelabel>
+        </childnode>
+      </node>
+      <node id="466">
+        <label>ipc_wait_pad</label>
+        <link refid="structipc__wait__pad"/>
+        <childnode refid="467" relation="usage">
+          <edgelabel>msg</edgelabel>
+        </childnode>
+      </node>
+      <node id="393">
+        <label>applier</label>
+        <link refid="structapplier"/>
+        <childnode refid="394" relation="usage">
+          <edgelabel>uuid</edgelabel>
+        </childnode>
+        <childnode refid="395" relation="usage">
+          <edgelabel>ballot</edgelabel>
+        </childnode>
+        <childnode refid="397" relation="usage">
+          <edgelabel>writer_cond</edgelabel>
+          <edgelabel>resume_cond</edgelabel>
+        </childnode>
+        <childnode refid="399" relation="usage">
+          <edgelabel>uri</edgelabel>
+        </childnode>
+        <childnode refid="400" relation="usage">
+          <edgelabel>writer</edgelabel>
+          <edgelabel>reader</edgelabel>
+        </childnode>
+        <childnode refid="396" relation="usage">
+          <edgelabel>remote_vclock_at_subscribe</edgelabel>
+        </childnode>
+        <childnode refid="398" relation="usage">
+          <edgelabel>on_state</edgelabel>
+        </childnode>
+        <childnode refid="464" relation="usage">
+          <edgelabel>diag</edgelabel>
+        </childnode>
+        <childnode refid="468" relation="usage">
+          <edgelabel>ibuf</edgelabel>
+        </childnode>
+      </node>
+      <node id="434">
+        <label>coll</label>
+        <link refid="structcoll"/>
+        <childnode refid="434" relation="usage">
+          <edgelabel>cmp</edgelabel>
+          <edgelabel>hint</edgelabel>
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+      <node id="400">
+        <label>fiber</label>
+        <link refid="structfiber"/>
+        <childnode refid="401" relation="usage">
+          <edgelabel>txn</edgelabel>
+        </childnode>
+        <childnode refid="451" relation="usage">
+          <edgelabel>gc</edgelabel>
+        </childnode>
+        <childnode refid="400" relation="usage">
+          <edgelabel>caller</edgelabel>
+        </childnode>
+        <childnode refid="417" relation="usage">
+          <edgelabel>credentials</edgelabel>
+        </childnode>
+        <childnode refid="459" relation="usage">
+          <edgelabel>session</edgelabel>
+        </childnode>
+        <childnode refid="463" relation="usage">
+          <edgelabel>clock_stat</edgelabel>
+        </childnode>
+        <childnode refid="398" relation="usage">
+          <edgelabel>wake</edgelabel>
+          <edgelabel>on_stop</edgelabel>
+          <edgelabel>on_yield</edgelabel>
+          <edgelabel>link</edgelabel>
+          <edgelabel>state</edgelabel>
+        </childnode>
+        <childnode refid="464" relation="usage">
+          <edgelabel>diag</edgelabel>
+        </childnode>
+        <childnode refid="465" relation="usage">
+          <edgelabel>stack_slab</edgelabel>
+        </childnode>
+        <childnode refid="466" relation="usage">
+          <edgelabel>wait_pad</edgelabel>
+        </childnode>
+      </node>
+      <node id="465">
+        <label>slab</label>
+        <link refid="structslab"/>
+        <childnode refid="398" relation="usage">
+          <edgelabel>next_in_cache</edgelabel>
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+      <node id="460">
+        <label>session_meta</label>
+        <link refid="structsession__meta"/>
+        <childnode refid="461" relation="usage">
+          <edgelabel>serializer_opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="428">
+        <label>index_opts</label>
+        <link refid="structindex__opts"/>
+        <childnode refid="429" relation="usage">
+          <edgelabel>stat</edgelabel>
+        </childnode>
+      </node>
+      <node id="459">
+        <label>session</label>
+        <link refid="structsession"/>
+        <childnode refid="460" relation="usage">
+          <edgelabel>meta</edgelabel>
+        </childnode>
+        <childnode refid="462" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="447" relation="usage">
+          <edgelabel>fiber_on_stop</edgelabel>
+        </childnode>
+        <childnode refid="417" relation="usage">
+          <edgelabel>credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="419">
+        <label>ExprList::ExprList_item</label>
+        <link refid="structExprList_1_1ExprList__item"/>
+        <childnode refid="408" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="411">
+        <label>AggInfo::AggInfo_func</label>
+        <link refid="structAggInfo_1_1AggInfo__func"/>
+        <childnode refid="408" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+        <childnode refid="412" relation="usage">
+          <edgelabel>func</edgelabel>
+        </childnode>
+      </node>
+      <node id="438">
+        <label>space_vtab</label>
+        <link refid="structspace__vtab"/>
+        <childnode refid="439" relation="usage">
+          <edgelabel>create_index</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/applier.h" line="76" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.h" bodystart="76" bodyend="134"/>
+    <listofallmembers>
+      <member refid="structapplier_1aff58f8e8e16a5bee16c86a876f2c6686" prot="public" virt="non-virtual"><scope>applier</scope><name>addr</name></member>
+      <member refid="structapplier_1a9ae687568170245911c58c60ecab1c84" prot="public" virt="non-virtual"><scope>applier</scope><name>addr_len</name></member>
+      <member refid="structapplier_1a57d6920ed98a4391d2095c316795e410" prot="public" virt="non-virtual"><scope>applier</scope><name>addrstorage</name></member>
+      <member refid="structapplier_1a6d0b1bbc419dbf5140f581ad67ece493" prot="public" virt="non-virtual"><scope>applier</scope><name>ballot</name></member>
+      <member refid="structapplier_1a57fe98968f07d628ed9fe2df2540f394" prot="public" virt="non-virtual"><scope>applier</scope><name>diag</name></member>
+      <member refid="structapplier_1a3fc96eb19dc794d523654531fb28d80d" prot="public" virt="non-virtual"><scope>applier</scope><name>has_acks_to_send</name></member>
+      <member refid="structapplier_1a34048f622ff5af44ba6e51fcfba6b6c8" prot="public" virt="non-virtual"><scope>applier</scope><name>ibuf</name></member>
+      <member refid="structapplier_1abfa88a3a05d6a0b15af3a6bdf2d5a3f4" prot="public" virt="non-virtual"><scope>applier</scope><name>instance_id</name></member>
+      <member refid="structapplier_1a0cf3c3e973f962cfd91ef28db809de82" prot="public" virt="non-virtual"><scope>applier</scope><name>io</name></member>
+      <member refid="structapplier_1a5fcfd8e2c2b21bbd716a5b5674146791" prot="public" virt="non-virtual"><scope>applier</scope><name>is_paused</name></member>
+      <member refid="structapplier_1a2b6b47490ad5afd796741f4fb184d878" prot="public" virt="non-virtual"><scope>applier</scope><name>lag</name></member>
+      <member refid="structapplier_1a50f5b4b241eeec974e058840bfc3da49" prot="public" virt="non-virtual"><scope>applier</scope><name>last_logged_errcode</name></member>
+      <member refid="structapplier_1a3c273e962bea50b685a53258149caf2d" prot="public" virt="non-virtual"><scope>applier</scope><name>last_row_time</name></member>
+      <member refid="structapplier_1a614be6ac9c465cc767fbc6cfdceceb15" prot="public" virt="non-virtual"><scope>applier</scope><name>on_state</name></member>
+      <member refid="structapplier_1ad990b1bfde746c1ac0b825f60d86980d" prot="public" virt="non-virtual"><scope>applier</scope><name>reader</name></member>
+      <member refid="structapplier_1a5b257815f7f808d3742c474eebcdc3dc" prot="public" virt="non-virtual"><scope>applier</scope><name>remote_vclock_at_subscribe</name></member>
+      <member refid="structapplier_1a7691d925ef23394f3f96737e0c05d30e" prot="public" virt="non-virtual"><scope>applier</scope><name>resume_cond</name></member>
+      <member refid="structapplier_1afdec50a5967e61b7f010ba4fe1797fb2" prot="public" virt="non-virtual"><scope>applier</scope><name>source</name></member>
+      <member refid="structapplier_1a59b9efd49ca85cc13c76d09e90edc73a" prot="public" virt="non-virtual"><scope>applier</scope><name>state</name></member>
+      <member refid="structapplier_1ae7f19bee6966a09884b4f903a8af826f" prot="public" virt="non-virtual"><scope>applier</scope><name>uri</name></member>
+      <member refid="structapplier_1aec8cb34e75335bfed8b29e14a19d96b5" prot="public" virt="non-virtual"><scope>applier</scope><name>uuid</name></member>
+      <member refid="structapplier_1a9e7a921098d2fed2e619680aa055b528" prot="public" virt="non-virtual"><scope>applier</scope><name>version_id</name></member>
+      <member refid="structapplier_1a750cd126a05fafac2bfd7106f0a39dd6" prot="public" virt="non-virtual"><scope>applier</scope><name>writer</name></member>
+      <member refid="structapplier_1ad72b73c2fb9fc209c8845c1184119f93" prot="public" virt="non-virtual"><scope>applier</scope><name>writer_cond</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

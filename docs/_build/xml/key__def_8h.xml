@@ -1,0 +1,2266 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="key__def_8h" kind="file" language="C++">
+    <compoundname>key_def.h</compoundname>
+    <includes refid="util_8h" local="yes">trivia/util.h</includes>
+    <includes refid="box_2error_8h" local="yes">error.h</includes>
+    <includes refid="diag_8h" local="yes">diag.h</includes>
+    <includes refid="msgpuck_8h" local="no">msgpuck.h</includes>
+    <includes refid="field__def_8h" local="yes">field_def.h</includes>
+    <includes refid="coll__id_8h" local="yes">coll_id.h</includes>
+    <includes refid="tuple__compare_8h" local="yes">tuple_compare.h</includes>
+    <includedby refid="index__def_8h" local="yes">/home/tsafin/tarantool/src/box/index_def.h</includedby>
+    <includedby refid="tuple__format_8h" local="yes">/home/tsafin/tarantool/src/box/tuple_format.h</includedby>
+    <includedby refid="parse__def_8h" local="yes">/home/tsafin/tarantool/src/box/sql/parse_def.h</includedby>
+    <includedby refid="field__def_8c" local="yes">/home/tsafin/tarantool/src/box/field_def.c</includedby>
+    <includedby refid="key__def_8c" local="yes">/home/tsafin/tarantool/src/box/key_def.c</includedby>
+    <includedby refid="key__list_8c" local="yes">/home/tsafin/tarantool/src/box/key_list.c</includedby>
+    <includedby refid="merger_8c" local="yes">/home/tsafin/tarantool/src/box/merger.c</includedby>
+    <includedby refid="request_8c" local="yes">/home/tsafin/tarantool/src/box/request.c</includedby>
+    <includedby refid="analyze_8c" local="yes">/home/tsafin/tarantool/src/box/sql/analyze.c</includedby>
+    <includedby refid="tuple__bloom_8c" local="yes">/home/tsafin/tarantool/src/box/tuple_bloom.c</includedby>
+    <includedby refid="vy__log_8c" local="yes">/home/tsafin/tarantool/src/box/vy_log.c</includedby>
+    <includedby refid="vy__range_8c" local="yes">/home/tsafin/tarantool/src/box/vy_range.c</includedby>
+    <incdepgraph>
+      <node id="351">
+        <label>stdbool.h</label>
+      </node>
+      <node id="353">
+        <label>stdarg.h</label>
+      </node>
+      <node id="352">
+        <label>assert.h</label>
+      </node>
+      <node id="349">
+        <label>stdint.h</label>
+      </node>
+      <node id="348">
+        <label>stdlib.h</label>
+      </node>
+      <node id="350">
+        <label>stddef.h</label>
+      </node>
+      <node id="346">
+        <label>/home/tsafin/tarantool/src/box/key_def.h</label>
+        <link refid="key__def_8h"/>
+        <childnode refid="347" relation="include">
+        </childnode>
+      </node>
+      <node id="347">
+        <label>msgpuck.h</label>
+        <link refid="msgpuck_8h"/>
+        <childnode refid="348" relation="include">
+        </childnode>
+        <childnode refid="349" relation="include">
+        </childnode>
+        <childnode refid="350" relation="include">
+        </childnode>
+        <childnode refid="351" relation="include">
+        </childnode>
+        <childnode refid="352" relation="include">
+        </childnode>
+        <childnode refid="353" relation="include">
+        </childnode>
+        <childnode refid="354" relation="include">
+        </childnode>
+      </node>
+      <node id="354">
+        <label>stdio.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structkey__part__def" prot="public">key_part_def</innerclass>
+    <innerclass refid="structkey__part" prot="public">key_part</innerclass>
+    <innerclass refid="structkey__def" prot="public">key_def</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="key__def_8h_1af40f59df20b550c793c470752e457636" prot="public" static="no">
+        <name>sort_order</name>
+        <enumvalue id="key__def_8h_1af40f59df20b550c793c470752e457636a022e3c721ad589be3038e34de053c177" prot="public">
+          <name>SORT_ORDER_ASC</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="key__def_8h_1af40f59df20b550c793c470752e457636a40979898d2c8a0b8de66b5685c1f7431" prot="public">
+          <name>SORT_ORDER_DESC</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="key__def_8h_1af40f59df20b550c793c470752e457636a6ddbed070ce2f2b67bf3fc432e57a231" prot="public">
+          <name>SORT_ORDER_UNDEF</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="key__def_8h_1af40f59df20b550c793c470752e457636ad15959d89cabdd50e7b1d5ff81da24ec" prot="public">
+          <name>sort_order_MAX</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="48" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="48" bodyend="53"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="key__def_8h_1a723b642c23e70a46175bc2b702e4e694" prot="public" static="no">
+        <type>int(*</type>
+        <definition>typedef int(* tuple_compare_with_key_t) (struct tuple *tuple, hint_t tuple_hint, const char *key, uint32_t part_count, hint_t key_hint, struct key_def *key_def)</definition>
+        <argsstring>)(struct tuple *tuple, hint_t tuple_hint, const char *key, uint32_t part_count, hint_t key_hint, struct key_def *key_def)</argsstring>
+        <name>tuple_compare_with_key_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="133" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="key__def_8h_1abec1e7e4421fb807b303caf4ac56f7fd" prot="public" static="no">
+        <type>int(*</type>
+        <definition>typedef int(* tuple_compare_t) (struct tuple *tuple_a, hint_t tuple_a_hint, struct tuple *tuple_b, hint_t tuple_b_hint, struct key_def *key_def)</definition>
+        <argsstring>)(struct tuple *tuple_a, hint_t tuple_a_hint, struct tuple *tuple_b, hint_t tuple_b_hint, struct key_def *key_def)</argsstring>
+        <name>tuple_compare_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="140" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="140" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="key__def_8h_1a5d534d4994992103904150f829cf3c0d" prot="public" static="no">
+        <type>char *(*</type>
+        <definition>typedef char*(* tuple_extract_key_t) (struct tuple *tuple, struct key_def *key_def, int multikey_idx, uint32_t *key_size)</definition>
+        <argsstring>)(struct tuple *tuple, struct key_def *key_def, int multikey_idx, uint32_t *key_size)</argsstring>
+        <name>tuple_extract_key_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="146" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="146" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="key__def_8h_1a49c639114ae163b9f98e6760ef74a55d" prot="public" static="no">
+        <type>char *(*</type>
+        <definition>typedef char*(* tuple_extract_key_raw_t) (const char *data, const char *data_end, struct key_def *key_def, int multikey_idx, uint32_t *key_size)</definition>
+        <argsstring>)(const char *data, const char *data_end, struct key_def *key_def, int multikey_idx, uint32_t *key_size)</argsstring>
+        <name>tuple_extract_key_raw_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="151" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="151" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="key__def_8h_1a7cd2cd40fc030fb9a1e86d0b578f9715" prot="public" static="no">
+        <type>uint32_t(*</type>
+        <definition>typedef uint32_t(* tuple_hash_t) (struct tuple *tuple, struct key_def *key_def)</definition>
+        <argsstring>)(struct tuple *tuple, struct key_def *key_def)</argsstring>
+        <name>tuple_hash_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="157" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="157" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="key__def_8h_1a461ebad407483d3d070779b89246209f" prot="public" static="no">
+        <type>uint32_t(*</type>
+        <definition>typedef uint32_t(* key_hash_t) (const char *key, struct key_def *key_def)</definition>
+        <argsstring>)(const char *key, struct key_def *key_def)</argsstring>
+        <name>key_hash_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="160" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="160" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="key__def_8h_1a30d337c92d11aa860c40e21f5dca8871" prot="public" static="no">
+        <type>hint_t(*</type>
+        <definition>typedef hint_t(* tuple_hint_t) (struct tuple *tuple, struct key_def *key_def)</definition>
+        <argsstring>)(struct tuple *tuple, struct key_def *key_def)</argsstring>
+        <name>tuple_hint_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="163" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="163" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="key__def_8h_1a172ab8f3b4cfea76353e5b7a4bbe7032" prot="public" static="no">
+        <type>hint_t(*</type>
+        <definition>typedef hint_t(* key_hint_t) (const char *key, uint32_t part_count, struct key_def *key_def)</definition>
+        <argsstring>)(const char *key, uint32_t part_count, struct key_def *key_def)</argsstring>
+        <name>key_hint_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="166" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="166" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="key__def_8h_1a880c3e1e8e63b9a12353853fb6aefa3f" prot="public" static="no">
+        <type>struct <ref refid="structtuple" kindref="compound">tuple</ref></type>
+        <definition>typedef struct tuple box_tuple_t</definition>
+        <argsstring></argsstring>
+        <name>box_tuple_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="288" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="290" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="key__def_8h_1aaba968d3e541b760f7ec4e31722a5e62" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* sort_order_strs[]</definition>
+        <argsstring>[]</argsstring>
+        <name>sort_order_strs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="46" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.c" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="key__def_8h_1a7d72951e26fdfde830979029cfc8d757" prot="public" static="no" mutable="no">
+        <type>const struct <ref refid="structkey__part__def" kindref="compound">key_part_def</ref></type>
+        <definition>const struct key_part_def key_part_def_default</definition>
+        <argsstring></argsstring>
+        <name>key_part_def_default</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="46" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.c" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="key__def_8h_1a52b01525ec61d4905fbdaa349a4ea791" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool key_part_is_nullable</definition>
+        <argsstring>(const struct key_part *part)</argsstring>
+        <name>key_part_is_nullable</name>
+        <param>
+          <type>const struct <ref refid="structkey__part" kindref="compound">key_part</ref> *</type>
+          <declname>part</declname>
+        </param>
+        <briefdescription>
+<para>Get is_nullable property of <ref refid="structkey__part" kindref="compound">key_part</ref>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="structkey__part" kindref="compound">key_part</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>for which attribute is being fetched</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>boolean</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>nullability attribute </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="127" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="127" bodyend="130"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1ac9920532f367e88831c1046beeb77174" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+        <definition>struct key_def* key_def_dup</definition>
+        <argsstring>(const struct key_def *src)</argsstring>
+        <name>key_def_dup</name>
+        <param>
+          <type>const struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>src</declname>
+        </param>
+        <briefdescription>
+<para>Duplicate <ref refid="structkey__def" kindref="compound">key_def</ref>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Original <ref refid="structkey__def" kindref="compound">key_def</ref>.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>not</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NULL Duplicate of src. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Memory error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="274" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.c" bodystart="132" bodyend="142"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1a37824293805336b883439a4974649b1b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void key_def_copy</definition>
+        <argsstring>(struct key_def *dest, const struct key_def *src)</argsstring>
+        <name>key_def_copy</name>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>dest</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>src</declname>
+        </param>
+        <briefdescription>
+<para>Copy content of key definition src to dest. </para>        </briefdescription>
+        <detaileddescription>
+<para>The two key definitions must have the same size. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="281" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.c" bodystart="124" bodyend="129"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1a17c737ebca5274d8dc7859da827c5b29" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void key_def_delete</definition>
+        <argsstring>(struct key_def *def)</argsstring>
+        <name>key_def_delete</name>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>def</declname>
+        </param>
+        <briefdescription>
+<para>Delete <emphasis><ref refid="structkey__def" kindref="compound">key_def</ref></emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>def</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Key_def to delete. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="288" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.c" bodystart="145" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1a248c2992883dea8ffc139b5fadec7c69" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t key_def_sizeof</definition>
+        <argsstring>(uint32_t part_count, uint32_t path_pool_size)</argsstring>
+        <name>key_def_sizeof</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>part_count</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>path_pool_size</declname>
+        </param>
+        <briefdescription>
+<para>public </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="637" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="637" bodyend="641"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1a89a4ddb9169b717e4c0777c2a01b4b3f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+        <definition>struct key_def* key_def_new</definition>
+        <argsstring>(const struct key_part_def *parts, uint32_t part_count, bool for_func_index)</argsstring>
+        <name>key_def_new</name>
+        <param>
+          <type>const struct <ref refid="structkey__part__def" kindref="compound">key_part_def</ref> *</type>
+          <declname>parts</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>part_count</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>for_func_index</declname>
+        </param>
+        <briefdescription>
+<para>Allocate a new <ref refid="structkey__def" kindref="compound">key_def</ref> with the given part count and initialize its parts. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="648" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.c" bodystart="257" bodyend="314"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1aa0515ccc8239310fa808932941d65e19" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int key_def_dump_parts</definition>
+        <argsstring>(const struct key_def *def, struct key_part_def *parts, struct region *region)</argsstring>
+        <name>key_def_dump_parts</name>
+        <param>
+          <type>const struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>def</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structkey__part__def" kindref="compound">key_part_def</ref> *</type>
+          <declname>parts</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structregion" kindref="compound">region</ref> *</type>
+          <declname>region</declname>
+        </param>
+        <briefdescription>
+<para>Dump part definitions of the given key def. </para>        </briefdescription>
+        <detaileddescription>
+<para>The region is used for allocating JSON paths, if any. Return -1 on memory allocation error, 0 on success. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="657" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.c" bodystart="317" bodyend="343"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1a97a09377818289ef152c22ca0a8250b0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void key_def_update_optionality</definition>
+        <argsstring>(struct key_def *def, uint32_t min_field_count)</argsstring>
+        <name>key_def_update_optionality</name>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>def</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>min_field_count</declname>
+        </param>
+        <briefdescription>
+<para>Update &apos;has_optional_parts&apos; of <emphasis><ref refid="structkey__def" kindref="compound">key_def</ref></emphasis> with correspondence to <emphasis>min_field_count</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>def</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Key definition to update. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>min_field_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Minimal field count. All parts out of this value are optional. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="668" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.c" bodystart="703" bodyend="719"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1a74a9f60cbb61764160c53e0690280c35" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int key_def_snprint_parts</definition>
+        <argsstring>(char *buf, int size, const struct key_part_def *parts, uint32_t part_count)</argsstring>
+        <name>key_def_snprint_parts</name>
+        <param>
+          <type>char *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structkey__part__def" kindref="compound">key_part_def</ref> *</type>
+          <declname>parts</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>part_count</declname>
+        </param>
+        <briefdescription>
+<para>An snprint-style function to print a key definition. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="674" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.c" bodystart="722" bodyend="742"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1a13b80793efddefeae1cdfea11799ac5c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t key_def_sizeof_parts</definition>
+        <argsstring>(const struct key_part_def *parts, uint32_t part_count)</argsstring>
+        <name>key_def_sizeof_parts</name>
+        <param>
+          <type>const struct <ref refid="structkey__part__def" kindref="compound">key_part_def</ref> *</type>
+          <declname>parts</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>part_count</declname>
+        </param>
+        <briefdescription>
+<para>Return size of key parts array when encoded in MsgPack. </para>        </briefdescription>
+        <detaileddescription>
+<para>See also key_def_encode_parts(). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="682" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.c" bodystart="745" bodyend="777"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1a753b3ef989b540466bddb4ba1993fa85" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>char *</type>
+        <definition>char* key_def_encode_parts</definition>
+        <argsstring>(char *data, const struct key_part_def *parts, uint32_t part_count)</argsstring>
+        <name>key_def_encode_parts</name>
+        <param>
+          <type>char *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structkey__part__def" kindref="compound">key_part_def</ref> *</type>
+          <declname>parts</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>part_count</declname>
+        </param>
+        <briefdescription>
+<para>Encode key parts array in MsgPack and return a pointer following the end of encoded data. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="689" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.c" bodystart="780" bodyend="819"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1ad2f01d79d8ee5718797221e341e21205" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int key_def_decode_parts</definition>
+        <argsstring>(struct key_part_def *parts, uint32_t part_count, const char **data, const struct field_def *fields, uint32_t field_count, struct region *region)</argsstring>
+        <name>key_def_decode_parts</name>
+        <param>
+          <type>struct <ref refid="structkey__part__def" kindref="compound">key_part_def</ref> *</type>
+          <declname>parts</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>part_count</declname>
+        </param>
+        <param>
+          <type>const char **</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structfield__def" kindref="compound">field_def</ref> *</type>
+          <declname>fields</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>field_count</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structregion" kindref="compound">region</ref> *</type>
+          <declname>region</declname>
+        </param>
+        <briefdescription>
+<para>Decode parts array from tuple field and write&apos;em to <ref refid="structindex__def" kindref="compound">index_def</ref> structure. </para>        </briefdescription>
+        <detaileddescription>
+<para>Throws a nice error about invalid types, but does not check ranges of resulting values field_no and field_type Parts expected to be a sequence of &lt;part_count&gt; arrays like this: [NUM, STR, ..][NUM, STR, ..].., OR {field=NUM, type=STR, ..}{field=NUM, type=STR, ..}.., The region is used for allocating JSON paths, if any. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="703" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.c" bodystart="884" bodyend="970"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1afcddf3a90921658227b298e4f4d8876a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const struct <ref refid="structkey__part" kindref="compound">key_part</ref> *</type>
+        <definition>const struct key_part* key_def_find_by_fieldno</definition>
+        <argsstring>(const struct key_def *key_def, uint32_t fieldno)</argsstring>
+        <name>key_def_find_by_fieldno</name>
+        <param>
+          <type>const struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>key_def</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>fieldno</declname>
+        </param>
+        <briefdescription>
+<para>Returns the part in index_def-&gt;parts for the specified fieldno. </para>        </briefdescription>
+        <detaileddescription>
+<para>If fieldno is not in index_def-&gt;parts returns NULL. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="712" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.c" bodystart="973" bodyend="979"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1aef78df2bab568bd08f9d64f490c9d96b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const struct <ref refid="structkey__part" kindref="compound">key_part</ref> *</type>
+        <definition>const struct key_part* key_def_find</definition>
+        <argsstring>(const struct key_def *key_def, const struct key_part *to_find)</argsstring>
+        <name>key_def_find</name>
+        <param>
+          <type>const struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>key_def</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structkey__part" kindref="compound">key_part</ref> *</type>
+          <declname>to_find</declname>
+        </param>
+        <briefdescription>
+<para>Returns the part in index_def-&gt;parts for the specified key part. </para>        </briefdescription>
+        <detaileddescription>
+<para>If to_find is not in index_def-&gt;parts returns NULL. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="719" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.c" bodystart="982" bodyend="994"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1ad6465d7a30b0338d66f2b24adae59c17" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool key_def_contains</definition>
+        <argsstring>(const struct key_def *first, const struct key_def *second)</argsstring>
+        <name>key_def_contains</name>
+        <param>
+          <type>const struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>first</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>second</declname>
+        </param>
+        <briefdescription>
+<para>Check if key definition <emphasis>first</emphasis> contains all parts of key definition <emphasis>second</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>true</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if <emphasis>first</emphasis> is a superset of <emphasis>second</emphasis> </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>false</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>otherwise </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="728" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.c" bodystart="997" bodyend="1012"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1a6a5c183fbff35474bd774a9541c87a8f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+        <definition>struct key_def* key_def_merge</definition>
+        <argsstring>(const struct key_def *first, const struct key_def *second)</argsstring>
+        <name>key_def_merge</name>
+        <param>
+          <type>const struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>first</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>second</declname>
+        </param>
+        <briefdescription>
+<para>Allocate a new <ref refid="structkey__def" kindref="compound">key_def</ref> with a set union of key parts from first and second key defs. </para>        </briefdescription>
+        <detaileddescription>
+<para>Parts of the new <ref refid="structkey__def" kindref="compound">key_def</ref> consist of the first <ref refid="structkey__def" kindref="compound">key_def</ref>&apos;s parts and those parts of the second <ref refid="structkey__def" kindref="compound">key_def</ref> that were not among the first parts. <parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>not</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NULL Ok. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Memory error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="739" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.c" bodystart="1041" bodyend="1117"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1ae89f4a63d8fb058f95d0369782d0f5e5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+        <definition>struct key_def* key_def_find_pk_in_cmp_def</definition>
+        <argsstring>(const struct key_def *cmp_def, const struct key_def *pk_def, struct region *region)</argsstring>
+        <name>key_def_find_pk_in_cmp_def</name>
+        <param>
+          <type>const struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>cmp_def</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>pk_def</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structregion" kindref="compound">region</ref> *</type>
+          <declname>region</declname>
+        </param>
+        <briefdescription>
+<para>Create a key definition suitable for extracting primary key parts from an extended secondary key. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cmp_def</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Extended secondary key definition (must include primary key parts). </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pk_def</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Primary key definition. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>region</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Region used for temporary allocations. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>not</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NULL Pointer to the extracted key definition. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Memory allocation error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="752" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.c" bodystart="1120" bodyend="1155"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1a73f600582c13d0900bd20ce56e04fdcd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int key_validate_parts</definition>
+        <argsstring>(const struct key_def *key_def, const char *key, uint32_t part_count, bool allow_nullable, const char **key_end)</argsstring>
+        <name>key_validate_parts</name>
+        <param>
+          <type>const struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>key_def</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>part_count</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>allow_nullable</declname>
+        </param>
+        <param>
+          <type>const char **</type>
+          <declname>key_end</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="768" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.c" bodystart="1158" bodyend="1172"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1a2d5a2b4db6cc07b664667f9ae264a21e" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool key_def_is_sequential</definition>
+        <argsstring>(const struct key_def *key_def)</argsstring>
+        <name>key_def_is_sequential</name>
+        <param>
+          <type>const struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>key_def</declname>
+        </param>
+        <briefdescription>
+<para>Return true if <emphasis><ref refid="structindex__def" kindref="compound">index_def</ref></emphasis> defines a sequential key without holes starting from the first field. </para>        </briefdescription>
+        <detaileddescription>
+<para>In other words, for all key parts index_def-&gt;parts[part_id].fieldno == part_id. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="structindex__def" kindref="compound">index_def</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="structindex__def" kindref="compound">index_def</ref> </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>true</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="structindex__def" kindref="compound">index_def</ref> is sequential </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>false</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>otherwise </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="781" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="781" bodyend="790"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1adb6c235c2d5841127f43ac60a13a4241" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool key_def_has_collation</definition>
+        <argsstring>(const struct key_def *key_def)</argsstring>
+        <name>key_def_has_collation</name>
+        <param>
+          <type>const struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>key_def</declname>
+        </param>
+        <briefdescription>
+<para>Return true if <emphasis><ref refid="structkey__def" kindref="compound">key_def</ref></emphasis> defines has fields that requires special collation comparison. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="structkey__def" kindref="compound">key_def</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="structkey__def" kindref="compound">key_def</ref> </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>true</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if the <ref refid="structkey__def" kindref="compound">key_def</ref> has collation fields </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>false</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>otherwise </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="800" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="800" bodyend="807"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1af74fb8dd5c9f19a3e91c7b6d0a269e17" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>enum field_type</type>
+        <definition>static enum field_type key_def_incomparable_type</definition>
+        <argsstring>(const struct key_def *key_def)</argsstring>
+        <name>key_def_incomparable_type</name>
+        <param>
+          <type>const struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>key_def</declname>
+        </param>
+        <briefdescription>
+<para>Return the first field type which can&apos;t be compared if <emphasis><ref refid="structkey__def" kindref="compound">key_def</ref></emphasis> has such. </para>        </briefdescription>
+        <detaileddescription>
+<para>Otherwise return field_type_MAX value. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="800" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="814" bodyend="825"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1afbda652ae36626cb258f0f9e9e54fd07" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int key_part_validate</definition>
+        <argsstring>(enum field_type key_type, const char *key, uint32_t field_no, bool is_nullable)</argsstring>
+        <name>key_part_validate</name>
+        <param>
+          <type>enum field_type</type>
+          <declname>key_type</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>field_no</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>is_nullable</declname>
+        </param>
+        <briefdescription>
+<para>Checks if <emphasis>field_type</emphasis> (MsgPack) is compatible <emphasis>type</emphasis> (KeyDef). </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>KeyDef type </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to MsgPack field to be tested. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>field_no</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- a field number (is used to store an error message)</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>mp_type is valid. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>mp_type is invalid. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="837" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="837" bodyend="846"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1a52a3b1679ebdc8ddb6ccec9f8483ceeb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int key_part_cmp</definition>
+        <argsstring>(const struct key_part *parts1, uint32_t part_count1, const struct key_part *parts2, uint32_t part_count2)</argsstring>
+        <name>key_part_cmp</name>
+        <param>
+          <type>const struct <ref refid="structkey__part" kindref="compound">key_part</ref> *</type>
+          <declname>parts1</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>part_count1</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structkey__part" kindref="compound">key_part</ref> *</type>
+          <declname>parts2</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>part_count2</declname>
+        </param>
+        <briefdescription>
+<para>Compare two key part arrays. </para>        </briefdescription>
+        <detaileddescription>
+<para>One key part is considered to be greater than the other if:<itemizedlist>
+<listitem><para>its fieldno is greater</para></listitem><listitem><para>given the same fieldno, NUM &lt; STRING</para></listitem></itemizedlist>
+</para><para>A key part array is considered greater than the other if all its key parts are greater, or, all common key parts are equal but there are additional parts in the bigger array. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="860" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.c" bodystart="673" bodyend="700"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1a348486dd89de54eb1ec6366420ff9a77" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tuple_key_contains_null</definition>
+        <argsstring>(struct tuple *tuple, struct key_def *def, int multikey_idx)</argsstring>
+        <name>tuple_key_contains_null</name>
+        <param>
+          <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+          <declname>tuple</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>def</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>multikey_idx</declname>
+        </param>
+        <briefdescription>
+<para>Check if a key of <emphasis>tuple</emphasis> contains NULL. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tuple</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Tuple to check. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>def</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Key def to check by. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>multikey_idx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Multikey index hint. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>Does</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the key contain NULL or not? </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="871" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_extract_key.cc" bodystart="462" bodyend="477"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1a7933972e1dfc6dea2170c8ef843ee364" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tuple_validate_key_parts</definition>
+        <argsstring>(struct key_def *key_def, struct tuple *tuple)</argsstring>
+        <name>tuple_validate_key_parts</name>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>key_def</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+          <declname>tuple</declname>
+        </param>
+        <briefdescription>
+<para>Check that tuple fields match with given key definition <ref refid="structkey__def" kindref="compound">key_def</ref>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="structkey__def" kindref="compound">key_def</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Key definition. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tuple</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Tuple to validate.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The tuple is valid. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The tuple is invalid. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="884" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_extract_key.cc" bodystart="480" bodyend="501"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1ae9325f78a598a00b822499c76a20433f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>char *</type>
+        <definition>static char* tuple_extract_key</definition>
+        <argsstring>(struct tuple *tuple, struct key_def *key_def, int multikey_idx, uint32_t *key_size)</argsstring>
+        <name>tuple_extract_key</name>
+        <param>
+          <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+          <declname>tuple</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>key_def</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>multikey_idx</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>key_size</declname>
+        </param>
+        <briefdescription>
+<para>Extract key from tuple by given key definition and return buffer allocated on box_txn_alloc with this key. </para>        </briefdescription>
+        <detaileddescription>
+<para>This function has O(n) complexity, where n is the number of key parts. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tuple</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- tuple from which need to extract key </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="structkey__def" kindref="compound">key_def</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- definition of key that need to extract </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>multikey_idx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- multikey index hint </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- here will be size of extracted key</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>not</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NULL Success </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Memory allocation error </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="899" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="899" bodyend="904"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1adfa67213550538df67e94ba6b1da87c1" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>char *</type>
+        <definition>static char* tuple_extract_key_raw</definition>
+        <argsstring>(const char *data, const char *data_end, struct key_def *key_def, int multikey_idx, uint32_t *key_size)</argsstring>
+        <name>tuple_extract_key_raw</name>
+        <param>
+          <type>const char *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>data_end</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>key_def</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>multikey_idx</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>key_size</declname>
+        </param>
+        <briefdescription>
+<para>Extract key from raw msgpuck by given key definition and return buffer allocated on box_txn_alloc with this key. </para>        </briefdescription>
+        <detaileddescription>
+<para>This function has O(n*m) complexity, where n is the number of key parts and m is the tuple size. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- msgpuck data from which need to extract key </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data_end</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer at the end of data </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="structkey__def" kindref="compound">key_def</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- definition of key that need to extract </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>multikey_idx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- multikey index hint </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- here will be size of extracted key</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>not</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NULL Success </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Memory allocation error </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="921" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="921" bodyend="927"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1a7bc297263e2c1a407945de0f713f2261" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int key_compare</definition>
+        <argsstring>(const char *key_a, hint_t key_a_hint, const char *key_b, hint_t key_b_hint, struct key_def *key_def)</argsstring>
+        <name>key_compare</name>
+        <param>
+          <type>const char *</type>
+          <declname>key_a</declname>
+        </param>
+        <param>
+          <type>hint_t</type>
+          <declname>key_a_hint</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>key_b</declname>
+        </param>
+        <param>
+          <type>hint_t</type>
+          <declname>key_b_hint</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>key_def</declname>
+        </param>
+        <briefdescription>
+<para>Compare keys using the key definition and comparison hints. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>key_a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>key parts with MessagePack array header </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key_a_hint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>comparison hint of <emphasis>key_a</emphasis> </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key_b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>key_parts with MessagePack array header </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key_b_hint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>comparison hint of <emphasis>key_b</emphasis> </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="structkey__def" kindref="compound">key_def</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>key definition</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if key_a == key_b </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>&lt;0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if key_a &lt; key_b </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>&gt;0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if key_a &gt; key_b </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="942" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_compare.cc" bodystart="888" bodyend="907"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1a1da6b416e1d5b1598f5cc7919f6712c3" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int tuple_compare</definition>
+        <argsstring>(struct tuple *tuple_a, hint_t tuple_a_hint, struct tuple *tuple_b, hint_t tuple_b_hint, struct key_def *key_def)</argsstring>
+        <name>tuple_compare</name>
+        <param>
+          <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+          <declname>tuple_a</declname>
+        </param>
+        <param>
+          <type>hint_t</type>
+          <declname>tuple_a_hint</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+          <declname>tuple_b</declname>
+        </param>
+        <param>
+          <type>hint_t</type>
+          <declname>tuple_b_hint</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>key_def</declname>
+        </param>
+        <briefdescription>
+<para>Compare tuples using the key definition and comparison hints. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tuple_a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>first tuple </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tuple_a_hint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>comparison hint of <emphasis>tuple_a</emphasis> </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tuple_b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>second tuple </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tuple_b_hint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>comparison hint of <emphasis>tuple_b</emphasis> </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="structkey__def" kindref="compound">key_def</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>key definition </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if key_fields(tuple_a) == key_fields(tuple_b) </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>&lt;0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if key_fields(tuple_a) &lt; key_fields(tuple_b) </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>&gt;0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if key_fields(tuple_a) &gt; key_fields(tuple_b) </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="958" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="958" bodyend="965"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1ad5708a3f7800061faccdffd7ee20f7f1" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int tuple_compare_with_key</definition>
+        <argsstring>(struct tuple *tuple, hint_t tuple_hint, const char *key, uint32_t part_count, hint_t key_hint, struct key_def *key_def)</argsstring>
+        <name>tuple_compare_with_key</name>
+        <param>
+          <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+          <declname>tuple</declname>
+        </param>
+        <param>
+          <type>hint_t</type>
+          <declname>tuple_hint</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>part_count</declname>
+        </param>
+        <param>
+          <type>hint_t</type>
+          <declname>key_hint</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>key_def</declname>
+        </param>
+        <briefdescription>
+<para>Compare tuple with key using the key definition and comparison hints. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tuple</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>tuple </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tuple_hint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>comparison hint of <emphasis>tuple</emphasis> </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>key parts without MessagePack array header </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>part_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the number of parts in <emphasis>key</emphasis> </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key_hint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>comparison hint of <emphasis>key</emphasis> </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="structkey__def" kindref="compound">key_def</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>key definition </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if key_fields(tuple) == parts(key) </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>&lt;0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if key_fields(tuple) &lt; parts(key) </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>&gt;0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if key_fields(tuple) &gt; parts(key) </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="981" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="981" bodyend="988"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1acde32bc3386c179c2a6dff811dae0eca" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t tuple_hash_field</definition>
+        <argsstring>(uint32_t *ph1, uint32_t *pcarry, const char **field, struct coll *coll)</argsstring>
+        <name>tuple_hash_field</name>
+        <param>
+          <type>uint32_t *</type>
+          <declname>ph1</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>pcarry</declname>
+        </param>
+        <param>
+          <type>const char **</type>
+          <declname>field</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structcoll" kindref="compound">coll</ref> *</type>
+          <declname>coll</declname>
+        </param>
+        <briefdescription>
+<para>Compute hash of a tuple field. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ph1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to running hash </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pcarry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to carry </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>field</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to field data </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>coll</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- collation to use for hashing strings or NULL </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>size of processed data</para></simplesect>
+This function updates  and  and advances  by the number of processed bytes. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="1002" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_hash.cc" bodystart="278" bodyend="340"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1ac6aef308297f5bf5ede612f0be83416d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t tuple_hash_key_part</definition>
+        <argsstring>(uint32_t *ph1, uint32_t *pcarry, struct tuple *tuple, struct key_part *part, int multikey_idx)</argsstring>
+        <name>tuple_hash_key_part</name>
+        <param>
+          <type>uint32_t *</type>
+          <declname>ph1</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>pcarry</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+          <declname>tuple</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structkey__part" kindref="compound">key_part</ref> *</type>
+          <declname>part</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>multikey_idx</declname>
+        </param>
+        <briefdescription>
+<para>Compute hash of a key part. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ph1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to running hash </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pcarry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to carry </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tuple</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- tuple to hash </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>part</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- key part </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>multikey_idx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- multikey index hint </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>size of processed data</para></simplesect>
+This function updates  and . </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="1017" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_hash.cc" bodystart="352" bodyend="359"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1adbca1dc8b3e22c3dd705fc215fcf2dfc" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t tuple_hash</definition>
+        <argsstring>(struct tuple *tuple, struct key_def *key_def)</argsstring>
+        <name>tuple_hash</name>
+        <param>
+          <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+          <declname>tuple</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>key_def</declname>
+        </param>
+        <briefdescription>
+<para>Calculates a common hash value for a tuple. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tuple</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- a tuple </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="structkey__def" kindref="compound">key_def</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- <ref refid="structkey__def" kindref="compound">key_def</ref> for field description </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>- hash value </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="1027" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="1027" bodyend="1030"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1aa4168e6e24be48d59b3e438a3c1959b4" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t key_hash</definition>
+        <argsstring>(const char *key, struct key_def *key_def)</argsstring>
+        <name>key_hash</name>
+        <param>
+          <type>const char *</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>key_def</declname>
+        </param>
+        <briefdescription>
+<para>Calculate a common hash value for a key. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- full key (msgpack fields w/o array marker) </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="structkey__def" kindref="compound">key_def</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- <ref refid="structkey__def" kindref="compound">key_def</ref> for field description </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>- hash value </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="1039" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="1039" bodyend="1042"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1ad8ee6794131521a7550a1fd0e57c4bf1" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>hint_t</type>
+        <definition>static hint_t tuple_hint</definition>
+        <argsstring>(struct tuple *tuple, struct key_def *key_def)</argsstring>
+        <name>tuple_hint</name>
+        <param>
+          <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+          <declname>tuple</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>key_def</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="1051" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="1051" bodyend="1054"/>
+      </memberdef>
+      <memberdef kind="function" id="key__def_8h_1aaa1d13087bb6865ade378ab45fe008fa" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>hint_t</type>
+        <definition>static hint_t key_hint</definition>
+        <argsstring>(const char *key, uint32_t part_count, struct key_def *key_def)</argsstring>
+        <name>key_hint</name>
+        <param>
+          <type>const char *</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>part_count</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>key_def</declname>
+        </param>
+        <briefdescription>
+<para>Get a comparison hint of a key. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- key to compute the hint for </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="structkey__def" kindref="compound">key_def</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- <ref refid="structkey__def" kindref="compound">key_def</ref> used for tuple comparison </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>- hint value </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_def.h" line="1063" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_def.h" bodystart="1063" bodyend="1066"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_BOX_KEY_DEF_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_BOX_KEY_DEF_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trivia/util.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;error.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;diag.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="msgpuck_8h" kindref="compound">msgpuck.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;field_def.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;coll_id.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tuple_compare.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Sorting<sp/>order<sp/>of<sp/>a<sp/>part.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sort_order_strs[];</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>sort_order<sp/>{</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SORT_ORDER_ASC<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SORT_ORDER_DESC,</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SORT_ORDER_UNDEF,</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sort_order_MAX</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55" refid="structkey__part__def" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structkey__part__def" kindref="compound">key_part_def</ref><sp/>{</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structkey__part__def_1a128ff522ccaf5c934ca878077aea8923" kindref="member">fieldno</ref>;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>field_type<sp/><ref refid="structkey__part__def_1a97dc66f7e13292dd059c7e23b8d1711e" kindref="member">type</ref>;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structkey__part__def_1a3c4695581df655faa8444605f91a7635" kindref="member">coll_id</ref>;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structkey__part__def_1aa95f23d8465504931d73b7b9c0241323" kindref="member">is_nullable</ref>;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>on_conflict_action<sp/><ref refid="structkey__part__def_1afe3595bf0836bd5a4f05e3f4e6d83ef9" kindref="member">nullable_action</ref>;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>sort_order<sp/><ref refid="structkey__part__def_1ad7f8971ede2cd31d251df1cbaa326215" kindref="member">sort_order</ref>;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structkey__part__def_1aea916fccefd597689ca8be712fc1e4ac" kindref="member">path</ref>;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structkey__part__def" kindref="compound">key_part_def</ref><sp/>key_part_def_default;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79" refid="structkey__part" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structkey__part" kindref="compound">key_part</ref><sp/>{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structkey__part__def_1a128ff522ccaf5c934ca878077aea8923" kindref="member">fieldno</ref>;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>field_type<sp/><ref refid="structkey__part__def_1a97dc66f7e13292dd059c7e23b8d1711e" kindref="member">type</ref>;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structkey__part__def_1a3c4695581df655faa8444605f91a7635" kindref="member">coll_id</ref>;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcoll" kindref="compound">coll</ref><sp/>*<ref refid="structcoll" kindref="compound">coll</ref>;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>on_conflict_action<sp/><ref refid="structkey__part__def_1afe3595bf0836bd5a4f05e3f4e6d83ef9" kindref="member">nullable_action</ref>;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>sort_order<sp/><ref refid="structkey__part__def_1ad7f8971ede2cd31d251df1cbaa326215" kindref="member">sort_order</ref>;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structkey__part__def_1aea916fccefd597689ca8be712fc1e4ac" kindref="member">path</ref>;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>path_len;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>format_epoch;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>offset_slot_cache;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structkey__def" kindref="compound">key_def</ref>;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple" kindref="compound">tuple</ref>;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal">key_part_is_nullable(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structkey__part" kindref="compound">key_part</ref><sp/>*part)</highlight></codeline>
+<codeline lineno="128"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>part-&gt;<ref refid="structkey__part_1ad0a18d7297a6b13f3e30b7a2cddb86aa" kindref="member">nullable_action</ref><sp/>==<sp/>ON_CONFLICT_ACTION_NONE;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>int<sp/>(*tuple_compare_with_key_t)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple" kindref="compound">tuple</ref><sp/>*<ref refid="structtuple" kindref="compound">tuple</ref>,</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hint_t<sp/>tuple_hint,</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*key,</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>part_count,</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hint_t<sp/>key_hint,</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structkey__def" kindref="compound">key_def</ref><sp/>*<ref refid="structkey__def" kindref="compound">key_def</ref>);</highlight></codeline>
+<codeline lineno="140"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>int<sp/>(*tuple_compare_t)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">tuple<sp/>*tuple_a,</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hint_t<sp/>tuple_a_hint,</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">tuple<sp/>*tuple_b,</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hint_t<sp/>tuple_b_hint,</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structkey__def" kindref="compound">key_def</ref><sp/>*<ref refid="structkey__def" kindref="compound">key_def</ref>);</highlight></codeline>
+<codeline lineno="146"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*(*tuple_extract_key_t)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">tuple<sp/>*tuple,</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structkey__def" kindref="compound">key_def</ref><sp/>*<ref refid="structkey__def" kindref="compound">key_def</ref>,</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>multikey_idx,</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>*key_size);</highlight></codeline>
+<codeline lineno="151"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*(*tuple_extract_key_raw_t)(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data,</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data_end,</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">key_def<sp/>*key_def,</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>multikey_idx,</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>*key_size);</highlight></codeline>
+<codeline lineno="157"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>uint32_t<sp/>(*tuple_hash_t)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">tuple<sp/>*tuple,</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">key_def<sp/>*key_def);</highlight></codeline>
+<codeline lineno="160"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>uint32_t<sp/>(*key_hash_t)(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*key,</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">key_def<sp/>*key_def);</highlight></codeline>
+<codeline lineno="163"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>hint_t<sp/>(*tuple_hint_t)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">tuple<sp/>*tuple,</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">key_def<sp/>*key_def);</highlight></codeline>
+<codeline lineno="166"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>hint_t<sp/>(*key_hint_t)(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*key,<sp/>uint32_t<sp/><ref refid="structkey__def_1a16de3c946e61dd21a422185e044b52db" kindref="member">part_count</ref>,</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">key_def<sp/>*key_def);</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Definition<sp/>of<sp/>a<sp/>multipart<sp/>key.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="170" refid="structkey__def" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">key_def<sp/>{</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tuple_compare_t<sp/>tuple_compare;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tuple_compare_with_key_t<sp/>tuple_compare_with_key;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tuple_extract_key_t<sp/>tuple_extract_key;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tuple_extract_key_raw_t<sp/>tuple_extract_key_raw;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tuple_hash_t<sp/>tuple_hash;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>key_hash_t<sp/>key_hash;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tuple_hint_t<sp/>tuple_hint;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>key_hint_t<sp/>key_hint;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>unique_part_count;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structkey__part__def_1aa95f23d8465504931d73b7b9c0241323" kindref="member">is_nullable</ref>;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>has_json_paths;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_multikey;</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>for_func_index;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>has_optional_parts;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>column_mask;</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfunc" kindref="compound">func</ref><sp/>*func_index_func;</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*multikey_path;</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>multikey_path_len;</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>multikey_fieldno;</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>part_count;</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structkey__part" kindref="compound">key_part</ref><sp/>parts[];</highlight></codeline>
+<codeline lineno="264"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"></highlight></codeline>
+<codeline lineno="273"><highlight class="keyword">struct<sp/></highlight><highlight class="normal">key_def<sp/>*</highlight></codeline>
+<codeline lineno="274"><highlight class="normal">key_def_dup(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*src);</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"></highlight></codeline>
+<codeline lineno="280"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="281"><highlight class="normal">key_def_copy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*dest,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*src);</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"></highlight></codeline>
+<codeline lineno="287"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="288"><highlight class="normal">key_def_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*def);</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"></highlight></codeline>
+<codeline lineno="290"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">tuple<sp/>box_tuple_t;</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"></highlight></codeline>
+<codeline lineno="292"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>{{{<sp/>Module<sp/>API<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="293"><highlight class="normal"></highlight></codeline>
+<codeline lineno="296"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">key_def<sp/>box_key_def_t;</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"></highlight></codeline>
+<codeline lineno="299"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>BOX_KEY_PART_DEF_IS_NULLABLE<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>0,</highlight></codeline>
+<codeline lineno="301"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"></highlight></codeline>
+<codeline lineno="327"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>BOX_KEY_PART_DEF_T_SIZE<sp/>=<sp/>64,</highlight></codeline>
+<codeline lineno="329"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"></highlight></codeline>
+<codeline lineno="355"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal">PACKED<sp/>{</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="358"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structkey__part__def_1a128ff522ccaf5c934ca878077aea8923" kindref="member">fieldno</ref>;</highlight></codeline>
+<codeline lineno="360"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>flags;</highlight></codeline>
+<codeline lineno="362"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*field_type;</highlight></codeline>
+<codeline lineno="364"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*collation;</highlight></codeline>
+<codeline lineno="384"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structkey__part__def_1aea916fccefd597689ca8be712fc1e4ac" kindref="member">path</ref>;</highlight></codeline>
+<codeline lineno="385"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="390"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>padding[BOX_KEY_PART_DEF_T_SIZE];</highlight></codeline>
+<codeline lineno="391"><highlight class="normal">}<sp/>box_key_part_def_t;</highlight></codeline>
+<codeline lineno="392"><highlight class="normal"></highlight></codeline>
+<codeline lineno="405"><highlight class="normal">API_EXPORT<sp/>box_key_def_t<sp/>*</highlight></codeline>
+<codeline lineno="406"><highlight class="normal">box_key_def_new(uint32_t<sp/>*fields,<sp/>uint32_t<sp/>*types,<sp/>uint32_t<sp/>part_count);</highlight></codeline>
+<codeline lineno="407"><highlight class="normal"></highlight></codeline>
+<codeline lineno="438"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="439"><highlight class="normal">box_key_part_def_create(box_key_part_def_t<sp/>*part);</highlight></codeline>
+<codeline lineno="440"><highlight class="normal"></highlight></codeline>
+<codeline lineno="453"><highlight class="normal">API_EXPORT<sp/>box_key_def_t<sp/>*</highlight></codeline>
+<codeline lineno="454"><highlight class="normal">box_key_def_new_v2(box_key_part_def_t<sp/>*parts,<sp/>uint32_t<sp/>part_count);</highlight></codeline>
+<codeline lineno="455"><highlight class="normal"></highlight></codeline>
+<codeline lineno="463"><highlight class="normal">API_EXPORT<sp/>box_key_def_t<sp/>*</highlight></codeline>
+<codeline lineno="464"><highlight class="normal">box_key_def_dup(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>box_key_def_t<sp/>*key_def);</highlight></codeline>
+<codeline lineno="465"><highlight class="normal"></highlight></codeline>
+<codeline lineno="471"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="472"><highlight class="normal">box_key_def_delete(box_key_def_t<sp/>*key_def);</highlight></codeline>
+<codeline lineno="473"><highlight class="normal"></highlight></codeline>
+<codeline lineno="487"><highlight class="normal">API_EXPORT<sp/>box_key_part_def_t<sp/>*</highlight></codeline>
+<codeline lineno="488"><highlight class="normal">box_key_def_dump_parts(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>box_key_def_t<sp/>*key_def,<sp/>uint32_t<sp/>*part_count_ptr);</highlight></codeline>
+<codeline lineno="489"><highlight class="normal"></highlight></codeline>
+<codeline lineno="502"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="503"><highlight class="normal">box_key_def_validate_tuple(box_key_def_t<sp/>*key_def,<sp/>box_tuple_t<sp/>*tuple);</highlight></codeline>
+<codeline lineno="504"><highlight class="normal"></highlight></codeline>
+<codeline lineno="514"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="515"><highlight class="normal">box_tuple_compare(box_tuple_t<sp/>*tuple_a,<sp/>box_tuple_t<sp/>*tuple_b,</highlight></codeline>
+<codeline lineno="516"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>box_key_def_t<sp/>*key_def);</highlight></codeline>
+<codeline lineno="517"><highlight class="normal"></highlight></codeline>
+<codeline lineno="529"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="530"><highlight class="normal">box_tuple_compare_with_key(box_tuple_t<sp/>*tuple_a,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*key_b,</highlight></codeline>
+<codeline lineno="531"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>box_key_def_t<sp/>*key_def);</highlight></codeline>
+<codeline lineno="532"><highlight class="normal"></highlight></codeline>
+<codeline lineno="547"><highlight class="normal">API_EXPORT<sp/>box_key_def_t<sp/>*</highlight></codeline>
+<codeline lineno="548"><highlight class="normal">box_key_def_merge(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>box_key_def_t<sp/>*first,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>box_key_def_t<sp/>*second);</highlight></codeline>
+<codeline lineno="549"><highlight class="normal"></highlight></codeline>
+<codeline lineno="569"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="570"><highlight class="normal">box_key_def_extract_key(box_key_def_t<sp/>*key_def,<sp/>box_tuple_t<sp/>*tuple,</highlight></codeline>
+<codeline lineno="571"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>multikey_idx,<sp/>uint32_t<sp/>*key_size_ptr);</highlight></codeline>
+<codeline lineno="572"><highlight class="normal"></highlight></codeline>
+<codeline lineno="595"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="596"><highlight class="normal">box_key_def_validate_key(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>box_key_def_t<sp/>*key_def,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*key,</highlight></codeline>
+<codeline lineno="597"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>*key_size_ptr);</highlight></codeline>
+<codeline lineno="598"><highlight class="normal"></highlight></codeline>
+<codeline lineno="620"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="621"><highlight class="normal">box_key_def_validate_full_key(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>box_key_def_t<sp/>*key_def,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*key,</highlight></codeline>
+<codeline lineno="622"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>*key_size_ptr);</highlight></codeline>
+<codeline lineno="623"><highlight class="normal"></highlight></codeline>
+<codeline lineno="626"><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="627"><highlight class="comment"><sp/>*<sp/>Size<sp/>of<sp/>the<sp/>structure<sp/>should<sp/>remain<sp/>the<sp/>same<sp/>across<sp/>all</highlight></codeline>
+<codeline lineno="628"><highlight class="comment"><sp/>*<sp/>tarantool<sp/>versions<sp/>in<sp/>order<sp/>to<sp/>allow<sp/>to<sp/>allocate<sp/>an<sp/>array<sp/>of</highlight></codeline>
+<codeline lineno="629"><highlight class="comment"><sp/>*<sp/>them.</highlight></codeline>
+<codeline lineno="630"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="631"><highlight class="normal">static_assert(</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(box_key_part_def_t)<sp/>==<sp/>BOX_KEY_PART_DEF_T_SIZE,</highlight></codeline>
+<codeline lineno="632"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;sizeof(box_key_part_def_t)&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="633"><highlight class="normal"></highlight></codeline>
+<codeline lineno="634"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>}}}<sp/>Module<sp/>API<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="635"><highlight class="normal"></highlight></codeline>
+<codeline lineno="636"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="637"><highlight class="normal">key_def_sizeof(uint32_t<sp/>part_count,<sp/>uint32_t<sp/>path_pool_size)</highlight></codeline>
+<codeline lineno="638"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="639"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">key_def)<sp/>+<sp/>sizeof(struct<sp/>key_part)<sp/>*<sp/>part_count<sp/>+</highlight></codeline>
+<codeline lineno="640"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>path_pool_size;</highlight></codeline>
+<codeline lineno="641"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="642"><highlight class="normal"></highlight></codeline>
+<codeline lineno="647"><highlight class="keyword">struct<sp/></highlight><highlight class="normal">key_def<sp/>*</highlight></codeline>
+<codeline lineno="648"><highlight class="normal">key_def_new(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structkey__part__def" kindref="compound">key_part_def</ref><sp/>*parts,<sp/>uint32_t<sp/>part_count,</highlight></codeline>
+<codeline lineno="649"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structkey__def_1a55eaf0ea2031cbcf681ef40ead2f36ff" kindref="member">for_func_index</ref>);</highlight></codeline>
+<codeline lineno="650"><highlight class="normal"></highlight></codeline>
+<codeline lineno="656"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="657"><highlight class="normal">key_def_dump_parts(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*def,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structkey__part__def" kindref="compound">key_part_def</ref><sp/>*parts,</highlight></codeline>
+<codeline lineno="658"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structregion" kindref="compound">region</ref><sp/>*<ref refid="structregion" kindref="compound">region</ref>);</highlight></codeline>
+<codeline lineno="659"><highlight class="normal"></highlight></codeline>
+<codeline lineno="667"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="668"><highlight class="normal">key_def_update_optionality(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*def,<sp/>uint32_t<sp/>min_field_count);</highlight></codeline>
+<codeline lineno="669"><highlight class="normal"></highlight></codeline>
+<codeline lineno="673"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="674"><highlight class="normal">key_def_snprint_parts(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>size,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structkey__part__def" kindref="compound">key_part_def</ref><sp/>*parts,</highlight></codeline>
+<codeline lineno="675"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>part_count);</highlight></codeline>
+<codeline lineno="676"><highlight class="normal"></highlight></codeline>
+<codeline lineno="681"><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="682"><highlight class="normal">key_def_sizeof_parts(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structkey__part__def" kindref="compound">key_part_def</ref><sp/>*parts,<sp/>uint32_t<sp/>part_count);</highlight></codeline>
+<codeline lineno="683"><highlight class="normal"></highlight></codeline>
+<codeline lineno="688"><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="689"><highlight class="normal">key_def_encode_parts(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structkey__part__def" kindref="compound">key_part_def</ref><sp/>*parts,</highlight></codeline>
+<codeline lineno="690"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>part_count);</highlight></codeline>
+<codeline lineno="691"><highlight class="normal"></highlight></codeline>
+<codeline lineno="702"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="703"><highlight class="normal">key_def_decode_parts(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structkey__part__def" kindref="compound">key_part_def</ref><sp/>*parts,<sp/>uint32_t<sp/>part_count,</highlight></codeline>
+<codeline lineno="704"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**data,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfield__def" kindref="compound">field_def</ref><sp/>*fields,</highlight></codeline>
+<codeline lineno="705"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>field_count,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>region<sp/>*region);</highlight></codeline>
+<codeline lineno="706"><highlight class="normal"></highlight></codeline>
+<codeline lineno="711"><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structkey__part" kindref="compound">key_part</ref><sp/>*</highlight></codeline>
+<codeline lineno="712"><highlight class="normal">key_def_find_by_fieldno(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*key_def,<sp/>uint32_t<sp/><ref refid="structkey__part__def_1a128ff522ccaf5c934ca878077aea8923" kindref="member">fieldno</ref>);</highlight></codeline>
+<codeline lineno="713"><highlight class="normal"></highlight></codeline>
+<codeline lineno="718"><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structkey__part" kindref="compound">key_part</ref><sp/>*</highlight></codeline>
+<codeline lineno="719"><highlight class="normal">key_def_find(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*key_def,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structkey__part" kindref="compound">key_part</ref><sp/>*to_find);</highlight></codeline>
+<codeline lineno="720"><highlight class="normal"></highlight></codeline>
+<codeline lineno="727"><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="728"><highlight class="normal">key_def_contains(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*first,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*second);</highlight></codeline>
+<codeline lineno="729"><highlight class="normal"></highlight></codeline>
+<codeline lineno="738"><highlight class="keyword">struct<sp/></highlight><highlight class="normal">key_def<sp/>*</highlight></codeline>
+<codeline lineno="739"><highlight class="normal">key_def_merge(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*first,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*second);</highlight></codeline>
+<codeline lineno="740"><highlight class="normal"></highlight></codeline>
+<codeline lineno="751"><highlight class="keyword">struct<sp/></highlight><highlight class="normal">key_def<sp/>*</highlight></codeline>
+<codeline lineno="752"><highlight class="normal">key_def_find_pk_in_cmp_def(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*cmp_def,</highlight></codeline>
+<codeline lineno="753"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*pk_def,</highlight></codeline>
+<codeline lineno="754"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>region<sp/>*region);</highlight></codeline>
+<codeline lineno="755"><highlight class="normal"></highlight></codeline>
+<codeline lineno="756"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="757"><highlight class="comment"><sp/>*<sp/>Check<sp/>that<sp/>parts<sp/>of<sp/>the<sp/>key<sp/>match<sp/>with<sp/>the<sp/>key<sp/>definition.</highlight></codeline>
+<codeline lineno="758"><highlight class="comment"><sp/>*<sp/>@param<sp/>key_def<sp/>Key<sp/>definition.</highlight></codeline>
+<codeline lineno="759"><highlight class="comment"><sp/>*<sp/>@param<sp/>key<sp/>MessagePack&apos;ed<sp/>data<sp/>for<sp/>matching.</highlight></codeline>
+<codeline lineno="760"><highlight class="comment"><sp/>*<sp/>@param<sp/>part_count<sp/>Field<sp/>count<sp/>in<sp/>the<sp/>key.</highlight></codeline>
+<codeline lineno="761"><highlight class="comment"><sp/>*<sp/>@param<sp/>allow_nullable<sp/>True<sp/>if<sp/>nullable<sp/>parts<sp/>are<sp/>allowed.</highlight></codeline>
+<codeline lineno="762"><highlight class="comment"><sp/>*<sp/>@param<sp/>key_end[out]<sp/>The<sp/>end<sp/>of<sp/>the<sp/>validated<sp/>key.</highlight></codeline>
+<codeline lineno="763"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="764"><highlight class="comment"><sp/>*<sp/>@retval<sp/>0<sp/><sp/>The<sp/>key<sp/>is<sp/>valid.</highlight></codeline>
+<codeline lineno="765"><highlight class="comment"><sp/>*<sp/>@retval<sp/>-1<sp/>The<sp/>key<sp/>is<sp/>invalid.</highlight></codeline>
+<codeline lineno="766"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="767"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="768"><highlight class="normal">key_validate_parts(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*key_def,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*key,</highlight></codeline>
+<codeline lineno="769"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>part_count,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>allow_nullable,</highlight></codeline>
+<codeline lineno="770"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**key_end);</highlight></codeline>
+<codeline lineno="771"><highlight class="normal"></highlight></codeline>
+<codeline lineno="780"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="781"><highlight class="normal">key_def_is_sequential(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*key_def)</highlight></codeline>
+<codeline lineno="782"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="783"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(key_def-&gt;<ref refid="structkey__def_1adf58f6244ee4f46e2a5d6739e8658a53" kindref="member">has_json_paths</ref>)</highlight></codeline>
+<codeline lineno="784"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="785"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint32_t<sp/>part_id<sp/>=<sp/>0;<sp/>part_id<sp/>&lt;<sp/>key_def-&gt;<ref refid="structkey__def_1a16de3c946e61dd21a422185e044b52db" kindref="member">part_count</ref>;<sp/>part_id++)<sp/>{</highlight></codeline>
+<codeline lineno="786"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(key_def-&gt;<ref refid="structkey__def_1ab75e0cd8ddec4f01c27d0b6078e94ef3" kindref="member">parts</ref>[part_id].<ref refid="structkey__part_1a8d46eefe02e3b0cc1a1c42525ba77e4a" kindref="member">fieldno</ref><sp/>!=<sp/>part_id)</highlight></codeline>
+<codeline lineno="787"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="788"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="789"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="790"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="791"><highlight class="normal"></highlight></codeline>
+<codeline lineno="799"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="800"><highlight class="normal">key_def_has_collation(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*key_def)</highlight></codeline>
+<codeline lineno="801"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="802"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint32_t<sp/>part_id<sp/>=<sp/>0;<sp/>part_id<sp/>&lt;<sp/>key_def-&gt;<ref refid="structkey__def_1a16de3c946e61dd21a422185e044b52db" kindref="member">part_count</ref>;<sp/>part_id++)<sp/>{</highlight></codeline>
+<codeline lineno="803"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(key_def-&gt;<ref refid="structkey__def_1ab75e0cd8ddec4f01c27d0b6078e94ef3" kindref="member">parts</ref>[part_id].<ref refid="structkey__part_1a97dfe0839a669b70d7749015615afeea" kindref="member">coll</ref><sp/>!=<sp/>NULL)</highlight></codeline>
+<codeline lineno="804"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="805"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="806"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="807"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="808"><highlight class="normal"></highlight></codeline>
+<codeline lineno="813"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>field_type</highlight></codeline>
+<codeline lineno="814"><highlight class="normal">key_def_incomparable_type(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*key_def)</highlight></codeline>
+<codeline lineno="815"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="816"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint32_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>key_def-&gt;<ref refid="structkey__def_1a16de3c946e61dd21a422185e044b52db" kindref="member">part_count</ref>;<sp/>++i)<sp/>{</highlight></codeline>
+<codeline lineno="817"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(key_def-&gt;<ref refid="structkey__def_1ab75e0cd8ddec4f01c27d0b6078e94ef3" kindref="member">parts</ref>[i].<ref refid="structkey__part_1a4ec71c8962b49b25e642865dd51af26b" kindref="member">type</ref><sp/>==<sp/>FIELD_TYPE_ANY<sp/>||</highlight></codeline>
+<codeline lineno="818"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>key_def-&gt;<ref refid="structkey__def_1ab75e0cd8ddec4f01c27d0b6078e94ef3" kindref="member">parts</ref>[i].<ref refid="structkey__part_1a4ec71c8962b49b25e642865dd51af26b" kindref="member">type</ref><sp/>==<sp/>FIELD_TYPE_ARRAY<sp/>||</highlight></codeline>
+<codeline lineno="819"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>key_def-&gt;<ref refid="structkey__def_1ab75e0cd8ddec4f01c27d0b6078e94ef3" kindref="member">parts</ref>[i].<ref refid="structkey__part_1a4ec71c8962b49b25e642865dd51af26b" kindref="member">type</ref><sp/>==<sp/>FIELD_TYPE_MAP)<sp/>{</highlight></codeline>
+<codeline lineno="820"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Tuple<sp/>comparators<sp/>don&apos;t<sp/>support<sp/>these<sp/>types.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="821"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>key_def-&gt;<ref refid="structkey__def_1ab75e0cd8ddec4f01c27d0b6078e94ef3" kindref="member">parts</ref>[i].<ref refid="structkey__part_1a4ec71c8962b49b25e642865dd51af26b" kindref="member">type</ref>;</highlight></codeline>
+<codeline lineno="822"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="823"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="824"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>field_type_MAX;</highlight></codeline>
+<codeline lineno="825"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="826"><highlight class="normal"></highlight></codeline>
+<codeline lineno="836"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="837"><highlight class="normal">key_part_validate(</highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>field_type<sp/>key_type,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*key,</highlight></codeline>
+<codeline lineno="838"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>field_no,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structkey__part__def_1aa95f23d8465504931d73b7b9c0241323" kindref="member">is_nullable</ref>)</highlight></codeline>
+<codeline lineno="839"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="840"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(unlikely(!field_mp_type_is_compatible(key_type,<sp/>key,<sp/>is_nullable)))<sp/>{</highlight></codeline>
+<codeline lineno="841"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(ClientError,<sp/>ER_KEY_PART_TYPE,<sp/>field_no,</highlight></codeline>
+<codeline lineno="842"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>field_type_strs[key_type]);</highlight></codeline>
+<codeline lineno="843"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="844"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="845"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="846"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="847"><highlight class="normal"></highlight></codeline>
+<codeline lineno="859"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="860"><highlight class="normal">key_part_cmp(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structkey__part" kindref="compound">key_part</ref><sp/>*parts1,<sp/>uint32_t<sp/>part_count1,</highlight></codeline>
+<codeline lineno="861"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structkey__part" kindref="compound">key_part</ref><sp/>*parts2,<sp/>uint32_t<sp/>part_count2);</highlight></codeline>
+<codeline lineno="862"><highlight class="normal"></highlight></codeline>
+<codeline lineno="870"><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="871"><highlight class="normal">tuple_key_contains_null(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tuple<sp/>*tuple,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*def,</highlight></codeline>
+<codeline lineno="872"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>multikey_idx);</highlight></codeline>
+<codeline lineno="873"><highlight class="normal"></highlight></codeline>
+<codeline lineno="883"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="884"><highlight class="normal">tuple_validate_key_parts(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*key_def,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tuple<sp/>*tuple);</highlight></codeline>
+<codeline lineno="885"><highlight class="normal"></highlight></codeline>
+<codeline lineno="898"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="899"><highlight class="normal"><ref refid="structkey__def_1a86855f477d29d91ca8890204eae2d66e" kindref="member">tuple_extract_key</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tuple<sp/>*tuple,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*key_def,</highlight></codeline>
+<codeline lineno="900"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>multikey_idx,<sp/>uint32_t<sp/>*key_size)</highlight></codeline>
+<codeline lineno="901"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="902"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>key_def-&gt;<ref refid="structkey__def_1a86855f477d29d91ca8890204eae2d66e" kindref="member">tuple_extract_key</ref>(tuple,<sp/>key_def,<sp/>multikey_idx,</highlight></codeline>
+<codeline lineno="903"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>key_size);</highlight></codeline>
+<codeline lineno="904"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="905"><highlight class="normal"></highlight></codeline>
+<codeline lineno="920"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="921"><highlight class="normal"><ref refid="structkey__def_1ac8593e4dc370c48c9f43548ab7ba9222" kindref="member">tuple_extract_key_raw</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data_end,</highlight></codeline>
+<codeline lineno="922"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*key_def,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>multikey_idx,</highlight></codeline>
+<codeline lineno="923"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>*key_size)</highlight></codeline>
+<codeline lineno="924"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="925"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>key_def-&gt;<ref refid="structkey__def_1ac8593e4dc370c48c9f43548ab7ba9222" kindref="member">tuple_extract_key_raw</ref>(data,<sp/>data_end,<sp/>key_def,</highlight></codeline>
+<codeline lineno="926"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>multikey_idx,<sp/>key_size);</highlight></codeline>
+<codeline lineno="927"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="928"><highlight class="normal"></highlight></codeline>
+<codeline lineno="941"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="942"><highlight class="normal">key_compare(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*key_a,<sp/>hint_t<sp/>key_a_hint,</highlight></codeline>
+<codeline lineno="943"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*key_b,<sp/>hint_t<sp/>key_b_hint,</highlight></codeline>
+<codeline lineno="944"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*key_def);</highlight></codeline>
+<codeline lineno="945"><highlight class="normal"></highlight></codeline>
+<codeline lineno="957"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="958"><highlight class="normal"><ref refid="structkey__def_1acada303d2ca1e710b1f1145c9c3c1f35" kindref="member">tuple_compare</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tuple<sp/>*tuple_a,<sp/>hint_t<sp/>tuple_a_hint,</highlight></codeline>
+<codeline lineno="959"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tuple<sp/>*tuple_b,<sp/>hint_t<sp/>tuple_b_hint,</highlight></codeline>
+<codeline lineno="960"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*key_def)</highlight></codeline>
+<codeline lineno="961"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="962"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(key_def-&gt;<ref refid="structkey__def_1acada303d2ca1e710b1f1145c9c3c1f35" kindref="member">tuple_compare</ref><sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="963"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>key_def-&gt;<ref refid="structkey__def_1acada303d2ca1e710b1f1145c9c3c1f35" kindref="member">tuple_compare</ref>(tuple_a,<sp/>tuple_a_hint,</highlight></codeline>
+<codeline lineno="964"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tuple_b,<sp/>tuple_b_hint,<sp/>key_def);</highlight></codeline>
+<codeline lineno="965"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="966"><highlight class="normal"></highlight></codeline>
+<codeline lineno="980"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="981"><highlight class="normal"><ref refid="structkey__def_1a5a2b252f4367215f2f9b61d0b9e7874f" kindref="member">tuple_compare_with_key</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tuple<sp/>*tuple,<sp/>hint_t<sp/>tuple_hint,</highlight></codeline>
+<codeline lineno="982"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*key,<sp/>uint32_t<sp/>part_count,</highlight></codeline>
+<codeline lineno="983"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hint_t<sp/>key_hint,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*key_def)</highlight></codeline>
+<codeline lineno="984"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="985"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(key_def-&gt;<ref refid="structkey__def_1a5a2b252f4367215f2f9b61d0b9e7874f" kindref="member">tuple_compare_with_key</ref><sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="986"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>key_def-&gt;<ref refid="structkey__def_1a5a2b252f4367215f2f9b61d0b9e7874f" kindref="member">tuple_compare_with_key</ref>(tuple,<sp/>tuple_hint,<sp/>key,</highlight></codeline>
+<codeline lineno="987"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>part_count,<sp/>key_hint,<sp/>key_def);</highlight></codeline>
+<codeline lineno="988"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="989"><highlight class="normal"></highlight></codeline>
+<codeline lineno="1001"><highlight class="normal">uint32_t</highlight></codeline>
+<codeline lineno="1002"><highlight class="normal">tuple_hash_field(uint32_t<sp/>*ph1,<sp/>uint32_t<sp/>*pcarry,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**field,</highlight></codeline>
+<codeline lineno="1003"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcoll" kindref="compound">coll</ref><sp/>*<ref refid="structcoll" kindref="compound">coll</ref>);</highlight></codeline>
+<codeline lineno="1004"><highlight class="normal"></highlight></codeline>
+<codeline lineno="1016"><highlight class="normal">uint32_t</highlight></codeline>
+<codeline lineno="1017"><highlight class="normal">tuple_hash_key_part(uint32_t<sp/>*ph1,<sp/>uint32_t<sp/>*pcarry,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tuple<sp/>*tuple,</highlight></codeline>
+<codeline lineno="1018"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structkey__part" kindref="compound">key_part</ref><sp/>*part,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>multikey_idx);</highlight></codeline>
+<codeline lineno="1019"><highlight class="normal"></highlight></codeline>
+<codeline lineno="1026"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t</highlight></codeline>
+<codeline lineno="1027"><highlight class="normal"><ref refid="structkey__def_1aef85dca896b9402975ec729a0fb87f41" kindref="member">tuple_hash</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tuple<sp/>*tuple,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*key_def)</highlight></codeline>
+<codeline lineno="1028"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="1029"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>key_def-&gt;<ref refid="structkey__def_1aef85dca896b9402975ec729a0fb87f41" kindref="member">tuple_hash</ref>(tuple,<sp/>key_def);</highlight></codeline>
+<codeline lineno="1030"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="1031"><highlight class="normal"></highlight></codeline>
+<codeline lineno="1038"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t</highlight></codeline>
+<codeline lineno="1039"><highlight class="normal"><ref refid="structkey__def_1a62463bfefa13ed03f856a726a5975be1" kindref="member">key_hash</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*key,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*key_def)</highlight></codeline>
+<codeline lineno="1040"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="1041"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>key_def-&gt;<ref refid="structkey__def_1a62463bfefa13ed03f856a726a5975be1" kindref="member">key_hash</ref>(key,<sp/>key_def);</highlight></codeline>
+<codeline lineno="1042"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="1043"><highlight class="normal"></highlight></codeline>
+<codeline lineno="1044"><highlight class="normal"><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="1045"><highlight class="comment"><sp/>*<sp/>Get<sp/>comparison<sp/>hint<sp/>for<sp/>a<sp/>tuple.</highlight></codeline>
+<codeline lineno="1046"><highlight class="comment"><sp/>*<sp/>@param<sp/>tuple<sp/>-<sp/>tuple<sp/>to<sp/>compute<sp/>the<sp/>hint<sp/>for</highlight></codeline>
+<codeline lineno="1047"><highlight class="comment"><sp/>*<sp/>@param<sp/>key_def<sp/>-<sp/>key_def<sp/>used<sp/>for<sp/>tuple<sp/>comparison</highlight></codeline>
+<codeline lineno="1048"><highlight class="comment"><sp/>*<sp/>@return<sp/>-<sp/>hint<sp/>value</highlight></codeline>
+<codeline lineno="1049"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="1050"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>hint_t</highlight></codeline>
+<codeline lineno="1051"><highlight class="normal"><ref refid="structkey__def_1a1d2741b90c87f3f19ce80cb0ebbb1e50" kindref="member">tuple_hint</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tuple<sp/>*tuple,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*key_def)</highlight></codeline>
+<codeline lineno="1052"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="1053"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>key_def-&gt;<ref refid="structkey__def_1a1d2741b90c87f3f19ce80cb0ebbb1e50" kindref="member">tuple_hint</ref>(tuple,<sp/>key_def);</highlight></codeline>
+<codeline lineno="1054"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="1055"><highlight class="normal"></highlight></codeline>
+<codeline lineno="1062"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>hint_t</highlight></codeline>
+<codeline lineno="1063"><highlight class="normal"><ref refid="structkey__def_1ae3f5aff992b00e7b33c002854a6ce7a0" kindref="member">key_hint</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*key,<sp/>uint32_t<sp/>part_count,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*key_def)</highlight></codeline>
+<codeline lineno="1064"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="1065"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>key_def-&gt;<ref refid="structkey__def_1ae3f5aff992b00e7b33c002854a6ce7a0" kindref="member">key_hint</ref>(key,<sp/>part_count,<sp/>key_def);</highlight></codeline>
+<codeline lineno="1066"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="1067"><highlight class="normal"></highlight></codeline>
+<codeline lineno="1068"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="1069"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="1070"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="1071"><highlight class="normal"></highlight></codeline>
+<codeline lineno="1072"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_BOX_KEY_DEF_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/key_def.h"/>
+  </compounddef>
+</doxygen>

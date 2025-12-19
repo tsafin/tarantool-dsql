@@ -1,0 +1,398 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="column__mask_8h" kind="file" language="C++">
+    <compoundname>column_mask.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="alter_8cc" local="yes">/home/tsafin/tarantool/src/box/alter.cc</includedby>
+    <includedby refid="sqlInt_8h" local="yes">/home/tsafin/tarantool/src/box/sql/sqlInt.h</includedby>
+    <includedby refid="key__def_8c" local="yes">/home/tsafin/tarantool/src/box/key_def.c</includedby>
+    <includedby refid="memtx__space_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_space.c</includedby>
+    <includedby refid="session__settings_8c" local="yes">/home/tsafin/tarantool/src/box/session_settings.c</includedby>
+    <includedby refid="vinyl_8c" local="yes">/home/tsafin/tarantool/src/box/vinyl.c</includedby>
+    <includedby refid="vy__upsert_8c" local="yes">/home/tsafin/tarantool/src/box/vy_upsert.c</includedby>
+    <includedby refid="xrow__update_8c" local="yes">/home/tsafin/tarantool/src/box/xrow_update.c</includedby>
+    <incdepgraph>
+      <node id="119">
+        <label>stdbool.h</label>
+      </node>
+      <node id="118">
+        <label>stdint.h</label>
+      </node>
+      <node id="117">
+        <label>/home/tsafin/tarantool/src/box/column_mask.h</label>
+        <link refid="column__mask_8h"/>
+        <childnode refid="118" relation="include">
+        </childnode>
+        <childnode refid="119" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="column__mask_8h_1abe59cf820dd38e3be4ba5455344d7e5a" prot="public" static="no">
+        <name>COLUMN_MASK_FULL</name>
+        <initializer>UINT64_MAX</initializer>
+        <briefdescription>
+<para>Column mask is a bitmask of update operations for one tuple. </para>        </briefdescription>
+        <detaileddescription>
+<para>Column mask bit &apos;n&apos; is set if in the corresponding tuple field &apos;n&apos; could be changed by an update operation. This mask is used for update and upsert optimizations, when, for example, it is necessary to check whether the operation has changed an indexed field.</para><para>The last bit of the mask stands for fields in range [63, +inf). If an update operation updates field #63 and greater, then this last bit of the mask is set. If an update operations changes many fields (&apos;#&apos; or &apos;!&apos;), then all fields after and including the target field could be changed - in such case we set not one bit, but a range of bits. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/column_mask.h" line="53" column="9" bodyfile="/home/tsafin/tarantool/src/box/column_mask.h" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="column__mask_8h_1a5b0257b32c7d95a15b79d139e8654480" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void column_mask_set_fieldno</definition>
+        <argsstring>(uint64_t *column_mask, uint32_t fieldno)</argsstring>
+        <name>column_mask_set_fieldno</name>
+        <param>
+          <type>uint64_t *</type>
+          <declname>column_mask</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>fieldno</declname>
+        </param>
+        <briefdescription>
+<para>Set a bit in the bitmask corresponding to a single changed column. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>column_mask</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mask to update. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fieldno</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Updated fieldno (index base must be 0). </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/column_mask.h" line="62" column="1" bodyfile="/home/tsafin/tarantool/src/box/column_mask.h" bodystart="62" bodyend="72"/>
+      </memberdef>
+      <memberdef kind="function" id="column__mask_8h_1a63b6a82bc0f0775c104e17fca4b57df2" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void column_mask_set_range</definition>
+        <argsstring>(uint64_t *column_mask, uint32_t first_fieldno_in_range)</argsstring>
+        <name>column_mask_set_range</name>
+        <param>
+          <type>uint64_t *</type>
+          <declname>column_mask</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>first_fieldno_in_range</declname>
+        </param>
+        <briefdescription>
+<para>Set bits in a bitmask for a range of changed columns. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>column_mask</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mask to update. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>first_fieldno_in_range</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First fieldno of the updated range. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/column_mask.h" line="81" column="1" bodyfile="/home/tsafin/tarantool/src/box/column_mask.h" bodystart="81" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="function" id="column__mask_8h_1a9532093197bf8c754259380b3f195457" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool key_update_can_be_skipped</definition>
+        <argsstring>(uint64_t key_mask, uint64_t update_mask)</argsstring>
+        <name>key_update_can_be_skipped</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>key_mask</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>update_mask</declname>
+        </param>
+        <briefdescription>
+<para>True if the update operation does not change the key. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>key_mask</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Key mask. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>update_mask</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Column mask of the update operation.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>true</parametername>
+<parametername>if</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the key is not updated. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>false</parametername>
+<parametername>if</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a key field is possibly updated or column mask optimization is not applicable. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/column_mask.h" line="107" column="1" bodyfile="/home/tsafin/tarantool/src/box/column_mask.h" bodystart="107" bodyend="110"/>
+      </memberdef>
+      <memberdef kind="function" id="column__mask_8h_1a2e13da47367801c8a3bf480d0a36e383" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool column_mask_fieldno_is_set</definition>
+        <argsstring>(uint64_t column_mask, uint32_t fieldno)</argsstring>
+        <name>column_mask_fieldno_is_set</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>column_mask</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>fieldno</declname>
+        </param>
+        <briefdescription>
+<para>Test a bit in the bitmask corresponding to a column fieldno. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>column_mask</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mask to test. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fieldno</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Fieldno number to test (index base must be 0). </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>true</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>If bit corresponding to a column fieldno. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>false</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if bit is not set or fieldno &gt; 64. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/column_mask.h" line="120" column="1" bodyfile="/home/tsafin/tarantool/src/box/column_mask.h" bodystart="120" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="function" id="column__mask_8h_1ae2715428adc4c135f95f78028b30e40a" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void bitmask64_set_bit</definition>
+        <argsstring>(uint64_t *bitmask, uint32_t bitno)</argsstring>
+        <name>bitmask64_set_bit</name>
+        <param>
+          <type>uint64_t *</type>
+          <declname>bitmask</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>bitno</declname>
+        </param>
+        <briefdescription>
+<para>Set a bit with given index <emphasis>bitno</emphasis> in a given <emphasis>bitmask</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Do nothing when <emphasis>bitno</emphasis> is greater than size of bitmask. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bitmask</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bitmask to test. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bitno</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bit number to test (must be 0-based). </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/column_mask.h" line="133" column="1" bodyfile="/home/tsafin/tarantool/src/box/column_mask.h" bodystart="133" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="column__mask_8h_1a1d84816c16fcafe5305126d726a8fb92" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool bitmask64_is_bit_set</definition>
+        <argsstring>(uint64_t bitmask, uint32_t bitno)</argsstring>
+        <name>bitmask64_is_bit_set</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>bitmask</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>bitno</declname>
+        </param>
+        <briefdescription>
+<para>Test a bit in the bitmask corresponding to <emphasis>bitno</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bitmask</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bitmask to test. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bitno</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bit number to test (must be 0-based). </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Whether given bit is set in a given bitmask. When bitno is greater than size of bitmask returns false. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/column_mask.h" line="148" column="1" bodyfile="/home/tsafin/tarantool/src/box/column_mask.h" bodystart="148" bodyend="151"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_BOX_COLUMN_MASK_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_BOX_COLUMN_MASK_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2017,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="preprocessor">#define<sp/>COLUMN_MASK_FULL<sp/>UINT64_MAX</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal">column_mask_set_fieldno(uint64_t<sp/>*column_mask,<sp/>uint32_t<sp/>fieldno)</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(fieldno<sp/>&gt;=<sp/>63)</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="66"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>@sa<sp/>column_mask<sp/>key_def<sp/>declaration<sp/>for</highlight></codeline>
+<codeline lineno="67"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>details.</highlight></codeline>
+<codeline lineno="68"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*column_mask<sp/>|=<sp/>((uint64_t)<sp/>1)<sp/>&lt;&lt;<sp/>63;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*column_mask<sp/>|=<sp/>((uint64_t)<sp/>1)<sp/>&lt;&lt;<sp/>fieldno;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal">column_mask_set_range(uint64_t<sp/>*column_mask,<sp/>uint32_t<sp/>first_fieldno_in_range)</highlight></codeline>
+<codeline lineno="82"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(first_fieldno_in_range<sp/>&lt;<sp/>63)<sp/>{</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="85"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Set<sp/>all<sp/>bits<sp/>by<sp/>default<sp/>via<sp/>COLUMN_MASK_FULL</highlight></codeline>
+<codeline lineno="86"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>and<sp/>then<sp/>unset<sp/>bits<sp/>preceding<sp/>the<sp/>operation</highlight></codeline>
+<codeline lineno="87"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>field<sp/>number.<sp/>Fields<sp/>corresponding<sp/>to<sp/>these</highlight></codeline>
+<codeline lineno="88"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>bits<sp/>will<sp/>definitely<sp/>not<sp/>be<sp/>changed.</highlight></codeline>
+<codeline lineno="89"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*column_mask<sp/>|=<sp/>COLUMN_MASK_FULL<sp/>&lt;&lt;<sp/>first_fieldno_in_range;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>A<sp/>range<sp/>outside<sp/>&quot;short&quot;<sp/>range.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*column_mask<sp/>|=<sp/>((uint64_t)<sp/>1)<sp/>&lt;&lt;<sp/>63;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="95"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal">key_update_can_be_skipped(uint64_t<sp/>key_mask,<sp/>uint64_t<sp/>update_mask)</highlight></codeline>
+<codeline lineno="108"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(key_mask<sp/>&amp;<sp/>update_mask)<sp/>==<sp/>0;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal">column_mask_fieldno_is_set(uint64_t<sp/>column_mask,<sp/>uint32_t<sp/>fieldno)</highlight></codeline>
+<codeline lineno="121"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>mask<sp/>=<sp/>(uint64_t)<sp/>1<sp/>&lt;&lt;<sp/>(fieldno<sp/>&lt;<sp/>63<sp/>?<sp/>fieldno<sp/>:<sp/>63);</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(column_mask<sp/>&amp;<sp/>mask)<sp/>!=<sp/>0;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal">bitmask64_set_bit(uint64_t<sp/>*bitmask,<sp/>uint32_t<sp/>bitno)</highlight></codeline>
+<codeline lineno="134"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(bitno<sp/>&lt;<sp/>64)</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*bitmask<sp/>|=<sp/>((uint64_t)1<sp/>&lt;&lt;<sp/>bitno);</highlight></codeline>
+<codeline lineno="137"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal">bitmask64_is_bit_set(uint64_t<sp/>bitmask,<sp/>uint32_t<sp/>bitno)</highlight></codeline>
+<codeline lineno="149"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>bitno<sp/>&lt;<sp/>64<sp/>&amp;&amp;<sp/>(bitmask<sp/>&amp;<sp/>((uint64_t)1<sp/>&lt;&lt;<sp/>bitno))<sp/>!=<sp/>0;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/column_mask.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,300 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structtuple__format" kind="struct" language="C++" prot="public">
+    <compoundname>tuple_format</compoundname>
+    <includes local="no">tuple_format.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structtuple__format_1afbb4f8a5fa791a4c5990b867aa5a0bf5" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtuple__format__vtab" kindref="compound">tuple_format_vtab</ref></type>
+        <definition>struct tuple_format_vtab tuple_format::vtab</definition>
+        <argsstring></argsstring>
+        <name>vtab</name>
+        <briefdescription>
+<para>Virtual function table. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="143" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="166" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format_1a0c236200c1727d40ce171424adad3f8c" prot="public" static="no" mutable="no">
+        <type>void *</type>
+        <definition>void* tuple_format::engine</definition>
+        <argsstring></argsstring>
+        <name>engine</name>
+        <briefdescription>
+<para>Pointer to engine-specific data. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="168" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="168" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format_1a38e25fa19c795a1207ff305ad1f3b4e7" prot="public" static="no" mutable="no">
+        <type>uint16_t</type>
+        <definition>uint16_t tuple_format::id</definition>
+        <argsstring></argsstring>
+        <name>id</name>
+        <briefdescription>
+<para>Identifier. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="170" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="170" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format_1ad690fe9a44c93d951b85ea8024c0175f" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t tuple_format::hash</definition>
+        <argsstring></argsstring>
+        <name>hash</name>
+        <briefdescription>
+<para><ref refid="structHash" kindref="compound">Hash</ref> computed from this format. </para>        </briefdescription>
+        <detaileddescription>
+<para>Does not include the tuple dictionary. Used only for sharing formats among ephemeral spaces. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="176" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="176" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format_1a9b9f56b60ad32d631eb79604063afb07" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t tuple_format::epoch</definition>
+        <argsstring></argsstring>
+        <name>epoch</name>
+        <briefdescription>
+<para>Counter that grows incrementally on space rebuild used for caching offset slot in <ref refid="structkey__part" kindref="compound">key_part</ref>, for more details see <ref refid="structkey__part_1adad511c0ffce655b69c3364e0e9336d4" kindref="member">key_part::offset_slot_cache</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="182" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="182" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format_1a6e4d612ab5c7c884345decdabec365c6" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tuple_format::refs</definition>
+        <argsstring></argsstring>
+        <name>refs</name>
+        <briefdescription>
+<para>Reference counter. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="184" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="184" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format_1aa32dadb39164e6928b31e861ab4ab696" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tuple_format::is_temporary</definition>
+        <argsstring></argsstring>
+        <name>is_temporary</name>
+        <briefdescription>
+<para>Tuples of this format belong to a temporary space and hence can be freed immediately while checkpointing is in progress. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="190" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="190" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format_1aa4a9693417c8f68cd525454bdc2dd715" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tuple_format::is_ephemeral</definition>
+        <argsstring></argsstring>
+        <name>is_ephemeral</name>
+        <briefdescription>
+<para>This format belongs to ephemeral space and thus might be shared with other ephemeral spaces. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="195" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="195" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format_1a37a0665a74c8c6c67f550a2a5702bb0a" prot="public" static="no" mutable="no">
+        <type>uint16_t</type>
+        <definition>uint16_t tuple_format::field_map_size</definition>
+        <argsstring></argsstring>
+        <name>field_map_size</name>
+        <briefdescription>
+<para>Size of minimal field map of tuple where each indexed field has own offset slot (in bytes). </para>        </briefdescription>
+        <detaileddescription>
+<para>The real tuple field_map may be bigger in case of multikey indexes. <simplesect kind="see"><para>struct <ref refid="structfield__map__builder" kindref="compound">field_map_builder</ref> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="202" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="202" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format_1ad3c930b39cf2e5baccfdfbe3aa84f690" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t tuple_format::exact_field_count</definition>
+        <argsstring></argsstring>
+        <name>exact_field_count</name>
+        <briefdescription>
+<para>If not set (== 0), any tuple in the space can have any number of fields. </para>        </briefdescription>
+        <detaileddescription>
+<para>If set, each tuple must have exactly this number of fields. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="207" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="207" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format_1a3b0a16b3becda7bf6b74887f9c777839" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t tuple_format::index_field_count</definition>
+        <argsstring></argsstring>
+        <name>index_field_count</name>
+        <briefdescription>
+<para>The longest field array prefix in which the last element is used by an index. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="212" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="212" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format_1a1eb1369fba8c2e94d18f5ab4b3d86d6f" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t tuple_format::min_field_count</definition>
+        <argsstring></argsstring>
+        <name>min_field_count</name>
+        <briefdescription>
+<para>The minimal field count that must be specified. </para>        </briefdescription>
+        <detaileddescription>
+<para>index_field_count &lt;= min_field_count &lt;= field_count. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="217" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="217" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format_1a24fd418365ea7d60613d5e14b9003a6c" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t tuple_format::total_field_count</definition>
+        <argsstring></argsstring>
+        <name>total_field_count</name>
+        <briefdescription>
+<para>Total number of formatted fields, including JSON path fields. </para>        </briefdescription>
+        <detaileddescription>
+<para>See also <ref refid="structtuple__format_1a9698cbe70035de243417a8f1404c5616" kindref="member">tuple_format::fields</ref>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="222" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="222" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format_1abf2beb08af4361a1ce433f3607004c01" prot="public" static="no" mutable="no">
+        <type>void *</type>
+        <definition>void* tuple_format::required_fields</definition>
+        <argsstring></argsstring>
+        <name>required_fields</name>
+        <briefdescription>
+<para>Bitmap of fields that must be present in a tuple conforming to the format. </para>        </briefdescription>
+        <detaileddescription>
+<para>Indexed by <ref refid="structtuple__field_1a9249b6f09450f0968296e3096b2056bf" kindref="member">tuple_field::id</ref>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="227" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="227" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format_1ac203572d902f679ebd8435407bb8c5f0" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref> *</type>
+        <definition>struct tuple_dictionary* tuple_format::dict</definition>
+        <argsstring></argsstring>
+        <name>dict</name>
+        <briefdescription>
+<para>Shared names storage used by all formats of a space. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="231" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="231" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format_1ad17bafe1ff742a877088dbd5ab5c5ea5" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t tuple_format::fields_depth</definition>
+        <argsstring></argsstring>
+        <name>fields_depth</name>
+        <briefdescription>
+<para>A maximum depth of format::fields subtree. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="235" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="235" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format_1a9698cbe70035de243417a8f1404c5616" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structjson__tree" kindref="compound">json_tree</ref></type>
+        <definition>struct json_tree tuple_format::fields</definition>
+        <argsstring></argsstring>
+        <name>fields</name>
+        <briefdescription>
+<para>Fields comprising the format, organized in a tree. </para>        </briefdescription>
+        <detaileddescription>
+<para>First level nodes correspond to tuple fields. Deeper levels define indexed JSON paths within tuple fields. Nodes of the tree are linked by <ref refid="structtuple__field_1a154dd51c3662e8db95700916f1ef67fa" kindref="member">tuple_field::token</ref>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="235" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="243" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Tuple format Tuple format describes how tuple is stored and information about its fields. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="11011">
+        <label>json_tree</label>
+        <link refid="structjson__tree"/>
+        <childnode refid="11012" relation="usage">
+          <edgelabel>root</edgelabel>
+        </childnode>
+      </node>
+      <node id="11012">
+        <label>json_token</label>
+        <link refid="structjson__token"/>
+        <childnode refid="11012" relation="usage">
+          <edgelabel>parent</edgelabel>
+          <edgelabel>children</edgelabel>
+        </childnode>
+      </node>
+      <node id="11008">
+        <label>tuple_dictionary</label>
+        <link refid="structtuple__dictionary"/>
+      </node>
+      <node id="11010">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="11009">
+        <label>tuple_format_vtab</label>
+        <link refid="structtuple__format__vtab"/>
+        <childnode refid="11010" relation="usage">
+          <edgelabel>tuple_new</edgelabel>
+        </childnode>
+      </node>
+      <node id="11007">
+        <label>tuple_format</label>
+        <link refid="structtuple__format"/>
+        <childnode refid="11008" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="11009" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="11011" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="164" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="164" bodyend="244"/>
+    <listofallmembers>
+      <member refid="structtuple__format_1ac203572d902f679ebd8435407bb8c5f0" prot="public" virt="non-virtual"><scope>tuple_format</scope><name>dict</name></member>
+      <member refid="structtuple__format_1a0c236200c1727d40ce171424adad3f8c" prot="public" virt="non-virtual"><scope>tuple_format</scope><name>engine</name></member>
+      <member refid="structtuple__format_1a9b9f56b60ad32d631eb79604063afb07" prot="public" virt="non-virtual"><scope>tuple_format</scope><name>epoch</name></member>
+      <member refid="structtuple__format_1ad3c930b39cf2e5baccfdfbe3aa84f690" prot="public" virt="non-virtual"><scope>tuple_format</scope><name>exact_field_count</name></member>
+      <member refid="structtuple__format_1a37a0665a74c8c6c67f550a2a5702bb0a" prot="public" virt="non-virtual"><scope>tuple_format</scope><name>field_map_size</name></member>
+      <member refid="structtuple__format_1a9698cbe70035de243417a8f1404c5616" prot="public" virt="non-virtual"><scope>tuple_format</scope><name>fields</name></member>
+      <member refid="structtuple__format_1ad17bafe1ff742a877088dbd5ab5c5ea5" prot="public" virt="non-virtual"><scope>tuple_format</scope><name>fields_depth</name></member>
+      <member refid="structtuple__format_1ad690fe9a44c93d951b85ea8024c0175f" prot="public" virt="non-virtual"><scope>tuple_format</scope><name>hash</name></member>
+      <member refid="structtuple__format_1a38e25fa19c795a1207ff305ad1f3b4e7" prot="public" virt="non-virtual"><scope>tuple_format</scope><name>id</name></member>
+      <member refid="structtuple__format_1a3b0a16b3becda7bf6b74887f9c777839" prot="public" virt="non-virtual"><scope>tuple_format</scope><name>index_field_count</name></member>
+      <member refid="structtuple__format_1aa4a9693417c8f68cd525454bdc2dd715" prot="public" virt="non-virtual"><scope>tuple_format</scope><name>is_ephemeral</name></member>
+      <member refid="structtuple__format_1aa32dadb39164e6928b31e861ab4ab696" prot="public" virt="non-virtual"><scope>tuple_format</scope><name>is_temporary</name></member>
+      <member refid="structtuple__format_1a1eb1369fba8c2e94d18f5ab4b3d86d6f" prot="public" virt="non-virtual"><scope>tuple_format</scope><name>min_field_count</name></member>
+      <member refid="structtuple__format_1a6e4d612ab5c7c884345decdabec365c6" prot="public" virt="non-virtual"><scope>tuple_format</scope><name>refs</name></member>
+      <member refid="structtuple__format_1abf2beb08af4361a1ce433f3607004c01" prot="public" virt="non-virtual"><scope>tuple_format</scope><name>required_fields</name></member>
+      <member refid="structtuple__format_1a24fd418365ea7d60613d5e14b9003a6c" prot="public" virt="non-virtual"><scope>tuple_format</scope><name>total_field_count</name></member>
+      <member refid="structtuple__format_1afbb4f8a5fa791a4c5990b867aa5a0bf5" prot="public" virt="non-virtual"><scope>tuple_format</scope><name>vtab</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,172 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structcpipe" kind="struct" language="C++" prot="public">
+    <compoundname>cpipe</compoundname>
+    <includes local="no">cbus.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structcpipe_1aef9700ffdfcb0e6d3f3fd1c132d0565b" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structstailq" kindref="compound">stailq</ref></type>
+        <definition>struct stailq cpipe::input</definition>
+        <argsstring></argsstring>
+        <name>input</name>
+        <briefdescription>
+<para>Staging area for pushed messages. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="90" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcpipe_1a92348695d5200974676dac95b3017635" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int cpipe::n_input</definition>
+        <argsstring></argsstring>
+        <name>n_input</name>
+        <briefdescription>
+<para>Counters are useful for finer-grained scheduling. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="117" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="117" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcpipe_1a44da86d883b5570c8c177056c3ed5f6b" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int cpipe::max_input</definition>
+        <argsstring></argsstring>
+        <name>max_input</name>
+        <briefdescription>
+<para>When pushing messages, keep the staged input size under this limit (speeds up message delivery and reduces latency, while still keeping the bus mutex cold enough). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="123" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcpipe_1a273b751294af325cb461b932fe3584c0" prot="public" static="no" mutable="no">
+        <type>struct ev_async</type>
+        <definition>struct ev_async cpipe::flush_input</definition>
+        <argsstring></argsstring>
+        <name>flush_input</name>
+        <briefdescription>
+<para>Rather than flushing input into the pipe whenever a single message or a batch is complete, do it once per event loop iteration or when max_input is reached. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="123" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="130" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcpipe_1a42c193b0e1e2ad71d30dd7dfd164c0f0" prot="public" static="no" mutable="no">
+        <type>struct ev_loop *</type>
+        <definition>struct ev_loop* cpipe::producer</definition>
+        <argsstring></argsstring>
+        <name>producer</name>
+        <briefdescription>
+<para>The event loop of the producer cord. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="132" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcpipe_1a06b3ee7ac9c5e6c8e8fd58daa4b1795e" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcbus__endpoint" kindref="compound">cbus_endpoint</ref> *</type>
+        <definition>struct cbus_endpoint* cpipe::endpoint</definition>
+        <argsstring></argsstring>
+        <name>endpoint</name>
+        <briefdescription>
+<para>The cbus endpoint at the destination cord to handle flushed messages. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="137" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="137" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcpipe_1a72142bf2b0cf194e0f8537b0c60281a6" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist cpipe::on_flush</definition>
+        <argsstring></argsstring>
+        <name>on_flush</name>
+        <briefdescription>
+<para>Triggers to call on flush event, if the input queue is not empty. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="137" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="142" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A uni-directional FIFO queue from one cord to another. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1785">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="1785" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="1784">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="1785" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="1780">
+        <label>cpipe</label>
+        <link refid="structcpipe"/>
+        <childnode refid="1781" relation="usage">
+          <edgelabel>on_flush</edgelabel>
+        </childnode>
+        <childnode refid="1782" relation="usage">
+          <edgelabel>endpoint</edgelabel>
+        </childnode>
+        <childnode refid="1784" relation="usage">
+          <edgelabel>input</edgelabel>
+        </childnode>
+      </node>
+      <node id="1781">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="1781" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="1783">
+        <label>fiber_cond</label>
+        <link refid="structfiber__cond"/>
+        <childnode refid="1781" relation="usage">
+          <edgelabel>waiters</edgelabel>
+        </childnode>
+      </node>
+      <node id="1782">
+        <label>cbus_endpoint</label>
+        <link refid="structcbus__endpoint"/>
+        <childnode refid="1783" relation="usage">
+          <edgelabel>cond</edgelabel>
+        </childnode>
+        <childnode refid="1781" relation="usage">
+          <edgelabel>in_cbus</edgelabel>
+        </childnode>
+        <childnode refid="1784" relation="usage">
+          <edgelabel>output</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="113" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="113" bodyend="143"/>
+    <listofallmembers>
+      <member refid="structcpipe_1a06b3ee7ac9c5e6c8e8fd58daa4b1795e" prot="public" virt="non-virtual"><scope>cpipe</scope><name>endpoint</name></member>
+      <member refid="structcpipe_1a273b751294af325cb461b932fe3584c0" prot="public" virt="non-virtual"><scope>cpipe</scope><name>flush_input</name></member>
+      <member refid="structcpipe_1aef9700ffdfcb0e6d3f3fd1c132d0565b" prot="public" virt="non-virtual"><scope>cpipe</scope><name>input</name></member>
+      <member refid="structcpipe_1a44da86d883b5570c8c177056c3ed5f6b" prot="public" virt="non-virtual"><scope>cpipe</scope><name>max_input</name></member>
+      <member refid="structcpipe_1a92348695d5200974676dac95b3017635" prot="public" virt="non-virtual"><scope>cpipe</scope><name>n_input</name></member>
+      <member refid="structcpipe_1a72142bf2b0cf194e0f8537b0c60281a6" prot="public" virt="non-virtual"><scope>cpipe</scope><name>on_flush</name></member>
+      <member refid="structcpipe_1a42c193b0e1e2ad71d30dd7dfd164c0f0" prot="public" virt="non-virtual"><scope>cpipe</scope><name>producer</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

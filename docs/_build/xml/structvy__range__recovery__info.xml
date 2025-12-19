@@ -1,0 +1,104 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvy__range__recovery__info" kind="struct" language="C++" prot="public">
+    <compoundname>vy_range_recovery_info</compoundname>
+    <includes local="no">vy_log.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvy__range__recovery__info_1a7854277629050ee57b192f06b0514efb" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist vy_range_recovery_info::in_lsm</definition>
+        <argsstring></argsstring>
+        <name>in_lsm</name>
+        <briefdescription>
+<para>Link in <ref refid="structvy__lsm__recovery__info_1a6684a3d378c4ebef5a4631877a6f4fc1" kindref="member">vy_lsm_recovery_info::ranges</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="369" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="375" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__range__recovery__info_1a61a1fd0d93e243f32d8ca64aab2d9643" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t vy_range_recovery_info::id</definition>
+        <argsstring></argsstring>
+        <name>id</name>
+        <briefdescription>
+<para>ID of the range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="377" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="377" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__range__recovery__info_1a8db24fa61b9a2242e45629d6461d968f" prot="public" static="no" mutable="no">
+        <type>char *</type>
+        <definition>char* vy_range_recovery_info::begin</definition>
+        <argsstring></argsstring>
+        <name>begin</name>
+        <briefdescription>
+<para>Start of the range, stored in MsgPack array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="379" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="379" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__range__recovery__info_1adbc53a0fedaf1ad59707d402db92a9e8" prot="public" static="no" mutable="no">
+        <type>char *</type>
+        <definition>char* vy_range_recovery_info::end</definition>
+        <argsstring></argsstring>
+        <name>end</name>
+        <briefdescription>
+<para>End of the range, stored in MsgPack array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="381" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="381" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__range__recovery__info_1a2bcd9546ecb07b07d033aab2dcb8f901" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist vy_range_recovery_info::slices</definition>
+        <argsstring></argsstring>
+        <name>slices</name>
+        <briefdescription>
+<para>List of all slices in the range, linked by <ref refid="structvy__slice__recovery__info_1abe500504057a8e18b94c647caae2a557" kindref="member">vy_slice_recovery_info::in_range</ref>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Newer slices are closer to the head. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="381" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="388" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Vinyl range info stored in a recovery context. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="13735">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="13735" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="13734">
+        <label>vy_range_recovery_info</label>
+        <link refid="structvy__range__recovery__info"/>
+        <childnode refid="13735" relation="usage">
+          <edgelabel>slices</edgelabel>
+          <edgelabel>in_lsm</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="373" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="373" bodyend="389"/>
+    <listofallmembers>
+      <member refid="structvy__range__recovery__info_1a8db24fa61b9a2242e45629d6461d968f" prot="public" virt="non-virtual"><scope>vy_range_recovery_info</scope><name>begin</name></member>
+      <member refid="structvy__range__recovery__info_1adbc53a0fedaf1ad59707d402db92a9e8" prot="public" virt="non-virtual"><scope>vy_range_recovery_info</scope><name>end</name></member>
+      <member refid="structvy__range__recovery__info_1a61a1fd0d93e243f32d8ca64aab2d9643" prot="public" virt="non-virtual"><scope>vy_range_recovery_info</scope><name>id</name></member>
+      <member refid="structvy__range__recovery__info_1a7854277629050ee57b192f06b0514efb" prot="public" virt="non-virtual"><scope>vy_range_recovery_info</scope><name>in_lsm</name></member>
+      <member refid="structvy__range__recovery__info_1a2bcd9546ecb07b07d033aab2dcb8f901" prot="public" virt="non-virtual"><scope>vy_range_recovery_info</scope><name>slices</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

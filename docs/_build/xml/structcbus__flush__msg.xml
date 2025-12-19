@@ -1,0 +1,146 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structcbus__flush__msg" kind="struct" language="C++" prot="public">
+    <compoundname>cbus_flush_msg</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structcbus__flush__msg_1aa57ae4ba2c6a1d6a43569435a01bcaa5" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcmsg" kindref="compound">cmsg</ref></type>
+        <definition>struct cmsg cbus_flush_msg::cmsg</definition>
+        <argsstring></argsstring>
+        <name>cmsg</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.c" line="117" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.c" bodystart="451" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcbus__flush__msg_1ab099a0b53334b5c03ea0935c86602aab" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool cbus_flush_msg::complete</definition>
+        <argsstring></argsstring>
+        <name>complete</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.c" line="452" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.c" bodystart="452" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcbus__flush__msg_1a3b7847fded192c5959dad9f6beed6e16" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfiber__cond" kindref="compound">fiber_cond</ref></type>
+        <definition>struct fiber_cond cbus_flush_msg::cond</definition>
+        <argsstring></argsstring>
+        <name>cond</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.c" line="452" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.c" bodystart="453" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1082">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="1082" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="1081">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="1082" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="1079">
+        <label>cpipe</label>
+        <link refid="structcpipe"/>
+        <childnode refid="1076" relation="usage">
+          <edgelabel>on_flush</edgelabel>
+        </childnode>
+        <childnode refid="1080" relation="usage">
+          <edgelabel>endpoint</edgelabel>
+        </childnode>
+        <childnode refid="1081" relation="usage">
+          <edgelabel>input</edgelabel>
+        </childnode>
+      </node>
+      <node id="1078">
+        <label>cmsg_hop</label>
+        <link refid="structcmsg__hop"/>
+        <childnode refid="1079" relation="usage">
+          <edgelabel>pipe</edgelabel>
+        </childnode>
+        <childnode refid="1077" relation="usage">
+          <edgelabel>f</edgelabel>
+        </childnode>
+      </node>
+      <node id="1076">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="1076" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="1077">
+        <label>cmsg</label>
+        <link refid="structcmsg"/>
+        <childnode refid="1078" relation="usage">
+          <edgelabel>hop</edgelabel>
+          <edgelabel>route</edgelabel>
+        </childnode>
+        <childnode refid="1082" relation="usage">
+          <edgelabel>fifo</edgelabel>
+        </childnode>
+      </node>
+      <node id="1074">
+        <label>cbus_flush_msg</label>
+        <link refid="structcbus__flush__msg"/>
+        <childnode refid="1075" relation="usage">
+          <edgelabel>cond</edgelabel>
+        </childnode>
+        <childnode refid="1077" relation="usage">
+          <edgelabel>cmsg</edgelabel>
+        </childnode>
+      </node>
+      <node id="1075">
+        <label>fiber_cond</label>
+        <link refid="structfiber__cond"/>
+        <childnode refid="1076" relation="usage">
+          <edgelabel>waiters</edgelabel>
+        </childnode>
+      </node>
+      <node id="1080">
+        <label>cbus_endpoint</label>
+        <link refid="structcbus__endpoint"/>
+        <childnode refid="1075" relation="usage">
+          <edgelabel>cond</edgelabel>
+        </childnode>
+        <childnode refid="1076" relation="usage">
+          <edgelabel>in_cbus</edgelabel>
+        </childnode>
+        <childnode refid="1081" relation="usage">
+          <edgelabel>output</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/core/cbus.c" line="450" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.c" bodystart="450" bodyend="454"/>
+    <listofallmembers>
+      <member refid="structcbus__flush__msg_1aa57ae4ba2c6a1d6a43569435a01bcaa5" prot="public" virt="non-virtual"><scope>cbus_flush_msg</scope><name>cmsg</name></member>
+      <member refid="structcbus__flush__msg_1ab099a0b53334b5c03ea0935c86602aab" prot="public" virt="non-virtual"><scope>cbus_flush_msg</scope><name>complete</name></member>
+      <member refid="structcbus__flush__msg_1a3b7847fded192c5959dad9f6beed6e16" prot="public" virt="non-virtual"><scope>cbus_flush_msg</scope><name>cond</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

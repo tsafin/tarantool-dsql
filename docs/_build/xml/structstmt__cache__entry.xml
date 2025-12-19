@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structstmt__cache__entry" kind="struct" language="C++" prot="public">
+    <compoundname>stmt_cache_entry</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structstmt__cache__entry_1a3530ae73ca76bccbca931325955aa238" prot="public" static="no" mutable="no">
+        <type>struct sql_stmt *</type>
+        <definition>struct sql_stmt* stmt_cache_entry::stmt</definition>
+        <argsstring></argsstring>
+        <name>stmt</name>
+        <briefdescription>
+<para>Prepared statement itself. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" line="48" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structstmt__cache__entry_1a5cc2f325a96509673fd800b446ab127a" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist stmt_cache_entry::link</definition>
+        <argsstring></argsstring>
+        <name>link</name>
+        <briefdescription>
+<para>Link to the next entry. </para>        </briefdescription>
+        <detaileddescription>
+<para>All statements are to be evicted on the next gc cycle. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" line="48" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structstmt__cache__entry_1a4ab93f91246cf0a86f5078212976a3c7" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t stmt_cache_entry::refs</definition>
+        <argsstring></argsstring>
+        <name>refs</name>
+        <briefdescription>
+<para>Reference counter. </para>        </briefdescription>
+        <detaileddescription>
+<para>If it is == 0, entry gets into GC queue. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" line="58" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="10089">
+        <label>stmt_cache_entry</label>
+        <link refid="structstmt__cache__entry"/>
+        <childnode refid="10090" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="10090">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="10090" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" line="46" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" bodystart="46" bodyend="59"/>
+    <listofallmembers>
+      <member refid="structstmt__cache__entry_1a5cc2f325a96509673fd800b446ab127a" prot="public" virt="non-virtual"><scope>stmt_cache_entry</scope><name>link</name></member>
+      <member refid="structstmt__cache__entry_1a4ab93f91246cf0a86f5078212976a3c7" prot="public" virt="non-virtual"><scope>stmt_cache_entry</scope><name>refs</name></member>
+      <member refid="structstmt__cache__entry_1a3530ae73ca76bccbca931325955aa238" prot="public" virt="non-virtual"><scope>stmt_cache_entry</scope><name>stmt</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

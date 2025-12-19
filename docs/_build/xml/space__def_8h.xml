@@ -1,0 +1,602 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="space__def_8h" kind="file" language="C++">
+    <compoundname>space_def.h</compoundname>
+    <includes refid="tuple__dictionary_8h" local="yes">tuple_dictionary.h</includes>
+    <includes refid="schema__def_8h" local="yes">schema_def.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdlib.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="space_8h" local="yes">/home/tsafin/tarantool/src/box/space.h</includedby>
+    <includedby refid="space__def_8c" local="yes">/home/tsafin/tarantool/src/box/space_def.c</includedby>
+    <includedby refid="sql_8c" local="yes">/home/tsafin/tarantool/src/box/sql.c</includedby>
+    <incdepgraph>
+      <node id="895">
+        <label>stdbool.h</label>
+      </node>
+      <node id="893">
+        <label>stdint.h</label>
+      </node>
+      <node id="894">
+        <label>stdlib.h</label>
+      </node>
+      <node id="892">
+        <label>/home/tsafin/tarantool/src/box/space_def.h</label>
+        <link refid="space__def_8h"/>
+        <childnode refid="893" relation="include">
+        </childnode>
+        <childnode refid="894" relation="include">
+        </childnode>
+        <childnode refid="895" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structspace__opts" prot="public">space_opts</innerclass>
+    <innerclass refid="structspace__def" prot="public">space_def</innerclass>
+      <sectiondef kind="user-defined">
+      <header>.</header>
+      <description><para>Create a new space definition.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Space identifier. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>uid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Owner identifier. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>exact_field_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Space tuples field count. 0 for any count. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Space name. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of the </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>engine_name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Engine name. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>engine_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of the . </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>opts</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Space options. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fields</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field definitions. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>field_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of <emphasis>fields</emphasis>.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>Space</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>definition. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para></description>
+      <memberdef kind="function" id="space__def_8h_1aa2d09cc303797b889ba43f9462b35c9f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structspace__def" kindref="compound">space_def</ref> *</type>
+        <definition>struct space_def* space_def_new</definition>
+        <argsstring>(uint32_t id, uint32_t uid, uint32_t exact_field_count, const char *name, uint32_t name_len, const char *engine_name, uint32_t engine_len, const struct space_opts *opts, const struct field_def *fields, uint32_t field_count)</argsstring>
+        <name>space_def_new</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>uid</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>exact_field_count</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>name_len</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>engine_name</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>engine_len</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structspace__opts" kindref="compound">space_opts</ref> *</type>
+          <declname>opts</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structfield__def" kindref="compound">field_def</ref> *</type>
+          <declname>fields</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>field_count</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/space_def.h" line="173" column="1" bodyfile="/home/tsafin/tarantool/src/box/space_def.c" bodystart="158" bodyend="236"/>
+      </memberdef>
+      <memberdef kind="function" id="space__def_8h_1afa9f2064f5a1a9f29140ab79b879e57a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structspace__def" kindref="compound">space_def</ref> *</type>
+        <definition>struct space_def* space_def_new_ephemeral</definition>
+        <argsstring>(uint32_t exact_field_count, struct field_def *fields)</argsstring>
+        <name>space_def_new_ephemeral</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>exact_field_count</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structfield__def" kindref="compound">field_def</ref> *</type>
+          <declname>fields</declname>
+        </param>
+        <briefdescription>
+<para>Create a new ephemeral space definition. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>exact_field_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of fields in the space. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fields</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field definitions.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>Space</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>definition. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/space_def.h" line="187" column="1" bodyfile="/home/tsafin/tarantool/src/box/space_def.c" bodystart="239" bodyend="255"/>
+      </memberdef>
+      <memberdef kind="function" id="space__def_8h_1a30424f827b0f9a03e86bcaff4170bc80" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t space_def_sizeof</definition>
+        <argsstring>(uint32_t name_len, const struct field_def *fields, uint32_t field_count, uint32_t *names_offset, uint32_t *fields_offset, uint32_t *def_expr_offset)</argsstring>
+        <name>space_def_sizeof</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>name_len</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structfield__def" kindref="compound">field_def</ref> *</type>
+          <declname>fields</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>field_count</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>names_offset</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>fields_offset</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>def_expr_offset</declname>
+        </param>
+        <briefdescription>
+<para>Size of the <ref refid="structspace__def" kindref="compound">space_def</ref>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>name_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of the space name. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fields</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Fields array of space format. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>field_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Space field count. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">names_offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Offset from the beginning of a def to a field names memory. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">fields_offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Offset from the beginning of a def to a fields array. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">def_expr_offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Offset from the beginning of a def to a def_value_expr array. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>Size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>in bytes. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/space_def.h" line="203" column="1" bodyfile="/home/tsafin/tarantool/src/box/space_def.c" bodystart="59" bodyend="82"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="space__def_8h_1a336ba327cb76d690f00481d155cd3318" prot="public" static="no" mutable="no">
+        <type>const struct <ref refid="structspace__opts" kindref="compound">space_opts</ref></type>
+        <definition>const struct space_opts space_opts_default</definition>
+        <argsstring></argsstring>
+        <name>space_opts_default</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/space_def.h" line="281" column="1" bodyfile="/home/tsafin/tarantool/src/box/space_def.c" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="space__def_8h_1a6adc4229a8535296631eb945bdccca35" prot="public" static="no" mutable="no">
+        <type>const struct <ref refid="structopt__def" kindref="compound">opt_def</ref></type>
+        <definition>const struct opt_def space_opts_reg[]</definition>
+        <argsstring>[]</argsstring>
+        <name>space_opts_reg</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/space_def.h" line="281" column="1" bodyfile="/home/tsafin/tarantool/src/box/space_def.c" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="space__def_8h_1af2be42ae6d2e9aaa70162d06e81bfc8f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void space_opts_create</definition>
+        <argsstring>(struct space_opts *opts)</argsstring>
+        <name>space_opts_create</name>
+        <param>
+          <type>struct <ref refid="structspace__opts" kindref="compound">space_opts</ref> *</type>
+          <declname>opts</declname>
+        </param>
+        <briefdescription>
+<para>Create space options using default values. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/space_def.h" line="87" column="1" bodyfile="/home/tsafin/tarantool/src/box/space_def.h" bodystart="87" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="space__def_8h_1a4899bdb5baa448c10a57d3e629858317" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void space_opts_destroy</definition>
+        <argsstring>(struct space_opts *opts)</argsstring>
+        <name>space_opts_destroy</name>
+        <param>
+          <type>struct <ref refid="structspace__opts" kindref="compound">space_opts</ref> *</type>
+          <declname>opts</declname>
+        </param>
+        <briefdescription>
+<para>Destroy space options. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/space_def.h" line="97" column="1" bodyfile="/home/tsafin/tarantool/src/box/space_def.c" bodystart="281" bodyend="285"/>
+      </memberdef>
+      <memberdef kind="function" id="space__def_8h_1a3e2850e8eb619e0f7515af10d286269b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void space_def_destroy_fields</definition>
+        <argsstring>(struct field_def *fields, uint32_t field_count, bool extern_alloc)</argsstring>
+        <name>space_def_destroy_fields</name>
+        <param>
+          <type>struct <ref refid="structfield__def" kindref="compound">field_def</ref> *</type>
+          <declname>fields</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>field_count</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>extern_alloc</declname>
+        </param>
+        <briefdescription>
+<para>Free a default value&apos;s syntax trees of <emphasis>defs</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/space_def.h" line="138" column="1" bodyfile="/home/tsafin/tarantool/src/box/space_def.c" bodystart="259" bodyend="268"/>
+      </memberdef>
+      <memberdef kind="function" id="space__def_8h_1a1e1d673e7ad03f62b0d8043b32228ed3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void space_def_delete</definition>
+        <argsstring>(struct space_def *def)</argsstring>
+        <name>space_def_delete</name>
+        <param>
+          <type>struct <ref refid="structspace__def" kindref="compound">space_def</ref> *</type>
+          <declname>def</declname>
+        </param>
+        <briefdescription>
+<para>Delete the <ref refid="structspace__def" kindref="compound">space_def</ref> object. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>def</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Def to delete. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/space_def.h" line="146" column="1" bodyfile="/home/tsafin/tarantool/src/box/space_def.c" bodystart="271" bodyend="278"/>
+      </memberdef>
+      <memberdef kind="function" id="space__def_8h_1af0591b3cd920a89ada4fb8c59b610efd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structspace__def" kindref="compound">space_def</ref> *</type>
+        <definition>struct space_def* space_def_dup</definition>
+        <argsstring>(const struct space_def *src)</argsstring>
+        <name>space_def_dup</name>
+        <param>
+          <type>const struct <ref refid="structspace__def" kindref="compound">space_def</ref> *</type>
+          <declname>src</declname>
+        </param>
+        <briefdescription>
+<para>Duplicate <ref refid="structspace__def" kindref="compound">space_def</ref> object. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Def to duplicate. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>Copy</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>of the . </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/space_def.h" line="154" column="1" bodyfile="/home/tsafin/tarantool/src/box/space_def.c" bodystart="107" bodyend="155"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_BOX_SPACE_DEF_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_BOX_SPACE_DEF_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tuple_dictionary.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;schema_def.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdlib.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="structspace__opts" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structspace__opts" kindref="compound">space_opts</ref><sp/>{</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structspace__opts_1a29e37d55064fd847036769ca534deed8" kindref="member">group_id</ref>;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structspace__opts_1ac381b760d02bcd1a0a887ab28a6242f1" kindref="member">is_temporary</ref>;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structspace__opts_1a4a1b9c0ff361adbc1735f6d0df3113e0" kindref="member">is_ephemeral</ref>;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structspace__opts_1ad5381d2d56bed1aa3a2b98b30812311d" kindref="member">is_view</ref>;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structspace__opts_1a1a39496d9a47759fdfe0fd428228bdda" kindref="member">is_sync</ref>;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structspace__opts_1a8e222ad3827dec29bf9634967fecc497" kindref="member">sql</ref>;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structspace__opts" kindref="compound">space_opts</ref><sp/>space_opts_default;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopt__def" kindref="compound">opt_def</ref><sp/>space_opts_reg[];</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal">space_opts_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structspace__opts" kindref="compound">space_opts</ref><sp/>*opts)</highlight></codeline>
+<codeline lineno="88"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>default<sp/>values<sp/>of<sp/>opts<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*opts<sp/>=<sp/>space_opts_default;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal">space_opts_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structspace__opts" kindref="compound">space_opts</ref><sp/>*opts);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100" refid="structspace__def" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structspace__def" kindref="compound">space_def</ref><sp/>{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>id;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>uid;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>exact_field_count;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>engine_name[ENGINE_NAME_MAX<sp/>+<sp/>1];</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref><sp/>*dict;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfield__def" kindref="compound">field_def</ref><sp/>*fields;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>field_count;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>view_ref_count;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structspace__opts" kindref="compound">space_opts</ref><sp/>opts;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>name[0];</highlight></codeline>
+<codeline lineno="126"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="129"><highlight class="comment"><sp/>*<sp/>Free<sp/>a<sp/>default<sp/>value<sp/>syntax<sp/>trees<sp/>of<sp/>@a<sp/>defs.</highlight></codeline>
+<codeline lineno="130"><highlight class="comment"><sp/>*<sp/>@param<sp/>fields<sp/>Fields<sp/>array<sp/>to<sp/>destroy.</highlight></codeline>
+<codeline lineno="131"><highlight class="comment"><sp/>*<sp/>@param<sp/>field_count<sp/>Length<sp/>of<sp/>@a<sp/>fields.</highlight></codeline>
+<codeline lineno="132"><highlight class="comment"><sp/>*<sp/>@param<sp/>extern_alloc<sp/>Fields<sp/>expression<sp/>AST<sp/>allocated<sp/>externally.</highlight></codeline>
+<codeline lineno="133"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(specify<sp/>false<sp/>when<sp/>sql_expr_delete<sp/>should</highlight></codeline>
+<codeline lineno="134"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>release<sp/>default_value_expr<sp/>memory,</highlight></codeline>
+<codeline lineno="135"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>true<sp/>-<sp/>when<sp/>shouldn&apos;t)</highlight></codeline>
+<codeline lineno="136"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal">space_def_destroy_fields(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfield__def" kindref="compound">field_def</ref><sp/>*fields,<sp/>uint32_t<sp/>field_count,</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>extern_alloc);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal">space_def_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structspace__def" kindref="compound">space_def</ref><sp/>*def);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structspace__def" kindref="compound">space_def</ref><sp/>*</highlight></codeline>
+<codeline lineno="154"><highlight class="normal">space_def_dup(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structspace__def" kindref="compound">space_def</ref><sp/>*src);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structspace__def" kindref="compound">space_def</ref><sp/>*</highlight></codeline>
+<codeline lineno="173"><highlight class="normal">space_def_new(uint32_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">,<sp/>uint32_t<sp/><ref refid="structspace__def_1a9e50e4e98d2fbb16aa77afd74a24c444" kindref="member">uid</ref>,<sp/>uint32_t<sp/><ref refid="structspace__def_1ae8000f4509f468773091d32125477740" kindref="member">exact_field_count</ref>,</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,<sp/>uint32_t<sp/>name_len,</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*engine_name,<sp/>uint32_t<sp/>engine_len,</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structspace__opts" kindref="compound">space_opts</ref><sp/>*opts,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfield__def" kindref="compound">field_def</ref><sp/>*fields,</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>field_count);</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structspace__def" kindref="compound">space_def</ref><sp/>*</highlight></codeline>
+<codeline lineno="187"><highlight class="normal">space_def_new_ephemeral(uint32_t<sp/>exact_field_count,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfield__def" kindref="compound">field_def</ref><sp/>*fields);</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal">space_def_sizeof(uint32_t<sp/>name_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfield__def" kindref="compound">field_def</ref><sp/>*fields,</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>field_count,<sp/>uint32_t<sp/>*names_offset,</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>*fields_offset,<sp/>uint32_t<sp/>*def_expr_offset);</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;diag.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structspace__def" kindref="compound">space_def</ref><sp/>*</highlight></codeline>
+<codeline lineno="213"><highlight class="normal">space_def_dup_xc(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structspace__def" kindref="compound">space_def</ref><sp/>*src)</highlight></codeline>
+<codeline lineno="214"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structspace__def" kindref="compound">space_def</ref><sp/>*ret<sp/>=<sp/>space_def_dup(src);</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ret<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_raise();</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ret;</highlight></codeline>
+<codeline lineno="219"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structspace__def" kindref="compound">space_def</ref><sp/>*</highlight></codeline>
+<codeline lineno="222"><highlight class="normal">space_def_new_xc(uint32_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">,<sp/>uint32_t<sp/><ref refid="structspace__def_1a9e50e4e98d2fbb16aa77afd74a24c444" kindref="member">uid</ref>,<sp/>uint32_t<sp/><ref refid="structspace__def_1ae8000f4509f468773091d32125477740" kindref="member">exact_field_count</ref>,</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,<sp/>uint32_t<sp/>name_len,</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*engine_name,<sp/>uint32_t<sp/>engine_len,</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structspace__opts" kindref="compound">space_opts</ref><sp/>*opts,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfield__def" kindref="compound">field_def</ref><sp/>*<ref refid="structspace__def_1a5ac07c9aee8d735cb8fdba2285df8065" kindref="member">fields</ref>,</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structspace__def_1a98a48197b26856cdfc6a3048d59d98fe" kindref="member">field_count</ref>)</highlight></codeline>
+<codeline lineno="227"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structspace__def" kindref="compound">space_def</ref><sp/>*ret<sp/>=<sp/>space_def_new(</highlight><highlight class="keywordtype">id</highlight><highlight class="normal">,<sp/><ref refid="structspace__def_1a9e50e4e98d2fbb16aa77afd74a24c444" kindref="member">uid</ref>,<sp/><ref refid="structspace__def_1ae8000f4509f468773091d32125477740" kindref="member">exact_field_count</ref>,<sp/>name,</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>name_len,<sp/>engine_name,<sp/>engine_len,</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>opts,<sp/>fields,<sp/>field_count);</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ret<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_raise();</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ret;</highlight></codeline>
+<codeline lineno="234"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>__cplusplus<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_BOX_SPACE_DEF_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/space_def.h"/>
+  </compounddef>
+</doxygen>

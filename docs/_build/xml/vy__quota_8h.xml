@@ -1,0 +1,690 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="vy__quota_8h" kind="file" language="C++">
+    <compoundname>vy_quota.h</compoundname>
+    <includes local="no">limits.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes refid="rlist_8h" local="no">small/rlist.h</includes>
+    <includes local="no">tarantool_ev.h</includes>
+    <includes refid="util_8h" local="yes">trivia/util.h</includes>
+    <includedby refid="vinyl_8c" local="yes">/home/tsafin/tarantool/src/box/vinyl.c</includedby>
+    <includedby refid="vy__quota_8c" local="yes">/home/tsafin/tarantool/src/box/vy_quota.c</includedby>
+    <includedby refid="vy__regulator_8c" local="yes">/home/tsafin/tarantool/src/box/vy_regulator.c</includedby>
+    <incdepgraph>
+      <node id="1332">
+        <label>stdbool.h</label>
+      </node>
+      <node id="1334">
+        <label>tarantool_ev.h</label>
+      </node>
+      <node id="1333">
+        <label>stddef.h</label>
+      </node>
+      <node id="1331">
+        <label>limits.h</label>
+      </node>
+      <node id="1330">
+        <label>/home/tsafin/tarantool/src/box/vy_quota.h</label>
+        <link refid="vy__quota_8h"/>
+        <childnode refid="1331" relation="include">
+        </childnode>
+        <childnode refid="1332" relation="include">
+        </childnode>
+        <childnode refid="1333" relation="include">
+        </childnode>
+        <childnode refid="1334" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structvy__rate__limit" prot="public">vy_rate_limit</innerclass>
+    <innerclass refid="structvy__quota__wait__node" prot="public">vy_quota_wait_node</innerclass>
+    <innerclass refid="structvy__quota" prot="public">vy_quota</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="vy__quota_8h_1a25efc55c01ee28540a8f96f72ad0f614" prot="public" static="no">
+        <name>vy_quota_resource_type</name>
+        <enumvalue id="vy__quota_8h_1a25efc55c01ee28540a8f96f72ad0f614a6239dca9ea51002517ae52dec9bf5ee7" prot="public">
+          <name>VY_QUOTA_RESOURCE_DISK</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+<para>The goal of disk-based throttling is to keep LSM trees in a good shape so that read and space amplification stay within bounds. </para>          </briefdescription>
+          <detaileddescription>
+<para>It is enabled when compaction does not keep up with dumps. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__quota_8h_1a25efc55c01ee28540a8f96f72ad0f614a4949bc8dd59b534a7e2286aa67b558f3" prot="public">
+          <name>VY_QUOTA_RESOURCE_MEMORY</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+<para>Memory-based throttling is needed to avoid long stalls caused by hitting the hard memory limit. </para>          </briefdescription>
+          <detaileddescription>
+<para>It is set so that by the time the hard limit is hit, the last memory dump will have completed. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__quota_8h_1a25efc55c01ee28540a8f96f72ad0f614ae45828871e865737ff020e1afb624678" prot="public">
+          <name>vy_quota_resource_type_MAX</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Apart from memory usage accounting and limiting, <ref refid="structvy__quota" kindref="compound">vy_quota</ref> is responsible for consumption rate limiting (aka throttling). </para>        </briefdescription>
+        <detaileddescription>
+<para>There are multiple rate limits, each of which is associated with a particular resource type. Different kinds of consumers respect different limits. The following enumeration defines the resource types for which <ref refid="structvy__quota" kindref="compound">vy_quota</ref> enables throttling.</para><para>See also vy_quota_consumer_resource_map. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="123" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.h" bodystart="123" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="enum" id="vy__quota_8h_1a098c2ffba08f7deaf390bbd8d0611c64" prot="public" static="no">
+        <name>vy_quota_consumer_type</name>
+        <enumvalue id="vy__quota_8h_1a098c2ffba08f7deaf390bbd8d0611c64a8701273e9811723e32ce5a97aa7fc9d0" prot="public">
+          <name>VY_QUOTA_CONSUMER_TX</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+<para>Transaction processor. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__quota_8h_1a098c2ffba08f7deaf390bbd8d0611c64a7c94358ba590592444a2cc652d29b8de" prot="public">
+          <name>VY_QUOTA_CONSUMER_COMPACTION</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+<para>Compaction job. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__quota_8h_1a098c2ffba08f7deaf390bbd8d0611c64a0929b1e1daaaf54e0990011e3ae9e84c" prot="public">
+          <name>VY_QUOTA_CONSUMER_DDL</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+<para>Request to build a new index. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__quota_8h_1a098c2ffba08f7deaf390bbd8d0611c64aaf6106cf800def2e9eaf88a5ea6021dd" prot="public">
+          <name>vy_quota_consumer_type_MAX</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Quota consumer type determines how a quota consumer will be rate limited. </para>        </briefdescription>
+        <detaileddescription>
+<para>See also vy_quota_consumer_resource_map. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="148" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.h" bodystart="148" bodyend="157"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="vy__quota_8h_1aaa7d2f64073f2d5dd2e6057d8e0d6a3a" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* vy_quota_exceeded_f) (struct vy_quota *quota)</definition>
+        <argsstring>)(struct vy_quota *quota)</argsstring>
+        <name>vy_quota_exceeded_f</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="110" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.h" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="vy__quota_8h_1a7aa201b8c21ecf7395ce391dd5461b9f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_rate_limit_create</definition>
+        <argsstring>(struct vy_rate_limit *rl)</argsstring>
+        <name>vy_rate_limit_create</name>
+        <param>
+          <type>struct <ref refid="structvy__rate__limit" kindref="compound">vy_rate_limit</ref> *</type>
+          <declname>rl</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a rate limit state. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="59" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.h" bodystart="59" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__quota_8h_1a1de4608670dad0b375bfbfdcee40d437" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_rate_limit_set</definition>
+        <argsstring>(struct vy_rate_limit *rl, size_t rate)</argsstring>
+        <name>vy_rate_limit_set</name>
+        <param>
+          <type>struct <ref refid="structvy__rate__limit" kindref="compound">vy_rate_limit</ref> *</type>
+          <declname>rl</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>rate</declname>
+        </param>
+        <briefdescription>
+<para>Set rate limit. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="67" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.h" bodystart="67" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__quota_8h_1a506f399547b06884e2380c0fa85e7274" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool vy_rate_limit_may_use</definition>
+        <argsstring>(struct vy_rate_limit *rl)</argsstring>
+        <name>vy_rate_limit_may_use</name>
+        <param>
+          <type>struct <ref refid="structvy__rate__limit" kindref="compound">vy_rate_limit</ref> *</type>
+          <declname>rl</declname>
+        </param>
+        <briefdescription>
+<para>Return true if quota may be consumed without exceeding the configured rate limit. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="77" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.h" bodystart="77" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__quota_8h_1abd184fed6035a7cd0a12c2a700f24d87" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_rate_limit_use</definition>
+        <argsstring>(struct vy_rate_limit *rl, size_t size)</argsstring>
+        <name>vy_rate_limit_use</name>
+        <param>
+          <type>struct <ref refid="structvy__rate__limit" kindref="compound">vy_rate_limit</ref> *</type>
+          <declname>rl</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Consume the given amount of quota. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="84" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.h" bodystart="84" bodyend="87"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__quota_8h_1a6366c163335e542c2283b27e5e8ec2d6" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_rate_limit_unuse</definition>
+        <argsstring>(struct vy_rate_limit *rl, size_t size)</argsstring>
+        <name>vy_rate_limit_unuse</name>
+        <param>
+          <type>struct <ref refid="structvy__rate__limit" kindref="compound">vy_rate_limit</ref> *</type>
+          <declname>rl</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Release the given amount of quota. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="91" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.h" bodystart="91" bodyend="94"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__quota_8h_1a69a21565a9b8fa4a57fad470ef50e617" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_rate_limit_refill</definition>
+        <argsstring>(struct vy_rate_limit *rl, double time)</argsstring>
+        <name>vy_rate_limit_refill</name>
+        <param>
+          <type>struct <ref refid="structvy__rate__limit" kindref="compound">vy_rate_limit</ref> *</type>
+          <declname>rl</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>time</declname>
+        </param>
+        <briefdescription>
+<para>Replenish quota by the amount accumulated for the given time interval. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="101" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.h" bodystart="101" bodyend="108"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__quota_8h_1a22fb26c40ac178114363a6b8e83246b6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_quota_create</definition>
+        <argsstring>(struct vy_quota *q, size_t limit, vy_quota_exceeded_f quota_exceeded_cb)</argsstring>
+        <name>vy_quota_create</name>
+        <param>
+          <type>struct <ref refid="structvy__quota" kindref="compound">vy_quota</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>limit</declname>
+        </param>
+        <param>
+          <type>vy_quota_exceeded_f</type>
+          <declname>quota_exceeded_cb</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a quota object. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note, the limit won&apos;t be imposed until vy_quota_enable() is called. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="229" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.c" bodystart="223" bodyend="238"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__quota_8h_1ad7814e25910979037b7eba63da22dbe9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_quota_enable</definition>
+        <argsstring>(struct vy_quota *q)</argsstring>
+        <name>vy_quota_enable</name>
+        <param>
+          <type>struct <ref refid="structvy__quota" kindref="compound">vy_quota</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <briefdescription>
+<para>Enable the configured limit for a quota object. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="236" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.c" bodystart="241" bodyend="247"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__quota_8h_1a1a90cdeb6d628d4b0e1067aade1b5abb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_quota_destroy</definition>
+        <argsstring>(struct vy_quota *q)</argsstring>
+        <name>vy_quota_destroy</name>
+        <param>
+          <type>struct <ref refid="structvy__quota" kindref="compound">vy_quota</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <briefdescription>
+<para>Destroy a quota object. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="242" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.c" bodystart="250" bodyend="253"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__quota_8h_1aa9eb4a7b7ab6a949499183e4d31fe52e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_quota_set_limit</definition>
+        <argsstring>(struct vy_quota *q, size_t limit)</argsstring>
+        <name>vy_quota_set_limit</name>
+        <param>
+          <type>struct <ref refid="structvy__quota" kindref="compound">vy_quota</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>limit</declname>
+        </param>
+        <briefdescription>
+<para>Set memory limit. </para>        </briefdescription>
+        <detaileddescription>
+<para>If current memory usage exceeds the new limit, invoke the callback. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="249" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.c" bodystart="256" bodyend="261"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__quota_8h_1a8c5ae4fd1a75b5e5f6a9bcd4287fd257" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_quota_set_rate_limit</definition>
+        <argsstring>(struct vy_quota *q, enum vy_quota_resource_type type, size_t rate)</argsstring>
+        <name>vy_quota_set_rate_limit</name>
+        <param>
+          <type>struct <ref refid="structvy__quota" kindref="compound">vy_quota</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <param>
+          <type>enum vy_quota_resource_type</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>rate</declname>
+        </param>
+        <briefdescription>
+<para>Set the rate limit corresponding to the resource of the given type. </para>        </briefdescription>
+        <detaileddescription>
+<para>The rate limit is given in bytes per second. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="256" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.c" bodystart="264" bodyend="268"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__quota_8h_1a9d647ed42c70f6539024a9a5dcfbd21d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t vy_quota_get_rate_limit</definition>
+        <argsstring>(struct vy_quota *q, enum vy_quota_consumer_type type)</argsstring>
+        <name>vy_quota_get_rate_limit</name>
+        <param>
+          <type>struct <ref refid="structvy__quota" kindref="compound">vy_quota</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <param>
+          <type>enum vy_quota_consumer_type</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Return the rate limit applied to a consumer of the given type. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="263" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.c" bodystart="271" bodyend="280"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__quota_8h_1a55549cabc227eb40051fef23254d67ed" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_quota_force_use</definition>
+        <argsstring>(struct vy_quota *q, enum vy_quota_consumer_type type, size_t size)</argsstring>
+        <name>vy_quota_force_use</name>
+        <param>
+          <type>struct <ref refid="structvy__quota" kindref="compound">vy_quota</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <param>
+          <type>enum vy_quota_consumer_type</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Consume  bytes of memory. </para>        </briefdescription>
+        <detaileddescription>
+<para>In contrast to vy_quota_use() this function does not throttle the caller. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="270" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.c" bodystart="283" bodyend="288"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__quota_8h_1a8f00d9eac2d25ac8161081996759e018" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_quota_release</definition>
+        <argsstring>(struct vy_quota *q, size_t size)</argsstring>
+        <name>vy_quota_release</name>
+        <param>
+          <type>struct <ref refid="structvy__quota" kindref="compound">vy_quota</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Release  bytes of memory. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="277" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.c" bodystart="291" bodyend="300"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__quota_8h_1a570b5acbbddc0c61e83ce89363267197" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int vy_quota_use</definition>
+        <argsstring>(struct vy_quota *q, enum vy_quota_consumer_type type, size_t size, double timeout)</argsstring>
+        <name>vy_quota_use</name>
+        <param>
+          <type>struct <ref refid="structvy__quota" kindref="compound">vy_quota</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <param>
+          <type>enum vy_quota_consumer_type</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>timeout</declname>
+        </param>
+        <briefdescription>
+<para>Try to consume  bytes of memory, throttle the caller if the limit is exceeded. </para>        </briefdescription>
+        <detaileddescription>
+<para>specifies the maximal time to wait. Return 0 on success, -1 on timeout.</para><para>Usage pattern:</para><para>size_t reserved = &lt;estimate&gt;; if (vy_quota_use(q, reserved, timeout) != 0) return -1; &lt;allocate memory&gt;=&quot;&quot;&gt; size_t used = &lt;actually allocated&gt;=&quot;&quot;&gt;; vy_quota_adjust(q, reserved, used);</para><para>We use two-step quota allocation strategy (reserve-consume), because we may not yield after we start inserting statements into a space so we estimate the allocation size and wait for quota before committing statements. At the same time, we cannot precisely estimate the size of memory we are going to consume so we adjust the quota after the allocation.</para><para>The size of memory allocated while committing a transaction may be greater than an estimate, because insertion of a statement into an in-memory index can trigger allocation of a new index extent. This should not normally result in a noticeable breach in the memory limit, because most memory is occupied by statements, but we need to adjust the quota accordingly after the allocation in this case.</para><para>The actual memory allocation size may also be less than an estimate if the space has multiple indexes, because statements are stored in the common memory level, which isn&apos;t taken into account while estimating the size of a memory allocation. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="314" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.c" bodystart="303" bodyend="358"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__quota_8h_1a966621a0b80b5f4d68c58c71e665ce1e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_quota_adjust</definition>
+        <argsstring>(struct vy_quota *q, enum vy_quota_consumer_type type, size_t reserved, size_t used)</argsstring>
+        <name>vy_quota_adjust</name>
+        <param>
+          <type>struct <ref refid="structvy__quota" kindref="compound">vy_quota</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <param>
+          <type>enum vy_quota_consumer_type</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>reserved</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>used</declname>
+        </param>
+        <briefdescription>
+<para>Adjust quota after allocating memory. </para>        </briefdescription>
+        <detaileddescription>
+<para>: size of quota reserved by vy_quota_use(). : size of memory actually allocated.</para><para>See also vy_quota_use(). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="326" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.c" bodystart="361" bodyend="372"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__quota_8h_1a8d5c0bd135763cc3e0dc605b66e736ca" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_quota_wait</definition>
+        <argsstring>(struct vy_quota *q, enum vy_quota_consumer_type type)</argsstring>
+        <name>vy_quota_wait</name>
+        <param>
+          <type>struct <ref refid="structvy__quota" kindref="compound">vy_quota</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <param>
+          <type>enum vy_quota_consumer_type</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Block the caller until the quota is not exceeded. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="333" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.h" bodystart="333" bodyend="336"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>INCLUDES_TARANTOOL_BOX_VY_QUOTA_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INCLUDES_TARANTOOL_BOX_VY_QUOTA_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2017,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>AUTHORS<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>AUTHORS<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;limits.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;small/rlist.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;tarantool_ev.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trivia/util.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber" kindref="compound">fiber</ref>;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__quota" kindref="compound">vy_quota</ref>;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50" refid="structvy__rate__limit" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__rate__limit" kindref="compound">vy_rate_limit</ref><sp/>{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structvy__rate__limit_1a1b1b0d7b9233d52a1cc068730d52a0a6" kindref="member">rate</ref>;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ssize_t<sp/><ref refid="structvy__rate__limit_1a0b329e4d88af23cbff8479e574202295" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal">vy_rate_limit_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__rate__limit" kindref="compound">vy_rate_limit</ref><sp/>*rl)</highlight></codeline>
+<codeline lineno="60"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rl-&gt;<ref refid="structvy__rate__limit_1a1b1b0d7b9233d52a1cc068730d52a0a6" kindref="member">rate</ref><sp/>=<sp/>SIZE_MAX;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rl-&gt;<ref refid="structvy__rate__limit_1a0b329e4d88af23cbff8479e574202295" kindref="member">value</ref><sp/>=<sp/>SSIZE_MAX;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal">vy_rate_limit_set(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__rate__limit" kindref="compound">vy_rate_limit</ref><sp/>*rl,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structvy__rate__limit_1a1b1b0d7b9233d52a1cc068730d52a0a6" kindref="member">rate</ref>)</highlight></codeline>
+<codeline lineno="68"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rl-&gt;<ref refid="structvy__rate__limit_1a1b1b0d7b9233d52a1cc068730d52a0a6" kindref="member">rate</ref><sp/>=<sp/><ref refid="structvy__rate__limit_1a1b1b0d7b9233d52a1cc068730d52a0a6" kindref="member">rate</ref>;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal">vy_rate_limit_may_use(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__rate__limit" kindref="compound">vy_rate_limit</ref><sp/>*rl)</highlight></codeline>
+<codeline lineno="78"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rl-&gt;<ref refid="structvy__rate__limit_1a0b329e4d88af23cbff8479e574202295" kindref="member">value</ref><sp/>&gt;<sp/>0;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal">vy_rate_limit_use(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__rate__limit" kindref="compound">vy_rate_limit</ref><sp/>*rl,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="85"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rl-&gt;<ref refid="structvy__rate__limit_1a0b329e4d88af23cbff8479e574202295" kindref="member">value</ref><sp/>-=<sp/>size;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal">vy_rate_limit_unuse(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__rate__limit" kindref="compound">vy_rate_limit</ref><sp/>*rl,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="92"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rl-&gt;<ref refid="structvy__rate__limit_1a0b329e4d88af23cbff8479e574202295" kindref="member">value</ref><sp/>+=<sp/>size;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal">vy_rate_limit_refill(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__rate__limit" kindref="compound">vy_rate_limit</ref><sp/>*rl,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>time)</highlight></codeline>
+<codeline lineno="102"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>size<sp/>=<sp/>rl-&gt;<ref refid="structvy__rate__limit_1a1b1b0d7b9233d52a1cc068730d52a0a6" kindref="member">rate</ref><sp/>*<sp/>time;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structvy__rate__limit_1a0b329e4d88af23cbff8479e574202295" kindref="member">value</ref><sp/>=<sp/>rl-&gt;<ref refid="structvy__rate__limit_1a0b329e4d88af23cbff8479e574202295" kindref="member">value</ref><sp/>+<sp/>size;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Allow<sp/>bursts<sp/>up<sp/>to<sp/>2x<sp/>rate.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>value<sp/>=<sp/>MIN(value,<sp/>size<sp/>*<sp/>2);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rl-&gt;<ref refid="structvy__rate__limit_1a0b329e4d88af23cbff8479e574202295" kindref="member">value</ref><sp/>=<sp/>MIN((ssize_t)value,<sp/>SSIZE_MAX);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void</highlight></codeline>
+<codeline lineno="111"><highlight class="normal">(*vy_quota_exceeded_f)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__quota" kindref="compound">vy_quota</ref><sp/>*<ref refid="structquota" kindref="compound">quota</ref>);</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>vy_quota_resource_type<sp/>{</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_QUOTA_RESOURCE_DISK<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_QUOTA_RESOURCE_MEMORY<sp/>=<sp/>1,</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_quota_resource_type_MAX,</highlight></codeline>
+<codeline lineno="140"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>vy_quota_consumer_type<sp/>{</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_QUOTA_CONSUMER_TX<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_QUOTA_CONSUMER_COMPACTION<sp/>=<sp/>1,</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_QUOTA_CONSUMER_DDL<sp/>=<sp/>2,</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_quota_consumer_type_MAX,</highlight></codeline>
+<codeline lineno="157"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159" refid="structvy__quota__wait__node" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__quota__wait__node" kindref="compound">vy_quota_wait_node</ref><sp/>{</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>in_wait_queue;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber" kindref="compound">fiber</ref><sp/>*<ref refid="structfiber" kindref="compound">fiber</ref>;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>ticket;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="177" refid="structvy__quota" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__quota" kindref="compound">vy_quota</ref><sp/>{</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_enabled;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>limit;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>used;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>too_long_threshold;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_quota_exceeded_f<sp/>quota_exceeded_cb;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>wait_ticket;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>wait_queue[vy_quota_consumer_type_MAX];</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__rate__limit" kindref="compound">vy_rate_limit</ref><sp/>rate_limit[vy_quota_resource_type_MAX];</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ev_timer<sp/>timer;</highlight></codeline>
+<codeline lineno="220"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal">vy_quota_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__quota" kindref="compound">vy_quota</ref><sp/>*q,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>limit,</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_quota_exceeded_f<sp/>quota_exceeded_cb);</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight></codeline>
+<codeline lineno="235"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal">vy_quota_enable(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__quota" kindref="compound">vy_quota</ref><sp/>*q);</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal">vy_quota_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__quota" kindref="compound">vy_quota</ref><sp/>*q);</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"></highlight></codeline>
+<codeline lineno="248"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="249"><highlight class="normal">vy_quota_set_limit(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__quota" kindref="compound">vy_quota</ref><sp/>*q,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>limit);</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"></highlight></codeline>
+<codeline lineno="255"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="256"><highlight class="normal">vy_quota_set_rate_limit(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__quota" kindref="compound">vy_quota</ref><sp/>*q,<sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>vy_quota_resource_type<sp/>type,</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>rate);</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="263"><highlight class="normal">vy_quota_get_rate_limit(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__quota" kindref="compound">vy_quota</ref><sp/>*q,<sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>vy_quota_consumer_type<sp/>type);</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"></highlight></codeline>
+<codeline lineno="269"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="270"><highlight class="normal">vy_quota_force_use(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__quota" kindref="compound">vy_quota</ref><sp/>*q,<sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>vy_quota_consumer_type<sp/>type,</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="277"><highlight class="normal">vy_quota_release(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__quota" kindref="compound">vy_quota</ref><sp/>*q,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"></highlight></codeline>
+<codeline lineno="313"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="314"><highlight class="normal">vy_quota_use(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__quota" kindref="compound">vy_quota</ref><sp/>*q,<sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>vy_quota_consumer_type<sp/>type,</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>timeout);</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"></highlight></codeline>
+<codeline lineno="325"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="326"><highlight class="normal">vy_quota_adjust(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__quota" kindref="compound">vy_quota</ref><sp/>*q,<sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>vy_quota_consumer_type<sp/>type,</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>reserved,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>used);</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"></highlight></codeline>
+<codeline lineno="332"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="333"><highlight class="normal">vy_quota_wait(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__quota" kindref="compound">vy_quota</ref><sp/>*q,<sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>vy_quota_consumer_type<sp/>type)</highlight></codeline>
+<codeline lineno="334"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_quota_use(q,<sp/>type,<sp/>0,<sp/>TIMEOUT_INFINITY);</highlight></codeline>
+<codeline lineno="336"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"></highlight></codeline>
+<codeline lineno="338"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="339"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="340"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="341"><highlight class="normal"></highlight></codeline>
+<codeline lineno="342"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>INCLUDES_TARANTOOL_BOX_VY_QUOTA_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/vy_quota.h"/>
+  </compounddef>
+</doxygen>

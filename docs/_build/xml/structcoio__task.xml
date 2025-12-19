@@ -1,0 +1,851 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structcoio__task" kind="struct" language="C++" prot="public">
+    <compoundname>coio_task</compoundname>
+    <includes local="no">coio_task.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structcoio__task_1a20ba872f313f3a21a9899c4f1afcc8fa" prot="public" static="no" mutable="no">
+        <type>struct eio_req</type>
+        <definition>struct eio_req coio_task::base</definition>
+        <argsstring></argsstring>
+        <name>base</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio_task.h" line="128" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio_task.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcoio__task_1aa0d64d292ed0ce26253599726bdcb2db" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfiber" kindref="compound">fiber</ref> *</type>
+        <definition>struct fiber* coio_task::fiber</definition>
+        <argsstring></argsstring>
+        <name>fiber</name>
+        <briefdescription>
+<para>The calling fiber. </para>        </briefdescription>
+        <detaileddescription>
+<para>When set to NULL, the task is detached - its resources are freed eventually, and such a task should not be accessed after detachment. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio_task.h" line="71" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio_task.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcoio__task_1aa27df76fd497dc0fb791e5f49d111f6b" prot="public" static="no" mutable="no">
+        <type>coio_task_cb</type>
+        <definition>coio_task_cb coio_task::task_cb</definition>
+        <argsstring></argsstring>
+        <name>task_cb</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio_task.h" line="75" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio_task.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcoio__task_1a83f6e8bc8fc8361736c0afd80357ea31" prot="public" static="no" mutable="no">
+        <type>coio_task_cb</type>
+        <definition>coio_task_cb coio_task::timeout_cb</definition>
+        <argsstring></argsstring>
+        <name>timeout_cb</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio_task.h" line="76" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio_task.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcoio__task_1a5308238bb80fd4bdc29149c530e8dbae" prot="public" static="no" mutable="no">
+        <type>coio_call_cb</type>
+        <definition>coio_call_cb coio_task::call_cb</definition>
+        <argsstring></argsstring>
+        <name>call_cb</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio_task.h" line="79" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio_task.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcoio__task_1acd5d3294b48de6923d04d068e81f3df4" prot="public" static="no" mutable="no">
+        <type>va_list</type>
+        <definition>va_list coio_task::ap</definition>
+        <argsstring></argsstring>
+        <name>ap</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio_task.h" line="80" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio_task.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcoio__task_1a0fd0d3bf9218674d1bb483ee0a111632" prot="public" static="no" mutable="no">
+        <type>union coio_task::@185</type>
+        <definition>union coio_task::@185 coio_task::@186</definition>
+        <argsstring></argsstring>
+        <name>@186</name>
+        <briefdescription>
+<para>Callbacks. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio_task.h" line="82" column="1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcoio__task_1a6bb81052141aee858633bc7264af6a64" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int coio_task::complete</definition>
+        <argsstring></argsstring>
+        <name>complete</name>
+        <briefdescription>
+<para>Callback results. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio_task.h" line="84" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio_task.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcoio__task_1ac02801c705685b7936f0388fa66d0de3" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structdiag" kindref="compound">diag</ref></type>
+        <definition>struct diag coio_task::diag</definition>
+        <argsstring></argsstring>
+        <name>diag</name>
+        <briefdescription>
+<para>Task diag. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio_task.h" line="84" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio_task.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A single task context. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1376">
+        <label>serializer_opts</label>
+        <link refid="structserializer__opts"/>
+      </node>
+      <node id="1368">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="1360">
+        <label>json_tree</label>
+        <link refid="structjson__tree"/>
+        <childnode refid="1361" relation="usage">
+          <edgelabel>root</edgelabel>
+        </childnode>
+      </node>
+      <node id="1333">
+        <label>ExprList</label>
+        <link refid="structExprList"/>
+        <childnode refid="1334" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="1344">
+        <label>index_stat</label>
+        <link refid="structindex__stat"/>
+        <childnode refid="1345" relation="usage">
+          <edgelabel>samples</edgelabel>
+        </childnode>
+      </node>
+      <node id="1357">
+        <label>iterator</label>
+        <link refid="structiterator"/>
+        <childnode refid="1354" relation="usage">
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="1365">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="1365" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="1366">
+        <label>region</label>
+        <link refid="structregion"/>
+        <childnode refid="1367" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="1369" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="1348">
+        <label>key_part</label>
+        <link refid="structkey__part"/>
+        <childnode refid="1349" relation="usage">
+          <edgelabel>coll</edgelabel>
+        </childnode>
+      </node>
+      <node id="1345">
+        <label>index_sample</label>
+        <link refid="structindex__sample"/>
+      </node>
+      <node id="1377">
+        <label>session_vtab</label>
+        <link refid="structsession__vtab"/>
+      </node>
+      <node id="1352">
+        <label>TriggerStep</label>
+        <link refid="structTriggerStep"/>
+        <childnode refid="1352" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pLast</edgelabel>
+        </childnode>
+        <childnode refid="1322" relation="usage">
+          <edgelabel>pWhere</edgelabel>
+        </childnode>
+        <childnode refid="1340" relation="usage">
+          <edgelabel>pIdList</edgelabel>
+        </childnode>
+        <childnode refid="1335" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="1333" relation="usage">
+          <edgelabel>pExprList</edgelabel>
+        </childnode>
+      </node>
+      <node id="1379">
+        <label>diag</label>
+        <link refid="structdiag"/>
+      </node>
+      <node id="1361">
+        <label>json_token</label>
+        <link refid="structjson__token"/>
+        <childnode refid="1361" relation="usage">
+          <edgelabel>parent</edgelabel>
+          <edgelabel>children</edgelabel>
+        </childnode>
+      </node>
+      <node id="1373">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="1365" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="1327">
+        <label>access</label>
+        <link refid="structaccess"/>
+      </node>
+      <node id="1339">
+        <label>SrcList::SrcList_item</label>
+        <link refid="structSrcList_1_1SrcList__item"/>
+        <childnode refid="1318" relation="usage">
+          <edgelabel>space</edgelabel>
+        </childnode>
+        <childnode refid="1322" relation="usage">
+          <edgelabel>pOn</edgelabel>
+        </childnode>
+        <childnode refid="1340" relation="usage">
+          <edgelabel>pUsing</edgelabel>
+        </childnode>
+        <childnode refid="1342" relation="usage">
+          <edgelabel>pIBIndex</edgelabel>
+        </childnode>
+        <childnode refid="1335" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="1333" relation="usage">
+          <edgelabel>pFuncArg</edgelabel>
+        </childnode>
+      </node>
+      <node id="1313">
+        <label>coio_task</label>
+        <link refid="structcoio__task"/>
+        <childnode refid="1313" relation="usage">
+          <edgelabel>task_cb</edgelabel>
+          <edgelabel>timeout_cb</edgelabel>
+        </childnode>
+        <childnode refid="1314" relation="usage">
+          <edgelabel>fiber</edgelabel>
+        </childnode>
+        <childnode refid="1379" relation="usage">
+          <edgelabel>diag</edgelabel>
+        </childnode>
+      </node>
+      <node id="1337">
+        <label>With::Cte</label>
+        <link refid="structWith_1_1Cte"/>
+        <childnode refid="1335" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="1333" relation="usage">
+          <edgelabel>pCols</edgelabel>
+        </childnode>
+      </node>
+      <node id="1335">
+        <label>Select</label>
+        <link refid="structSelect"/>
+        <childnode refid="1322" relation="usage">
+          <edgelabel>pOffset</edgelabel>
+          <edgelabel>pHaving</edgelabel>
+          <edgelabel>pWhere</edgelabel>
+          <edgelabel>pLimit</edgelabel>
+        </childnode>
+        <childnode refid="1336" relation="usage">
+          <edgelabel>pWith</edgelabel>
+        </childnode>
+        <childnode refid="1335" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pPrior</edgelabel>
+        </childnode>
+        <childnode refid="1338" relation="usage">
+          <edgelabel>pSrc</edgelabel>
+        </childnode>
+        <childnode refid="1333" relation="usage">
+          <edgelabel>pEList</edgelabel>
+          <edgelabel>pOrderBy</edgelabel>
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="1331">
+        <label>credentials</label>
+        <link refid="structcredentials"/>
+        <childnode refid="1332" relation="usage">
+          <edgelabel>in_user</edgelabel>
+        </childnode>
+      </node>
+      <node id="1317">
+        <label>engine_vtab</label>
+        <link refid="structengine__vtab"/>
+        <childnode refid="1318" relation="usage">
+          <edgelabel>create_space</edgelabel>
+        </childnode>
+      </node>
+      <node id="1318">
+        <label>space</label>
+        <link refid="structspace"/>
+        <childnode refid="1319" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="1316" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="1351" relation="usage">
+          <edgelabel>sql_triggers</edgelabel>
+        </childnode>
+        <childnode refid="1327" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="1353" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="1358" relation="usage">
+          <edgelabel>format</edgelabel>
+        </childnode>
+        <childnode refid="1362" relation="usage">
+          <edgelabel>ck_constraint_trigger</edgelabel>
+        </childnode>
+        <childnode refid="1332" relation="usage">
+          <edgelabel>before_replace</edgelabel>
+          <edgelabel>on_replace</edgelabel>
+          <edgelabel>child_fk_constraint</edgelabel>
+          <edgelabel>memtx_stories</edgelabel>
+          <edgelabel>parent_fk_constraint</edgelabel>
+          <edgelabel>ck_constraint</edgelabel>
+        </childnode>
+        <childnode refid="1363" relation="usage">
+          <edgelabel>sequence</edgelabel>
+        </childnode>
+        <childnode refid="1354" relation="usage">
+          <edgelabel>index_map</edgelabel>
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="1378">
+        <label>clock_stat</label>
+        <link refid="structclock__stat"/>
+      </node>
+      <node id="1324">
+        <label>AggInfo::AggInfo_col</label>
+        <link refid="structAggInfo_1_1AggInfo__col"/>
+        <childnode refid="1319" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="1322" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="1355">
+        <label>index_vtab</label>
+        <link refid="structindex__vtab"/>
+        <childnode refid="1356" relation="usage">
+          <edgelabel>create_snapshot_iterator</edgelabel>
+        </childnode>
+        <childnode refid="1357" relation="usage">
+          <edgelabel>create_iterator</edgelabel>
+        </childnode>
+      </node>
+      <node id="1320">
+        <label>tuple_dictionary</label>
+        <link refid="structtuple__dictionary"/>
+      </node>
+      <node id="1322">
+        <label>Expr</label>
+        <link refid="structExpr"/>
+        <childnode refid="1319" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="1323" relation="usage">
+          <edgelabel>pAggInfo</edgelabel>
+        </childnode>
+        <childnode refid="1322" relation="usage">
+          <edgelabel>pRight</edgelabel>
+          <edgelabel>pLeft</edgelabel>
+        </childnode>
+        <childnode refid="1335" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="1333" relation="usage">
+          <edgelabel>pList</edgelabel>
+        </childnode>
+      </node>
+      <node id="1315">
+        <label>txn</label>
+        <link refid="structtxn"/>
+        <childnode refid="1316" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="1365" relation="usage">
+          <edgelabel>in_txn_cache</edgelabel>
+          <edgelabel>sub_stmt_begin</edgelabel>
+        </childnode>
+        <childnode refid="1366" relation="usage">
+          <edgelabel>region</edgelabel>
+        </childnode>
+        <childnode refid="1314" relation="usage">
+          <edgelabel>fiber</edgelabel>
+        </childnode>
+        <childnode refid="1362" relation="usage">
+          <edgelabel>fiber_on_stop</edgelabel>
+          <edgelabel>fiber_on_yield</edgelabel>
+        </childnode>
+        <childnode refid="1332" relation="usage">
+          <edgelabel>on_wal_write</edgelabel>
+          <edgelabel>read_set</edgelabel>
+          <edgelabel>conflict_list</edgelabel>
+          <edgelabel>in_read_view_txs</edgelabel>
+          <edgelabel>savepoints</edgelabel>
+          <edgelabel>conflicted_by_list</edgelabel>
+        </childnode>
+        <childnode refid="1373" relation="usage">
+          <edgelabel>stmts</edgelabel>
+        </childnode>
+      </node>
+      <node id="1323">
+        <label>AggInfo</label>
+        <link refid="structAggInfo"/>
+        <childnode refid="1324" relation="usage">
+          <edgelabel>aCol</edgelabel>
+        </childnode>
+        <childnode refid="1325" relation="usage">
+          <edgelabel>aFunc</edgelabel>
+        </childnode>
+        <childnode refid="1333" relation="usage">
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="1332">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="1332" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="1356">
+        <label>snapshot_iterator</label>
+        <link refid="structsnapshot__iterator"/>
+      </node>
+      <node id="1367">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="1368" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="1332" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="1338">
+        <label>SrcList</label>
+        <link refid="structSrcList"/>
+        <childnode refid="1339" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="1382">
+        <label>ipc_msg</label>
+        <link refid="structipc__msg"/>
+      </node>
+      <node id="1364">
+        <label>sequence_def</label>
+        <link refid="structsequence__def"/>
+      </node>
+      <node id="1340">
+        <label>IdList</label>
+        <link refid="structIdList"/>
+        <childnode refid="1341" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="1354">
+        <label>index</label>
+        <link refid="structindex"/>
+        <childnode refid="1316" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="1355" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="1342" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="1363">
+        <label>sequence</label>
+        <link refid="structsequence"/>
+        <childnode refid="1327" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="1364" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="1321">
+        <label>field_def</label>
+        <link refid="structfield__def"/>
+        <childnode refid="1322" relation="usage">
+          <edgelabel>default_value_expr</edgelabel>
+        </childnode>
+      </node>
+      <node id="1346">
+        <label>key_def</label>
+        <link refid="structkey__def"/>
+        <childnode refid="1347" relation="usage">
+          <edgelabel>tuple_hash</edgelabel>
+          <edgelabel>tuple_compare_with_key</edgelabel>
+          <edgelabel>tuple_compare</edgelabel>
+          <edgelabel>tuple_hint</edgelabel>
+          <edgelabel>tuple_extract_key</edgelabel>
+        </childnode>
+        <childnode refid="1346" relation="usage">
+          <edgelabel>key_hash</edgelabel>
+          <edgelabel>tuple_extract_key_raw</edgelabel>
+          <edgelabel>key_hint</edgelabel>
+        </childnode>
+        <childnode refid="1326" relation="usage">
+          <edgelabel>func_index_func</edgelabel>
+        </childnode>
+        <childnode refid="1348" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="1362">
+        <label>trigger</label>
+        <link refid="structtrigger"/>
+        <childnode refid="1362" relation="usage">
+          <edgelabel>run</edgelabel>
+          <edgelabel>destroy</edgelabel>
+        </childnode>
+        <childnode refid="1332" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="1347">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="1371">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="1342">
+        <label>index_def</label>
+        <link refid="structindex__def"/>
+        <childnode refid="1343" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+        <childnode refid="1346" relation="usage">
+          <edgelabel>key_def</edgelabel>
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="1332" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="1350">
+        <label>space_opts</label>
+        <link refid="structspace__opts"/>
+      </node>
+      <node id="1326">
+        <label>func</label>
+        <link refid="structfunc"/>
+        <childnode refid="1327" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="1328" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="1329" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="1331" relation="usage">
+          <edgelabel>owner_credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="1328">
+        <label>func_vtab</label>
+        <link refid="structfunc__vtab"/>
+      </node>
+      <node id="1351">
+        <label>sql_trigger</label>
+        <link refid="structsql__trigger"/>
+        <childnode refid="1352" relation="usage">
+          <edgelabel>step_list</edgelabel>
+        </childnode>
+        <childnode refid="1322" relation="usage">
+          <edgelabel>pWhen</edgelabel>
+        </childnode>
+        <childnode refid="1351" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="1340" relation="usage">
+          <edgelabel>pColumns</edgelabel>
+        </childnode>
+      </node>
+      <node id="1372">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="1370">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="1371" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="1372" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="1330">
+        <label>func_opts</label>
+        <link refid="structfunc__opts"/>
+      </node>
+      <node id="1369">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="1367" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="1370" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="1359">
+        <label>tuple_format_vtab</label>
+        <link refid="structtuple__format__vtab"/>
+        <childnode refid="1347" relation="usage">
+          <edgelabel>tuple_new</edgelabel>
+        </childnode>
+      </node>
+      <node id="1358">
+        <label>tuple_format</label>
+        <link refid="structtuple__format"/>
+        <childnode refid="1320" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="1359" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="1360" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+      </node>
+      <node id="1329">
+        <label>func_def</label>
+        <link refid="structfunc__def"/>
+        <childnode refid="1330" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="1336">
+        <label>With</label>
+        <link refid="structWith"/>
+        <childnode refid="1337" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+        <childnode refid="1336" relation="usage">
+          <edgelabel>pOuter</edgelabel>
+        </childnode>
+      </node>
+      <node id="1319">
+        <label>space_def</label>
+        <link refid="structspace__def"/>
+        <childnode refid="1320" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="1321" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+        <childnode refid="1350" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="1316">
+        <label>engine</label>
+        <link refid="structengine"/>
+        <childnode refid="1317" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="1332" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="1341">
+        <label>IdList::IdList_item</label>
+        <link refid="structIdList_1_1IdList__item"/>
+      </node>
+      <node id="1381">
+        <label>ipc_wait_pad</label>
+        <link refid="structipc__wait__pad"/>
+        <childnode refid="1382" relation="usage">
+          <edgelabel>msg</edgelabel>
+        </childnode>
+      </node>
+      <node id="1349">
+        <label>coll</label>
+        <link refid="structcoll"/>
+        <childnode refid="1349" relation="usage">
+          <edgelabel>cmp</edgelabel>
+          <edgelabel>hint</edgelabel>
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+      <node id="1314">
+        <label>fiber</label>
+        <link refid="structfiber"/>
+        <childnode refid="1315" relation="usage">
+          <edgelabel>txn</edgelabel>
+        </childnode>
+        <childnode refid="1366" relation="usage">
+          <edgelabel>gc</edgelabel>
+        </childnode>
+        <childnode refid="1314" relation="usage">
+          <edgelabel>caller</edgelabel>
+        </childnode>
+        <childnode refid="1331" relation="usage">
+          <edgelabel>credentials</edgelabel>
+        </childnode>
+        <childnode refid="1374" relation="usage">
+          <edgelabel>session</edgelabel>
+        </childnode>
+        <childnode refid="1378" relation="usage">
+          <edgelabel>clock_stat</edgelabel>
+        </childnode>
+        <childnode refid="1332" relation="usage">
+          <edgelabel>wake</edgelabel>
+          <edgelabel>on_stop</edgelabel>
+          <edgelabel>on_yield</edgelabel>
+          <edgelabel>link</edgelabel>
+          <edgelabel>state</edgelabel>
+        </childnode>
+        <childnode refid="1379" relation="usage">
+          <edgelabel>diag</edgelabel>
+        </childnode>
+        <childnode refid="1380" relation="usage">
+          <edgelabel>stack_slab</edgelabel>
+        </childnode>
+        <childnode refid="1381" relation="usage">
+          <edgelabel>wait_pad</edgelabel>
+        </childnode>
+      </node>
+      <node id="1380">
+        <label>slab</label>
+        <link refid="structslab"/>
+        <childnode refid="1332" relation="usage">
+          <edgelabel>next_in_cache</edgelabel>
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+      <node id="1375">
+        <label>session_meta</label>
+        <link refid="structsession__meta"/>
+        <childnode refid="1376" relation="usage">
+          <edgelabel>serializer_opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="1343">
+        <label>index_opts</label>
+        <link refid="structindex__opts"/>
+        <childnode refid="1344" relation="usage">
+          <edgelabel>stat</edgelabel>
+        </childnode>
+      </node>
+      <node id="1374">
+        <label>session</label>
+        <link refid="structsession"/>
+        <childnode refid="1375" relation="usage">
+          <edgelabel>meta</edgelabel>
+        </childnode>
+        <childnode refid="1377" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="1362" relation="usage">
+          <edgelabel>fiber_on_stop</edgelabel>
+        </childnode>
+        <childnode refid="1331" relation="usage">
+          <edgelabel>credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="1334">
+        <label>ExprList::ExprList_item</label>
+        <link refid="structExprList_1_1ExprList__item"/>
+        <childnode refid="1322" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="1325">
+        <label>AggInfo::AggInfo_func</label>
+        <link refid="structAggInfo_1_1AggInfo__func"/>
+        <childnode refid="1322" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+        <childnode refid="1326" relation="usage">
+          <edgelabel>func</edgelabel>
+        </childnode>
+      </node>
+      <node id="1353">
+        <label>space_vtab</label>
+        <link refid="structspace__vtab"/>
+        <childnode refid="1354" relation="usage">
+          <edgelabel>create_index</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/core/coio_task.h" line="64" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio_task.h" bodystart="64" bodyend="87"/>
+    <listofallmembers>
+      <member refid="structcoio__task_1acd5d3294b48de6923d04d068e81f3df4" prot="public" virt="non-virtual"><scope>coio_task</scope><name>ap</name></member>
+      <member refid="structcoio__task_1a20ba872f313f3a21a9899c4f1afcc8fa" prot="public" virt="non-virtual"><scope>coio_task</scope><name>base</name></member>
+      <member refid="structcoio__task_1a5308238bb80fd4bdc29149c530e8dbae" prot="public" virt="non-virtual"><scope>coio_task</scope><name>call_cb</name></member>
+      <member refid="structcoio__task_1a6bb81052141aee858633bc7264af6a64" prot="public" virt="non-virtual"><scope>coio_task</scope><name>complete</name></member>
+      <member refid="structcoio__task_1ac02801c705685b7936f0388fa66d0de3" prot="public" virt="non-virtual"><scope>coio_task</scope><name>diag</name></member>
+      <member refid="structcoio__task_1aa0d64d292ed0ce26253599726bdcb2db" prot="public" virt="non-virtual"><scope>coio_task</scope><name>fiber</name></member>
+      <member refid="structcoio__task_1aa27df76fd497dc0fb791e5f49d111f6b" prot="public" virt="non-virtual"><scope>coio_task</scope><name>task_cb</name></member>
+      <member refid="structcoio__task_1a83f6e8bc8fc8361736c0afd80357ea31" prot="public" virt="non-virtual"><scope>coio_task</scope><name>timeout_cb</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

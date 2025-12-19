@@ -1,0 +1,159 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structswim__bcast__task" kind="struct" language="C++" prot="public">
+    <compoundname>swim_bcast_task</compoundname>
+    <includes local="no">swim_io.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structswim__bcast__task_1aeaf480040ebd7928cba475136253655e" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structswim__task" kindref="compound">swim_task</ref></type>
+        <definition>struct swim_task swim_bcast_task::base</definition>
+        <argsstring></argsstring>
+        <name>base</name>
+        <briefdescription>
+<para>Base structure. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="261" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="331" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__bcast__task_1aab62a2c38791ef059c3a6d0e20f61ce1" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int swim_bcast_task::port</definition>
+        <argsstring></argsstring>
+        <name>port</name>
+        <briefdescription>
+<para>Port to use for broadcast, in network byte order. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="333" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="333" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__bcast__task_1a8d04678041242da3862f685263b1dd4a" prot="public" static="no" mutable="no">
+        <type>struct ifaddrs *</type>
+        <definition>struct ifaddrs* swim_bcast_task::addrs</definition>
+        <argsstring></argsstring>
+        <name>addrs</name>
+        <briefdescription>
+<para>A list of interfaces. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="335" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="335" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__bcast__task_1a0647dcbc1b88968b6af6de8445c73a73" prot="public" static="no" mutable="no">
+        <type>struct ifaddrs *</type>
+        <definition>struct ifaddrs* swim_bcast_task::i</definition>
+        <argsstring></argsstring>
+        <name>i</name>
+        <briefdescription>
+<para>A next interface to send to. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="337" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="337" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Broadcast task. </para>    </briefdescription>
+    <detaileddescription>
+<para>Besides usual task fields, stores a list of interfaces available for broadcast packets. The task works asynchronously just like its ancestor, because even broadcast packets can not be sent without explicit permission from libev in a form of EV_WRITE event.</para><para>Despite usually having multiple network interfaces supporting broadcast, there is only one task to send a packet to all of them. The same task works multiple times, each time sending a packet to one interface. After completion it is self-deleted. There are no any concrete reason behind that except stint on memory for multiple tasks. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="10412">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="10412" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="10413">
+        <label>swim_member</label>
+        <link refid="structswim__member"/>
+        <childnode refid="10414" relation="usage">
+          <edgelabel>incarnation</edgelabel>
+        </childnode>
+        <childnode refid="10411" relation="usage">
+          <edgelabel>uuid</edgelabel>
+        </childnode>
+        <childnode refid="10415" relation="usage">
+          <edgelabel>in_wait_ack_heap</edgelabel>
+        </childnode>
+        <childnode refid="10412" relation="usage">
+          <edgelabel>in_event_queue</edgelabel>
+        </childnode>
+        <childnode refid="10416" relation="usage">
+          <edgelabel>in_dissemination_queue</edgelabel>
+          <edgelabel>in_round_queue</edgelabel>
+        </childnode>
+        <childnode refid="10409" relation="usage">
+          <edgelabel>ping_task</edgelabel>
+          <edgelabel>ack_task</edgelabel>
+        </childnode>
+      </node>
+      <node id="10408">
+        <label>swim_bcast_task</label>
+        <link refid="structswim__bcast__task"/>
+        <childnode refid="10409" relation="usage">
+          <edgelabel>base</edgelabel>
+        </childnode>
+      </node>
+      <node id="10416">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="10416" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="10415">
+        <label>heap_node</label>
+        <link refid="structheap__node"/>
+      </node>
+      <node id="10414">
+        <label>swim_incarnation</label>
+        <link refid="structswim__incarnation"/>
+      </node>
+      <node id="10409">
+        <label>swim_task</label>
+        <link refid="structswim__task"/>
+        <childnode refid="10410" relation="usage">
+          <edgelabel>packet</edgelabel>
+        </childnode>
+        <childnode refid="10411" relation="usage">
+          <edgelabel>uuid</edgelabel>
+        </childnode>
+        <childnode refid="10412" relation="usage">
+          <edgelabel>in_pool</edgelabel>
+        </childnode>
+        <childnode refid="10413" relation="usage">
+          <edgelabel>member</edgelabel>
+        </childnode>
+        <childnode refid="10416" relation="usage">
+          <edgelabel>in_queue_output</edgelabel>
+        </childnode>
+        <childnode refid="10409" relation="usage">
+          <edgelabel>complete</edgelabel>
+          <edgelabel>cancel</edgelabel>
+        </childnode>
+      </node>
+      <node id="10411">
+        <label>tt_uuid</label>
+        <link refid="structtt__uuid"/>
+      </node>
+      <node id="10410">
+        <label>swim_packet</label>
+        <link refid="structswim__packet"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="329" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="329" bodyend="338"/>
+    <listofallmembers>
+      <member refid="structswim__bcast__task_1a8d04678041242da3862f685263b1dd4a" prot="public" virt="non-virtual"><scope>swim_bcast_task</scope><name>addrs</name></member>
+      <member refid="structswim__bcast__task_1aeaf480040ebd7928cba475136253655e" prot="public" virt="non-virtual"><scope>swim_bcast_task</scope><name>base</name></member>
+      <member refid="structswim__bcast__task_1a0647dcbc1b88968b6af6de8445c73a73" prot="public" virt="non-virtual"><scope>swim_bcast_task</scope><name>i</name></member>
+      <member refid="structswim__bcast__task_1aab62a2c38791ef059c3a6d0e20f61ce1" prot="public" virt="non-virtual"><scope>swim_bcast_task</scope><name>port</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,155 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="quota__lessor_8c" kind="file" language="C++">
+    <compoundname>quota_lessor.c</compoundname>
+    <includes refid="quota__lessor_8h" local="yes">small/quota_lessor.h</includes>
+    <includes refid="unit_8h" local="yes">unit.h</includes>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="quota__lessor_8c_1a8072d18cd6f72d1013e8566748aca5ef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void test_basic</definition>
+        <argsstring>()</argsstring>
+        <name>test_basic</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/quota_lessor.c" line="5" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/quota_lessor.c" bodystart="5" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="quota__lessor_8c_1a181b60f8576eeb837c34a416c372a016" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void test_hard_lease</definition>
+        <argsstring>()</argsstring>
+        <name>test_hard_lease</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/quota_lessor.c" line="60" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/quota_lessor.c" bodystart="60" bodyend="90"/>
+      </memberdef>
+      <memberdef kind="function" id="quota__lessor_8c_1ae66f6b31b5ad750f1fe042a706a4e3d4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int main</definition>
+        <argsstring>()</argsstring>
+        <name>main</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/quota_lessor.c" line="93" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/quota_lessor.c" bodystart="93" bodyend="99"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&quot;small/quota_lessor.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;unit.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal">test_basic()</highlight></codeline>
+<codeline lineno="6"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="7"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>plan(23);</highlight></codeline>
+<codeline lineno="8"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structquota" kindref="compound">quota</ref><sp/>q;</highlight></codeline>
+<codeline lineno="9"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>quota_init(&amp;q,<sp/>QUOTA_MAX);</highlight></codeline>
+<codeline lineno="10"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structquota__lessor" kindref="compound">quota_lessor</ref><sp/>l;</highlight></codeline>
+<codeline lineno="11"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>quota_lessor_create(&amp;l,<sp/>&amp;q);</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(100,<sp/>quota_lease(&amp;l,<sp/>100),<sp/></highlight><highlight class="stringliteral">&quot;lease<sp/>100<sp/>bytes&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(100,<sp/>quota_leased(&amp;l),<sp/></highlight><highlight class="stringliteral">&quot;leased<sp/>100<sp/>bytes&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(QUOTA_USE_MIN<sp/>-<sp/>100,<sp/>quota_available(&amp;l),</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;UNIT_SIZE<sp/>-<sp/>100<sp/>available&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(QUOTA_USE_MIN,<sp/>quota_used(&amp;q),<sp/></highlight><highlight class="stringliteral">&quot;source<sp/>quota<sp/>used&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Lease<sp/>without<sp/>source<sp/>qouta<sp/>usage.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(200,<sp/>quota_lease(&amp;l,<sp/>200),<sp/></highlight><highlight class="stringliteral">&quot;lease<sp/>200<sp/>bytes&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(300,<sp/>quota_leased(&amp;l),<sp/></highlight><highlight class="stringliteral">&quot;leased<sp/>300<sp/>bytes<sp/>at<sp/>all&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(QUOTA_USE_MIN<sp/>-<sp/>300,<sp/>quota_available(&amp;l),</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;UNIT_SIZE<sp/>-<sp/>300<sp/>available&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(QUOTA_USE_MIN,<sp/>quota_used(&amp;q),</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;source<sp/>quota<sp/>used<sp/>did<sp/>not<sp/>change&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Lease<sp/>several<sp/>LEASE_SIZEs.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(QUOTA_USE_MIN<sp/>*<sp/>3,<sp/>quota_lease(&amp;l,<sp/>QUOTA_USE_MIN<sp/>*<sp/>3),<sp/></highlight><highlight class="stringliteral">&quot;lease<sp/>big<sp/>size&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(QUOTA_USE_MIN<sp/>*<sp/>3<sp/>+<sp/>300,<sp/>quota_leased(&amp;l),<sp/></highlight><highlight class="stringliteral">&quot;leased<sp/>size&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(QUOTA_UNIT_SIZE<sp/>-<sp/>300,<sp/>quota_available(&amp;l),<sp/></highlight><highlight class="stringliteral">&quot;available<sp/>size&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(QUOTA_USE_MIN<sp/>*<sp/>3<sp/>+<sp/>QUOTA_UNIT_SIZE,<sp/>quota_used(&amp;q),</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;update<sp/>source<sp/>quota<sp/>used&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>End<sp/>lease.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>quota_end_lease(&amp;l,<sp/>300);</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(QUOTA_UNIT_SIZE,<sp/>quota_available(&amp;l),<sp/></highlight><highlight class="stringliteral">&quot;end<sp/>small<sp/>lease&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(QUOTA_USE_MIN<sp/>*<sp/>3,<sp/>quota_leased(&amp;l),<sp/></highlight><highlight class="stringliteral">&quot;decrease<sp/>leased&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(QUOTA_USE_MIN<sp/>*<sp/>3<sp/>+<sp/>QUOTA_UNIT_SIZE,<sp/>quota_used(&amp;q),</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;source<sp/>quota<sp/>did<sp/>not<sp/>change<sp/>-<sp/>too<sp/>small<sp/>size<sp/>to<sp/>free&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>quota_end_lease(&amp;l,<sp/>QUOTA_USE_MIN<sp/>*<sp/>2<sp/>+<sp/>100);</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(QUOTA_USE_MIN<sp/>-<sp/>100,<sp/>quota_leased(&amp;l),</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;decrease<sp/>leased<sp/>with<sp/>big<sp/>chunk&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(100<sp/>+<sp/>QUOTA_USE_MIN,<sp/>quota_available(&amp;l),</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;return<sp/>big<sp/>chunks<sp/>into<sp/>source<sp/>quota&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(QUOTA_USE_MIN<sp/>*<sp/>2,<sp/>quota_used(&amp;q),<sp/></highlight><highlight class="stringliteral">&quot;release<sp/>source<sp/>quota&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>quota_end_lease(&amp;l,<sp/>QUOTA_USE_MIN<sp/>-<sp/>100);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(0,<sp/>quota_leased(&amp;l),<sp/></highlight><highlight class="stringliteral">&quot;lessor<sp/>is<sp/>empty&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(</highlight><highlight class="keyword">true</highlight><highlight class="normal">,<sp/>quota_available(&amp;l)<sp/>&gt;<sp/>0,<sp/></highlight><highlight class="stringliteral">&quot;lessor<sp/>avoids<sp/>oscillation&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(quota_available(&amp;l),<sp/>quota_used(&amp;q),<sp/></highlight><highlight class="stringliteral">&quot;source<sp/>quota<sp/>isn&apos;t<sp/>empty&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>quota_lessor_destroy(&amp;l);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(0,<sp/>quota_available(&amp;l),<sp/></highlight><highlight class="stringliteral">&quot;lessor<sp/>has<sp/>no<sp/>memory&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(0,<sp/>quota_used(&amp;q),<sp/></highlight><highlight class="stringliteral">&quot;source<sp/>quota<sp/>is<sp/>empty&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>check_plan();</highlight></codeline>
+<codeline lineno="57"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal">test_hard_lease()</highlight></codeline>
+<codeline lineno="61"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>plan(12);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structquota" kindref="compound">quota</ref><sp/>q;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>quota_total<sp/>=<sp/>QUOTA_USE_MIN<sp/>+<sp/>QUOTA_USE_MIN<sp/>/<sp/>8;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>quota_init(&amp;q,<sp/>quota_total);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structquota__lessor" kindref="compound">quota_lessor</ref><sp/>l;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>quota_lessor_create(&amp;l,<sp/>&amp;q);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(QUOTA_USE_MIN,<sp/>quota_lease(&amp;l,<sp/>QUOTA_USE_MIN),<sp/></highlight><highlight class="stringliteral">&quot;lease<sp/>1Mb&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(0,<sp/>quota_available(&amp;l),<sp/></highlight><highlight class="stringliteral">&quot;available<sp/>0&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(QUOTA_USE_MIN,<sp/>quota_leased(&amp;l),<sp/></highlight><highlight class="stringliteral">&quot;leased<sp/>1Mb&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(QUOTA_USE_MIN,<sp/>quota_used(&amp;q),<sp/></highlight><highlight class="stringliteral">&quot;source<sp/>quota<sp/>used&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(-1,<sp/>quota_lease(&amp;l,<sp/>QUOTA_USE_MIN),<sp/></highlight><highlight class="stringliteral">&quot;lease<sp/>too<sp/>big&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(QUOTA_UNIT_SIZE,<sp/>quota_lease(&amp;l,<sp/>QUOTA_UNIT_SIZE),<sp/></highlight><highlight class="stringliteral">&quot;hard<sp/>lease&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(QUOTA_UNIT_SIZE<sp/>+<sp/>QUOTA_USE_MIN,<sp/>quota_leased(&amp;l),<sp/></highlight><highlight class="stringliteral">&quot;leased<sp/>changed&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(QUOTA_USE_MIN<sp/>/<sp/>8<sp/>-<sp/>QUOTA_UNIT_SIZE,<sp/>quota_available(&amp;l),</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;available<sp/>the<sp/>part<sp/>of<sp/>1MB&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(quota_total,<sp/>quota_used(&amp;q),<sp/></highlight><highlight class="stringliteral">&quot;source<sp/>quota<sp/>fully<sp/>used&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>quota_end_lease(&amp;l,<sp/>quota_leased(&amp;l));</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>quota_lessor_destroy(&amp;l);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(0,<sp/>quota_available(&amp;l),<sp/></highlight><highlight class="stringliteral">&quot;lessor<sp/>is<sp/>empty&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(0,<sp/>quota_leased(&amp;l),<sp/></highlight><highlight class="stringliteral">&quot;lessor<sp/>is<sp/>empty&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(0,<sp/>quota_used(&amp;q),<sp/></highlight><highlight class="stringliteral">&quot;sourcr<sp/>quota<sp/>is<sp/>empty&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>check_plan();</highlight></codeline>
+<codeline lineno="90"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal">main()</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>plan(2);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>test_basic();</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>test_hard_lease();</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>check_plan();</highlight></codeline>
+<codeline lineno="99"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/small/test/quota_lessor.c"/>
+  </compounddef>
+</doxygen>

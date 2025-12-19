@@ -1,0 +1,683 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="mpstream_8h" kind="file" language="C++">
+    <compoundname>mpstream.h</compoundname>
+    <includes refid="diag_8h" local="yes">diag.h</includes>
+    <includes local="yes">decimal.h</includes>
+    <includedby refid="lua_2call_8c" local="yes">/home/tsafin/tarantool/src/box/lua/call.c</includedby>
+    <includedby refid="box_2lua_2init_8c" local="yes">/home/tsafin/tarantool/src/box/lua/init.c</includedby>
+    <includedby refid="misc_8cc" local="yes">/home/tsafin/tarantool/src/box/lua/misc.cc</includedby>
+    <includedby refid="net__box_8c" local="yes">/home/tsafin/tarantool/src/box/lua/net_box.c</includedby>
+    <includedby refid="lua_2tuple_8c" local="yes">/home/tsafin/tarantool/src/box/lua/tuple.c</includedby>
+    <includedby refid="mp__error_8cc" local="yes">/home/tsafin/tarantool/src/box/mp_error.cc</includedby>
+    <includedby refid="sql_2func_8c" local="yes">/home/tsafin/tarantool/src/box/sql/func.c</includedby>
+    <includedby refid="vdbe_8c" local="yes">/home/tsafin/tarantool/src/box/sql/vdbe.c</includedby>
+    <includedby refid="vdbemem_8c" local="yes">/home/tsafin/tarantool/src/box/sql/vdbemem.c</includedby>
+    <includedby refid="sql_8c" local="yes">/home/tsafin/tarantool/src/box/sql.c</includedby>
+    <includedby refid="xrow_8c" local="yes">/home/tsafin/tarantool/src/box/xrow.c</includedby>
+    <includedby refid="mpstream_8c" local="yes">/home/tsafin/tarantool/src/lib/mpstream/mpstream.c</includedby>
+    <includedby refid="lua_2msgpack_8c" local="yes">/home/tsafin/tarantool/src/lua/msgpack.c</includedby>
+    <incdepgraph>
+      <node id="2143">
+        <label>decimal.h</label>
+      </node>
+      <node id="2142">
+        <label>/home/tsafin/tarantool/src/lib/mpstream/mpstream.h</label>
+        <link refid="mpstream_8h"/>
+        <childnode refid="2143" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structmpstream" prot="public">mpstream</innerclass>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="mpstream_8h_1ae0dc10db440aaa1ece9c46c3b7b60187" prot="public" static="no">
+        <type>void *(*</type>
+        <definition>typedef void*(* mpstream_reserve_f) (void *ctx, size_t *size)</definition>
+        <argsstring>)(void *ctx, size_t *size)</argsstring>
+        <name>mpstream_reserve_f</name>
+        <briefdescription>
+<para>Ask the allocator to reserve at least size bytes. </para>        </briefdescription>
+        <detaileddescription>
+<para>It can reserve more, and update *size with the new size. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="47" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="mpstream_8h_1a1fbd4a793c7daa98c519fcfdbe19df84" prot="public" static="no">
+        <type>void *(*</type>
+        <definition>typedef void*(* mpstream_alloc_f) (void *ctx, size_t size)</definition>
+        <argsstring>)(void *ctx, size_t size)</argsstring>
+        <name>mpstream_alloc_f</name>
+        <briefdescription>
+<para>Actually use the bytes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="50" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="mpstream_8h_1a43f76373255eba1febacdd6e01d6dea1" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* mpstream_error_f) (void *error_ctx)</definition>
+        <argsstring>)(void *error_ctx)</argsstring>
+        <name>mpstream_error_f</name>
+        <briefdescription>
+<para>Actually use the bytes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="53" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="mpstream_8h_1a4bbb714600ccc8039407b66f8067cf2e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void mpstream_reserve_slow</definition>
+        <argsstring>(struct mpstream *stream, size_t size)</argsstring>
+        <name>mpstream_reserve_slow</name>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="70" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.c" bodystart="40" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="mpstream_8h_1a6aed79f80c66664f104ce9bd7a447a59" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void mpstream_reset</definition>
+        <argsstring>(struct mpstream *stream)</argsstring>
+        <name>mpstream_reset</name>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="73" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.c" bodystart="53" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="mpstream_8h_1a2769d883488257855ed87169853af948" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void mpstream_init</definition>
+        <argsstring>(struct mpstream *stream, void *ctx, mpstream_reserve_f reserve, mpstream_alloc_f alloc, mpstream_error_f error, void *error_ctx)</argsstring>
+        <name>mpstream_init</name>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>mpstream_reserve_f</type>
+          <declname>reserve</declname>
+        </param>
+        <param>
+          <type>mpstream_alloc_f</type>
+          <declname>alloc</declname>
+        </param>
+        <param>
+          <type>mpstream_error_f</type>
+          <declname>error</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>error_ctx</declname>
+        </param>
+        <briefdescription>
+<para>A streaming API so that it&apos;s possible to encode to any output stream. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="80" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.c" bodystart="70" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="mpstream_8h_1af134690210329c37e82f6a805e518da1" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void mpstream_flush</definition>
+        <argsstring>(struct mpstream *stream)</argsstring>
+        <name>mpstream_flush</name>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="85" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" bodystart="85" bodyend="89"/>
+      </memberdef>
+      <memberdef kind="function" id="mpstream_8h_1a66c15be7ac88d9681712c4904579d492" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>char *</type>
+        <definition>static char* mpstream_reserve</definition>
+        <argsstring>(struct mpstream *stream, size_t size)</argsstring>
+        <name>mpstream_reserve</name>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="92" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" bodystart="92" bodyend="97"/>
+      </memberdef>
+      <memberdef kind="function" id="mpstream_8h_1a3476362fc22b73d7bc91cb79db01b14d" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void mpstream_advance</definition>
+        <argsstring>(struct mpstream *stream, size_t size)</argsstring>
+        <name>mpstream_advance</name>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="100" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" bodystart="100" bodyend="104"/>
+      </memberdef>
+      <memberdef kind="function" id="mpstream_8h_1ae61bdd756317e1cd81a28e104663bd90" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void mpstream_encode_array</definition>
+        <argsstring>(struct mpstream *stream, uint32_t size)</argsstring>
+        <name>mpstream_encode_array</name>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="107" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.c" bodystart="83" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="mpstream_8h_1af3e8016f04bdf5a36538e220cc6eac2a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void mpstream_encode_map</definition>
+        <argsstring>(struct mpstream *stream, uint32_t size)</argsstring>
+        <name>mpstream_encode_map</name>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="110" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.c" bodystart="94" bodyend="102"/>
+      </memberdef>
+      <memberdef kind="function" id="mpstream_8h_1a4e6b5858e7396bca2b955f38d2bdd648" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void mpstream_encode_uint</definition>
+        <argsstring>(struct mpstream *stream, uint64_t num)</argsstring>
+        <name>mpstream_encode_uint</name>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>num</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="113" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.c" bodystart="105" bodyend="113"/>
+      </memberdef>
+      <memberdef kind="function" id="mpstream_8h_1ac9ec25d9bd47a5f98e3c58dab210e0bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void mpstream_encode_int</definition>
+        <argsstring>(struct mpstream *stream, int64_t num)</argsstring>
+        <name>mpstream_encode_int</name>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>num</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="116" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.c" bodystart="116" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="function" id="mpstream_8h_1a5bf2e24343cf05f7ad3135948d545629" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void mpstream_encode_float</definition>
+        <argsstring>(struct mpstream *stream, float num)</argsstring>
+        <name>mpstream_encode_float</name>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>num</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="119" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.c" bodystart="127" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="mpstream_8h_1a9f908713d535a78d60dc4ef5868c182c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void mpstream_encode_double</definition>
+        <argsstring>(struct mpstream *stream, double num)</argsstring>
+        <name>mpstream_encode_double</name>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>num</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="122" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.c" bodystart="138" bodyend="146"/>
+      </memberdef>
+      <memberdef kind="function" id="mpstream_8h_1a75d24f29e5b77ed7db31ca0646ec63a8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void mpstream_encode_strn</definition>
+        <argsstring>(struct mpstream *stream, const char *str, uint32_t len)</argsstring>
+        <name>mpstream_encode_strn</name>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>str</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="125" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.c" bodystart="149" bodyend="157"/>
+      </memberdef>
+      <memberdef kind="function" id="mpstream_8h_1a38c8fb42d6766937eec275fd7cb5dc8f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void mpstream_encode_str</definition>
+        <argsstring>(struct mpstream *stream, const char *str)</argsstring>
+        <name>mpstream_encode_str</name>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>str</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="128" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" bodystart="128" bodyend="131"/>
+      </memberdef>
+      <memberdef kind="function" id="mpstream_8h_1ae569e0d94a447e856c26199cb484e355" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void mpstream_encode_nil</definition>
+        <argsstring>(struct mpstream *stream)</argsstring>
+        <name>mpstream_encode_nil</name>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="134" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.c" bodystart="160" bodyend="168"/>
+      </memberdef>
+      <memberdef kind="function" id="mpstream_8h_1aff766ad439f9f514a89a32477d7b74f9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void mpstream_encode_bool</definition>
+        <argsstring>(struct mpstream *stream, bool val)</argsstring>
+        <name>mpstream_encode_bool</name>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="137" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.c" bodystart="171" bodyend="179"/>
+      </memberdef>
+      <memberdef kind="function" id="mpstream_8h_1aaaa44befbe15cb97b915a8f4eb87423e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void mpstream_encode_binl</definition>
+        <argsstring>(struct mpstream *stream, uint32_t len)</argsstring>
+        <name>mpstream_encode_binl</name>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="140" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.c" bodystart="182" bodyend="189"/>
+      </memberdef>
+      <memberdef kind="function" id="mpstream_8h_1af490ff4e5313c8f905054f6d7b947ea7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void mpstream_encode_decimal</definition>
+        <argsstring>(struct mpstream *stream, const decimal_t *val)</argsstring>
+        <name>mpstream_encode_decimal</name>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="143" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.c" bodystart="192" bodyend="199"/>
+      </memberdef>
+      <memberdef kind="function" id="mpstream_8h_1ab9d011d1e27a809fc0718697afd3bc1f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void mpstream_encode_uuid</definition>
+        <argsstring>(struct mpstream *stream, const struct tt_uuid *uuid)</argsstring>
+        <name>mpstream_encode_uuid</name>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref> *</type>
+          <declname>uuid</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="146" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.c" bodystart="202" bodyend="209"/>
+      </memberdef>
+      <memberdef kind="function" id="mpstream_8h_1a457128198b77a5769a09a20f64af8cfb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void mpstream_memcpy</definition>
+        <argsstring>(struct mpstream *stream, const void *src, uint32_t n)</argsstring>
+        <name>mpstream_memcpy</name>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Copies n bytes from memory area src to stream. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="150" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.c" bodystart="212" bodyend="219"/>
+      </memberdef>
+      <memberdef kind="function" id="mpstream_8h_1a24086b2aae922ef54abce750d39a6b57" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void mpstream_memset</definition>
+        <argsstring>(struct mpstream *stream, int c, uint32_t n)</argsstring>
+        <name>mpstream_memset</name>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Fills n stream bytes with the constant byte c. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h" line="154" column="1" bodyfile="/home/tsafin/tarantool/src/lib/mpstream/mpstream.c" bodystart="222" bodyend="229"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LIB_CORE_MPSTREAM_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LIB_CORE_MPSTREAM_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2015,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;diag.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;decimal.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref>;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*(*mpstream_reserve_f)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*size);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*(*mpstream_alloc_f)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*mpstream_error_f)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*error_ctx);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55" refid="structmpstream" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structmpstream_1a634c1bd3615160836907fc12368bacc0" kindref="member">buf</ref>,<sp/>*pos,<sp/>*end;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>mpstream_reserve_f<sp/>reserve;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>mpstream_alloc_f<sp/>alloc;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>mpstream_error_f<sp/><ref refid="structerror" kindref="compound">error</ref>;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*error_ctx;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal">mpstream_reserve_slow(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal">mpstream_reset(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal">mpstream_init(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx,</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mpstream_reserve_f<sp/>reserve,<sp/>mpstream_alloc_f<sp/>alloc,</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mpstream_error_f<sp/><ref refid="structerror" kindref="compound">error</ref>,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*error_ctx);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal">mpstream_flush(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream)</highlight></codeline>
+<codeline lineno="86"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream-&gt;alloc(stream-&gt;ctx,<sp/>stream-&gt;pos<sp/>-<sp/>stream-&gt;<ref refid="structmpstream_1a634c1bd3615160836907fc12368bacc0" kindref="member">buf</ref>);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream-&gt;<ref refid="structmpstream_1a634c1bd3615160836907fc12368bacc0" kindref="member">buf</ref><sp/>=<sp/>stream-&gt;pos;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="92"><highlight class="normal">mpstream_reserve(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="93"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(stream-&gt;pos<sp/>+<sp/>size<sp/>&gt;<sp/>stream-&gt;end)</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mpstream_reserve_slow(stream,<sp/>size);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>stream-&gt;pos;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal">mpstream_advance(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="101"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(stream-&gt;pos<sp/>+<sp/>size<sp/>&lt;=<sp/>stream-&gt;end);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream-&gt;pos<sp/>+=<sp/>size;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal">mpstream_encode_array(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream,<sp/>uint32_t<sp/>size);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal">mpstream_encode_map(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream,<sp/>uint32_t<sp/>size);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal">mpstream_encode_uint(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream,<sp/>uint64_t<sp/>num);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal">mpstream_encode_int(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream,<sp/>int64_t<sp/>num);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal">mpstream_encode_float(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>num);</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal">mpstream_encode_double(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>num);</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal">mpstream_encode_strn(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*str,<sp/>uint32_t<sp/>len);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal">mpstream_encode_str(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*str)</highlight></codeline>
+<codeline lineno="129"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mpstream_encode_strn(stream,<sp/>str,<sp/>strlen(str));</highlight></codeline>
+<codeline lineno="131"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal">mpstream_encode_nil(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream);</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal">mpstream_encode_bool(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>val);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal">mpstream_encode_binl(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream,<sp/>uint32_t<sp/>len);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal">mpstream_encode_decimal(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*val);</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal">mpstream_encode_uuid(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*uuid);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal">mpstream_memcpy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*src,<sp/>uint32_t<sp/>n);</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal">mpstream_memset(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>c,<sp/>uint32_t<sp/>n);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_LIB_CORE_MPSTREAM_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/mpstream/mpstream.h"/>
+  </compounddef>
+</doxygen>

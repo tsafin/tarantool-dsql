@@ -1,0 +1,149 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structmslab" kind="struct" language="C++" prot="public">
+    <compoundname>mslab</compoundname>
+    <includes local="no">mempool.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structmslab_1af0e23aff75bd32c265a0e10dfce547b4" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structslab" kindref="compound">slab</ref></type>
+        <definition>struct slab mslab::slab</definition>
+        <argsstring></argsstring>
+        <name>slab</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="292" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmslab_1a02251f4b03426db77e05c378d3e4b3b1" prot="public" static="no" mutable="no">
+        <type>void *</type>
+        <definition>void* mslab::free_list</definition>
+        <argsstring></argsstring>
+        <name>free_list</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="81" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmslab_1ad3d24100ccbaa80d38ec6c970a41e369" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t mslab::free_offset</definition>
+        <argsstring></argsstring>
+        <name>free_offset</name>
+        <briefdescription>
+<para>Offset of an object that has never been allocated in mslab. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="83" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmslab_1a5a9be4efadab65fe57c6a8b2b7e1832e" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t mslab::nfree</definition>
+        <argsstring></argsstring>
+        <name>nfree</name>
+        <briefdescription>
+<para>Number of available slots in the slab. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="85" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmslab_1ac13a786b1459c3596f0465920ce99f40" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist mslab::next_in_cold</definition>
+        <argsstring></argsstring>
+        <name>next_in_cold</name>
+        <briefdescription>
+<para>Next slab in stagged slabs list in mempool object. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="87" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmslab_1abed04ff5c02a29a8418c7b28f3f1e02f" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool mslab::in_hot_slabs</definition>
+        <argsstring></argsstring>
+        <name>in_hot_slabs</name>
+        <briefdescription>
+<para>Set if this slab is a member of hot_slabs tree. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="91" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structmslab_1a86320e85bf6f855a21af72f6540e6ec1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>mslab::rb_node</definition>
+        <argsstring>(struct mslab) next_in_hot</argsstring>
+        <name>rb_node</name>
+        <param>
+          <type>struct <ref refid="structmslab" kindref="compound">mslab</ref></type>
+        </param>
+        <briefdescription>
+<para>Used if this slab is a member of hot_slabs tree. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="87" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Pool allocator. </para>    </briefdescription>
+    <detaileddescription>
+<para>Good for allocating tons of small objects of the same size. Stores all objects in order-of-virtual-page-size memory blocks, called slabs. Each object can be freed if necessary. There is (practically) no allocation overhead. Internal fragmentation may occur if lots of objects are allocated, and then many of them are freed in reverse-to-allocation order.</para><para>Under the hood, uses a slab cache of mmap()-allocated slabs. Slabs of the slab cache are never released back to the operating system.</para><para><heading level="2">Thread-safety </heading>
+</para><para>Calls to alloc() and free() on the same mempool instance must be externally synchronized. Use of different instances in different threads is thread-safe (but they must also be based on distinct slab caches).</para><para><heading level="2">Exception-safety </heading>
+</para><para>The only type of failure which can occur is a failure to allocate memory. In case of such error, an exception (OutOfMemory) is raised. () version of mempool_alloc() returns NULL rather than raises an error in case of failure.mslab - a standard slab formatted to store objects of equal size. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="6157">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="6157" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="6156">
+        <label>mslab</label>
+        <link refid="structmslab"/>
+        <childnode refid="6157" relation="usage">
+          <edgelabel>next_in_cold</edgelabel>
+        </childnode>
+        <childnode refid="6158" relation="usage">
+          <edgelabel>slab</edgelabel>
+        </childnode>
+      </node>
+      <node id="6158">
+        <label>slab</label>
+        <link refid="structslab"/>
+        <childnode refid="6157" relation="usage">
+          <edgelabel>next_in_cache</edgelabel>
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="78" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="78" bodyend="92"/>
+    <listofallmembers>
+      <member refid="structmslab_1a02251f4b03426db77e05c378d3e4b3b1" prot="public" virt="non-virtual"><scope>mslab</scope><name>free_list</name></member>
+      <member refid="structmslab_1ad3d24100ccbaa80d38ec6c970a41e369" prot="public" virt="non-virtual"><scope>mslab</scope><name>free_offset</name></member>
+      <member refid="structmslab_1abed04ff5c02a29a8418c7b28f3f1e02f" prot="public" virt="non-virtual"><scope>mslab</scope><name>in_hot_slabs</name></member>
+      <member refid="structmslab_1ac13a786b1459c3596f0465920ce99f40" prot="public" virt="non-virtual"><scope>mslab</scope><name>next_in_cold</name></member>
+      <member refid="structmslab_1a5a9be4efadab65fe57c6a8b2b7e1832e" prot="public" virt="non-virtual"><scope>mslab</scope><name>nfree</name></member>
+      <member refid="structmslab_1a86320e85bf6f855a21af72f6540e6ec1" prot="public" virt="non-virtual"><scope>mslab</scope><name>rb_node</name></member>
+      <member refid="structmslab_1af0e23aff75bd32c265a0e10dfce547b4" prot="public" virt="non-virtual"><scope>mslab</scope><name>slab</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

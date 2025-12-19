@@ -1,0 +1,2349 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="xlog_8h" kind="file" language="C++">
+    <compoundname>xlog.h</compoundname>
+    <includes local="no">stdio.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">sys/stat.h</includes>
+    <includes refid="tt__uuid_8h" local="yes">uuid/tt_uuid.h</includes>
+    <includes refid="vclock_8h" local="yes">vclock.h</includes>
+    <includes local="yes">zstd.h</includes>
+    <includes refid="lib_2small_2small_2ibuf_8h" local="yes">small/ibuf.h</includes>
+    <includes refid="obuf_8h" local="yes">small/obuf.h</includes>
+    <includedby refid="applier_8cc" local="yes">/home/tsafin/tarantool/src/box/applier.cc</includedby>
+    <includedby refid="recovery_8h" local="yes">/home/tsafin/tarantool/src/box/recovery.h</includedby>
+    <includedby refid="memtx__engine_8h" local="yes">/home/tsafin/tarantool/src/box/memtx_engine.h</includedby>
+    <includedby refid="lua_2xlog_8c" local="no">/home/tsafin/tarantool/src/box/lua/xlog.c</includedby>
+    <includedby refid="recovery_8cc" local="yes">/home/tsafin/tarantool/src/box/recovery.cc</includedby>
+    <includedby refid="vy__run_8h" local="yes">/home/tsafin/tarantool/src/box/vy_run.h</includedby>
+    <includedby refid="vinyl_8c" local="yes">/home/tsafin/tarantool/src/box/vinyl.c</includedby>
+    <includedby refid="vy__log_8c" local="yes">/home/tsafin/tarantool/src/box/vy_log.c</includedby>
+    <includedby refid="vy__run_8c" local="yes">/home/tsafin/tarantool/src/box/vy_run.c</includedby>
+    <includedby refid="wal_8c" local="yes">/home/tsafin/tarantool/src/box/wal.c</includedby>
+    <includedby refid="xlog_8c" local="yes">/home/tsafin/tarantool/src/box/xlog.c</includedby>
+    <incdepgraph>
+      <node id="638">
+        <label>sys/stat.h</label>
+      </node>
+      <node id="637">
+        <label>stdbool.h</label>
+      </node>
+      <node id="642">
+        <label>assert.h</label>
+      </node>
+      <node id="640">
+        <label>stdint.h</label>
+      </node>
+      <node id="644">
+        <label>stddef.h</label>
+      </node>
+      <node id="641">
+        <label>limits.h</label>
+      </node>
+      <node id="635">
+        <label>/home/tsafin/tarantool/src/box/xlog.h</label>
+        <link refid="xlog_8h"/>
+        <childnode refid="636" relation="include">
+        </childnode>
+        <childnode refid="637" relation="include">
+        </childnode>
+        <childnode refid="638" relation="include">
+        </childnode>
+        <childnode refid="639" relation="include">
+        </childnode>
+        <childnode refid="645" relation="include">
+        </childnode>
+      </node>
+      <node id="643">
+        <label>bit/bit.h</label>
+        <link refid="bit_8h"/>
+        <childnode refid="644" relation="include">
+        </childnode>
+        <childnode refid="640" relation="include">
+        </childnode>
+        <childnode refid="637" relation="include">
+        </childnode>
+        <childnode refid="641" relation="include">
+        </childnode>
+      </node>
+      <node id="639">
+        <label>vclock.h</label>
+        <link refid="vclock_8h"/>
+        <childnode refid="640" relation="include">
+        </childnode>
+        <childnode refid="637" relation="include">
+        </childnode>
+        <childnode refid="641" relation="include">
+        </childnode>
+        <childnode refid="642" relation="include">
+        </childnode>
+        <childnode refid="643" relation="include">
+        </childnode>
+      </node>
+      <node id="645">
+        <label>zstd.h</label>
+      </node>
+      <node id="636">
+        <label>stdio.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structxlog__opts" prot="public">xlog_opts</innerclass>
+    <innerclass refid="structxdir" prot="public">xdir</innerclass>
+    <innerclass refid="structxlog__meta" prot="public">xlog_meta</innerclass>
+    <innerclass refid="structxlog" prot="public">xlog</innerclass>
+    <innerclass refid="structxlog__tx__cursor" prot="public">xlog_tx_cursor</innerclass>
+    <innerclass refid="structxlog__cursor" prot="public">xlog_cursor</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="xlog_8h_1ad88034c8350c3d479ce0db09fd8ee0c8" prot="public" static="no">
+        <name>ZSTD_STATIC_LINKING_ONLY</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="39" column="9" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="xlog_8h_1ae043b47fd71d3b30a2542f580ad718d1" prot="public" static="no">
+        <name>inprogress_suffix</name>
+        <initializer>&quot;.inprogress&quot;</initializer>
+        <briefdescription>
+<para>Suffix added to path of inprogress files. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="112" column="9" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="xlog_8h_1a1fd7a9f91456ca1418e9df0f43f534e5" prot="public" static="no">
+        <name>xdir_type</name>
+        <enumvalue id="xlog_8h_1a1fd7a9f91456ca1418e9df0f43f534e5ac4b55ecd31558248e8d514930f977907" prot="public">
+          <name>SNAP</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="xlog_8h_1a1fd7a9f91456ca1418e9df0f43f534e5afec3e484036db342449b369bfd30b3f4" prot="public">
+          <name>XLOG</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="xlog_8h_1a1fd7a9f91456ca1418e9df0f43f534e5aa7d9af55691db7dba46c426aea763d04" prot="public">
+          <name>VYLOG</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Type of log directory. </para>        </briefdescription>
+        <detaileddescription>
+<para>A single filesystem directory can be used for write ahead logs, memtx snapshots or vinyl run files, but an xlog object sees only those files which match its type. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="96" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="96" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="enum" id="xlog_8h_1aeea41bd6e06021de73c9100ca45a8565" prot="public" static="no">
+        <name>log_suffix</name>
+        <enumvalue id="xlog_8h_1aeea41bd6e06021de73c9100ca45a8565ac157bdf0b85a40d2619cbc8bc1ae5fe2" prot="public">
+          <name>NONE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="xlog_8h_1aeea41bd6e06021de73c9100ca45a8565a41d7f80f1e613458251ff3ce92c35ef5" prot="public">
+          <name>INPROGRESS</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Newly created snapshot files get .inprogress filename suffix. </para>        </briefdescription>
+        <detaileddescription>
+<para>The suffix is removed when the file is finished and closed. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="107" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="107" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="enum" id="xlog_8h_1a4d29ca5db06e2ae647d1ec22548a9d2a" prot="public" static="no">
+        <name>@145</name>
+        <enumvalue id="xlog_8h_1a4d29ca5db06e2ae647d1ec22548a9d2aae908a37787cb1a26728cd07139b3923c" prot="public">
+          <name>XDIR_GC_ASYNC</name>
+          <initializer>= 1 &lt;&lt; 0</initializer>
+          <briefdescription>
+<para>Delete files in coio threads so as not to block the caller thread. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="xlog_8h_1a4d29ca5db06e2ae647d1ec22548a9d2aaf8c4b250fab4e59f978dd60b4e29ef8d" prot="public">
+          <name>XDIR_GC_REMOVE_ONE</name>
+          <initializer>= 1 &lt;&lt; 1</initializer>
+          <briefdescription>
+<para>Return after removing a file. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Flags passed to xdir_collect_garbage(). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="224" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="224" bodyend="234"/>
+      </memberdef>
+      <memberdef kind="enum" id="xlog_8h_1a2da10cc110b2170f027c00b3450e483d" prot="public" static="no">
+        <name>xlog_cursor_state</name>
+        <enumvalue id="xlog_8h_1a2da10cc110b2170f027c00b3450e483da7f490db76a3bcbf3261c731feab86195" prot="public">
+          <name>XLOG_CURSOR_NEW</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="xlog_8h_1a2da10cc110b2170f027c00b3450e483daaf902062998ba64422197892493936c7" prot="public">
+          <name>XLOG_CURSOR_ACTIVE</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="xlog_8h_1a2da10cc110b2170f027c00b3450e483daf84a2152acc2d3eb2ff34ac03c836d39" prot="public">
+          <name>XLOG_CURSOR_TX</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="xlog_8h_1a2da10cc110b2170f027c00b3450e483da9b51322898def45ab432ea5bc2c9c156" prot="public">
+          <name>XLOG_CURSOR_EOF</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="xlog_8h_1a2da10cc110b2170f027c00b3450e483dad1b66f1f4d20cdb169cbeb6a438118f8" prot="public">
+          <name>XLOG_CURSOR_EOF_CLOSED</name>
+          <initializer>= 4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="xlog_8h_1a2da10cc110b2170f027c00b3450e483daa144aeef8d5c937cb1bc50f52f45c15a" prot="public">
+          <name>XLOG_CURSOR_CLOSED</name>
+          <initializer>= 5</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="635" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="635" bodyend="648"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="xlog_8h_1aac69d8e676f3f2a01af6377f458ef5f7" prot="public" static="no" mutable="no">
+        <type>const struct <ref refid="structxlog__opts" kindref="compound">xlog_opts</ref></type>
+        <definition>const struct xlog_opts xlog_opts_default</definition>
+        <argsstring></argsstring>
+        <name>xlog_opts_default</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="1602" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="xlog_8h_1a474c7b98b5ac1b308b8d204615e8abab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void xdir_create</definition>
+        <argsstring>(struct xdir *dir, const char *dirname, enum xdir_type type, const struct tt_uuid *instance_uuid, const struct xlog_opts *opts)</argsstring>
+        <name>xdir_create</name>
+        <param>
+          <type>struct <ref refid="structxdir" kindref="compound">xdir</ref> *</type>
+          <declname>dir</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>dirname</declname>
+        </param>
+        <param>
+          <type>enum xdir_type</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref> *</type>
+          <declname>instance_uuid</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structxlog__opts" kindref="compound">xlog_opts</ref> *</type>
+          <declname>opts</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a log dir. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="174" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="330" bodyend="362"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1adfcf63ff37957db9dbb2bca042e3c79e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void xdir_destroy</definition>
+        <argsstring>(struct xdir *dir)</argsstring>
+        <name>xdir_destroy</name>
+        <param>
+          <type>struct <ref refid="structxdir" kindref="compound">xdir</ref> *</type>
+          <declname>dir</declname>
+        </param>
+        <briefdescription>
+<para>Destroy a log dir object. </para>        </briefdescription>
+        <detaileddescription>
+<para>Destroy a log dir object. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="181" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="383" bodyend="387"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a357136f3c94993ba2a1587e7aaeeb18f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xdir_scan</definition>
+        <argsstring>(struct xdir *dir, bool is_dir_required)</argsstring>
+        <name>xdir_scan</name>
+        <param>
+          <type>struct <ref refid="structxdir" kindref="compound">xdir</ref> *</type>
+          <declname>dir</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>is_dir_required</declname>
+        </param>
+        <briefdescription>
+<para>Scan or re-scan a directory and update directory index with all log files (or snapshots) in the directory. </para>        </briefdescription>
+        <detaileddescription>
+<para>Must be used if it is necessary to find the last log/ snapshot or scan through all logs. Function arguments described in xlog.c source file.</para><para>Scan or re-scan a directory and update directory index with all log files (or snapshots) in the directory.</para><para>Read all files matching a pattern from the directory - the filename pattern is +.xlog The name of the file is based on its vclock signature, which is the sum of all elements in the vector clock recorded when the file was created. Elements in the vector reflect log sequence numbers of replicas in the asynchronous replication set (see also _cluster system space and <ref refid="vclock_8h" kindref="compound">vclock.h</ref> comments).</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dir</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- directory to scan </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>is_dir_required</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- flag set if the directory should exist</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>: 0 - on success or flag &apos;is_dir_required&apos; was set to False in xdir_scan() arguments and opendir() failed with errno ENOENT; -1 - if opendir() failed, with other than ENOENT errno either when &apos;is_dir_required&apos; was set to True in xdir_scan() arguments.</para></simplesect>
+This function tries to avoid re-reading a file if it is already in the set of files &quot;known&quot; to the log dir object. This is done to speed up local hot standby and recovery_follow_local(), which periodically rescan the directory to discover newly created logs.</para><para>On error, this function throws an exception. If dir-&gt;force_recovery is true, <emphasis>some</emphasis> errors are not propagated up but only logged in the error log file.</para><para>The list of errors ignored in force_recovery = true mode includes:<itemizedlist>
+<listitem><para>a file can not be opened</para></listitem><listitem><para>some of the files have incorrect metadata (such files are skipped)</para></listitem></itemizedlist>
+</para><para>The goal of force_recovery = true mode is partial recovery from a damaged/incorrect data directory. It doesn&apos;t silence conditions such as out of memory or lack of OS resources. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="191" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="522" bodyend="636"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a69a23b67eb4ed81b8a540255a9d39eca" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xdir_check</definition>
+        <argsstring>(struct xdir *dir)</argsstring>
+        <name>xdir_check</name>
+        <param>
+          <type>struct <ref refid="structxdir" kindref="compound">xdir</ref> *</type>
+          <declname>dir</declname>
+        </param>
+        <briefdescription>
+<para>Check that a directory exists and is writable. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="197" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="639" bodyend="649"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1ab95752c4bdb478d0c94873327b97dc8c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char* xdir_format_filename</definition>
+        <argsstring>(struct xdir *dir, int64_t signature, enum log_suffix suffix)</argsstring>
+        <name>xdir_format_filename</name>
+        <param>
+          <type>struct <ref refid="structxdir" kindref="compound">xdir</ref> *</type>
+          <declname>dir</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>signature</declname>
+        </param>
+        <param>
+          <type>enum log_suffix</type>
+          <declname>suffix</declname>
+        </param>
+        <briefdescription>
+<para>Return a file name based on directory type, vector clock sum, and a suffix (.inprogress or not). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="204" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="652" bodyend="659"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1acbc121ed2c52951b451b1fca0d7494a8" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool xdir_has_garbage</definition>
+        <argsstring>(struct xdir *dir, int64_t signature)</argsstring>
+        <name>xdir_has_garbage</name>
+        <param>
+          <type>struct <ref refid="structxdir" kindref="compound">xdir</ref> *</type>
+          <declname>dir</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>signature</declname>
+        </param>
+        <briefdescription>
+<para>Return true if the given directory index has files whose signature is less than specified. </para>        </briefdescription>
+        <detaileddescription>
+<para>Supposed to be used to check if xdir_collect_garbage() can actually delete some files. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="215" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="215" bodyend="219"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1aa9b14980507830bb224193a32be699dc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void xdir_collect_garbage</definition>
+        <argsstring>(struct xdir *dir, int64_t signature, unsigned flags)</argsstring>
+        <name>xdir_collect_garbage</name>
+        <param>
+          <type>struct <ref refid="structxdir" kindref="compound">xdir</ref> *</type>
+          <declname>dir</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>signature</declname>
+        </param>
+        <param>
+          <type>unsigned</type>
+          <declname>flags</declname>
+        </param>
+        <briefdescription>
+<para>Remove files whose signature is less than specified. </para>        </briefdescription>
+        <detaileddescription>
+<para>For possible values of  see XDIR_GC_*. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="241" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="680" bodyend="697"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a64a7376d6fa443b49fc8c1f2365835a7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void xdir_collect_inprogress</definition>
+        <argsstring>(struct xdir *xdir)</argsstring>
+        <name>xdir_collect_inprogress</name>
+        <param>
+          <type>struct <ref refid="structxdir" kindref="compound">xdir</ref> *</type>
+          <declname>xdir</declname>
+        </param>
+        <briefdescription>
+<para>Remove inprogress files in the specified directory. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="247" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="700" bodyend="723"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a2d4790249953c8d9077f6607072c3b9e" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>static int64_t xdir_first_vclock</definition>
+        <argsstring>(struct xdir *xdir, struct vclock *vclock)</argsstring>
+        <name>xdir_first_vclock</name>
+        <param>
+          <type>struct <ref refid="structxdir" kindref="compound">xdir</ref> *</type>
+          <declname>xdir</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <briefdescription>
+<para>Return LSN and vclock (unless  is NULL) of the oldest file in a directory or -1 if the directory is empty. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="254" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="254" bodyend="262"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a881afa0ee3bf664b1bc4a030bdb5704c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>static int64_t xdir_last_vclock</definition>
+        <argsstring>(struct xdir *xdir, struct vclock *vclock)</argsstring>
+        <name>xdir_last_vclock</name>
+        <param>
+          <type>struct <ref refid="structxdir" kindref="compound">xdir</ref> *</type>
+          <declname>xdir</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <briefdescription>
+<para>Return LSN and vclock (unless  is NULL) of the newest file in a directory or -1 if the directory is empty. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="269" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="269" bodyend="277"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1acfb02bb08445ceb65e0f557defd8bc78" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void xdir_add_vclock</definition>
+        <argsstring>(struct xdir *xdir, const struct vclock *vclock)</argsstring>
+        <name>xdir_add_vclock</name>
+        <param>
+          <type>struct <ref refid="structxdir" kindref="compound">xdir</ref> *</type>
+          <declname>xdir</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <briefdescription>
+<para>Insert a vclock into the file index of a directory. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="283" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="726" bodyend="733"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a04dd83f2518ad18ea443173d4a561221" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void xlog_meta_create</definition>
+        <argsstring>(struct xlog_meta *meta, const char *filetype, const struct tt_uuid *instance_uuid, const struct vclock *vclock, const struct vclock *prev_vclock)</argsstring>
+        <name>xlog_meta_create</name>
+        <param>
+          <type>struct <ref refid="structxlog__meta" kindref="compound">xlog_meta</ref> *</type>
+          <declname>meta</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>filetype</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref> *</type>
+          <declname>instance_uuid</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>prev_vclock</declname>
+        </param>
+        <briefdescription>
+<para>Initialize xlog meta struct. </para>        </briefdescription>
+        <detaileddescription>
+<para>and  are optional: if the value is NULL, the key won&apos;t be written to the xlog header. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="324" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="122" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1ac2a452700115a00eec14fea4f7fd7c9c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xdir_touch_xlog</definition>
+        <argsstring>(struct xdir *dir, const struct vclock *vclock)</argsstring>
+        <name>xdir_touch_xlog</name>
+        <param>
+          <type>struct <ref refid="structxdir" kindref="compound">xdir</ref> *</type>
+          <declname>dir</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <briefdescription>
+<para>Touch xdir snapshot file. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>xdir</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>xdir </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vclock</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the global state of replication (vector clock) at the moment the file is created.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if OK </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if error </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="410" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="955" bodyend="971"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a562a225e2ab742a7beb0de1576d58e6f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xdir_create_xlog</definition>
+        <argsstring>(struct xdir *dir, struct xlog *xlog, const struct vclock *vclock)</argsstring>
+        <name>xdir_create_xlog</name>
+        <param>
+          <type>struct <ref refid="structxdir" kindref="compound">xdir</ref> *</type>
+          <declname>dir</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structxlog" kindref="compound">xlog</ref> *</type>
+          <declname>xlog</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <briefdescription>
+<para>Create a new file and open it in write (append) mode. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note: an existing file is impossible to open for append, the old files are never appended to.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>xdir</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>xdir </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">xlog</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>xlog structure </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>instance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>uuid the instance which created the file </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vclock</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the global state of replication (vector clock) at the moment the file is created.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if OK </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if error</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+Create a new file and open it in write (append) mode. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="427" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="978" bodyend="1011"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a2b6d236a2c1596d2b341483fc032a1ef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xlog_create</definition>
+        <argsstring>(struct xlog *xlog, const char *name, int flags, const struct xlog_meta *meta, const struct xlog_opts *opts)</argsstring>
+        <name>xlog_create</name>
+        <param>
+          <type>struct <ref refid="structxlog" kindref="compound">xlog</ref> *</type>
+          <declname>xlog</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structxlog__meta" kindref="compound">xlog_meta</ref> *</type>
+          <declname>meta</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structxlog__opts" kindref="compound">xlog_opts</ref> *</type>
+          <declname>opts</declname>
+        </param>
+        <briefdescription>
+<para>Create new xlog writer based on fd. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>file descriptor </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the assiciated name </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>flags to open the file or 0 for defaults </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>meta</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>xlog meta </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>opts</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>write options</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>for success  -1 if error </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="443" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="806" bodyend="879"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1ab4d9d82ff2d742dc88b7197f2d3df409" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xlog_open</definition>
+        <argsstring>(struct xlog *xlog, const char *name, const struct xlog_opts *opts)</argsstring>
+        <name>xlog_open</name>
+        <param>
+          <type>struct <ref refid="structxlog" kindref="compound">xlog</ref> *</type>
+          <declname>xlog</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structxlog__opts" kindref="compound">xlog_opts</ref> *</type>
+          <declname>opts</declname>
+        </param>
+        <briefdescription>
+<para>Open an existing xlog file for appending. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>xlog</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>xlog descriptor </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>file name </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>opts</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>write options</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>success </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>error </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="456" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="882" bodyend="952"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a1a684207f441560bf87df74a47ca7639" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void xlog_clear</definition>
+        <argsstring>(struct xlog *xlog)</argsstring>
+        <name>xlog_clear</name>
+        <param>
+          <type>struct <ref refid="structxlog" kindref="compound">xlog</ref> *</type>
+          <declname>xlog</declname>
+        </param>
+        <briefdescription>
+<para>Reset an xlog object without opening it. </para>        </briefdescription>
+        <detaileddescription>
+<para>The object is in limbo state: it doesn&apos;t hold any resources and doesn&apos;t need close, but xlog_is_open() returns false. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="466" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="787" bodyend="791"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a9151646704287f4cc7568bb81c654269" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool xlog_is_open</definition>
+        <argsstring>(struct xlog *l)</argsstring>
+        <name>xlog_is_open</name>
+        <param>
+          <type>struct <ref refid="structxlog" kindref="compound">xlog</ref> *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Returns true if the xlog file is open. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="471" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="471" bodyend="474"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a47ae535d172ee1299f311e9ff9629877" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xlog_rename</definition>
+        <argsstring>(struct xlog *l)</argsstring>
+        <name>xlog_rename</name>
+        <param>
+          <type>struct <ref refid="structxlog" kindref="compound">xlog</ref> *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Rename xlog. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>for ok </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>for error </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="483" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="741" bodyend="764"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1aeec9348337f0b4e32a8fa2efa5fa4df1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t xlog_fallocate</definition>
+        <argsstring>(struct xlog *log, size_t size)</argsstring>
+        <name>xlog_fallocate</name>
+        <param>
+          <type>struct <ref refid="structxlog" kindref="compound">xlog</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Allocate  bytes of disk space at the end of the given xlog file. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns -1 on fallocate error and sets both diag and errno accordingly. On success returns 0. If the underlying OS does not support fallocate, this function also returns 0. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="494" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="1014" bodyend="1046"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1ae367db3d64a8bb862bac6c51439e6b02" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t xlog_write_row</definition>
+        <argsstring>(struct xlog *log, const struct xrow_header *packet)</argsstring>
+        <name>xlog_write_row</name>
+        <param>
+          <type>struct <ref refid="structxlog" kindref="compound">xlog</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structxrow__header" kindref="compound">xrow_header</ref> *</type>
+          <declname>packet</declname>
+        </param>
+        <briefdescription>
+<para>Write a row to xlog,. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>of writen bytes </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>for error </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="503" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="1296" bodyend="1349"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1aee016832e8ce358c3fbf56855acd1f6a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void xlog_tx_begin</definition>
+        <argsstring>(struct xlog *log)</argsstring>
+        <name>xlog_tx_begin</name>
+        <param>
+          <type>struct <ref refid="structxlog" kindref="compound">xlog</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <briefdescription>
+<para>Prevent xlog row buffer offloading, should be use at transaction start to write transaction in one xlog tx. </para>        </briefdescription>
+        <detaileddescription>
+<para>Prevent xlog row buffer offloading, should be use at transaction start to write transaction in one xlog tx.</para><para>All xrow objects of a single transaction share the same header and checksum and are normally written at once. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="510" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="1357" bodyend="1360"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1abb1e18358e7186475d28177df2c04b6c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t xlog_tx_commit</definition>
+        <argsstring>(struct xlog *log)</argsstring>
+        <name>xlog_tx_commit</name>
+        <param>
+          <type>struct <ref refid="structxlog" kindref="compound">xlog</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <briefdescription>
+<para>Enable xlog row buffer offloading. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>of writen bytes </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if buffer is not writen </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if error </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="520" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="1371" bodyend="1378"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a58569e6cdc86e8556b220077ff2e86e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void xlog_tx_rollback</definition>
+        <argsstring>(struct xlog *log)</argsstring>
+        <name>xlog_tx_rollback</name>
+        <param>
+          <type>struct <ref refid="structxlog" kindref="compound">xlog</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <briefdescription>
+<para>Discard xlog row buffer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="526" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="1384" bodyend="1389"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a7c61804773597c2d3a037874ff8b4f2f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t xlog_flush</definition>
+        <argsstring>(struct xlog *log)</argsstring>
+        <name>xlog_flush</name>
+        <param>
+          <type>struct <ref refid="structxlog" kindref="compound">xlog</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <briefdescription>
+<para>Flush buffered rows and sync file. </para>        </briefdescription>
+        <detaileddescription>
+<para>Flush buffered rows and sync file. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="532" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="1396" bodyend="1402"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a996b71f958c83f594033c9dc80470701" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xlog_sync</definition>
+        <argsstring>(struct xlog *l)</argsstring>
+        <name>xlog_sync</name>
+        <param>
+          <type>struct <ref refid="structxlog" kindref="compound">xlog</ref> *</type>
+          <declname>l</declname>
+        </param>
+        <briefdescription>
+<para>Sync a log file. </para>        </briefdescription>
+        <detaileddescription>
+<para>The exact action is defined by xdir flags.</para><para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>success </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>error </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="543" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="1419" bodyend="1433"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a1cd06ddd03c2fcc9215a1dcd38d85d6b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xlog_close</definition>
+        <argsstring>(struct xlog *l, bool reuse_fd)</argsstring>
+        <name>xlog_close</name>
+        <param>
+          <type>struct <ref refid="structxlog" kindref="compound">xlog</ref> *</type>
+          <declname>l</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>reuse_fd</declname>
+        </param>
+        <briefdescription>
+<para>Close the log file and free xlog object. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>success </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>error (fclose() failed). </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="552" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="1461" bodyend="1484"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a18469a369bf3759a94bf96bf7e6f5e7b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void xlog_atfork</definition>
+        <argsstring>(struct xlog *xlog)</argsstring>
+        <name>xlog_atfork</name>
+        <param>
+          <type>struct <ref refid="structxlog" kindref="compound">xlog</ref> *</type>
+          <declname>xlog</declname>
+        </param>
+        <briefdescription>
+<para>atfork() handler function to close the log pointed at by xlog in the child. </para>        </briefdescription>
+        <detaileddescription>
+<para>atfork() handler function to close the log pointed at by xlog in the child. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="559" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="1491" bodyend="1500"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a2369946a0d48354d01dd063d93fb3723" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t xlog_tx_cursor_create</definition>
+        <argsstring>(struct xlog_tx_cursor *cursor, const char **data, const char *data_end, ZSTD_DStream *zdctx)</argsstring>
+        <name>xlog_tx_cursor_create</name>
+        <param>
+          <type>struct <ref refid="structxlog__tx__cursor" kindref="compound">xlog_tx_cursor</ref> *</type>
+          <declname>cursor</declname>
+          <defname>tx_cursor</defname>
+        </param>
+        <param>
+          <type>const char **</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>data_end</declname>
+        </param>
+        <param>
+          <type>ZSTD_DStream *</type>
+          <declname>zdctx</declname>
+        </param>
+        <briefdescription>
+<para>Create xlog tx iterator from memory data. </para>        </briefdescription>
+        <detaileddescription>
+<para>*data will be adjusted to end of tx</para><para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>for Ok </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>for error </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>&gt;0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>how many additional bytes should be read to parse tx</para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>error </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>success </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>&gt;0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>how many bytes we will have for continue </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="583" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="1736" bodyend="1800"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a714ef8cb308660bce2400ce99b5b44af" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xlog_tx_cursor_destroy</definition>
+        <argsstring>(struct xlog_tx_cursor *tx_cursor)</argsstring>
+        <name>xlog_tx_cursor_destroy</name>
+        <param>
+          <type>struct <ref refid="structxlog__tx__cursor" kindref="compound">xlog_tx_cursor</ref> *</type>
+          <declname>tx_cursor</declname>
+        </param>
+        <briefdescription>
+<para>Destroy xlog tx cursor and free all associated memory including parsed xrows. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="592" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="1823" bodyend="1828"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a0f819c91529202621f1d23fbb0689067" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xlog_tx_cursor_next_row</definition>
+        <argsstring>(struct xlog_tx_cursor *tx_cursor, struct xrow_header *xrow)</argsstring>
+        <name>xlog_tx_cursor_next_row</name>
+        <param>
+          <type>struct <ref refid="structxlog__tx__cursor" kindref="compound">xlog_tx_cursor</ref> *</type>
+          <declname>tx_cursor</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structxrow__header" kindref="compound">xrow_header</ref> *</type>
+          <declname>xrow</declname>
+        </param>
+        <briefdescription>
+<para>Fetch next xrow from xlog tx cursor. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>for Ok </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>for error </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="601" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="1803" bodyend="1820"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a950757d2a6b4624a6544c26037da1a1a" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>off_t</type>
+        <definition>static off_t xlog_tx_cursor_pos</definition>
+        <argsstring>(struct xlog_tx_cursor *tx_cursor)</argsstring>
+        <name>xlog_tx_cursor_pos</name>
+        <param>
+          <type>struct <ref refid="structxlog__tx__cursor" kindref="compound">xlog_tx_cursor</ref> *</type>
+          <declname>tx_cursor</declname>
+        </param>
+        <briefdescription>
+<para>Return current tx cursor position. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tx_cursor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>tx_cursor </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>current</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>tx cursor position </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="610" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="610" bodyend="613"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a0d7f095b19bdd8653d95b9a806f3c963" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xlog_tx_decode</definition>
+        <argsstring>(const char *data, const char *data_end, char *rows, char *rows_end, ZSTD_DStream *zdctx)</argsstring>
+        <name>xlog_tx_decode</name>
+        <param>
+          <type>const char *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>data_end</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>rows</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>rows_end</declname>
+        </param>
+        <param>
+          <type>ZSTD_DStream *</type>
+          <declname>zdctx</declname>
+        </param>
+        <briefdescription>
+<para>A conventional helper to decode rows from the raw tx buffer. </para>        </briefdescription>
+        <detaileddescription>
+<para>Decodes fixheader, checks crc32 and length, decompresses rows.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a buffer with the raw tx data, including fixheader </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data_end</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the end of <emphasis>data</emphasis> buffer </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">rows</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a buffer to store decoded rows </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">rows_end</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the end of <emphasis>rows</emphasis> buffer </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>success </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>error, check diag </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="627" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="1674" bodyend="1728"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1ac0d90741d071b04386dbcc3d62ec6e24" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool xlog_cursor_is_open</definition>
+        <argsstring>(const struct xlog_cursor *cursor)</argsstring>
+        <name>xlog_cursor_is_open</name>
+        <param>
+          <type>const struct <ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref> *</type>
+          <declname>cursor</declname>
+        </param>
+        <briefdescription>
+<para>Return true if the cursor was opened and has not been closed yet. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="677" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="677" bodyend="682"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1ad754071cc91c61e0c74a7c885cd698bd" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool xlog_cursor_is_eof</definition>
+        <argsstring>(const struct xlog_cursor *cursor)</argsstring>
+        <name>xlog_cursor_is_eof</name>
+        <param>
+          <type>const struct <ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref> *</type>
+          <declname>cursor</declname>
+        </param>
+        <briefdescription>
+<para>Return true if the cursor has reached EOF. </para>        </briefdescription>
+        <detaileddescription>
+<para>The cursor may be closed or still open. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="689" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="689" bodyend="693"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1af05aa461929217a4ae1c4db40cfa59a4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xlog_cursor_openfd</definition>
+        <argsstring>(struct xlog_cursor *cursor, int fd, const char *name)</argsstring>
+        <name>xlog_cursor_openfd</name>
+        <param>
+          <type>struct <ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref> *</type>
+          <declname>cursor</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>Open cursor from file descriptor. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cursor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>cursor </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>file descriptor </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>associated file name </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>succes </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>error, check diag </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="704" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="1958" bodyend="1994"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1aa3bff8a663e0eb4ed912ab0aa02da7a9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xlog_cursor_open</definition>
+        <argsstring>(struct xlog_cursor *cursor, const char *name)</argsstring>
+        <name>xlog_cursor_open</name>
+        <param>
+          <type>struct <ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref> *</type>
+          <declname>cursor</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>Open cursor from file. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cursor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>cursor </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>file name </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>succes </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>error, check diag </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="714" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="1997" bodyend="2010"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1aa4a782a4676b422a227de619df8287f5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xlog_cursor_openmem</definition>
+        <argsstring>(struct xlog_cursor *cursor, const char *data, size_t size, const char *name)</argsstring>
+        <name>xlog_cursor_openmem</name>
+        <param>
+          <type>struct <ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref> *</type>
+          <declname>cursor</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>Open cursor from memory. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cursor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>cursor </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to memory block </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>memory block size </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>associated file name </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>succes </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>error, check diag </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="726" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="2013" bodyend="2051"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a4a3dcc1119acd43a2b0b2992ceb004ab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void xlog_cursor_close</definition>
+        <argsstring>(struct xlog_cursor *cursor, bool reuse_fd)</argsstring>
+        <name>xlog_cursor_close</name>
+        <param>
+          <type>struct <ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref> *</type>
+          <declname>cursor</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>reuse_fd</declname>
+        </param>
+        <briefdescription>
+<para>Close cursor. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cursor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>cursor </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="734" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="2054" bodyend="2070"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a1b79415d9f5addc04634c8e7af9d4f33" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xlog_cursor_next_tx</definition>
+        <argsstring>(struct xlog_cursor *cursor)</argsstring>
+        <name>xlog_cursor_next_tx</name>
+        <param>
+          <type>struct <ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref> *</type>
+          <declname>cursor</declname>
+        </param>
+        <briefdescription>
+<para>Open next tx from xlog. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cursor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>cursor </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>succes </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>eof retval -1 error, check diag </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="744" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="1858" bodyend="1907"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a37a65982835d4d5e6f0bee19fb2cb3e2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xlog_cursor_next_row</definition>
+        <argsstring>(struct xlog_cursor *cursor, struct xrow_header *xrow)</argsstring>
+        <name>xlog_cursor_next_row</name>
+        <param>
+          <type>struct <ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref> *</type>
+          <declname>cursor</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structxrow__header" kindref="compound">xrow_header</ref> *</type>
+          <declname>xrow</declname>
+        </param>
+        <briefdescription>
+<para>Fetch next xrow from current xlog tx. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>for Ok </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if current tx is done </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>for error </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="754" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="1910" bodyend="1921"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a459484138175d13706857b7388c96be4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xlog_cursor_next</definition>
+        <argsstring>(struct xlog_cursor *cursor, struct xrow_header *xrow, bool force_recovery)</argsstring>
+        <name>xlog_cursor_next</name>
+        <param>
+          <type>struct <ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref> *</type>
+          <declname>cursor</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structxrow__header" kindref="compound">xrow_header</ref> *</type>
+          <declname>xrow</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>force_recovery</declname>
+        </param>
+        <briefdescription>
+<para>Fetch next row from cursor, ignores xlog tx boundary, open a next one tx if current is done. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>for Ok </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>for EOF </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>for error </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="765" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="1924" bodyend="1955"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a659ffdf9941979f8b6ea0428f8c19ffc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xlog_cursor_find_tx_magic</definition>
+        <argsstring>(struct xlog_cursor *i)</argsstring>
+        <name>xlog_cursor_find_tx_magic</name>
+        <param>
+          <type>struct <ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref> *</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Move to the next xlog tx. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>magic found </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>magic not found and eof reached </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>error</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+Move to the next xlog tx. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="776" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="1834" bodyend="1855"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a6dd961df0c3b8c10e5600485b9f4573f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>off_t</type>
+        <definition>static off_t xlog_cursor_pos</definition>
+        <argsstring>(struct xlog_cursor *cursor)</argsstring>
+        <name>xlog_cursor_pos</name>
+        <param>
+          <type>struct <ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref> *</type>
+          <declname>cursor</declname>
+        </param>
+        <briefdescription>
+<para>Cursor xlog position. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cursor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>xlog cursor </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>xlog</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>current position </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="785" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="785" bodyend="788"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1ad1489186de0766c781a703cf828789b3" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>off_t</type>
+        <definition>static off_t xlog_cursor_tx_pos</definition>
+        <argsstring>(struct xlog_cursor *cursor)</argsstring>
+        <name>xlog_cursor_tx_pos</name>
+        <param>
+          <type>struct <ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref> *</type>
+          <declname>cursor</declname>
+        </param>
+        <briefdescription>
+<para>Return tx positon for xlog cursor. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cursor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref> </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>current</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>tx postion </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="797" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="797" bodyend="800"/>
+      </memberdef>
+      <memberdef kind="function" id="xlog_8h_1a3f4281100ae2dbb6d1d36024bd069d90" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xdir_open_cursor</definition>
+        <argsstring>(struct xdir *dir, int64_t signature, struct xlog_cursor *cursor)</argsstring>
+        <name>xdir_open_cursor</name>
+        <param>
+          <type>struct <ref refid="structxdir" kindref="compound">xdir</ref> *</type>
+          <declname>dir</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>signature</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref> *</type>
+          <declname>cursor</declname>
+        </param>
+        <briefdescription>
+<para>{{{ miscellaneous log io functions. </para>        </briefdescription>
+        <detaileddescription>
+<para>Open cursor for xdir entry pointed by signature <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>xdir</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>xdir </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>signature</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>xlog signature </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cursor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>cursor </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>succes </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>error, check diag </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="814" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.c" bodystart="439" bodyend="477"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_XLOG_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_XLOG_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdio.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sys/stat.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;uuid/tt_uuid.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="vclock_8h" kindref="compound">vclock.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ZSTD_STATIC_LINKING_ONLY</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;zstd.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;small/ibuf.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;small/obuf.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">iovec;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__header" kindref="compound">xrow_header</ref>;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56" refid="structxlog__opts" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxlog__opts" kindref="compound">xlog_opts</ref><sp/>{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/><ref refid="structxlog__opts_1acdcfede17a14a07bf58d139475382b9e" kindref="member">rate_limit</ref>;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/><ref refid="structxlog__opts_1a4ef7fed701fda970ae0635b0c0938004" kindref="member">sync_interval</ref>;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structxlog__opts_1a96bc484ec78f3e7ab64fa5bdb6ecfba8" kindref="member">free_cache</ref>;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structxlog__opts_1a5e9e7034f0f275f6385f24968ea76b0a" kindref="member">sync_is_async</ref>;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structxlog__opts_1a1509ef2f1030e737c29aae4662b00d32" kindref="member">no_compression</ref>;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxlog__opts" kindref="compound">xlog_opts</ref><sp/>xlog_opts_default;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>{{{<sp/>log<sp/>dir<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>xdir_type<sp/>{</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SNAP,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>memtx<sp/>snapshot<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>XLOG,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>write<sp/>ahead<sp/>log<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VYLOG,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>vinyl<sp/>metadata<sp/>log<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>log_suffix<sp/>{<sp/>NONE,<sp/>INPROGRESS<sp/>};</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="preprocessor">#define<sp/>inprogress_suffix<sp/>&quot;.inprogress&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120" refid="structxdir" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxdir" kindref="compound">xdir</ref><sp/>{</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxlog__opts" kindref="compound">xlog_opts</ref><sp/>opts;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>force_recovery;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Default<sp/>filename<sp/>suffix<sp/>for<sp/>a<sp/>new<sp/>file.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>log_suffix<sp/>suffix;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>open_wflags;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*instance_uuid;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*filetype;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*filename_ext;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mode_t<sp/>mode;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="158"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Index<sp/>of<sp/>files<sp/>present<sp/>in<sp/>the<sp/>directory.<sp/>Initially</highlight></codeline>
+<codeline lineno="159"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>empty,<sp/>must<sp/>be<sp/>initialized<sp/>with<sp/>xdir_scan().</highlight></codeline>
+<codeline lineno="160"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vclockset_t<sp/><ref refid="structindex" kindref="compound">index</ref>;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>dirname[PATH_MAX];</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>xdir_type<sp/>type;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal">xdir_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxdir" kindref="compound">xdir</ref><sp/>*dir,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*dirname,<sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>xdir_type<sp/>type,</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*instance_uuid,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__opts" kindref="compound">xlog_opts</ref><sp/>*opts);</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal">xdir_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxdir" kindref="compound">xdir</ref><sp/>*dir);</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal">xdir_scan(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxdir" kindref="compound">xdir</ref><sp/>*dir,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_dir_required);</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="197"><highlight class="normal">xdir_check(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxdir" kindref="compound">xdir</ref><sp/>*dir);</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="204"><highlight class="normal">xdir_format_filename(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxdir" kindref="compound">xdir</ref><sp/>*dir,<sp/>int64_t<sp/>signature,</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>log_suffix<sp/>suffix);</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal">xdir_has_garbage(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxdir" kindref="compound">xdir</ref><sp/>*dir,<sp/>int64_t<sp/>signature)</highlight></codeline>
+<codeline lineno="216"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvclock" kindref="compound">vclock</ref><sp/>*<ref refid="structvclock" kindref="compound">vclock</ref><sp/>=<sp/>vclockset_first(&amp;dir-&gt;index);</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>vclock<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>vclock_sum(vclock)<sp/>&lt;<sp/><ref refid="structvclock_1af4da5ec51c9cd32bd2e5b2e379df308b" kindref="member">signature</ref>;</highlight></codeline>
+<codeline lineno="219"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="224"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>XDIR_GC_ASYNC<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>0,</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>XDIR_GC_REMOVE_ONE<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>1,</highlight></codeline>
+<codeline lineno="234"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="240"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal">xdir_collect_garbage(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxdir" kindref="compound">xdir</ref><sp/>*dir,<sp/>int64_t<sp/>signature,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>flags);</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="247"><highlight class="normal">xdir_collect_inprogress(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxdir" kindref="compound">xdir</ref><sp/>*<ref refid="structxdir" kindref="compound">xdir</ref>);</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"></highlight></codeline>
+<codeline lineno="253"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>int64_t</highlight></codeline>
+<codeline lineno="254"><highlight class="normal">xdir_first_vclock(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>xdir<sp/>*xdir,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvclock" kindref="compound">vclock</ref><sp/>*<ref refid="structvclock" kindref="compound">vclock</ref>)</highlight></codeline>
+<codeline lineno="255"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">vclock<sp/>*first<sp/>=<sp/>vclockset_first(&amp;xdir-&gt;index);</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(first<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(vclock<sp/>!=<sp/>NULL)</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vclock_copy(vclock,<sp/>first);</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>vclock_sum(first);</highlight></codeline>
+<codeline lineno="262"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>int64_t</highlight></codeline>
+<codeline lineno="269"><highlight class="normal">xdir_last_vclock(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>xdir<sp/>*xdir,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vclock<sp/>*vclock)</highlight></codeline>
+<codeline lineno="270"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">vclock<sp/>*last<sp/>=<sp/>vclockset_last(&amp;xdir-&gt;index);</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(last<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(vclock<sp/>!=<sp/>NULL)</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vclock_copy(vclock,<sp/>last);</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>vclock_sum(last);</highlight></codeline>
+<codeline lineno="277"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"></highlight></codeline>
+<codeline lineno="282"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="283"><highlight class="normal">xdir_add_vclock(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>xdir<sp/>*xdir,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vclock<sp/>*vclock);</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"></highlight></codeline>
+<codeline lineno="285"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>}}}<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="normal"></highlight></codeline>
+<codeline lineno="287"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>{{{<sp/>xlog<sp/>meta<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="288"><highlight class="normal"></highlight></codeline>
+<codeline lineno="292" refid="structxlog__meta" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxlog__meta" kindref="compound">xlog_meta</ref><sp/>{</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>filetype[10];</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>instance_uuid;</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">vclock<sp/>vclock;</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">vclock<sp/>prev_vclock;</highlight></codeline>
+<codeline lineno="315"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"></highlight></codeline>
+<codeline lineno="323"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="324"><highlight class="normal">xlog_meta_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__meta" kindref="compound">xlog_meta</ref><sp/>*meta,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*filetype,</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*instance_uuid,</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vclock<sp/>*vclock,</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vclock<sp/>*prev_vclock);</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"></highlight></codeline>
+<codeline lineno="329"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>}}}<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="330"><highlight class="normal"></highlight></codeline>
+<codeline lineno="334" refid="structxlog" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxlog" kindref="compound">xlog</ref><sp/>{</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxlog__opts" kindref="compound">xlog_opts</ref><sp/>opts;</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxlog__meta" kindref="compound">xlog_meta</ref><sp/>meta;</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd;</highlight></codeline>
+<codeline lineno="349"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>rows;<sp/></highlight><highlight class="comment">/*<sp/>should<sp/>have<sp/>the<sp/>same<sp/>type<sp/>as<sp/>lsn<sp/>*/</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>tx_rows;</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>filename[PATH_MAX];</highlight></codeline>
+<codeline lineno="358"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_inprogress;</highlight></codeline>
+<codeline lineno="359"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="360"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>If<sp/>true,<sp/>we<sp/>can<sp/>flush<sp/>the<sp/>data<sp/>in<sp/>this<sp/>buffer<sp/>whenever</highlight></codeline>
+<codeline lineno="361"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>we<sp/>like,<sp/>and<sp/>it&apos;s<sp/>usually<sp/>when<sp/>the<sp/>buffer<sp/>gets</highlight></codeline>
+<codeline lineno="362"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>sufficiently<sp/>big<sp/>to<sp/>get<sp/>compressed.</highlight></codeline>
+<codeline lineno="363"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="364"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Otherwise,<sp/>we<sp/>must<sp/>observe<sp/>transactional<sp/>boundaries</highlight></codeline>
+<codeline lineno="365"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>to<sp/>avoid<sp/>writing<sp/>a<sp/>partial<sp/>transaction<sp/>to<sp/>WAL:<sp/>a</highlight></codeline>
+<codeline lineno="366"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>single<sp/>transaction<sp/>always<sp/>goes<sp/>to<sp/>WAL<sp/>in<sp/>a<sp/>single</highlight></codeline>
+<codeline lineno="367"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>&quot;chunk&quot;<sp/>with<sp/>1<sp/>fixed<sp/>header<sp/>and<sp/>common<sp/>checksum</highlight></codeline>
+<codeline lineno="368"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>for<sp/>all<sp/>transactional<sp/>rows.<sp/>This<sp/>prevents<sp/>miscarriage</highlight></codeline>
+<codeline lineno="369"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>or<sp/>partial<sp/>delivery<sp/>of<sp/>transactional<sp/>rows<sp/>to<sp/>a<sp/>slave</highlight></codeline>
+<codeline lineno="370"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>during<sp/>replication.</highlight></codeline>
+<codeline lineno="371"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="372"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_autocommit;</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>off_t<sp/>offset;</highlight></codeline>
+<codeline lineno="379"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>allocated;</highlight></codeline>
+<codeline lineno="384"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structobuf" kindref="compound">obuf</ref><sp/>obuf;</highlight></codeline>
+<codeline lineno="386"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ZSTD_CCtx<sp/>*zctx;</highlight></codeline>
+<codeline lineno="390"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">obuf<sp/>zbuf;</highlight></codeline>
+<codeline lineno="394"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>synced_size;</highlight></codeline>
+<codeline lineno="396"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>sync_time;</highlight></codeline>
+<codeline lineno="397"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="398"><highlight class="normal"></highlight></codeline>
+<codeline lineno="409"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="410"><highlight class="normal">xdir_touch_xlog(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>xdir<sp/>*dir,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vclock<sp/>*vclock);</highlight></codeline>
+<codeline lineno="411"><highlight class="normal"></highlight></codeline>
+<codeline lineno="426"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="427"><highlight class="normal">xdir_create_xlog(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>xdir<sp/>*dir,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog" kindref="compound">xlog</ref><sp/>*<ref refid="structxlog" kindref="compound">xlog</ref>,</highlight></codeline>
+<codeline lineno="428"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vclock<sp/>*vclock);</highlight></codeline>
+<codeline lineno="429"><highlight class="normal"></highlight></codeline>
+<codeline lineno="442"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="443"><highlight class="normal">xlog_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>xlog<sp/>*xlog,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags,</highlight></codeline>
+<codeline lineno="444"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__meta" kindref="compound">xlog_meta</ref><sp/>*meta,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__opts" kindref="compound">xlog_opts</ref><sp/>*opts);</highlight></codeline>
+<codeline lineno="445"><highlight class="normal"></highlight></codeline>
+<codeline lineno="455"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="456"><highlight class="normal">xlog_open(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>xlog<sp/>*xlog,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__opts" kindref="compound">xlog_opts</ref><sp/>*opts);</highlight></codeline>
+<codeline lineno="457"><highlight class="normal"></highlight></codeline>
+<codeline lineno="458"><highlight class="normal"></highlight></codeline>
+<codeline lineno="465"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="466"><highlight class="normal">xlog_clear(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>xlog<sp/>*xlog);</highlight></codeline>
+<codeline lineno="467"><highlight class="normal"></highlight></codeline>
+<codeline lineno="468"><highlight class="normal"></highlight></codeline>
+<codeline lineno="470"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="471"><highlight class="normal">xlog_is_open(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>xlog<sp/>*l)</highlight></codeline>
+<codeline lineno="472"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="473"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>l-&gt;<ref refid="structxlog_1a487fc77fc64501ca2e6355d94d2a9c7d" kindref="member">fd</ref><sp/>!=<sp/>-1;</highlight></codeline>
+<codeline lineno="474"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="475"><highlight class="normal"></highlight></codeline>
+<codeline lineno="482"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="483"><highlight class="normal">xlog_rename(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>xlog<sp/>*l);</highlight></codeline>
+<codeline lineno="484"><highlight class="normal"></highlight></codeline>
+<codeline lineno="493"><highlight class="normal">ssize_t</highlight></codeline>
+<codeline lineno="494"><highlight class="normal">xlog_fallocate(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>xlog<sp/>*<ref refid="structlog" kindref="compound">log</ref>,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="495"><highlight class="normal"></highlight></codeline>
+<codeline lineno="502"><highlight class="normal">ssize_t</highlight></codeline>
+<codeline lineno="503"><highlight class="normal">xlog_write_row(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>xlog<sp/>*log,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__header" kindref="compound">xrow_header</ref><sp/>*packet);</highlight></codeline>
+<codeline lineno="504"><highlight class="normal"></highlight></codeline>
+<codeline lineno="509"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="510"><highlight class="normal">xlog_tx_begin(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>xlog<sp/>*log);</highlight></codeline>
+<codeline lineno="511"><highlight class="normal"></highlight></codeline>
+<codeline lineno="519"><highlight class="normal">ssize_t</highlight></codeline>
+<codeline lineno="520"><highlight class="normal">xlog_tx_commit(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>xlog<sp/>*log);</highlight></codeline>
+<codeline lineno="521"><highlight class="normal"></highlight></codeline>
+<codeline lineno="525"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="526"><highlight class="normal">xlog_tx_rollback(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>xlog<sp/>*log);</highlight></codeline>
+<codeline lineno="527"><highlight class="normal"></highlight></codeline>
+<codeline lineno="531"><highlight class="normal">ssize_t</highlight></codeline>
+<codeline lineno="532"><highlight class="normal">xlog_flush(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>xlog<sp/>*log);</highlight></codeline>
+<codeline lineno="533"><highlight class="normal"></highlight></codeline>
+<codeline lineno="534"><highlight class="normal"></highlight></codeline>
+<codeline lineno="542"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="543"><highlight class="normal">xlog_sync(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>xlog<sp/>*l);</highlight></codeline>
+<codeline lineno="544"><highlight class="normal"></highlight></codeline>
+<codeline lineno="551"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="552"><highlight class="normal">xlog_close(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>xlog<sp/>*l,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>reuse_fd);</highlight></codeline>
+<codeline lineno="553"><highlight class="normal"></highlight></codeline>
+<codeline lineno="558"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="559"><highlight class="normal">xlog_atfork(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>xlog<sp/>*xlog);</highlight></codeline>
+<codeline lineno="560"><highlight class="normal"></highlight></codeline>
+<codeline lineno="561"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>{{{<sp/>xlog_tx_cursor<sp/>-<sp/>iterate<sp/>over<sp/>rows<sp/>in<sp/>xlog<sp/>transaction<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="562"><highlight class="normal"></highlight></codeline>
+<codeline lineno="566" refid="structxlog__tx__cursor" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxlog__tx__cursor" kindref="compound">xlog_tx_cursor</ref></highlight></codeline>
+<codeline lineno="567"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="569"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structibuf" kindref="compound">ibuf</ref><sp/>rows;</highlight></codeline>
+<codeline lineno="571"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size;</highlight></codeline>
+<codeline lineno="572"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="573"><highlight class="normal"></highlight></codeline>
+<codeline lineno="582"><highlight class="normal">ssize_t</highlight></codeline>
+<codeline lineno="583"><highlight class="normal">xlog_tx_cursor_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__tx__cursor" kindref="compound">xlog_tx_cursor</ref><sp/>*cursor,</highlight></codeline>
+<codeline lineno="584"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**data,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data_end,</highlight></codeline>
+<codeline lineno="585"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ZSTD_DStream<sp/>*zdctx);</highlight></codeline>
+<codeline lineno="586"><highlight class="normal"></highlight></codeline>
+<codeline lineno="591"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="592"><highlight class="normal">xlog_tx_cursor_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__tx__cursor" kindref="compound">xlog_tx_cursor</ref><sp/>*tx_cursor);</highlight></codeline>
+<codeline lineno="593"><highlight class="normal"></highlight></codeline>
+<codeline lineno="600"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="601"><highlight class="normal">xlog_tx_cursor_next_row(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__tx__cursor" kindref="compound">xlog_tx_cursor</ref><sp/>*tx_cursor,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__header" kindref="compound">xrow_header</ref><sp/>*xrow);</highlight></codeline>
+<codeline lineno="602"><highlight class="normal"></highlight></codeline>
+<codeline lineno="609"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>off_t</highlight></codeline>
+<codeline lineno="610"><highlight class="normal">xlog_tx_cursor_pos(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__tx__cursor" kindref="compound">xlog_tx_cursor</ref><sp/>*tx_cursor)</highlight></codeline>
+<codeline lineno="611"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="612"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>tx_cursor-&gt;<ref refid="structxlog__tx__cursor_1ac6996c3e1482e0b5a53c6aecb41a63de" kindref="member">size</ref><sp/>-<sp/>ibuf_used(&amp;tx_cursor-&gt;<ref refid="structxlog__tx__cursor_1a63a90b2d2eaaf38aa208d7528992e1f5" kindref="member">rows</ref>);</highlight></codeline>
+<codeline lineno="613"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="614"><highlight class="normal"></highlight></codeline>
+<codeline lineno="626"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="627"><highlight class="normal">xlog_tx_decode(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data_end,</highlight></codeline>
+<codeline lineno="628"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*rows,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*rows_end,</highlight></codeline>
+<codeline lineno="629"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ZSTD_DStream<sp/>*zdctx);</highlight></codeline>
+<codeline lineno="630"><highlight class="normal"></highlight></codeline>
+<codeline lineno="631"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>}}}<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="632"><highlight class="normal"></highlight></codeline>
+<codeline lineno="633"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>{{{<sp/>xlog_cursor<sp/>-<sp/>read<sp/>rows<sp/>from<sp/>a<sp/>log<sp/>file<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="634"><highlight class="normal"></highlight></codeline>
+<codeline lineno="635"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>xlog_cursor_state<sp/>{</highlight></codeline>
+<codeline lineno="636"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>The<sp/>cursor<sp/>was<sp/>never<sp/>opened.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="637"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>XLOG_CURSOR_NEW<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="638"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>The<sp/>cursor<sp/>is<sp/>open<sp/>but<sp/>no<sp/>tx<sp/>is<sp/>read<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="639"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>XLOG_CURSOR_ACTIVE<sp/>=<sp/>1,</highlight></codeline>
+<codeline lineno="640"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>The<sp/>Cursor<sp/>is<sp/>open<sp/>and<sp/>a<sp/>tx<sp/>is<sp/>read<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="641"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>XLOG_CURSOR_TX<sp/>=<sp/>2,</highlight></codeline>
+<codeline lineno="642"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>The<sp/>cursor<sp/>is<sp/>open<sp/>but<sp/>is<sp/>at<sp/>the<sp/>end<sp/>of<sp/>file.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="643"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>XLOG_CURSOR_EOF<sp/>=<sp/>3,</highlight></codeline>
+<codeline lineno="644"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>The<sp/>cursor<sp/>was<sp/>closed<sp/>after<sp/>reaching<sp/>EOF.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="645"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>XLOG_CURSOR_EOF_CLOSED<sp/>=<sp/>4,</highlight></codeline>
+<codeline lineno="646"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>The<sp/>cursor<sp/>was<sp/>closed<sp/>before<sp/>reaching<sp/>EOF.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="647"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>XLOG_CURSOR_CLOSED<sp/>=<sp/>5,</highlight></codeline>
+<codeline lineno="648"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="649"><highlight class="normal"></highlight></codeline>
+<codeline lineno="653" refid="structxlog__cursor" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref><sp/>{</highlight></codeline>
+<codeline lineno="655"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>xlog_cursor_state<sp/>state;</highlight></codeline>
+<codeline lineno="657"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd;</highlight></codeline>
+<codeline lineno="659"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxlog__meta" kindref="compound">xlog_meta</ref><sp/>meta;</highlight></codeline>
+<codeline lineno="661"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>name[PATH_MAX];</highlight></codeline>
+<codeline lineno="663"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structibuf" kindref="compound">ibuf</ref><sp/>rbuf;</highlight></codeline>
+<codeline lineno="665"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>off_t<sp/>read_offset;</highlight></codeline>
+<codeline lineno="667"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxlog__tx__cursor" kindref="compound">xlog_tx_cursor</ref><sp/>tx_cursor;</highlight></codeline>
+<codeline lineno="669"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ZSTD_DStream<sp/>*zdctx;</highlight></codeline>
+<codeline lineno="670"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="671"><highlight class="normal"></highlight></codeline>
+<codeline lineno="676"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="677"><highlight class="normal">xlog_cursor_is_open(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref><sp/>*cursor)</highlight></codeline>
+<codeline lineno="678"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="679"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(cursor-&gt;<ref refid="structxlog__cursor_1a979dfb215de2b053cb3e283d1d51fffc" kindref="member">state</ref><sp/>!=<sp/>XLOG_CURSOR_NEW<sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="680"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cursor-&gt;<ref refid="structxlog__cursor_1a979dfb215de2b053cb3e283d1d51fffc" kindref="member">state</ref><sp/>!=<sp/>XLOG_CURSOR_CLOSED<sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="681"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cursor-&gt;<ref refid="structxlog__cursor_1a979dfb215de2b053cb3e283d1d51fffc" kindref="member">state</ref><sp/>!=<sp/>XLOG_CURSOR_EOF_CLOSED);</highlight></codeline>
+<codeline lineno="682"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="683"><highlight class="normal"></highlight></codeline>
+<codeline lineno="688"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="689"><highlight class="normal">xlog_cursor_is_eof(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref><sp/>*cursor)</highlight></codeline>
+<codeline lineno="690"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="691"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(cursor-&gt;<ref refid="structxlog__cursor_1a979dfb215de2b053cb3e283d1d51fffc" kindref="member">state</ref><sp/>==<sp/>XLOG_CURSOR_EOF<sp/>||</highlight></codeline>
+<codeline lineno="692"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cursor-&gt;<ref refid="structxlog__cursor_1a979dfb215de2b053cb3e283d1d51fffc" kindref="member">state</ref><sp/>==<sp/>XLOG_CURSOR_EOF_CLOSED);</highlight></codeline>
+<codeline lineno="693"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="694"><highlight class="normal"></highlight></codeline>
+<codeline lineno="703"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="704"><highlight class="normal">xlog_cursor_openfd(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref><sp/>*cursor,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name);</highlight></codeline>
+<codeline lineno="705"><highlight class="normal"></highlight></codeline>
+<codeline lineno="713"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="714"><highlight class="normal">xlog_cursor_open(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref><sp/>*cursor,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name);</highlight></codeline>
+<codeline lineno="715"><highlight class="normal"></highlight></codeline>
+<codeline lineno="725"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="726"><highlight class="normal">xlog_cursor_openmem(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref><sp/>*cursor,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size,</highlight></codeline>
+<codeline lineno="727"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name);</highlight></codeline>
+<codeline lineno="728"><highlight class="normal"></highlight></codeline>
+<codeline lineno="733"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="734"><highlight class="normal">xlog_cursor_close(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref><sp/>*cursor,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>reuse_fd);</highlight></codeline>
+<codeline lineno="735"><highlight class="normal"></highlight></codeline>
+<codeline lineno="743"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="744"><highlight class="normal">xlog_cursor_next_tx(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref><sp/>*cursor);</highlight></codeline>
+<codeline lineno="745"><highlight class="normal"></highlight></codeline>
+<codeline lineno="753"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="754"><highlight class="normal">xlog_cursor_next_row(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref><sp/>*cursor,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__header" kindref="compound">xrow_header</ref><sp/>*xrow);</highlight></codeline>
+<codeline lineno="755"><highlight class="normal"></highlight></codeline>
+<codeline lineno="764"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="765"><highlight class="normal">xlog_cursor_next(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref><sp/>*cursor,</highlight></codeline>
+<codeline lineno="766"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__header" kindref="compound">xrow_header</ref><sp/>*xrow,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>force_recovery);</highlight></codeline>
+<codeline lineno="767"><highlight class="normal"></highlight></codeline>
+<codeline lineno="775"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="776"><highlight class="normal">xlog_cursor_find_tx_magic(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref><sp/>*i);</highlight></codeline>
+<codeline lineno="777"><highlight class="normal"></highlight></codeline>
+<codeline lineno="784"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>off_t</highlight></codeline>
+<codeline lineno="785"><highlight class="normal">xlog_cursor_pos(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref><sp/>*cursor)</highlight></codeline>
+<codeline lineno="786"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="787"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>cursor-&gt;<ref refid="structxlog__cursor_1a1b8eef18bd9aa84e161e9a24b8a4234e" kindref="member">read_offset</ref><sp/>-<sp/>ibuf_used(&amp;cursor-&gt;<ref refid="structxlog__cursor_1a9681db0169ba4307294fb8a0f13563bf" kindref="member">rbuf</ref>);</highlight></codeline>
+<codeline lineno="788"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="789"><highlight class="normal"></highlight></codeline>
+<codeline lineno="796"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>off_t</highlight></codeline>
+<codeline lineno="797"><highlight class="normal">xlog_cursor_tx_pos(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref><sp/>*cursor)</highlight></codeline>
+<codeline lineno="798"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="799"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>xlog_tx_cursor_pos(&amp;cursor-&gt;<ref refid="structxlog__cursor_1ad217e03ce1753f7609d3582382efe309" kindref="member">tx_cursor</ref>);</highlight></codeline>
+<codeline lineno="800"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="801"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>}}}<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="802"><highlight class="normal"></highlight></codeline>
+<codeline lineno="813"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="814"><highlight class="normal">xdir_open_cursor(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>xdir<sp/>*dir,<sp/>int64_t<sp/>signature,</highlight></codeline>
+<codeline lineno="815"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref><sp/>*cursor);</highlight></codeline>
+<codeline lineno="816"><highlight class="normal"></highlight></codeline>
+<codeline lineno="819"><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="820"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>C<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="821"><highlight class="normal"></highlight></codeline>
+<codeline lineno="822"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;exception.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="823"><highlight class="normal"></highlight></codeline>
+<codeline lineno="824"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="825"><highlight class="normal">xdir_scan_xc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxdir" kindref="compound">xdir</ref><sp/>*dir,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_dir_required)</highlight></codeline>
+<codeline lineno="826"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="827"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(xdir_scan(dir,<sp/>is_dir_required)<sp/>==<sp/>-1)</highlight></codeline>
+<codeline lineno="828"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_raise();</highlight></codeline>
+<codeline lineno="829"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="830"><highlight class="normal"></highlight></codeline>
+<codeline lineno="831"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="832"><highlight class="normal">xdir_check_xc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxdir" kindref="compound">xdir</ref><sp/>*dir)</highlight></codeline>
+<codeline lineno="833"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="834"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(xdir_check(dir)<sp/>==<sp/>-1)</highlight></codeline>
+<codeline lineno="835"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_raise();</highlight></codeline>
+<codeline lineno="836"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="837"><highlight class="normal"></highlight></codeline>
+<codeline lineno="841"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="842"><highlight class="normal">xdir_open_cursor_xc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxdir" kindref="compound">xdir</ref><sp/>*dir,<sp/>int64_t<sp/>signature,</highlight></codeline>
+<codeline lineno="843"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref><sp/>*cursor)</highlight></codeline>
+<codeline lineno="844"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="845"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>rc<sp/>=<sp/>xdir_open_cursor(dir,<sp/>signature,<sp/>cursor);</highlight></codeline>
+<codeline lineno="846"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rc<sp/>==<sp/>-1)</highlight></codeline>
+<codeline lineno="847"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_raise();</highlight></codeline>
+<codeline lineno="848"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rc;</highlight></codeline>
+<codeline lineno="849"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="850"><highlight class="normal"></highlight></codeline>
+<codeline lineno="854"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="855"><highlight class="normal">xlog_cursor_openfd_xc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref><sp/>*cursor,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name)</highlight></codeline>
+<codeline lineno="856"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="857"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>rc<sp/>=<sp/>xlog_cursor_openfd(cursor,<sp/>fd,<sp/>name);</highlight></codeline>
+<codeline lineno="858"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rc<sp/>==<sp/>-1)</highlight></codeline>
+<codeline lineno="859"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_raise();</highlight></codeline>
+<codeline lineno="860"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rc;</highlight></codeline>
+<codeline lineno="861"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="865"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="866"><highlight class="normal">xlog_cursor_open_xc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref><sp/>*cursor,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name)</highlight></codeline>
+<codeline lineno="867"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="868"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>rc<sp/>=<sp/>xlog_cursor_open(cursor,<sp/>name);</highlight></codeline>
+<codeline lineno="869"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rc<sp/>==<sp/>-1)</highlight></codeline>
+<codeline lineno="870"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_raise();</highlight></codeline>
+<codeline lineno="871"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rc;</highlight></codeline>
+<codeline lineno="872"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="873"><highlight class="normal"></highlight></codeline>
+<codeline lineno="877"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="878"><highlight class="normal">xlog_cursor_next_xc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog__cursor" kindref="compound">xlog_cursor</ref><sp/>*cursor,</highlight></codeline>
+<codeline lineno="879"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__header" kindref="compound">xrow_header</ref><sp/>*xrow,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>force_recovery)</highlight></codeline>
+<codeline lineno="880"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="881"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>rc<sp/>=<sp/>xlog_cursor_next(cursor,<sp/>xrow,<sp/>force_recovery);</highlight></codeline>
+<codeline lineno="882"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rc<sp/>==<sp/>-1)</highlight></codeline>
+<codeline lineno="883"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_raise();</highlight></codeline>
+<codeline lineno="884"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rc;</highlight></codeline>
+<codeline lineno="885"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="886"><highlight class="normal"></highlight></codeline>
+<codeline lineno="887"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="888"><highlight class="normal"></highlight></codeline>
+<codeline lineno="889"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_XLOG_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/xlog.h"/>
+  </compounddef>
+</doxygen>

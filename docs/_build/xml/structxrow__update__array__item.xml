@@ -1,0 +1,152 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structxrow__update__array__item" kind="struct" language="C++" prot="public">
+    <compoundname>xrow_update_array_item</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structxrow__update__array__item_1a00b1e5c394be8319c0493126a52e4d87" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref></type>
+        <definition>struct xrow_update_field xrow_update_array_item::field</definition>
+        <argsstring></argsstring>
+        <name>field</name>
+        <briefdescription>
+<para>First field in the range, contains an update. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_array.c" line="378" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_array.c" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxrow__update__array__item_1a9b0b287c10fc19b20255b5edbcfaf195" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t xrow_update_array_item::tail_size</definition>
+        <argsstring></argsstring>
+        <name>tail_size</name>
+        <briefdescription>
+<para>Size of other fields in the range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_array.c" line="87" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_array.c" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Updated array is divided into array items. </para>    </briefdescription>
+    <detaileddescription>
+<para>Each item is a range of fields. Item updates first field of the range and stores size of others to save them with no changes into a new tuple later. It allows on update of a single field in an array store at most 2 objects - item for the previous fields, and item for this one + its tail. This is how rope data structure works - a binary tree designed for big contiguous object updates. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="18026">
+        <label>xrow_update_arg_splice</label>
+        <link refid="structxrow__update__arg__splice"/>
+      </node>
+      <node id="18027">
+        <label>xrow_update_op_meta</label>
+        <link refid="structxrow__update__op__meta"/>
+        <childnode refid="18018" relation="usage">
+          <edgelabel>do_op</edgelabel>
+          <edgelabel>store</edgelabel>
+          <edgelabel>read_arg</edgelabel>
+        </childnode>
+      </node>
+      <node id="18016">
+        <label>xrow_update_array_item</label>
+        <link refid="structxrow__update__array__item"/>
+        <childnode refid="18017" relation="usage">
+          <edgelabel>field</edgelabel>
+        </childnode>
+      </node>
+      <node id="18029">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="18029" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="18020">
+        <label>xrow_update_arg</label>
+        <link refid="unionxrow__update__arg"/>
+        <childnode refid="18021" relation="usage">
+          <edgelabel>bit</edgelabel>
+        </childnode>
+        <childnode refid="18022" relation="usage">
+          <edgelabel>del</edgelabel>
+        </childnode>
+        <childnode refid="18023" relation="usage">
+          <edgelabel>arith</edgelabel>
+        </childnode>
+        <childnode refid="18025" relation="usage">
+          <edgelabel>set</edgelabel>
+        </childnode>
+        <childnode refid="18026" relation="usage">
+          <edgelabel>splice</edgelabel>
+        </childnode>
+      </node>
+      <node id="18028">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="18029" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="18018">
+        <label>xrow_update_op</label>
+        <link refid="structxrow__update__op"/>
+        <childnode refid="18019" relation="usage">
+          <edgelabel>lexer</edgelabel>
+        </childnode>
+        <childnode refid="18020" relation="usage">
+          <edgelabel>arg</edgelabel>
+        </childnode>
+        <childnode refid="18027" relation="usage">
+          <edgelabel>meta</edgelabel>
+        </childnode>
+      </node>
+      <node id="18019">
+        <label>json_lexer</label>
+        <link refid="structjson__lexer"/>
+      </node>
+      <node id="18017">
+        <label>xrow_update_field</label>
+        <link refid="structxrow__update__field"/>
+        <childnode refid="18018" relation="usage">
+          <edgelabel>op</edgelabel>
+        </childnode>
+        <childnode refid="18028" relation="usage">
+          <edgelabel>items</edgelabel>
+        </childnode>
+        <childnode refid="18017" relation="usage">
+          <edgelabel>next_hop</edgelabel>
+        </childnode>
+      </node>
+      <node id="18023">
+        <label>xrow_update_arg_arith</label>
+        <link refid="structxrow__update__arg__arith"/>
+        <childnode refid="18024" relation="usage">
+          <edgelabel>int96</edgelabel>
+        </childnode>
+      </node>
+      <node id="18021">
+        <label>xrow_update_arg_bit</label>
+        <link refid="structxrow__update__arg__bit"/>
+      </node>
+      <node id="18024">
+        <label>int96_num</label>
+        <link refid="structint96__num"/>
+      </node>
+      <node id="18022">
+        <label>xrow_update_arg_del</label>
+        <link refid="structxrow__update__arg__del"/>
+      </node>
+      <node id="18025">
+        <label>xrow_update_arg_set</label>
+        <link refid="structxrow__update__arg__set"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/xrow_update_array.c" line="83" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_array.c" bodystart="83" bodyend="88"/>
+    <listofallmembers>
+      <member refid="structxrow__update__array__item_1a00b1e5c394be8319c0493126a52e4d87" prot="public" virt="non-virtual"><scope>xrow_update_array_item</scope><name>field</name></member>
+      <member refid="structxrow__update__array__item_1a9b0b287c10fc19b20255b5edbcfaf195" prot="public" virt="non-virtual"><scope>xrow_update_array_item</scope><name>tail_size</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

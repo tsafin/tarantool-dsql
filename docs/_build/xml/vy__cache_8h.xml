@@ -1,0 +1,893 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="vy__cache_8h" kind="file" language="C++">
+    <compoundname>vy_cache.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes refid="rlist_8h" local="no">small/rlist.h</includes>
+    <includes refid="iterator__type_8h" local="yes">iterator_type.h</includes>
+    <includes refid="vy__stmt_8h" local="yes">vy_stmt.h</includes>
+    <includes refid="vy__read__view_8h" local="yes">vy_read_view.h</includes>
+    <includes refid="vy__stat_8h" local="yes">vy_stat.h</includes>
+    <includes refid="mempool_8h" local="yes">small/mempool.h</includes>
+    <includes refid="bps__tree_8h" local="yes">salad/bps_tree.h</includes>
+    <includedby refid="vy__lsm_8h" local="yes">/home/tsafin/tarantool/src/box/vy_lsm.h</includedby>
+    <includedby refid="vinyl_8c" local="yes">/home/tsafin/tarantool/src/box/vinyl.c</includedby>
+    <includedby refid="vy__cache_8c" local="yes">/home/tsafin/tarantool/src/box/vy_cache.c</includedby>
+    <includedby refid="vy__point__lookup_8c" local="yes">/home/tsafin/tarantool/src/box/vy_point_lookup.c</includedby>
+    <includedby refid="vy__read__iterator_8c" local="yes">/home/tsafin/tarantool/src/box/vy_read_iterator.c</includedby>
+    <includedby refid="vy__tx_8c" local="yes">/home/tsafin/tarantool/src/box/vy_tx.c</includedby>
+    <incdepgraph>
+      <node id="1259">
+        <label>stdbool.h</label>
+      </node>
+      <node id="1258">
+        <label>stdint.h</label>
+      </node>
+      <node id="1257">
+        <label>/home/tsafin/tarantool/src/box/vy_cache.h</label>
+        <link refid="vy__cache_8h"/>
+        <childnode refid="1258" relation="include">
+        </childnode>
+        <childnode refid="1259" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structvy__cache__node" prot="public">vy_cache_node</innerclass>
+    <innerclass refid="structvy__cache__env" prot="public">vy_cache_env</innerclass>
+    <innerclass refid="structvy__cache" prot="public">vy_cache</innerclass>
+    <innerclass refid="structvy__cache__iterator" prot="public">vy_cache_iterator</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="vy__cache_8h_1a4ad9c7a66d9d5f3589a00ec0d70c5e69" prot="public" static="no">
+        <name>VY_CACHE_TREE_EXTENT_SIZE</name>
+        <initializer>(16 * 1024)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="90" column="9" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vy__cache_8h_1aa84fc616858c28b70f7433e85bcb6b74" prot="public" static="no">
+        <name>BPS_TREE_NAME</name>
+        <initializer>vy_cache_tree</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="92" column="9" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vy__cache_8h_1afc4c2b26932377ca2119228eafac0461" prot="public" static="no">
+        <name>BPS_TREE_BLOCK_SIZE</name>
+        <initializer>512</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="93" column="9" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vy__cache_8h_1a62466597d6e3848032318b1d96d98b57" prot="public" static="no">
+        <name>BPS_TREE_EXTENT_SIZE</name>
+        <initializer>VY_CACHE_TREE_EXTENT_SIZE</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="94" column="9" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vy__cache_8h_1a8ed903eca7a26bcc9e7678254436ed10" prot="public" static="no">
+        <name>BPS_TREE_COMPARE</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <param><defname>cmp_def</defname></param>
+        <initializer>vy_cache_tree_cmp(a, b, cmp_def)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="95" column="9" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vy__cache_8h_1a5b95fcda6549973d70b84104587aec63" prot="public" static="no">
+        <name>BPS_TREE_COMPARE_KEY</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <param><defname>cmp_def</defname></param>
+        <initializer>vy_cache_tree_key_cmp(a, b, cmp_def)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="96" column="9" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vy__cache_8h_1aa9a163870b9e35a347672897ebce8563" prot="public" static="no">
+        <name>bps_tree_elem_t</name>
+        <initializer>struct <ref refid="structvy__cache__node" kindref="compound">vy_cache_node</ref> *</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="97" column="9" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vy__cache_8h_1afa949ccef3c6df3bc96cc6e0f59cb393" prot="public" static="no">
+        <name>bps_tree_key_t</name>
+        <initializer>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="98" column="9" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vy__cache_8h_1ab3ca4f33b0d6e79b4666c768098c1b51" prot="public" static="no">
+        <name>bps_tree_arg_t</name>
+        <initializer>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="99" column="9" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vy__cache_8h_1adad468359c8b97cfc68af5992a733a0d" prot="public" static="no">
+        <name>BPS_TREE_IS_IDENTICAL</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <initializer>vy_entry_is_equal(a-&gt;entry, b-&gt;entry)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="100" column="9" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="100" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="vy__cache_8h_1a7cc94130e59780e2561c46ff3a8bdc14" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int vy_cache_tree_cmp</definition>
+        <argsstring>(struct vy_cache_node *a, struct vy_cache_node *b, struct key_def *cmp_def)</argsstring>
+        <name>vy_cache_tree_cmp</name>
+        <param>
+          <type>struct <ref refid="structvy__cache__node" kindref="compound">vy_cache_node</ref> *</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__cache__node" kindref="compound">vy_cache_node</ref> *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>cmp_def</declname>
+        </param>
+        <briefdescription>
+<para>Internal comparator (1) for BPS tree. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="74" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="74" bodyend="78"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__cache_8h_1aab4e72a49534a81570866e702eae4b77" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int vy_cache_tree_key_cmp</definition>
+        <argsstring>(struct vy_cache_node *a, struct vy_entry b, struct key_def *cmp_def)</argsstring>
+        <name>vy_cache_tree_key_cmp</name>
+        <param>
+          <type>struct <ref refid="structvy__cache__node" kindref="compound">vy_cache_node</ref> *</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>cmp_def</declname>
+        </param>
+        <briefdescription>
+<para>Internal comparator (2) for BPS tree. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="84" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="84" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__cache_8h_1ac38db1a646a74cd7c605dece57a3c682" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_cache_env_create</definition>
+        <argsstring>(struct vy_cache_env *env, struct slab_cache *slab_cache)</argsstring>
+        <name>vy_cache_env_create</name>
+        <param>
+          <type>struct <ref refid="structvy__cache__env" kindref="compound">vy_cache_env</ref> *</type>
+          <declname>env</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref> *</type>
+          <declname>slab_cache</declname>
+        </param>
+        <briefdescription>
+<para>Initialize common cache environment. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>e</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- the environment. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="structslab__cache" kindref="compound">slab_cache</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- source of memory. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="134" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.c" bodystart="56" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__cache_8h_1aad068d2c1ca3735308c18106f2ac529c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_cache_env_destroy</definition>
+        <argsstring>(struct vy_cache_env *e)</argsstring>
+        <name>vy_cache_env_destroy</name>
+        <param>
+          <type>struct <ref refid="structvy__cache__env" kindref="compound">vy_cache_env</ref> *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para>Destroy and free resources of cache environment. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>e</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- the environment. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="141" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.c" bodystart="66" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__cache_8h_1a45e117499141afc8a3016997db516f44" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_cache_env_set_quota</definition>
+        <argsstring>(struct vy_cache_env *e, size_t quota)</argsstring>
+        <name>vy_cache_env_set_quota</name>
+        <param>
+          <type>struct <ref refid="structvy__cache__env" kindref="compound">vy_cache_env</ref> *</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>quota</declname>
+        </param>
+        <briefdescription>
+<para>Set memory limit for the cache. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>e</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- the environment. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>quota</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- memory limit for the cache.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+This function blocks until it manages to free enough memory to fit in the new limit. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="152" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.c" bodystart="214" bodyend="225"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__cache_8h_1a261126ccc786a029a5f20509e564bf3a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_cache_create</definition>
+        <argsstring>(struct vy_cache *cache, struct vy_cache_env *env, struct key_def *cmp_def, bool is_primary)</argsstring>
+        <name>vy_cache_create</name>
+        <param>
+          <type>struct <ref refid="structvy__cache" kindref="compound">vy_cache</ref> *</type>
+          <declname>cache</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__cache__env" kindref="compound">vy_cache_env</ref> *</type>
+          <declname>env</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>cmp_def</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>is_primary</declname>
+        </param>
+        <briefdescription>
+<para>Allocate and initialize tuple cache. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>env</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to common cache environment. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cmp_def</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- key definition for tuple comparison. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>is_primary</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- set if cache is for primary index </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="182" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.c" bodystart="138" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__cache_8h_1aa3c03ed3d29d8a64db87f840852b305a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_cache_destroy</definition>
+        <argsstring>(struct vy_cache *cache)</argsstring>
+        <name>vy_cache_destroy</name>
+        <param>
+          <type>struct <ref refid="structvy__cache" kindref="compound">vy_cache</ref> *</type>
+          <declname>cache</declname>
+        </param>
+        <briefdescription>
+<para>Destroy and deallocate tuple cache. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cache</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to tuple cache to destroy. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="190" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.c" bodystart="151" bodyend="164"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__cache_8h_1ae59797f6aef250c5ef80d5c1a0865f59" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_cache_add</definition>
+        <argsstring>(struct vy_cache *cache, struct vy_entry curr, struct vy_entry prev, struct vy_entry key, enum iterator_type order)</argsstring>
+        <name>vy_cache_add</name>
+        <param>
+          <type>struct <ref refid="structvy__cache" kindref="compound">vy_cache</ref> *</type>
+          <declname>cache</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>curr</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>prev</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>enum iterator_type</type>
+          <declname>order</declname>
+        </param>
+        <briefdescription>
+<para>Add a value to the cache. </para>        </briefdescription>
+        <detaileddescription>
+<para>Can be used only if the reader read the latest data (vlsn = INT64_MAX). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cache</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to tuple cache. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>curr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- statement that was recently read and should be added to the cache. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>prev</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- previous statement that was read by the reader in one sequence (by one iterator). </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>direction</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- direction in which the reader (iterator) observes data, +1 - forward, -1 - backward. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="204" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.c" bodystart="228" bodyend="417"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__cache_8h_1af395728cb53d1740242013555cf9e378" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+        <definition>struct vy_entry vy_cache_get</definition>
+        <argsstring>(struct vy_cache *cache, struct vy_entry key)</argsstring>
+        <name>vy_cache_get</name>
+        <param>
+          <type>struct <ref refid="structvy__cache" kindref="compound">vy_cache</ref> *</type>
+          <declname>cache</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+<para>Find value in cache. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>A tuple equal to key or NULL if not found. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="204" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.c" bodystart="420" bodyend="427"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__cache_8h_1a0109cb048c25aad59018f13575ace979" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_cache_on_write</definition>
+        <argsstring>(struct vy_cache *cache, struct vy_entry entry, struct vy_entry *deleted)</argsstring>
+        <name>vy_cache_on_write</name>
+        <param>
+          <type>struct <ref refid="structvy__cache" kindref="compound">vy_cache</ref> *</type>
+          <declname>cache</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>entry</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref> *</type>
+          <declname>deleted</declname>
+        </param>
+        <briefdescription>
+<para>Invalidate possibly cached value due to its overwriting. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cache</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to tuple cache. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>entry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- overwritten statement. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">deleted</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- If not NULL, then is set to deleted statement. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="223" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.c" bodystart="430" bodyend="504"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__cache_8h_1ae0539c1b16fce668cf27aee5f5893445" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_cache_iterator_open</definition>
+        <argsstring>(struct vy_cache_iterator *itr, struct vy_cache *cache, enum iterator_type iterator_type, struct vy_entry key, const struct vy_read_view **rv)</argsstring>
+        <name>vy_cache_iterator_open</name>
+        <param>
+          <type>struct <ref refid="structvy__cache__iterator" kindref="compound">vy_cache_iterator</ref> *</type>
+          <declname>itr</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__cache" kindref="compound">vy_cache</ref> *</type>
+          <declname>cache</declname>
+        </param>
+        <param>
+          <type>enum iterator_type</type>
+          <declname>iterator_type</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvy__read__view" kindref="compound">vy_read_view</ref> **</type>
+          <declname>rv</declname>
+        </param>
+        <briefdescription>
+<para>Open an iterator over cache. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>itr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- iterator to open. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cache</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- the cache. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>iterator_type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- iterator type (EQ, GT, GE, LT, LE or ALL) </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- search key data in terms of vinyl, vy_entry_compare argument </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vlsn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- LSN visibility, iterator shows values with lsn &lt;= vlsn </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="266" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.c" bodystart="844" bodyend="858"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__cache_8h_1a8d8104761dfb1a1c293cbbc31542e501" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>NODISCARD int</type>
+        <definition>NODISCARD int vy_cache_iterator_next</definition>
+        <argsstring>(struct vy_cache_iterator *itr, struct vy_history *history, bool *stop)</argsstring>
+        <name>vy_cache_iterator_next</name>
+        <param>
+          <type>struct <ref refid="structvy__cache__iterator" kindref="compound">vy_cache_iterator</ref> *</type>
+          <declname>itr</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__history" kindref="compound">vy_history</ref> *</type>
+          <declname>history</declname>
+        </param>
+        <param>
+          <type>bool *</type>
+          <declname>stop</declname>
+        </param>
+        <briefdescription>
+<para>Advance a cache iterator to the next key. </para>        </briefdescription>
+        <detaileddescription>
+<para>The key history is returned in  (empty if EOF).  flag is set if a chain was found in the cache and so there shouldn&apos;t be statements preceding the returned statement in memory or on disk. The function returns 0 on success, -1 on memory allocation error. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="279" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.c" bodystart="698" bodyend="722"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__cache_8h_1adff9d8c1bea06b1fd65be17a4e8d277c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>NODISCARD int</type>
+        <definition>NODISCARD int vy_cache_iterator_skip</definition>
+        <argsstring>(struct vy_cache_iterator *itr, struct vy_entry last, struct vy_history *history, bool *stop)</argsstring>
+        <name>vy_cache_iterator_skip</name>
+        <param>
+          <type>struct <ref refid="structvy__cache__iterator" kindref="compound">vy_cache_iterator</ref> *</type>
+          <declname>itr</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>last</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__history" kindref="compound">vy_history</ref> *</type>
+          <declname>history</declname>
+        </param>
+        <param>
+          <type>bool *</type>
+          <declname>stop</declname>
+        </param>
+        <briefdescription>
+<para>Advance a cache iterator to the key following . </para>        </briefdescription>
+        <detaileddescription>
+<para>The key history is returned in  (empty if EOF). Returns 0 on success, -1 on memory allocation error. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="288" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.c" bodystart="725" bodyend="753"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__cache_8h_1a4824ec8d9853519ea46891cbbe3dd171" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>NODISCARD int</type>
+        <definition>NODISCARD int vy_cache_iterator_restore</definition>
+        <argsstring>(struct vy_cache_iterator *itr, struct vy_entry last, struct vy_history *history, bool *stop)</argsstring>
+        <name>vy_cache_iterator_restore</name>
+        <param>
+          <type>struct <ref refid="structvy__cache__iterator" kindref="compound">vy_cache_iterator</ref> *</type>
+          <declname>itr</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>last</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__history" kindref="compound">vy_history</ref> *</type>
+          <declname>history</declname>
+        </param>
+        <param>
+          <type>bool *</type>
+          <declname>stop</declname>
+        </param>
+        <briefdescription>
+<para>Check if a cache iterator was invalidated and needs to be restored. </para>        </briefdescription>
+        <detaileddescription>
+<para>If it does, set the iterator position to the first key following  and return 1, otherwise return 0. Returns -1 on memory allocation error. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="298" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.c" bodystart="756" bodyend="833"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__cache_8h_1aee2f51bc5f898d22b7ef99ad4fe8247a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_cache_iterator_close</definition>
+        <argsstring>(struct vy_cache_iterator *itr)</argsstring>
+        <name>vy_cache_iterator_close</name>
+        <param>
+          <type>struct <ref refid="structvy__cache__iterator" kindref="compound">vy_cache_iterator</ref> *</type>
+          <declname>itr</declname>
+        </param>
+        <briefdescription>
+<para>Close a cache iterator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="305" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.c" bodystart="836" bodyend="841"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>INCLUDES_TARANTOOL_BOX_VY_CACHE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INCLUDES_TARANTOOL_BOX_VY_CACHE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2017,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>AUTHORS<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>AUTHORS<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;small/rlist.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;iterator_type.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;vy_stmt.h&quot;</highlight><highlight class="normal"><sp/></highlight><highlight class="comment">/*<sp/>for<sp/>comparators<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;vy_read_view.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;vy_stat.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;small/mempool.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__history" kindref="compound">vy_history</ref>;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="structvy__cache__node" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__cache__node" kindref="compound">vy_cache_node</ref><sp/>{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Cache<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__cache" kindref="compound">vy_cache</ref><sp/>*cache;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Statement<sp/>in<sp/>cache<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>entry;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Link<sp/>in<sp/>LRU<sp/>list<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>in_lru;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>VY_CACHE_LEFT_LINKED<sp/>and/or<sp/>VY_CACHE_RIGHT_LINKED,<sp/>see</highlight></codeline>
+<codeline lineno="62"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>description<sp/>of<sp/>them<sp/>for<sp/>more<sp/>information<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>flags;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Number<sp/>of<sp/>parts<sp/>in<sp/>key<sp/>when<sp/>the<sp/>value<sp/>was<sp/>the<sp/>first<sp/>in<sp/>EQ<sp/>search<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>left_boundary_level;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Number<sp/>of<sp/>parts<sp/>in<sp/>key<sp/>when<sp/>the<sp/>value<sp/>was<sp/>the<sp/>last<sp/>in<sp/>EQ<sp/>search<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>right_boundary_level;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal">vy_cache_tree_cmp(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__cache__node" kindref="compound">vy_cache_node</ref><sp/>*a,</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__cache__node" kindref="compound">vy_cache_node</ref><sp/>*b,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structkey__def" kindref="compound">key_def</ref><sp/>*cmp_def)</highlight></codeline>
+<codeline lineno="76"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>vy_entry_compare(a-&gt;entry,<sp/>b-&gt;entry,<sp/>cmp_def);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal">vy_cache_tree_key_cmp(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__cache__node" kindref="compound">vy_cache_node</ref><sp/>*a,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>b,</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structkey__def" kindref="compound">key_def</ref><sp/>*cmp_def)</highlight></codeline>
+<codeline lineno="86"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>vy_entry_compare(a-&gt;entry,<sp/>b,<sp/>cmp_def);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VY_CACHE_TREE_EXTENT_SIZE<sp/>(16<sp/>*<sp/>1024)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BPS_TREE_NAME<sp/>vy_cache_tree</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BPS_TREE_BLOCK_SIZE<sp/>512</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BPS_TREE_EXTENT_SIZE<sp/>VY_CACHE_TREE_EXTENT_SIZE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BPS_TREE_COMPARE(a,<sp/>b,<sp/>cmp_def)<sp/>vy_cache_tree_cmp(a,<sp/>b,<sp/>cmp_def)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BPS_TREE_COMPARE_KEY(a,<sp/>b,<sp/>cmp_def)<sp/>vy_cache_tree_key_cmp(a,<sp/>b,<sp/>cmp_def)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>bps_tree_elem_t<sp/>struct<sp/>vy_cache_node<sp/>*</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>bps_tree_key_t<sp/>struct<sp/>vy_entry</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>bps_tree_arg_t<sp/>struct<sp/>key_def<sp/>*</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BPS_TREE_IS_IDENTICAL(a,<sp/>b)<sp/>vy_entry_is_equal(a-&gt;entry,<sp/>b-&gt;entry)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;salad/bps_tree.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>BPS_TREE_NAME</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>BPS_TREE_BLOCK_SIZE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>BPS_TREE_EXTENT_SIZE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>BPS_TREE_COMPARE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>BPS_TREE_COMPARE_KEY</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>bps_tree_elem_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>bps_tree_key_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>bps_tree_arg_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>BPS_TREE_IS_IDENTICAL</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117" refid="structvy__cache__env" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__cache__env" kindref="compound">vy_cache_env</ref><sp/>{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>cache_lru;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmempool" kindref="compound">mempool</ref><sp/>cache_node_mempool;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>mem_used;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>mem_quota;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal">vy_cache_env_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__cache__env" kindref="compound">vy_cache_env</ref><sp/>*env,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>*<ref refid="structslab__cache" kindref="compound">slab_cache</ref>);</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal">vy_cache_env_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__cache__env" kindref="compound">vy_cache_env</ref><sp/>*e);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal">vy_cache_env_set_quota(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__cache__env" kindref="compound">vy_cache_env</ref><sp/>*e,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structquota" kindref="compound">quota</ref>);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157" refid="structvy__cache" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__cache" kindref="compound">vy_cache</ref><sp/>{</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structkey__def" kindref="compound">key_def</ref><sp/>*cmp_def;</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_primary;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Tree<sp/>of<sp/>cache<sp/>entries<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">vy_cache_tree<sp/>cache_tree;</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>The<sp/>vesrion<sp/>of<sp/>state<sp/>of<sp/>cache_tree.<sp/>Increments<sp/>on<sp/>every<sp/>change<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>version;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Saved<sp/>pointer<sp/>to<sp/>common<sp/>cache<sp/>environment<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__cache__env" kindref="compound">vy_cache_env</ref><sp/>*env;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Cache<sp/>statistics.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__cache__stat" kindref="compound">vy_cache_stat</ref><sp/>stat;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal">vy_cache_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__cache" kindref="compound">vy_cache</ref><sp/>*cache,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__cache__env" kindref="compound">vy_cache_env</ref><sp/>*env,</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structkey__def" kindref="compound">key_def</ref><sp/>*cmp_def,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_primary);</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal">vy_cache_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__cache" kindref="compound">vy_cache</ref><sp/>*cache);</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal">vy_cache_add(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__cache" kindref="compound">vy_cache</ref><sp/>*cache,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>curr,</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>prev,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>key,</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>iterator_type<sp/>order);</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__entry" kindref="compound">vy_entry</ref></highlight></codeline>
+<codeline lineno="213"><highlight class="normal">vy_cache_get(struct<sp/>vy_cache<sp/>*cache,<sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>key);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="222"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal">vy_cache_on_write(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vy_cache<sp/>*cache,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>entry,</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>*deleted);</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230" refid="structvy__cache__iterator" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__cache__iterator" kindref="compound">vy_cache_iterator</ref><sp/>{</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>The<sp/>cache<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">vy_cache<sp/>*cache;</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>iterator_type<sp/>iterator_type;</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Search<sp/>key<sp/>data<sp/>in<sp/>terms<sp/>of<sp/>vinyl,<sp/>vy_entry_compare<sp/>argument<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>key;</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>LSN<sp/>visibility,<sp/>iterator<sp/>shows<sp/>values<sp/>with<sp/>lsn<sp/>&lt;=<sp/>vlsn<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__read__view" kindref="compound">vy_read_view</ref><sp/>**read_view;</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>State<sp/>of<sp/>iterator<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Current<sp/>position<sp/>in<sp/>tree<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">vy_cache_tree_iterator<sp/>curr_pos;</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>stmt<sp/>in<sp/>current<sp/>position<sp/>in<sp/>tree<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>curr;</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Last<sp/>version<sp/>of<sp/>cache<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>version;</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Is<sp/>false<sp/>until<sp/>first<sp/>.._get<sp/>or<sp/>.._next_..<sp/>method<sp/>is<sp/>called<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>search_started;</highlight></codeline>
+<codeline lineno="255"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"></highlight></codeline>
+<codeline lineno="265"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="normal">vy_cache_iterator_open(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__cache__iterator" kindref="compound">vy_cache_iterator</ref><sp/>*itr,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vy_cache<sp/>*cache,</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>iterator_type<sp/>iterator_type,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>key,</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__view" kindref="compound">vy_read_view</ref><sp/>**rv);</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight></codeline>
+<codeline lineno="278"><highlight class="normal">NODISCARD<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="279"><highlight class="normal">vy_cache_iterator_next(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__cache__iterator" kindref="compound">vy_cache_iterator</ref><sp/>*itr,</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__history" kindref="compound">vy_history</ref><sp/>*history,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>*stop);</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"></highlight></codeline>
+<codeline lineno="287"><highlight class="normal">NODISCARD<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="288"><highlight class="normal">vy_cache_iterator_skip(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__cache__iterator" kindref="compound">vy_cache_iterator</ref><sp/>*itr,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>last,</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__history" kindref="compound">vy_history</ref><sp/>*history,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>*stop);</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"></highlight></codeline>
+<codeline lineno="297"><highlight class="normal">NODISCARD<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="298"><highlight class="normal">vy_cache_iterator_restore(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__cache__iterator" kindref="compound">vy_cache_iterator</ref><sp/>*itr,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>last,</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__history" kindref="compound">vy_history</ref><sp/>*history,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>*stop);</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"></highlight></codeline>
+<codeline lineno="304"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="305"><highlight class="normal">vy_cache_iterator_close(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__cache__iterator" kindref="compound">vy_cache_iterator</ref><sp/>*itr);</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"></highlight></codeline>
+<codeline lineno="307"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="308"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>{<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="309"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="310"><highlight class="normal"></highlight></codeline>
+<codeline lineno="311"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>INCLUDES_TARANTOOL_BOX_VY_CACHE_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/vy_cache.h"/>
+  </compounddef>
+</doxygen>

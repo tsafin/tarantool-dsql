@@ -1,0 +1,93 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structxlog__meta" kind="struct" language="C++" prot="public">
+    <compoundname>xlog_meta</compoundname>
+    <includes local="no">xlog.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structxlog__meta_1a22fe34ae789939cd8a9247146ec593bb" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char xlog_meta::filetype[10]</definition>
+        <argsstring>[10]</argsstring>
+        <name>filetype</name>
+        <briefdescription>
+<para>Text file header: filetype. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="294" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="294" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxlog__meta_1abcfbf7aaef434f131623f92eb20f18b5" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref></type>
+        <definition>struct tt_uuid xlog_meta::instance_uuid</definition>
+        <argsstring></argsstring>
+        <name>instance_uuid</name>
+        <briefdescription>
+<para>Text file header: instance uuid. </para>        </briefdescription>
+        <detaileddescription>
+<para>We read only logs with our own uuid, to avoid situations when a DBA has manually moved a few logs around and messed the data directory up. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="294" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="301" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxlog__meta_1a1aea9573f2987e76d71b5c0146584bc6" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvclock" kindref="compound">vclock</ref></type>
+        <definition>struct vclock xlog_meta::vclock</definition>
+        <argsstring></argsstring>
+        <name>vclock</name>
+        <briefdescription>
+<para>Text file header: vector clock taken at the time this file was created. </para>        </briefdescription>
+        <detaileddescription>
+<para>For WALs, this is vector clock <emphasis>at start of WAL</emphasis>, for snapshots, this is vector clock <emphasis>at the time the snapshot is taken</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="294" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="308" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxlog__meta_1a9eabfd8e65c3bdcda672060a105d72ea" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvclock" kindref="compound">vclock</ref></type>
+        <definition>struct vclock xlog_meta::prev_vclock</definition>
+        <argsstring></argsstring>
+        <name>prev_vclock</name>
+        <briefdescription>
+<para>Text file header: vector clock of the previous file at the directory. </para>        </briefdescription>
+        <detaileddescription>
+<para>Used for checking the directory for missing WALs. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="294" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="314" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A xlog meta info. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="17964">
+        <label>xlog_meta</label>
+        <link refid="structxlog__meta"/>
+        <childnode refid="17965" relation="usage">
+          <edgelabel>instance_uuid</edgelabel>
+        </childnode>
+        <childnode refid="17966" relation="usage">
+          <edgelabel>vclock</edgelabel>
+          <edgelabel>prev_vclock</edgelabel>
+        </childnode>
+      </node>
+      <node id="17966">
+        <label>vclock</label>
+        <link refid="structvclock"/>
+      </node>
+      <node id="17965">
+        <label>tt_uuid</label>
+        <link refid="structtt__uuid"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/xlog.h" line="292" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="292" bodyend="315"/>
+    <listofallmembers>
+      <member refid="structxlog__meta_1a22fe34ae789939cd8a9247146ec593bb" prot="public" virt="non-virtual"><scope>xlog_meta</scope><name>filetype</name></member>
+      <member refid="structxlog__meta_1abcfbf7aaef434f131623f92eb20f18b5" prot="public" virt="non-virtual"><scope>xlog_meta</scope><name>instance_uuid</name></member>
+      <member refid="structxlog__meta_1a9eabfd8e65c3bdcda672060a105d72ea" prot="public" virt="non-virtual"><scope>xlog_meta</scope><name>prev_vclock</name></member>
+      <member refid="structxlog__meta_1a1aea9573f2987e76d71b5c0146584bc6" prot="public" virt="non-virtual"><scope>xlog_meta</scope><name>vclock</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

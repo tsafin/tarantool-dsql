@@ -1,0 +1,151 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structtuple__format__iterator__entry" kind="struct" language="C++" prot="public">
+    <compoundname>tuple_format_iterator_entry</compoundname>
+    <includes local="no">tuple_format.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structtuple__format__iterator__entry_1a178390640adff68315c0972b546c1e6c" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* tuple_format_iterator_entry::data</definition>
+        <argsstring></argsstring>
+        <name>data</name>
+        <briefdescription>
+<para>Pointer to the tuple field data. </para>        </briefdescription>
+        <detaileddescription>
+<para>NULL if EOF. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="514" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="514" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format__iterator__entry_1a980795f7b11b577552c68c6b434103ae" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* tuple_format_iterator_entry::data_end</definition>
+        <argsstring></argsstring>
+        <name>data_end</name>
+        <briefdescription>
+<para>Pointer to the end of tuple field data. </para>        </briefdescription>
+        <detaileddescription>
+<para>Is defined only for leaf fields (json_token_is_leaf(&amp;field-&gt;token) == true). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="520" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="520" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format__iterator__entry_1a2edb95e226d58bde46077995c7350ca5" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtuple__field" kindref="compound">tuple_field</ref> *</type>
+        <definition>struct tuple_field* tuple_format_iterator_entry::field</definition>
+        <argsstring></argsstring>
+        <name>field</name>
+        <briefdescription>
+<para>Format field metadata that represents the data field. </para>        </briefdescription>
+        <detaileddescription>
+<para>May be NULL if the field isn&apos;t present in the format.</para><para>(All child entries of an array are returned present in the format, no matter formatted or not) </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="528" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="528" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format__iterator__entry_1a35b738e8765773dfb7a91af3e0f1e5c8" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtuple__field" kindref="compound">tuple_field</ref> *</type>
+        <definition>struct tuple_field* tuple_format_iterator_entry::parent</definition>
+        <argsstring></argsstring>
+        <name>parent</name>
+        <briefdescription>
+<para>Format parent field metadata. </para>        </briefdescription>
+        <detaileddescription>
+<para>NULL for top-level fields. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="533" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="533" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format__iterator__entry_1ab2bbadf4680f265f7775dda1dbe406c4" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tuple_format_iterator_entry::count</definition>
+        <argsstring></argsstring>
+        <name>count</name>
+        <briefdescription>
+<para>Number of child entries of the analyzed field that has container type. </para>        </briefdescription>
+        <detaileddescription>
+<para>Is defined for intermediate fields. (field-&gt;type in FIELD_TYPE_ARRAY, FIELD_TYPE_MAP). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="539" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="539" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format__iterator__entry_1a647a00ff70082dff5c9e3342332729bb" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tuple_format_iterator_entry::multikey_count</definition>
+        <argsstring></argsstring>
+        <name>multikey_count</name>
+        <briefdescription>
+<para>Number of multikey items. </para>        </briefdescription>
+        <detaileddescription>
+<para>Is defined when iterator is positioned on tuple field is related to format&apos;s multikey subtree (there was a parent field1 that json_token_is_multikey(&amp;field1-&gt;token) == true) </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="546" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="546" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format__iterator__entry_1af79bb02b8f4a73ae3df50da424254e96" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int tuple_format_iterator_entry::multikey_idx</definition>
+        <argsstring></argsstring>
+        <name>multikey_idx</name>
+        <briefdescription>
+<para>Index of the key in the multikey array. </para>        </briefdescription>
+        <detaileddescription>
+<para>Is defined when multikey_count is defined. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="551" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="551" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Tuple format iterator next method&apos;s returning entry. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="11026">
+        <label>json_token</label>
+        <link refid="structjson__token"/>
+        <childnode refid="11026" relation="usage">
+          <edgelabel>parent</edgelabel>
+          <edgelabel>children</edgelabel>
+        </childnode>
+      </node>
+      <node id="11024">
+        <label>tuple_format_iterator_entry</label>
+        <link refid="structtuple__format__iterator__entry"/>
+        <childnode refid="11025" relation="usage">
+          <edgelabel>field</edgelabel>
+          <edgelabel>parent</edgelabel>
+        </childnode>
+      </node>
+      <node id="11025">
+        <label>tuple_field</label>
+        <link refid="structtuple__field"/>
+        <childnode refid="11026" relation="usage">
+          <edgelabel>token</edgelabel>
+        </childnode>
+        <childnode refid="11027" relation="usage">
+          <edgelabel>coll</edgelabel>
+        </childnode>
+      </node>
+      <node id="11027">
+        <label>coll</label>
+        <link refid="structcoll"/>
+        <childnode refid="11027" relation="usage">
+          <edgelabel>cmp</edgelabel>
+          <edgelabel>hint</edgelabel>
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="512" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="512" bodyend="552"/>
+    <listofallmembers>
+      <member refid="structtuple__format__iterator__entry_1ab2bbadf4680f265f7775dda1dbe406c4" prot="public" virt="non-virtual"><scope>tuple_format_iterator_entry</scope><name>count</name></member>
+      <member refid="structtuple__format__iterator__entry_1a178390640adff68315c0972b546c1e6c" prot="public" virt="non-virtual"><scope>tuple_format_iterator_entry</scope><name>data</name></member>
+      <member refid="structtuple__format__iterator__entry_1a980795f7b11b577552c68c6b434103ae" prot="public" virt="non-virtual"><scope>tuple_format_iterator_entry</scope><name>data_end</name></member>
+      <member refid="structtuple__format__iterator__entry_1a2edb95e226d58bde46077995c7350ca5" prot="public" virt="non-virtual"><scope>tuple_format_iterator_entry</scope><name>field</name></member>
+      <member refid="structtuple__format__iterator__entry_1a647a00ff70082dff5c9e3342332729bb" prot="public" virt="non-virtual"><scope>tuple_format_iterator_entry</scope><name>multikey_count</name></member>
+      <member refid="structtuple__format__iterator__entry_1af79bb02b8f4a73ae3df50da424254e96" prot="public" virt="non-virtual"><scope>tuple_format_iterator_entry</scope><name>multikey_idx</name></member>
+      <member refid="structtuple__format__iterator__entry_1a35b738e8765773dfb7a91af3e0f1e5c8" prot="public" virt="non-virtual"><scope>tuple_format_iterator_entry</scope><name>parent</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

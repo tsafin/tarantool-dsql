@@ -1,0 +1,1207 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structmemtx__engine" kind="struct" language="C++" prot="public">
+    <compoundname>memtx_engine</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structmemtx__engine_1a408058916b27ab82cff6dd70d808d7dc" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structengine" kindref="compound">engine</ref></type>
+        <definition>struct engine memtx_engine::base</definition>
+        <argsstring></argsstring>
+        <name>base</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="290" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__engine_1a777a467390d1892322a902eb14be3ca4" prot="public" static="no" mutable="no">
+        <type>enum memtx_recovery_state</type>
+        <definition>enum memtx_recovery_state memtx_engine::state</definition>
+        <argsstring></argsstring>
+        <name>state</name>
+        <briefdescription>
+<para>Engine recovery state. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="290" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__engine_1a6b67ad4d5c361db8faedf9552cefa363" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcheckpoint" kindref="compound">checkpoint</ref> *</type>
+        <definition>struct checkpoint* memtx_engine::checkpoint</definition>
+        <argsstring></argsstring>
+        <name>checkpoint</name>
+        <briefdescription>
+<para>Non-zero if there is a checkpoint (snapshot) in progress. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="115" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__engine_1a8a4fd399703bf9527c45e6156928d629" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structxdir" kindref="compound">xdir</ref></type>
+        <definition>struct xdir memtx_engine::snap_dir</definition>
+        <argsstring></argsstring>
+        <name>snap_dir</name>
+        <briefdescription>
+<para>The directory where to store snapshots. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="115" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="117" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__engine_1a6260d949f95e7a3a26b1367c6b5be2d8" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t memtx_engine::snap_io_rate_limit</definition>
+        <argsstring></argsstring>
+        <name>snap_io_rate_limit</name>
+        <briefdescription>
+<para>Limit disk usage of checkpointing (bytes per second). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="119" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="119" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__engine_1a85e993e97e28a5955b3de8e75a4ddc06" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool memtx_engine::force_recovery</definition>
+        <argsstring></argsstring>
+        <name>force_recovery</name>
+        <briefdescription>
+<para>Skip invalid snapshot records if this flag is set. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="121" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__engine_1a0411613fd02e9af40ef6fd1493613a9e" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcord" kindref="compound">cord</ref> *</type>
+        <definition>struct cord* memtx_engine::replica_join_cord</definition>
+        <argsstring></argsstring>
+        <name>replica_join_cord</name>
+        <briefdescription>
+<para>Cord being currently used to join replica. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is only needed to be able to cancel it on shutdown. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="126" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__engine_1a989af6770a61b79161154d1b91f275e1" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structquota" kindref="compound">quota</ref></type>
+        <definition>struct quota memtx_engine::quota</definition>
+        <argsstring></argsstring>
+        <name>quota</name>
+        <briefdescription>
+<para>Common quota for tuples and indexes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="126" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="128" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__engine_1a2d7f1ac4d09d4e9c9e9c8c14b222e6d8" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structslab__arena" kindref="compound">slab_arena</ref></type>
+        <definition>struct slab_arena memtx_engine::arena</definition>
+        <argsstring></argsstring>
+        <name>arena</name>
+        <briefdescription>
+<para>Common slab arena for tuples and indexes. </para>        </briefdescription>
+        <detaileddescription>
+<para>If you decide to use it for anything other than tuple_alloc or index_extent_pool, make sure this is reflected in box.slab.info(), <simplesect kind="see"><para>lua/slab.c. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="126" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="135" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__engine_1aae1da41f5c15214ef030a3ef62829021" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref></type>
+        <definition>struct slab_cache memtx_engine::slab_cache</definition>
+        <argsstring></argsstring>
+        <name>slab_cache</name>
+        <briefdescription>
+<para>Slab cache for allocating tuples. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="126" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="137" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__engine_1a3ef2f150fa5c21d2587044010698b8f9" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structsmall__alloc" kindref="compound">small_alloc</ref></type>
+        <definition>struct small_alloc memtx_engine::alloc</definition>
+        <argsstring></argsstring>
+        <name>alloc</name>
+        <briefdescription>
+<para>Tuple allocator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="126" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="139" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__engine_1a68f2125a4f9677a99f0be4b892516390" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref></type>
+        <definition>struct slab_cache memtx_engine::index_slab_cache</definition>
+        <argsstring></argsstring>
+        <name>index_slab_cache</name>
+        <briefdescription>
+<para>Slab cache for allocating index extents. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="126" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="141" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__engine_1ab71c55f686c1ed591b88df171dff8357" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmempool" kindref="compound">mempool</ref></type>
+        <definition>struct mempool memtx_engine::index_extent_pool</definition>
+        <argsstring></argsstring>
+        <name>index_extent_pool</name>
+        <briefdescription>
+<para>Index extent allocator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="126" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="143" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__engine_1a00996fcd6e11ca417a096f55a9c47ac6" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int memtx_engine::num_reserved_extents</definition>
+        <argsstring></argsstring>
+        <name>num_reserved_extents</name>
+        <briefdescription>
+<para>To ensure proper statement-level rollback in case of out of memory conditions, we maintain a number of slack memory extents reserved before a statement is begun. </para>        </briefdescription>
+        <detaileddescription>
+<para>If there isn&apos;t enough slack memory, we don&apos;t begin the statement. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="151" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="151" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__engine_1afdcd8c6580458297b7e2d68d6e337f3e" prot="public" static="no" mutable="no">
+        <type>void *</type>
+        <definition>void* memtx_engine::reserved_extents</definition>
+        <argsstring></argsstring>
+        <name>reserved_extents</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="152" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="152" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__engine_1ab2e5b64af5c383409110c65193705911" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t memtx_engine::max_tuple_size</definition>
+        <argsstring></argsstring>
+        <name>max_tuple_size</name>
+        <briefdescription>
+<para>Maximal allowed tuple size, box.cfg.memtx_max_tuple_size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="154" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="154" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__engine_1a7c4bd7189b8239d600f46f66fece812a" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t memtx_engine::snapshot_version</definition>
+        <argsstring></argsstring>
+        <name>snapshot_version</name>
+        <briefdescription>
+<para>Incremented with each next snapshot. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="156" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="156" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__engine_1a9a6ad73c2bb050cab371add5f678bcf2" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t memtx_engine::delayed_free_mode</definition>
+        <argsstring></argsstring>
+        <name>delayed_free_mode</name>
+        <briefdescription>
+<para>Unless zero, freeing of tuples allocated before the last call to memtx_enter_delayed_free_mode() is delayed until memtx_leave_delayed_free_mode() is called. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="162" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="162" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__engine_1aac8aae8f6c46acf2fd3f09c6f8751fc7" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmempool" kindref="compound">mempool</ref></type>
+        <definition>struct mempool memtx_engine::rtree_iterator_pool</definition>
+        <argsstring></argsstring>
+        <name>rtree_iterator_pool</name>
+        <briefdescription>
+<para>Memory pool for rtree index iterator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="162" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="164" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__engine_1a05d8ea2aa44822d324b90c3ef8dff3c3" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmempool" kindref="compound">mempool</ref></type>
+        <definition>struct mempool memtx_engine::iterator_pool</definition>
+        <argsstring></argsstring>
+        <name>iterator_pool</name>
+        <briefdescription>
+<para>Memory pool for all index iterators except rtree. </para>        </briefdescription>
+        <detaileddescription>
+<para>The latter is significantly larger so it has its own memory pool. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="162" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="170" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__engine_1a29a8ed80e0b40cc9d1bd1aa095778479" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfiber" kindref="compound">fiber</ref> *</type>
+        <definition>struct fiber* memtx_engine::gc_fiber</definition>
+        <argsstring></argsstring>
+        <name>gc_fiber</name>
+        <briefdescription>
+<para>Garbage collection fiber. </para>        </briefdescription>
+        <detaileddescription>
+<para>Used for asynchronous destruction of dropped indexes. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="175" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="175" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__engine_1a007a07711ee70d768830d451c05d92e9" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structstailq" kindref="compound">stailq</ref></type>
+        <definition>struct stailq memtx_engine::gc_queue</definition>
+        <argsstring></argsstring>
+        <name>gc_queue</name>
+        <briefdescription>
+<para>Scheduled garbage collection tasks, linked by <ref refid="structmemtx__gc__task_1a637292faed4361f899c456394cf1a904" kindref="member">memtx_gc_task::link</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="175" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="180" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="5160">
+        <label>serializer_opts</label>
+        <link refid="structserializer__opts"/>
+      </node>
+      <node id="5146">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="5136">
+        <label>json_tree</label>
+        <link refid="structjson__tree"/>
+        <childnode refid="5137" relation="usage">
+          <edgelabel>root</edgelabel>
+        </childnode>
+      </node>
+      <node id="5109">
+        <label>ExprList</label>
+        <link refid="structExprList"/>
+        <childnode refid="5110" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="5120">
+        <label>index_stat</label>
+        <link refid="structindex__stat"/>
+        <childnode refid="5121" relation="usage">
+          <edgelabel>samples</edgelabel>
+        </childnode>
+      </node>
+      <node id="5133">
+        <label>iterator</label>
+        <link refid="structiterator"/>
+        <childnode refid="5130" relation="usage">
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="5155">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="5155" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="5156">
+        <label>region</label>
+        <link refid="structregion"/>
+        <childnode refid="5145" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="5148" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="5124">
+        <label>key_part</label>
+        <link refid="structkey__part"/>
+        <childnode refid="5125" relation="usage">
+          <edgelabel>coll</edgelabel>
+        </childnode>
+      </node>
+      <node id="5142">
+        <label>mempool</label>
+        <link refid="structmempool"/>
+        <childnode refid="5143" relation="usage">
+          <edgelabel>spare</edgelabel>
+          <edgelabel>first_hot_slab</edgelabel>
+        </childnode>
+        <childnode refid="5145" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="5147" relation="usage">
+          <edgelabel>link</edgelabel>
+          <edgelabel>delayed</edgelabel>
+        </childnode>
+        <childnode refid="5108" relation="usage">
+          <edgelabel>cold_slabs</edgelabel>
+        </childnode>
+        <childnode refid="5148" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="5121">
+        <label>index_sample</label>
+        <link refid="structindex__sample"/>
+      </node>
+      <node id="5161">
+        <label>session_vtab</label>
+        <link refid="structsession__vtab"/>
+      </node>
+      <node id="5128">
+        <label>TriggerStep</label>
+        <link refid="structTriggerStep"/>
+        <childnode refid="5128" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pLast</edgelabel>
+        </childnode>
+        <childnode refid="5098" relation="usage">
+          <edgelabel>pWhere</edgelabel>
+        </childnode>
+        <childnode refid="5116" relation="usage">
+          <edgelabel>pIdList</edgelabel>
+        </childnode>
+        <childnode refid="5111" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="5109" relation="usage">
+          <edgelabel>pExprList</edgelabel>
+        </childnode>
+      </node>
+      <node id="5163">
+        <label>diag</label>
+        <link refid="structdiag"/>
+      </node>
+      <node id="5137">
+        <label>json_token</label>
+        <link refid="structjson__token"/>
+        <childnode refid="5137" relation="usage">
+          <edgelabel>parent</edgelabel>
+          <edgelabel>children</edgelabel>
+        </childnode>
+      </node>
+      <node id="5157">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="5155" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="5103">
+        <label>access</label>
+        <link refid="structaccess"/>
+      </node>
+      <node id="5166">
+        <label>xdir</label>
+        <link refid="structxdir"/>
+        <childnode refid="5167" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+        <childnode refid="5168" relation="usage">
+          <edgelabel>instance_uuid</edgelabel>
+        </childnode>
+      </node>
+      <node id="5115">
+        <label>SrcList::SrcList_item</label>
+        <link refid="structSrcList_1_1SrcList__item"/>
+        <childnode refid="5094" relation="usage">
+          <edgelabel>space</edgelabel>
+        </childnode>
+        <childnode refid="5098" relation="usage">
+          <edgelabel>pOn</edgelabel>
+        </childnode>
+        <childnode refid="5116" relation="usage">
+          <edgelabel>pUsing</edgelabel>
+        </childnode>
+        <childnode refid="5118" relation="usage">
+          <edgelabel>pIBIndex</edgelabel>
+        </childnode>
+        <childnode refid="5111" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="5109" relation="usage">
+          <edgelabel>pFuncArg</edgelabel>
+        </childnode>
+      </node>
+      <node id="5113">
+        <label>With::Cte</label>
+        <link refid="structWith_1_1Cte"/>
+        <childnode refid="5111" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="5109" relation="usage">
+          <edgelabel>pCols</edgelabel>
+        </childnode>
+      </node>
+      <node id="5111">
+        <label>Select</label>
+        <link refid="structSelect"/>
+        <childnode refid="5098" relation="usage">
+          <edgelabel>pOffset</edgelabel>
+          <edgelabel>pHaving</edgelabel>
+          <edgelabel>pWhere</edgelabel>
+          <edgelabel>pLimit</edgelabel>
+        </childnode>
+        <childnode refid="5112" relation="usage">
+          <edgelabel>pWith</edgelabel>
+        </childnode>
+        <childnode refid="5111" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pPrior</edgelabel>
+        </childnode>
+        <childnode refid="5114" relation="usage">
+          <edgelabel>pSrc</edgelabel>
+        </childnode>
+        <childnode refid="5109" relation="usage">
+          <edgelabel>pEList</edgelabel>
+          <edgelabel>pOrderBy</edgelabel>
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="5107">
+        <label>credentials</label>
+        <link refid="structcredentials"/>
+        <childnode refid="5108" relation="usage">
+          <edgelabel>in_user</edgelabel>
+        </childnode>
+      </node>
+      <node id="5093">
+        <label>engine_vtab</label>
+        <link refid="structengine__vtab"/>
+        <childnode refid="5094" relation="usage">
+          <edgelabel>create_space</edgelabel>
+        </childnode>
+      </node>
+      <node id="5094">
+        <label>space</label>
+        <link refid="structspace"/>
+        <childnode refid="5095" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="5092" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="5127" relation="usage">
+          <edgelabel>sql_triggers</edgelabel>
+        </childnode>
+        <childnode refid="5103" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="5129" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="5134" relation="usage">
+          <edgelabel>format</edgelabel>
+        </childnode>
+        <childnode refid="5138" relation="usage">
+          <edgelabel>ck_constraint_trigger</edgelabel>
+        </childnode>
+        <childnode refid="5108" relation="usage">
+          <edgelabel>before_replace</edgelabel>
+          <edgelabel>on_replace</edgelabel>
+          <edgelabel>child_fk_constraint</edgelabel>
+          <edgelabel>memtx_stories</edgelabel>
+          <edgelabel>parent_fk_constraint</edgelabel>
+          <edgelabel>ck_constraint</edgelabel>
+        </childnode>
+        <childnode refid="5139" relation="usage">
+          <edgelabel>sequence</edgelabel>
+        </childnode>
+        <childnode refid="5130" relation="usage">
+          <edgelabel>index_map</edgelabel>
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="5162">
+        <label>clock_stat</label>
+        <link refid="structclock__stat"/>
+      </node>
+      <node id="5100">
+        <label>AggInfo::AggInfo_col</label>
+        <link refid="structAggInfo_1_1AggInfo__col"/>
+        <childnode refid="5095" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="5098" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="5131">
+        <label>index_vtab</label>
+        <link refid="structindex__vtab"/>
+        <childnode refid="5132" relation="usage">
+          <edgelabel>create_snapshot_iterator</edgelabel>
+        </childnode>
+        <childnode refid="5133" relation="usage">
+          <edgelabel>create_iterator</edgelabel>
+        </childnode>
+      </node>
+      <node id="5096">
+        <label>tuple_dictionary</label>
+        <link refid="structtuple__dictionary"/>
+      </node>
+      <node id="5098">
+        <label>Expr</label>
+        <link refid="structExpr"/>
+        <childnode refid="5095" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="5099" relation="usage">
+          <edgelabel>pAggInfo</edgelabel>
+        </childnode>
+        <childnode refid="5098" relation="usage">
+          <edgelabel>pRight</edgelabel>
+          <edgelabel>pLeft</edgelabel>
+        </childnode>
+        <childnode refid="5111" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="5109" relation="usage">
+          <edgelabel>pList</edgelabel>
+        </childnode>
+      </node>
+      <node id="5154">
+        <label>txn</label>
+        <link refid="structtxn"/>
+        <childnode refid="5092" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="5155" relation="usage">
+          <edgelabel>in_txn_cache</edgelabel>
+          <edgelabel>sub_stmt_begin</edgelabel>
+        </childnode>
+        <childnode refid="5156" relation="usage">
+          <edgelabel>region</edgelabel>
+        </childnode>
+        <childnode refid="5153" relation="usage">
+          <edgelabel>fiber</edgelabel>
+        </childnode>
+        <childnode refid="5138" relation="usage">
+          <edgelabel>fiber_on_stop</edgelabel>
+          <edgelabel>fiber_on_yield</edgelabel>
+        </childnode>
+        <childnode refid="5108" relation="usage">
+          <edgelabel>on_wal_write</edgelabel>
+          <edgelabel>read_set</edgelabel>
+          <edgelabel>conflict_list</edgelabel>
+          <edgelabel>in_read_view_txs</edgelabel>
+          <edgelabel>savepoints</edgelabel>
+          <edgelabel>conflicted_by_list</edgelabel>
+        </childnode>
+        <childnode refid="5157" relation="usage">
+          <edgelabel>stmts</edgelabel>
+        </childnode>
+      </node>
+      <node id="5099">
+        <label>AggInfo</label>
+        <link refid="structAggInfo"/>
+        <childnode refid="5100" relation="usage">
+          <edgelabel>aCol</edgelabel>
+        </childnode>
+        <childnode refid="5101" relation="usage">
+          <edgelabel>aFunc</edgelabel>
+        </childnode>
+        <childnode refid="5109" relation="usage">
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="5108">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="5108" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="5132">
+        <label>snapshot_iterator</label>
+        <link refid="structsnapshot__iterator"/>
+      </node>
+      <node id="5145">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="5146" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="5108" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="5114">
+        <label>SrcList</label>
+        <link refid="structSrcList"/>
+        <childnode refid="5115" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="5165">
+        <label>ipc_msg</label>
+        <link refid="structipc__msg"/>
+      </node>
+      <node id="5140">
+        <label>sequence_def</label>
+        <link refid="structsequence__def"/>
+      </node>
+      <node id="5116">
+        <label>IdList</label>
+        <link refid="structIdList"/>
+        <childnode refid="5117" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="5169">
+        <label>checkpoint</label>
+        <link refid="structcheckpoint"/>
+        <childnode refid="5170" relation="usage">
+          <edgelabel>raft</edgelabel>
+        </childnode>
+        <childnode refid="5166" relation="usage">
+          <edgelabel>dir</edgelabel>
+        </childnode>
+        <childnode refid="5171" relation="usage">
+          <edgelabel>vclock</edgelabel>
+        </childnode>
+        <childnode refid="5108" relation="usage">
+          <edgelabel>entries</edgelabel>
+        </childnode>
+        <childnode refid="5172" relation="usage">
+          <edgelabel>cord</edgelabel>
+        </childnode>
+      </node>
+      <node id="5130">
+        <label>index</label>
+        <link refid="structindex"/>
+        <childnode refid="5092" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="5131" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="5118" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="5139">
+        <label>sequence</label>
+        <link refid="structsequence"/>
+        <childnode refid="5103" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="5140" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="5097">
+        <label>field_def</label>
+        <link refid="structfield__def"/>
+        <childnode refid="5098" relation="usage">
+          <edgelabel>default_value_expr</edgelabel>
+        </childnode>
+      </node>
+      <node id="5122">
+        <label>key_def</label>
+        <link refid="structkey__def"/>
+        <childnode refid="5123" relation="usage">
+          <edgelabel>tuple_hash</edgelabel>
+          <edgelabel>tuple_compare_with_key</edgelabel>
+          <edgelabel>tuple_compare</edgelabel>
+          <edgelabel>tuple_hint</edgelabel>
+          <edgelabel>tuple_extract_key</edgelabel>
+        </childnode>
+        <childnode refid="5122" relation="usage">
+          <edgelabel>key_hash</edgelabel>
+          <edgelabel>tuple_extract_key_raw</edgelabel>
+          <edgelabel>key_hint</edgelabel>
+        </childnode>
+        <childnode refid="5102" relation="usage">
+          <edgelabel>func_index_func</edgelabel>
+        </childnode>
+        <childnode refid="5124" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="5138">
+        <label>trigger</label>
+        <link refid="structtrigger"/>
+        <childnode refid="5138" relation="usage">
+          <edgelabel>run</edgelabel>
+          <edgelabel>destroy</edgelabel>
+        </childnode>
+        <childnode refid="5108" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="5123">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="5150">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="5118">
+        <label>index_def</label>
+        <link refid="structindex__def"/>
+        <childnode refid="5119" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+        <childnode refid="5122" relation="usage">
+          <edgelabel>key_def</edgelabel>
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="5108" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="5126">
+        <label>space_opts</label>
+        <link refid="structspace__opts"/>
+      </node>
+      <node id="5143">
+        <label>mslab</label>
+        <link refid="structmslab"/>
+        <childnode refid="5108" relation="usage">
+          <edgelabel>next_in_cold</edgelabel>
+        </childnode>
+        <childnode refid="5144" relation="usage">
+          <edgelabel>slab</edgelabel>
+        </childnode>
+      </node>
+      <node id="5102">
+        <label>func</label>
+        <link refid="structfunc"/>
+        <childnode refid="5103" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="5104" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="5105" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="5107" relation="usage">
+          <edgelabel>owner_credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="5104">
+        <label>func_vtab</label>
+        <link refid="structfunc__vtab"/>
+      </node>
+      <node id="5127">
+        <label>sql_trigger</label>
+        <link refid="structsql__trigger"/>
+        <childnode refid="5128" relation="usage">
+          <edgelabel>step_list</edgelabel>
+        </childnode>
+        <childnode refid="5098" relation="usage">
+          <edgelabel>pWhen</edgelabel>
+        </childnode>
+        <childnode refid="5127" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="5116" relation="usage">
+          <edgelabel>pColumns</edgelabel>
+        </childnode>
+      </node>
+      <node id="5151">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="5149">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="5150" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="5151" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="5106">
+        <label>func_opts</label>
+        <link refid="structfunc__opts"/>
+      </node>
+      <node id="5167">
+        <label>xlog_opts</label>
+        <link refid="structxlog__opts"/>
+      </node>
+      <node id="5148">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="5145" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="5149" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="5135">
+        <label>tuple_format_vtab</label>
+        <link refid="structtuple__format__vtab"/>
+        <childnode refid="5123" relation="usage">
+          <edgelabel>tuple_new</edgelabel>
+        </childnode>
+      </node>
+      <node id="5134">
+        <label>tuple_format</label>
+        <link refid="structtuple__format"/>
+        <childnode refid="5096" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="5135" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="5136" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+      </node>
+      <node id="5105">
+        <label>func_def</label>
+        <link refid="structfunc__def"/>
+        <childnode refid="5106" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="5091">
+        <label>memtx_engine</label>
+        <link refid="structmemtx__engine"/>
+        <childnode refid="5092" relation="usage">
+          <edgelabel>base</edgelabel>
+        </childnode>
+        <childnode refid="5141" relation="usage">
+          <edgelabel>alloc</edgelabel>
+        </childnode>
+        <childnode refid="5150" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="5142" relation="usage">
+          <edgelabel>index_extent_pool</edgelabel>
+          <edgelabel>iterator_pool</edgelabel>
+          <edgelabel>rtree_iterator_pool</edgelabel>
+        </childnode>
+        <childnode refid="5153" relation="usage">
+          <edgelabel>gc_fiber</edgelabel>
+        </childnode>
+        <childnode refid="5166" relation="usage">
+          <edgelabel>snap_dir</edgelabel>
+        </childnode>
+        <childnode refid="5169" relation="usage">
+          <edgelabel>checkpoint</edgelabel>
+        </childnode>
+        <childnode refid="5149" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+        <childnode refid="5148" relation="usage">
+          <edgelabel>slab_cache</edgelabel>
+          <edgelabel>index_slab_cache</edgelabel>
+        </childnode>
+        <childnode refid="5157" relation="usage">
+          <edgelabel>gc_queue</edgelabel>
+        </childnode>
+        <childnode refid="5172" relation="usage">
+          <edgelabel>replica_join_cord</edgelabel>
+        </childnode>
+      </node>
+      <node id="5170">
+        <label>raft_request</label>
+        <link refid="structraft__request"/>
+        <childnode refid="5171" relation="usage">
+          <edgelabel>vclock</edgelabel>
+        </childnode>
+      </node>
+      <node id="5112">
+        <label>With</label>
+        <link refid="structWith"/>
+        <childnode refid="5113" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+        <childnode refid="5112" relation="usage">
+          <edgelabel>pOuter</edgelabel>
+        </childnode>
+      </node>
+      <node id="5171">
+        <label>vclock</label>
+        <link refid="structvclock"/>
+      </node>
+      <node id="5095">
+        <label>space_def</label>
+        <link refid="structspace__def"/>
+        <childnode refid="5096" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="5097" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+        <childnode refid="5126" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="5152">
+        <label>factor_pool</label>
+        <link refid="structfactor__pool"/>
+        <childnode refid="5142" relation="usage">
+          <edgelabel>pool</edgelabel>
+        </childnode>
+        <childnode refid="5152" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="5147">
+        <label>lifo</label>
+        <link refid="structlifo"/>
+      </node>
+      <node id="5092">
+        <label>engine</label>
+        <link refid="structengine"/>
+        <childnode refid="5093" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="5108" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="5173">
+        <label>cpu_stat</label>
+        <link refid="structcpu__stat"/>
+      </node>
+      <node id="5168">
+        <label>tt_uuid</label>
+        <link refid="structtt__uuid"/>
+      </node>
+      <node id="5117">
+        <label>IdList::IdList_item</label>
+        <link refid="structIdList_1_1IdList__item"/>
+      </node>
+      <node id="5164">
+        <label>ipc_wait_pad</label>
+        <link refid="structipc__wait__pad"/>
+        <childnode refid="5165" relation="usage">
+          <edgelabel>msg</edgelabel>
+        </childnode>
+      </node>
+      <node id="5153">
+        <label>fiber</label>
+        <link refid="structfiber"/>
+        <childnode refid="5154" relation="usage">
+          <edgelabel>txn</edgelabel>
+        </childnode>
+        <childnode refid="5156" relation="usage">
+          <edgelabel>gc</edgelabel>
+        </childnode>
+        <childnode refid="5153" relation="usage">
+          <edgelabel>caller</edgelabel>
+        </childnode>
+        <childnode refid="5107" relation="usage">
+          <edgelabel>credentials</edgelabel>
+        </childnode>
+        <childnode refid="5158" relation="usage">
+          <edgelabel>session</edgelabel>
+        </childnode>
+        <childnode refid="5162" relation="usage">
+          <edgelabel>clock_stat</edgelabel>
+        </childnode>
+        <childnode refid="5108" relation="usage">
+          <edgelabel>wake</edgelabel>
+          <edgelabel>on_stop</edgelabel>
+          <edgelabel>on_yield</edgelabel>
+          <edgelabel>link</edgelabel>
+          <edgelabel>state</edgelabel>
+        </childnode>
+        <childnode refid="5163" relation="usage">
+          <edgelabel>diag</edgelabel>
+        </childnode>
+        <childnode refid="5144" relation="usage">
+          <edgelabel>stack_slab</edgelabel>
+        </childnode>
+        <childnode refid="5164" relation="usage">
+          <edgelabel>wait_pad</edgelabel>
+        </childnode>
+      </node>
+      <node id="5125">
+        <label>coll</label>
+        <link refid="structcoll"/>
+        <childnode refid="5125" relation="usage">
+          <edgelabel>cmp</edgelabel>
+          <edgelabel>hint</edgelabel>
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+      <node id="5144">
+        <label>slab</label>
+        <link refid="structslab"/>
+        <childnode refid="5108" relation="usage">
+          <edgelabel>next_in_cache</edgelabel>
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+      <node id="5159">
+        <label>session_meta</label>
+        <link refid="structsession__meta"/>
+        <childnode refid="5160" relation="usage">
+          <edgelabel>serializer_opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="5141">
+        <label>small_alloc</label>
+        <link refid="structsmall__alloc"/>
+        <childnode refid="5142" relation="usage">
+          <edgelabel>step_pools</edgelabel>
+        </childnode>
+        <childnode refid="5147" relation="usage">
+          <edgelabel>delayed_large</edgelabel>
+          <edgelabel>delayed</edgelabel>
+        </childnode>
+        <childnode refid="5152" relation="usage">
+          <edgelabel>factor_pool_next</edgelabel>
+          <edgelabel>factor_pool_cache</edgelabel>
+        </childnode>
+        <childnode refid="5148" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="5119">
+        <label>index_opts</label>
+        <link refid="structindex__opts"/>
+        <childnode refid="5120" relation="usage">
+          <edgelabel>stat</edgelabel>
+        </childnode>
+      </node>
+      <node id="5158">
+        <label>session</label>
+        <link refid="structsession"/>
+        <childnode refid="5159" relation="usage">
+          <edgelabel>meta</edgelabel>
+        </childnode>
+        <childnode refid="5161" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="5138" relation="usage">
+          <edgelabel>fiber_on_stop</edgelabel>
+        </childnode>
+        <childnode refid="5107" relation="usage">
+          <edgelabel>credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="5172">
+        <label>cord</label>
+        <link refid="structcord"/>
+        <childnode refid="5142" relation="usage">
+          <edgelabel>fiber_mempool</edgelabel>
+        </childnode>
+        <childnode refid="5173" relation="usage">
+          <edgelabel>cpu_stat</edgelabel>
+        </childnode>
+        <childnode refid="5153" relation="usage">
+          <edgelabel>sched</edgelabel>
+          <edgelabel>fiber</edgelabel>
+        </childnode>
+        <childnode refid="5162" relation="usage">
+          <edgelabel>clock_stat</edgelabel>
+        </childnode>
+        <childnode refid="5108" relation="usage">
+          <edgelabel>dead</edgelabel>
+          <edgelabel>alive</edgelabel>
+          <edgelabel>ready</edgelabel>
+        </childnode>
+        <childnode refid="5148" relation="usage">
+          <edgelabel>slabc</edgelabel>
+        </childnode>
+        <childnode refid="5174" relation="usage">
+          <edgelabel>on_exit</edgelabel>
+        </childnode>
+      </node>
+      <node id="5174">
+        <label>cord_on_exit</label>
+        <link refid="structcord__on__exit"/>
+      </node>
+      <node id="5110">
+        <label>ExprList::ExprList_item</label>
+        <link refid="structExprList_1_1ExprList__item"/>
+        <childnode refid="5098" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="5101">
+        <label>AggInfo::AggInfo_func</label>
+        <link refid="structAggInfo_1_1AggInfo__func"/>
+        <childnode refid="5098" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+        <childnode refid="5102" relation="usage">
+          <edgelabel>func</edgelabel>
+        </childnode>
+      </node>
+      <node id="5129">
+        <label>space_vtab</label>
+        <link refid="structspace__vtab"/>
+        <childnode refid="5130" relation="usage">
+          <edgelabel>create_index</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="110" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="110" bodyend="181"/>
+    <listofallmembers>
+      <member refid="structmemtx__engine_1a3ef2f150fa5c21d2587044010698b8f9" prot="public" virt="non-virtual"><scope>memtx_engine</scope><name>alloc</name></member>
+      <member refid="structmemtx__engine_1a2d7f1ac4d09d4e9c9e9c8c14b222e6d8" prot="public" virt="non-virtual"><scope>memtx_engine</scope><name>arena</name></member>
+      <member refid="structmemtx__engine_1a408058916b27ab82cff6dd70d808d7dc" prot="public" virt="non-virtual"><scope>memtx_engine</scope><name>base</name></member>
+      <member refid="structmemtx__engine_1a6b67ad4d5c361db8faedf9552cefa363" prot="public" virt="non-virtual"><scope>memtx_engine</scope><name>checkpoint</name></member>
+      <member refid="structmemtx__engine_1a9a6ad73c2bb050cab371add5f678bcf2" prot="public" virt="non-virtual"><scope>memtx_engine</scope><name>delayed_free_mode</name></member>
+      <member refid="structmemtx__engine_1a85e993e97e28a5955b3de8e75a4ddc06" prot="public" virt="non-virtual"><scope>memtx_engine</scope><name>force_recovery</name></member>
+      <member refid="structmemtx__engine_1a29a8ed80e0b40cc9d1bd1aa095778479" prot="public" virt="non-virtual"><scope>memtx_engine</scope><name>gc_fiber</name></member>
+      <member refid="structmemtx__engine_1a007a07711ee70d768830d451c05d92e9" prot="public" virt="non-virtual"><scope>memtx_engine</scope><name>gc_queue</name></member>
+      <member refid="structmemtx__engine_1ab71c55f686c1ed591b88df171dff8357" prot="public" virt="non-virtual"><scope>memtx_engine</scope><name>index_extent_pool</name></member>
+      <member refid="structmemtx__engine_1a68f2125a4f9677a99f0be4b892516390" prot="public" virt="non-virtual"><scope>memtx_engine</scope><name>index_slab_cache</name></member>
+      <member refid="structmemtx__engine_1a05d8ea2aa44822d324b90c3ef8dff3c3" prot="public" virt="non-virtual"><scope>memtx_engine</scope><name>iterator_pool</name></member>
+      <member refid="structmemtx__engine_1ab2e5b64af5c383409110c65193705911" prot="public" virt="non-virtual"><scope>memtx_engine</scope><name>max_tuple_size</name></member>
+      <member refid="structmemtx__engine_1a00996fcd6e11ca417a096f55a9c47ac6" prot="public" virt="non-virtual"><scope>memtx_engine</scope><name>num_reserved_extents</name></member>
+      <member refid="structmemtx__engine_1a989af6770a61b79161154d1b91f275e1" prot="public" virt="non-virtual"><scope>memtx_engine</scope><name>quota</name></member>
+      <member refid="structmemtx__engine_1a0411613fd02e9af40ef6fd1493613a9e" prot="public" virt="non-virtual"><scope>memtx_engine</scope><name>replica_join_cord</name></member>
+      <member refid="structmemtx__engine_1afdcd8c6580458297b7e2d68d6e337f3e" prot="public" virt="non-virtual"><scope>memtx_engine</scope><name>reserved_extents</name></member>
+      <member refid="structmemtx__engine_1aac8aae8f6c46acf2fd3f09c6f8751fc7" prot="public" virt="non-virtual"><scope>memtx_engine</scope><name>rtree_iterator_pool</name></member>
+      <member refid="structmemtx__engine_1aae1da41f5c15214ef030a3ef62829021" prot="public" virt="non-virtual"><scope>memtx_engine</scope><name>slab_cache</name></member>
+      <member refid="structmemtx__engine_1a8a4fd399703bf9527c45e6156928d629" prot="public" virt="non-virtual"><scope>memtx_engine</scope><name>snap_dir</name></member>
+      <member refid="structmemtx__engine_1a6260d949f95e7a3a26b1367c6b5be2d8" prot="public" virt="non-virtual"><scope>memtx_engine</scope><name>snap_io_rate_limit</name></member>
+      <member refid="structmemtx__engine_1a7c4bd7189b8239d600f46f66fece812a" prot="public" virt="non-virtual"><scope>memtx_engine</scope><name>snapshot_version</name></member>
+      <member refid="structmemtx__engine_1a777a467390d1892322a902eb14be3ca4" prot="public" virt="non-virtual"><scope>memtx_engine</scope><name>state</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

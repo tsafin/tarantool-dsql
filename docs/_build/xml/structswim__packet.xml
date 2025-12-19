@@ -1,0 +1,92 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structswim__packet" kind="struct" language="C++" prot="public">
+    <compoundname>swim_packet</compoundname>
+    <includes local="no">swim_io.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structswim__packet_1a72d031a9c2e6d5f6764cd7809ba00eac" prot="public" static="no" mutable="no">
+        <type>char *</type>
+        <definition>char* swim_packet::pos</definition>
+        <argsstring></argsstring>
+        <name>pos</name>
+        <briefdescription>
+<para>End of the body. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="89" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__packet_1ab9827f4ea8a575753a27b5c35f68046c" prot="public" static="no" mutable="no">
+        <type>char *</type>
+        <definition>char* swim_packet::body</definition>
+        <argsstring></argsstring>
+        <name>body</name>
+        <briefdescription>
+<para>Starting position of body in the buffer. </para>        </briefdescription>
+        <detaileddescription>
+<para>Not the same as buf, because the latter has metadata at the beginning. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="95" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__packet_1a896196b1861fa0341f57bc7bb435ec73" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char swim_packet::meta[0]</definition>
+        <argsstring>[0]</argsstring>
+        <name>meta</name>
+        <briefdescription>
+<para>Alias for <ref refid="structswim__packet_1a3fe2bdcb5cb25bc71737031e2bc8e6d5" kindref="member">swim_packet.buf</ref>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Just sugar for code working with meta. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="100" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="100" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__packet_1a3fe2bdcb5cb25bc71737031e2bc8e6d5" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char swim_packet::buf[MAX_PACKET_SIZE]</definition>
+        <argsstring>[MAX_PACKET_SIZE]</argsstring>
+        <name>buf</name>
+        <briefdescription>
+<para>Packet body buffer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="102" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__packet_1a23189165e03d8229626305e11c9cb434" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char swim_packet::end[0]</definition>
+        <argsstring>[0]</argsstring>
+        <name>end</name>
+        <briefdescription>
+<para>Pointer to the end of the buffer. </para>        </briefdescription>
+        <detaileddescription>
+<para>Just sugar to do not write &apos;buf + sizeof(buf)&apos; each time. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="107" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>UDP packet. </para>    </briefdescription>
+    <detaileddescription>
+<para>Works as an allocator, allowing to fill its body gradually, while preserving prefix for metadata. <verbatim>     &lt; - - - -MAX_PACKET_SIZE- - - - -&gt;
+     +--------+-----------------------+
+     |  meta  |    body    |  *free*  |
+     +--------+-----------------------+
+     ^        ^            ^          ^
+    meta     body         pos        end
+    buf</verbatim> </para>    </detaileddescription>
+    <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="87" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="87" bodyend="108"/>
+    <listofallmembers>
+      <member refid="structswim__packet_1ab9827f4ea8a575753a27b5c35f68046c" prot="public" virt="non-virtual"><scope>swim_packet</scope><name>body</name></member>
+      <member refid="structswim__packet_1a3fe2bdcb5cb25bc71737031e2bc8e6d5" prot="public" virt="non-virtual"><scope>swim_packet</scope><name>buf</name></member>
+      <member refid="structswim__packet_1a23189165e03d8229626305e11c9cb434" prot="public" virt="non-virtual"><scope>swim_packet</scope><name>end</name></member>
+      <member refid="structswim__packet_1a896196b1861fa0341f57bc7bb435ec73" prot="public" virt="non-virtual"><scope>swim_packet</scope><name>meta</name></member>
+      <member refid="structswim__packet_1a72d031a9c2e6d5f6764cd7809ba00eac" prot="public" virt="non-virtual"><scope>swim_packet</scope><name>pos</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

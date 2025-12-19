@@ -1,0 +1,389 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structswim__member" kind="struct" language="C++" prot="public">
+    <compoundname>swim_member</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structswim__member_1a291c91d58c2e60b3dd627113bda2dbbb" prot="public" static="no" mutable="no">
+        <type>enum swim_member_status</type>
+        <definition>enum swim_member_status swim_member::status</definition>
+        <argsstring></argsstring>
+        <name>status</name>
+        <briefdescription>
+<para>Member status. </para>        </briefdescription>
+        <detaileddescription>
+<para>Since the communication goes via UDP, actual status can be different, as well as different on other SWIM nodes. But SWIM guarantees that each member will learn a real status of an instance sometime. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="2420" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="264" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__member_1a757c3da72e9376988ea2c1117d0afafa" prot="public" static="no" mutable="no">
+        <type>struct sockaddr_in</type>
+        <definition>struct sockaddr_in swim_member::addr</definition>
+        <argsstring></argsstring>
+        <name>addr</name>
+        <briefdescription>
+<para>Address of the instance to which to send UDP packets. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="2420" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="268" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__member_1a74f8f5a5b15ebb161a2984e0d5f34ce9" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref></type>
+        <definition>struct tt_uuid swim_member::uuid</definition>
+        <argsstring></argsstring>
+        <name>uuid</name>
+        <briefdescription>
+<para>A unique identifier of the member. </para>        </briefdescription>
+        <detaileddescription>
+<para>Is used as a key in the members table. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="2420" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="273" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__member_1a19b8d667f88b05f9881024bfa14ea030" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t swim_member::hash</definition>
+        <argsstring></argsstring>
+        <name>hash</name>
+        <briefdescription>
+<para>Cached hash of the uuid for the member table lookups. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="277" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="277" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__member_1a1ca0e762ab71e378e2b6d60b4be59bd2" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist swim_member::in_round_queue</definition>
+        <argsstring></argsstring>
+        <name>in_round_queue</name>
+        <briefdescription>
+<para>Position in a queue of members in the current round. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="277" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="281" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__member_1a63ef58952454199f45d623997fb48092" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int swim_member::refs</definition>
+        <argsstring></argsstring>
+        <name>refs</name>
+        <briefdescription>
+<para>Reference counter. </para>        </briefdescription>
+        <detaileddescription>
+<para>Used by public API to prevent the member deletion after it is obtained by UUID or from an iterator. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="287" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="287" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__member_1a8b76a045ba6f9819819d38a7fdc3756c" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool swim_member::is_dropped</definition>
+        <argsstring></argsstring>
+        <name>is_dropped</name>
+        <briefdescription>
+<para>True, if the member was dropped from the member table. </para>        </briefdescription>
+        <detaileddescription>
+<para>At the same time it still can be not deleted, if users of the public API referenced the member. Dropped member is not valid anymore and should be dereferenced. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="294" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="294" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__member_1a9ed1ecb7341baa7ee5faf280157a62d9" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int swim_member::status_ttd</definition>
+        <argsstring></argsstring>
+        <name>status_ttd</name>
+        <briefdescription>
+<para>Dissemination component. </para>        </briefdescription>
+        <detaileddescription>
+<para>Dissemination component sends events. Event is a notification about some member state update. The member maintains a different event type for each significant attribute - status, incarnation, etc not to send entire member state each time any member attribute changes.</para><para>According to SWIM, an event should be sent to all members at least once - for that a TTD (time-to-disseminate) counter is maintained for each independent event type.</para><para>When a member state changes, the TTD is reset to the cluster size. It is then decremented after each send. This guarantees that each member state change is sent to each SWIM member at least once. If a new event of the same type is generated before a round is finished, the current event object is updated in place with reset of the TTD.</para><para>To conclude, TTD works in two ways: to see which specific member attribute needs dissemination and to track how many cluster members still need to learn about the change from this instance. General TTD reset each time when any visible member attribute is updated. It is always bigger or equal than any other TTDs. In addition it helps to keep a dead member not dropped until the TTD gets zero so as to allow other members to learn the dead status. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="330" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="330" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__member_1a7cdc5e77240b22a0a2343b468ac7867b" prot="public" static="no" mutable="no">
+        <type>char *</type>
+        <definition>char* swim_member::payload</definition>
+        <argsstring></argsstring>
+        <name>payload</name>
+        <briefdescription>
+<para>Arbitrary user data, disseminated on each change. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="332" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="332" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__member_1acb92ae3d8fea032fd17d45147bdcf4f2" prot="public" static="no" mutable="no">
+        <type>uint16_t</type>
+        <definition>uint16_t swim_member::payload_size</definition>
+        <argsstring></argsstring>
+        <name>payload_size</name>
+        <briefdescription>
+<para>Payload size, in bytes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="334" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="334" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__member_1a59e3542d0bb5dcbfa01c5c1897481654" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool swim_member::is_payload_up_to_date</definition>
+        <argsstring></argsstring>
+        <name>is_payload_up_to_date</name>
+        <briefdescription>
+<para>True, if the payload is thought to be of the most actual version. </para>        </briefdescription>
+        <detaileddescription>
+<para>In such a case it can be disseminated further. Otherwise <emphasis>payload</emphasis> is suspected to be outdated and can be updated in two cases only:</para><para>1) when it is received with a bigger incarnation from anywhere;</para><para>2) when it is received with the same incarnation, but local payload is outdated.</para><para>A payload can become outdated, if anyhow a new incarnation of the member has been learned, but not a new payload. For example, a message with new payload could be lost, and at the same time this instance responds to a ping with newly incarnated ack. The ack receiver will learn the new incarnation, but not the new payload.</para><para>In this case it can&apos;t be said exactly whether the member has updated payload, or another attribute. The only way here is to wait until the most actual payload will be received from another instance. Note, that such an instance always exists - the payload originator instance. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="362" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="362" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__member_1ad61a82fb89caae0e6dcbdff6b1af27af" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int swim_member::payload_ttd</definition>
+        <argsstring></argsstring>
+        <name>payload_ttd</name>
+        <briefdescription>
+<para>TTD of payload. </para>        </briefdescription>
+        <detaileddescription>
+<para>At most this number of times payload is sent as a part of dissemination component. Reset on each payload update. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="368" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="368" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__member_1a3b429518b53f11235363b804824c1d64" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist swim_member::in_dissemination_queue</definition>
+        <argsstring></argsstring>
+        <name>in_dissemination_queue</name>
+        <briefdescription>
+<para>All created events are put into a queue sorted by event time. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="368" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="373" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__member_1a7f2a39962c24b67fb290e974dc594124" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structstailq__entry" kindref="compound">stailq_entry</ref></type>
+        <definition>struct stailq_entry swim_member::in_event_queue</definition>
+        <argsstring></argsstring>
+        <name>in_event_queue</name>
+        <briefdescription>
+<para>Each time a member is updated, or created, or dropped, it is added to an event queue. </para>        </briefdescription>
+        <detaileddescription>
+<para>Members from this queue are dispatched into user defined triggers. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="368" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="379" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__member_1a49d0f012e27117f4ee95a6af5942c817" prot="public" static="no" mutable="no">
+        <type>enum swim_ev_mask</type>
+        <definition>enum swim_ev_mask swim_member::events</definition>
+        <argsstring></argsstring>
+        <name>events</name>
+        <briefdescription>
+<para>Mask of events happened with this member since a previous trigger invocation. </para>        </briefdescription>
+        <detaileddescription>
+<para>Once the events are delivered into a trigger, the mask is nullified and starts collecting new events. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="368" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="386" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__member_1a732e1bd73b75e7b6b497a6115295ad3c" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structswim__incarnation" kindref="compound">swim_incarnation</ref></type>
+        <definition>struct swim_incarnation swim_member::incarnation</definition>
+        <argsstring></argsstring>
+        <name>incarnation</name>
+        <briefdescription>
+<para>Failure detection component. </para>        </briefdescription>
+        <detaileddescription>
+<para>A monotonically growing value to refute old member&apos;s state, characterized by a triplet {incarnation, status, address}. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="368" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="396" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__member_1aaa5d6acc6455cb88270f09b911d13d85" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int swim_member::unacknowledged_pings</definition>
+        <argsstring></argsstring>
+        <name>unacknowledged_pings</name>
+        <briefdescription>
+<para>How many recent pings did not receive an ack while the member was in the current status. </para>        </briefdescription>
+        <detaileddescription>
+<para>When this number reaches a configured threshold the instance is marked as dead. After a few more unacknowledged it is removed from the member table. This counter is reset on each acknowledged ping, status or incarnation change. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="405" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="405" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__member_1a1dea5064a6b9106a1acd7de98e9e7ccb" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double swim_member::ping_deadline</definition>
+        <argsstring></argsstring>
+        <name>ping_deadline</name>
+        <briefdescription>
+<para>A deadline when we stop expecting a response to the ping and account it as unacknowledged. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="410" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="410" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__member_1acf6aeda416ed507d4f90b3f2bed4b38a" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structheap__node" kindref="compound">heap_node</ref></type>
+        <definition>struct heap_node swim_member::in_wait_ack_heap</definition>
+        <argsstring></argsstring>
+        <name>in_wait_ack_heap</name>
+        <briefdescription>
+<para>Position in a queue of members waiting for an ack. </para>        </briefdescription>
+        <detaileddescription>
+<para>A member is added to the queue when we send a ping message to it. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="410" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="416" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__member_1a2438f9e9726a924e3fdb96c4a42a3240" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structswim__task" kindref="compound">swim_task</ref> *</type>
+        <definition>struct swim_task* swim_member::ack_task</definition>
+        <argsstring></argsstring>
+        <name>ack_task</name>
+        <briefdescription>
+<para>Last sent failure detection tasks. </para>        </briefdescription>
+        <detaileddescription>
+<para>Kept so as 1) not to send them twice; 2) to be able to cancel them when the member is deleted. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="423" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="423" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__member_1a3e7bc67354f60b6f4086425faa1e6daa" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structswim__task" kindref="compound">swim_task</ref> *</type>
+        <definition>struct swim_task* swim_member::ping_task</definition>
+        <argsstring></argsstring>
+        <name>ping_task</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="424" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="424" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A cluster member description. </para>    </briefdescription>
+    <detaileddescription>
+<para>This structure describes the last known state of an instance. This state is updated periodically via UDP according to SWIM protocol rules. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="10436">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="10436" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="10432">
+        <label>swim_member</label>
+        <link refid="structswim__member"/>
+        <childnode refid="10433" relation="usage">
+          <edgelabel>incarnation</edgelabel>
+        </childnode>
+        <childnode refid="10434" relation="usage">
+          <edgelabel>uuid</edgelabel>
+        </childnode>
+        <childnode refid="10435" relation="usage">
+          <edgelabel>in_wait_ack_heap</edgelabel>
+        </childnode>
+        <childnode refid="10436" relation="usage">
+          <edgelabel>in_event_queue</edgelabel>
+        </childnode>
+        <childnode refid="10437" relation="usage">
+          <edgelabel>in_dissemination_queue</edgelabel>
+          <edgelabel>in_round_queue</edgelabel>
+        </childnode>
+        <childnode refid="10438" relation="usage">
+          <edgelabel>ping_task</edgelabel>
+          <edgelabel>ack_task</edgelabel>
+        </childnode>
+      </node>
+      <node id="10437">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="10437" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="10435">
+        <label>heap_node</label>
+        <link refid="structheap__node"/>
+      </node>
+      <node id="10433">
+        <label>swim_incarnation</label>
+        <link refid="structswim__incarnation"/>
+      </node>
+      <node id="10438">
+        <label>swim_task</label>
+        <link refid="structswim__task"/>
+        <childnode refid="10439" relation="usage">
+          <edgelabel>packet</edgelabel>
+        </childnode>
+        <childnode refid="10434" relation="usage">
+          <edgelabel>uuid</edgelabel>
+        </childnode>
+        <childnode refid="10436" relation="usage">
+          <edgelabel>in_pool</edgelabel>
+        </childnode>
+        <childnode refid="10432" relation="usage">
+          <edgelabel>member</edgelabel>
+        </childnode>
+        <childnode refid="10437" relation="usage">
+          <edgelabel>in_queue_output</edgelabel>
+        </childnode>
+        <childnode refid="10438" relation="usage">
+          <edgelabel>complete</edgelabel>
+          <edgelabel>cancel</edgelabel>
+        </childnode>
+      </node>
+      <node id="10434">
+        <label>tt_uuid</label>
+        <link refid="structtt__uuid"/>
+      </node>
+      <node id="10439">
+        <label>swim_packet</label>
+        <link refid="structswim__packet"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="257" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="257" bodyend="425"/>
+    <listofallmembers>
+      <member refid="structswim__member_1a2438f9e9726a924e3fdb96c4a42a3240" prot="public" virt="non-virtual"><scope>swim_member</scope><name>ack_task</name></member>
+      <member refid="structswim__member_1a757c3da72e9376988ea2c1117d0afafa" prot="public" virt="non-virtual"><scope>swim_member</scope><name>addr</name></member>
+      <member refid="structswim__member_1a49d0f012e27117f4ee95a6af5942c817" prot="public" virt="non-virtual"><scope>swim_member</scope><name>events</name></member>
+      <member refid="structswim__member_1a19b8d667f88b05f9881024bfa14ea030" prot="public" virt="non-virtual"><scope>swim_member</scope><name>hash</name></member>
+      <member refid="structswim__member_1a3b429518b53f11235363b804824c1d64" prot="public" virt="non-virtual"><scope>swim_member</scope><name>in_dissemination_queue</name></member>
+      <member refid="structswim__member_1a7f2a39962c24b67fb290e974dc594124" prot="public" virt="non-virtual"><scope>swim_member</scope><name>in_event_queue</name></member>
+      <member refid="structswim__member_1a1ca0e762ab71e378e2b6d60b4be59bd2" prot="public" virt="non-virtual"><scope>swim_member</scope><name>in_round_queue</name></member>
+      <member refid="structswim__member_1acf6aeda416ed507d4f90b3f2bed4b38a" prot="public" virt="non-virtual"><scope>swim_member</scope><name>in_wait_ack_heap</name></member>
+      <member refid="structswim__member_1a732e1bd73b75e7b6b497a6115295ad3c" prot="public" virt="non-virtual"><scope>swim_member</scope><name>incarnation</name></member>
+      <member refid="structswim__member_1a8b76a045ba6f9819819d38a7fdc3756c" prot="public" virt="non-virtual"><scope>swim_member</scope><name>is_dropped</name></member>
+      <member refid="structswim__member_1a59e3542d0bb5dcbfa01c5c1897481654" prot="public" virt="non-virtual"><scope>swim_member</scope><name>is_payload_up_to_date</name></member>
+      <member refid="structswim__member_1a7cdc5e77240b22a0a2343b468ac7867b" prot="public" virt="non-virtual"><scope>swim_member</scope><name>payload</name></member>
+      <member refid="structswim__member_1acb92ae3d8fea032fd17d45147bdcf4f2" prot="public" virt="non-virtual"><scope>swim_member</scope><name>payload_size</name></member>
+      <member refid="structswim__member_1ad61a82fb89caae0e6dcbdff6b1af27af" prot="public" virt="non-virtual"><scope>swim_member</scope><name>payload_ttd</name></member>
+      <member refid="structswim__member_1a1dea5064a6b9106a1acd7de98e9e7ccb" prot="public" virt="non-virtual"><scope>swim_member</scope><name>ping_deadline</name></member>
+      <member refid="structswim__member_1a3e7bc67354f60b6f4086425faa1e6daa" prot="public" virt="non-virtual"><scope>swim_member</scope><name>ping_task</name></member>
+      <member refid="structswim__member_1a63ef58952454199f45d623997fb48092" prot="public" virt="non-virtual"><scope>swim_member</scope><name>refs</name></member>
+      <member refid="structswim__member_1a291c91d58c2e60b3dd627113bda2dbbb" prot="public" virt="non-virtual"><scope>swim_member</scope><name>status</name></member>
+      <member refid="structswim__member_1a9ed1ecb7341baa7ee5faf280157a62d9" prot="public" virt="non-virtual"><scope>swim_member</scope><name>status_ttd</name></member>
+      <member refid="structswim__member_1aaa5d6acc6455cb88270f09b911d13d85" prot="public" virt="non-virtual"><scope>swim_member</scope><name>unacknowledged_pings</name></member>
+      <member refid="structswim__member_1a74f8f5a5b15ebb161a2984e0d5f34ce9" prot="public" virt="non-virtual"><scope>swim_member</scope><name>uuid</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

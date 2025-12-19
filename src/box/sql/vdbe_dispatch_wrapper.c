@@ -350,40 +350,6 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		pc++; continue;
 	}
 
-	case OP_TransactionBegin: {
-		/* Begin transaction */
-		int handler_rc = vdbe_op_transactionbegin_inline(p, pOp, aMem);
-		if (handler_rc < 0) { rc = -1; break; }
-		pc++; continue;
-	}
-
-	case OP_TransactionCommit: {
-		/* Commit transaction */
-		int handler_rc = vdbe_op_transactioncommit_inline(p, pOp, aMem);
-		if (handler_rc < 0) { rc = -1; break; }
-		pc++; continue;
-	}
-
-	case OP_TransactionRollback: {
-		/* Rollback transaction */
-		int handler_rc = vdbe_op_transactionrollback_inline(p, pOp, aMem);
-		if (handler_rc < 0) { rc = -1; break; }
-		pc++; continue;
-	}
-
-	case OP_TTransaction: {
-		/* Transaction type */
-		int handler_rc = vdbe_op_ttransaction_inline(p, pOp, aMem);
-		if (handler_rc < 0) { rc = -1; break; }
-		pc++; continue;
-	}
-
-	case OP_ResetCount: {
-		/* Reset counter */
-		int handler_rc = vdbe_op_resetcount_inline(p, pOp, aMem);
-		if (handler_rc < 0) { rc = -1; break; }
-		pc++; continue;
-	}
 
 	case OP_NotNull: {
 		/* Jump if not null */
@@ -399,6 +365,28 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		if (handler_rc < 0) { rc = -1; break; }
 		pc++; continue;
 	}
+
+	/*
+	 * MEDIUM COMPLEXITY INLINE OPCODES (Phase 5.6b - 2 opcodes, simple register ops)
+	 * These are refactored inline opcodes with basic register operations
+	 * ====================================================================
+	 */
+
+	case OP_Close: {
+		/* Close cursor */
+		int handler_rc = vdbe_op_close_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_IsNull: {
+		/* Test for NULL and jump if true */
+		int handler_rc = vdbe_op_isnull_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2 - 1; continue; }
+		pc++; continue;
+	}
+
 	/* Noop for unassigned opcodes */
 		default: {
 			pc++;

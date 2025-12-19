@@ -1,0 +1,24 @@
+if(NOT EXISTS "/home/tsafin/tarantool/build_test/install_manifest.txt")
+  message(FATAL_ERROR "Cannot find install manifest: /home/tsafin/tarantool/build_test/install_manifest.txt")
+endif()
+
+# XXX: This loop removes only entries from install_manifest.txt,
+# but do nothing for the directories created while installation.
+# Honestly, the recipe is awful, but is better than nothing.
+file(READ "/home/tsafin/tarantool/build_test/install_manifest.txt" files)
+string(REGEX REPLACE "\n" ";" files "${files}")
+foreach(file ${files})
+  message(STATUS "Uninstalling $ENV{DESTDIR}${file}")
+  if(IS_SYMLINK "$ENV{DESTDIR}${file}" OR EXISTS "$ENV{DESTDIR}${file}")
+    execute_process(
+      COMMAND /usr/bin/cmake -E remove "$ENV{DESTDIR}${file}"
+      RESULT_VARIABLE REMOVE_RC
+      OUTPUT_QUIET
+    )
+    if(NOT "${REMOVE_RC}" STREQUAL 0)
+      message(FATAL_ERROR "Problem when removing $ENV{DESTDIR}${file}")
+    endif()
+  else(IS_SYMLINK "$ENV{DESTDIR}${file}" OR EXISTS "$ENV{DESTDIR}${file}")
+    message(STATUS "File $ENV{DESTDIR}${file} does not exist.")
+  endif()
+endforeach()

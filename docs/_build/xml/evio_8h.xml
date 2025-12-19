@@ -1,0 +1,470 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="evio_8h" kind="file" language="C++">
+    <compoundname>evio.h</compoundname>
+    <includes local="no">stdbool.h</includes>
+    <includes local="yes">tarantool_ev.h</includes>
+    <includes refid="sio_8h" local="yes">sio.h</includes>
+    <includes refid="uri_8h" local="yes">uri/uri.h</includes>
+    <includedby refid="iproto_8cc" local="yes">/home/tsafin/tarantool/src/box/iproto.cc</includedby>
+    <includedby refid="coio_8h" local="yes">/home/tsafin/tarantool/src/lib/core/coio.h</includedby>
+    <includedby refid="evio_8c" local="yes">/home/tsafin/tarantool/src/lib/core/evio.c</includedby>
+    <includedby refid="swim__transport__udp_8c" local="yes">/home/tsafin/tarantool/src/lib/swim/swim_transport_udp.c</includedby>
+    <incdepgraph>
+      <node id="1879">
+        <label>stdbool.h</label>
+      </node>
+      <node id="1880">
+        <label>tarantool_ev.h</label>
+      </node>
+      <node id="1878">
+        <label>/home/tsafin/tarantool/src/lib/core/evio.h</label>
+        <link refid="evio_8h"/>
+        <childnode refid="1879" relation="include">
+        </childnode>
+        <childnode refid="1880" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structevio__service" prot="public">evio_service</innerclass>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="evio_8h_1a26a72c74a4f73d904700abc97ed01c8c" prot="public" static="no">
+        <type>int(*</type>
+        <definition>typedef int(* evio_accept_f) (struct evio_service *, int, struct sockaddr *, socklen_t)</definition>
+        <argsstring>)(struct evio_service *, int, struct sockaddr *, socklen_t)</argsstring>
+        <name>evio_accept_f</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/evio.h" line="72" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/evio.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="evio_8h_1a03a8c00f40ad2cda800127615b6d42ba" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio_service_init</definition>
+        <argsstring>(ev_loop *loop, struct evio_service *service, const char *name, evio_accept_f on_accept, void *on_accept_param)</argsstring>
+        <name>evio_service_init</name>
+        <param>
+          <type>ev_loop *</type>
+          <declname>loop</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structevio__service" kindref="compound">evio_service</ref> *</type>
+          <declname>service</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>evio_accept_f</type>
+          <declname>on_accept</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>on_accept_param</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the service. </para>        </briefdescription>
+        <detaileddescription>
+<para>Don&apos;t bind to the port yet. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/evio.h" line="105" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/evio.c" bodystart="321" bodyend="338"/>
+      </memberdef>
+      <memberdef kind="function" id="evio_8h_1ab66225d4a47f63982c2762411ac560b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int evio_service_bind</definition>
+        <argsstring>(struct evio_service *service, const char *uri)</argsstring>
+        <name>evio_service_bind</name>
+        <param>
+          <type>struct <ref refid="structevio__service" kindref="compound">evio_service</ref> *</type>
+          <declname>service</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>uri</declname>
+        </param>
+        <briefdescription>
+<para>Bind service to specified uri. </para>        </briefdescription>
+        <detaileddescription>
+<para>Bind service to specified uri. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/evio.h" line="110" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/evio.c" bodystart="344" bodyend="402"/>
+      </memberdef>
+      <memberdef kind="function" id="evio_8h_1a2dce29f3bb9aa92a6f5fbfcbcd737285" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int evio_service_listen</definition>
+        <argsstring>(struct evio_service *service)</argsstring>
+        <name>evio_service_listen</name>
+        <param>
+          <type>struct <ref refid="structevio__service" kindref="compound">evio_service</ref> *</type>
+          <declname>service</declname>
+        </param>
+        <briefdescription>
+<para>Listen on bounded socket. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>for success</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+Listen on bounded socket.</para><para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>for success </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/evio.h" line="118" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/evio.c" bodystart="298" bodyend="318"/>
+      </memberdef>
+      <memberdef kind="function" id="evio_8h_1a7c0ae8247806abdada56e94c412ae0bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio_service_stop</definition>
+        <argsstring>(struct evio_service *service)</argsstring>
+        <name>evio_service_stop</name>
+        <param>
+          <type>struct <ref refid="structevio__service" kindref="compound">evio_service</ref> *</type>
+          <declname>service</declname>
+        </param>
+        <briefdescription>
+<para>If started, stop event flow and close the acceptor socket. </para>        </briefdescription>
+        <detaileddescription>
+<para>If started, stop event flow and close the acceptor socket. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/evio.h" line="122" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/evio.c" bodystart="406" bodyend="422"/>
+      </memberdef>
+      <memberdef kind="function" id="evio_8h_1acc05dc816bb61d2764e739243d00c20f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int evio_socket</definition>
+        <argsstring>(struct ev_io *coio, int domain, int type, int protocol)</argsstring>
+        <name>evio_socket</name>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>coio</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>domain</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>protocol</declname>
+        </param>
+        <briefdescription>
+<para>Create an endpoint for communication. </para>        </briefdescription>
+        <detaileddescription>
+<para>Set socket as non-block and apply protocol specific options. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/evio.h" line="125" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/evio.c" bodystart="59" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="evio_8h_1ac3423b06adb5fc755eceb1356e20e39a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void evio_close</definition>
+        <argsstring>(ev_loop *loop, struct ev_io *evio)</argsstring>
+        <name>evio_close</name>
+        <param>
+          <type>ev_loop *</type>
+          <declname>loop</declname>
+        </param>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>evio</declname>
+        </param>
+        <briefdescription>
+<para>Note: this function does not throw. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/evio.h" line="128" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/evio.c" bodystart="44" bodyend="52"/>
+      </memberdef>
+      <memberdef kind="function" id="evio_8h_1a8cfff2e2ff18799170e32287aa976a69" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool evio_service_is_active</definition>
+        <argsstring>(struct evio_service *service)</argsstring>
+        <name>evio_service_is_active</name>
+        <param>
+          <type>struct <ref refid="structevio__service" kindref="compound">evio_service</ref> *</type>
+          <declname>service</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/evio.h" line="131" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/evio.h" bodystart="131" bodyend="134"/>
+      </memberdef>
+      <memberdef kind="function" id="evio_8h_1a05c68416e0282e185e7e655badd2b458" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool evio_has_fd</definition>
+        <argsstring>(struct ev_io *ev)</argsstring>
+        <name>evio_has_fd</name>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>ev</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/evio.h" line="137" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/evio.h" bodystart="137" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="evio_8h_1a573742c001db991b0cd18c382db6d1bb" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio_timeout_init</definition>
+        <argsstring>(ev_loop *loop, ev_tstamp *start, ev_tstamp *delay, ev_tstamp timeout)</argsstring>
+        <name>evio_timeout_init</name>
+        <param>
+          <type>ev_loop *</type>
+          <declname>loop</declname>
+        </param>
+        <param>
+          <type>ev_tstamp *</type>
+          <declname>start</declname>
+        </param>
+        <param>
+          <type>ev_tstamp *</type>
+          <declname>delay</declname>
+        </param>
+        <param>
+          <type>ev_tstamp</type>
+          <declname>timeout</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/evio.h" line="143" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/evio.h" bodystart="143" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="evio_8h_1a47b3519f814cfdb48951e7c375f3c92d" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void evio_timeout_update</definition>
+        <argsstring>(ev_loop *loop, ev_tstamp *start, ev_tstamp *delay)</argsstring>
+        <name>evio_timeout_update</name>
+        <param>
+          <type>ev_loop *</type>
+          <declname>loop</declname>
+        </param>
+        <param>
+          <type>ev_tstamp *</type>
+          <declname>start</declname>
+        </param>
+        <param>
+          <type>ev_tstamp *</type>
+          <declname>delay</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/evio.h" line="151" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/evio.h" bodystart="151" bodyend="156"/>
+      </memberdef>
+      <memberdef kind="function" id="evio_8h_1a54d4f4934a50a5d5d226f206cabded9b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int evio_setsockopt_client</definition>
+        <argsstring>(int fd, int family, int type)</argsstring>
+        <name>evio_setsockopt_client</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>family</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Set common client socket options. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/evio.h" line="159" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/evio.c" bodystart="106" bodyend="129"/>
+      </memberdef>
+      <memberdef kind="function" id="evio_8h_1abd2b790b18407a67bda5c28ca9cc478a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int evio_setsockopt_server</definition>
+        <argsstring>(int fd, int family, int type)</argsstring>
+        <name>evio_setsockopt_server</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>family</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Set options for server sockets. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/evio.h" line="163" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/evio.c" bodystart="132" bodyend="156"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LIB_CORE_EVIO_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LIB_CORE_EVIO_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight></codeline>
+<codeline lineno="37"><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tarantool_ev.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;sio.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;uri/uri.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structevio__service" kindref="compound">evio_service</ref>;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>int<sp/>(*evio_accept_f)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structevio__service" kindref="compound">evio_service</ref><sp/>*,<sp/>int,<sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">sockaddr<sp/>*,</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>socklen_t);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75" refid="structevio__service" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structevio__service" kindref="compound">evio_service</ref></highlight></codeline>
+<codeline lineno="76"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="structevio__service_1a548d17c6d79772d7fe360e652a56fb1e" kindref="member">name</ref>[SERVICE_NAME_MAXLEN];</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="structevio__service_1ab0b8fa1f8765969ebdf8b17095373d77" kindref="member">host</ref>[URI_MAXHOST];</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>serv[URI_MAXSERVICE];</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">sockaddr<sp/>addr;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">sockaddr_storage<sp/>addrstorage;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>socklen_t<sp/>addr_len;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>evio_accept_f<sp/><ref refid="structevio__service_1af0eebf9af694f4f59fbb9858587ca90c" kindref="member">on_accept</ref>;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*on_accept_param;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">ev_io<sp/>ev;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ev_loop<sp/>*loop;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal">evio_service_init(ev_loop<sp/>*loop,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structevio__service" kindref="compound">evio_service</ref><sp/>*service,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structevio__service_1a548d17c6d79772d7fe360e652a56fb1e" kindref="member">name</ref>,</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>evio_accept_f<sp/><ref refid="structevio__service_1af0eebf9af694f4f59fbb9858587ca90c" kindref="member">on_accept</ref>,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*on_accept_param);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal">evio_service_bind(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structevio__service" kindref="compound">evio_service</ref><sp/>*service,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structuri" kindref="compound">uri</ref>);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal">evio_service_listen(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structevio__service" kindref="compound">evio_service</ref><sp/>*service);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal">evio_service_stop(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structevio__service" kindref="compound">evio_service</ref><sp/>*service);</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal">evio_socket(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*coio,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>domain,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>type,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>protocol);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal">evio_close(ev_loop<sp/>*loop,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*evio);</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal">evio_service_is_active(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structevio__service" kindref="compound">evio_service</ref><sp/>*service)</highlight></codeline>
+<codeline lineno="132"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>service-&gt;<ref refid="structevio__service_1aa18412acb9962088c17d3d5d12d89c12" kindref="member">ev</ref>.fd<sp/>&gt;=<sp/>0;</highlight></codeline>
+<codeline lineno="134"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal">evio_has_fd(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*<ref refid="structevio__service_1aa18412acb9962088c17d3d5d12d89c12" kindref="member">ev</ref>)</highlight></codeline>
+<codeline lineno="138"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ev-&gt;fd<sp/>&gt;=<sp/>0;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal">evio_timeout_init(ev_loop<sp/>*loop,<sp/>ev_tstamp<sp/>*start,<sp/>ev_tstamp<sp/>*delay,</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ev_tstamp<sp/>timeout)</highlight></codeline>
+<codeline lineno="145"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*start<sp/>=<sp/>ev_monotonic_now(loop);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*delay<sp/>=<sp/>timeout;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal">evio_timeout_update(ev_loop<sp/>*loop,<sp/>ev_tstamp<sp/>*start,<sp/>ev_tstamp<sp/>*delay)</highlight></codeline>
+<codeline lineno="152"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ev_tstamp<sp/>elapsed<sp/>=<sp/>ev_monotonic_now(loop)<sp/>-<sp/>*start;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*start<sp/>+=<sp/>elapsed;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*delay<sp/>=<sp/>(elapsed<sp/>&gt;=<sp/>*delay)<sp/>?<sp/>0<sp/>:<sp/>*delay<sp/>-<sp/>elapsed;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal">evio_setsockopt_client(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>family,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>type);</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal">evio_setsockopt_server(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>family,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>type);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_LIB_CORE_EVIO_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/core/evio.h"/>
+  </compounddef>
+</doxygen>

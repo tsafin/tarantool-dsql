@@ -1,0 +1,106 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvy__run__iterator__stat" kind="struct" language="C++" prot="public">
+    <compoundname>vy_run_iterator_stat</compoundname>
+    <includes local="no">vy_stat.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvy__run__iterator__stat_1afb922411f2c0fde129d2e45a09a51de2" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t vy_run_iterator_stat::lookup</definition>
+        <argsstring></argsstring>
+        <name>lookup</name>
+        <briefdescription>
+<para>Number of lookups in the page index. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_stat.h" line="84" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_stat.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__iterator__stat_1aea328357fb62a826c4aed78ee6cb266f" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__stmt__counter" kindref="compound">vy_stmt_counter</ref></type>
+        <definition>struct vy_stmt_counter vy_run_iterator_stat::get</definition>
+        <argsstring></argsstring>
+        <name>get</name>
+        <briefdescription>
+<para>Number of statements returned by the iterator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_stat.h" line="84" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_stat.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__iterator__stat_1a3f9a702e253d503375b6a6a11b8bf043" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t vy_run_iterator_stat::bloom_hit</definition>
+        <argsstring></argsstring>
+        <name>bloom_hit</name>
+        <briefdescription>
+<para>Number of times the bloom filter allowed to avoid a disk read. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_stat.h" line="91" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_stat.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__iterator__stat_1a345c2f348d7b4e53f4f9f414353acb4d" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t vy_run_iterator_stat::bloom_miss</definition>
+        <argsstring></argsstring>
+        <name>bloom_miss</name>
+        <briefdescription>
+<para>Number of times the bloom filter failed to prevent a disk read. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_stat.h" line="96" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_stat.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__iterator__stat_1aaa2f5a8e976c8950664e6d410e7f4134" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__disk__stmt__counter" kindref="compound">vy_disk_stmt_counter</ref></type>
+        <definition>struct vy_disk_stmt_counter vy_run_iterator_stat::read</definition>
+        <argsstring></argsstring>
+        <name>read</name>
+        <briefdescription>
+<para>Number of statements actually read from the disk. </para>        </briefdescription>
+        <detaileddescription>
+<para>It may be greater than the number of statements returned by the iterator, because of page granularity of disk reads. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_stat.h" line="96" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_stat.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Run iterator statistics. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="14371">
+        <label>vy_run_iterator_stat</label>
+        <link refid="structvy__run__iterator__stat"/>
+        <childnode refid="14372" relation="usage">
+          <edgelabel>read</edgelabel>
+        </childnode>
+        <childnode refid="14373" relation="usage">
+          <edgelabel>get</edgelabel>
+        </childnode>
+      </node>
+      <node id="14372">
+        <label>vy_disk_stmt_counter</label>
+        <link refid="structvy__disk__stmt__counter"/>
+      </node>
+      <node id="14373">
+        <label>vy_stmt_counter</label>
+        <link refid="structvy__stmt__counter"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/vy_stat.h" line="82" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_stat.h" bodystart="82" bodyend="104"/>
+    <listofallmembers>
+      <member refid="structvy__run__iterator__stat_1a3f9a702e253d503375b6a6a11b8bf043" prot="public" virt="non-virtual"><scope>vy_run_iterator_stat</scope><name>bloom_hit</name></member>
+      <member refid="structvy__run__iterator__stat_1a345c2f348d7b4e53f4f9f414353acb4d" prot="public" virt="non-virtual"><scope>vy_run_iterator_stat</scope><name>bloom_miss</name></member>
+      <member refid="structvy__run__iterator__stat_1aea328357fb62a826c4aed78ee6cb266f" prot="public" virt="non-virtual"><scope>vy_run_iterator_stat</scope><name>get</name></member>
+      <member refid="structvy__run__iterator__stat_1afb922411f2c0fde129d2e45a09a51de2" prot="public" virt="non-virtual"><scope>vy_run_iterator_stat</scope><name>lookup</name></member>
+      <member refid="structvy__run__iterator__stat_1aaa2f5a8e976c8950664e6d410e7f4134" prot="public" virt="non-virtual"><scope>vy_run_iterator_stat</scope><name>read</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

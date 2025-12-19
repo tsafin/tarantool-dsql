@@ -1,0 +1,1169 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="txn__limbo_8c" kind="file" language="C++">
+    <compoundname>txn_limbo.c</compoundname>
+    <includes refid="txn_8h" local="yes">txn.h</includes>
+    <includes refid="txn__limbo_8h" local="yes">txn_limbo.h</includes>
+    <includes refid="replication_8h" local="yes">replication.h</includes>
+    <includes refid="iproto__constants_8h" local="yes">iproto_constants.h</includes>
+    <includes refid="journal_8h" local="yes">journal.h</includes>
+    <innerclass refid="structconfirm__waitpoint" prot="public">confirm_waitpoint</innerclass>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="txn__limbo_8c_1abd2b8127944ebf48ea08fb2bb6722d3a" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref></type>
+        <definition>struct txn_limbo txn_limbo</definition>
+        <argsstring></argsstring>
+        <name>txn_limbo</name>
+        <briefdescription>
+<para>Global limbo entry. </para>        </briefdescription>
+        <detaileddescription>
+<para>So far an instance can have only one limbo, where master&apos;s transactions are stored. Eventually there may appear more than one limbo for master-master support. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="359" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="txn__limbo_8c_1ad251b8dd76ec9067b412aa2f2752734c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void txn_limbo_create</definition>
+        <argsstring>(struct txn_limbo *limbo)</argsstring>
+        <name>txn_limbo_create</name>
+        <param>
+          <type>struct <ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref> *</type>
+          <declname>limbo</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="40" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="40" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="txn__limbo_8c_1a68203363853a2f82051b78c2302ed294" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref> *</type>
+        <definition>struct txn_limbo_entry* txn_limbo_append</definition>
+        <argsstring>(struct txn_limbo *limbo, uint32_t id, struct txn *txn)</argsstring>
+        <name>txn_limbo_append</name>
+        <param>
+          <type>struct <ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref> *</type>
+          <declname>limbo</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <briefdescription>
+<para>Allocate, create, and append a new transaction to the limbo. </para>        </briefdescription>
+        <detaileddescription>
+<para>The limbo entry is allocated on the transaction&apos;s region. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="52" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="52" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="txn__limbo_8c_1ac12384c90f461e7afac82f50d3f4c800" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void txn_limbo_remove</definition>
+        <argsstring>(struct txn_limbo *limbo, struct txn_limbo_entry *entry)</argsstring>
+        <name>txn_limbo_remove</name>
+        <param>
+          <type>struct <ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref> *</type>
+          <declname>limbo</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref> *</type>
+          <declname>entry</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="103" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="103" bodyend="109"/>
+      </memberdef>
+      <memberdef kind="function" id="txn__limbo_8c_1aef04c8c67472b7b078698299391152c9" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void txn_limbo_pop</definition>
+        <argsstring>(struct txn_limbo *limbo, struct txn_limbo_entry *entry)</argsstring>
+        <name>txn_limbo_pop</name>
+        <param>
+          <type>struct <ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref> *</type>
+          <declname>limbo</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref> *</type>
+          <declname>entry</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="112" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="112" bodyend="120"/>
+      </memberdef>
+      <memberdef kind="function" id="txn__limbo_8c_1a36ac42da8b8409061dfdb2cffa811857" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void txn_limbo_abort</definition>
+        <argsstring>(struct txn_limbo *limbo, struct txn_limbo_entry *entry)</argsstring>
+        <name>txn_limbo_abort</name>
+        <param>
+          <type>struct <ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref> *</type>
+          <declname>limbo</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref> *</type>
+          <declname>entry</declname>
+        </param>
+        <briefdescription>
+<para>Remove the entry from the limbo, mark as rolled back. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="123" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="123" bodyend="133"/>
+      </memberdef>
+      <memberdef kind="function" id="txn__limbo_8c_1afb6054a74752009d5b4d2ea278617611" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void txn_limbo_assign_remote_lsn</definition>
+        <argsstring>(struct txn_limbo *limbo, struct txn_limbo_entry *entry, int64_t lsn)</argsstring>
+        <name>txn_limbo_assign_remote_lsn</name>
+        <param>
+          <type>struct <ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref> *</type>
+          <declname>limbo</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref> *</type>
+          <declname>entry</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>lsn</declname>
+        </param>
+        <briefdescription>
+<para>Assign a remote LSN to a limbo entry. </para>        </briefdescription>
+        <detaileddescription>
+<para>That happens when a remote transaction is added to the limbo and starts waiting for a confirm. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="136" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="136" bodyend="146"/>
+      </memberdef>
+      <memberdef kind="function" id="txn__limbo_8c_1a55216ef7323873702c06de558872e4fb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void txn_limbo_assign_local_lsn</definition>
+        <argsstring>(struct txn_limbo *limbo, struct txn_limbo_entry *entry, int64_t lsn)</argsstring>
+        <name>txn_limbo_assign_local_lsn</name>
+        <param>
+          <type>struct <ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref> *</type>
+          <declname>limbo</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref> *</type>
+          <declname>entry</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>lsn</declname>
+        </param>
+        <briefdescription>
+<para>Assign a local LSN to a limbo entry. </para>        </briefdescription>
+        <detaileddescription>
+<para>That happens when a local transaction is written to WAL. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="149" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="149" bodyend="172"/>
+      </memberdef>
+      <memberdef kind="function" id="txn__limbo_8c_1a441b216df7c495835eb21bceb5e972b4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void txn_limbo_assign_lsn</definition>
+        <argsstring>(struct txn_limbo *limbo, struct txn_limbo_entry *entry, int64_t lsn)</argsstring>
+        <name>txn_limbo_assign_lsn</name>
+        <param>
+          <type>struct <ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref> *</type>
+          <declname>limbo</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref> *</type>
+          <declname>entry</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>lsn</declname>
+        </param>
+        <briefdescription>
+<para>Assign an LSN to a limbo entry. </para>        </briefdescription>
+        <detaileddescription>
+<para>Works both with local and remote transactions. The function exists to be used in a context, where a transaction is not known whether it is local or not. For example, when a transaction is committed not bound to any fiber (txn_commit_async()), it can be created by applier (then it is remote) or by recovery (then it is local). Besides, recovery can commit remote transactions as well, when works on a replica - it will recover data received from master. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="175" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="175" bodyend="182"/>
+      </memberdef>
+      <memberdef kind="function" id="txn__limbo_8c_1a7002d5be8d9ff2f61b9dc8227d2b176a" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void txn_limbo_write_rollback</definition>
+        <argsstring>(struct txn_limbo *limbo, int64_t lsn)</argsstring>
+        <name>txn_limbo_write_rollback</name>
+        <param>
+          <type>struct <ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref> *</type>
+          <declname>limbo</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>lsn</declname>
+        </param>
+        <briefdescription>
+<para>Write a rollback message to WAL. </para>        </briefdescription>
+        <detaileddescription>
+<para>After it&apos;s written all the transactions following the current one and waiting for confirmation must be rolled back. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="185" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="392" bodyend="399"/>
+      </memberdef>
+      <memberdef kind="function" id="txn__limbo_8c_1a49bc9e11cb9c8bfa68546895bbb26873" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int txn_limbo_wait_complete</definition>
+        <argsstring>(struct txn_limbo *limbo, struct txn_limbo_entry *entry)</argsstring>
+        <name>txn_limbo_wait_complete</name>
+        <param>
+          <type>struct <ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref> *</type>
+          <declname>limbo</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref> *</type>
+          <declname>entry</declname>
+        </param>
+        <briefdescription>
+<para>Block the current fiber until the transaction in the limbo entry is either committed or rolled back. </para>        </briefdescription>
+        <detaileddescription>
+<para>If timeout is reached before acks are collected, the tx is rolled back as well as all the txs in the limbo following it. Returns -1 when rollback was performed and tx has to be freed. 0 when tx processing can go on. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="188" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="188" bodyend="275"/>
+      </memberdef>
+      <memberdef kind="function" id="txn__limbo_8c_1a5ccd4fb631639c7efff5bbbed0252a06" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void txn_limbo_write_cb</definition>
+        <argsstring>(struct journal_entry *entry)</argsstring>
+        <name>txn_limbo_write_cb</name>
+        <param>
+          <type>struct <ref refid="structjournal__entry" kindref="compound">journal_entry</ref> *</type>
+          <declname>entry</declname>
+        </param>
+        <briefdescription>
+<para>A callback for synchronous write: txn_limbo_write_synchro fiber waiting to proceed once a record is written to WAL. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="282" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="282" bodyend="287"/>
+      </memberdef>
+      <memberdef kind="function" id="txn__limbo_8c_1a613c7f56db667df1ef187fb6c848a194" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void txn_limbo_write_synchro</definition>
+        <argsstring>(struct txn_limbo *limbo, uint32_t type, int64_t lsn)</argsstring>
+        <name>txn_limbo_write_synchro</name>
+        <param>
+          <type>struct <ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref> *</type>
+          <declname>limbo</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>lsn</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="290" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="290" bodyend="332"/>
+      </memberdef>
+      <memberdef kind="function" id="txn__limbo_8c_1ab972a6010dfb25918aac47c07bafebb8" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void txn_limbo_write_confirm</definition>
+        <argsstring>(struct txn_limbo *limbo, int64_t lsn)</argsstring>
+        <name>txn_limbo_write_confirm</name>
+        <param>
+          <type>struct <ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref> *</type>
+          <declname>limbo</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>lsn</declname>
+        </param>
+        <briefdescription>
+<para>Write a confirmation entry to WAL. </para>        </briefdescription>
+        <detaileddescription>
+<para>After it&apos;s written all the transactions waiting for confirmation may be finished. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="339" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="339" bodyend="345"/>
+      </memberdef>
+      <memberdef kind="function" id="txn__limbo_8c_1af1da091ecde8006fe7778a728d9f1815" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void txn_limbo_read_confirm</definition>
+        <argsstring>(struct txn_limbo *limbo, int64_t lsn)</argsstring>
+        <name>txn_limbo_read_confirm</name>
+        <param>
+          <type>struct <ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref> *</type>
+          <declname>limbo</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>lsn</declname>
+        </param>
+        <briefdescription>
+<para>Confirm all the entries &lt;= <emphasis>lsn</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="349" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="349" bodyend="384"/>
+      </memberdef>
+      <memberdef kind="function" id="txn__limbo_8c_1a5c55aae82f6d039ea0d5522a14c3967d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void txn_limbo_read_rollback</definition>
+        <argsstring>(struct txn_limbo *limbo, int64_t lsn)</argsstring>
+        <name>txn_limbo_read_rollback</name>
+        <param>
+          <type>struct <ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref> *</type>
+          <declname>limbo</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>lsn</declname>
+        </param>
+        <briefdescription>
+<para>Rollback all the entries &gt;= <emphasis>lsn</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="403" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="403" bodyend="440"/>
+      </memberdef>
+      <memberdef kind="function" id="txn__limbo_8c_1afb1ee51dad41b355f5e1bbef457b775f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void txn_limbo_ack</definition>
+        <argsstring>(struct txn_limbo *limbo, uint32_t replica_id, int64_t lsn)</argsstring>
+        <name>txn_limbo_ack</name>
+        <param>
+          <type>struct <ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref> *</type>
+          <declname>limbo</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>replica_id</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>lsn</declname>
+        </param>
+        <briefdescription>
+<para>Ack all transactions up to the given LSN on behalf of the replica with the specified ID. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="443" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="443" bodyend="498"/>
+      </memberdef>
+      <memberdef kind="function" id="txn__limbo_8c_1aeedb34e805fd14e5d64f652aca85c359" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int txn_commit_cb</definition>
+        <argsstring>(struct trigger *trigger, void *event)</argsstring>
+        <name>txn_commit_cb</name>
+        <param>
+          <type>struct <ref refid="structtrigger" kindref="compound">trigger</ref> *</type>
+          <declname>trigger</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="516" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="516" bodyend="524"/>
+      </memberdef>
+      <memberdef kind="function" id="txn__limbo_8c_1a7a873bbd65d9c50c38a83b6f7a3bb8c0" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int txn_rollback_cb</definition>
+        <argsstring>(struct trigger *trigger, void *event)</argsstring>
+        <name>txn_rollback_cb</name>
+        <param>
+          <type>struct <ref refid="structtrigger" kindref="compound">trigger</ref> *</type>
+          <declname>trigger</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="527" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="527" bodyend="535"/>
+      </memberdef>
+      <memberdef kind="function" id="txn__limbo_8c_1aeabaf8864cf571896c8bbb6619d494a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int txn_limbo_wait_confirm</definition>
+        <argsstring>(struct txn_limbo *limbo)</argsstring>
+        <name>txn_limbo_wait_confirm</name>
+        <param>
+          <type>struct <ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref> *</type>
+          <declname>limbo</declname>
+        </param>
+        <briefdescription>
+<para>Waiting for confirmation of all &quot;sync&quot; transactions during confirm timeout or fail. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="538" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="538" bodyend="583"/>
+      </memberdef>
+      <memberdef kind="function" id="txn__limbo_8c_1a1d94a405d7ac22102086011298a475a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int txn_limbo_process</definition>
+        <argsstring>(struct txn_limbo *limbo, const struct synchro_request *req)</argsstring>
+        <name>txn_limbo_process</name>
+        <param>
+          <type>struct <ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref> *</type>
+          <declname>limbo</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structsynchro__request" kindref="compound">synchro_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <briefdescription>
+<para>Execute a synchronous replication request. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="586" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="586" bodyend="604"/>
+      </memberdef>
+      <memberdef kind="function" id="txn__limbo_8c_1a7388928d2815c8f15e6a19e085653e95" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void txn_limbo_force_empty</definition>
+        <argsstring>(struct txn_limbo *limbo, int64_t confirm_lsn)</argsstring>
+        <name>txn_limbo_force_empty</name>
+        <param>
+          <type>struct <ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref> *</type>
+          <declname>limbo</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>last_confirm</declname>
+          <defname>confirm_lsn</defname>
+        </param>
+        <briefdescription>
+<para>Make <ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref> confirm all the entries with lsn less than or equal to the given one, and rollback all the following entries. </para>        </briefdescription>
+        <detaileddescription>
+<para>The function makes <ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref> write CONFIRM and ROLLBACK messages for appropriate lsns, and then process the messages immediately. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="607" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="607" bodyend="630"/>
+      </memberdef>
+      <memberdef kind="function" id="txn__limbo_8c_1a55759294e97283a7195ede8e8105c748" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void txn_limbo_on_parameters_change</definition>
+        <argsstring>(struct txn_limbo *limbo)</argsstring>
+        <name>txn_limbo_on_parameters_change</name>
+        <param>
+          <type>struct <ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref> *</type>
+          <declname>limbo</declname>
+        </param>
+        <briefdescription>
+<para>Update qsync parameters dynamically. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="633" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="633" bodyend="664"/>
+      </memberdef>
+      <memberdef kind="function" id="txn__limbo_8c_1a43885bc186f50f4e4923b1e6174459cb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void txn_limbo_init</definition>
+        <argsstring>(void)</argsstring>
+        <name>txn_limbo_init</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize qsync engine. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.c" line="667" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.c" bodystart="667" bodyend="670"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2020,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;txn.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;txn_limbo.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;replication.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;iproto_constants.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;journal.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref><sp/><ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref>;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal">txn_limbo_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref><sp/>*limbo)</highlight></codeline>
+<codeline lineno="41"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_create(&amp;limbo-&gt;<ref refid="structtxn__limbo_1acbd34d259c659a9503819a49d8c6c295" kindref="member">queue</ref>);</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>limbo-&gt;<ref refid="structtxn__limbo_1a2846319bdff8c104a8ce75e8c1f3cf7e" kindref="member">instance_id</ref><sp/>=<sp/>REPLICA_ID_NIL;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fiber_cond_create(&amp;limbo-&gt;<ref refid="structtxn__limbo_1a2350b507c033990bb332c34847bede81" kindref="member">wait_cond</ref>);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vclock_create(&amp;limbo-&gt;<ref refid="structtxn__limbo_1af07ac3668341f2990e6114eb451bef08" kindref="member">vclock</ref>);</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>limbo-&gt;<ref refid="structtxn__limbo_1acb4c5515bf3cadc680ebe5f63a80608d" kindref="member">confirmed_lsn</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>limbo-&gt;<ref refid="structtxn__limbo_1a540fca87926da1c0a700f00327212c1b" kindref="member">rollback_count</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>limbo-&gt;<ref refid="structtxn__limbo_1ac55bc2e4b2fc25cff17c68496b14917d" kindref="member">is_in_rollback</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref><sp/>*</highlight></codeline>
+<codeline lineno="52"><highlight class="normal">txn_limbo_append(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref><sp/>*limbo,<sp/>uint32_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn" kindref="compound">txn</ref><sp/>*<ref refid="structtxn" kindref="compound">txn</ref>)</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(txn_has_flag(txn,<sp/>TXN_WAIT_SYNC));</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="56"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Transactions<sp/>should<sp/>be<sp/>added<sp/>to<sp/>the<sp/>limbo<sp/>before<sp/>WAL<sp/>write.<sp/>Limbo</highlight></codeline>
+<codeline lineno="57"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>needs<sp/>that<sp/>to<sp/>be<sp/>able<sp/>rollback<sp/>transactions,<sp/>whose<sp/>WAL<sp/>write<sp/>is<sp/>in</highlight></codeline>
+<codeline lineno="58"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>progress.</highlight></codeline>
+<codeline lineno="59"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(txn-&gt;<ref refid="structtxn_1a96558a190fd400c3c9f4cc942d340ec4" kindref="member">signature</ref><sp/>&lt;<sp/>0);</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(limbo-&gt;<ref refid="structtxn__limbo_1ac55bc2e4b2fc25cff17c68496b14917d" kindref="member">is_in_rollback</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="63"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Cascading<sp/>rollback.<sp/>It<sp/>is<sp/>impossible<sp/>to<sp/>commit<sp/>the</highlight></codeline>
+<codeline lineno="64"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>transaction,<sp/>because<sp/>if<sp/>there<sp/>is<sp/>an<sp/>existing<sp/>rollback<sp/>in</highlight></codeline>
+<codeline lineno="65"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>progress,<sp/>it<sp/>should<sp/>rollback<sp/>this<sp/>one<sp/>too<sp/>for<sp/>the<sp/>sake<sp/>of</highlight></codeline>
+<codeline lineno="66"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>&apos;reversed<sp/>rollback<sp/>order&apos;<sp/>rule.<sp/>On<sp/>the<sp/>other<sp/>hand<sp/>the</highlight></codeline>
+<codeline lineno="67"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>rollback<sp/>can&apos;t<sp/>be<sp/>postponed<sp/>until<sp/>after<sp/>WAL<sp/>write<sp/>as<sp/>well<sp/>-</highlight></codeline>
+<codeline lineno="68"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>it<sp/>should<sp/>be<sp/>done<sp/>right<sp/>now.<sp/>See<sp/>in<sp/>the<sp/>limbo<sp/>comments<sp/>why.</highlight></codeline>
+<codeline lineno="69"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(ClientError,<sp/>ER_SYNC_ROLLBACK);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">id</highlight><highlight class="normal"><sp/>==<sp/>0)</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal"><sp/>=<sp/>instance_id;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(limbo-&gt;<ref refid="structtxn__limbo_1a2846319bdff8c104a8ce75e8c1f3cf7e" kindref="member">instance_id</ref><sp/>!=<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(limbo-&gt;<ref refid="structtxn__limbo_1a2846319bdff8c104a8ce75e8c1f3cf7e" kindref="member">instance_id</ref><sp/>==<sp/>REPLICA_ID_NIL<sp/>||</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_empty(&amp;limbo-&gt;<ref refid="structtxn__limbo_1acbd34d259c659a9503819a49d8c6c295" kindref="member">queue</ref>))<sp/>{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>limbo-&gt;<ref refid="structtxn__limbo_1a2846319bdff8c104a8ce75e8c1f3cf7e" kindref="member">instance_id</ref><sp/>=<sp/>id;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>limbo-&gt;<ref refid="structtxn__limbo_1acb4c5515bf3cadc680ebe5f63a80608d" kindref="member">confirmed_lsn</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(ClientError,<sp/>ER_UNCOMMITTED_FOREIGN_SYNC_TXNS,</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>limbo-&gt;<ref refid="structtxn__limbo_1a2846319bdff8c104a8ce75e8c1f3cf7e" kindref="member">instance_id</ref>);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref><sp/>*e<sp/>=<sp/>region_alloc_object(&amp;txn-&gt;<ref refid="structtxn_1a467916c4ccf55d6e4959afb659d14515" kindref="member">region</ref>,</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>typeof(*e),<sp/>&amp;size);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(e<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(OutOfMemory,<sp/>size,<sp/></highlight><highlight class="stringliteral">&quot;region_alloc_object&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;e&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref><sp/>=<sp/><ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref><sp/>=<sp/>-1;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structtxn__limbo__entry_1a8df514053fad4b785f2f2112448ee047" kindref="member">ack_count</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structtxn__limbo__entry_1a8ea95badae624b4f9dea101c56657675" kindref="member">is_commit</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;is_rollback<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_add_tail_entry(&amp;limbo-&gt;<ref refid="structtxn__limbo_1acbd34d259c659a9503819a49d8c6c295" kindref="member">queue</ref>,<sp/>e,<sp/><ref refid="structtxn__limbo__entry_1ad76ae04502e86ca977495568fa137b6f" kindref="member">in_queue</ref>);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>e;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal">txn_limbo_remove(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref><sp/>*limbo,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref><sp/>*entry)</highlight></codeline>
+<codeline lineno="104"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(!rlist_empty(&amp;entry-&gt;<ref refid="structtxn__limbo__entry_1ad76ae04502e86ca977495568fa137b6f" kindref="member">in_queue</ref>));</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(txn_limbo_first_entry(limbo)<sp/>==<sp/>entry);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<sp/>limbo;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_del_entry(entry,<sp/><ref refid="structtxn__limbo__entry_1ad76ae04502e86ca977495568fa137b6f" kindref="member">in_queue</ref>);</highlight></codeline>
+<codeline lineno="109"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal">txn_limbo_pop(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref><sp/>*limbo,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref><sp/>*entry)</highlight></codeline>
+<codeline lineno="113"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(!rlist_empty(&amp;entry-&gt;<ref refid="structtxn__limbo__entry_1ad76ae04502e86ca977495568fa137b6f" kindref="member">in_queue</ref>));</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(txn_limbo_last_entry(limbo)<sp/>==<sp/>entry);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(entry-&gt;is_rollback);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_del_entry(entry,<sp/><ref refid="structtxn__limbo__entry_1ad76ae04502e86ca977495568fa137b6f" kindref="member">in_queue</ref>);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>++limbo-&gt;<ref refid="structtxn__limbo_1a540fca87926da1c0a700f00327212c1b" kindref="member">rollback_count</ref>;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal">txn_limbo_abort(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref><sp/>*limbo,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref><sp/>*entry)</highlight></codeline>
+<codeline lineno="124"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>entry-&gt;is_rollback<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="127"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>The<sp/>simple<sp/>rule<sp/>about<sp/>rollback/commit<sp/>order<sp/>applies</highlight></codeline>
+<codeline lineno="128"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>here<sp/>as<sp/>well:<sp/>commit<sp/>always<sp/>in<sp/>the<sp/>order<sp/>of<sp/>WAL<sp/>write,</highlight></codeline>
+<codeline lineno="129"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>rollback<sp/>in<sp/>the<sp/>reversed<sp/>order.<sp/>Rolled<sp/>back<sp/>transaction</highlight></codeline>
+<codeline lineno="130"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>is<sp/>always<sp/>the<sp/>last.</highlight></codeline>
+<codeline lineno="131"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_limbo_pop(limbo,<sp/>entry);</highlight></codeline>
+<codeline lineno="133"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal">txn_limbo_assign_remote_lsn(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref><sp/>*limbo,</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref><sp/>*entry,<sp/>int64_t<sp/><ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref>)</highlight></codeline>
+<codeline lineno="138"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(limbo-&gt;<ref refid="structtxn__limbo_1a2846319bdff8c104a8ce75e8c1f3cf7e" kindref="member">instance_id</ref><sp/>!=<sp/>REPLICA_ID_NIL);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(limbo-&gt;<ref refid="structtxn__limbo_1a2846319bdff8c104a8ce75e8c1f3cf7e" kindref="member">instance_id</ref><sp/>!=<sp/>instance_id);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(entry-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref><sp/>==<sp/>-1);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(lsn<sp/>&gt;<sp/>0);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(txn_has_flag(entry-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>,<sp/>TXN_WAIT_ACK));</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<sp/>limbo;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>entry-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref><sp/>=<sp/><ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref>;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal">txn_limbo_assign_local_lsn(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref><sp/>*limbo,</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref><sp/>*entry,<sp/>int64_t<sp/>lsn)</highlight></codeline>
+<codeline lineno="151"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(limbo-&gt;<ref refid="structtxn__limbo_1a2846319bdff8c104a8ce75e8c1f3cf7e" kindref="member">instance_id</ref><sp/>!=<sp/>REPLICA_ID_NIL);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(limbo-&gt;<ref refid="structtxn__limbo_1a2846319bdff8c104a8ce75e8c1f3cf7e" kindref="member">instance_id</ref><sp/>==<sp/>instance_id);</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(entry-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref><sp/>==<sp/>-1);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(lsn<sp/>&gt;<sp/>0);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(txn_has_flag(entry-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>,<sp/>TXN_WAIT_ACK));</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>entry-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref><sp/>=<sp/><ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref>;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="160"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>The<sp/>entry<sp/>just<sp/>got<sp/>its<sp/>LSN<sp/>after<sp/>a<sp/>WAL<sp/>write.<sp/>It<sp/>could</highlight></codeline>
+<codeline lineno="161"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>happen<sp/>that<sp/>this<sp/>LSN<sp/>was<sp/>already<sp/>ACKed<sp/>by<sp/>some</highlight></codeline>
+<codeline lineno="162"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>replicas.<sp/>Update<sp/>the<sp/>ACK<sp/>counter<sp/>to<sp/>take<sp/>them<sp/>into</highlight></codeline>
+<codeline lineno="163"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>account.</highlight></codeline>
+<codeline lineno="164"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvclock__iterator" kindref="compound">vclock_iterator</ref><sp/>iter;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vclock_iterator_init(&amp;iter,<sp/>&amp;limbo-&gt;<ref refid="structtxn__limbo_1af07ac3668341f2990e6114eb451bef08" kindref="member">vclock</ref>);</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>ack_count<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vclock_foreach(&amp;iter,<sp/>vc)</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ack_count<sp/>+=<sp/>vc.lsn<sp/>&gt;=<sp/>lsn;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(ack_count<sp/>&gt;=<sp/>entry-&gt;<ref refid="structtxn__limbo__entry_1a8df514053fad4b785f2f2112448ee047" kindref="member">ack_count</ref>);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>entry-&gt;<ref refid="structtxn__limbo__entry_1a8df514053fad4b785f2f2112448ee047" kindref="member">ack_count</ref><sp/>=<sp/>ack_count;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal">txn_limbo_assign_lsn(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref><sp/>*limbo,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref><sp/>*entry,</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>lsn)</highlight></codeline>
+<codeline lineno="177"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(limbo-&gt;<ref refid="structtxn__limbo_1a2846319bdff8c104a8ce75e8c1f3cf7e" kindref="member">instance_id</ref><sp/>==<sp/>instance_id)</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_limbo_assign_local_lsn(limbo,<sp/>entry,<sp/>lsn);</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_limbo_assign_remote_lsn(limbo,<sp/>entry,<sp/>lsn);</highlight></codeline>
+<codeline lineno="182"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal">txn_limbo_write_rollback(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref><sp/>*limbo,<sp/>int64_t<sp/>lsn);</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal">txn_limbo_wait_complete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref><sp/>*limbo,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref><sp/>*entry)</highlight></codeline>
+<codeline lineno="189"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(entry-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref><sp/>&gt;<sp/>0<sp/>||<sp/>!txn_has_flag(entry-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>,<sp/>TXN_WAIT_ACK));</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>cancellable<sp/>=<sp/>fiber_set_cancellable(</highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(txn_limbo_entry_is_complete(entry))</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>complete;</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(!txn_has_flag(entry-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>,<sp/>TXN_IS_DONE));</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(txn_has_flag(entry-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>,<sp/>TXN_WAIT_SYNC));</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>start_time<sp/>=<sp/>fiber_clock();</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">true</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>deadline<sp/>=<sp/>start_time<sp/>+<sp/>replication_synchro_timeout;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>timeout<sp/>=<sp/>deadline<sp/>-<sp/>fiber_clock();</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>rc<sp/>=<sp/>fiber_cond_wait_timeout(&amp;limbo-&gt;<ref refid="structtxn__limbo_1a2350b507c033990bb332c34847bede81" kindref="member">wait_cond</ref>,<sp/>timeout);</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(txn_limbo_entry_is_complete(entry))</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>complete;</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rc<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(!txn_limbo_is_empty(limbo));</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(txn_limbo_first_entry(limbo)<sp/>!=<sp/>entry)<sp/>{</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="212"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>If<sp/>this<sp/>is<sp/>not<sp/>a<sp/>first<sp/>entry<sp/>in<sp/>the<sp/>limbo,<sp/>it</highlight></codeline>
+<codeline lineno="213"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>is<sp/>definitely<sp/>not<sp/>a<sp/>first<sp/>timed<sp/>out<sp/>entry.<sp/>And</highlight></codeline>
+<codeline lineno="214"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>since<sp/>it<sp/>managed<sp/>to<sp/>time<sp/>out<sp/>too,<sp/>it<sp/>means</highlight></codeline>
+<codeline lineno="215"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>there<sp/>is<sp/>currently<sp/>another<sp/>fiber<sp/>writing</highlight></codeline>
+<codeline lineno="216"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>rollback,<sp/>or<sp/>waiting<sp/>for<sp/>confirmation<sp/>WAL</highlight></codeline>
+<codeline lineno="217"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>write.<sp/>Wait<sp/>when<sp/>it<sp/>will<sp/>finish<sp/>and<sp/>wake<sp/>us<sp/>up.</highlight></codeline>
+<codeline lineno="218"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>wait;</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>First<sp/>in<sp/>the<sp/>queue<sp/>is<sp/>always<sp/>a<sp/>synchronous<sp/>transaction.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(entry-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref><sp/>&gt;<sp/>0);</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(entry-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref><sp/>&lt;=<sp/>limbo-&gt;<ref refid="structtxn__limbo_1acb4c5515bf3cadc680ebe5f63a80608d" kindref="member">confirmed_lsn</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="226"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Yes,<sp/>the<sp/>wait<sp/>timed<sp/>out,<sp/>but<sp/>there<sp/>is<sp/>an<sp/>on-going<sp/>CONFIRM<sp/>WAL</highlight></codeline>
+<codeline lineno="227"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>write<sp/>in<sp/>another<sp/>fiber<sp/>covering<sp/>this<sp/>LSN.<sp/>Can&apos;t<sp/>rollback<sp/>it</highlight></codeline>
+<codeline lineno="228"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>already.<sp/>All<sp/>what<sp/>can<sp/>be<sp/>done<sp/>is<sp/>waiting.<sp/>The<sp/>CONFIRM<sp/>writer</highlight></codeline>
+<codeline lineno="229"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>will<sp/>wakeup<sp/>all<sp/>the<sp/>confirmed<sp/>txns<sp/>when<sp/>WAL<sp/>write<sp/>will<sp/>be</highlight></codeline>
+<codeline lineno="230"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>finished.</highlight></codeline>
+<codeline lineno="231"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>wait;</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"></highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_limbo_write_rollback(limbo,<sp/>entry-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref>);</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref><sp/>*e,<sp/>*tmp;</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_foreach_entry_safe_reverse(e,<sp/>&amp;limbo-&gt;<ref refid="structtxn__limbo_1acbd34d259c659a9503819a49d8c6c295" kindref="member">queue</ref>,</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structtxn__limbo__entry_1ad76ae04502e86ca977495568fa137b6f" kindref="member">in_queue</ref>,<sp/>tmp)<sp/>{</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>-&gt;<ref refid="structtxn_1a96558a190fd400c3c9f4cc942d340ec4" kindref="member">signature</ref><sp/>=<sp/>TXN_SIGNATURE_QUORUM_TIMEOUT;</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_limbo_abort(limbo,<sp/>e);</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_clear_flag(e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>,<sp/>TXN_WAIT_SYNC);</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_clear_flag(e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>,<sp/>TXN_WAIT_ACK);</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_complete(e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>);</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(e<sp/>==<sp/>entry)</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fiber_wakeup(e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>-&gt;fiber);</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fiber_set_cancellable(cancellable);</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(ClientError,<sp/>ER_SYNC_QUORUM_TIMEOUT);</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"></highlight></codeline>
+<codeline lineno="252"><highlight class="normal">wait:</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">do</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fiber_yield();</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(!txn_limbo_entry_is_complete(entry));</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"></highlight></codeline>
+<codeline lineno="257"><highlight class="normal">complete:</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(txn_limbo_entry_is_complete(entry));</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="260"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Entry<sp/>is<sp/>*always*<sp/>removed<sp/>from<sp/>the<sp/>limbo<sp/>by<sp/>the<sp/>same<sp/>fiber,<sp/>which</highlight></codeline>
+<codeline lineno="261"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>installed<sp/>the<sp/>commit/rollback<sp/>flag.</highlight></codeline>
+<codeline lineno="262"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(rlist_empty(&amp;entry-&gt;<ref refid="structtxn__limbo__entry_1ad76ae04502e86ca977495568fa137b6f" kindref="member">in_queue</ref>));</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(txn_has_flag(entry-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>,<sp/>TXN_IS_DONE));</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fiber_set_cancellable(cancellable);</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="267"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>The<sp/>first<sp/>tx<sp/>to<sp/>be<sp/>rolled<sp/>back<sp/>already<sp/>performed<sp/>all</highlight></codeline>
+<codeline lineno="268"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>the<sp/>necessary<sp/>cleanups<sp/>for<sp/>us.</highlight></codeline>
+<codeline lineno="269"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(entry-&gt;is_rollback)<sp/>{</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(ClientError,<sp/>ER_SYNC_ROLLBACK);</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="275"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"></highlight></codeline>
+<codeline lineno="281"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="282"><highlight class="normal">txn_limbo_write_cb(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjournal__entry" kindref="compound">journal_entry</ref><sp/>*entry)</highlight></codeline>
+<codeline lineno="283"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(entry-&gt;<ref refid="structjournal__entry_1a6fab96ea8ba7243b58a2a5afacab551b" kindref="member">complete_data</ref><sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="structfiber" kindref="compound">fiber</ref>()<sp/>!=<sp/>entry-&gt;<ref refid="structjournal__entry_1a6fab96ea8ba7243b58a2a5afacab551b" kindref="member">complete_data</ref>)</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fiber_wakeup(entry-&gt;<ref refid="structjournal__entry_1a6fab96ea8ba7243b58a2a5afacab551b" kindref="member">complete_data</ref>);</highlight></codeline>
+<codeline lineno="287"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"></highlight></codeline>
+<codeline lineno="289"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="290"><highlight class="normal">txn_limbo_write_synchro(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref><sp/>*limbo,<sp/>uint32_t<sp/>type,<sp/>int64_t<sp/>lsn)</highlight></codeline>
+<codeline lineno="291"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(lsn<sp/>&gt;<sp/>0);</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"></highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsynchro__request" kindref="compound">synchro_request</ref><sp/>req<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.<ref refid="structsynchro__request_1a9753c51614cc807c70df1161092012a1" kindref="member">type</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="structsynchro__request_1a9753c51614cc807c70df1161092012a1" kindref="member">type</ref>,</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.replica_id<sp/><sp/><sp/><sp/><sp/>=<sp/>limbo-&gt;<ref refid="structtxn__limbo_1a2846319bdff8c104a8ce75e8c1f3cf7e" kindref="member">instance_id</ref>,</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.lsn<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="structsynchro__request_1a536534568c3ee4452a73c7dd203e9800" kindref="member">lsn</ref>,</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="301"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>This<sp/>is<sp/>a<sp/>synchronous<sp/>commit<sp/>so<sp/>we<sp/>can</highlight></codeline>
+<codeline lineno="302"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>allocate<sp/>everything<sp/>on<sp/>a<sp/>stack.</highlight></codeline>
+<codeline lineno="303"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsynchro__body__bin" kindref="compound">synchro_body_bin</ref><sp/>body;</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__header" kindref="compound">xrow_header</ref><sp/>row;</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>buf[</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjournal__entry" kindref="compound">journal_entry</ref>)<sp/>+</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sizeof(struct<sp/><ref refid="structxrow__header" kindref="compound">xrow_header</ref><sp/>*)];</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"></highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjournal__entry" kindref="compound">journal_entry</ref><sp/>*entry<sp/>=<sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjournal__entry" kindref="compound">journal_entry</ref><sp/>*)buf;</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>entry-&gt;<ref refid="structjournal__entry_1a49d4f3067184c4b8ad78bad64d32118a" kindref="member">rows</ref>[0]<sp/>=<sp/>&amp;row;</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"></highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>xrow_encode_synchro(&amp;row,<sp/>&amp;body,<sp/>&amp;req);</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"></highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>journal_entry_create(entry,<sp/>1,<sp/>xrow_approx_len(&amp;row),</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_limbo_write_cb,<sp/><ref refid="structfiber" kindref="compound">fiber</ref>());</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"></highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(journal_write(entry)<sp/>!=<sp/>0<sp/>||<sp/>entry-&gt;<ref refid="structjournal__entry_1ad46b075e2e0fd64a9762560769c64a0e" kindref="member">res</ref><sp/>&lt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(ClientError,<sp/>ER_WAL_IO);</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_log();</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="321"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>XXX:<sp/>the<sp/>stub<sp/>is<sp/>supposed<sp/>to<sp/>be<sp/>removed<sp/>once<sp/>it<sp/>is<sp/>defined</highlight></codeline>
+<codeline lineno="322"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>what<sp/>to<sp/>do<sp/>when<sp/>a<sp/>synchro<sp/>request<sp/>WAL<sp/>write<sp/>fails.<sp/>One<sp/>of</highlight></codeline>
+<codeline lineno="323"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>the<sp/>possible<sp/>solutions:<sp/>log<sp/>the<sp/>error,<sp/>keep<sp/>the<sp/>limbo</highlight></codeline>
+<codeline lineno="324"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>queue<sp/>as<sp/>is<sp/>and<sp/>probably<sp/>put<sp/>in<sp/>rollback<sp/>mode.<sp/>Then</highlight></codeline>
+<codeline lineno="325"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>provide<sp/>a<sp/>hook<sp/>to<sp/>call<sp/>manually<sp/>when<sp/>WAL<sp/>problems<sp/>are<sp/>fixed.</highlight></codeline>
+<codeline lineno="326"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Or<sp/>retry<sp/>automatically<sp/>with<sp/>some<sp/>period.</highlight></codeline>
+<codeline lineno="327"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>panic(</highlight><highlight class="stringliteral">&quot;Could<sp/>not<sp/>write<sp/>a<sp/>synchro<sp/>request<sp/>to<sp/>WAL:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;lsn<sp/>=<sp/>%lld,<sp/>type<sp/>=<sp/>%s\n&quot;</highlight><highlight class="normal">,<sp/>lsn,</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>iproto_type_name(type));</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="332"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"></highlight></codeline>
+<codeline lineno="338"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="339"><highlight class="normal">txn_limbo_write_confirm(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref><sp/>*limbo,<sp/>int64_t<sp/>lsn)</highlight></codeline>
+<codeline lineno="340"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(lsn<sp/>&gt;<sp/>limbo-&gt;<ref refid="structtxn__limbo_1acb4c5515bf3cadc680ebe5f63a80608d" kindref="member">confirmed_lsn</ref>);</highlight></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(!limbo-&gt;<ref refid="structtxn__limbo_1ac55bc2e4b2fc25cff17c68496b14917d" kindref="member">is_in_rollback</ref>);</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>limbo-&gt;<ref refid="structtxn__limbo_1acb4c5515bf3cadc680ebe5f63a80608d" kindref="member">confirmed_lsn</ref><sp/>=<sp/>lsn;</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_limbo_write_synchro(limbo,<sp/>IPROTO_CONFIRM,<sp/>lsn);</highlight></codeline>
+<codeline lineno="345"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"></highlight></codeline>
+<codeline lineno="348"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="349"><highlight class="normal">txn_limbo_read_confirm(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref><sp/>*limbo,<sp/>int64_t<sp/>lsn)</highlight></codeline>
+<codeline lineno="350"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="351"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(limbo-&gt;<ref refid="structtxn__limbo_1a2846319bdff8c104a8ce75e8c1f3cf7e" kindref="member">instance_id</ref><sp/>!=<sp/>REPLICA_ID_NIL);</highlight></codeline>
+<codeline lineno="352"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref><sp/>*e,<sp/>*tmp;</highlight></codeline>
+<codeline lineno="353"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_foreach_entry_safe(e,<sp/>&amp;limbo-&gt;<ref refid="structtxn__limbo_1acbd34d259c659a9503819a49d8c6c295" kindref="member">queue</ref>,<sp/><ref refid="structtxn__limbo__entry_1ad76ae04502e86ca977495568fa137b6f" kindref="member">in_queue</ref>,<sp/>tmp)<sp/>{</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="355"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Check<sp/>if<sp/>it<sp/>is<sp/>an<sp/>async<sp/>transaction<sp/>last<sp/>in<sp/>the<sp/>queue.<sp/>When</highlight></codeline>
+<codeline lineno="356"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>it<sp/>is<sp/>last,<sp/>it<sp/>does<sp/>not<sp/>depend<sp/>on<sp/>a<sp/>not<sp/>finished<sp/>sync</highlight></codeline>
+<codeline lineno="357"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>transaction<sp/>anymore<sp/>and<sp/>can<sp/>be<sp/>confirmed<sp/>right<sp/>away.</highlight></codeline>
+<codeline lineno="358"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="359"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(txn_has_flag(e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>,<sp/>TXN_WAIT_ACK))<sp/>{</highlight></codeline>
+<codeline lineno="360"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Sync<sp/>transaction<sp/>not<sp/>covered<sp/>by<sp/>the<sp/>confirmation.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="361"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(e-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref><sp/>&gt;<sp/>lsn)</highlight></codeline>
+<codeline lineno="362"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="364"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Sync<sp/>transaction<sp/>not<sp/>yet<sp/>received<sp/>an<sp/>LSN.<sp/>Happens</highlight></codeline>
+<codeline lineno="365"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>only<sp/>to<sp/>local<sp/>master<sp/>transactions<sp/>whose<sp/>WAL<sp/>write<sp/>is</highlight></codeline>
+<codeline lineno="366"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>in<sp/>progress.</highlight></codeline>
+<codeline lineno="367"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="368"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(e-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref><sp/>==<sp/>-1)</highlight></codeline>
+<codeline lineno="369"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="370"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="371"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structtxn__limbo__entry_1a8ea95badae624b4f9dea101c56657675" kindref="member">is_commit</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="372"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_limbo_remove(limbo,<sp/>e);</highlight></codeline>
+<codeline lineno="373"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_clear_flag(e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>,<sp/>TXN_WAIT_SYNC);</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_clear_flag(e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>,<sp/>TXN_WAIT_ACK);</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="376"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>If<sp/><sp/>txn_complete_async()<sp/>was<sp/>already<sp/>called,</highlight></codeline>
+<codeline lineno="377"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>finish<sp/>tx<sp/>processing.<sp/>Otherwise<sp/>just<sp/>clear<sp/>the</highlight></codeline>
+<codeline lineno="378"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>&quot;WAIT_ACK&quot;<sp/>flag.<sp/>Tx<sp/>procesing<sp/>will<sp/>finish<sp/>once</highlight></codeline>
+<codeline lineno="379"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>the<sp/>tx<sp/>is<sp/>written<sp/>to<sp/>WAL.</highlight></codeline>
+<codeline lineno="380"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="381"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>-&gt;<ref refid="structtxn_1a96558a190fd400c3c9f4cc942d340ec4" kindref="member">signature</ref><sp/>&gt;=<sp/>0)</highlight></codeline>
+<codeline lineno="382"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_complete(e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>);</highlight></codeline>
+<codeline lineno="383"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="384"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="385"><highlight class="normal"></highlight></codeline>
+<codeline lineno="391"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="392"><highlight class="normal">txn_limbo_write_rollback(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref><sp/>*limbo,<sp/>int64_t<sp/>lsn)</highlight></codeline>
+<codeline lineno="393"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="394"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(lsn<sp/>&gt;<sp/>limbo-&gt;<ref refid="structtxn__limbo_1acb4c5515bf3cadc680ebe5f63a80608d" kindref="member">confirmed_lsn</ref>);</highlight></codeline>
+<codeline lineno="395"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(!limbo-&gt;<ref refid="structtxn__limbo_1ac55bc2e4b2fc25cff17c68496b14917d" kindref="member">is_in_rollback</ref>);</highlight></codeline>
+<codeline lineno="396"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>limbo-&gt;<ref refid="structtxn__limbo_1ac55bc2e4b2fc25cff17c68496b14917d" kindref="member">is_in_rollback</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="397"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_limbo_write_synchro(limbo,<sp/>IPROTO_ROLLBACK,<sp/>lsn);</highlight></codeline>
+<codeline lineno="398"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>limbo-&gt;<ref refid="structtxn__limbo_1ac55bc2e4b2fc25cff17c68496b14917d" kindref="member">is_in_rollback</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="399"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="400"><highlight class="normal"></highlight></codeline>
+<codeline lineno="402"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="403"><highlight class="normal">txn_limbo_read_rollback(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref><sp/>*limbo,<sp/>int64_t<sp/>lsn)</highlight></codeline>
+<codeline lineno="404"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="405"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(limbo-&gt;<ref refid="structtxn__limbo_1a2846319bdff8c104a8ce75e8c1f3cf7e" kindref="member">instance_id</ref><sp/>!=<sp/>REPLICA_ID_NIL);</highlight></codeline>
+<codeline lineno="406"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref><sp/>*e,<sp/>*tmp;</highlight></codeline>
+<codeline lineno="407"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref><sp/>*last_rollback<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="408"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_foreach_entry_reverse(e,<sp/>&amp;limbo-&gt;<ref refid="structtxn__limbo_1acbd34d259c659a9503819a49d8c6c295" kindref="member">queue</ref>,<sp/><ref refid="structtxn__limbo__entry_1ad76ae04502e86ca977495568fa137b6f" kindref="member">in_queue</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="409"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!txn_has_flag(e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>,<sp/>TXN_WAIT_ACK))</highlight></codeline>
+<codeline lineno="410"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="411"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(e-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref><sp/>&lt;<sp/>lsn)</highlight></codeline>
+<codeline lineno="412"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="413"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>last_rollback<sp/>=<sp/>e;</highlight></codeline>
+<codeline lineno="414"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="415"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(last_rollback<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="416"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="417"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_foreach_entry_safe_reverse(e,<sp/>&amp;limbo-&gt;<ref refid="structtxn__limbo_1acbd34d259c659a9503819a49d8c6c295" kindref="member">queue</ref>,<sp/><ref refid="structtxn__limbo__entry_1ad76ae04502e86ca977495568fa137b6f" kindref="member">in_queue</ref>,<sp/>tmp)<sp/>{</highlight></codeline>
+<codeline lineno="418"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_limbo_abort(limbo,<sp/>e);</highlight></codeline>
+<codeline lineno="419"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_clear_flag(e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>,<sp/>TXN_WAIT_SYNC);</highlight></codeline>
+<codeline lineno="420"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_clear_flag(e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>,<sp/>TXN_WAIT_ACK);</highlight></codeline>
+<codeline lineno="421"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>-&gt;<ref refid="structtxn_1a96558a190fd400c3c9f4cc942d340ec4" kindref="member">signature</ref><sp/>&gt;=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="422"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Rollback<sp/>the<sp/>transaction.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="423"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>-&gt;<ref refid="structtxn_1a96558a190fd400c3c9f4cc942d340ec4" kindref="member">signature</ref><sp/>=<sp/>TXN_SIGNATURE_SYNC_ROLLBACK;</highlight></codeline>
+<codeline lineno="424"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_complete(e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>);</highlight></codeline>
+<codeline lineno="425"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="426"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="427"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Rollback<sp/>the<sp/>transaction,<sp/>but<sp/>don&apos;t</highlight></codeline>
+<codeline lineno="428"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>free<sp/>it<sp/>yet.<sp/>txn_complete_async()<sp/>will</highlight></codeline>
+<codeline lineno="429"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>free<sp/>it.</highlight></codeline>
+<codeline lineno="430"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="431"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>-&gt;<ref refid="structtxn_1a96558a190fd400c3c9f4cc942d340ec4" kindref="member">signature</ref><sp/>=<sp/>TXN_SIGNATURE_SYNC_ROLLBACK;</highlight></codeline>
+<codeline lineno="432"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber" kindref="compound">fiber</ref><sp/>*<ref refid="structfiber" kindref="compound">fiber</ref><sp/>=<sp/>e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>-&gt;fiber;</highlight></codeline>
+<codeline lineno="433"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>-&gt;fiber<sp/>=<sp/>fiber();</highlight></codeline>
+<codeline lineno="434"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_complete(e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>);</highlight></codeline>
+<codeline lineno="435"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>-&gt;fiber<sp/>=<sp/>fiber;</highlight></codeline>
+<codeline lineno="436"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="437"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(e<sp/>==<sp/>last_rollback)</highlight></codeline>
+<codeline lineno="438"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="439"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="440"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="441"><highlight class="normal"></highlight></codeline>
+<codeline lineno="442"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="443"><highlight class="normal">txn_limbo_ack(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref><sp/>*limbo,<sp/>uint32_t<sp/>replica_id,<sp/>int64_t<sp/>lsn)</highlight></codeline>
+<codeline lineno="444"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="445"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rlist_empty(&amp;limbo-&gt;<ref refid="structtxn__limbo_1acbd34d259c659a9503819a49d8c6c295" kindref="member">queue</ref>))</highlight></codeline>
+<codeline lineno="446"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="447"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="448"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>If<sp/>limbo<sp/>is<sp/>currently<sp/>writing<sp/>a<sp/>rollback,<sp/>it<sp/>means<sp/>that<sp/>the<sp/>whole</highlight></codeline>
+<codeline lineno="449"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>queue<sp/>will<sp/>be<sp/>rolled<sp/>back.<sp/>Because<sp/>rollback<sp/>is<sp/>written<sp/>only<sp/>for</highlight></codeline>
+<codeline lineno="450"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>timeout.<sp/>Timeout<sp/>always<sp/>happens<sp/>first<sp/>for<sp/>the<sp/>oldest<sp/>entry,<sp/>i.e.</highlight></codeline>
+<codeline lineno="451"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>first<sp/>entry<sp/>in<sp/>the<sp/>queue.<sp/>The<sp/>rollback<sp/>will<sp/>clear<sp/>all<sp/>the<sp/>newer</highlight></codeline>
+<codeline lineno="452"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>entries.<sp/>So<sp/>in<sp/>total<sp/>the<sp/>whole<sp/>queue<sp/>is<sp/>dead<sp/>already.<sp/>Would<sp/>be</highlight></codeline>
+<codeline lineno="453"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>strange<sp/>to<sp/>write<sp/>CONFIRM<sp/>for<sp/>rolled<sp/>back<sp/>LSNs.<sp/>Even<sp/>though</highlight></codeline>
+<codeline lineno="454"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>probably<sp/>it<sp/>wouldn&apos;t<sp/>break<sp/>anything.<sp/>Would<sp/>be<sp/>just<sp/>2<sp/>conflicting</highlight></codeline>
+<codeline lineno="455"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>decisions<sp/>for<sp/>the<sp/>same<sp/>LSNs.</highlight></codeline>
+<codeline lineno="456"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="457"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(limbo-&gt;<ref refid="structtxn__limbo_1ac55bc2e4b2fc25cff17c68496b14917d" kindref="member">is_in_rollback</ref>)</highlight></codeline>
+<codeline lineno="458"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="459"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(limbo-&gt;<ref refid="structtxn__limbo_1a2846319bdff8c104a8ce75e8c1f3cf7e" kindref="member">instance_id</ref><sp/>!=<sp/>REPLICA_ID_NIL);</highlight></codeline>
+<codeline lineno="460"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>prev_lsn<sp/>=<sp/>vclock_get(&amp;limbo-&gt;<ref refid="structtxn__limbo_1af07ac3668341f2990e6114eb451bef08" kindref="member">vclock</ref>,<sp/>replica_id);</highlight></codeline>
+<codeline lineno="461"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="462"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>One<sp/>of<sp/>the<sp/>reasons<sp/>why<sp/>can<sp/>happen<sp/>-<sp/>the<sp/>remote<sp/>instance<sp/>is<sp/>not</highlight></codeline>
+<codeline lineno="463"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>read-only<sp/>and<sp/>wrote<sp/>something<sp/>under<sp/>its<sp/>own<sp/>insance_id.<sp/>For<sp/>qsync</highlight></codeline>
+<codeline lineno="464"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>that<sp/>most<sp/>likely<sp/>means<sp/>that<sp/>the<sp/>remote<sp/>instance<sp/>decided<sp/>to<sp/>take<sp/>over</highlight></codeline>
+<codeline lineno="465"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>the<sp/>limbo<sp/>ownership,<sp/>and<sp/>the<sp/>current<sp/>node<sp/>is<sp/>going<sp/>to<sp/>become<sp/>a</highlight></codeline>
+<codeline lineno="466"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>replica<sp/>very<sp/>soon.</highlight></codeline>
+<codeline lineno="467"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="468"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(lsn<sp/>==<sp/>prev_lsn)</highlight></codeline>
+<codeline lineno="469"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="470"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="vclock_8h_1a50723dc8a960403516ebd058243763e7" kindref="member">vclock_follow</ref>(&amp;limbo-&gt;<ref refid="structtxn__limbo_1af07ac3668341f2990e6114eb451bef08" kindref="member">vclock</ref>,<sp/>replica_id,<sp/>lsn);</highlight></codeline>
+<codeline lineno="471"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref><sp/>*e;</highlight></codeline>
+<codeline lineno="472"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>confirm_lsn<sp/>=<sp/>-1;</highlight></codeline>
+<codeline lineno="473"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_foreach_entry(e,<sp/>&amp;limbo-&gt;<ref refid="structtxn__limbo_1acbd34d259c659a9503819a49d8c6c295" kindref="member">queue</ref>,<sp/><ref refid="structtxn__limbo__entry_1ad76ae04502e86ca977495568fa137b6f" kindref="member">in_queue</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="474"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(e-&gt;<ref refid="structtxn__limbo__entry_1a8df514053fad4b785f2f2112448ee047" kindref="member">ack_count</ref><sp/>&lt;=<sp/><ref refid="vclock_8h_1a5bea799269f02f5b3395d6b2c068b618adf6f6f5b7fec282b7d912444cb938756" kindref="member">VCLOCK_MAX</ref>);</highlight></codeline>
+<codeline lineno="475"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(e-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref><sp/>&gt;<sp/>lsn)</highlight></codeline>
+<codeline lineno="476"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="477"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="478"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Sync<sp/>transactions<sp/>need<sp/>to<sp/>collect<sp/>acks.<sp/>Async</highlight></codeline>
+<codeline lineno="479"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>transactions<sp/>are<sp/>automatically<sp/>committed<sp/>right</highlight></codeline>
+<codeline lineno="480"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>after<sp/>all<sp/>the<sp/>previous<sp/>sync<sp/>transactions<sp/>are.</highlight></codeline>
+<codeline lineno="481"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="482"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!txn_has_flag(e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>,<sp/>TXN_WAIT_ACK))<sp/>{</highlight></codeline>
+<codeline lineno="483"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(e-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref><sp/>==<sp/>-1);</highlight></codeline>
+<codeline lineno="484"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(confirm_lsn<sp/>==<sp/>-1)</highlight></codeline>
+<codeline lineno="485"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="486"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(e-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref><sp/>&lt;=<sp/>prev_lsn)<sp/>{</highlight></codeline>
+<codeline lineno="487"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="488"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(++e-&gt;<ref refid="structtxn__limbo__entry_1a8df514053fad4b785f2f2112448ee047" kindref="member">ack_count</ref><sp/>&lt;<sp/>replication_synchro_quorum)<sp/>{</highlight></codeline>
+<codeline lineno="489"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="490"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="491"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>confirm_lsn<sp/>=<sp/>e-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref>;</highlight></codeline>
+<codeline lineno="492"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="493"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="494"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(confirm_lsn<sp/>==<sp/>-1<sp/>||<sp/>confirm_lsn<sp/>&lt;=<sp/>limbo-&gt;confirmed_lsn)</highlight></codeline>
+<codeline lineno="495"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="496"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_limbo_write_confirm(limbo,<sp/>confirm_lsn);</highlight></codeline>
+<codeline lineno="497"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_limbo_read_confirm(limbo,<sp/>confirm_lsn);</highlight></codeline>
+<codeline lineno="498"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="499"><highlight class="normal"></highlight></codeline>
+<codeline lineno="505" refid="structconfirm__waitpoint" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structconfirm__waitpoint" kindref="compound">confirm_waitpoint</ref><sp/>{</highlight></codeline>
+<codeline lineno="507"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber" kindref="compound">fiber</ref><sp/>*<ref refid="structconfirm__waitpoint_1a8b9aa17c1aa717a72803cdfabf083300" kindref="member">caller</ref>;</highlight></codeline>
+<codeline lineno="511"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structconfirm__waitpoint_1af201699f224788ae052dec7b425c7ced" kindref="member">is_confirm</ref>;</highlight></codeline>
+<codeline lineno="512"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_rollback;</highlight></codeline>
+<codeline lineno="513"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="514"><highlight class="normal"></highlight></codeline>
+<codeline lineno="515"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="516"><highlight class="normal">txn_commit_cb(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtrigger" kindref="compound">trigger</ref><sp/>*<ref refid="structtrigger" kindref="compound">trigger</ref>,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*event)</highlight></codeline>
+<codeline lineno="517"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="518"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)event;</highlight></codeline>
+<codeline lineno="519"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structconfirm__waitpoint" kindref="compound">confirm_waitpoint</ref><sp/>*cwp<sp/>=</highlight></codeline>
+<codeline lineno="520"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structconfirm__waitpoint" kindref="compound">confirm_waitpoint</ref><sp/>*)trigger-&gt;<ref refid="structtrigger_1a1b8861f2b69e29dab7e9c5d95c942278" kindref="member">data</ref>;</highlight></codeline>
+<codeline lineno="521"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cwp-&gt;<ref refid="structconfirm__waitpoint_1af201699f224788ae052dec7b425c7ced" kindref="member">is_confirm</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="522"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fiber_wakeup(cwp-&gt;<ref refid="structconfirm__waitpoint_1a8b9aa17c1aa717a72803cdfabf083300" kindref="member">caller</ref>);</highlight></codeline>
+<codeline lineno="523"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="524"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="525"><highlight class="normal"></highlight></codeline>
+<codeline lineno="526"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="527"><highlight class="normal">txn_rollback_cb(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>trigger<sp/>*trigger,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*event)</highlight></codeline>
+<codeline lineno="528"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="529"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)event;</highlight></codeline>
+<codeline lineno="530"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structconfirm__waitpoint" kindref="compound">confirm_waitpoint</ref><sp/>*cwp<sp/>=</highlight></codeline>
+<codeline lineno="531"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structconfirm__waitpoint" kindref="compound">confirm_waitpoint</ref><sp/>*)trigger-&gt;<ref refid="structtrigger_1a1b8861f2b69e29dab7e9c5d95c942278" kindref="member">data</ref>;</highlight></codeline>
+<codeline lineno="532"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cwp-&gt;is_rollback<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="533"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fiber_wakeup(cwp-&gt;<ref refid="structconfirm__waitpoint_1a8b9aa17c1aa717a72803cdfabf083300" kindref="member">caller</ref>);</highlight></codeline>
+<codeline lineno="534"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="535"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="536"><highlight class="normal"></highlight></codeline>
+<codeline lineno="537"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="538"><highlight class="normal">txn_limbo_wait_confirm(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref><sp/>*limbo)</highlight></codeline>
+<codeline lineno="539"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="540"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(txn_limbo_is_empty(limbo))</highlight></codeline>
+<codeline lineno="541"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="542"><highlight class="normal"></highlight></codeline>
+<codeline lineno="543"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>initialization<sp/>of<sp/>a<sp/>waitpoint.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="544"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structconfirm__waitpoint" kindref="compound">confirm_waitpoint</ref><sp/>cwp;</highlight></codeline>
+<codeline lineno="545"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cwp.<ref refid="structconfirm__waitpoint_1a8b9aa17c1aa717a72803cdfabf083300" kindref="member">caller</ref><sp/>=<sp/><ref refid="structfiber" kindref="compound">fiber</ref>();</highlight></codeline>
+<codeline lineno="546"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cwp.<ref refid="structconfirm__waitpoint_1af201699f224788ae052dec7b425c7ced" kindref="member">is_confirm</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="547"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cwp.is_rollback<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="548"><highlight class="normal"></highlight></codeline>
+<codeline lineno="549"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Set<sp/>triggers<sp/>for<sp/>the<sp/>last<sp/>limbo<sp/>transaction.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="550"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">trigger<sp/>on_complete;</highlight></codeline>
+<codeline lineno="551"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>trigger_create(&amp;on_complete,<sp/>txn_commit_cb,<sp/>&amp;cwp,<sp/>NULL);</highlight></codeline>
+<codeline lineno="552"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">trigger<sp/>on_rollback;</highlight></codeline>
+<codeline lineno="553"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>trigger_create(&amp;on_rollback,<sp/>txn_rollback_cb,<sp/>&amp;cwp,<sp/>NULL);</highlight></codeline>
+<codeline lineno="554"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref><sp/>*tle<sp/>=<sp/>txn_limbo_last_entry(limbo);</highlight></codeline>
+<codeline lineno="555"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_on_commit(tle-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>,<sp/>&amp;on_complete);</highlight></codeline>
+<codeline lineno="556"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_on_rollback(tle-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>,<sp/>&amp;on_rollback);</highlight></codeline>
+<codeline lineno="557"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>start_time<sp/>=<sp/>fiber_clock();</highlight></codeline>
+<codeline lineno="558"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">true</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="559"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>deadline<sp/>=<sp/>start_time<sp/>+<sp/>replication_synchro_timeout;</highlight></codeline>
+<codeline lineno="560"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>cancellable<sp/>=<sp/>fiber_set_cancellable(</highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="561"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>timeout<sp/>=<sp/>deadline<sp/>-<sp/>fiber_clock();</highlight></codeline>
+<codeline lineno="562"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>rc<sp/>=<sp/>fiber_cond_wait_timeout(&amp;limbo-&gt;<ref refid="structtxn__limbo_1a2350b507c033990bb332c34847bede81" kindref="member">wait_cond</ref>,<sp/>timeout);</highlight></codeline>
+<codeline lineno="563"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fiber_set_cancellable(cancellable);</highlight></codeline>
+<codeline lineno="564"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cwp.<ref refid="structconfirm__waitpoint_1af201699f224788ae052dec7b425c7ced" kindref="member">is_confirm</ref><sp/>||<sp/>cwp.is_rollback)</highlight></codeline>
+<codeline lineno="565"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>complete;</highlight></codeline>
+<codeline lineno="566"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rc<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="567"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>timed_out;</highlight></codeline>
+<codeline lineno="568"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="569"><highlight class="normal">timed_out:</highlight></codeline>
+<codeline lineno="570"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Clear<sp/>the<sp/>triggers<sp/>if<sp/>the<sp/>timeout<sp/>has<sp/>been<sp/>reached.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="571"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>trigger_clear(&amp;on_complete);</highlight></codeline>
+<codeline lineno="572"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>trigger_clear(&amp;on_rollback);</highlight></codeline>
+<codeline lineno="573"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(ClientError,<sp/>ER_SYNC_QUORUM_TIMEOUT);</highlight></codeline>
+<codeline lineno="574"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="575"><highlight class="normal"></highlight></codeline>
+<codeline lineno="576"><highlight class="normal">complete:</highlight></codeline>
+<codeline lineno="577"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!cwp.<ref refid="structconfirm__waitpoint_1af201699f224788ae052dec7b425c7ced" kindref="member">is_confirm</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="578"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>The<sp/>transaction<sp/>has<sp/>been<sp/>rolled<sp/>back.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="579"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(ClientError,<sp/>ER_SYNC_ROLLBACK);</highlight></codeline>
+<codeline lineno="580"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="581"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="582"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="583"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="584"><highlight class="normal"></highlight></codeline>
+<codeline lineno="585"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="586"><highlight class="normal">txn_limbo_process(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref><sp/>*limbo,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsynchro__request" kindref="compound">synchro_request</ref><sp/>*req)</highlight></codeline>
+<codeline lineno="587"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="588"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(req-&gt;<ref refid="structsynchro__request_1a1c0a93aee964c4ee803c2378b7b1ea6e" kindref="member">replica_id</ref><sp/>!=<sp/>limbo-&gt;<ref refid="structtxn__limbo_1a2846319bdff8c104a8ce75e8c1f3cf7e" kindref="member">instance_id</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="589"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(ClientError,<sp/>ER_SYNC_MASTER_MISMATCH,<sp/>req-&gt;<ref refid="structsynchro__request_1a1c0a93aee964c4ee803c2378b7b1ea6e" kindref="member">replica_id</ref>,</highlight></codeline>
+<codeline lineno="590"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>limbo-&gt;<ref refid="structtxn__limbo_1a2846319bdff8c104a8ce75e8c1f3cf7e" kindref="member">instance_id</ref>);</highlight></codeline>
+<codeline lineno="591"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="592"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="593"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(req-&gt;<ref refid="structsynchro__request_1a9753c51614cc807c70df1161092012a1" kindref="member">type</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="594"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>IPROTO_CONFIRM:</highlight></codeline>
+<codeline lineno="595"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_limbo_read_confirm(limbo,<sp/>req-&gt;<ref refid="structsynchro__request_1a536534568c3ee4452a73c7dd203e9800" kindref="member">lsn</ref>);</highlight></codeline>
+<codeline lineno="596"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="597"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>IPROTO_ROLLBACK:</highlight></codeline>
+<codeline lineno="598"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_limbo_read_rollback(limbo,<sp/>req-&gt;<ref refid="structsynchro__request_1a536534568c3ee4452a73c7dd203e9800" kindref="member">lsn</ref>);</highlight></codeline>
+<codeline lineno="599"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="600"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="601"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>unreachable();</highlight></codeline>
+<codeline lineno="602"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="603"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="604"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="605"><highlight class="normal"></highlight></codeline>
+<codeline lineno="606"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="607"><highlight class="normal">txn_limbo_force_empty(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref><sp/>*limbo,<sp/>int64_t<sp/>confirm_lsn)</highlight></codeline>
+<codeline lineno="608"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="609"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref><sp/>*e,<sp/>*last_quorum<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="610"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref><sp/>*rollback<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="611"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_foreach_entry(e,<sp/>&amp;limbo-&gt;<ref refid="structtxn__limbo_1acbd34d259c659a9503819a49d8c6c295" kindref="member">queue</ref>,<sp/><ref refid="structtxn__limbo__entry_1ad76ae04502e86ca977495568fa137b6f" kindref="member">in_queue</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="612"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(txn_has_flag(e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>,<sp/>TXN_WAIT_ACK))<sp/>{</highlight></codeline>
+<codeline lineno="613"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(e-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref><sp/>&lt;=<sp/>confirm_lsn)<sp/>{</highlight></codeline>
+<codeline lineno="614"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>last_quorum<sp/>=<sp/>e;</highlight></codeline>
+<codeline lineno="615"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="616"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rollback<sp/>=<sp/>e;</highlight></codeline>
+<codeline lineno="617"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="618"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="619"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="620"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="621"><highlight class="normal"></highlight></codeline>
+<codeline lineno="622"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(last_quorum<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="623"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_limbo_write_confirm(limbo,<sp/>last_quorum-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref>);</highlight></codeline>
+<codeline lineno="624"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_limbo_read_confirm(limbo,<sp/>last_quorum-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref>);</highlight></codeline>
+<codeline lineno="625"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="626"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rollback<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="627"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_limbo_write_rollback(limbo,<sp/>rollback-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref>);</highlight></codeline>
+<codeline lineno="628"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_limbo_read_rollback(limbo,<sp/>rollback-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref>);</highlight></codeline>
+<codeline lineno="629"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="630"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="631"><highlight class="normal"></highlight></codeline>
+<codeline lineno="632"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="633"><highlight class="normal">txn_limbo_on_parameters_change(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref><sp/>*limbo)</highlight></codeline>
+<codeline lineno="634"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="635"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rlist_empty(&amp;limbo-&gt;<ref refid="structtxn__limbo_1acbd34d259c659a9503819a49d8c6c295" kindref="member">queue</ref>))</highlight></codeline>
+<codeline lineno="636"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="637"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn__limbo__entry" kindref="compound">txn_limbo_entry</ref><sp/>*e;</highlight></codeline>
+<codeline lineno="638"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>confirm_lsn<sp/>=<sp/>-1;</highlight></codeline>
+<codeline lineno="639"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_foreach_entry(e,<sp/>&amp;limbo-&gt;<ref refid="structtxn__limbo_1acbd34d259c659a9503819a49d8c6c295" kindref="member">queue</ref>,<sp/><ref refid="structtxn__limbo__entry_1ad76ae04502e86ca977495568fa137b6f" kindref="member">in_queue</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="640"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(e-&gt;<ref refid="structtxn__limbo__entry_1a8df514053fad4b785f2f2112448ee047" kindref="member">ack_count</ref><sp/>&lt;=<sp/><ref refid="vclock_8h_1a5bea799269f02f5b3395d6b2c068b618adf6f6f5b7fec282b7d912444cb938756" kindref="member">VCLOCK_MAX</ref>);</highlight></codeline>
+<codeline lineno="641"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!txn_has_flag(e-&gt;<ref refid="structtxn__limbo__entry_1abf5c3ec0266eb48921caf627d4797501" kindref="member">txn</ref>,<sp/>TXN_WAIT_ACK))<sp/>{</highlight></codeline>
+<codeline lineno="642"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(e-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref><sp/>==<sp/>-1);</highlight></codeline>
+<codeline lineno="643"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(confirm_lsn<sp/>==<sp/>-1)</highlight></codeline>
+<codeline lineno="644"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="645"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(e-&gt;<ref refid="structtxn__limbo__entry_1a8df514053fad4b785f2f2112448ee047" kindref="member">ack_count</ref><sp/>&lt;<sp/>replication_synchro_quorum)<sp/>{</highlight></codeline>
+<codeline lineno="646"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="647"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="648"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>confirm_lsn<sp/>=<sp/>e-&gt;<ref refid="structtxn__limbo__entry_1abc034159af4711c9133947fc3889a2d3" kindref="member">lsn</ref>;</highlight></codeline>
+<codeline lineno="649"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(confirm_lsn<sp/>&gt;<sp/>0);</highlight></codeline>
+<codeline lineno="650"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="651"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="652"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(confirm_lsn<sp/>&gt;<sp/>limbo-&gt;<ref refid="structtxn__limbo_1acb4c5515bf3cadc680ebe5f63a80608d" kindref="member">confirmed_lsn</ref><sp/>&amp;&amp;<sp/>!limbo-&gt;<ref refid="structtxn__limbo_1ac55bc2e4b2fc25cff17c68496b14917d" kindref="member">is_in_rollback</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="653"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_limbo_write_confirm(limbo,<sp/>confirm_lsn);</highlight></codeline>
+<codeline lineno="654"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_limbo_read_confirm(limbo,<sp/>confirm_lsn);</highlight></codeline>
+<codeline lineno="655"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="656"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="657"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Wakeup<sp/>all<sp/>the<sp/>others<sp/>-<sp/>timed<sp/>out<sp/>will<sp/>rollback.<sp/>Also</highlight></codeline>
+<codeline lineno="658"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>there<sp/>can<sp/>be<sp/>non-transactional<sp/>waiters,<sp/>such<sp/>as<sp/>CONFIRM</highlight></codeline>
+<codeline lineno="659"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>waiters.<sp/>They<sp/>are<sp/>bound<sp/>to<sp/>a<sp/>transaction,<sp/>but<sp/>if<sp/>they</highlight></codeline>
+<codeline lineno="660"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>wait<sp/>on<sp/>replica,<sp/>they<sp/>won&apos;t<sp/>see<sp/>timeout<sp/>update.<sp/>Because</highlight></codeline>
+<codeline lineno="661"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>sync<sp/>transactions<sp/>can<sp/>live<sp/>on<sp/>replica<sp/>infinitely.</highlight></codeline>
+<codeline lineno="662"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="663"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fiber_cond_broadcast(&amp;limbo-&gt;<ref refid="structtxn__limbo_1a2350b507c033990bb332c34847bede81" kindref="member">wait_cond</ref>);</highlight></codeline>
+<codeline lineno="664"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="665"><highlight class="normal"></highlight></codeline>
+<codeline lineno="666"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="667"><highlight class="normal">txn_limbo_init(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="668"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="669"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_limbo_create(&amp;<ref refid="structtxn__limbo" kindref="compound">txn_limbo</ref>);</highlight></codeline>
+<codeline lineno="670"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/txn_limbo.c"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,166 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structslab__cache" kind="struct" language="C++" prot="public">
+    <compoundname>slab_cache</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structslab__cache_1af6ff25352631053aa574e8ca94796cef" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structslab__arena" kindref="compound">slab_arena</ref> *</type>
+        <definition>struct slab_arena* slab_cache::arena</definition>
+        <argsstring></argsstring>
+        <name>arena</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="130" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="130" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structslab__cache_1a54902d8d024587d64649f2375719bda5" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t slab_cache::order0_size</definition>
+        <argsstring></argsstring>
+        <name>order0_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="138" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="138" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structslab__cache_1a71e800668926a58a0c4cc97975e8d35c" prot="public" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t slab_cache::order0_size_lb</definition>
+        <argsstring></argsstring>
+        <name>order0_size_lb</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="143" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="143" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structslab__cache_1ab63c1ee10d1b0a1ff566a75c3a55f249" prot="public" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t slab_cache::order_max</definition>
+        <argsstring></argsstring>
+        <name>order_max</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="154" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="154" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structslab__cache_1a505ba66f5adfc393b02f9b7b24c64be9" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structslab__list" kindref="compound">slab_list</ref></type>
+        <definition>struct slab_list slab_cache::allocated</definition>
+        <argsstring></argsstring>
+        <name>allocated</name>
+        <briefdescription>
+<para>All allocated slabs used in the cache. </para>        </briefdescription>
+        <detaileddescription>
+<para>The stats reflect the total used/allocated memory in the cache. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="154" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="159" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structslab__cache_1a845802b797c896f220e0c07999672422" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structslab__list" kindref="compound">slab_list</ref></type>
+        <definition>struct slab_list slab_cache::orders[ORDER_MAX+1]</definition>
+        <argsstring>[ORDER_MAX+1]</argsstring>
+        <name>orders</name>
+        <briefdescription>
+<para>Lists of unused slabs, for each slab order. </para>        </briefdescription>
+        <detaileddescription>
+<para>A used slab is removed from the list and its next_in_list link may be reused for some other purpose. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="154" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="166" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structslab__cache_1aed5cfde1c68f2122f4d54b7ec1dd5184" prot="public" static="no" mutable="no">
+        <type>pthread_t</type>
+        <definition>pthread_t slab_cache::thread_id</definition>
+        <argsstring></argsstring>
+        <name>thread_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="168" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="168" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="9037">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="9038">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="9038" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="9036">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="9037" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="9038" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="9040">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="9041">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="9039">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="9040" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="9041" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="9035">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="9036" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="9039" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="128" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="128" bodyend="170"/>
+    <listofallmembers>
+      <member refid="structslab__cache_1a505ba66f5adfc393b02f9b7b24c64be9" prot="public" virt="non-virtual"><scope>slab_cache</scope><name>allocated</name></member>
+      <member refid="structslab__cache_1af6ff25352631053aa574e8ca94796cef" prot="public" virt="non-virtual"><scope>slab_cache</scope><name>arena</name></member>
+      <member refid="structslab__cache_1a54902d8d024587d64649f2375719bda5" prot="public" virt="non-virtual"><scope>slab_cache</scope><name>order0_size</name></member>
+      <member refid="structslab__cache_1a71e800668926a58a0c4cc97975e8d35c" prot="public" virt="non-virtual"><scope>slab_cache</scope><name>order0_size_lb</name></member>
+      <member refid="structslab__cache_1ab63c1ee10d1b0a1ff566a75c3a55f249" prot="public" virt="non-virtual"><scope>slab_cache</scope><name>order_max</name></member>
+      <member refid="structslab__cache_1a845802b797c896f220e0c07999672422" prot="public" virt="non-virtual"><scope>slab_cache</scope><name>orders</name></member>
+      <member refid="structslab__cache_1aed5cfde1c68f2122f4d54b7ec1dd5184" prot="public" virt="non-virtual"><scope>slab_cache</scope><name>thread_id</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

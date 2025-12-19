@@ -1,0 +1,889 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="lib_2core_2popen_8h" kind="file" language="C++">
+    <compoundname>popen.h</compoundname>
+    <includes local="no">signal.h</includes>
+    <includes refid="errno_8h" local="no">errno.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">sys/types.h</includes>
+    <includes refid="rlist_8h" local="no">small/rlist.h</includes>
+    <includes refid="util_8h" local="yes">trivia/util.h</includes>
+    <includes local="yes">third_party/tarantool_ev.h</includes>
+    <includedby refid="lib_2core_2popen_8c" local="yes">/home/tsafin/tarantool/src/lib/core/popen.c</includedby>
+    <includedby refid="lua_2popen_8c" local="yes">/home/tsafin/tarantool/src/lua/popen.c</includedby>
+    <includedby refid="main_8cc" local="yes">/home/tsafin/tarantool/src/main.cc</includedby>
+    <incdepgraph>
+      <node id="2024">
+        <label>stdbool.h</label>
+      </node>
+      <node id="2025">
+        <label>sys/types.h</label>
+      </node>
+      <node id="2023">
+        <label>signal.h</label>
+      </node>
+      <node id="2022">
+        <label>/home/tsafin/tarantool/src/lib/core/popen.h</label>
+        <link refid="lib_2core_2popen_8h"/>
+        <childnode refid="2023" relation="include">
+        </childnode>
+        <childnode refid="2024" relation="include">
+        </childnode>
+        <childnode refid="2025" relation="include">
+        </childnode>
+        <childnode refid="2026" relation="include">
+        </childnode>
+      </node>
+      <node id="2026">
+        <label>third_party/tarantool_ev.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structpopen__handle" prot="public">popen_handle</innerclass>
+    <innerclass refid="structpopen__opts" prot="public">popen_opts</innerclass>
+    <innerclass refid="structpopen__stat" prot="public">popen_stat</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0f" prot="public" static="no">
+        <name>popen_flag_bits</name>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fa927cfe2b84f27d591dddf1f780521b5a" prot="public">
+          <name>POPEN_FLAG_NONE</name>
+          <initializer>= (0 &lt;&lt; 0)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fafea9eb50db95a26f22c0b99ec4c3f91e" prot="public">
+          <name>POPEN_FLAG_FD_STDIN_BIT</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fa64e7613556afac42e61c9ad64af79600" prot="public">
+          <name>POPEN_FLAG_FD_STDIN</name>
+          <initializer>= (1 &lt;&lt; POPEN_FLAG_FD_STDIN_BIT)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fa0c09f479daf54aeda4de927631ce818c" prot="public">
+          <name>POPEN_FLAG_FD_STDOUT_BIT</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fa2f2619f4984a1e9bf200ab56c68331a4" prot="public">
+          <name>POPEN_FLAG_FD_STDOUT</name>
+          <initializer>= (1 &lt;&lt; POPEN_FLAG_FD_STDOUT_BIT)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fa2aca0fbc5db47a43e13f809b6bb1b860" prot="public">
+          <name>POPEN_FLAG_FD_STDERR_BIT</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fae14f8cb5f234c99202dcfdb64ff29fe4" prot="public">
+          <name>POPEN_FLAG_FD_STDERR</name>
+          <initializer>= (1 &lt;&lt; POPEN_FLAG_FD_STDERR_BIT)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0faf93c193d13eb1cfa0ace22bfff54441d" prot="public">
+          <name>POPEN_FLAG_FD_STDEND_BIT</name>
+          <initializer>= POPEN_FLAG_FD_STDERR_BIT + 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fa7efbe207fbf10c11e9cddde0b07b3ff6" prot="public">
+          <name>POPEN_FLAG_FD_STDIN_DEVNULL_BIT</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0faa0984dc2eecc8534f244fcc23bc1dc79" prot="public">
+          <name>POPEN_FLAG_FD_STDIN_DEVNULL</name>
+          <initializer>= (1 &lt;&lt; POPEN_FLAG_FD_STDIN_DEVNULL_BIT)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fa8f0f66fce3c0a87a7f3f919a5a5d1db3" prot="public">
+          <name>POPEN_FLAG_FD_STDOUT_DEVNULL_BIT</name>
+          <initializer>= 4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fa7a66a05e0c648bf201151b6e88cd827b" prot="public">
+          <name>POPEN_FLAG_FD_STDOUT_DEVNULL</name>
+          <initializer>= (1 &lt;&lt; POPEN_FLAG_FD_STDOUT_DEVNULL_BIT)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0facc4f560a7283f5e20ad5ca34814bfcf7" prot="public">
+          <name>POPEN_FLAG_FD_STDERR_DEVNULL_BIT</name>
+          <initializer>= 5</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fafe375e47ec87f28c2c82e86e0a84e954" prot="public">
+          <name>POPEN_FLAG_FD_STDERR_DEVNULL</name>
+          <initializer>= (1 &lt;&lt; POPEN_FLAG_FD_STDERR_DEVNULL_BIT)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fa6dec77520f327cc9d898bb2a70da972b" prot="public">
+          <name>POPEN_FLAG_FD_STDIN_CLOSE_BIT</name>
+          <initializer>= 6</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fadc71725e4f174e01489f6bea20b8c768" prot="public">
+          <name>POPEN_FLAG_FD_STDIN_CLOSE</name>
+          <initializer>= (1 &lt;&lt; POPEN_FLAG_FD_STDIN_CLOSE_BIT)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fa516c133ea0a7ca93f8f0407d00ff363a" prot="public">
+          <name>POPEN_FLAG_FD_STDOUT_CLOSE_BIT</name>
+          <initializer>= 7</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fa9aad28454fbd10dbc9b96fb3e9a4066d" prot="public">
+          <name>POPEN_FLAG_FD_STDOUT_CLOSE</name>
+          <initializer>= (1 &lt;&lt; POPEN_FLAG_FD_STDOUT_CLOSE_BIT)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fa7be0649d097e963bb2b4f5a6cca072a4" prot="public">
+          <name>POPEN_FLAG_FD_STDERR_CLOSE_BIT</name>
+          <initializer>= 8</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fa443be794402ad953c5eb26023d5dca55" prot="public">
+          <name>POPEN_FLAG_FD_STDERR_CLOSE</name>
+          <initializer>= (1 &lt;&lt; POPEN_FLAG_FD_STDERR_CLOSE_BIT)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fa30a63bed04453876cfb40b274172141b" prot="public">
+          <name>POPEN_FLAG_FD_STDIN_EPIPE_BIT</name>
+          <initializer>= 9</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fa3e8fc341a54dc89b019baeac43d360f6" prot="public">
+          <name>POPEN_FLAG_FD_STDIN_EPIPE</name>
+          <initializer>= (1 &lt;&lt; POPEN_FLAG_FD_STDIN_EPIPE_BIT)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fad146f7c22570fa6ad48836ef101d604c" prot="public">
+          <name>POPEN_FLAG_FD_STDOUT_EPIPE_BIT</name>
+          <initializer>= 10</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fa2be3228e59ebb5b85c0bc22440bb1510" prot="public">
+          <name>POPEN_FLAG_FD_STDOUT_EPIPE</name>
+          <initializer>= (1 &lt;&lt; POPEN_FLAG_FD_STDOUT_EPIPE_BIT)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fab31b7d0571979a22b90a5dac507bbb83" prot="public">
+          <name>POPEN_FLAG_FD_STDERR_EPIPE_BIT</name>
+          <initializer>= 11</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fa788e03cb4d9e1e9bffe6c67ebcaac97e" prot="public">
+          <name>POPEN_FLAG_FD_STDERR_EPIPE</name>
+          <initializer>= (1 &lt;&lt; POPEN_FLAG_FD_STDERR_EPIPE_BIT)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0faf3bcbe7ce9fb42d22ad5ab44b251fb12" prot="public">
+          <name>POPEN_FLAG_SHELL_BIT</name>
+          <initializer>= 12</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fae0da4cdaa393ccb29318c413d050f785" prot="public">
+          <name>POPEN_FLAG_SHELL</name>
+          <initializer>= (1 &lt;&lt; POPEN_FLAG_SHELL_BIT)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fad00de9c94d549c6bf8d72ebe1e3566d0" prot="public">
+          <name>POPEN_FLAG_SETSID_BIT</name>
+          <initializer>= 13</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fa63e3e831a45d73d562e4c2beb4d97c33" prot="public">
+          <name>POPEN_FLAG_SETSID</name>
+          <initializer>= (1 &lt;&lt; POPEN_FLAG_SETSID_BIT)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fa565a0e8209d672858803d21b0917a642" prot="public">
+          <name>POPEN_FLAG_CLOSE_FDS_BIT</name>
+          <initializer>= 14</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fa68a6a2664376267e3e6307a32c0858c4" prot="public">
+          <name>POPEN_FLAG_CLOSE_FDS</name>
+          <initializer>= (1 &lt;&lt; POPEN_FLAG_CLOSE_FDS_BIT)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fadd296bd28f6b21afdc18b99f8d8eb24e" prot="public">
+          <name>POPEN_FLAG_RESTORE_SIGNALS_BIT</name>
+          <initializer>= 15</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0faff9d171d165d133e31952802502a2842" prot="public">
+          <name>POPEN_FLAG_RESTORE_SIGNALS</name>
+          <initializer>= (1 &lt;&lt; POPEN_FLAG_RESTORE_SIGNALS_BIT)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fa87230156c39d89c064d02c1a35ad265c" prot="public">
+          <name>POPEN_FLAG_GROUP_SIGNAL_BIT</name>
+          <initializer>= 16</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0faea0c0284706f856af1f02b1fcce8fbdc" prot="public">
+          <name>POPEN_FLAG_GROUP_SIGNAL</name>
+          <initializer>= (1 &lt;&lt; POPEN_FLAG_GROUP_SIGNAL_BIT)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fa7902d4dd34cab08302a9c56cc686e68e" prot="public">
+          <name>POPEN_FLAG_KEEP_CHILD_BIT</name>
+          <initializer>= 17</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a48c25c9ce85a13c3c6431f30b6966c0fadaa59d9e5f16b98b50d66179b704eaeb" prot="public">
+          <name>POPEN_FLAG_KEEP_CHILD</name>
+          <initializer>= (1 &lt;&lt; POPEN_FLAG_KEEP_CHILD_BIT)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Describes popen object creation. </para>        </briefdescription>
+        <detaileddescription>
+<para>This is API with Lua. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/popen.h" line="21" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/popen.h" bodystart="21" bodyend="113"/>
+      </memberdef>
+      <memberdef kind="enum" id="lib_2core_2popen_8h_1a9cb698a6ab9a0a2774246d996bbe833d" prot="public" static="no">
+        <name>popen_states</name>
+        <enumvalue id="lib_2core_2popen_8h_1a9cb698a6ab9a0a2774246d996bbe833da0e3c36af51913b88fbe42f31d459c7ae" prot="public">
+          <name>POPEN_STATE_NONE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a9cb698a6ab9a0a2774246d996bbe833da7cc4b9848f59aba6b301a860bb27d20f" prot="public">
+          <name>POPEN_STATE_ALIVE</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a9cb698a6ab9a0a2774246d996bbe833da28983a8da4a674abf6d9a0866055aa99" prot="public">
+          <name>POPEN_STATE_EXITED</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a9cb698a6ab9a0a2774246d996bbe833dab1c1db874ab444008ef5acdc46d4de66" prot="public">
+          <name>POPEN_STATE_SIGNALED</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2popen_8h_1a9cb698a6ab9a0a2774246d996bbe833dac92f015e5c52d0944af9297d0dc4028b" prot="public">
+          <name>POPEN_STATE_MAX</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Popen object states. </para>        </briefdescription>
+        <detaileddescription>
+<para>This is API with Lua. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/popen.h" line="118" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/popen.h" bodystart="118" bodyend="125"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="lib_2core_2popen_8h_1a7d0ba428ae1f63fa459a3514e633287e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void popen_stat</definition>
+        <argsstring>(struct popen_handle *handle, struct popen_stat *st)</argsstring>
+        <name>popen_stat</name>
+        <param>
+          <type>struct <ref refid="structpopen__handle" kindref="compound">popen_handle</ref> *</type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structpopen__stat" kindref="compound">popen_stat</ref> *</type>
+          <declname>st</declname>
+        </param>
+        <briefdescription>
+<para>Fill popen object statistics. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/popen.h" line="165" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/popen.c" bodystart="308" bodyend="320"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2popen_8h_1af8bd1aee3b635c5147bdaed8eda8494b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char* popen_command</definition>
+        <argsstring>(struct popen_handle *handle)</argsstring>
+        <name>popen_command</name>
+        <param>
+          <type>struct <ref refid="structpopen__handle" kindref="compound">popen_handle</ref> *</type>
+          <declname>handle</declname>
+        </param>
+        <briefdescription>
+<para>Get a pointer to the former command line. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/popen.h" line="168" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/popen.c" bodystart="326" bodyend="330"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2popen_8h_1a37111ab594e5f263f1d4457ec2a62386" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t popen_write_timeout</definition>
+        <argsstring>(struct popen_handle *handle, const void *buf, size_t count, unsigned int flags, ev_tstamp timeout)</argsstring>
+        <name>popen_write_timeout</name>
+        <param>
+          <type>struct <ref refid="structpopen__handle" kindref="compound">popen_handle</ref> *</type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>flags</declname>
+        </param>
+        <param>
+          <type>ev_tstamp</type>
+          <declname>timeout</declname>
+        </param>
+        <briefdescription>
+<para>Write data to the child stdin. </para>        </briefdescription>
+        <detaileddescription>
+<para>Yield until all <emphasis>count</emphasis> bytes will be written.</para><para>Returns <emphasis>count</emphasis> at success, otherwise returns -1 and set a diag.</para><para>Possible errors:</para><para><itemizedlist>
+<listitem><para>IllegalParams: a parameter check fails:<itemizedlist>
+<listitem><para>count: data is too big.</para></listitem><listitem><para>flags: stdin is not set.</para></listitem><listitem><para>handle: handle does not support the requested IO operation.</para></listitem><listitem><para>handle: attempt to operate on a closed fd.</para></listitem></itemizedlist>
+</para></listitem><listitem><para>SocketError: an IO error occurs at write().</para></listitem><listitem><para>TimedOut: <emphasis>timeout</emphasis> quota is exceeded.</para></listitem><listitem><para>FiberIsCancelled: cancelled by an outside code.</para></listitem></itemizedlist>
+</para><para>An error may occur after a partial write. There is not way to enquire amount of written bytes in the case.</para><para>FIXME: Provide an info re amount written bytes in the case. Say, return -(written) in the case. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/popen.h" line="171" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/popen.c" bodystart="374" bodyend="404"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2popen_8h_1a15d8c9c0457be3dfad185851add774a9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t popen_read_timeout</definition>
+        <argsstring>(struct popen_handle *handle, void *buf, size_t count, unsigned int flags, ev_tstamp timeout)</argsstring>
+        <name>popen_read_timeout</name>
+        <param>
+          <type>struct <ref refid="structpopen__handle" kindref="compound">popen_handle</ref> *</type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>flags</declname>
+        </param>
+        <param>
+          <type>ev_tstamp</type>
+          <declname>timeout</declname>
+        </param>
+        <briefdescription>
+<para>Read data from a child&apos;s peer with timeout. </para>        </briefdescription>
+        <detaileddescription>
+<para>Yield until some data will be available for read.</para><para>Returns amount of read bytes at success, otherwise returns -1 and set a diag.</para><para>Zero return value means EOF.</para><para>Note: Less then <emphasis>count</emphasis> bytes may be available for read at a moment, so a return value less then <emphasis>count</emphasis> does not mean EOF.</para><para>Possible errors:</para><para><itemizedlist>
+<listitem><para>IllegalParams: a parameter check fails:<itemizedlist>
+<listitem><para>count: buffer is too big.</para></listitem><listitem><para>flags: stdout and stdrr are both set or both missed.</para></listitem><listitem><para>handle: handle does not support the requested IO operation.</para></listitem><listitem><para>handle: attempt to operate on a closed fd.</para></listitem></itemizedlist>
+</para></listitem><listitem><para>SocketError: an IO error occurs at read().</para></listitem><listitem><para>TimedOut: <emphasis>timeout</emphasis> quota is exceeded.</para></listitem><listitem><para>FiberIsCancelled: cancelled by an outside code. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/popen.h" line="176" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/popen.c" bodystart="431" bodyend="467"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2popen_8h_1abab61c8a13d39ed3bbf21260f3443594" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int popen_shutdown</definition>
+        <argsstring>(struct popen_handle *handle, unsigned int flags)</argsstring>
+        <name>popen_shutdown</name>
+        <param>
+          <type>struct <ref refid="structpopen__handle" kindref="compound">popen_handle</ref> *</type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>flags</declname>
+        </param>
+        <briefdescription>
+<para>Close parent&apos;s ends of std* fds. </para>        </briefdescription>
+        <detaileddescription>
+<para>The following <emphasis>flags</emphasis> controls which fds should be closed:</para><para>POPEN_FLAG_FD_STDIN close parent&apos;s end of child&apos;s stdin POPEN_FLAG_FD_STDOUT close parent&apos;s end of child&apos;s stdout POPEN_FLAG_FD_STDERR close parent&apos;s end of child&apos;s stderr</para><para>The main reason to use this function is to send EOF to child&apos;s stdin. However parent&apos;s end of stdout / stderr may be closed too.</para><para>The function does not fail on already closed fds (idempotence). However it fails on attempt to close the end of a pipe that was never exist. In other words, a subset of ..._FD_STD{IN,OUT,ERR} flags used at a handle creation may be used here.</para><para>The function does not close any fds on a failure: either all requested fds are closed or neither of them.</para><para>Returns 0 at success, otherwise -1 and set a diag.</para><para>Possible errors:</para><para><itemizedlist>
+<listitem><para>IllegalParams: a parameter check fails:<itemizedlist>
+<listitem><para>flags: neither stdin, stdout nor stderr is set.</para></listitem><listitem><para>handle: handle does not support the requested IO operation (one of fds is not piped). </para></listitem></itemizedlist>
+</para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/popen.h" line="181" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/popen.c" bodystart="500" bodyend="543"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2popen_8h_1a4684ca7efff207c65317bb36968a4c0f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void popen_state</definition>
+        <argsstring>(struct popen_handle *handle, int *state, int *exit_code)</argsstring>
+        <name>popen_state</name>
+        <param>
+          <type>struct <ref refid="structpopen__handle" kindref="compound">popen_handle</ref> *</type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type>int *</type>
+          <declname>state</declname>
+        </param>
+        <param>
+          <type>int *</type>
+          <declname>exit_code</declname>
+        </param>
+        <briefdescription>
+<para>Get current child state. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/popen.h" line="184" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/popen.c" bodystart="627" bodyend="643"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2popen_8h_1ae1b40f3be1c7b4d7d56223fb0c5e61d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char* popen_state_str</definition>
+        <argsstring>(unsigned int state)</argsstring>
+        <name>popen_state_str</name>
+        <param>
+          <type>unsigned int</type>
+          <declname>state</declname>
+        </param>
+        <briefdescription>
+<para>Get process state string representation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/popen.h" line="187" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/popen.c" bodystart="649" bodyend="671"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2popen_8h_1a67d0a5ca7d56cc011054648c562e6c09" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int popen_send_signal</definition>
+        <argsstring>(struct popen_handle *handle, int signo)</argsstring>
+        <name>popen_send_signal</name>
+        <param>
+          <type>struct <ref refid="structpopen__handle" kindref="compound">popen_handle</ref> *</type>
+          <declname>handle</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>signo</declname>
+        </param>
+        <briefdescription>
+<para>Send a signal to a child process. </para>        </briefdescription>
+        <detaileddescription>
+<para>When POPEN_FLAG_GROUP_SIGNAL is set the function sends a signal to a process group rather than a process.</para><para>A signal will not be sent if the child process is already dead: otherwise we might kill another process that occupies the same PID later. This means that if the child process dies before its own childs, the function will not send a signal to the process group even when ..._SETSID and ..._GROUP_SIGNAL are set.</para><para>Mac OS may don&apos;t deliver a signal to a processes in a group when ..._SETSID and ..._GROUP_SIGNAL are set. It seems there is a race here: when a process is just forked it may be not signaled.</para><para>Return 0 at success or -1 at failure (and set a diag).</para><para>Possible errors:</para><para><itemizedlist>
+<listitem><para>SystemError: a process does not exists anymore <verbatim>         Aside of a non-exist process it is also
+         set for a zombie process or when all
+         processes in a group are zombies (but
+         see note re Mac OS below).
+</verbatim></para></listitem><listitem><para>SystemError: invalid signal number</para></listitem><listitem><para>SystemError: no permission to send a signal to a process or a process group</para><para>It is set on Mac OS when a signal is sent to a process group, where a group leader is zombie (or when all processes in it are zombies, don&apos;t sure).</para><para>Whether it may appear due to other reasons is unclear.</para></listitem></itemizedlist>
+</para><para>Set errno to ESRCH when a process does not exist or is zombie. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/popen.h" line="190" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/popen.c" bodystart="719" bodyend="751"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2popen_8h_1ae0168e478e0363cdd566b62161830dbb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int popen_delete</definition>
+        <argsstring>(struct popen_handle *handle)</argsstring>
+        <name>popen_delete</name>
+        <param>
+          <type>struct <ref refid="structpopen__handle" kindref="compound">popen_handle</ref> *</type>
+          <declname>handle</declname>
+        </param>
+        <briefdescription>
+<para>Delete a popen handle. </para>        </briefdescription>
+        <detaileddescription>
+<para>Send SIGKILL and free the handle.</para><para>Details about signaling:</para><para><itemizedlist>
+<listitem><para>The signal is sent only when ...KEEP_CHILD is not set.</para></listitem><listitem><para>The signal is sent only when a process is alive according to the information available on current even loop iteration. (There is a gap here: a zombie may be signaled; it is harmless.)</para></listitem><listitem><para>The signal is sent to a process or a grocess group depending of ..._GROUP_SIGNAL flag. <simplesect kind="see"><para>popen_send_signal() for note about ..._GROUP_SIGNAL.</para></simplesect>
+Resources are released disregarding of whether a signal sending succeeds: all fds occupied by the handle are closed, the handle is removed from a living list, all occupied memory is freed.</para></listitem></itemizedlist>
+</para><para>The function may return 0 or -1 (and set a diag) as usual, but it always frees the handle resources. So any return value usually means success for a caller. The return value and diagnostics are purely informational: it is for logging or same kind of reporting.</para><para>Possible diagnostics (don&apos;t consider them as errors):</para><para><itemizedlist>
+<listitem><para>SystemError: no permission to send a signal to a process or a process group</para><para>This error may appear due to Mac OS behaviour on zombies when ..._GROUP_SIGNAL is set, <simplesect kind="see"><para>popen_send_signal().</para></simplesect>
+Whether it may appear due to other reasons is unclear.</para></listitem></itemizedlist>
+</para><para>Always return 0 when a process is known as dead: no signal will be send, so no &apos;failure&apos; may appear. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/popen.h" line="193" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/popen.c" bodystart="797" bodyend="854"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2popen_8h_1ac3a54496690575f3ed246f6e0d9a2d2f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structpopen__handle" kindref="compound">popen_handle</ref> *</type>
+        <definition>struct popen_handle* popen_new</definition>
+        <argsstring>(struct popen_opts *opts)</argsstring>
+        <name>popen_new</name>
+        <param>
+          <type>struct <ref refid="structpopen__opts" kindref="compound">popen_opts</ref> *</type>
+          <declname>opts</declname>
+        </param>
+        <briefdescription>
+<para>Create new popen handle. </para>        </briefdescription>
+        <detaileddescription>
+<para>This function creates a new child process and passes it pipe ends to communicate with child&apos;s stdin/stdout/stderr depending on <emphasis>opts:flags</emphasis>. Where <emphasis>opts:flags</emphasis> could be the bitwise &quot;OR&quot; for the following values:</para><para>POPEN_FLAG_FD_STDIN - to write to stdin POPEN_FLAG_FD_STDOUT - to read from stdout POPEN_FLAG_FD_STDERR - to read from stderr</para><para>When need to pass /dev/null descriptor into a child the following values can be used:</para><para>POPEN_FLAG_FD_STDIN_DEVNULL POPEN_FLAG_FD_STDOUT_DEVNULL POPEN_FLAG_FD_STDERR_DEVNULL</para><para>These flags have no effect if appropriate POPEN_FLAG_FD_STDx flags are set.</para><para>When need to completely close the descriptors the following values can be used:</para><para>POPEN_FLAG_FD_STDIN_CLOSE POPEN_FLAG_FD_STDOUT_CLOSE POPEN_FLAG_FD_STDERR_CLOSE</para><para>These flags have no effect if appropriate POPEN_FLAG_FD_STDx flags are set.</para><para>If none of POPEN_FLAG_FD_STDx flags are specified the child process will run with all files inherited from a parent.</para><para>Returns pointer to a new popen handle on success, otherwise NULL returned and an error is set to the diagnostics area.</para><para>Possible errors:</para><para><itemizedlist>
+<listitem><para>IllegalParams: a parameter check fails:<itemizedlist>
+<listitem><para>group signal is set, while setsid is not.</para></listitem></itemizedlist>
+</para></listitem><listitem><para>SystemError: dup(), fcntl(), pipe(), vfork() or close() fails in the parent process.</para></listitem><listitem><para>SystemError: (temporary restriction) one of std{in,out,err} is closed in the parent process.</para></listitem><listitem><para>OutOfMemory: unable to allocate handle. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/popen.h" line="196" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/popen.c" bodystart="1055" bodyend="1421"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2popen_8h_1a58ba09cc9a01c4f3f39f246e3c415fb2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void popen_init</definition>
+        <argsstring>(void)</argsstring>
+        <name>popen_init</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize popen subsystem. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/popen.h" line="199" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/popen.c" bodystart="1427" bodyend="1470"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2popen_8h_1a80962ce465feb7127af31d84b5d33e1b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void popen_free</definition>
+        <argsstring>(void)</argsstring>
+        <name>popen_free</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Free popen subsystem. </para>        </briefdescription>
+        <detaileddescription>
+<para>Kills all running children and frees resources. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/popen.h" line="202" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/popen.c" bodystart="1478" bodyend="1504"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LIB_CORE_POPEN_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LIB_CORE_POPEN_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;signal.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;errno.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sys/types.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;small/rlist.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trivia/util.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;third_party/tarantool_ev.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>popen_flag_bits<sp/>{</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_NONE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(0<sp/>&lt;&lt;<sp/>0),</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Which<sp/>fd<sp/>we<sp/>should<sp/>handle<sp/>as<sp/>new<sp/>pipes.</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDIN_BIT<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDIN<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(1<sp/>&lt;&lt;<sp/>POPEN_FLAG_FD_STDIN_BIT),</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDOUT_BIT<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>1,</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDOUT<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(1<sp/>&lt;&lt;<sp/>POPEN_FLAG_FD_STDOUT_BIT),</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDERR_BIT<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>2,</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDERR<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(1<sp/>&lt;&lt;<sp/>POPEN_FLAG_FD_STDERR_BIT),</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="37"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Number<sp/>of<sp/>bits<sp/>occupied<sp/>for<sp/>stdX<sp/>descriptors.</highlight></codeline>
+<codeline lineno="38"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDEND_BIT<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>POPEN_FLAG_FD_STDERR_BIT<sp/>+<sp/>1,</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="42"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Instead<sp/>of<sp/>inheriting<sp/>fds<sp/>from<sp/>a<sp/>parent</highlight></codeline>
+<codeline lineno="43"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>rather<sp/>use<sp/>/dev/null.</highlight></codeline>
+<codeline lineno="44"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDIN_DEVNULL_BIT<sp/>=<sp/>3,</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDIN_DEVNULL<sp/><sp/><sp/><sp/><sp/>=<sp/>(1<sp/>&lt;&lt;<sp/>POPEN_FLAG_FD_STDIN_DEVNULL_BIT),</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDOUT_DEVNULL_BIT=<sp/>4,</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDOUT_DEVNULL<sp/><sp/><sp/><sp/>=<sp/>(1<sp/>&lt;&lt;<sp/>POPEN_FLAG_FD_STDOUT_DEVNULL_BIT),</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDERR_DEVNULL_BIT=<sp/>5,</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDERR_DEVNULL<sp/><sp/><sp/><sp/>=<sp/>(1<sp/>&lt;&lt;<sp/>POPEN_FLAG_FD_STDERR_DEVNULL_BIT),</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="53"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Instead<sp/>of<sp/>inheriting<sp/>fds<sp/>from<sp/>a<sp/>parent</highlight></codeline>
+<codeline lineno="54"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>close<sp/>fds<sp/>completely.</highlight></codeline>
+<codeline lineno="55"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDIN_CLOSE_BIT<sp/><sp/><sp/>=<sp/>6,</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDIN_CLOSE<sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(1<sp/>&lt;&lt;<sp/>POPEN_FLAG_FD_STDIN_CLOSE_BIT),</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDOUT_CLOSE_BIT<sp/><sp/>=<sp/>7,</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDOUT_CLOSE<sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(1<sp/>&lt;&lt;<sp/>POPEN_FLAG_FD_STDOUT_CLOSE_BIT),</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDERR_CLOSE_BIT<sp/><sp/>=<sp/>8,</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDERR_CLOSE<sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(1<sp/>&lt;&lt;<sp/>POPEN_FLAG_FD_STDERR_CLOSE_BIT),</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="64"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Reserved<sp/>for<sp/>a<sp/>case<sp/>where<sp/>we<sp/>will<sp/>handle</highlight></codeline>
+<codeline lineno="65"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>other<sp/>fds<sp/>as<sp/>a<sp/>source<sp/>for<sp/>stdin/out/err.</highlight></codeline>
+<codeline lineno="66"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Ie<sp/>piping<sp/>from<sp/>child<sp/>process<sp/>to<sp/>our<sp/>side</highlight></codeline>
+<codeline lineno="67"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>via<sp/>splices<sp/>and<sp/>etc.</highlight></codeline>
+<codeline lineno="68"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDIN_EPIPE_BIT<sp/><sp/><sp/>=<sp/>9,</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDIN_EPIPE<sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(1<sp/>&lt;&lt;<sp/>POPEN_FLAG_FD_STDIN_EPIPE_BIT),</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDOUT_EPIPE_BIT<sp/><sp/>=<sp/>10,</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDOUT_EPIPE<sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(1<sp/>&lt;&lt;<sp/>POPEN_FLAG_FD_STDOUT_EPIPE_BIT),</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDERR_EPIPE_BIT<sp/><sp/>=<sp/>11,</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_FD_STDERR_EPIPE<sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(1<sp/>&lt;&lt;<sp/>POPEN_FLAG_FD_STDERR_EPIPE_BIT),</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="77"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Call<sp/>exec<sp/>directly<sp/>or<sp/>via<sp/>shell.</highlight></codeline>
+<codeline lineno="78"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_SHELL_BIT<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>12,</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_SHELL<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(1<sp/>&lt;&lt;<sp/>POPEN_FLAG_SHELL_BIT),</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="83"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Create<sp/>a<sp/>new<sp/>session.</highlight></codeline>
+<codeline lineno="84"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_SETSID_BIT<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>13,</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_SETSID<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(1<sp/>&lt;&lt;<sp/>POPEN_FLAG_SETSID_BIT),</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="89"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Close<sp/>all<sp/>inherited<sp/>fds<sp/>except<sp/>stdin/out/err.</highlight></codeline>
+<codeline lineno="90"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_CLOSE_FDS_BIT<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>14,</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_CLOSE_FDS<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(1<sp/>&lt;&lt;<sp/>POPEN_FLAG_CLOSE_FDS_BIT),</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="95"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Restore<sp/>signal<sp/>handlers<sp/>to<sp/>default.</highlight></codeline>
+<codeline lineno="96"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_RESTORE_SIGNALS_BIT<sp/><sp/>=<sp/>15,</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_RESTORE_SIGNALS<sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(1<sp/>&lt;&lt;<sp/>POPEN_FLAG_RESTORE_SIGNALS_BIT),</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="101"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Send<sp/>signal<sp/>to<sp/>a<sp/>process<sp/>group.</highlight></codeline>
+<codeline lineno="102"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="103"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>@see<sp/>popen_send_signal()<sp/>for<sp/>details.</highlight></codeline>
+<codeline lineno="104"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_GROUP_SIGNAL_BIT<sp/><sp/><sp/><sp/><sp/>=<sp/>16,</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_GROUP_SIGNAL<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(1<sp/>&lt;&lt;<sp/>POPEN_FLAG_GROUP_SIGNAL_BIT),</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="109"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Keep<sp/>child<sp/>running<sp/>on<sp/>delete.</highlight></codeline>
+<codeline lineno="110"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_KEEP_CHILD_BIT<sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>17,</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_FLAG_KEEP_CHILD<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(1<sp/>&lt;&lt;<sp/>POPEN_FLAG_KEEP_CHILD_BIT),</highlight></codeline>
+<codeline lineno="113"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>popen_states<sp/>{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_STATE_NONE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_STATE_ALIVE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>1,</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_STATE_EXITED<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>2,</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_STATE_SIGNALED<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>3,</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>POPEN_STATE_MAX,</highlight></codeline>
+<codeline lineno="125"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130" refid="structpopen__handle" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structpopen__handle" kindref="compound">popen_handle</ref><sp/>{</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pid_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pid;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*command;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wstatus;</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ev_child<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ev_sigchld;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>list;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>flags;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">ev_io<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ios[POPEN_FLAG_FD_STDEND_BIT];</highlight></codeline>
+<codeline lineno="138"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143" refid="structpopen__opts" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structpopen__opts" kindref="compound">popen_opts</ref><sp/>{</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>**argv;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>nr_argv;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>**env;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>flags;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158" refid="structpopen__stat" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structpopen__stat" kindref="compound">popen_stat</ref><sp/>{</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pid_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pid;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>flags;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fds[POPEN_FLAG_FD_STDEND_BIT];</highlight></codeline>
+<codeline lineno="162"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><ref refid="structpopen__stat" kindref="compound">popen_stat</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structpopen__handle" kindref="compound">popen_handle</ref><sp/>*handle,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structpopen__stat" kindref="compound">popen_stat</ref><sp/>*st);</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="168"><highlight class="normal">popen_command(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structpopen__handle" kindref="compound">popen_handle</ref><sp/>*handle);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>ssize_t</highlight></codeline>
+<codeline lineno="171"><highlight class="normal">popen_write_timeout(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structpopen__handle" kindref="compound">popen_handle</ref><sp/>*handle,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags,</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ev_tstamp<sp/>timeout);</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>ssize_t</highlight></codeline>
+<codeline lineno="176"><highlight class="normal">popen_read_timeout(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structpopen__handle" kindref="compound">popen_handle</ref><sp/>*handle,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags,</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ev_tstamp<sp/>timeout);</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal">popen_shutdown(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structpopen__handle" kindref="compound">popen_handle</ref><sp/>*handle,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags);</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal">popen_state(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structpopen__handle" kindref="compound">popen_handle</ref><sp/>*handle,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>*state,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>*exit_code);</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="187"><highlight class="normal">popen_state_str(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>state);</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal">popen_send_signal(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structpopen__handle" kindref="compound">popen_handle</ref><sp/>*handle,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>signo);</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal">popen_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structpopen__handle" kindref="compound">popen_handle</ref><sp/>*handle);</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structpopen__handle" kindref="compound">popen_handle</ref><sp/>*</highlight></codeline>
+<codeline lineno="196"><highlight class="normal">popen_new(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structpopen__opts" kindref="compound">popen_opts</ref><sp/>*opts);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal">popen_init(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal">popen_free(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_LIB_CORE_POPEN_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/core/popen.h"/>
+  </compounddef>
+</doxygen>

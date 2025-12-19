@@ -1,0 +1,169 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvy__quota" kind="struct" language="C++" prot="public">
+    <compoundname>vy_quota</compoundname>
+    <includes local="no">vy_quota.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvy__quota_1aab5e14d2ef471fbf141342d4c19f8580" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool vy_quota::is_enabled</definition>
+        <argsstring></argsstring>
+        <name>is_enabled</name>
+        <briefdescription>
+<para>Set if the quota was enabled. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="179" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.h" bodystart="179" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__quota_1ac899f379ca4130cd5d19211d9dee038d" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t vy_quota::limit</definition>
+        <argsstring></argsstring>
+        <name>limit</name>
+        <briefdescription>
+<para>Memory limit. </para>        </briefdescription>
+        <detaileddescription>
+<para>Once hit, new transactions are throttled until memory is reclaimed. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="184" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.h" bodystart="184" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__quota_1ad34f0a57f24f573bfd70f09687987970" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t vy_quota::used</definition>
+        <argsstring></argsstring>
+        <name>used</name>
+        <briefdescription>
+<para>Current memory consumption. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="186" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.h" bodystart="186" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__quota_1ad539cf29b7e2e2474d7438e83f72600f" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double vy_quota::too_long_threshold</definition>
+        <argsstring></argsstring>
+        <name>too_long_threshold</name>
+        <briefdescription>
+<para>If vy_quota_use() takes longer than the given value, warn about it in the log. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="191" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.h" bodystart="191" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__quota_1a761db95548d8983b9ad654701721777d" prot="public" static="no" mutable="no">
+        <type>vy_quota_exceeded_f</type>
+        <definition>vy_quota_exceeded_f vy_quota::quota_exceeded_cb</definition>
+        <argsstring></argsstring>
+        <name>quota_exceeded_cb</name>
+        <briefdescription>
+<para>Called if the limit is hit when quota is consumed. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is supposed to trigger memory reclaim. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="196" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.h" bodystart="196" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__quota_1a23827105cd97d6237b9715cb6fc88dfb" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t vy_quota::wait_ticket</definition>
+        <argsstring></argsstring>
+        <name>wait_ticket</name>
+        <briefdescription>
+<para>Monotonically growing counter assigned to consumers waiting for quota. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is used for balancing wakeups among wait queues: if two fibers from different wait queues may proceed, the one with the lowest ticket will be picked.</para><para>See also <ref refid="structvy__quota__wait__node_1a384f0da69184600fa86ffc7c09a09408" kindref="member">vy_quota_wait_node::ticket</ref>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="206" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.h" bodystart="206" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__quota_1a21cd53528b05e6eeea096130d2845d00" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist vy_quota::wait_queue[vy_quota_consumer_type_MAX]</definition>
+        <argsstring>[vy_quota_consumer_type_MAX]</argsstring>
+        <name>wait_queue</name>
+        <briefdescription>
+<para>Queue of consumers waiting for quota, one per each consumer type, linked by vy_quota_wait_node::state. </para>        </briefdescription>
+        <detaileddescription>
+<para>Newcomers are added to the tail. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="206" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.h" bodystart="212" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__quota_1a5fea8cc3dcffd957420bc1ffef67015a" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__rate__limit" kindref="compound">vy_rate_limit</ref></type>
+        <definition>struct vy_rate_limit vy_quota::rate_limit[vy_quota_resource_type_MAX]</definition>
+        <argsstring>[vy_quota_resource_type_MAX]</argsstring>
+        <name>rate_limit</name>
+        <briefdescription>
+<para>Rate limit state, one per each resource type. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="206" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.h" bodystart="214" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__quota_1ab55887b360fa8c9a8e02d421e46a4862" prot="public" static="no" mutable="no">
+        <type>ev_timer</type>
+        <definition>ev_timer vy_quota::timer</definition>
+        <argsstring></argsstring>
+        <name>timer</name>
+        <briefdescription>
+<para>Periodic timer that is used for refilling the rate limit value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="219" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.h" bodystart="219" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Quota used for accounting and limiting memory consumption in the vinyl engine. </para>    </briefdescription>
+    <detaileddescription>
+<para>It is NOT multi-threading safe. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="13644">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="13644" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="13645">
+        <label>vy_rate_limit</label>
+        <link refid="structvy__rate__limit"/>
+      </node>
+      <node id="13643">
+        <label>vy_quota</label>
+        <link refid="structvy__quota"/>
+        <childnode refid="13643" relation="usage">
+          <edgelabel>quota_exceeded_cb</edgelabel>
+        </childnode>
+        <childnode refid="13644" relation="usage">
+          <edgelabel>wait_queue</edgelabel>
+        </childnode>
+        <childnode refid="13645" relation="usage">
+          <edgelabel>rate_limit</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/vy_quota.h" line="177" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_quota.h" bodystart="177" bodyend="220"/>
+    <listofallmembers>
+      <member refid="structvy__quota_1aab5e14d2ef471fbf141342d4c19f8580" prot="public" virt="non-virtual"><scope>vy_quota</scope><name>is_enabled</name></member>
+      <member refid="structvy__quota_1ac899f379ca4130cd5d19211d9dee038d" prot="public" virt="non-virtual"><scope>vy_quota</scope><name>limit</name></member>
+      <member refid="structvy__quota_1a761db95548d8983b9ad654701721777d" prot="public" virt="non-virtual"><scope>vy_quota</scope><name>quota_exceeded_cb</name></member>
+      <member refid="structvy__quota_1a5fea8cc3dcffd957420bc1ffef67015a" prot="public" virt="non-virtual"><scope>vy_quota</scope><name>rate_limit</name></member>
+      <member refid="structvy__quota_1ab55887b360fa8c9a8e02d421e46a4862" prot="public" virt="non-virtual"><scope>vy_quota</scope><name>timer</name></member>
+      <member refid="structvy__quota_1ad539cf29b7e2e2474d7438e83f72600f" prot="public" virt="non-virtual"><scope>vy_quota</scope><name>too_long_threshold</name></member>
+      <member refid="structvy__quota_1ad34f0a57f24f573bfd70f09687987970" prot="public" virt="non-virtual"><scope>vy_quota</scope><name>used</name></member>
+      <member refid="structvy__quota_1a21cd53528b05e6eeea096130d2845d00" prot="public" virt="non-virtual"><scope>vy_quota</scope><name>wait_queue</name></member>
+      <member refid="structvy__quota_1a23827105cd97d6237b9715cb6fc88dfb" prot="public" virt="non-virtual"><scope>vy_quota</scope><name>wait_ticket</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

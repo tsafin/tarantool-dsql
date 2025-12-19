@@ -1,0 +1,362 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvy__range" kind="struct" language="C++" prot="public">
+    <compoundname>vy_range</compoundname>
+    <includes local="no">vy_range.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvy__range_1aaa9d9353761ac0ab283e55747d864091" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t vy_range::id</definition>
+        <argsstring></argsstring>
+        <name>id</name>
+        <briefdescription>
+<para>Unique ID of this range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="61" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__range_1a590e34a753cd13f969d8c7ceba6026cd" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+        <definition>struct vy_entry vy_range::begin</definition>
+        <argsstring></argsstring>
+        <name>begin</name>
+        <briefdescription>
+<para>Range lower bound. </para>        </briefdescription>
+        <detaileddescription>
+<para>NULL if range is leftmost. Both &apos;begin&apos; and &apos;end&apos; statements have SELECT type with the full idexed key. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="61" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__range_1a708e785a4e123f0687d50acfe2e88f3e" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+        <definition>struct vy_entry vy_range::end</definition>
+        <argsstring></argsstring>
+        <name>end</name>
+        <briefdescription>
+<para>Range upper bound. </para>        </briefdescription>
+        <detaileddescription>
+<para>NULL if range is rightmost. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="61" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__range_1a3802c693ec1cc47cbc89073821037a44" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+        <definition>struct key_def* vy_range::cmp_def</definition>
+        <argsstring></argsstring>
+        <name>cmp_def</name>
+        <briefdescription>
+<para>Key definition for comparing range boundaries. </para>        </briefdescription>
+        <detaileddescription>
+<para>Contains secondary and primary key parts for secondary keys, to ensure an always distinct result for non-unique keys. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="75" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__range_1ac0d1ef7de8657bf5efdd0e93fbaf55a4" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__disk__stmt__counter" kindref="compound">vy_disk_stmt_counter</ref></type>
+        <definition>struct vy_disk_stmt_counter vy_range::count</definition>
+        <argsstring></argsstring>
+        <name>count</name>
+        <briefdescription>
+<para>An estimate of the number of statements in this range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="75" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__range_1af93da84c0d6c77b4eb3166118cb08c90" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist vy_range::slices</definition>
+        <argsstring></argsstring>
+        <name>slices</name>
+        <briefdescription>
+<para>List of run slices in this range, linked by vy_slice-&gt;in_range. </para>        </briefdescription>
+        <detaileddescription>
+<para>The newer a slice, the closer it to the list head. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="75" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__range_1a07060b3823e7da9c507551679899d370" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int vy_range::slice_count</definition>
+        <argsstring></argsstring>
+        <name>slice_count</name>
+        <briefdescription>
+<para>Number of entries in the -&gt;slices list. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="84" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__range_1a9412161f06da4b060a3ce7b7a263a5cb" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int vy_range::compaction_priority</definition>
+        <argsstring></argsstring>
+        <name>compaction_priority</name>
+        <briefdescription>
+<para>The goal of compaction is to reduce read amplification. </para>        </briefdescription>
+        <detaileddescription>
+<para>All ranges for which the LSM tree has more runs per level than run_count_per_level or run size larger than one defined by run_size_ratio of this level are candidates for compaction. Unlike other LSM implementations, Vinyl can have many sorted runs in a single level, and is able to compact runs from any number of adjacent levels. Moreover, higher levels are always taken in when compacting a lower level - i.e. L1 is always included when compacting L2, and both L1 and L2 are always included when compacting L3.</para><para>This variable contains the number of runs the next compaction of this range will include. If it is 0, the range doesn&apos;t need to be compacted.</para><para>The lower the level is scheduled for compaction, the bigger it tends to be because upper levels are taken in. <simplesect kind="see"><para>vy_range_update_compaction_priority() to see how we decide how many runs to compact next time. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="109" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__range_1a7b077d2407774b47f91f3e73df1477f1" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__disk__stmt__counter" kindref="compound">vy_disk_stmt_counter</ref></type>
+        <definition>struct vy_disk_stmt_counter vy_range::compaction_queue</definition>
+        <argsstring></argsstring>
+        <name>compaction_queue</name>
+        <briefdescription>
+<para>Number of statements that need to be compacted. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="109" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__range_1ab82e487ee30a8bac8eaa9b83720063a9" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool vy_range::needs_compaction</definition>
+        <argsstring></argsstring>
+        <name>needs_compaction</name>
+        <briefdescription>
+<para>If this flag is set, the range must be scheduled for major compaction, i.e. </para>        </briefdescription>
+        <detaileddescription>
+<para>its compaction_priority must be raised to max (slice_count). The flag is set by vy_lsm_force_compaction() and cleared when the range is scheduled for compaction. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="119" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="119" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__range_1a7265e741e073255e2abf509fee6be63a" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int vy_range::n_compactions</definition>
+        <argsstring></argsstring>
+        <name>n_compactions</name>
+        <briefdescription>
+<para>Number of times the range was compacted. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="121" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__range_1ab145ecd00bf58dd9f9699eb2f238cf8e" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int vy_range::dumps_per_compaction</definition>
+        <argsstring></argsstring>
+        <name>dumps_per_compaction</name>
+        <briefdescription>
+<para>Number of dumps it takes to trigger major compaction in this range, see <ref refid="structvy__run_1ae6ea9a1b4eebbd3f70e3f19b12a59fab" kindref="member">vy_run::dump_count</ref> for more details. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="126" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__range_1ab7edd4df82141a44b297d3a80412d3a6" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structheap__node" kindref="compound">heap_node</ref></type>
+        <definition>struct heap_node vy_range::heap_node</definition>
+        <argsstring></argsstring>
+        <name>heap_node</name>
+        <briefdescription>
+<para>Link in vy_lsm-&gt;range_heap. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="128" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="130" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__range_1a9717088aecaf473a428ac70720bce2f8" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t vy_range::version</definition>
+        <argsstring></argsstring>
+        <name>version</name>
+        <briefdescription>
+<para>Incremented whenever a run is added to or deleted from this range. </para>        </briefdescription>
+        <detaileddescription>
+<para>Used invalidate read iterators. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="135" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="135" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structvy__range_1a18de198e6947660e3fa398dd498c77db" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>vy_range::rb_node</definition>
+        <argsstring>(struct vy_range) tree_node</argsstring>
+        <name>rb_node</name>
+        <param>
+          <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref></type>
+        </param>
+        <briefdescription>
+<para>Link in vy_lsm-&gt;tree. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="128" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Range of keys in an LSM tree stored on disk. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="13730">
+        <label>key_part</label>
+        <link refid="structkey__part"/>
+        <childnode refid="13731" relation="usage">
+          <edgelabel>coll</edgelabel>
+        </childnode>
+      </node>
+      <node id="13724">
+        <label>access</label>
+        <link refid="structaccess"/>
+      </node>
+      <node id="13728">
+        <label>credentials</label>
+        <link refid="structcredentials"/>
+        <childnode refid="13729" relation="usage">
+          <edgelabel>in_user</edgelabel>
+        </childnode>
+      </node>
+      <node id="13729">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="13729" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="13719">
+        <label>vy_entry</label>
+        <link refid="structvy__entry"/>
+        <childnode refid="13720" relation="usage">
+          <edgelabel>stmt</edgelabel>
+        </childnode>
+      </node>
+      <node id="13722">
+        <label>key_def</label>
+        <link refid="structkey__def"/>
+        <childnode refid="13720" relation="usage">
+          <edgelabel>tuple_hash</edgelabel>
+          <edgelabel>tuple_compare_with_key</edgelabel>
+          <edgelabel>tuple_compare</edgelabel>
+          <edgelabel>tuple_hint</edgelabel>
+          <edgelabel>tuple_extract_key</edgelabel>
+        </childnode>
+        <childnode refid="13722" relation="usage">
+          <edgelabel>key_hash</edgelabel>
+          <edgelabel>tuple_extract_key_raw</edgelabel>
+          <edgelabel>key_hint</edgelabel>
+        </childnode>
+        <childnode refid="13723" relation="usage">
+          <edgelabel>func_index_func</edgelabel>
+        </childnode>
+        <childnode refid="13730" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="13720">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="13732">
+        <label>vy_disk_stmt_counter</label>
+        <link refid="structvy__disk__stmt__counter"/>
+      </node>
+      <node id="13721">
+        <label>heap_node</label>
+        <link refid="structheap__node"/>
+      </node>
+      <node id="13723">
+        <label>func</label>
+        <link refid="structfunc"/>
+        <childnode refid="13724" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="13725" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="13726" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="13728" relation="usage">
+          <edgelabel>owner_credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="13725">
+        <label>func_vtab</label>
+        <link refid="structfunc__vtab"/>
+      </node>
+      <node id="13727">
+        <label>func_opts</label>
+        <link refid="structfunc__opts"/>
+      </node>
+      <node id="13718">
+        <label>vy_range</label>
+        <link refid="structvy__range"/>
+        <childnode refid="13719" relation="usage">
+          <edgelabel>begin</edgelabel>
+          <edgelabel>end</edgelabel>
+        </childnode>
+        <childnode refid="13721" relation="usage">
+          <edgelabel>heap_node</edgelabel>
+        </childnode>
+        <childnode refid="13722" relation="usage">
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="13732" relation="usage">
+          <edgelabel>compaction_queue</edgelabel>
+          <edgelabel>count</edgelabel>
+        </childnode>
+        <childnode refid="13729" relation="usage">
+          <edgelabel>slices</edgelabel>
+        </childnode>
+      </node>
+      <node id="13726">
+        <label>func_def</label>
+        <link refid="structfunc__def"/>
+        <childnode refid="13727" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="13731">
+        <label>coll</label>
+        <link refid="structcoll"/>
+        <childnode refid="13731" relation="usage">
+          <edgelabel>cmp</edgelabel>
+          <edgelabel>hint</edgelabel>
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="59" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="59" bodyend="136"/>
+    <listofallmembers>
+      <member refid="structvy__range_1a590e34a753cd13f969d8c7ceba6026cd" prot="public" virt="non-virtual"><scope>vy_range</scope><name>begin</name></member>
+      <member refid="structvy__range_1a3802c693ec1cc47cbc89073821037a44" prot="public" virt="non-virtual"><scope>vy_range</scope><name>cmp_def</name></member>
+      <member refid="structvy__range_1a9412161f06da4b060a3ce7b7a263a5cb" prot="public" virt="non-virtual"><scope>vy_range</scope><name>compaction_priority</name></member>
+      <member refid="structvy__range_1a7b077d2407774b47f91f3e73df1477f1" prot="public" virt="non-virtual"><scope>vy_range</scope><name>compaction_queue</name></member>
+      <member refid="structvy__range_1ac0d1ef7de8657bf5efdd0e93fbaf55a4" prot="public" virt="non-virtual"><scope>vy_range</scope><name>count</name></member>
+      <member refid="structvy__range_1ab145ecd00bf58dd9f9699eb2f238cf8e" prot="public" virt="non-virtual"><scope>vy_range</scope><name>dumps_per_compaction</name></member>
+      <member refid="structvy__range_1a708e785a4e123f0687d50acfe2e88f3e" prot="public" virt="non-virtual"><scope>vy_range</scope><name>end</name></member>
+      <member refid="structvy__range_1ab7edd4df82141a44b297d3a80412d3a6" prot="public" virt="non-virtual"><scope>vy_range</scope><name>heap_node</name></member>
+      <member refid="structvy__range_1aaa9d9353761ac0ab283e55747d864091" prot="public" virt="non-virtual"><scope>vy_range</scope><name>id</name></member>
+      <member refid="structvy__range_1a7265e741e073255e2abf509fee6be63a" prot="public" virt="non-virtual"><scope>vy_range</scope><name>n_compactions</name></member>
+      <member refid="structvy__range_1ab82e487ee30a8bac8eaa9b83720063a9" prot="public" virt="non-virtual"><scope>vy_range</scope><name>needs_compaction</name></member>
+      <member refid="structvy__range_1a18de198e6947660e3fa398dd498c77db" prot="public" virt="non-virtual"><scope>vy_range</scope><name>rb_node</name></member>
+      <member refid="structvy__range_1a07060b3823e7da9c507551679899d370" prot="public" virt="non-virtual"><scope>vy_range</scope><name>slice_count</name></member>
+      <member refid="structvy__range_1af93da84c0d6c77b4eb3166118cb08c90" prot="public" virt="non-virtual"><scope>vy_range</scope><name>slices</name></member>
+      <member refid="structvy__range_1a9717088aecaf473a428ac70720bce2f8" prot="public" virt="non-virtual"><scope>vy_range</scope><name>version</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

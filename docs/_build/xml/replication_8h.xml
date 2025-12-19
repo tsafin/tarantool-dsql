@@ -1,0 +1,817 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="replication_8h" kind="file" language="C++">
+    <compoundname>replication.h</compoundname>
+    <includes refid="tt__uuid_8h" local="yes">uuid/tt_uuid.h</includes>
+    <includes local="yes">trigger.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes refid="rb_8h" local="no">small/rb.h</includes>
+    <includes refid="rlist_8h" local="no">small/rlist.h</includes>
+    <includes refid="applier_8h" local="yes">applier.h</includes>
+    <includes local="yes">fiber_cond.h</includes>
+    <includes refid="vclock_8h" local="yes">vclock.h</includes>
+    <includes refid="latch_8h" local="yes">latch.h</includes>
+    <includes local="no">limits.h</includes>
+    <includedby refid="alter_8cc" local="yes">/home/tsafin/tarantool/src/box/alter.cc</includedby>
+    <includedby refid="applier_8cc" local="yes">/home/tsafin/tarantool/src/box/applier.cc</includedby>
+    <includedby refid="box_8cc" local="yes">/home/tsafin/tarantool/src/box/box.cc</includedby>
+    <includedby refid="iproto_8cc" local="yes">/home/tsafin/tarantool/src/box/iproto.cc</includedby>
+    <includedby refid="box_2lua_2info_8c" local="yes">/home/tsafin/tarantool/src/box/lua/info.c</includedby>
+    <includedby refid="space_8cc" local="yes">/home/tsafin/tarantool/src/box/lua/space.cc</includedby>
+    <includedby refid="memtx__engine_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_engine.c</includedby>
+    <includedby refid="raft_8c" local="yes">/home/tsafin/tarantool/src/box/raft.c</includedby>
+    <includedby refid="recovery_8cc" local="yes">/home/tsafin/tarantool/src/box/recovery.cc</includedby>
+    <includedby refid="relay_8cc" local="yes">/home/tsafin/tarantool/src/box/relay.cc</includedby>
+    <includedby refid="replication_8cc" local="yes">/home/tsafin/tarantool/src/box/replication.cc</includedby>
+    <includedby refid="txn__limbo_8c" local="yes">/home/tsafin/tarantool/src/box/txn_limbo.c</includedby>
+    <includedby refid="vy__log_8c" local="yes">/home/tsafin/tarantool/src/box/vy_log.c</includedby>
+    <includedby refid="vy__run_8c" local="yes">/home/tsafin/tarantool/src/box/vy_run.c</includedby>
+    <includedby refid="wal_8c" local="yes">/home/tsafin/tarantool/src/box/wal.c</includedby>
+    <incdepgraph>
+      <node id="823">
+        <label>stdbool.h</label>
+      </node>
+      <node id="825">
+        <label>assert.h</label>
+      </node>
+      <node id="820">
+        <label>stdint.h</label>
+      </node>
+      <node id="821">
+        <label>fiber_cond.h</label>
+      </node>
+      <node id="827">
+        <label>stddef.h</label>
+      </node>
+      <node id="824">
+        <label>limits.h</label>
+      </node>
+      <node id="826">
+        <label>bit/bit.h</label>
+        <link refid="bit_8h"/>
+        <childnode refid="827" relation="include">
+        </childnode>
+        <childnode refid="820" relation="include">
+        </childnode>
+        <childnode refid="823" relation="include">
+        </childnode>
+        <childnode refid="824" relation="include">
+        </childnode>
+      </node>
+      <node id="822">
+        <label>vclock.h</label>
+        <link refid="vclock_8h"/>
+        <childnode refid="820" relation="include">
+        </childnode>
+        <childnode refid="823" relation="include">
+        </childnode>
+        <childnode refid="824" relation="include">
+        </childnode>
+        <childnode refid="825" relation="include">
+        </childnode>
+        <childnode refid="826" relation="include">
+        </childnode>
+      </node>
+      <node id="819">
+        <label>trigger.h</label>
+      </node>
+      <node id="818">
+        <label>/home/tsafin/tarantool/src/box/replication.h</label>
+        <link refid="replication_8h"/>
+        <childnode refid="819" relation="include">
+        </childnode>
+        <childnode refid="820" relation="include">
+        </childnode>
+        <childnode refid="821" relation="include">
+        </childnode>
+        <childnode refid="822" relation="include">
+        </childnode>
+        <childnode refid="824" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structreplicaset" prot="public">replicaset</innerclass>
+    <innerclass refid="structreplica" prot="public">replica</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="replication_8h_1a884ceaa850e86ebd3bd9ebd16352545f" prot="public" static="no">
+        <name>RB_COMPACT</name>
+        <initializer>1</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="36" column="12" bodyfile="/home/tsafin/tarantool/src/box/replication.h" bodystart="36" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="replication_8h_1a6d983ea94bd35d1eb4b485f4c2fb4e46" prot="public" static="no">
+        <name>replicaset_foreach</name>
+        <param><defname>var</defname></param>
+        <initializer>for (struct <ref refid="structreplica" kindref="compound">replica</ref> *var = replicaset_first(); \
+	     var != NULL; var = replicaset_next(var))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="360" column="9" bodyfile="/home/tsafin/tarantool/src/box/replication.h" bodystart="360" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="replication_8h_1a7cc2e4244ca368f68e5746185eda6c4a" prot="public" static="no">
+        <name>@52</name>
+        <enumvalue id="replication_8h_1a7cc2e4244ca368f68e5746185eda6c4aabdd35e3652a5d4497ba448b6cab7fb61" prot="public">
+          <name>REPLICA_ID_NIL</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+<para>Reserved id used for local requests, checkpoint rows and in cases where id is unknown. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="328" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.h" bodystart="328" bodyend="334"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="replication_8h_1a6d246c85363b1b2c641acd00b1f2d2ba" prot="public" static="yes" mutable="no">
+        <type>const int</type>
+        <definition>const int REPLICATION_CONNECT_QUORUM_ALL</definition>
+        <argsstring></argsstring>
+        <name>REPLICATION_CONNECT_QUORUM_ALL</name>
+        <initializer>= INT_MAX</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="99" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.h" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="replication_8h_1ad56f0f7f72ee40ac81b29fd101f5032d" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double replication_timeout</definition>
+        <argsstring></argsstring>
+        <name>replication_timeout</name>
+        <briefdescription>
+<para>Network timeout. </para>        </briefdescription>
+        <detaileddescription>
+<para>Determines how often master and slave exchange heartbeat messages. Set by box.cfg.replication_timeout. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="105" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="replication_8h_1ac87282e092af769bcde301d120eaa73b" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double replication_connect_timeout</definition>
+        <argsstring></argsstring>
+        <name>replication_connect_timeout</name>
+        <briefdescription>
+<para>Maximal time box.cfg() may wait for connections to all configured replicas to be established. </para>        </briefdescription>
+        <detaileddescription>
+<para>If box.cfg() fails to connect to all replicas within the timeout, it will either leave the instance in the orphan mode (recovery) or fail (bootstrap, reconfiguration). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="113" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="replication_8h_1a2102d035f04edf2f71c3d9527367d85d" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int replication_connect_quorum</definition>
+        <argsstring></argsstring>
+        <name>replication_connect_quorum</name>
+        <briefdescription>
+<para>Minimal number of replicas to sync for this instance to switch to the write mode. </para>        </briefdescription>
+        <detaileddescription>
+<para>If set to REPLICATION_CONNECT_QUORUM_ALL, wait for all configured masters. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="120" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="replication_8h_1adcca867896f4b7d39d00be30ebacc5d9" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double replication_sync_lag</definition>
+        <argsstring></argsstring>
+        <name>replication_sync_lag</name>
+        <briefdescription>
+<para>Switch applier from &quot;sync&quot; to &quot;follow&quot; as soon as the replication lag is less than the value of the following variable. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="126" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="replication_8h_1a0ee6402c394d975fd7315ae364932a5d" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int replication_synchro_quorum</definition>
+        <argsstring></argsstring>
+        <name>replication_synchro_quorum</name>
+        <briefdescription>
+<para>Minimal number of replicas which should ACK a synchronous transaction to be able to confirm it and commit. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="132" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="replication_8h_1ac3dc78c27d698e3acfe3b1ac1f8ab145" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double replication_synchro_timeout</definition>
+        <argsstring></argsstring>
+        <name>replication_synchro_timeout</name>
+        <briefdescription>
+<para>Time in seconds which the master node is able to wait for ACKs for a synchronous transaction until it is rolled back. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="138" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="replication_8h_1a8517a88cddb148d48feec694909826a3" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double replication_sync_timeout</definition>
+        <argsstring></argsstring>
+        <name>replication_sync_timeout</name>
+        <briefdescription>
+<para>Max time to wait for appliers to synchronize before entering the orphan mode. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="144" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="replication_8h_1a060eb9b5205cf111b5f9dd791d794c62" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool replication_skip_conflict</definition>
+        <argsstring></argsstring>
+        <name>replication_skip_conflict</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="150" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="replication_8h_1aa0662a2df686e334d5f4079994c476c6" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool replication_anon</definition>
+        <argsstring></argsstring>
+        <name>replication_anon</name>
+        <briefdescription>
+<para>Whether this replica will be anonymous or not, e.g. </para>        </briefdescription>
+        <detaileddescription>
+<para>be preset in _cluster table and have a non-zero id. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="156" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="replication_8h_1a7c41b87d5f4518f22797b56e183c6d81" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t instance_id</definition>
+        <argsstring></argsstring>
+        <name>instance_id</name>
+        <briefdescription>
+<para>Instance id vclock identifier. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="185" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="replication_8h_1a4f2d46610c65dac04f69c1a9a13179a1" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref></type>
+        <definition>struct tt_uuid INSTANCE_UUID</definition>
+        <argsstring></argsstring>
+        <name>INSTANCE_UUID</name>
+        <briefdescription>
+<para>UUID of the instance. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="185" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="replication_8h_1a6d49a957ec78b54f4383709bae72a87c" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref></type>
+        <definition>struct tt_uuid REPLICASET_UUID</definition>
+        <argsstring></argsstring>
+        <name>REPLICASET_UUID</name>
+        <briefdescription>
+<para>UUID of the replica set. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="185" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="replication_8h_1a178d725c0f8d1fc91fc804d1acffbe13" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structreplicaset" kindref="compound">replicaset</ref></type>
+        <definition>struct replicaset replicaset</definition>
+        <argsstring></argsstring>
+        <name>replicaset</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="191" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="replication_8h_1a8dbcb31446de1621e05a966eecc49c67" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>static double replication_reconnect_interval</definition>
+        <argsstring>(void)</argsstring>
+        <name>replication_reconnect_interval</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Wait for the given period of time before trying to reconnect to a master. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="163" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.h" bodystart="163" bodyend="166"/>
+      </memberdef>
+      <memberdef kind="function" id="replication_8h_1a38de2cc0db8f6a709d7883d59e15ae49" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>static double replication_disconnect_timeout</definition>
+        <argsstring>(void)</argsstring>
+        <name>replication_disconnect_timeout</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Disconnect a replica if no heartbeat message has been received from it within the given period. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="173" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.h" bodystart="173" bodyend="176"/>
+      </memberdef>
+      <memberdef kind="function" id="replication_8h_1af8d620ebac2cb11a676c7d37719beb40" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void replication_init</definition>
+        <argsstring>(void)</argsstring>
+        <name>replication_init</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="179" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="87" bodyend="102"/>
+      </memberdef>
+      <memberdef kind="function" id="replication_8h_1ac6e54f8121b6fa16adec17f2880da640" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void replication_free</definition>
+        <argsstring>(void)</argsstring>
+        <name>replication_free</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="182" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="105" bodyend="116"/>
+      </memberdef>
+      <memberdef kind="function" id="replication_8h_1a3ca30aa381404d2c550ace263e213d80" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef rb_tree</definition>
+        <argsstring>(struct replica) replica_hash_t</argsstring>
+        <name>rb_tree</name>
+        <param>
+          <type>struct <ref refid="structreplica" kindref="compound">replica</ref></type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="191" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="replication_8h_1aebd2bf5e160297cee09d2e66f42422d8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structreplica" kindref="compound">replica</ref> *</type>
+        <definition>struct replica* replica_by_uuid</definition>
+        <argsstring>(const struct tt_uuid *uuid)</argsstring>
+        <name>replica_by_uuid</name>
+        <param>
+          <type>const struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref> *</type>
+          <declname>uuid</declname>
+        </param>
+        <briefdescription>
+<para>Find a replica by UUID. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="340" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="1020" bodyend="1025"/>
+      </memberdef>
+      <memberdef kind="function" id="replication_8h_1a4b2086d8b8f3b016841bda63f204481e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structreplica" kindref="compound">replica</ref> *</type>
+        <definition>struct replica* replica_by_id</definition>
+        <argsstring>(uint32_t replica_id)</argsstring>
+        <name>replica_by_id</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>replica_id</declname>
+        </param>
+        <briefdescription>
+<para>Find a replica by ID. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="346" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="1028" bodyend="1031"/>
+      </memberdef>
+      <memberdef kind="function" id="replication_8h_1a83aaaba28a63da9621271f15bb244abc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structreplica" kindref="compound">replica</ref> *</type>
+        <definition>struct replica* replicaset_leader</definition>
+        <argsstring>(void)</argsstring>
+        <name>replicaset_leader</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return the replica set leader. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="352" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="1002" bodyend="1017"/>
+      </memberdef>
+      <memberdef kind="function" id="replication_8h_1ab216d20cf93e4500aa814712c9e7fef0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structreplica" kindref="compound">replica</ref> *</type>
+        <definition>struct replica* replicaset_first</definition>
+        <argsstring>(void)</argsstring>
+        <name>replicaset_first</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="355" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="936" bodyend="939"/>
+      </memberdef>
+      <memberdef kind="function" id="replication_8h_1abaedba581cec764d5ee760f1f492d0c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structreplica" kindref="compound">replica</ref> *</type>
+        <definition>struct replica* replicaset_next</definition>
+        <argsstring>(struct replica *replica)</argsstring>
+        <name>replicaset_next</name>
+        <param>
+          <type>struct <ref refid="structreplica" kindref="compound">replica</ref> *</type>
+          <declname>replica</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="358" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="942" bodyend="945"/>
+      </memberdef>
+      <memberdef kind="function" id="replication_8h_1a51cc50d903cae4ffef8fc14a04433a1c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void replica_set_id</definition>
+        <argsstring>(struct replica *replica, uint32_t id)</argsstring>
+        <name>replica_set_id</name>
+        <param>
+          <type>struct <ref refid="structreplica" kindref="compound">replica</ref> *</type>
+          <declname>replica</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+<para>Set numeric replica-set-local id of remote replica. </para>        </briefdescription>
+        <detaileddescription>
+<para>table. Add replica to the replica set vclock with LSN = 0. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="369" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="229" bodyend="254"/>
+      </memberdef>
+      <memberdef kind="function" id="replication_8h_1a7e4a3a38637824d6f438c637ac302286" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void replica_clear_id</definition>
+        <argsstring>(struct replica *replica)</argsstring>
+        <name>replica_clear_id</name>
+        <param>
+          <type>struct <ref refid="structreplica" kindref="compound">replica</ref> *</type>
+          <declname>replica</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="377" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="257" bodyend="302"/>
+      </memberdef>
+      <memberdef kind="function" id="replication_8h_1aca50b1ca2311e3dd3d7847b74c2d7ac4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void replica_clear_applier</definition>
+        <argsstring>(struct replica *replica)</argsstring>
+        <name>replica_clear_applier</name>
+        <param>
+          <type>struct <ref refid="structreplica" kindref="compound">replica</ref> *</type>
+          <declname>replica</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="380" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="314" bodyend="319"/>
+      </memberdef>
+      <memberdef kind="function" id="replication_8h_1af39f384838e4f823cf26e8e1d93c6360" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void replica_set_applier</definition>
+        <argsstring>(struct replica *replica, struct applier *applier)</argsstring>
+        <name>replica_set_applier</name>
+        <param>
+          <type>struct <ref refid="structreplica" kindref="compound">replica</ref> *</type>
+          <declname>replica</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structapplier" kindref="compound">applier</ref> *</type>
+          <declname>applier</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="383" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="305" bodyend="311"/>
+      </memberdef>
+      <memberdef kind="function" id="replication_8h_1aed2f21871674acdcb318c10e662c4220" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void replica_on_relay_stop</definition>
+        <argsstring>(struct replica *replica)</argsstring>
+        <name>replica_on_relay_stop</name>
+        <param>
+          <type>struct <ref refid="structreplica" kindref="compound">replica</ref> *</type>
+          <declname>replica</declname>
+        </param>
+        <briefdescription>
+<para>Unregister <emphasis>relay</emphasis> from the <emphasis>replica</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.h" line="389" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="911" bodyend="933"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>INCLUDES_BOX_REPLICATION_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INCLUDES_BOX_REPLICATION_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;uuid/tt_uuid.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trigger.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>RB_COMPACT<sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;small/rb.h&gt;</highlight><highlight class="normal"><sp/></highlight><highlight class="comment">/*<sp/>replicaset_t<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;small/rlist.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;applier.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;fiber_cond.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="vclock_8h" kindref="compound">vclock.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;latch.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="preprocessor">#include<sp/>&lt;limits.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structgc__consumer" kindref="compound">gc_consumer</ref>;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>REPLICATION_CONNECT_QUORUM_ALL<sp/>=<sp/>INT_MAX;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>replication_timeout;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>replication_connect_timeout;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>replication_connect_quorum;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>replication_sync_lag;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>replication_synchro_quorum;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>replication_synchro_timeout;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>replication_sync_timeout;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="147"><highlight class="comment"><sp/>*<sp/>Allows<sp/>automatic<sp/>skip<sp/>of<sp/>conflicting<sp/>rows<sp/>in<sp/>replication<sp/>(e.g.<sp/>applying</highlight></codeline>
+<codeline lineno="148"><highlight class="comment"><sp/>*<sp/>the<sp/>row<sp/>throws<sp/>ER_TUPLE_FOUND)<sp/>based<sp/>on<sp/>box.cfg<sp/>configuration<sp/>option.</highlight></codeline>
+<codeline lineno="149"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>replication_skip_conflict;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>replication_anon;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal">replication_reconnect_interval(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="164"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>replication_timeout;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal">replication_disconnect_timeout(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="174"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>replication_timeout<sp/>*<sp/>4;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal">replication_init(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal">replication_free(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>uint32_t<sp/>instance_id;</highlight></codeline>
+<codeline lineno="187"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>INSTANCE_UUID;</highlight></codeline>
+<codeline lineno="189"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>REPLICASET_UUID;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/><ref refid="vclock_8h_1a15322e8502106a1fe47e37b5147a8644" kindref="member">rb_tree</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structreplica" kindref="compound">replica</ref>)<sp/>replica_hash_t;</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="199" refid="structreplicaset" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structreplicaset" kindref="compound">replicaset</ref><sp/>{</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>replica_hash_t<sp/><ref refid="structreplicaset_1a5981f514b1565dfa24ba03dd71ab42e7" kindref="member">hash</ref>;</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>anon;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvclock" kindref="compound">vclock</ref><sp/>vclock;</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structreplicaset_1ab044cd0c3de9deaf6fe8478059e03c44" kindref="member">is_joining</ref>;</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>A<sp/>number<sp/>of<sp/>anonymous<sp/>replicas<sp/>following<sp/>this<sp/>instance.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>anon_count;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structreplicaset_1a1db8d5910ec7f357d41042ebaf5d7e66" kindref="member">registered_count</ref>;</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structreplicaset_1a0b3d16d773c5ebea97338835497cce94" kindref="member">total</ref>;</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structreplicaset_1a20532d5e72aba46eb9bfa9f4118f5d59" kindref="member">connected</ref>;</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structreplicaset_1a289619c86f566a8a9e38881e29062bc4" kindref="member">loading</ref>;</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structreplicaset_1a841b4667f8ffdb7c56096e352d1fcf99" kindref="member">synced</ref>;</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber__cond" kindref="compound">fiber_cond</ref><sp/>cond;</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="256"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>The<sp/>latch<sp/>is<sp/>used<sp/>to<sp/>order<sp/>replication<sp/>requests</highlight></codeline>
+<codeline lineno="257"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>running<sp/>on<sp/>behalf<sp/>of<sp/>all<sp/>dead<sp/>replicas</highlight></codeline>
+<codeline lineno="258"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>(replicas<sp/>which<sp/>have<sp/>a<sp/>server<sp/>id<sp/>but<sp/>don&apos;t<sp/>have</highlight></codeline>
+<codeline lineno="259"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>struct<sp/>replica<sp/>object).</highlight></codeline>
+<codeline lineno="260"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structlatch" kindref="compound">latch</ref><sp/>order_latch;</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="263"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>A<sp/>vclock<sp/>of<sp/>the<sp/>last<sp/>transaction<sp/>wich<sp/>was<sp/>read</highlight></codeline>
+<codeline lineno="264"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>by<sp/>applier<sp/>and<sp/>processed<sp/>by<sp/>tx.</highlight></codeline>
+<codeline lineno="265"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">vclock<sp/>vclock;</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Trigger<sp/>to<sp/>fire<sp/>when<sp/>a<sp/>replication<sp/>request<sp/>failed<sp/>to<sp/>apply.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>on_rollback;</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Trigget<sp/>to<sp/>fire<sp/>a<sp/>replication<sp/>request<sp/>when<sp/>WAL<sp/>write<sp/>happens.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>on_wal_write;</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Shared<sp/>applier<sp/>diagnostic<sp/>area.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structdiag" kindref="compound">diag</ref><sp/>diag;</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/><ref refid="structreplicaset_1a20d29919780a1604cf78e9f8b22e2c19" kindref="member">applier</ref>;</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structreplica" kindref="compound">replica</ref><sp/>*<ref refid="structreplicaset_1a983254295e90ecb6d4fea29676f809bf" kindref="member">replica_by_id</ref>[<ref refid="vclock_8h_1a5bea799269f02f5b3395d6b2c068b618adf6f6f5b7fec282b7d912444cb938756" kindref="member">VCLOCK_MAX</ref>];</highlight></codeline>
+<codeline lineno="276"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structreplicaset" kindref="compound">replicaset</ref><sp/>replicaset;</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"></highlight></codeline>
+<codeline lineno="282" refid="structreplica" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structreplica" kindref="compound">replica</ref><sp/>{</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rb_node(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structreplica" kindref="compound">replica</ref>)<sp/>in_hash;</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>uuid;</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>id;</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structreplicaset_1a382679986c6e6057bcea950733d42724" kindref="member">anon</ref>;</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structapplier" kindref="compound">applier</ref><sp/>*<ref refid="structreplicaset_1a20d29919780a1604cf78e9f8b22e2c19" kindref="member">applier</ref>;</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrelay" kindref="compound">relay</ref><sp/>*<ref refid="structrelay" kindref="compound">relay</ref>;</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structgc__consumer" kindref="compound">gc_consumer</ref><sp/>*gc;</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>in_anon;</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtrigger" kindref="compound">trigger</ref><sp/>on_applier_state;</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>applier_state<sp/>applier_sync_state;</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>The<sp/>latch<sp/>is<sp/>used<sp/>to<sp/>order<sp/>replication<sp/>requests.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structlatch" kindref="compound">latch</ref><sp/>order_latch;</highlight></codeline>
+<codeline lineno="326"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"></highlight></codeline>
+<codeline lineno="328"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>REPLICA_ID_NIL<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="334"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"></highlight></codeline>
+<codeline lineno="339"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structreplica" kindref="compound">replica</ref><sp/>*</highlight></codeline>
+<codeline lineno="340"><highlight class="normal">replica_by_uuid(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*<ref refid="structreplica_1a200edc61fd8780012d52237ca3c6f3ff" kindref="member">uuid</ref>);</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"></highlight></codeline>
+<codeline lineno="345"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structreplica" kindref="compound">replica</ref><sp/>*</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"><ref refid="structreplicaset_1a983254295e90ecb6d4fea29676f809bf" kindref="member">replica_by_id</ref>(uint32_t<sp/>replica_id);</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"></highlight></codeline>
+<codeline lineno="351"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structreplica" kindref="compound">replica</ref><sp/>*</highlight></codeline>
+<codeline lineno="352"><highlight class="normal">replicaset_leader(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="353"><highlight class="normal"></highlight></codeline>
+<codeline lineno="354"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structreplica" kindref="compound">replica</ref><sp/>*</highlight></codeline>
+<codeline lineno="355"><highlight class="normal">replicaset_first(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"></highlight></codeline>
+<codeline lineno="357"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structreplica" kindref="compound">replica</ref><sp/>*</highlight></codeline>
+<codeline lineno="358"><highlight class="normal">replicaset_next(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structreplica" kindref="compound">replica</ref><sp/>*<ref refid="structreplica" kindref="compound">replica</ref>);</highlight></codeline>
+<codeline lineno="359"><highlight class="normal"></highlight></codeline>
+<codeline lineno="360"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>replicaset_foreach(var)<sp/>\</highlight></codeline>
+<codeline lineno="361"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>for<sp/>(struct<sp/>replica<sp/>*var<sp/>=<sp/>replicaset_first();<sp/>\</highlight></codeline>
+<codeline lineno="362"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>var<sp/>!=<sp/>NULL;<sp/>var<sp/>=<sp/>replicaset_next(var))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="363"><highlight class="normal"></highlight></codeline>
+<codeline lineno="368"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="369"><highlight class="normal">replica_set_id(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>replica<sp/>*replica,<sp/>uint32_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="370"><highlight class="normal"></highlight></codeline>
+<codeline lineno="371"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="372"><highlight class="comment"><sp/>*<sp/>Clear<sp/>the<sp/>numeric<sp/>replica-set-local<sp/>id<sp/>of<sp/>a<sp/>replica.</highlight></codeline>
+<codeline lineno="373"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="374"><highlight class="comment"><sp/>*<sp/>The<sp/>replica<sp/>is<sp/>removed<sp/>from<sp/>the<sp/>replication<sp/>vector<sp/>clock.</highlight></codeline>
+<codeline lineno="375"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="376"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="377"><highlight class="normal">replica_clear_id(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>replica<sp/>*replica);</highlight></codeline>
+<codeline lineno="378"><highlight class="normal"></highlight></codeline>
+<codeline lineno="379"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="380"><highlight class="normal">replica_clear_applier(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>replica<sp/>*replica);</highlight></codeline>
+<codeline lineno="381"><highlight class="normal"></highlight></codeline>
+<codeline lineno="382"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="383"><highlight class="normal">replica_set_applier(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>replica<sp/>*<sp/>replica,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structapplier" kindref="compound">applier</ref><sp/>*<sp/><ref refid="structapplier" kindref="compound">applier</ref>);</highlight></codeline>
+<codeline lineno="384"><highlight class="normal"></highlight></codeline>
+<codeline lineno="388"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="389"><highlight class="normal">replica_on_relay_stop(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>replica<sp/>*replica);</highlight></codeline>
+<codeline lineno="390"><highlight class="normal"></highlight></codeline>
+<codeline lineno="391"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="392"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="393"><highlight class="normal"></highlight></codeline>
+<codeline lineno="394"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="395"><highlight class="normal">replica_check_id(uint32_t<sp/>replica_id);</highlight></codeline>
+<codeline lineno="396"><highlight class="normal"></highlight></codeline>
+<codeline lineno="403"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structreplica" kindref="compound">replica</ref><sp/>*</highlight></codeline>
+<codeline lineno="404"><highlight class="normal">replicaset_add(uint32_t<sp/>replica_id,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*instance_uuid);</highlight></codeline>
+<codeline lineno="405"><highlight class="normal"></highlight></codeline>
+<codeline lineno="406"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structreplica" kindref="compound">replica</ref><sp/>*</highlight></codeline>
+<codeline lineno="407"><highlight class="normal">replicaset_add_anon(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*replica_uuid);</highlight></codeline>
+<codeline lineno="408"><highlight class="normal"></highlight></codeline>
+<codeline lineno="423"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="424"><highlight class="normal">replicaset_connect(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structapplier" kindref="compound">applier</ref><sp/>**appliers,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>count,</highlight></codeline>
+<codeline lineno="425"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>connect_quorum);</highlight></codeline>
+<codeline lineno="426"><highlight class="normal"></highlight></codeline>
+<codeline lineno="433"><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="434"><highlight class="normal">replicaset_needs_rejoin(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structreplica" kindref="compound">replica</ref><sp/>**master);</highlight></codeline>
+<codeline lineno="435"><highlight class="normal"></highlight></codeline>
+<codeline lineno="439"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="440"><highlight class="normal">replicaset_follow(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="441"><highlight class="normal"></highlight></codeline>
+<codeline lineno="447"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="448"><highlight class="normal">replicaset_sync(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="449"><highlight class="normal"></highlight></codeline>
+<codeline lineno="454"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="455"><highlight class="normal">replicaset_check_quorum(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="456"><highlight class="normal"></highlight></codeline>
+<codeline lineno="457"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="458"><highlight class="normal"></highlight></codeline>
+<codeline lineno="459"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/replication.h"/>
+  </compounddef>
+</doxygen>

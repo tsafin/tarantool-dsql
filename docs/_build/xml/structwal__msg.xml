@@ -1,0 +1,182 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structwal__msg" kind="struct" language="C++" prot="public">
+    <compoundname>wal_msg</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structwal__msg_1abf27110d8e40763276c811ab40d26223" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcmsg" kindref="compound">cmsg</ref></type>
+        <definition>struct cmsg wal_msg::base</definition>
+        <argsstring></argsstring>
+        <name>base</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="163" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="173" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__msg_1ab5e6d229203942bbe61076223af5db68" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t wal_msg::approx_len</definition>
+        <argsstring></argsstring>
+        <name>approx_len</name>
+        <briefdescription>
+<para>Approximate size of this request when encoded. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="175" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="175" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__msg_1a465e9bf9711a55fc8e58a102e1c09e49" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structstailq" kindref="compound">stailq</ref></type>
+        <definition>struct stailq wal_msg::commit</definition>
+        <argsstring></argsstring>
+        <name>commit</name>
+        <briefdescription>
+<para>Input queue, on output contains all committed requests. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="175" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="177" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__msg_1aa820442148e33adebb5e0584db1f3afc" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structstailq" kindref="compound">stailq</ref></type>
+        <definition>struct stailq wal_msg::rollback</definition>
+        <argsstring></argsstring>
+        <name>rollback</name>
+        <briefdescription>
+<para>In case of rollback, contains the requests which must be rolled back. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="175" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="182" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__msg_1aa272de6b86bd826a0a79dcf359c39935" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvclock" kindref="compound">vclock</ref></type>
+        <definition>struct vclock wal_msg::vclock</definition>
+        <argsstring></argsstring>
+        <name>vclock</name>
+        <briefdescription>
+<para>vclock after the batch processed. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.c" line="175" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="184" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="16006">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="16006" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="16005">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="16006" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="16009">
+        <label>cpipe</label>
+        <link refid="structcpipe"/>
+        <childnode refid="16010" relation="usage">
+          <edgelabel>on_flush</edgelabel>
+        </childnode>
+        <childnode refid="16011" relation="usage">
+          <edgelabel>endpoint</edgelabel>
+        </childnode>
+        <childnode refid="16005" relation="usage">
+          <edgelabel>input</edgelabel>
+        </childnode>
+      </node>
+      <node id="16008">
+        <label>cmsg_hop</label>
+        <link refid="structcmsg__hop"/>
+        <childnode refid="16009" relation="usage">
+          <edgelabel>pipe</edgelabel>
+        </childnode>
+        <childnode refid="16007" relation="usage">
+          <edgelabel>f</edgelabel>
+        </childnode>
+      </node>
+      <node id="16010">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="16010" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="16007">
+        <label>cmsg</label>
+        <link refid="structcmsg"/>
+        <childnode refid="16008" relation="usage">
+          <edgelabel>hop</edgelabel>
+          <edgelabel>route</edgelabel>
+        </childnode>
+        <childnode refid="16006" relation="usage">
+          <edgelabel>fifo</edgelabel>
+        </childnode>
+      </node>
+      <node id="16003">
+        <label>wal_msg</label>
+        <link refid="structwal__msg"/>
+        <childnode refid="16004" relation="usage">
+          <edgelabel>vclock</edgelabel>
+        </childnode>
+        <childnode refid="16005" relation="usage">
+          <edgelabel>commit</edgelabel>
+          <edgelabel>rollback</edgelabel>
+        </childnode>
+        <childnode refid="16007" relation="usage">
+          <edgelabel>base</edgelabel>
+        </childnode>
+      </node>
+      <node id="16004">
+        <label>vclock</label>
+        <link refid="structvclock"/>
+      </node>
+      <node id="16012">
+        <label>fiber_cond</label>
+        <link refid="structfiber__cond"/>
+        <childnode refid="16010" relation="usage">
+          <edgelabel>waiters</edgelabel>
+        </childnode>
+      </node>
+      <node id="16011">
+        <label>cbus_endpoint</label>
+        <link refid="structcbus__endpoint"/>
+        <childnode refid="16012" relation="usage">
+          <edgelabel>cond</edgelabel>
+        </childnode>
+        <childnode refid="16010" relation="usage">
+          <edgelabel>in_cbus</edgelabel>
+        </childnode>
+        <childnode refid="16005" relation="usage">
+          <edgelabel>output</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/wal.c" line="172" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="172" bodyend="185"/>
+    <listofallmembers>
+      <member refid="structwal__msg_1ab5e6d229203942bbe61076223af5db68" prot="public" virt="non-virtual"><scope>wal_msg</scope><name>approx_len</name></member>
+      <member refid="structwal__msg_1abf27110d8e40763276c811ab40d26223" prot="public" virt="non-virtual"><scope>wal_msg</scope><name>base</name></member>
+      <member refid="structwal__msg_1a465e9bf9711a55fc8e58a102e1c09e49" prot="public" virt="non-virtual"><scope>wal_msg</scope><name>commit</name></member>
+      <member refid="structwal__msg_1aa820442148e33adebb5e0584db1f3afc" prot="public" virt="non-virtual"><scope>wal_msg</scope><name>rollback</name></member>
+      <member refid="structwal__msg_1aa272de6b86bd826a0a79dcf359c39935" prot="public" virt="non-virtual"><scope>wal_msg</scope><name>vclock</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

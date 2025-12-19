@@ -1,0 +1,452 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="unit_8h" kind="file" language="C++">
+    <compoundname>unit.h</compoundname>
+    <includes local="no">unistd.h</includes>
+    <includes local="no">stdlib.h</includes>
+    <includes local="no">stdio.h</includes>
+    <includedby refid="arena__mt_8c" local="yes">/home/tsafin/tarantool/src/lib/small/test/arena_mt.c</includedby>
+    <includedby refid="lib_2small_2test_2ibuf_8c" local="yes">/home/tsafin/tarantool/src/lib/small/test/ibuf.c</includedby>
+    <includedby refid="lf__lifo_8c" local="yes">/home/tsafin/tarantool/src/lib/small/test/lf_lifo.c</includedby>
+    <includedby refid="test_2lsregion_8c" local="yes">/home/tsafin/tarantool/src/lib/small/test/lsregion.c</includedby>
+    <includedby refid="test_2mempool_8c" local="yes">/home/tsafin/tarantool/src/lib/small/test/mempool.c</includedby>
+    <includedby refid="test_2obuf_8c" local="yes">/home/tsafin/tarantool/src/lib/small/test/obuf.c</includedby>
+    <includedby refid="quota_8cc" local="yes">/home/tsafin/tarantool/src/lib/small/test/quota.cc</includedby>
+    <includedby refid="quota__lessor_8c" local="yes">/home/tsafin/tarantool/src/lib/small/test/quota_lessor.c</includedby>
+    <includedby refid="rb_8c" local="yes">/home/tsafin/tarantool/src/lib/small/test/rb.c</includedby>
+    <includedby refid="rb__aug_8c" local="yes">/home/tsafin/tarantool/src/lib/small/test/rb_aug.c</includedby>
+    <includedby refid="rb__rand_8cc" local="yes">/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc</includedby>
+    <includedby refid="test_2region_8c" local="yes">/home/tsafin/tarantool/src/lib/small/test/region.c</includedby>
+    <includedby refid="rlist_8c" local="yes">/home/tsafin/tarantool/src/lib/small/test/rlist.c</includedby>
+    <includedby refid="test_2slab__arena_8c" local="yes">/home/tsafin/tarantool/src/lib/small/test/slab_arena.c</includedby>
+    <includedby refid="test_2slab__cache_8c" local="yes">/home/tsafin/tarantool/src/lib/small/test/slab_cache.c</includedby>
+    <includedby refid="small__alloc_8c" local="yes">/home/tsafin/tarantool/src/lib/small/test/small_alloc.c</includedby>
+    <includedby refid="test_2static_8c" local="yes">/home/tsafin/tarantool/src/lib/small/test/static.c</includedby>
+    <includedby refid="unit_8c" local="yes">/home/tsafin/tarantool/src/lib/small/test/unit.c</includedby>
+    <incdepgraph>
+      <node id="2482">
+        <label>/home/tsafin/tarantool/src/lib/small/test/unit.h</label>
+        <link refid="unit_8h"/>
+        <childnode refid="2483" relation="include">
+        </childnode>
+        <childnode refid="2484" relation="include">
+        </childnode>
+        <childnode refid="2485" relation="include">
+        </childnode>
+      </node>
+      <node id="2484">
+        <label>stdlib.h</label>
+      </node>
+      <node id="2483">
+        <label>unistd.h</label>
+      </node>
+      <node id="2485">
+        <label>stdio.h</label>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="unit_8h_1a76d28503922c191a2feee00e4b2a8637" prot="public" static="no">
+        <name>header</name>
+        <param></param>
+        <initializer>printf(&quot;\t*** %s ***\n&quot;, __func__)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/unit.h" line="37" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/test/unit.h" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="unit_8h_1a336a0e3b7dc079bb6e2a0a363bf943bb" prot="public" static="no">
+        <name>footer</name>
+        <param></param>
+        <initializer>printf(&quot;\t*** %s: done ***\n&quot;, __func__)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/unit.h" line="38" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/test/unit.h" bodystart="38" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="unit_8h_1ad24b3d90fe7b2e8ff0dfe412cf512105" prot="public" static="no">
+        <name>fail</name>
+        <param><defname>expr</defname></param>
+        <param><defname>result</defname></param>
+        <initializer>do {					\
+	fprintf(stderr, &quot;Test failed: %s is %s at %s:%d, in function &apos;%s&apos;\n&quot;,\
+		expr, result, __FILE__, __LINE__, __func__);		\
+	exit(-1);							\
+} while (0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/unit.h" line="40" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/test/unit.h" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="unit_8h_1a23082e69b7b384dcc371f8ce29861656" prot="public" static="no">
+        <name>fail_if</name>
+        <param><defname>expr</defname></param>
+        <initializer>if (expr) fail(#expr, &quot;true&quot;)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/unit.h" line="46" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/test/unit.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="unit_8h_1a13388a03371bc6986235a75f45eb66ac" prot="public" static="no">
+        <name>fail_unless</name>
+        <param><defname>expr</defname></param>
+        <initializer>if (!(expr)) fail(#expr, &quot;false&quot;)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/unit.h" line="47" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/test/unit.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="unit_8h_1a07d932791f722cd5b75c111e51ef2023" prot="public" static="no">
+        <name>MAYBE_UNUSED</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/unit.h" line="52" column="10" bodyfile="/home/tsafin/tarantool/src/lib/small/test/unit.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="unit_8h_1aa0ff26cd318510c613747d9a4e25a58f" prot="public" static="no">
+        <name>msg</name>
+        <param><defname>stream</defname></param>
+        <param><defname>...</defname></param>
+        <initializer>({ _space(stream); fprintf(stream, &quot;# &quot;);            \
+	fprintf(stream, __VA_ARGS__); fprintf(stream, &quot;\n&quot;); })</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/unit.h" line="83" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/test/unit.h" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="unit_8h_1a7a59fa444b44e2775bc266715a34f51a" prot="public" static="no">
+        <name>note</name>
+        <param><defname>...</defname></param>
+        <initializer>msg(stdout, __VA_ARGS__)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/unit.h" line="86" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/test/unit.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="unit_8h_1a1d83e69b4252e4052fc5215c44f90c0d" prot="public" static="no">
+        <name>diag</name>
+        <param><defname>...</defname></param>
+        <initializer>msg(stderr, __VA_ARGS__)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/unit.h" line="87" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/test/unit.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="unit_8h_1a28ba53b10e8e5e871859ede50928982a" prot="public" static="no">
+        <name>ok</name>
+        <param><defname>condition</defname></param>
+        <param><defname>fmt</defname></param>
+        <param><defname>args...</defname></param>
+        <initializer>{		\
+	int res = _ok(condition, fmt, ##args);		\
+	if (!res) {					\
+		_space(stderr);			\
+		fprintf(stderr, &quot;#   Failed <ref refid="structtest" kindref="compound">test</ref> &apos;&quot;);	\
+		fprintf(stderr, fmt, ##args);		\
+		fprintf(stderr, &quot;&apos;\n&quot;);			\
+		_space(stderr);			\
+		fprintf(stderr, &quot;#   in %s at line %d\n&quot;, __FILE__, __LINE__); \
+	}						\
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/unit.h" line="103" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/test/unit.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="unit_8h_1a68cebd250f2e1ff5560e31be8c55f153" prot="public" static="no">
+        <name>is</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <param><defname>fmt</defname></param>
+        <param><defname>args...</defname></param>
+        <initializer>{			\
+	int res = _ok((a) == (b), fmt, ##args);	\
+	if (!res) {					\
+		_space(stderr);			\
+		fprintf(stderr, &quot;#   Failed <ref refid="structtest" kindref="compound">test</ref> &apos;&quot;);	\
+		fprintf(stderr, fmt, ##args);		\
+		fprintf(stderr, &quot;&apos;\n&quot;);			\
+		_space(stderr);			\
+		fprintf(stderr, &quot;#   in %s at line %d\n&quot;, __FILE__, __LINE__); \
+	}						\
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/unit.h" line="115" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/test/unit.h" bodystart="115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="unit_8h_1a7f0ce7fbf8b08f2a063820f02c5b35ca" prot="public" static="no">
+        <name>isnt</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <param><defname>fmt</defname></param>
+        <param><defname>args...</defname></param>
+        <initializer>{			\
+	int res = _ok((a) != (b), fmt, ##args);	\
+	if (!res) {					\
+		_space(stderr);			\
+		fprintf(stderr, &quot;#   Failed <ref refid="structtest" kindref="compound">test</ref> &apos;&quot;);	\
+		fprintf(stderr, fmt, ##args);		\
+		fprintf(stderr, &quot;&apos;\n&quot;);			\
+		_space(stderr);			\
+		fprintf(stderr, &quot;#   in %s at line %d\n&quot;, __FILE__, __LINE__); \
+	}						\
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/unit.h" line="127" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/test/unit.h" bodystart="127" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="unit_8h_1a89673b9d13842854442e94ad4dae3f62" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int _ok</definition>
+        <argsstring>(int condition, const char *fmt,...)</argsstring>
+        <name>_ok</name>
+        <param>
+          <type>int</type>
+          <declname>condition</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>fmt</declname>
+        </param>
+        <param>
+          <type>...</type>
+        </param>
+        <briefdescription>
+<para>example </para>        </briefdescription>
+        <detaileddescription>
+<para><programlisting><codeline><highlight class="normal">#include<sp/>&quot;unit.h&quot;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">int<sp/>main(void)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>plan(3);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>count<sp/>of<sp/>test<sp/>You<sp/>planned<sp/>to<sp/>check</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ok(1,<sp/>&quot;Test<sp/>name<sp/>1&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is(4,<sp/>2<sp/>*<sp/>2,<sp/>&quot;2<sp/>*<sp/>2<sp/>==<sp/>4&quot;);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>isnt(5,<sp/>2<sp/>*<sp/>2,<sp/>&quot;2<sp/>*<sp/>2<sp/>!=<sp/>5);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>check_plan();<sp/><sp/><sp/><sp/>//<sp/>print<sp/>resume</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/unit.h" line="78" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/unit.c" bodystart="60" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="function" id="unit_8h_1a35f06dd43a52689b74cd87a92a30cb19" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void _space</definition>
+        <argsstring>(FILE *stream)</argsstring>
+        <name>_space</name>
+        <param>
+          <type>FILE *</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/unit.h" line="81" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/unit.c" bodystart="14" bodyend="19"/>
+      </memberdef>
+      <memberdef kind="function" id="unit_8h_1a62c68209760b708ebe2caedf05cadab4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void plan</definition>
+        <argsstring>(int count)</argsstring>
+        <name>plan</name>
+        <param>
+          <type>int</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>set and print plan </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Before anything else, you need a testing plan. This basically declares how many tests your program is going to run to protect against premature failure. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/unit.h" line="96" column="1" bodyfile="/home/tsafin/tarantool/src/lib/msgpuck/test/test.c" bodystart="53" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="unit_8h_1ae3fafd5f26ca816db66f68972061a81e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int check_plan</definition>
+        <argsstring>(void)</argsstring>
+        <name>check_plan</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>check if plan is reached and print report </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/unit.h" line="101" column="1" bodyfile="/home/tsafin/tarantool/src/lib/msgpuck/test/test.c" bodystart="65" bodyend="88"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>INCLUDES_TARANTOOL_TEST_UNIT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INCLUDES_TARANTOOL_TEST_UNIT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;unistd.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdlib.h&gt;</highlight><highlight class="normal"><sp/></highlight><highlight class="comment">/*<sp/>exit()<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdio.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>header()<sp/>printf(&quot;\t***<sp/>%s<sp/>***\n&quot;,<sp/>__func__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>footer()<sp/>printf(&quot;\t***<sp/>%s:<sp/>done<sp/>***\n&quot;,<sp/>__func__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>fail(expr,<sp/>result)<sp/>do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="41"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fprintf(stderr,<sp/>&quot;Test<sp/>failed:<sp/>%s<sp/>is<sp/>%s<sp/>at<sp/>%s:%d,<sp/>in<sp/>function<sp/>&apos;%s&apos;\n&quot;,\</highlight></codeline>
+<codeline lineno="42"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>expr,<sp/>result,<sp/>__FILE__,<sp/>__LINE__,<sp/>__func__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="43"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>exit(-1);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="44"><highlight class="preprocessor">}<sp/>while<sp/>(0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>fail_if(expr)<sp/>if<sp/>(expr)<sp/>fail(#expr,<sp/>&quot;true&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>fail_unless(expr)<sp/>if<sp/>(!(expr))<sp/>fail(#expr,<sp/>&quot;false&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__GNUC__)<sp/>||<sp/>defined(__CLANG__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>MAYBE_UNUSED<sp/>__attribute__((unused))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>MAYBE_UNUSED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="comment">/*<sp/>private<sp/>function,<sp/>use<sp/>ok(...)<sp/>instead<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>_ok(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>condition,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*fmt,<sp/>...);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>private<sp/>function,<sp/>use<sp/>note(...)<sp/>or<sp/>diag(...)<sp/>instead<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>_space(FILE<sp/>*stream);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>msg(stream,<sp/>...)<sp/>({<sp/>_space(stream);<sp/>fprintf(stream,<sp/>&quot;#<sp/>&quot;);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="84"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fprintf(stream,<sp/>__VA_ARGS__);<sp/>fprintf(stream,<sp/>&quot;\n&quot;);<sp/>})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>note(...)<sp/>msg(stdout,<sp/>__VA_ARGS__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>diag(...)<sp/>msg(stderr,<sp/>__VA_ARGS__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>plan(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>count);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>check_plan(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ok(condition,<sp/>fmt,<sp/>args...)<sp/><sp/><sp/><sp/><sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="104"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>res<sp/>=<sp/>_ok(condition,<sp/>fmt,<sp/>##args);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="105"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(!res)<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="106"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_space(stderr);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="107"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fprintf(stderr,<sp/>&quot;#<sp/><sp/><sp/>Failed<sp/>test<sp/>&apos;&quot;);<sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="108"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fprintf(stderr,<sp/>fmt,<sp/>##args);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="109"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fprintf(stderr,<sp/>&quot;&apos;\n&quot;);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="110"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_space(stderr);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="111"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fprintf(stderr,<sp/>&quot;#<sp/><sp/><sp/>in<sp/>%s<sp/>at<sp/>line<sp/>%d\n&quot;,<sp/>__FILE__,<sp/>__LINE__);<sp/>\</highlight></codeline>
+<codeline lineno="112"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="113"><highlight class="preprocessor">}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>is(a,<sp/>b,<sp/>fmt,<sp/>args...)<sp/><sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="116"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>res<sp/>=<sp/>_ok((a)<sp/>==<sp/>(b),<sp/>fmt,<sp/>##args);<sp/>\</highlight></codeline>
+<codeline lineno="117"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(!res)<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="118"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_space(stderr);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="119"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fprintf(stderr,<sp/>&quot;#<sp/><sp/><sp/>Failed<sp/>test<sp/>&apos;&quot;);<sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="120"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fprintf(stderr,<sp/>fmt,<sp/>##args);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="121"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fprintf(stderr,<sp/>&quot;&apos;\n&quot;);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="122"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_space(stderr);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="123"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fprintf(stderr,<sp/>&quot;#<sp/><sp/><sp/>in<sp/>%s<sp/>at<sp/>line<sp/>%d\n&quot;,<sp/>__FILE__,<sp/>__LINE__);<sp/>\</highlight></codeline>
+<codeline lineno="124"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="125"><highlight class="preprocessor">}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>isnt(a,<sp/>b,<sp/>fmt,<sp/>args...)<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="128"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>res<sp/>=<sp/>_ok((a)<sp/>!=<sp/>(b),<sp/>fmt,<sp/>##args);<sp/>\</highlight></codeline>
+<codeline lineno="129"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(!res)<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="130"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_space(stderr);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="131"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fprintf(stderr,<sp/>&quot;#<sp/><sp/><sp/>Failed<sp/>test<sp/>&apos;&quot;);<sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="132"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fprintf(stderr,<sp/>fmt,<sp/>##args);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="133"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fprintf(stderr,<sp/>&quot;&apos;\n&quot;);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="134"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_space(stderr);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="135"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fprintf(stderr,<sp/>&quot;#<sp/><sp/><sp/>in<sp/>%s<sp/>at<sp/>line<sp/>%d\n&quot;,<sp/>__FILE__,<sp/>__LINE__);<sp/>\</highlight></codeline>
+<codeline lineno="136"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="137"><highlight class="preprocessor">}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>INCLUDES_TARANTOOL_TEST_UNIT_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/small/test/unit.h"/>
+  </compounddef>
+</doxygen>

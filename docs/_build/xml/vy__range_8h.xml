@@ -1,0 +1,855 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="vy__range_8h" kind="file" language="C++">
+    <compoundname>vy_range.h</compoundname>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes refid="rb_8h" local="no">small/rb.h</includes>
+    <includes refid="rlist_8h" local="no">small/rlist.h</includes>
+    <includes refid="iterator__type_8h" local="yes">iterator_type.h</includes>
+    <includes refid="heap_8h" local="yes">salad/heap.h</includes>
+    <includes refid="util_8h" local="yes">trivia/util.h</includes>
+    <includes refid="vy__entry_8h" local="yes">vy_entry.h</includes>
+    <includes refid="vy__stat_8h" local="yes">vy_stat.h</includes>
+    <includedby refid="vinyl_8c" local="yes">/home/tsafin/tarantool/src/box/vinyl.c</includedby>
+    <includedby refid="vy__lsm_8h" local="yes">/home/tsafin/tarantool/src/box/vy_lsm.h</includedby>
+    <includedby refid="vy__lsm_8c" local="yes">/home/tsafin/tarantool/src/box/vy_lsm.c</includedby>
+    <includedby refid="vy__range_8c" local="yes">/home/tsafin/tarantool/src/box/vy_range.c</includedby>
+    <includedby refid="vy__scheduler_8c" local="yes">/home/tsafin/tarantool/src/box/vy_scheduler.c</includedby>
+    <incdepgraph>
+      <node id="1345">
+        <label>stdbool.h</label>
+      </node>
+      <node id="1346">
+        <label>stdint.h</label>
+      </node>
+      <node id="1344">
+        <label>/home/tsafin/tarantool/src/box/vy_range.h</label>
+        <link refid="vy__range_8h"/>
+        <childnode refid="1345" relation="include">
+        </childnode>
+        <childnode refid="1346" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structvy__range" prot="public">vy_range</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="vy__range_8h_1a884ceaa850e86ebd3bd9ebd16352545f" prot="public" static="no">
+        <name>RB_COMPACT</name>
+        <initializer>1</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="37" column="9" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vy__range_8h_1a7bd7df6cbbec5054f347c12dcf032fb0" prot="public" static="no">
+        <name>HEAP_FORWARD_DECLARATION</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="42" column="10" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vy__range_8h_1aded7187ecf910662cc9100b190a3b020" prot="public" static="no">
+        <name>HEAP_NAME</name>
+        <initializer>vy_range_heap</initializer>
+        <briefdescription>
+<para>Heap of all ranges of the same LSM tree, prioritized by vy_range-&gt;compaction_priority. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="142" column="9" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="142" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vy__range_8h_1a06661bc02245c3c7cf20edaa8f3c1e0a" prot="public" static="no">
+        <name>HEAP_LESS</name>
+        <param><defname>h</defname></param>
+        <param><defname>l</defname></param>
+        <param><defname>r</defname></param>
+        <initializer>vy_range_heap_less(l, r)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="148" column="9" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="148" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vy__range_8h_1a36592db3030de3ef13f5082bdb5073a3" prot="public" static="no">
+        <name>heap_value_t</name>
+        <initializer>struct <ref refid="structvy__range" kindref="compound">vy_range</ref></initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="149" column="9" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="149" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vy__range_8h_1a634d97d2e4deb977c638869f3f4e2701" prot="public" static="no">
+        <name>heap_value_attr</name>
+        <initializer><ref refid="structheap__node" kindref="compound">heap_node</ref></initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="150" column="9" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="150" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="vy__range_8h_1ac1471b95274a43b80088fa674ec22c52" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool vy_range_heap_less</definition>
+        <argsstring>(struct vy_range *r1, struct vy_range *r2)</argsstring>
+        <name>vy_range_heap_less</name>
+        <param>
+          <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref> *</type>
+          <declname>r1</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref> *</type>
+          <declname>r2</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="144" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="144" bodyend="147"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__range_8h_1a7c5b8c24a422805283bee62d30db5466" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool vy_range_is_scheduled</definition>
+        <argsstring>(struct vy_range *range)</argsstring>
+        <name>vy_range_is_scheduled</name>
+        <param>
+          <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref> *</type>
+          <declname>range</declname>
+        </param>
+        <briefdescription>
+<para>Return true if a task is scheduled for a given range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="157" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="157" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__range_8h_1a9852b9a9a70e2dc589e86f21df55017a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int vy_range_tree_cmp</definition>
+        <argsstring>(struct vy_range *range_a, struct vy_range *range_b)</argsstring>
+        <name>vy_range_tree_cmp</name>
+        <param>
+          <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref> *</type>
+          <declname>range_a</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref> *</type>
+          <declname>range_b</declname>
+        </param>
+        <briefdescription>
+<para>Search tree of all ranges of the same LSM tree, sorted by vy_range-&gt;begin. </para>        </briefdescription>
+        <detaileddescription>
+<para>Ranges in a tree are supposed to span all possible keys without overlaps. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="168" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.c" bodystart="54" bodyend="68"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__range_8h_1af5d90e0fa85802b095d0666c9f4642fb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int vy_range_tree_key_cmp</definition>
+        <argsstring>(struct vy_entry entry, struct vy_range *range)</argsstring>
+        <name>vy_range_tree_key_cmp</name>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>entry</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref> *</type>
+          <declname>range</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="170" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.c" bodystart="71" bodyend="77"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__range_8h_1a4ed6e8aef262b903db66d78650c070b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef rb_tree</definition>
+        <argsstring>(struct vy_range) vy_range_tree_t</argsstring>
+        <name>rb_tree</name>
+        <param>
+          <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref></type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="172" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__range_8h_1a4ed819a651a016ec53287c47927c4aad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>rb_gen_ext_key</definition>
+        <argsstring>(MAYBE_UNUSED static inline, vy_range_tree_, vy_range_tree_t, struct vy_range, tree_node, vy_range_tree_cmp, struct vy_entry, vy_range_tree_key_cmp)</argsstring>
+        <name>rb_gen_ext_key</name>
+        <param>
+          <type>MAYBE_UNUSED static</type>
+          <declname>inline</declname>
+        </param>
+        <param>
+          <type>vy_range_tree_</type>
+        </param>
+        <param>
+          <type>vy_range_tree_t</type>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref></type>
+        </param>
+        <param>
+          <type>tree_node</type>
+        </param>
+        <param>
+          <type>vy_range_tree_cmp</type>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+        </param>
+        <param>
+          <type>vy_range_tree_key_cmp</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="173" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__range_8h_1abd7afb43f7cf0cefd060a1fae5929858" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref> *</type>
+        <definition>struct vy_range* vy_range_tree_find_by_key</definition>
+        <argsstring>(vy_range_tree_t *tree, enum iterator_type iterator_type, struct vy_entry key)</argsstring>
+        <name>vy_range_tree_find_by_key</name>
+        <param>
+          <type>vy_range_tree_t *</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>enum iterator_type</type>
+          <declname>iterator_type</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+<para>Find the first range in which a given key should be looked up. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Range tree to search. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>iterator_type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Iterator type. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Key to look up.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>The</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>first range to look up the key in. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="187" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.c" bodystart="80" bodyend="175"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__range_8h_1a6230cbc7a4304128db046158a5a08a3a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref> *</type>
+        <definition>struct vy_range* vy_range_new</definition>
+        <argsstring>(int64_t id, struct vy_entry begin, struct vy_entry end, struct key_def *cmp_def)</argsstring>
+        <name>vy_range_new</name>
+        <param>
+          <type>int64_t</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>begin</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>end</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>cmp_def</declname>
+        </param>
+        <briefdescription>
+<para>Allocate and initialize a range (either a new one or for restore from disk). </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Range id. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>begin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Range begin (inclusive) or NULL for -inf. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>end</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Range end (exclusive) or NULL for +inf. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cmp_def</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Key definition for comparing range boundaries.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>not</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NULL The new range. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Out of memory. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="204" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.c" bodystart="178" bodyend="198"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__range_8h_1ab32f8f1e4ed1f4ea10f5ed3f179da37f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_range_delete</definition>
+        <argsstring>(struct vy_range *range)</argsstring>
+        <name>vy_range_delete</name>
+        <param>
+          <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref> *</type>
+          <declname>range</declname>
+        </param>
+        <briefdescription>
+<para>Free a range and all its slices. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>range</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Range to free. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="213" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.c" bodystart="201" bodyend="214"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__range_8h_1adcbfaf9a184647f341432824b11460f1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int vy_range_snprint</definition>
+        <argsstring>(char *buf, int size, const struct vy_range *range)</argsstring>
+        <name>vy_range_snprint</name>
+        <param>
+          <type>char *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvy__range" kindref="compound">vy_range</ref> *</type>
+          <declname>range</declname>
+        </param>
+        <briefdescription>
+<para>An snprint-style function to print boundaries of a range. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="217" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.c" bodystart="217" bodyend="232"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__range_8h_1a40c2e0adc683fbee38d4ca6830ab3d7f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>const char *</type>
+        <definition>static const char* vy_range_str</definition>
+        <argsstring>(struct vy_range *range)</argsstring>
+        <name>vy_range_str</name>
+        <param>
+          <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref> *</type>
+          <declname>range</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="220" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.h" bodystart="220" bodyend="225"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__range_8h_1a87e81f94891e16d06584f4dbd84cf70c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_range_add_slice</definition>
+        <argsstring>(struct vy_range *range, struct vy_slice *slice)</argsstring>
+        <name>vy_range_add_slice</name>
+        <param>
+          <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref> *</type>
+          <declname>range</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__slice" kindref="compound">vy_slice</ref> *</type>
+          <declname>slice</declname>
+        </param>
+        <briefdescription>
+<para>Add a run slice to the head of a range&apos;s list. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="229" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.c" bodystart="235" bodyend="241"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__range_8h_1ae36a3d4263105d79a3c89e49365dcffb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_range_add_slice_before</definition>
+        <argsstring>(struct vy_range *range, struct vy_slice *slice, struct vy_slice *next_slice)</argsstring>
+        <name>vy_range_add_slice_before</name>
+        <param>
+          <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref> *</type>
+          <declname>range</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__slice" kindref="compound">vy_slice</ref> *</type>
+          <declname>slice</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__slice" kindref="compound">vy_slice</ref> *</type>
+          <declname>next_slice</declname>
+        </param>
+        <briefdescription>
+<para>Add a run slice to a range&apos;s list before . </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="233" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.c" bodystart="244" bodyend="251"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__range_8h_1ae7d35b8aafaa4145964b923452bc1e0f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_range_remove_slice</definition>
+        <argsstring>(struct vy_range *range, struct vy_slice *slice)</argsstring>
+        <name>vy_range_remove_slice</name>
+        <param>
+          <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref> *</type>
+          <declname>range</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__slice" kindref="compound">vy_slice</ref> *</type>
+          <declname>slice</declname>
+        </param>
+        <briefdescription>
+<para>Remove a run slice from a range&apos;s list. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="238" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.c" bodystart="254" bodyend="262"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__range_8h_1a32a8173c601e4d79d2c020f37c8de888" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_range_update_compaction_priority</definition>
+        <argsstring>(struct vy_range *range, const struct index_opts *opts)</argsstring>
+        <name>vy_range_update_compaction_priority</name>
+        <param>
+          <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref> *</type>
+          <declname>range</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structindex__opts" kindref="compound">index_opts</ref> *</type>
+          <declname>opts</declname>
+        </param>
+        <briefdescription>
+<para>Update compaction priority of a range. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>range</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The range. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>opts</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index options.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+Update compaction priority of a range.</para><para>Runs in each range are divided into groups called levels:</para><para>level 1: runs 1 .. L_1 level 2: runs L_1 + 1 .. L_2 ... level N: runs L_{N-1} .. L_N</para><para>where L_N is the total number of runs, N is the total number of levels, older runs have greater numbers. Runs at each subsequent are run_size_ratio times larger than on the previous one. When the number of runs at a level exceeds run_count_per_level, we compact all its runs along with all runs from the upper levels and in-memory indexes. Including previous levels into compaction is relatively cheap, because of the level size ratio.</para><para>Given a range, this function computes the maximal level that needs to be compacted and sets  to the number of runs in this level and all preceding levels. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="247" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.c" bodystart="288" bodyend="426"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__range_8h_1a550180eee202fa49eb40d021ac44f7cd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_range_update_dumps_per_compaction</definition>
+        <argsstring>(struct vy_range *range)</argsstring>
+        <name>vy_range_update_dumps_per_compaction</name>
+        <param>
+          <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref> *</type>
+          <declname>range</declname>
+        </param>
+        <briefdescription>
+<para>Update the value of range-&gt;dumps_per_compaction. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="254" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.c" bodystart="429" bodyend="438"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__range_8h_1aab50af02935e1a60956fdaa9133eb6f1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool vy_range_needs_split</definition>
+        <argsstring>(struct vy_range *range, int64_t range_size, const char **p_split_key)</argsstring>
+        <name>vy_range_needs_split</name>
+        <param>
+          <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref> *</type>
+          <declname>range</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>range_size</declname>
+        </param>
+        <param>
+          <type>const char **</type>
+          <declname>p_split_key</declname>
+        </param>
+        <briefdescription>
+<para>Check if a range needs to be split in two. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>range</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The range. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>range_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target range size. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">p_split_key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Key to split the range by.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>true</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>If the range needs to be split.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+Check if a range needs to be split in two.</para><para><itemizedlist>
+<listitem><para>We should never split a range until it was merged at least once (actually, it should be a function of run_count_per_level/number of runs used for the merge: with low run_count_per_level it&apos;s more than once, with high run_count_per_level it&apos;s once).</para></listitem><listitem><para>We should use the last run size as the size of the range.</para></listitem><listitem><para>We should split around the last run middle key.</para></listitem><listitem><para>We should only split if the last run size is greater than 4/3 * range_size. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="266" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.c" bodystart="454" bodyend="516"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__range_8h_1a5f73b90cd9445f20314af95c914678c5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool vy_range_needs_coalesce</definition>
+        <argsstring>(struct vy_range *range, vy_range_tree_t *tree, int64_t range_size, struct vy_range **p_first, struct vy_range **p_last)</argsstring>
+        <name>vy_range_needs_coalesce</name>
+        <param>
+          <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref> *</type>
+          <declname>range</declname>
+        </param>
+        <param>
+          <type>vy_range_tree_t *</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>range_size</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref> **</type>
+          <declname>p_first</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref> **</type>
+          <declname>p_last</declname>
+        </param>
+        <briefdescription>
+<para>Check if a range needs to be coalesced with adjacent ranges in a range tree. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>range</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The range. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The range tree. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>range_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target range size. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">p_first</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The first range in the tree to coalesce. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">p_last</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The last range in the tree to coalesce.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>true</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>If the range needs to be coalesced.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+Check if a range needs to be coalesced with adjacent ranges in a range tree.</para><para>If it should, return true and set  and  to the first and last ranges to coalesce, otherwise return false.</para><para>We coalesce ranges together when they become too small, less than half the target range size to avoid split-coalesce oscillations. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_range.h" line="282" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_range.c" bodystart="527" bodyend="565"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>INCLUDES_TARANTOOL_BOX_VY_RANGE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INCLUDES_TARANTOOL_BOX_VY_RANGE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2017,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>AUTHORS<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>AUTHORS<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>RB_COMPACT<sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;small/rb.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;small/rlist.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;iterator_type.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>HEAP_FORWARD_DECLARATION</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;salad/heap.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trivia/util.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;vy_entry.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;vy_stat.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structindex__opts" kindref="compound">index_opts</ref>;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structkey__def" kindref="compound">key_def</ref>;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__slice" kindref="compound">vy_slice</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59" refid="structvy__range" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structvy__range_1aaa9d9353761ac0ab283e55747d864091" kindref="member">id</ref>;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>begin;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>end;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structkey__def" kindref="compound">key_def</ref><sp/>*<ref refid="structvy__range_1a3802c693ec1cc47cbc89073821037a44" kindref="member">cmp_def</ref>;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__disk__stmt__counter" kindref="compound">vy_disk_stmt_counter</ref><sp/>count;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>slices;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structvy__range_1a07060b3823e7da9c507551679899d370" kindref="member">slice_count</ref>;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structvy__range_1a9412161f06da4b060a3ce7b7a263a5cb" kindref="member">compaction_priority</ref>;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__disk__stmt__counter" kindref="compound">vy_disk_stmt_counter</ref><sp/>compaction_queue;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structvy__range_1ab82e487ee30a8bac8eaa9b83720063a9" kindref="member">needs_compaction</ref>;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structvy__range_1a7265e741e073255e2abf509fee6be63a" kindref="member">n_compactions</ref>;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structvy__range_1ab145ecd00bf58dd9f9699eb2f238cf8e" kindref="member">dumps_per_compaction</ref>;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structvy__range_1a18de198e6947660e3fa398dd498c77db" kindref="member">rb_node</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__range" kindref="compound">vy_range</ref>)<sp/>tree_node;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structheap__node" kindref="compound">heap_node</ref><sp/>heap_node;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__range_1a9717088aecaf473a428ac70720bce2f8" kindref="member">version</ref>;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="preprocessor">#define<sp/>HEAP_NAME<sp/>vy_range_heap</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal">vy_range_heap_less(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>*r1,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>*r2)</highlight></codeline>
+<codeline lineno="145"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>r1-&gt;<ref refid="structvy__range_1a9412161f06da4b060a3ce7b7a263a5cb" kindref="member">compaction_priority</ref><sp/>&gt;<sp/>r2-&gt;<ref refid="structvy__range_1a9412161f06da4b060a3ce7b7a263a5cb" kindref="member">compaction_priority</ref>;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>HEAP_LESS(h,<sp/>l,<sp/>r)<sp/>vy_range_heap_less(l,<sp/>r)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>heap_value_t<sp/>struct<sp/>vy_range</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>heap_value_attr<sp/>heap_node</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;salad/heap.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>HEAP_LESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>HEAP_NAME</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal">vy_range_is_scheduled(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>*range)</highlight></codeline>
+<codeline lineno="158"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>heap_node_is_stray(&amp;range-&gt;<ref refid="structvy__range_1ab7edd4df82141a44b297d3a80412d3a6" kindref="member">heap_node</ref>);</highlight></codeline>
+<codeline lineno="160"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal">vy_range_tree_cmp(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>*range_a,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>*range_b);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal">vy_range_tree_key_cmp(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>entry,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>*range);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/><ref refid="vclock_8h_1a15322e8502106a1fe47e37b5147a8644" kindref="member">rb_tree</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__range" kindref="compound">vy_range</ref>)<sp/>vy_range_tree_t;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal">rb_gen_ext_key(MAYBE_UNUSED<sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal">,<sp/>vy_range_tree_,<sp/>vy_range_tree_t,</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__range" kindref="compound">vy_range</ref>,<sp/>tree_node,<sp/>vy_range_tree_cmp,</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref>,<sp/>vy_range_tree_key_cmp);</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>*</highlight></codeline>
+<codeline lineno="187"><highlight class="normal">vy_range_tree_find_by_key(vy_range_tree_t<sp/>*tree,</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>iterator_type<sp/>iterator_type,</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>key);</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>*</highlight></codeline>
+<codeline lineno="204"><highlight class="normal">vy_range_new(int64_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/><ref refid="structvy__range_1a590e34a753cd13f969d8c7ceba6026cd" kindref="member">begin</ref>,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/><ref refid="structvy__range_1a708e785a4e123f0687d50acfe2e88f3e" kindref="member">end</ref>,</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structkey__def" kindref="compound">key_def</ref><sp/>*<ref refid="structvy__range_1a3802c693ec1cc47cbc89073821037a44" kindref="member">cmp_def</ref>);</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal">vy_range_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>*range);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal">vy_range_snprint(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>size,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>*range);</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="220"><highlight class="normal">vy_range_str(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>*range)</highlight></codeline>
+<codeline lineno="221"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*buf<sp/>=<sp/>tt_static_buf();</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_range_snprint(buf,<sp/>TT_STATIC_BUF_LEN,<sp/>range);</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>buf;</highlight></codeline>
+<codeline lineno="225"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal">vy_range_add_slice(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>*range,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__slice" kindref="compound">vy_slice</ref><sp/>*slice);</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight></codeline>
+<codeline lineno="232"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="233"><highlight class="normal">vy_range_add_slice_before(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>*range,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__slice" kindref="compound">vy_slice</ref><sp/>*slice,</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__slice" kindref="compound">vy_slice</ref><sp/>*next_slice);</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal">vy_range_remove_slice(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>*range,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__slice" kindref="compound">vy_slice</ref><sp/>*slice);</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="247"><highlight class="normal">vy_range_update_compaction_priority(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>*range,</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structindex__opts" kindref="compound">index_opts</ref><sp/>*opts);</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"></highlight></codeline>
+<codeline lineno="253"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="254"><highlight class="normal">vy_range_update_dumps_per_compaction(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>*range);</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight></codeline>
+<codeline lineno="265"><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="normal">vy_range_needs_split(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>*range,<sp/>int64_t<sp/>range_size,</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**p_split_key);</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"></highlight></codeline>
+<codeline lineno="281"><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="282"><highlight class="normal">vy_range_needs_coalesce(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>*range,<sp/>vy_range_tree_t<sp/>*tree,</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>range_size,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>**p_first,</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>**p_last);</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="287"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="288"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="289"><highlight class="normal"></highlight></codeline>
+<codeline lineno="290"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>INCLUDES_TARANTOOL_BOX_VY_RANGE_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/vy_range.h"/>
+  </compounddef>
+</doxygen>

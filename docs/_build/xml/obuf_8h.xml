@@ -1,0 +1,644 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="obuf_8h" kind="file" language="C++">
+    <compoundname>obuf.h</compoundname>
+    <includes local="no">sys/uio.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">assert.h</includes>
+    <includedby refid="xlog_8h" local="yes">/home/tsafin/tarantool/src/box/xlog.h</includedby>
+    <includedby refid="call_8c" local="yes">/home/tsafin/tarantool/src/box/call.c</includedby>
+    <includedby refid="execute_8c" local="yes">/home/tsafin/tarantool/src/box/execute.c</includedby>
+    <includedby refid="iproto_8cc" local="no">/home/tsafin/tarantool/src/box/iproto.cc</includedby>
+    <includedby refid="lua_2call_8c" local="yes">/home/tsafin/tarantool/src/box/lua/call.c</includedby>
+    <includedby refid="box_2port_8c" local="no">/home/tsafin/tarantool/src/box/port.c</includedby>
+    <includedby refid="tuple__convert_8c" local="no">/home/tsafin/tarantool/src/box/tuple_convert.c</includedby>
+    <includedby refid="xrow_8c" local="no">/home/tsafin/tarantool/src/box/xrow.c</includedby>
+    <includedby refid="small_2obuf_8c" local="yes">/home/tsafin/tarantool/src/lib/small/small/obuf.c</includedby>
+    <includedby refid="test_2obuf_8c" local="no">/home/tsafin/tarantool/src/lib/small/test/obuf.c</includedby>
+    <incdepgraph>
+      <node id="2336">
+        <label>stdbool.h</label>
+      </node>
+      <node id="2338">
+        <label>assert.h</label>
+      </node>
+      <node id="2337">
+        <label>stddef.h</label>
+      </node>
+      <node id="2334">
+        <label>/home/tsafin/tarantool/src/lib/small/small/obuf.h</label>
+        <link refid="obuf_8h"/>
+        <childnode refid="2335" relation="include">
+        </childnode>
+        <childnode refid="2336" relation="include">
+        </childnode>
+        <childnode refid="2337" relation="include">
+        </childnode>
+        <childnode refid="2338" relation="include">
+        </childnode>
+      </node>
+      <node id="2335">
+        <label>sys/uio.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structobuf__svp" prot="public">obuf_svp</innerclass>
+    <innerclass refid="structobuf" prot="public">obuf</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="obuf_8h_1a3d3667ada0f76359974e3bdb799ada12" prot="public" static="no">
+        <name>@236</name>
+        <enumvalue id="obuf_8h_1a3d3667ada0f76359974e3bdb799ada12a5cedcbcc6772ede144e018fb3c9fc74e" prot="public">
+          <name>SMALL_OBUF_IOV_MAX</name>
+          <initializer>= 31</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="42" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.h" bodystart="42" bodyend="42"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="obuf_8h_1a9cfa11a9c38bd17c7378d8b7bd0c0d80" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void obuf_svp_reset</definition>
+        <argsstring>(struct obuf_svp *svp)</argsstring>
+        <name>obuf_svp_reset</name>
+        <param>
+          <type>struct <ref refid="structobuf__svp" kindref="compound">obuf_svp</ref> *</type>
+          <declname>svp</declname>
+        </param>
+        <briefdescription>
+<para>Reset a savepoint so that it points to the beginning of an output buffer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="64" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.h" bodystart="64" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="obuf_8h_1ae173d72764b37969590fee14e53f7ad0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void obuf_create</definition>
+        <argsstring>(struct obuf *buf, struct slab_cache *slabc, size_t start_capacity)</argsstring>
+        <name>obuf_create</name>
+        <param>
+          <type>struct <ref refid="structobuf" kindref="compound">obuf</ref> *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref> *</type>
+          <declname>slabc</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>start_capacity</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an output buffer instance. </para>        </briefdescription>
+        <detaileddescription>
+<para>Don&apos;t allocate memory yet <ndash/> it may never be needed. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="107" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.c" bodystart="65" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="function" id="obuf_8h_1ae2d34b52579d08284d70e6909ca60fd6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void obuf_destroy</definition>
+        <argsstring>(struct obuf *buf)</argsstring>
+        <name>obuf_destroy</name>
+        <param>
+          <type>struct <ref refid="structobuf" kindref="compound">obuf</ref> *</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="110" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.c" bodystart="91" bodyend="101"/>
+      </memberdef>
+      <memberdef kind="function" id="obuf_8h_1a31f17797c2eef00c7b23104867c60c2a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void obuf_reset</definition>
+        <argsstring>(struct obuf *buf)</argsstring>
+        <name>obuf_reset</name>
+        <param>
+          <type>struct <ref refid="structobuf" kindref="compound">obuf</ref> *</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+<para>Mark an output buffer as empty. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="113" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.c" bodystart="80" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="obuf_8h_1a98dfaf7110b85e8863d2a08c58b77906" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t obuf_size</definition>
+        <argsstring>(struct obuf *obuf)</argsstring>
+        <name>obuf_size</name>
+        <param>
+          <type>struct <ref refid="structobuf" kindref="compound">obuf</ref> *</type>
+          <declname>obuf</declname>
+        </param>
+        <briefdescription>
+<para>How many bytes are in the output buffer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="117" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.h" bodystart="117" bodyend="120"/>
+      </memberdef>
+      <memberdef kind="function" id="obuf_8h_1a6e11d4b3a6959cd5f1344742cd3e3d5a" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int obuf_iovcnt</definition>
+        <argsstring>(struct obuf *buf)</argsstring>
+        <name>obuf_iovcnt</name>
+        <param>
+          <type>struct <ref refid="structobuf" kindref="compound">obuf</ref> *</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+<para>The size of iov vector in the buffer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="124" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.h" bodystart="124" bodyend="127"/>
+      </memberdef>
+      <memberdef kind="function" id="obuf_8h_1a870aa5cc3b204045e687bfeda1614a3f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>void* obuf_reserve_slow</definition>
+        <argsstring>(struct obuf *buf, size_t size)</argsstring>
+        <name>obuf_reserve_slow</name>
+        <param>
+          <type>struct <ref refid="structobuf" kindref="compound">obuf</ref> *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Slow path of obuf_reserve(), which actually reallocates memory and moves data if necessary. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="134" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.c" bodystart="169" bodyend="202"/>
+      </memberdef>
+      <memberdef kind="function" id="obuf_8h_1ab418d98ed8a635c223ef3ab3936a49be" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void *</type>
+        <definition>static void* obuf_reserve</definition>
+        <argsstring>(struct obuf *buf, size_t size)</argsstring>
+        <name>obuf_reserve</name>
+        <param>
+          <type>struct <ref refid="structobuf" kindref="compound">obuf</ref> *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Ensure <emphasis>buf</emphasis> to have at least <emphasis>size</emphasis> bytes of contiguous memory for write and return a point to this chunk. </para>        </briefdescription>
+        <detaileddescription>
+<para>After write please call obuf_advance(wsize) where wsize &lt;= size to advance a write position. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>a pointer to contiguous chunk of memory </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="146" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.h" bodystart="146" bodyend="152"/>
+      </memberdef>
+      <memberdef kind="function" id="obuf_8h_1a430e4beb4f5bc3da560cb1b04cfef042" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void *</type>
+        <definition>static void* obuf_alloc</definition>
+        <argsstring>(struct obuf *buf, size_t size)</argsstring>
+        <name>obuf_alloc</name>
+        <param>
+          <type>struct <ref refid="structobuf" kindref="compound">obuf</ref> *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Advance write position after using obuf_reserve() </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para>obuf_reserve </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="161" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.h" bodystart="161" bodyend="177"/>
+      </memberdef>
+      <memberdef kind="function" id="obuf_8h_1a836e10a8ba3aeeda85d2f168c3eb03e0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t obuf_dup</definition>
+        <argsstring>(struct obuf *buf, const void *data, size_t size)</argsstring>
+        <name>obuf_dup</name>
+        <param>
+          <type>struct <ref refid="structobuf" kindref="compound">obuf</ref> *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Append data to the output buffer. </para>        </briefdescription>
+        <detaileddescription>
+<para>Append data to the output buffer.</para><para>Copies the data. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="181" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.c" bodystart="105" bodyend="166"/>
+      </memberdef>
+      <memberdef kind="function" id="obuf_8h_1a8ff46795768154a492852b5661bd8425" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t obuf_capacity</definition>
+        <argsstring>(struct obuf *buf)</argsstring>
+        <name>obuf_capacity</name>
+        <param>
+          <type>struct <ref refid="structobuf" kindref="compound">obuf</ref> *</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="184" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.h" bodystart="184" bodyend="188"/>
+      </memberdef>
+      <memberdef kind="function" id="obuf_8h_1a2abf39856d9bdd777e3a9d5aeb9aff8b" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structobuf__svp" kindref="compound">obuf_svp</ref></type>
+        <definition>static struct obuf_svp obuf_create_svp</definition>
+        <argsstring>(struct obuf *buf)</argsstring>
+        <name>obuf_create_svp</name>
+        <param>
+          <type>struct <ref refid="structobuf" kindref="compound">obuf</ref> *</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="184" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.h" bodystart="191" bodyend="198"/>
+      </memberdef>
+      <memberdef kind="function" id="obuf_8h_1a3db49400c79bad0e184c789a2398dc4a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void obuf_rollback_to_svp</definition>
+        <argsstring>(struct obuf *buf, struct obuf_svp *svp)</argsstring>
+        <name>obuf_rollback_to_svp</name>
+        <param>
+          <type>struct <ref refid="structobuf" kindref="compound">obuf</ref> *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structobuf__svp" kindref="compound">obuf_svp</ref> *</type>
+          <declname>svp</declname>
+        </param>
+        <briefdescription>
+<para>Forget anything added to output buffer after the savepoint. </para>        </briefdescription>
+        <detaileddescription>
+<para>Forget anything added to output buffer after the savepoint. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="202" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.c" bodystart="206" bodyend="216"/>
+      </memberdef>
+      <memberdef kind="function" id="obuf_8h_1a41723a83b5795ca61aeed71470436342" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void *</type>
+        <definition>static void* obuf_svp_to_ptr</definition>
+        <argsstring>(struct obuf *buf, struct obuf_svp *svp)</argsstring>
+        <name>obuf_svp_to_ptr</name>
+        <param>
+          <type>struct <ref refid="structobuf" kindref="compound">obuf</ref> *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structobuf__svp" kindref="compound">obuf_svp</ref> *</type>
+          <declname>svp</declname>
+        </param>
+        <briefdescription>
+<para>Convert a savepoint position to a pointer in the buffer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="206" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.h" bodystart="206" bodyend="209"/>
+      </memberdef>
+      <memberdef kind="function" id="obuf_8h_1a1df3b17d38e641ddc39823327bd99707" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void *</type>
+        <definition>static void* obuf_reserve_cb</definition>
+        <argsstring>(void *ctx, size_t *size)</argsstring>
+        <name>obuf_reserve_cb</name>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="212" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.h" bodystart="212" bodyend="218"/>
+      </memberdef>
+      <memberdef kind="function" id="obuf_8h_1af038ad26477798276e3d36330f9196d3" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void *</type>
+        <definition>static void* obuf_alloc_cb</definition>
+        <argsstring>(void *ctx, size_t size)</argsstring>
+        <name>obuf_alloc_cb</name>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="221" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.h" bodystart="221" bodyend="224"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_SMALL_OBUF_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_SMALL_OBUF_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sys/uio.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;assert.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{<sp/>SMALL_OBUF_IOV_MAX<sp/>=<sp/>31<sp/>};</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structslab__cache" kindref="compound">slab_cache</ref>;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52" refid="structobuf__svp" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structobuf__svp" kindref="compound">obuf_svp</ref></highlight></codeline>
+<codeline lineno="53"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pos;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>iov_len;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>used;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal">obuf_svp_reset(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structobuf__svp" kindref="compound">obuf_svp</ref><sp/>*svp)</highlight></codeline>
+<codeline lineno="65"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>svp-&gt;pos<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>svp-&gt;iov_len<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>svp-&gt;used<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80" refid="structobuf" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structobuf" kindref="compound">obuf</ref></highlight></codeline>
+<codeline lineno="81"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>*slabc;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>pos;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>The<sp/>number<sp/>of<sp/>allocated<sp/>iov<sp/>instances.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n_iov;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>How<sp/>many<sp/>bytes<sp/>are<sp/>in<sp/>the<sp/>buffer.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>used;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>start_capacity;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>capacity[SMALL_OBUF_IOV_MAX<sp/>+<sp/>1];</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">iovec<sp/>iov[SMALL_OBUF_IOV_MAX<sp/>+<sp/>1];</highlight></codeline>
+<codeline lineno="104"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal">obuf_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structobuf" kindref="compound">obuf</ref><sp/>*buf,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>*slabc,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>start_capacity);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal">obuf_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structobuf" kindref="compound">obuf</ref><sp/>*buf);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal">obuf_reset(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structobuf" kindref="compound">obuf</ref><sp/>*buf);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal">obuf_size(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structobuf" kindref="compound">obuf</ref><sp/>*<ref refid="structobuf" kindref="compound">obuf</ref>)</highlight></codeline>
+<codeline lineno="118"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>obuf-&gt;used;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal">obuf_iovcnt(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>obuf<sp/>*buf)</highlight></codeline>
+<codeline lineno="125"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>buf-&gt;<ref refid="structobuf_1a99e5a11d828e965b5a555291b0822e44" kindref="member">iov</ref>[buf-&gt;<ref refid="structobuf_1afad667d410049316f57c5d6d216287dc" kindref="member">pos</ref>].iov_len<sp/>&gt;<sp/>0<sp/>?<sp/>buf-&gt;<ref refid="structobuf_1afad667d410049316f57c5d6d216287dc" kindref="member">pos</ref><sp/>+<sp/>1<sp/>:<sp/>buf-&gt;<ref refid="structobuf_1afad667d410049316f57c5d6d216287dc" kindref="member">pos</ref>;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="134"><highlight class="normal">obuf_reserve_slow(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>obuf<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="146"><highlight class="normal">obuf_reserve(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>obuf<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="147"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf-&gt;<ref refid="structobuf_1a99e5a11d828e965b5a555291b0822e44" kindref="member">iov</ref>[buf-&gt;<ref refid="structobuf_1afad667d410049316f57c5d6d216287dc" kindref="member">pos</ref>].iov_len<sp/>+<sp/>size<sp/>&gt;<sp/>buf-&gt;<ref refid="structobuf_1a7e2ea9ae6b084e29f64bea79869c0dc1" kindref="member">capacity</ref>[buf-&gt;<ref refid="structobuf_1afad667d410049316f57c5d6d216287dc" kindref="member">pos</ref>])</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>obuf_reserve_slow(buf,<sp/>size);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">iovec<sp/>*iov<sp/>=<sp/>&amp;buf-&gt;<ref refid="structobuf_1a99e5a11d828e965b5a555291b0822e44" kindref="member">iov</ref>[buf-&gt;<ref refid="structobuf_1afad667d410049316f57c5d6d216287dc" kindref="member">pos</ref>];</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*)<sp/>iov-&gt;iov_base<sp/>+<sp/>iov-&gt;iov_len;</highlight></codeline>
+<codeline lineno="152"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="161"><highlight class="normal">obuf_alloc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>obuf<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="162"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">iovec<sp/>*iov<sp/>=<sp/>&amp;buf-&gt;<ref refid="structobuf_1a99e5a11d828e965b5a555291b0822e44" kindref="member">iov</ref>[buf-&gt;<ref refid="structobuf_1afad667d410049316f57c5d6d216287dc" kindref="member">pos</ref>];</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ptr;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(iov-&gt;iov_len<sp/>+<sp/>size<sp/>&lt;=<sp/>buf-&gt;capacity[buf-&gt;<ref refid="structobuf_1afad667d410049316f57c5d6d216287dc" kindref="member">pos</ref>])<sp/>{</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ptr<sp/>=<sp/>(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*)<sp/>iov-&gt;iov_base<sp/>+<sp/>iov-&gt;iov_len;</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ptr<sp/>=<sp/>obuf_reserve_slow(buf,<sp/>size);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ptr<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>iov<sp/>=<sp/>&amp;buf-&gt;<ref refid="structobuf_1a99e5a11d828e965b5a555291b0822e44" kindref="member">iov</ref>[buf-&gt;<ref refid="structobuf_1afad667d410049316f57c5d6d216287dc" kindref="member">pos</ref>];</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(iov-&gt;iov_len<sp/>&lt;=<sp/>buf-&gt;<ref refid="structobuf_1a7e2ea9ae6b084e29f64bea79869c0dc1" kindref="member">capacity</ref>[buf-&gt;<ref refid="structobuf_1afad667d410049316f57c5d6d216287dc" kindref="member">pos</ref>]);</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>iov-&gt;iov_len<sp/>+=<sp/>size;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>buf-&gt;used<sp/>+=<sp/>size;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ptr;</highlight></codeline>
+<codeline lineno="177"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal">obuf_dup(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>obuf<sp/>*buf,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal">obuf_capacity(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>obuf<sp/>*buf)</highlight></codeline>
+<codeline lineno="185"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>buf-&gt;<ref refid="structobuf_1a7e2ea9ae6b084e29f64bea79869c0dc1" kindref="member">capacity</ref>[buf-&gt;n_iov<sp/>?<sp/>buf-&gt;n_iov<sp/>-<sp/>1<sp/>:<sp/>0]<sp/>*<sp/>2;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structobuf__svp" kindref="compound">obuf_svp</ref></highlight></codeline>
+<codeline lineno="191"><highlight class="normal">obuf_create_svp(struct<sp/>obuf<sp/>*buf)</highlight></codeline>
+<codeline lineno="192"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structobuf__svp" kindref="compound">obuf_svp</ref><sp/>svp;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>svp.pos<sp/>=<sp/>buf-&gt;<ref refid="structobuf_1afad667d410049316f57c5d6d216287dc" kindref="member">pos</ref>;</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>svp.iov_len<sp/>=<sp/>buf-&gt;<ref refid="structobuf_1a99e5a11d828e965b5a555291b0822e44" kindref="member">iov</ref>[buf-&gt;<ref refid="structobuf_1afad667d410049316f57c5d6d216287dc" kindref="member">pos</ref>].iov_len;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>svp.used<sp/>=<sp/>buf-&gt;used;</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>svp;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal">obuf_rollback_to_svp(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>obuf<sp/>*buf,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structobuf__svp" kindref="compound">obuf_svp</ref><sp/>*svp);</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="206"><highlight class="normal">obuf_svp_to_ptr(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>obuf<sp/>*buf,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structobuf__svp" kindref="compound">obuf_svp</ref><sp/>*svp)</highlight></codeline>
+<codeline lineno="207"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*)<sp/>buf-&gt;<ref refid="structobuf_1a99e5a11d828e965b5a555291b0822e44" kindref="member">iov</ref>[svp-&gt;pos].iov_base<sp/>+<sp/>svp-&gt;iov_len;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="212"><highlight class="normal">obuf_reserve_cb(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*size)</highlight></codeline>
+<codeline lineno="213"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">obuf<sp/>*buf<sp/>=<sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">obuf<sp/>*)<sp/>ctx;</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ptr<sp/>=<sp/>obuf_reserve(buf,<sp/>*size);</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*size<sp/>=<sp/>buf-&gt;<ref refid="structobuf_1a7e2ea9ae6b084e29f64bea79869c0dc1" kindref="member">capacity</ref>[buf-&gt;<ref refid="structobuf_1afad667d410049316f57c5d6d216287dc" kindref="member">pos</ref>]<sp/>-<sp/>buf-&gt;<ref refid="structobuf_1a99e5a11d828e965b5a555291b0822e44" kindref="member">iov</ref>[buf-&gt;<ref refid="structobuf_1afad667d410049316f57c5d6d216287dc" kindref="member">pos</ref>].iov_len;</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ptr;</highlight></codeline>
+<codeline lineno="218"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="221"><highlight class="normal">obuf_alloc_cb(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="222"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>obuf_alloc((</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>obuf<sp/>*)<sp/>ctx,<sp/>size);</highlight></codeline>
+<codeline lineno="224"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;exception.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="232"><highlight class="normal">obuf_reserve_xc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structobuf" kindref="compound">obuf</ref><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="233"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ptr<sp/>=<sp/>obuf_reserve(buf,<sp/>size);</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ptr<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tnt_raise(OutOfMemory,<sp/>size,<sp/></highlight><highlight class="stringliteral">&quot;obuf&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;reserve&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ptr;</highlight></codeline>
+<codeline lineno="238"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="241"><highlight class="normal">obuf_reserve_xc_cb(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*size)</highlight></codeline>
+<codeline lineno="242"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ptr<sp/>=<sp/>obuf_reserve_cb(ctx,<sp/>size);</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ptr<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tnt_raise(OutOfMemory,<sp/>*size,<sp/></highlight><highlight class="stringliteral">&quot;obuf&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;reserve&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ptr;</highlight></codeline>
+<codeline lineno="247"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"></highlight></codeline>
+<codeline lineno="249"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="250"><highlight class="normal">obuf_alloc_xc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structobuf" kindref="compound">obuf</ref><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="251"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ptr<sp/>=<sp/>obuf_alloc(buf,<sp/>size);</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ptr<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tnt_raise(OutOfMemory,<sp/>size,<sp/></highlight><highlight class="stringliteral">&quot;obuf&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;alloc&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ptr;</highlight></codeline>
+<codeline lineno="256"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"></highlight></codeline>
+<codeline lineno="258"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="259"><highlight class="normal">obuf_alloc_xc_cb(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="260"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ptr<sp/>=<sp/>obuf_alloc_cb(ctx,<sp/>size);</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ptr<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tnt_raise(OutOfMemory,<sp/>size,<sp/></highlight><highlight class="stringliteral">&quot;obuf&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;alloc&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ptr;</highlight></codeline>
+<codeline lineno="265"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"></highlight></codeline>
+<codeline lineno="267"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="normal">obuf_dup_xc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structobuf" kindref="compound">obuf</ref><sp/>*buf,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="269"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(obuf_dup(buf,<sp/>data,<sp/>size)<sp/>!=<sp/>size)</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tnt_raise(OutOfMemory,<sp/>size,<sp/></highlight><highlight class="stringliteral">&quot;obuf&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;dup&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="272"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight></codeline>
+<codeline lineno="274"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="275"><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_SMALL_OBUF_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h"/>
+  </compounddef>
+</doxygen>

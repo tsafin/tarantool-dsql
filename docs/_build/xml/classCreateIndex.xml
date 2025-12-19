@@ -1,0 +1,183 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="classCreateIndex" kind="class" language="C++" prot="public">
+    <compoundname>CreateIndex</compoundname>
+    <basecompoundref refid="classAlterSpaceOp" prot="public" virt="non-virtual">AlterSpaceOp</basecompoundref>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classCreateIndex_1a3ecb6edf82c9abd75b09cb542a6aa30b" prot="private" static="no" mutable="no">
+        <type>struct <ref refid="structindex" kindref="compound">index</ref> *</type>
+        <definition>struct index* CreateIndex::new_index</definition>
+        <argsstring></argsstring>
+        <name>new_index</name>
+        <briefdescription>
+<para>New index. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1428" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1428" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classCreateIndex_1a9deb0650686cf2e9ac9ef22291dbad4b" prot="private" static="no" mutable="no">
+        <type>struct <ref refid="structindex__def" kindref="compound">index_def</ref> *</type>
+        <definition>struct index_def* CreateIndex::new_index_def</definition>
+        <argsstring></argsstring>
+        <name>new_index_def</name>
+        <briefdescription>
+<para>New index <ref refid="structindex__def" kindref="compound">index_def</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1430" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1430" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classCreateIndex_1a5e47b2a63a2112d19f7085c150b734ef" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>CreateIndex::CreateIndex</definition>
+        <argsstring>(struct alter_space *alter, struct index_def *def)</argsstring>
+        <name>CreateIndex</name>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+          <declname>alter</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structindex__def" kindref="compound">index_def</ref> *</type>
+          <declname>def</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1432" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1432" bodyend="1434"/>
+      </memberdef>
+      <memberdef kind="function" id="classCreateIndex_1a78debc247f366ffbed390fe7b6e7b212" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void CreateIndex::alter_def</definition>
+        <argsstring>(struct alter_space *alter)</argsstring>
+        <name>alter_def</name>
+        <reimplements refid="classAlterSpaceOp_1ada87e0e1106f5316848e451f5609b7a4">alter_def</reimplements>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+          <declname>alter</declname>
+        </param>
+        <briefdescription>
+<para>Add definition of the new key to the new space def. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1435" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1443" bodyend="1446"/>
+      </memberdef>
+      <memberdef kind="function" id="classCreateIndex_1a0dcfe894fa81f9c64a7c3ccb3d1bc265" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void CreateIndex::prepare</definition>
+        <argsstring>(struct alter_space *alter)</argsstring>
+        <name>prepare</name>
+        <reimplements refid="classAlterSpaceOp_1a5c35fcc6fa0a26b350e2bfd8b73c7d8c">prepare</reimplements>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+          <declname>alter</declname>
+        </param>
+        <briefdescription>
+<para>Optionally build the new index. </para>        </briefdescription>
+        <detaileddescription>
+<para>During recovery the space is often not fully constructed yet anyway, so there is no need to fully populate index with data, it is done at the end of recovery.</para><para>Note, that system spaces are exception to this, since they are fully enabled at all times. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1436" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1459" bodyend="1480"/>
+      </memberdef>
+      <memberdef kind="function" id="classCreateIndex_1aed1046f3d0f2111ff92a43b3fef3c838" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void CreateIndex::commit</definition>
+        <argsstring>(struct alter_space *alter, int64_t lsn)</argsstring>
+        <name>commit</name>
+        <reimplements refid="classAlterSpaceOp_1a87e8be9739a71a0f4100d3a67bd75100">commit</reimplements>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+        </param>
+        <param>
+          <type>int64_t</type>
+        </param>
+        <briefdescription>
+<para>Called after the change has been successfully written to WAL. </para>        </briefdescription>
+        <detaileddescription>
+<para>Must not fail. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1437" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1483" bodyend="1489"/>
+      </memberdef>
+      <memberdef kind="function" id="classCreateIndex_1ac764ee3dad5829868c069e9911068af8" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>CreateIndex::~CreateIndex</definition>
+        <argsstring>()</argsstring>
+        <name>~CreateIndex</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1438" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1491" bodyend="1497"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classCreateIndex" kindref="compound">CreateIndex</ref> - add a new index to the space. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2228">
+        <label>CreateIndex</label>
+        <link refid="classCreateIndex"/>
+        <childnode refid="2229" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2229">
+        <label>AlterSpaceOp</label>
+        <link refid="classAlterSpaceOp"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2230">
+        <label>CreateIndex</label>
+        <link refid="classCreateIndex"/>
+        <childnode refid="2231" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2232">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="2232" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="2231">
+        <label>AlterSpaceOp</label>
+        <link refid="classAlterSpaceOp"/>
+        <childnode refid="2232" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1426" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1425" bodyend="1439"/>
+    <listofallmembers>
+      <member refid="classAlterSpaceOp_1a378a5a70c9583adc7e8e37039deac0c0" prot="public" virt="virtual"><scope>CreateIndex</scope><name>alter</name></member>
+      <member refid="classCreateIndex_1a78debc247f366ffbed390fe7b6e7b212" prot="public" virt="virtual"><scope>CreateIndex</scope><name>alter_def</name></member>
+      <member refid="classAlterSpaceOp_1ab74f256d2f9bf750c48d8f9496eb0bc9" prot="public" virt="non-virtual"><scope>CreateIndex</scope><name>AlterSpaceOp</name></member>
+      <member refid="classCreateIndex_1aed1046f3d0f2111ff92a43b3fef3c838" prot="public" virt="virtual"><scope>CreateIndex</scope><name>commit</name></member>
+      <member refid="classCreateIndex_1a5e47b2a63a2112d19f7085c150b734ef" prot="public" virt="non-virtual"><scope>CreateIndex</scope><name>CreateIndex</name></member>
+      <member refid="classAlterSpaceOp_1a18479b187ef8611fe72e6ee92904f1be" prot="public" virt="non-virtual"><scope>CreateIndex</scope><name>link</name></member>
+      <member refid="classCreateIndex_1a3ecb6edf82c9abd75b09cb542a6aa30b" prot="private" virt="non-virtual"><scope>CreateIndex</scope><name>new_index</name></member>
+      <member refid="classCreateIndex_1a9deb0650686cf2e9ac9ef22291dbad4b" prot="private" virt="non-virtual"><scope>CreateIndex</scope><name>new_index_def</name></member>
+      <member refid="classAlterSpaceOp_1a700d3df81c1d87dc0818191dde139cae" prot="public" virt="non-virtual"><scope>CreateIndex</scope><name>operator delete</name></member>
+      <member refid="classAlterSpaceOp_1ad200979e4bf5c00b78bfef43f259ceba" prot="public" virt="non-virtual"><scope>CreateIndex</scope><name>operator new</name></member>
+      <member refid="classCreateIndex_1a0dcfe894fa81f9c64a7c3ccb3d1bc265" prot="public" virt="virtual"><scope>CreateIndex</scope><name>prepare</name></member>
+      <member refid="classAlterSpaceOp_1aa67d5c66e41e7972f5db131c5a3d9775" prot="public" virt="virtual"><scope>CreateIndex</scope><name>rollback</name></member>
+      <member refid="classAlterSpaceOp_1a5549e172b94739b9fa7445b9599f506c" prot="public" virt="virtual"><scope>CreateIndex</scope><name>~AlterSpaceOp</name></member>
+      <member refid="classCreateIndex_1ac764ee3dad5829868c069e9911068af8" prot="public" virt="virtual"><scope>CreateIndex</scope><name>~CreateIndex</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

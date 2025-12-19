@@ -1,0 +1,539 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="tt__uuid_8c" kind="file" language="C++">
+    <compoundname>tt_uuid.c</compoundname>
+    <includes refid="tt__uuid_8h" local="yes">tt_uuid.h</includes>
+    <includes refid="msgpuck_8h" local="no">msgpuck.h</includes>
+    <includes refid="random_8h" local="no">random.h</includes>
+    <includes local="no">trivia/config.h</includes>
+    <includes refid="tt__static_8h" local="yes">tt_static.h</includes>
+    <incdepgraph>
+      <node id="2589">
+        <label>stdbool.h</label>
+      </node>
+      <node id="2591">
+        <label>stdarg.h</label>
+      </node>
+      <node id="2590">
+        <label>assert.h</label>
+      </node>
+      <node id="2587">
+        <label>stdint.h</label>
+      </node>
+      <node id="2586">
+        <label>stdlib.h</label>
+      </node>
+      <node id="2588">
+        <label>stddef.h</label>
+      </node>
+      <node id="2584">
+        <label>/home/tsafin/tarantool/src/lib/uuid/tt_uuid.c</label>
+        <link refid="tt__uuid_8c"/>
+        <childnode refid="2585" relation="include">
+        </childnode>
+        <childnode refid="2593" relation="include">
+        </childnode>
+      </node>
+      <node id="2585">
+        <label>msgpuck.h</label>
+        <link refid="msgpuck_8h"/>
+        <childnode refid="2586" relation="include">
+        </childnode>
+        <childnode refid="2587" relation="include">
+        </childnode>
+        <childnode refid="2588" relation="include">
+        </childnode>
+        <childnode refid="2589" relation="include">
+        </childnode>
+        <childnode refid="2590" relation="include">
+        </childnode>
+        <childnode refid="2591" relation="include">
+        </childnode>
+        <childnode refid="2592" relation="include">
+        </childnode>
+      </node>
+      <node id="2593">
+        <label>trivia/config.h</label>
+      </node>
+      <node id="2592">
+        <label>stdio.h</label>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="tt__uuid_8c_1afd52a60abb88f101fab607ce555f4db5" prot="public" static="no">
+        <name>CT_ASSERT</name>
+        <param><defname>e</defname></param>
+        <initializer>typedef char __ct_assert_##__LINE__[(e) ? 1 : -1]</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.c" line="41" column="9" bodyfile="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.c" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="tt__uuid_8c_1a1884bfa5dc420eb4a329db8d147289e1" prot="public" static="no" mutable="no">
+        <type>const struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref></type>
+        <definition>const struct tt_uuid uuid_nil</definition>
+        <argsstring></argsstring>
+        <name>uuid_nil</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.c" line="113" column="1" bodyfile="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.c" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="tt__uuid_8c_1ad11e9bc40b72ae6302d779f895f3a563" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>CT_ASSERT</definition>
+        <argsstring>(sizeof(struct tt_uuid)==UUID_LEN)</argsstring>
+        <name>CT_ASSERT</name>
+        <param>
+          <type>sizeof(struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref>)</type>
+          <defval>=UUID_LEN</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.c" line="42" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="tt__uuid_8c_1aa532f277b00b35fe7d881a796ad712d3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tt_uuid_create</definition>
+        <argsstring>(struct tt_uuid *uu)</argsstring>
+        <name>tt_uuid_create</name>
+        <param>
+          <type>struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref> *</type>
+          <declname>uu</declname>
+        </param>
+        <briefdescription>
+<para>Generate new UUID. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>uu[out]</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UUID </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.c" line="57" column="1" bodyfile="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.c" bodystart="57" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="tt__uuid_8c_1a54be6bca1f2cefe94b9d115f00804e74" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int tt_uuid_validate</definition>
+        <argsstring>(struct tt_uuid *uu)</argsstring>
+        <name>tt_uuid_validate</name>
+        <param>
+          <type>struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref> *</type>
+          <declname>uu</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.c" line="69" column="1" bodyfile="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.h" bodystart="66" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="function" id="tt__uuid_8c_1a17bd339b0b5cf8a7d0d0aa9c70edee8c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int tt_uuid_from_string</definition>
+        <argsstring>(const char *in, struct tt_uuid *uu)</argsstring>
+        <name>tt_uuid_from_string</name>
+        <param>
+          <type>const char *</type>
+          <declname>in</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref> *</type>
+          <declname>uu</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="structParse" kindref="compound">Parse</ref> UUID from string. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>in</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>string </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>uu[out]</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UUID </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para></para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.c" line="72" column="1" bodyfile="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.h" bodystart="82" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="function" id="tt__uuid_8c_1a9c66d7029ea302b2d20452ee2f13abcc" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int tt_uuid_compare</definition>
+        <argsstring>(const struct tt_uuid *a, const struct tt_uuid *b)</argsstring>
+        <name>tt_uuid_compare</name>
+        <param>
+          <type>const struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref> *</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref> *</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Compare UUIDs lexicographically. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UUID </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UUID </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>comparison</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>result, as in strcmp() </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.c" line="75" column="1" bodyfile="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.h" bodystart="102" bodyend="123"/>
+      </memberdef>
+      <memberdef kind="function" id="tt__uuid_8c_1a6f526870131cfe7aa2804e77d4c58235" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tt_uuid_to_string</definition>
+        <argsstring>(const struct tt_uuid *uu, char *out)</argsstring>
+        <name>tt_uuid_to_string</name>
+        <param>
+          <type>const struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref> *</type>
+          <declname>uu</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+<para>Format UUID to RFC 4122 string. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>uu</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>uuid </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer, must be at least UUID_STR_LEN + 1 length </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.c" line="78" column="1" bodyfile="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.h" bodystart="131" bodyend="138"/>
+      </memberdef>
+      <memberdef kind="function" id="tt__uuid_8c_1ac2592125b50b422b205c464e5523aa71" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tt_uuid_bswap</definition>
+        <argsstring>(struct tt_uuid *uu)</argsstring>
+        <name>tt_uuid_bswap</name>
+        <param>
+          <type>struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref> *</type>
+          <declname>uu</declname>
+        </param>
+        <briefdescription>
+<para>Return byte order swapped UUID (LE -&gt; BE and vice versa) </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>uu</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.c" line="81" column="1" bodyfile="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.h" bodystart="145" bodyend="150"/>
+      </memberdef>
+      <memberdef kind="function" id="tt__uuid_8c_1a5e6feefea8ccbc10bf50656fc2a03803" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tt_uuid_is_nil</definition>
+        <argsstring>(const struct tt_uuid *uu)</argsstring>
+        <name>tt_uuid_is_nil</name>
+        <param>
+          <type>const struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref> *</type>
+          <declname>uu</declname>
+        </param>
+        <briefdescription>
+<para>Test that uuid is nil. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>uu</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UUID. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>true</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>If all members of <emphasis>uu</emphasis> 0. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>false</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Otherwise. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.c" line="84" column="1" bodyfile="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.h" bodystart="174" bodyend="177"/>
+      </memberdef>
+      <memberdef kind="function" id="tt__uuid_8c_1a6a5acba38bc34c6dfeb81e5228ecc2bf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tt_uuid_is_equal</definition>
+        <argsstring>(const struct tt_uuid *lhs, const struct tt_uuid *rhs)</argsstring>
+        <name>tt_uuid_is_equal</name>
+        <param>
+          <type>const struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref> *</type>
+          <declname>lhs</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref> *</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+<para>Test that <emphasis>lhs</emphasis> equal <emphasis>rhs</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lhs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UUID </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rhs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UUID </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>true</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if <emphasis>lhs</emphasis> equal <emphasis>rhs</emphasis> </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>false</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>otherwise </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.c" line="87" column="1" bodyfile="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.h" bodystart="160" bodyend="163"/>
+      </memberdef>
+      <memberdef kind="function" id="tt__uuid_8c_1ac4c6466bdbbc4080edd27fc821f331b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>char *</type>
+        <definition>char* tt_uuid_str</definition>
+        <argsstring>(const struct tt_uuid *uu)</argsstring>
+        <name>tt_uuid_str</name>
+        <param>
+          <type>const struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref> *</type>
+          <declname>uu</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.c" line="90" column="1" bodyfile="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.c" bodystart="90" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="tt__uuid_8c_1ad6a4ea194e9f08065d4c8a46268bd723" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tt_uuid_from_strl</definition>
+        <argsstring>(const char *in, size_t len, struct tt_uuid *uu)</argsstring>
+        <name>tt_uuid_from_strl</name>
+        <param>
+          <type>const char *</type>
+          <declname>in</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref> *</type>
+          <declname>uu</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.c" line="99" column="1" bodyfile="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.c" bodystart="99" bodyend="104"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tt_uuid.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="msgpuck_8h" kindref="compound">msgpuck.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;random.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;trivia/config.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tt_static.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Zeroed<sp/>by<sp/>the<sp/>linker.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>uuid_nil;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CT_ASSERT(e)<sp/>typedef<sp/>char<sp/>__ct_assert_##__LINE__[(e)<sp/>?<sp/>1<sp/>:<sp/>-1]</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal">CT_ASSERT(</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref>)<sp/>==<sp/>UUID_LEN);</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(HAVE_UUIDGEN)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sys/uuid.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal">CT_ASSERT(</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref>)<sp/>==<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>uuid));</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal">tt_uuid_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*uu)</highlight></codeline>
+<codeline lineno="51"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uuidgen((</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>uuid<sp/>*)<sp/>uu,<sp/>1);<sp/></highlight><highlight class="comment">/*<sp/>syscall<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal">tt_uuid_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*uu)</highlight></codeline>
+<codeline lineno="58"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>random_bytes((</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*)<sp/>uu,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*uu));</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uu-&gt;clock_seq_hi_and_reserved<sp/>&amp;=<sp/>0x3f;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uu-&gt;clock_seq_hi_and_reserved<sp/>|=<sp/>0x80;<sp/></highlight><highlight class="comment">/*<sp/>variant<sp/>1<sp/>=<sp/>RFC4122<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uu-&gt;time_hi_and_version<sp/>&amp;=<sp/>0x0FFF;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uu-&gt;time_hi_and_version<sp/>|=<sp/>(4<sp/>&lt;&lt;<sp/>12);<sp/><sp/></highlight><highlight class="comment">/*<sp/>version<sp/>4<sp/>=<sp/>random<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal">tt_uuid_validate(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*uu);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal">tt_uuid_from_string(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*in,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*uu);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal">tt_uuid_compare(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*a,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*b);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal">tt_uuid_to_string(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*uu,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*out);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal">tt_uuid_bswap(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*uu);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal">tt_uuid_is_nil(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*uu);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal">tt_uuid_is_equal(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*lhs,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*rhs);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="90"><highlight class="normal">tt_uuid_str(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*uu)</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(TT_STATIC_BUF_LEN<sp/>&gt;<sp/>UUID_STR_LEN);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*buf<sp/>=<sp/>tt_static_buf();</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_uuid_to_string(uu,<sp/>buf);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>buf;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal">tt_uuid_from_strl(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*in,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*uu)</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>buf[UUID_STR_LEN<sp/>+<sp/>1];</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>snprintf(buf,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(buf),<sp/></highlight><highlight class="stringliteral">&quot;%.*s&quot;</highlight><highlight class="normal">,<sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">)<sp/>len,<sp/>in);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>tt_uuid_from_string(buf,<sp/>uu);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/uuid/tt_uuid.c"/>
+  </compounddef>
+</doxygen>

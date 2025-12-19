@@ -1,0 +1,214 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structtuple__format__iterator" kind="struct" language="C++" prot="public">
+    <compoundname>tuple_format_iterator</compoundname>
+    <includes local="no">tuple_format.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structtuple__format__iterator_1aafbb6ab29734573b2228bad0602c20e0" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* tuple_format_iterator::pos</definition>
+        <argsstring></argsstring>
+        <name>pos</name>
+        <briefdescription>
+<para>The current read position in msgpack. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="461" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="461" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format__iterator_1ad036abb99752414873df38681e32d5a9" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtuple__format" kindref="compound">tuple_format</ref> *</type>
+        <definition>struct tuple_format* tuple_format_iterator::format</definition>
+        <argsstring></argsstring>
+        <name>format</name>
+        <briefdescription>
+<para>Tuple format is used to perform field lookups in format::fields JSON tree. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="466" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="466" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format__iterator_1aeab560372ccde7885909ed5fae702309" prot="public" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t tuple_format_iterator::flags</definition>
+        <argsstring></argsstring>
+        <name>flags</name>
+        <briefdescription>
+<para>The combination of tuple format iterator flags. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="468" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="468" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format__iterator_1a17e0c1b9e29892d655f7355485d85de8" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmp__stack" kindref="compound">mp_stack</ref></type>
+        <definition>struct mp_stack tuple_format_iterator::stack</definition>
+        <argsstring></argsstring>
+        <name>stack</name>
+        <briefdescription>
+<para>Traversal stack of msgpack frames is used to determine when the parsing of the current composite mp structure (array or map) is completed to update to the parent pointer accordingly. </para>        </briefdescription>
+        <detaileddescription>
+<para>Stack has the size equal to the maximum depth of the indexed field in the format::fields tree (format::fields_depth). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="468" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="479" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format__iterator_1a50c4d95f1236217828a167d3548ee3a0" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmp__frame" kindref="compound">mp_frame</ref> *</type>
+        <definition>struct mp_frame* tuple_format_iterator::multikey_frame</definition>
+        <argsstring></argsstring>
+        <name>multikey_frame</name>
+        <briefdescription>
+<para>The pointer to the stack frame representing an array filed that has JSON_TOKEN_ANY child, i.e. </para>        </briefdescription>
+        <detaileddescription>
+<para>the root of the multikey index. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="485" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="485" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format__iterator_1a37765cd33cc5982247553ed7a152e751" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+        <definition>struct json_token* tuple_format_iterator::parent</definition>
+        <argsstring></argsstring>
+        <name>parent</name>
+        <briefdescription>
+<para>The pointer to the parent node in the format::fields JSON tree. </para>        </briefdescription>
+        <detaileddescription>
+<para>Is required for relative lookup for the next field. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="491" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="491" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format__iterator_1a79277c77836dd67cac21266b2b7f0ed7" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t tuple_format_iterator::required_fields_sz</definition>
+        <argsstring></argsstring>
+        <name>required_fields_sz</name>
+        <briefdescription>
+<para>The size of validation bitmasks required_fields and multikey_required_fields. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="496" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="496" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format__iterator_1a9e9e060690b550773b27b2d7666a5605" prot="public" static="no" mutable="no">
+        <type>void *</type>
+        <definition>void* tuple_format_iterator::required_fields</definition>
+        <argsstring></argsstring>
+        <name>required_fields</name>
+        <briefdescription>
+<para>Field bitmap that is used for checking that all mandatory fields are present. </para>        </briefdescription>
+        <detaileddescription>
+<para>Not NULL iff validate == true. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="502" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="502" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format__iterator_1ac8a8f251af009fd3345e943d2a552a62" prot="public" static="no" mutable="no">
+        <type>void *</type>
+        <definition>void* tuple_format_iterator::multikey_required_fields</definition>
+        <argsstring></argsstring>
+        <name>multikey_required_fields</name>
+        <briefdescription>
+<para>Field bitmap that is used for checking that all mandatory fields of multikey subtree are present. </para>        </briefdescription>
+        <detaileddescription>
+<para>Not NULL iff validate == true. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="508" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="508" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A tuple msgpack iterator that decodes the tuple and returns only fields that are described in the <ref refid="structtuple__format" kindref="compound">tuple_format</ref>. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="11021">
+        <label>json_tree</label>
+        <link refid="structjson__tree"/>
+        <childnode refid="11015" relation="usage">
+          <edgelabel>root</edgelabel>
+        </childnode>
+      </node>
+      <node id="11022">
+        <label>mp_stack</label>
+        <link refid="structmp__stack"/>
+        <childnode refid="11016" relation="usage">
+          <edgelabel>frames</edgelabel>
+        </childnode>
+      </node>
+      <node id="11015">
+        <label>json_token</label>
+        <link refid="structjson__token"/>
+        <childnode refid="11015" relation="usage">
+          <edgelabel>parent</edgelabel>
+          <edgelabel>children</edgelabel>
+        </childnode>
+      </node>
+      <node id="11018">
+        <label>tuple_dictionary</label>
+        <link refid="structtuple__dictionary"/>
+      </node>
+      <node id="11020">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="11019">
+        <label>tuple_format_vtab</label>
+        <link refid="structtuple__format__vtab"/>
+        <childnode refid="11020" relation="usage">
+          <edgelabel>tuple_new</edgelabel>
+        </childnode>
+      </node>
+      <node id="11017">
+        <label>tuple_format</label>
+        <link refid="structtuple__format"/>
+        <childnode refid="11018" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="11019" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="11021" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+      </node>
+      <node id="11016">
+        <label>mp_frame</label>
+        <link refid="structmp__frame"/>
+      </node>
+      <node id="11014">
+        <label>tuple_format_iterator</label>
+        <link refid="structtuple__format__iterator"/>
+        <childnode refid="11015" relation="usage">
+          <edgelabel>parent</edgelabel>
+        </childnode>
+        <childnode refid="11016" relation="usage">
+          <edgelabel>multikey_frame</edgelabel>
+        </childnode>
+        <childnode refid="11017" relation="usage">
+          <edgelabel>format</edgelabel>
+        </childnode>
+        <childnode refid="11022" relation="usage">
+          <edgelabel>stack</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="459" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="459" bodyend="509"/>
+    <listofallmembers>
+      <member refid="structtuple__format__iterator_1aeab560372ccde7885909ed5fae702309" prot="public" virt="non-virtual"><scope>tuple_format_iterator</scope><name>flags</name></member>
+      <member refid="structtuple__format__iterator_1ad036abb99752414873df38681e32d5a9" prot="public" virt="non-virtual"><scope>tuple_format_iterator</scope><name>format</name></member>
+      <member refid="structtuple__format__iterator_1a50c4d95f1236217828a167d3548ee3a0" prot="public" virt="non-virtual"><scope>tuple_format_iterator</scope><name>multikey_frame</name></member>
+      <member refid="structtuple__format__iterator_1ac8a8f251af009fd3345e943d2a552a62" prot="public" virt="non-virtual"><scope>tuple_format_iterator</scope><name>multikey_required_fields</name></member>
+      <member refid="structtuple__format__iterator_1a37765cd33cc5982247553ed7a152e751" prot="public" virt="non-virtual"><scope>tuple_format_iterator</scope><name>parent</name></member>
+      <member refid="structtuple__format__iterator_1aafbb6ab29734573b2228bad0602c20e0" prot="public" virt="non-virtual"><scope>tuple_format_iterator</scope><name>pos</name></member>
+      <member refid="structtuple__format__iterator_1a9e9e060690b550773b27b2d7666a5605" prot="public" virt="non-virtual"><scope>tuple_format_iterator</scope><name>required_fields</name></member>
+      <member refid="structtuple__format__iterator_1a79277c77836dd67cac21266b2b7f0ed7" prot="public" virt="non-virtual"><scope>tuple_format_iterator</scope><name>required_fields_sz</name></member>
+      <member refid="structtuple__format__iterator_1a17e0c1b9e29892d655f7355485d85de8" prot="public" virt="non-virtual"><scope>tuple_format_iterator</scope><name>stack</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

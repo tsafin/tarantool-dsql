@@ -1,0 +1,440 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="slab__arena_8h" kind="file" language="C++">
+    <compoundname>slab_arena.h</compoundname>
+    <includes refid="lf__lifo_8h" local="yes">lf_lifo.h</includes>
+    <includes local="no">sys/mman.h</includes>
+    <includes local="no">limits.h</includes>
+    <includedby refid="fk__constraint_8h" local="yes">/home/tsafin/tarantool/src/box/fk_constraint.h</includedby>
+    <includedby refid="vy__mem_8h" local="no">/home/tsafin/tarantool/src/box/vy_mem.h</includedby>
+    <includedby refid="vy__mem_8c" local="no">/home/tsafin/tarantool/src/box/vy_mem.c</includedby>
+    <includedby refid="slab__cache_8h" local="yes">/home/tsafin/tarantool/src/lib/small/small/slab_cache.h</includedby>
+    <includedby refid="small_2slab__arena_8c" local="yes">/home/tsafin/tarantool/src/lib/small/small/slab_arena.c</includedby>
+    <includedby refid="small_8h" local="yes">/home/tsafin/tarantool/src/lib/small/small/small.h</includedby>
+    <includedby refid="static_8h" local="yes">/home/tsafin/tarantool/src/lib/small/small/static.h</includedby>
+    <includedby refid="arena__mt_8c" local="no">/home/tsafin/tarantool/src/lib/small/test/arena_mt.c</includedby>
+    <includedby refid="test_2slab__arena_8c" local="no">/home/tsafin/tarantool/src/lib/small/test/slab_arena.c</includedby>
+    <incdepgraph>
+      <node id="2384">
+        <label>sys/mman.h</label>
+      </node>
+      <node id="2383">
+        <label>/home/tsafin/tarantool/src/lib/small/small/slab_arena.h</label>
+        <link refid="slab__arena_8h"/>
+        <childnode refid="2384" relation="include">
+        </childnode>
+        <childnode refid="2385" relation="include">
+        </childnode>
+      </node>
+      <node id="2385">
+        <label>limits.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structslab__arena" prot="public">slab_arena</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="slab__arena_8h_1aec66ba595e2f5c0cf313458f859089e8" prot="public" static="no">
+        <name>SLAB_ARENA_FLAG_MARK</name>
+        <initializer>(0x80000000)</initializer>
+        <briefdescription>
+<para>Backward compatible flags to be used with slab_arena_create(). </para>        </briefdescription>
+        <detaileddescription>
+<para>Initially we have been passing MAP_SHARED or MAP_PRIVATE flags only, thus to continue supporting them we need to sign new API with some predefined value. For this sake we reserve high bit as a mark which allows us to distinguish system independent SLAB_ARENA_ flags from anything else.</para><para>Note the SLAB_ARENA_FLAG_MARK adds a second bit into the flags, use IS_SLAB_ARENA_FLAG helper for testing. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" line="59" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="slab__arena_8h_1a6eabf0a6870e25583052bf1b276029e8" prot="public" static="no">
+        <name>SLAB_ARENA_FLAG</name>
+        <param><defname>x</defname></param>
+        <initializer>((x) | SLAB_ARENA_FLAG_MARK)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" line="60" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="slab__arena_8h_1a52f460ecfae308ad25b2c9fb5eedc462" prot="public" static="no">
+        <name>IS_SLAB_ARENA_FLAG</name>
+        <param><defname>f</defname></param>
+        <param><defname>x</defname></param>
+        <initializer>(((f) &amp; (x)) == (x))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" line="61" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="slab__arena_8h_1abe4eb8a7f480877e96248c1c2b2b96a4" prot="public" static="no">
+        <name>@238</name>
+        <enumvalue id="slab__arena_8h_1abe4eb8a7f480877e96248c1c2b2b96a4afb8018a09a9622c3f7833d693bb51804" prot="public">
+          <name>SLAB_MIN_SIZE</name>
+          <initializer>= ((size_t)USHRT_MAX) + 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="slab__arena_8h_1abe4eb8a7f480877e96248c1c2b2b96a4a16877306565209bac76c9f5c91bebd5c" prot="public">
+          <name>SMALL_UNLIMITED</name>
+          <initializer>= SIZE_MAX/2 + 1</initializer>
+          <briefdescription>
+<para>The largest allowed amount of memory of a single arena. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" line="41" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" bodystart="41" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="enum" id="slab__arena_8h_1a5ff73139485369f629981d087e744c90" prot="public" static="no">
+        <name>@239</name>
+        <enumvalue id="slab__arena_8h_1a5ff73139485369f629981d087e744c90a5e74af24313cf324e4adc2a243a4d1fd" prot="public">
+          <name>SLAB_ARENA_PRIVATE</name>
+          <initializer>= SLAB_ARENA_FLAG(1 &lt;&lt; 0)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="slab__arena_8h_1a5ff73139485369f629981d087e744c90aa7c8fa7338e0f4623f1d5c86137c401d" prot="public">
+          <name>SLAB_ARENA_SHARED</name>
+          <initializer>= SLAB_ARENA_FLAG(1 &lt;&lt; 1)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="slab__arena_8h_1a5ff73139485369f629981d087e744c90a0823b11f96ed454bc59a1a8f1607c4ec" prot="public">
+          <name>SLAB_ARENA_DONTDUMP</name>
+          <initializer>= SLAB_ARENA_FLAG(1 &lt;&lt; 2)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" line="63" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" bodystart="63" bodyend="70"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="slab__arena_8h_1a1ecb587ce457fbacdba345c2523e7892" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int slab_arena_create</definition>
+        <argsstring>(struct slab_arena *arena, struct quota *quota, size_t prealloc, uint32_t slab_size, int flags)</argsstring>
+        <name>slab_arena_create</name>
+        <param>
+          <type>struct <ref refid="structslab__arena" kindref="compound">slab_arena</ref> *</type>
+          <declname>arena</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structquota" kindref="compound">quota</ref> *</type>
+          <declname>quota</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>prealloc</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>slab_size</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an arena. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" line="128" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_arena.c" bodystart="178" bodyend="214"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__arena_8h_1a61dc74561bc8a143c8a12d03f2000a75" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void slab_arena_destroy</definition>
+        <argsstring>(struct slab_arena *arena)</argsstring>
+        <name>slab_arena_destroy</name>
+        <param>
+          <type>struct <ref refid="structslab__arena" kindref="compound">slab_arena</ref> *</type>
+          <declname>arena</declname>
+        </param>
+        <briefdescription>
+<para>Destroy an arena. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" line="133" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_arena.c" bodystart="217" bodyend="232"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__arena_8h_1a07f301ba42fed390e0c12e9ecb306144" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>void* slab_map</definition>
+        <argsstring>(struct slab_arena *arena)</argsstring>
+        <name>slab_map</name>
+        <param>
+          <type>struct <ref refid="structslab__arena" kindref="compound">slab_arena</ref> *</type>
+          <declname>arena</declname>
+        </param>
+        <briefdescription>
+<para>Get a slab. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" line="137" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_arena.c" bodystart="235" bodyend="266"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__arena_8h_1a7699b1433f8285b890bdc14e2ec4ea91" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void slab_unmap</definition>
+        <argsstring>(struct slab_arena *arena, void *ptr)</argsstring>
+        <name>slab_unmap</name>
+        <param>
+          <type>struct <ref refid="structslab__arena" kindref="compound">slab_arena</ref> *</type>
+          <declname>arena</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ptr</declname>
+        </param>
+        <briefdescription>
+<para>Put a slab into cache. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" line="141" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_arena.c" bodystart="269" bodyend="277"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__arena_8h_1a958c0375b21f0105cca33bd0a33db713" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void slab_arena_mprotect</definition>
+        <argsstring>(struct slab_arena *arena)</argsstring>
+        <name>slab_arena_mprotect</name>
+        <param>
+          <type>struct <ref refid="structslab__arena" kindref="compound">slab_arena</ref> *</type>
+          <declname>arena</declname>
+        </param>
+        <briefdescription>
+<para>mprotect() the preallocated arena. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" line="145" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_arena.c" bodystart="280" bodyend="284"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__arena_8h_1a7c06d5ebba817a257cc54e4fb3286836" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t small_align</definition>
+        <argsstring>(size_t size, size_t alignment)</argsstring>
+        <name>small_align</name>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>alignment</declname>
+        </param>
+        <briefdescription>
+<para>Align a size - round up to nearest divisible by the given alignment. </para>        </briefdescription>
+        <detaileddescription>
+<para>Alignment must be a power of 2 </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" line="152" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" bodystart="152" bodyend="159"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__arena_8h_1ae14a8b939b7288681a33f77536f6e4c3" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t small_round</definition>
+        <argsstring>(size_t size)</argsstring>
+        <name>small_round</name>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Round up a number to the nearest power of two. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" line="163" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" bodystart="163" bodyend="172"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__arena_8h_1a1d02840ef080a7a53e59fef83e56d51c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t small_lb</definition>
+        <argsstring>(size_t size)</argsstring>
+        <name>small_lb</name>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Binary logarithm of a size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" line="176" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" bodystart="176" bodyend="181"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>INCLUDES_TARANTOOL_SMALL_SLAB_ARENA_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INCLUDES_TARANTOOL_SMALL_SLAB_ARENA_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;lf_lifo.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sys/mman.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;limits.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Smallest<sp/>possible<sp/>slab<sp/>size.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SLAB_MIN_SIZE<sp/>=<sp/>((size_t)USHRT_MAX)<sp/>+<sp/>1,</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SMALL_UNLIMITED<sp/>=<sp/>SIZE_MAX/2<sp/>+<sp/>1</highlight></codeline>
+<codeline lineno="46"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="preprocessor">#define<sp/>SLAB_ARENA_FLAG_MARK<sp/><sp/><sp/><sp/>(0x80000000)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SLAB_ARENA_FLAG(x)<sp/><sp/><sp/><sp/><sp/><sp/>((x)<sp/>|<sp/>SLAB_ARENA_FLAG_MARK)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>IS_SLAB_ARENA_FLAG(f,x)<sp/>(((f)<sp/>&amp;<sp/>(x))<sp/>==<sp/>(x))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>mmap()<sp/>flags<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SLAB_ARENA_PRIVATE<sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>SLAB_ARENA_FLAG(1<sp/>&lt;&lt;<sp/>0),</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SLAB_ARENA_SHARED<sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>SLAB_ARENA_FLAG(1<sp/>&lt;&lt;<sp/>1),</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>madvise()<sp/>flags<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SLAB_ARENA_DONTDUMP<sp/><sp/><sp/><sp/><sp/>=<sp/>SLAB_ARENA_FLAG(1<sp/>&lt;&lt;<sp/>2)</highlight></codeline>
+<codeline lineno="70"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79" refid="structslab__arena" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structslab__arena" kindref="compound">slab_arena</ref><sp/>{</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structlf__lifo" kindref="compound">lf_lifo</ref><sp/>cache;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structslab__arena_1a5ebc1c2aea7cd242c492896189ec39b2" kindref="member">arena</ref>;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structslab__arena_1a7cd4f1e19e23715f0229fde88ae3e173" kindref="member">prealloc</ref>;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structslab__arena_1a11cf8f863e44589c6fd10955eebda6cf" kindref="member">used</ref>;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structquota" kindref="compound">quota</ref><sp/>*<ref refid="structslab__arena_1af6f0dd6d80ff1ae404114beb1bf25a3c" kindref="member">quota</ref>;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="105"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Each<sp/>object<sp/>returned<sp/>by<sp/>arena_map()<sp/>has<sp/>this<sp/>size.</highlight></codeline>
+<codeline lineno="106"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>The<sp/>size<sp/>is<sp/>provided<sp/>at<sp/>arena<sp/>initialization.</highlight></codeline>
+<codeline lineno="107"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>It<sp/>must<sp/>be<sp/>a<sp/>power<sp/>of<sp/>2<sp/>and<sp/>large<sp/>enough</highlight></codeline>
+<codeline lineno="108"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>(at<sp/>least<sp/>64kb,<sp/>since<sp/>the<sp/>two<sp/>lower<sp/>bytes<sp/>are</highlight></codeline>
+<codeline lineno="109"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>used<sp/>for<sp/>ABA<sp/>counter<sp/>in<sp/>the<sp/>lock-free<sp/>list).</highlight></codeline>
+<codeline lineno="110"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Returned<sp/>pointers<sp/>are<sp/>always<sp/>aligned<sp/>by<sp/>this<sp/>size.</highlight></codeline>
+<codeline lineno="111"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="112"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>It&apos;s<sp/>important<sp/>to<sp/>keep<sp/>this<sp/>value<sp/>moderate<sp/>to</highlight></codeline>
+<codeline lineno="113"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>limit<sp/>the<sp/>overhead<sp/>of<sp/>partially<sp/>populated<sp/>slabs.</highlight></codeline>
+<codeline lineno="114"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>It<sp/>is<sp/>still<sp/>necessary,<sp/>however,<sp/>to<sp/>make<sp/>it<sp/>settable,</highlight></codeline>
+<codeline lineno="115"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>to<sp/>allow<sp/>allocation<sp/>of<sp/>large<sp/>objects.</highlight></codeline>
+<codeline lineno="116"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Typical<sp/>value<sp/>is<sp/>4Mb,<sp/>which<sp/>makes<sp/>it<sp/>possible<sp/>to</highlight></codeline>
+<codeline lineno="117"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>allocate<sp/>objects<sp/>of<sp/>size<sp/>up<sp/>to<sp/>~1MB.</highlight></codeline>
+<codeline lineno="118"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>slab_size;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structslab__arena_1a290132fc1c310f7f9a7c0a7913fedcf0" kindref="member">flags</ref>;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal">slab_arena_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__arena" kindref="compound">slab_arena</ref><sp/>*<ref refid="structslab__arena_1a5ebc1c2aea7cd242c492896189ec39b2" kindref="member">arena</ref>,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structquota" kindref="compound">quota</ref><sp/>*<ref refid="structquota" kindref="compound">quota</ref>,</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structslab__arena_1a7cd4f1e19e23715f0229fde88ae3e173" kindref="member">prealloc</ref>,<sp/>uint32_t<sp/>slab_size,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structslab__arena_1a290132fc1c310f7f9a7c0a7913fedcf0" kindref="member">flags</ref>);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal">slab_arena_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__arena" kindref="compound">slab_arena</ref><sp/>*arena);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="137"><highlight class="normal">slab_map(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__arena" kindref="compound">slab_arena</ref><sp/>*arena);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal">slab_unmap(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__arena" kindref="compound">slab_arena</ref><sp/>*arena,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ptr);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal">slab_arena_mprotect(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__arena" kindref="compound">slab_arena</ref><sp/>*arena);</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal">small_align(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>alignment)</highlight></codeline>
+<codeline lineno="153"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Must<sp/>be<sp/>a<sp/>power<sp/>of<sp/>two<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert((alignment<sp/>&amp;<sp/>(alignment<sp/>-<sp/>1))<sp/>==<sp/>0);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Bit<sp/>arithmetics<sp/>won&apos;t<sp/>work<sp/>for<sp/>a<sp/>large<sp/>size<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(size<sp/>&lt;=<sp/>SIZE_MAX<sp/>-<sp/>alignment);</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(size<sp/>-<sp/>1<sp/>+<sp/>alignment)<sp/>&amp;<sp/>~(alignment<sp/>-<sp/>1);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal">small_round(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="164"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(size<sp/>&lt;<sp/>2)</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>size;</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(size<sp/>&lt;=<sp/>SIZE_MAX<sp/>/<sp/>2<sp/>+<sp/>1);</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(size<sp/>-<sp/>1<sp/>&lt;=<sp/>ULONG_MAX);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>r<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>r<sp/>&lt;&lt;<sp/>(</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>long)<sp/>*<sp/>CHAR_BIT<sp/>-</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__builtin_clzl((</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal">)<sp/>(size<sp/>-<sp/>1)));</highlight></codeline>
+<codeline lineno="172"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal">small_lb(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="177"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(size<sp/>&lt;=<sp/>ULONG_MAX);</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>long)<sp/>*<sp/>CHAR_BIT<sp/>-</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__builtin_clzl((</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal">)<sp/>size)<sp/>-<sp/>1;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>INCLUDES_TARANTOOL_SMALL_SLAB_ARENA_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h"/>
+  </compounddef>
+</doxygen>

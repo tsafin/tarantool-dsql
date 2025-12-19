@@ -1,0 +1,318 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvy__cache" kind="struct" language="C++" prot="public">
+    <compoundname>vy_cache</compoundname>
+    <includes local="no">vy_cache.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvy__cache_1a6b779b475fb084e079a4e330373fd1e6" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+        <definition>struct key_def* vy_cache::cmp_def</definition>
+        <argsstring></argsstring>
+        <name>cmp_def</name>
+        <briefdescription>
+<para>Key definition for tuple comparison, includes primary key parts. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="162" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="162" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__cache_1a5df8c3c15ea5b80985bfcc6678e094f9" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool vy_cache::is_primary</definition>
+        <argsstring></argsstring>
+        <name>is_primary</name>
+        <briefdescription>
+<para>Set if this cache is for a primary index. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="164" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="164" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__cache_1ae861591642c9efe778b898d198d773db" prot="public" static="no" mutable="no">
+        <type>struct vy_cache_tree</type>
+        <definition>struct vy_cache_tree vy_cache::cache_tree</definition>
+        <argsstring></argsstring>
+        <name>cache_tree</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="164" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="166" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__cache_1aa84402f2897a103577e54cb4f8472428" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t vy_cache::version</definition>
+        <argsstring></argsstring>
+        <name>version</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="168" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="168" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__cache_1a3e628267f8adb37ef0c63cb98ed7bfc5" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__cache__env" kindref="compound">vy_cache_env</ref> *</type>
+        <definition>struct vy_cache_env* vy_cache::env</definition>
+        <argsstring></argsstring>
+        <name>env</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="170" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="170" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__cache_1ac4776b0db9c7e5e40d851945f6157dc7" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__cache__stat" kindref="compound">vy_cache_stat</ref></type>
+        <definition>struct vy_cache_stat vy_cache::stat</definition>
+        <argsstring></argsstring>
+        <name>stat</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="170" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="172" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Tuple cache (of one particular LSM tree) </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="12743">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="12738">
+        <label>vy_cache_env</label>
+        <link refid="structvy__cache__env"/>
+        <childnode refid="12739" relation="usage">
+          <edgelabel>cache_node_mempool</edgelabel>
+        </childnode>
+        <childnode refid="12735" relation="usage">
+          <edgelabel>cache_lru</edgelabel>
+        </childnode>
+      </node>
+      <node id="12736">
+        <label>key_part</label>
+        <link refid="structkey__part"/>
+        <childnode refid="12737" relation="usage">
+          <edgelabel>coll</edgelabel>
+        </childnode>
+      </node>
+      <node id="12739">
+        <label>mempool</label>
+        <link refid="structmempool"/>
+        <childnode refid="12740" relation="usage">
+          <edgelabel>spare</edgelabel>
+          <edgelabel>first_hot_slab</edgelabel>
+        </childnode>
+        <childnode refid="12742" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="12744" relation="usage">
+          <edgelabel>link</edgelabel>
+          <edgelabel>delayed</edgelabel>
+        </childnode>
+        <childnode refid="12735" relation="usage">
+          <edgelabel>cold_slabs</edgelabel>
+        </childnode>
+        <childnode refid="12745" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="12726">
+        <label>vy_cache</label>
+        <link refid="structvy__cache"/>
+        <childnode refid="12727" relation="usage">
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="12738" relation="usage">
+          <edgelabel>env</edgelabel>
+        </childnode>
+        <childnode refid="12749" relation="usage">
+          <edgelabel>stat</edgelabel>
+        </childnode>
+      </node>
+      <node id="12730">
+        <label>access</label>
+        <link refid="structaccess"/>
+      </node>
+      <node id="12734">
+        <label>credentials</label>
+        <link refid="structcredentials"/>
+        <childnode refid="12735" relation="usage">
+          <edgelabel>in_user</edgelabel>
+        </childnode>
+      </node>
+      <node id="12735">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="12735" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="12749">
+        <label>vy_cache_stat</label>
+        <link refid="structvy__cache__stat"/>
+        <childnode refid="12750" relation="usage">
+          <edgelabel>evict</edgelabel>
+          <edgelabel>put</edgelabel>
+          <edgelabel>count</edgelabel>
+          <edgelabel>invalidate</edgelabel>
+          <edgelabel>get</edgelabel>
+        </childnode>
+      </node>
+      <node id="12742">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="12743" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="12735" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="12727">
+        <label>key_def</label>
+        <link refid="structkey__def"/>
+        <childnode refid="12728" relation="usage">
+          <edgelabel>tuple_hash</edgelabel>
+          <edgelabel>tuple_compare_with_key</edgelabel>
+          <edgelabel>tuple_compare</edgelabel>
+          <edgelabel>tuple_hint</edgelabel>
+          <edgelabel>tuple_extract_key</edgelabel>
+        </childnode>
+        <childnode refid="12727" relation="usage">
+          <edgelabel>key_hash</edgelabel>
+          <edgelabel>tuple_extract_key_raw</edgelabel>
+          <edgelabel>key_hint</edgelabel>
+        </childnode>
+        <childnode refid="12729" relation="usage">
+          <edgelabel>func_index_func</edgelabel>
+        </childnode>
+        <childnode refid="12736" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="12728">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="12747">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="12740">
+        <label>mslab</label>
+        <link refid="structmslab"/>
+        <childnode refid="12735" relation="usage">
+          <edgelabel>next_in_cold</edgelabel>
+        </childnode>
+        <childnode refid="12741" relation="usage">
+          <edgelabel>slab</edgelabel>
+        </childnode>
+      </node>
+      <node id="12729">
+        <label>func</label>
+        <link refid="structfunc"/>
+        <childnode refid="12730" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="12731" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="12732" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="12734" relation="usage">
+          <edgelabel>owner_credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="12731">
+        <label>func_vtab</label>
+        <link refid="structfunc__vtab"/>
+      </node>
+      <node id="12748">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="12746">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="12747" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="12748" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="12733">
+        <label>func_opts</label>
+        <link refid="structfunc__opts"/>
+      </node>
+      <node id="12745">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="12742" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="12746" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="12732">
+        <label>func_def</label>
+        <link refid="structfunc__def"/>
+        <childnode refid="12733" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="12744">
+        <label>lifo</label>
+        <link refid="structlifo"/>
+      </node>
+      <node id="12737">
+        <label>coll</label>
+        <link refid="structcoll"/>
+        <childnode refid="12737" relation="usage">
+          <edgelabel>cmp</edgelabel>
+          <edgelabel>hint</edgelabel>
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+      <node id="12741">
+        <label>slab</label>
+        <link refid="structslab"/>
+        <childnode refid="12735" relation="usage">
+          <edgelabel>next_in_cache</edgelabel>
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+      <node id="12750">
+        <label>vy_stmt_counter</label>
+        <link refid="structvy__stmt__counter"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="157" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="157" bodyend="173"/>
+    <listofallmembers>
+      <member refid="structvy__cache_1ae861591642c9efe778b898d198d773db" prot="public" virt="non-virtual"><scope>vy_cache</scope><name>cache_tree</name></member>
+      <member refid="structvy__cache_1a6b779b475fb084e079a4e330373fd1e6" prot="public" virt="non-virtual"><scope>vy_cache</scope><name>cmp_def</name></member>
+      <member refid="structvy__cache_1a3e628267f8adb37ef0c63cb98ed7bfc5" prot="public" virt="non-virtual"><scope>vy_cache</scope><name>env</name></member>
+      <member refid="structvy__cache_1a5df8c3c15ea5b80985bfcc6678e094f9" prot="public" virt="non-virtual"><scope>vy_cache</scope><name>is_primary</name></member>
+      <member refid="structvy__cache_1ac4776b0db9c7e5e40d851945f6157dc7" prot="public" virt="non-virtual"><scope>vy_cache</scope><name>stat</name></member>
+      <member refid="structvy__cache_1aa84402f2897a103577e54cb4f8472428" prot="public" virt="non-virtual"><scope>vy_cache</scope><name>version</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

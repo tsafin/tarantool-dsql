@@ -1,0 +1,1040 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="rtree_8h" kind="file" language="C++">
+    <compoundname>rtree.h</compoundname>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes refid="matras_8h" local="yes">small/matras.h</includes>
+    <includes refid="rb_8h" local="yes">small/rb.h</includes>
+    <includedby refid="memtx__rtree_8c" local="no">/home/tsafin/tarantool/src/box/memtx_rtree.c</includedby>
+    <includedby refid="rtree_8c" local="yes">/home/tsafin/tarantool/src/lib/salad/rtree.c</includedby>
+    <incdepgraph>
+      <node id="2260">
+        <label>stdbool.h</label>
+      </node>
+      <node id="2259">
+        <label>stddef.h</label>
+      </node>
+      <node id="2258">
+        <label>/home/tsafin/tarantool/src/lib/salad/rtree.h</label>
+        <link refid="rtree_8h"/>
+        <childnode refid="2259" relation="include">
+        </childnode>
+        <childnode refid="2260" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structrtree__neighbor" prot="public">rtree_neighbor</innerclass>
+    <innerclass refid="structrtree__rect" prot="public">rtree_rect</innerclass>
+    <innerclass refid="structrtree" prot="public">rtree</innerclass>
+    <innerclass refid="structrtree__iterator" prot="public">rtree_iterator</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="rtree_8h_1a884ceaa850e86ebd3bd9ebd16352545f" prot="public" static="no">
+        <name>RB_COMPACT</name>
+        <initializer>1</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="37" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.h" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="rtree_8h_1aafc5993fe6fd7fec62e94ef57859c353" prot="public" static="no">
+        <name>@232</name>
+        <enumvalue id="rtree_8h_1aafc5993fe6fd7fec62e94ef57859c353aa6a88b73b2f958cf3ef0cc6c7323d275" prot="public">
+          <name>RTREE_MAX_HEIGHT</name>
+          <initializer>= 16</initializer>
+          <briefdescription>
+<para>Maximal possible R-tree height. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="rtree_8h_1aafc5993fe6fd7fec62e94ef57859c353ae7d1b97b0b1f62a43eebfb12975c9b5a" prot="public">
+          <name>RTREE_MAX_DIMENSION</name>
+          <initializer>= 20</initializer>
+          <briefdescription>
+<para>Maximal possible R-tree height. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="67" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.h" bodystart="67" bodyend="72"/>
+      </memberdef>
+      <memberdef kind="enum" id="rtree_8h_1a3e122c171062a025d6d125b26410c3d6" prot="public" static="no">
+        <name>spatial_search_op</name>
+        <enumvalue id="rtree_8h_1a3e122c171062a025d6d125b26410c3d6a5d59e11db7fda08e5904b193c2c5aa6e" prot="public">
+          <name>SOP_ALL</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="rtree_8h_1a3e122c171062a025d6d125b26410c3d6a3b76eedad18401b05bad8c52ce1a983b" prot="public">
+          <name>SOP_EQUALS</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="rtree_8h_1a3e122c171062a025d6d125b26410c3d6a1e44036b865a266300f938d6bca74a8e" prot="public">
+          <name>SOP_CONTAINS</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="rtree_8h_1a3e122c171062a025d6d125b26410c3d6abafcbf482223fc96f12f1e3d24c3a811" prot="public">
+          <name>SOP_STRICT_CONTAINS</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="rtree_8h_1a3e122c171062a025d6d125b26410c3d6a2bd5654556d6209d34cfdf09b7ebcc6c" prot="public">
+          <name>SOP_OVERLAPS</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="rtree_8h_1a3e122c171062a025d6d125b26410c3d6ae02c2ab846550323793b3e0b32ed00cd" prot="public">
+          <name>SOP_BELONGS</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="rtree_8h_1a3e122c171062a025d6d125b26410c3d6aa16ada4de417ec90948d63c1bc33c42d" prot="public">
+          <name>SOP_STRICT_BELONGS</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="rtree_8h_1a3e122c171062a025d6d125b26410c3d6aa7bc966af8a314782a3f055f9f23a9c3" prot="public">
+          <name>SOP_NEIGHBOR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Rtree search operations. </para>        </briefdescription>
+        <detaileddescription>
+<para>Used for searching and iterations. All operations except SOP_ALL reqires a rectangle to be set, and treat it in different ways </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="80" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.h" bodystart="79" bodyend="99"/>
+      </memberdef>
+      <memberdef kind="enum" id="rtree_8h_1a19b03f80945887a6ffc03646dd32129f" prot="public" static="no">
+        <name>rtree_distance_type</name>
+        <enumvalue id="rtree_8h_1a19b03f80945887a6ffc03646dd32129fac49f0dee951930c4f905aeea436a03e2" prot="public">
+          <name>RTREE_EUCLID</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="rtree_8h_1a19b03f80945887a6ffc03646dd32129fa88959c5ca24a87c98288988edf291091" prot="public">
+          <name>RTREE_MANHATTAN</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="118" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.h" bodystart="118" bodyend="121"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="rtree_8h_1ae57ac61760fabf38a350b3a6fe65933d" prot="public" static="no">
+        <type>void *</type>
+        <definition>typedef void* record_t</definition>
+        <argsstring></argsstring>
+        <name>record_t</name>
+        <briefdescription>
+<para>In-memory Guttman&apos;s R-tree. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="45" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="rtree_8h_1a48ebe32aa38165bb14a0d1479ccf3444" prot="public" static="no">
+        <type>double</type>
+        <definition>typedef double coord_t</definition>
+        <argsstring></argsstring>
+        <name>coord_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="47" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="rtree_8h_1a68fdd8132b3b9cc2971502bd9ac286a0" prot="public" static="no">
+        <type>double</type>
+        <definition>typedef double sq_coord_t</definition>
+        <argsstring></argsstring>
+        <name>sq_coord_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="49" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.h" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="rtree_8h_1aad99632df210fd897e44e5209ecd269f" prot="public" static="no">
+        <type>double</type>
+        <definition>typedef double area_t</definition>
+        <argsstring></argsstring>
+        <name>area_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="51" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.h" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="rtree_8h_1a0573f2382be33d6192a4db576027cac8" prot="public" static="no">
+        <type>void *(*</type>
+        <definition>typedef void*(* rtree_extent_alloc_t) (void *ctx)</definition>
+        <argsstring>)(void *ctx)</argsstring>
+        <name>rtree_extent_alloc_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="102" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.h" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="rtree_8h_1ae07844ef676ac402aac4a044ee617a9b" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* rtree_extent_free_t) (void *ctx, void *extent)</definition>
+        <argsstring>)(void *ctx, void *extent)</argsstring>
+        <name>rtree_extent_free_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="103" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="rtree_8h_1a1471d1020e4a2554f828e9ccf51e87af" prot="public" static="no">
+        <type>bool(*</type>
+        <definition>typedef bool(* rtree_comparator_t) (const struct rtree_rect *rt1, const struct rtree_rect *rt2, unsigned dimension)</definition>
+        <argsstring>)(const struct rtree_rect *rt1, const struct rtree_rect *rt2, unsigned dimension)</argsstring>
+        <name>rtree_comparator_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="113" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.h" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="rtree_8h_1a822a819991f0a4689a50239e081e8fe7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef rb_tree</definition>
+        <argsstring>(struct rtree_neighbor) rtnt_t</argsstring>
+        <name>rb_tree</name>
+        <param>
+          <type>struct <ref refid="structrtree__neighbor" kindref="compound">rtree_neighbor</ref></type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="65" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="rtree_8h_1a4f3ba9519be555276d5a80c752aa5ce1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void rtree_rect_normalize</definition>
+        <argsstring>(struct rtree_rect *rect, unsigned dimension)</argsstring>
+        <name>rtree_rect_normalize</name>
+        <param>
+          <type>struct <ref refid="structrtree__rect" kindref="compound">rtree_rect</ref> *</type>
+          <declname>rect</declname>
+        </param>
+        <param>
+          <type>unsigned</type>
+          <declname>dimension</declname>
+        </param>
+        <briefdescription>
+<para>Rectangle normalization. </para>        </briefdescription>
+        <detaileddescription>
+<para>Makes lower_point member to be vertex with minimal coordinates, and upper_point - with maximal coordinates. Useful when the rectangle is initialized with two diagonal vertexes that could be not lowest and highest correspondingly. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rect</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to a rectangle </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="209" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.c" bodystart="96" bodyend="106"/>
+      </memberdef>
+      <memberdef kind="function" id="rtree_8h_1a1027c1ec674492d3499ee42af227ae6b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void rtree_set2d</definition>
+        <argsstring>(struct rtree_rect *rect, coord_t left, coord_t bottom, coord_t right, coord_t top)</argsstring>
+        <name>rtree_set2d</name>
+        <param>
+          <type>struct <ref refid="structrtree__rect" kindref="compound">rtree_rect</ref> *</type>
+          <declname>rect</declname>
+        </param>
+        <param>
+          <type>coord_t</type>
+          <declname>left</declname>
+        </param>
+        <param>
+          <type>coord_t</type>
+          <declname>bottom</declname>
+        </param>
+        <param>
+          <type>coord_t</type>
+          <declname>right</declname>
+        </param>
+        <param>
+          <type>coord_t</type>
+          <declname>top</declname>
+        </param>
+        <briefdescription>
+<para>Set up 2D rectangle by 4 coordinates. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rect</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to a rectangle  left, bottom, right, top - corresponding coordinates </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="217" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.c" bodystart="117" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="function" id="rtree_8h_1a34639a49de8ed87384028f0fd3b750cb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void rtree_set2dp</definition>
+        <argsstring>(struct rtree_rect *rect, coord_t x, coord_t y)</argsstring>
+        <name>rtree_set2dp</name>
+        <param>
+          <type>struct <ref refid="structrtree__rect" kindref="compound">rtree_rect</ref> *</type>
+          <declname>rect</declname>
+        </param>
+        <param>
+          <type>coord_t</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>coord_t</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Set up 2D rectangle by 2 coordinates (set to point) </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rect</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to a rectangle  x, y - corresponding coordinates </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="226" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.c" bodystart="127" bodyend="133"/>
+      </memberdef>
+      <memberdef kind="function" id="rtree_8h_1a46d783304137b14cbf7d6e5e5000598f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int rtree_init</definition>
+        <argsstring>(struct rtree *tree, unsigned dimension, uint32_t extent_size, rtree_extent_alloc_t extent_alloc, rtree_extent_free_t extent_free, void *alloc_ctx, enum rtree_distance_type distance_type)</argsstring>
+        <name>rtree_init</name>
+        <param>
+          <type>struct <ref refid="structrtree" kindref="compound">rtree</ref> *</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>unsigned</type>
+          <declname>dimension</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>extent_size</declname>
+        </param>
+        <param>
+          <type>rtree_extent_alloc_t</type>
+          <declname>extent_alloc</declname>
+        </param>
+        <param>
+          <type>rtree_extent_free_t</type>
+          <declname>extent_free</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>alloc_ctx</declname>
+        </param>
+        <param>
+          <type>enum rtree_distance_type</type>
+          <declname>distance_type</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a tree. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to a tree </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>extent_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- size of extents allocated by extent_alloc (see next) </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>extent_alloc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- extent allocation function </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>extent_free</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- extent deallocation function </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>alloc_ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- argument passed to extent allocator </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>0 on success, -1 on error </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="238" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.c" bodystart="944" bodyend="975"/>
+      </memberdef>
+      <memberdef kind="function" id="rtree_8h_1abe682932c707986ded563dde39f7c793" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void rtree_destroy</definition>
+        <argsstring>(struct rtree *tree)</argsstring>
+        <name>rtree_destroy</name>
+        <param>
+          <type>struct <ref refid="structrtree" kindref="compound">rtree</ref> *</type>
+          <declname>tree</declname>
+        </param>
+        <briefdescription>
+<para>Destroy a tree. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to a tree </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="247" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.c" bodystart="978" bodyend="982"/>
+      </memberdef>
+      <memberdef kind="function" id="rtree_8h_1af620808147a60741f020e38cd269f491" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void rtree_purge</definition>
+        <argsstring>(struct rtree *tree)</argsstring>
+        <name>rtree_purge</name>
+        <param>
+          <type>struct <ref refid="structrtree" kindref="compound">rtree</ref> *</type>
+          <declname>tree</declname>
+        </param>
+        <briefdescription>
+<para>Delete all data from a tree, i.e. </para>        </briefdescription>
+        <detaileddescription>
+<para>make it empty <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to a tree </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="254" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.c" bodystart="1130" bodyend="1139"/>
+      </memberdef>
+      <memberdef kind="function" id="rtree_8h_1ad65c5e60da66ef38ebb507c9c18f7f39" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool rtree_search</definition>
+        <argsstring>(const struct rtree *tree, const struct rtree_rect *rect, enum spatial_search_op op, struct rtree_iterator *itr)</argsstring>
+        <name>rtree_search</name>
+        <param>
+          <type>const struct <ref refid="structrtree" kindref="compound">rtree</ref> *</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structrtree__rect" kindref="compound">rtree_rect</ref> *</type>
+          <declname>rect</declname>
+        </param>
+        <param>
+          <type>enum spatial_search_op</type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structrtree__iterator" kindref="compound">rtree_iterator</ref> *</type>
+          <declname>itr</declname>
+        </param>
+        <briefdescription>
+<para>Find a record in a tree. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if at least one record found (false otherwise) </para></simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to a tree </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rect</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- rectangle to find (the meaning depends on op argument) </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>op</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- type of search, see enum spatial_search_op for details </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>itr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to iterator (must be initialized earlier), iterator itr should be used for accessing found record </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="266" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.c" bodystart="1060" bodyend="1127"/>
+      </memberdef>
+      <memberdef kind="function" id="rtree_8h_1a5ff65f12847b384d9b2b4ea0319fbd8e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void rtree_insert</definition>
+        <argsstring>(struct rtree *tree, struct rtree_rect *rect, record_t obj)</argsstring>
+        <name>rtree_insert</name>
+        <param>
+          <type>struct <ref refid="structrtree" kindref="compound">rtree</ref> *</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structrtree__rect" kindref="compound">rtree_rect</ref> *</type>
+          <declname>rect</declname>
+        </param>
+        <param>
+          <type>record_t</type>
+          <declname>obj</declname>
+        </param>
+        <briefdescription>
+<para>Insert a record to the tree. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to a tree </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rect</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- rectangle to insert </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>obj</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- record to insert </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="276" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.c" bodystart="985" bodyend="1007"/>
+      </memberdef>
+      <memberdef kind="function" id="rtree_8h_1a479f30685f5bf98167929d2c27c42b83" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool rtree_remove</definition>
+        <argsstring>(struct rtree *tree, const struct rtree_rect *rect, record_t obj)</argsstring>
+        <name>rtree_remove</name>
+        <param>
+          <type>struct <ref refid="structrtree" kindref="compound">rtree</ref> *</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structrtree__rect" kindref="compound">rtree_rect</ref> *</type>
+          <declname>rect</declname>
+        </param>
+        <param>
+          <type>record_t</type>
+          <declname>obj</declname>
+        </param>
+        <briefdescription>
+<para>Remove the record from a tree. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if the record deleted (false otherwise) </para></simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to a tree </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rect</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- rectangle of the record to delete </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>obj</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- record to delete </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="286" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.c" bodystart="1010" bodyend="1057"/>
+      </memberdef>
+      <memberdef kind="function" id="rtree_8h_1ab01a7ab068afab4fe16dd977512a9206" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t rtree_used_size</definition>
+        <argsstring>(const struct rtree *tree)</argsstring>
+        <name>rtree_used_size</name>
+        <param>
+          <type>const struct <ref refid="structrtree" kindref="compound">rtree</ref> *</type>
+          <declname>tree</declname>
+        </param>
+        <briefdescription>
+<para>Size of memory used by tree. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to a tree </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="293" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.c" bodystart="1142" bodyend="1145"/>
+      </memberdef>
+      <memberdef kind="function" id="rtree_8h_1a5559591dbd085ddfdf9fbe44856266c4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>unsigned</type>
+        <definition>unsigned rtree_number_of_records</definition>
+        <argsstring>(const struct rtree *tree)</argsstring>
+        <name>rtree_number_of_records</name>
+        <param>
+          <type>const struct <ref refid="structrtree" kindref="compound">rtree</ref> *</type>
+          <declname>tree</declname>
+        </param>
+        <briefdescription>
+<para>Number of records in the tree. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tree</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to a tree </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="300" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.c" bodystart="1148" bodyend="1150"/>
+      </memberdef>
+      <memberdef kind="function" id="rtree_8h_1a8f76a3021990b70e8d7da6fd68e40358" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void rtree_iterator_init</definition>
+        <argsstring>(struct rtree_iterator *itr)</argsstring>
+        <name>rtree_iterator_init</name>
+        <param>
+          <type>struct <ref refid="structrtree__iterator" kindref="compound">rtree_iterator</ref> *</type>
+          <declname>itr</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an iterator for rtree Every iterator must be initialized before any usage. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>itr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to a iterator </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="318" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.c" bodystart="855" bodyend="862"/>
+      </memberdef>
+      <memberdef kind="function" id="rtree_8h_1ad20a59c77336eb7139b0c4d0577fe59d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void rtree_iterator_destroy</definition>
+        <argsstring>(struct rtree_iterator *itr)</argsstring>
+        <name>rtree_iterator_destroy</name>
+        <param>
+          <type>struct <ref refid="structrtree__iterator" kindref="compound">rtree_iterator</ref> *</type>
+          <declname>itr</declname>
+        </param>
+        <briefdescription>
+<para>Destroy an iterator Every iterator must be destroyed. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>itr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to a iterator </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="326" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.c" bodystart="788" bodyend="798"/>
+      </memberdef>
+      <memberdef kind="function" id="rtree_8h_1a3ded21d991544f68ae4c97c339997838" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>record_t</type>
+        <definition>record_t rtree_iterator_next</definition>
+        <argsstring>(struct rtree_iterator *itr)</argsstring>
+        <name>rtree_iterator_next</name>
+        <param>
+          <type>struct <ref refid="structrtree__iterator" kindref="compound">rtree_iterator</ref> *</type>
+          <declname>itr</declname>
+        </param>
+        <briefdescription>
+<para>Retrieve a record from the iterator and iterate it to the next record. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>a record or NULL if no more records </para></simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>itr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pointer to a iterator </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h" line="334" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rtree.c" bodystart="892" bodyend="937"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LIB_SALAD_RTREE_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LIB_SALAD_RTREE_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;small/matras.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>RB_COMPACT<sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;small/rb.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="comment">/*<sp/>Type<sp/>of<sp/>payload<sp/>data<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*record_t;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Type<sp/>of<sp/>coordinate<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>coord_t;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Type<sp/>of<sp/>square<sp/>coordinate<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>sq_coord_t;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Type<sp/>of<sp/>area<sp/>(volume)<sp/>of<sp/>rectangle<sp/>(box)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>area_t;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57" refid="structrtree__neighbor" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrtree__neighbor" kindref="compound">rtree_neighbor</ref><sp/>{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rb_node(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrtree__neighbor" kindref="compound">rtree_neighbor</ref>)<sp/>link;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrtree__neighbor" kindref="compound">rtree_neighbor</ref><sp/>*next;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*child;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>level;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sq_coord_t<sp/>distance;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/><ref refid="vclock_8h_1a15322e8502106a1fe47e37b5147a8644" kindref="member">rb_tree</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrtree__neighbor" kindref="compound">rtree_neighbor</ref>)<sp/>rtnt_t;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>RTREE_MAX_HEIGHT<sp/>=<sp/>16,</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>RTREE_MAX_DIMENSION<sp/>=<sp/>20</highlight></codeline>
+<codeline lineno="72"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>spatial_search_op</highlight></codeline>
+<codeline lineno="80"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Find<sp/>and<sp/>itearate<sp/>all<sp/>records<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SOP_ALL,</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Find<sp/>and<sp/>itearate<sp/>records<sp/>with<sp/>the<sp/>same<sp/>rectangle<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SOP_EQUALS,</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Find<sp/>and<sp/>itearate<sp/>records<sp/>that<sp/>contain<sp/>given<sp/>rectangle<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SOP_CONTAINS,</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Find<sp/>and<sp/>itearate<sp/>records<sp/>that<sp/>strictly<sp/>contain<sp/>given<sp/>rectangle<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SOP_STRICT_CONTAINS,</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Find<sp/>and<sp/>itearate<sp/>records<sp/>that<sp/>overlaps<sp/>with<sp/>given<sp/>rectangle<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SOP_OVERLAPS,</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Find<sp/>and<sp/>itearate<sp/>records<sp/>that<sp/>belongs<sp/>to<sp/>given<sp/>rectangle<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SOP_BELONGS,</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Find<sp/>and<sp/>itearate<sp/>records<sp/>that<sp/>strictly<sp/>belongs<sp/>to<sp/>given<sp/>rectangle<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SOP_STRICT_BELONGS,</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Find<sp/>and<sp/>itearate<sp/>nearest<sp/>records<sp/>from<sp/>a<sp/>given<sp/>point<sp/>(the<sp/>point<sp/>is</highlight></codeline>
+<codeline lineno="96"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>acluattly<sp/>lowest_point<sp/>of<sp/>given<sp/>rectangle).<sp/>Records<sp/>are<sp/>iterated<sp/>in</highlight></codeline>
+<codeline lineno="97"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>order<sp/>of<sp/>distance<sp/>to<sp/>given<sp/>point.<sp/>Yes,<sp/>it<sp/>is<sp/>KNN<sp/>iterator<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SOP_NEIGHBOR</highlight></codeline>
+<codeline lineno="99"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>pointers<sp/>to<sp/>page<sp/>allocation<sp/>and<sp/>deallocations<sp/>functions<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*(*rtree_extent_alloc_t)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*rtree_extent_free_t)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*extent);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>A<sp/>box<sp/>in<sp/>RTREE_DIMENSION<sp/>space<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="106" refid="structrtree__rect" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrtree__rect" kindref="compound">rtree_rect</ref></highlight></codeline>
+<codeline lineno="107"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>coords:<sp/>{<sp/>low<sp/>X,<sp/>upper<sp/>X,<sp/>low<sp/>Y,<sp/>upper<sp/>Y,<sp/>etc<sp/>}<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>coord_t<sp/>coords[RTREE_MAX_DIMENSION<sp/>*<sp/>2];</highlight></codeline>
+<codeline lineno="110"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Type<sp/>of<sp/>function,<sp/>comparing<sp/>two<sp/>rectangles<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>bool<sp/>(*rtree_comparator_t)(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrtree__rect" kindref="compound">rtree_rect</ref><sp/>*rt1,</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrtree__rect" kindref="compound">rtree_rect</ref><sp/>*rt2,</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>dimension);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Type<sp/>distance<sp/>comparison<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>rtree_distance_type<sp/>{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>RTREE_EUCLID<sp/>=<sp/>0,<sp/></highlight><highlight class="comment">/*<sp/>Euclid<sp/>distance,<sp/>sqrt(dx*dx<sp/>+<sp/>dy*dy)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>RTREE_MANHATTAN<sp/>=<sp/>1<sp/></highlight><highlight class="comment">/*<sp/>Manhattan<sp/>distance,<sp/>fabs(dx)<sp/>+<sp/>fabs(dy)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Main<sp/>rtree<sp/>struct<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124" refid="structrtree" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrtree" kindref="compound">rtree</ref></highlight></codeline>
+<codeline lineno="125"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Root<sp/>node<sp/>(page)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrtree__page" kindref="compound">rtree_page</ref><sp/>*root;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>R-tree<sp/>dimension<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>dimension;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Minimal<sp/>number<sp/>of<sp/>branches<sp/>in<sp/>tree<sp/>page<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>page_min_fill;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Maximal<sp/>number<sp/>of<sp/>branches<sp/>in<sp/>tree<sp/>page<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>page_max_fill;</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Page<sp/>size<sp/>in<sp/>bytes<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>page_size;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Page<sp/>branch<sp/>size<sp/>in<sp/>bytes<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>page_branch_size;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>For<sp/>iterator<sp/>usage,<sp/>pages<sp/>are<sp/>splitted<sp/>into<sp/>structs<sp/>neighbours</highlight></codeline>
+<codeline lineno="139"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Here<sp/>is<sp/>number<sp/>of<sp/>neighbours<sp/>fit<sp/>into<sp/>one<sp/>page<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>neighbours_in_page;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Number<sp/>of<sp/>records<sp/>in<sp/>entire<sp/>tree<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>n_records;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Height<sp/>of<sp/>a<sp/>tree<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>height;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Unique<sp/>version<sp/>that<sp/>increments<sp/>on<sp/>every<sp/>tree<sp/>modification<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>version;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Number<sp/>of<sp/>allocated<sp/>(used)<sp/>pages<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>n_pages;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Matras<sp/>for<sp/>allocating<sp/>new<sp/>page<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmatras" kindref="compound">matras</ref><sp/>mtab;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>List<sp/>of<sp/>free<sp/>pages<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*free_pages;</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Distance<sp/>type<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>rtree_distance_type<sp/>distance_type;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Struct<sp/>for<sp/>iteration<sp/>and<sp/>retrieving<sp/>rtree<sp/>values<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="158" refid="structrtree__iterator" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrtree__iterator" kindref="compound">rtree_iterator</ref></highlight></codeline>
+<codeline lineno="159"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Pointer<sp/>to<sp/>rtree<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrtree" kindref="compound">rtree</ref><sp/>*tree;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Rectangle<sp/>of<sp/>current<sp/>iteration<sp/>operation<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrtree__rect" kindref="compound">rtree_rect</ref><sp/>rect;</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Type<sp/>of<sp/>current<sp/>iteration<sp/>operation<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>spatial_search_op<sp/>op;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Flag<sp/>that<sp/>means<sp/>that<sp/>no<sp/>more<sp/>values<sp/>left<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>eof;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>A<sp/>verion<sp/>of<sp/>a<sp/>tree<sp/>when<sp/>the<sp/>iterator<sp/>was<sp/>created<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>version;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Special<sp/>rb<sp/>tree<sp/>of<sp/>closest<sp/>neqighbors</highlight></codeline>
+<codeline lineno="172"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Used<sp/>only<sp/>for<sp/>iteration<sp/>with<sp/>op<sp/>=<sp/>SOP_NEIGHBOR</highlight></codeline>
+<codeline lineno="173"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>For<sp/>allocating<sp/>list<sp/>entries,<sp/>page<sp/>allocator<sp/>of<sp/>tree<sp/>is<sp/>used.</highlight></codeline>
+<codeline lineno="174"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Allocated<sp/>page<sp/>is<sp/>much<sp/>bigger<sp/>than<sp/>list<sp/>entry<sp/>and<sp/>thus</highlight></codeline>
+<codeline lineno="175"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>provides<sp/>several<sp/>list<sp/>entries.</highlight></codeline>
+<codeline lineno="176"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rtnt_t<sp/>neigh_tree;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>List<sp/>of<sp/>unused<sp/>(deleted)<sp/>list<sp/>entries<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrtree__neighbor" kindref="compound">rtree_neighbor</ref><sp/>*neigh_free_list;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>List<sp/>of<sp/>tree<sp/>pages,<sp/>allocated<sp/>for<sp/>list<sp/>entries<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrtree__neighbor__page" kindref="compound">rtree_neighbor_page</ref><sp/>*page_list;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Position<sp/>of<sp/>ready-to-use<sp/>list<sp/>entry<sp/>in<sp/>allocated<sp/>page<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>page_pos;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Comparators<sp/>for<sp/>comparison<sp/>rectagnle<sp/>of<sp/>the<sp/>iterator<sp/>with</highlight></codeline>
+<codeline lineno="186"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>rectangles<sp/>of<sp/>tree<sp/>nodes.<sp/>If<sp/>the<sp/>comparator<sp/>returns<sp/>true,</highlight></codeline>
+<codeline lineno="187"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>the<sp/>node<sp/>is<sp/>accepted;<sp/>if<sp/>false<sp/>-<sp/>skipped.</highlight></codeline>
+<codeline lineno="188"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Comparator<sp/>for<sp/>interanal<sp/>(not<sp/>leaf)<sp/>nodes<sp/>of<sp/>the<sp/>tree<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rtree_comparator_t<sp/>intr_cmp;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Comparator<sp/>for<sp/>leaf<sp/>nodes<sp/>of<sp/>the<sp/>tree<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rtree_comparator_t<sp/>leaf_cmp;</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Current<sp/>path<sp/>of<sp/>search<sp/>in<sp/>tree<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrtree__page" kindref="compound">rtree_page</ref><sp/>*page;</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>pos;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/>stack[RTREE_MAX_HEIGHT];</highlight></codeline>
+<codeline lineno="199"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal">rtree_rect_normalize(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrtree__rect" kindref="compound">rtree_rect</ref><sp/>*rect,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>dimension);</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal">rtree_set2d(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrtree__rect" kindref="compound">rtree_rect</ref><sp/>*rect,</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>coord_t<sp/>left,<sp/>coord_t<sp/>bottom,<sp/>coord_t<sp/>right,<sp/>coord_t<sp/>top);</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal">rtree_set2dp(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrtree__rect" kindref="compound">rtree_rect</ref><sp/>*rect,<sp/>coord_t<sp/>x,<sp/>coord_t<sp/>y);</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal">rtree_init(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrtree" kindref="compound">rtree</ref><sp/>*tree,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>dimension,<sp/>uint32_t<sp/>extent_size,</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rtree_extent_alloc_t<sp/>extent_alloc,<sp/>rtree_extent_free_t<sp/>extent_free,</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*alloc_ctx,<sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>rtree_distance_type<sp/>distance_type);</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="247"><highlight class="normal">rtree_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrtree" kindref="compound">rtree</ref><sp/>*tree);</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"></highlight></codeline>
+<codeline lineno="253"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="254"><highlight class="normal">rtree_purge(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrtree" kindref="compound">rtree</ref><sp/>*tree);</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight></codeline>
+<codeline lineno="265"><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="normal">rtree_search(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrtree" kindref="compound">rtree</ref><sp/>*tree,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrtree__rect" kindref="compound">rtree_rect</ref><sp/>*rect,</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>spatial_search_op<sp/>op,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrtree__iterator" kindref="compound">rtree_iterator</ref><sp/>*itr);</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"></highlight></codeline>
+<codeline lineno="275"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="normal">rtree_insert(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrtree" kindref="compound">rtree</ref><sp/>*tree,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrtree__rect" kindref="compound">rtree_rect</ref><sp/>*rect,<sp/>record_t<sp/>obj);</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"></highlight></codeline>
+<codeline lineno="285"><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="normal">rtree_remove(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrtree" kindref="compound">rtree</ref><sp/>*tree,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrtree__rect" kindref="compound">rtree_rect</ref><sp/>*rect,<sp/>record_t<sp/>obj);</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"></highlight></codeline>
+<codeline lineno="292"><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="293"><highlight class="normal">rtree_used_size(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrtree" kindref="compound">rtree</ref><sp/>*tree);</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"></highlight></codeline>
+<codeline lineno="299"><highlight class="keywordtype">unsigned</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal">rtree_number_of_records(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrtree" kindref="compound">rtree</ref><sp/>*tree);</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"></highlight></codeline>
+<codeline lineno="302"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>0</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="303"><highlight class="normal"></highlight></codeline>
+<codeline lineno="308"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="309"><highlight class="normal">rtree_debug_print(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrtree" kindref="compound">rtree</ref><sp/>*tree);</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="311"><highlight class="normal"></highlight></codeline>
+<codeline lineno="317"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="318"><highlight class="normal">rtree_iterator_init(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrtree__iterator" kindref="compound">rtree_iterator</ref><sp/>*itr);</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"></highlight></codeline>
+<codeline lineno="325"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="326"><highlight class="normal">rtree_iterator_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrtree__iterator" kindref="compound">rtree_iterator</ref><sp/>*itr);</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"></highlight></codeline>
+<codeline lineno="333"><highlight class="normal">record_t</highlight></codeline>
+<codeline lineno="334"><highlight class="normal">rtree_iterator_next(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrtree__iterator" kindref="compound">rtree_iterator</ref><sp/>*itr);</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"></highlight></codeline>
+<codeline lineno="336"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="337"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>{<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="338"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="339"><highlight class="normal"></highlight></codeline>
+<codeline lineno="340"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>#ifndef<sp/>TARANTOOL_LIB_SALAD_RTREE_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/salad/rtree.h"/>
+  </compounddef>
+</doxygen>

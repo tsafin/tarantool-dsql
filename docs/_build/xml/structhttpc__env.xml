@@ -1,0 +1,185 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structhttpc__env" kind="struct" language="C++" prot="public">
+    <compoundname>httpc_env</compoundname>
+    <includes local="no">httpc.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structhttpc__env_1a92a0beb4cf286bd191f07fd132dcb4e5" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcurl__env" kindref="compound">curl_env</ref></type>
+        <definition>struct curl_env httpc_env::curl_env</definition>
+        <argsstring></argsstring>
+        <name>curl_env</name>
+        <briefdescription>
+<para>Curl enviroment. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="56" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhttpc__env_1a303c68dab329faf1d98618c2146b4559" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmempool" kindref="compound">mempool</ref></type>
+        <definition>struct mempool httpc_env::req_pool</definition>
+        <argsstring></argsstring>
+        <name>req_pool</name>
+        <briefdescription>
+<para>Memory pool for requests. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="56" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhttpc__env_1a71a2f30c43b1858e4a3dd02908dfffa2" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structhttpc__stat" kindref="compound">httpc_stat</ref></type>
+        <definition>struct httpc_stat httpc_env::stat</definition>
+        <argsstring></argsstring>
+        <name>stat</name>
+        <briefdescription>
+<para>Statistics. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="56" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>HTTP Client Environment. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="4074">
+        <label>httpc_stat</label>
+        <link refid="structhttpc__stat"/>
+      </node>
+      <node id="4066">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="4073">
+        <label>curl_stat</label>
+        <link refid="structcurl__stat"/>
+      </node>
+      <node id="4061">
+        <label>mempool</label>
+        <link refid="structmempool"/>
+        <childnode refid="4062" relation="usage">
+          <edgelabel>spare</edgelabel>
+          <edgelabel>first_hot_slab</edgelabel>
+        </childnode>
+        <childnode refid="4065" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="4067" relation="usage">
+          <edgelabel>link</edgelabel>
+          <edgelabel>delayed</edgelabel>
+        </childnode>
+        <childnode refid="4063" relation="usage">
+          <edgelabel>cold_slabs</edgelabel>
+        </childnode>
+        <childnode refid="4068" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="4063">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="4063" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="4065">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="4066" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="4063" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="4070">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="4062">
+        <label>mslab</label>
+        <link refid="structmslab"/>
+        <childnode refid="4063" relation="usage">
+          <edgelabel>next_in_cold</edgelabel>
+        </childnode>
+        <childnode refid="4064" relation="usage">
+          <edgelabel>slab</edgelabel>
+        </childnode>
+      </node>
+      <node id="4071">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="4069">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="4070" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="4071" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="4068">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="4065" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="4069" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="4067">
+        <label>lifo</label>
+        <link refid="structlifo"/>
+      </node>
+      <node id="4072">
+        <label>curl_env</label>
+        <link refid="structcurl__env"/>
+        <childnode refid="4073" relation="usage">
+          <edgelabel>stat</edgelabel>
+        </childnode>
+        <childnode refid="4061" relation="usage">
+          <edgelabel>sock_pool</edgelabel>
+        </childnode>
+      </node>
+      <node id="4060">
+        <label>httpc_env</label>
+        <link refid="structhttpc__env"/>
+        <childnode refid="4061" relation="usage">
+          <edgelabel>req_pool</edgelabel>
+        </childnode>
+        <childnode refid="4072" relation="usage">
+          <edgelabel>curl_env</edgelabel>
+        </childnode>
+        <childnode refid="4074" relation="usage">
+          <edgelabel>stat</edgelabel>
+        </childnode>
+      </node>
+      <node id="4064">
+        <label>slab</label>
+        <link refid="structslab"/>
+        <childnode refid="4063" relation="usage">
+          <edgelabel>next_in_cache</edgelabel>
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/httpc.h" line="62" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.h" bodystart="62" bodyend="69"/>
+    <listofallmembers>
+      <member refid="structhttpc__env_1a92a0beb4cf286bd191f07fd132dcb4e5" prot="public" virt="non-virtual"><scope>httpc_env</scope><name>curl_env</name></member>
+      <member refid="structhttpc__env_1a303c68dab329faf1d98618c2146b4559" prot="public" virt="non-virtual"><scope>httpc_env</scope><name>req_pool</name></member>
+      <member refid="structhttpc__env_1a71a2f30c43b1858e4a3dd02908dfffa2" prot="public" virt="non-virtual"><scope>httpc_env</scope><name>stat</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

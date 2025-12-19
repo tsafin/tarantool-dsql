@@ -78,13 +78,11 @@ int vdbe_op_noop_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Noop */
 int vdbe_op_explain_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Explain */
 int vdbe_op_skipload_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* SkipLoad */
 int vdbe_op_expire_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Expire */
-int vdbe_op_transactionbegin_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* TransactionBegin */
-int vdbe_op_transactioncommit_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* TransactionCommit */
-int vdbe_op_transactionrollback_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* TransactionRollback */
-int vdbe_op_ttransaction_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* TTransaction */
-int vdbe_op_resetcount_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* ResetCount */
 int vdbe_op_notnull_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* NotNull */
 int vdbe_op_permutation_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Permutation */
+/* Medium complexity inline opcode handlers - Phase 5.6b */
+int vdbe_op_close_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Close */
+int vdbe_op_isnull_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* IsNull */
 /* Control flow opcodes - reserved for dispatcher refactoring
  * See vdbe_ops_control.c for extraction plan.
  * These remain in vdbe.c for now due to PC manipulation complexity. */

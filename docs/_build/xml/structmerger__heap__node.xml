@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structmerger__heap__node" kind="struct" language="C++" prot="public">
+    <compoundname>merger_heap_node</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structmerger__heap__node_1af2defb25b0ce85270cfc997ab814f605" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmerge__source" kindref="compound">merge_source</ref> *</type>
+        <definition>struct merge_source* merger_heap_node::source</definition>
+        <argsstring></argsstring>
+        <name>source</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/merger.c" line="66" column="1" bodyfile="/home/tsafin/tarantool/src/box/merger.c" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmerger__heap__node_1a1ea1588660cd97785cd6360023241002" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+        <definition>struct tuple* merger_heap_node::tuple</definition>
+        <argsstring></argsstring>
+        <name>tuple</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/merger.c" line="71" column="1" bodyfile="/home/tsafin/tarantool/src/box/merger.c" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmerger__heap__node_1a63e4677f513ff34e90e3a62061a194d6" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structheap__node" kindref="compound">heap_node</ref></type>
+        <definition>struct heap_node merger_heap_node::in_merger</definition>
+        <argsstring></argsstring>
+        <name>in_merger</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/merger.c" line="71" column="1" bodyfile="/home/tsafin/tarantool/src/box/merger.c" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Holds a source to fetch next tuples and a last fetched tuple to compare the node against other nodes. </para>    </briefdescription>
+    <detaileddescription>
+<para>The main reason why this structure is separated from a merge source is that a heap node can not be a member of several heaps.</para><para>The second reason is that it allows to encapsulate all heap related logic inside this compilation unit, without any traces in externally visible structures. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="6000">
+        <label>merge_source</label>
+        <link refid="structmerge__source"/>
+        <childnode refid="6001" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+      </node>
+      <node id="6001">
+        <label>merge_source_vtab</label>
+        <link refid="structmerge__source__vtab"/>
+      </node>
+      <node id="5998">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="5999">
+        <label>heap_node</label>
+        <link refid="structheap__node"/>
+      </node>
+      <node id="5997">
+        <label>merger_heap_node</label>
+        <link refid="structmerger__heap__node"/>
+        <childnode refid="5998" relation="usage">
+          <edgelabel>tuple</edgelabel>
+        </childnode>
+        <childnode refid="5999" relation="usage">
+          <edgelabel>in_merger</edgelabel>
+        </childnode>
+        <childnode refid="6000" relation="usage">
+          <edgelabel>source</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/merger.c" line="64" column="1" bodyfile="/home/tsafin/tarantool/src/box/merger.c" bodystart="64" bodyend="74"/>
+    <listofallmembers>
+      <member refid="structmerger__heap__node_1a63e4677f513ff34e90e3a62061a194d6" prot="public" virt="non-virtual"><scope>merger_heap_node</scope><name>in_merger</name></member>
+      <member refid="structmerger__heap__node_1af2defb25b0ce85270cfc997ab814f605" prot="public" virt="non-virtual"><scope>merger_heap_node</scope><name>source</name></member>
+      <member refid="structmerger__heap__node_1a1ea1588660cd97785cd6360023241002" prot="public" virt="non-virtual"><scope>merger_heap_node</scope><name>tuple</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

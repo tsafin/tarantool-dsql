@@ -1,0 +1,130 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structfunc__sql__builtin" kind="struct" language="C++" prot="public">
+    <compoundname>func_sql_builtin</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structfunc__sql__builtin_1a2c3b49fdbc6c911837b91efade557340" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfunc" kindref="compound">func</ref></type>
+        <definition>struct func func_sql_builtin::base</definition>
+        <argsstring></argsstring>
+        <name>base</name>
+        <briefdescription>
+<para>Function object base class. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/sqlInt.h" line="4126" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/sqlInt.h" bodystart="4404" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfunc__sql__builtin_1abca11cf32405fb03925207602c6c9af2" prot="public" static="no" mutable="no">
+        <type>uint16_t</type>
+        <definition>uint16_t func_sql_builtin::flags</definition>
+        <argsstring></argsstring>
+        <name>flags</name>
+        <briefdescription>
+<para>A bitmask of SQL flags. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/sqlInt.h" line="4406" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/sqlInt.h" bodystart="4406" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfunc__sql__builtin_1a0f3128d45e9928b7aaf2a29f680e9e26" prot="public" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* func_sql_builtin::call) (sql_context *ctx, int argc, sql_value **argv)</definition>
+        <argsstring>)(sql_context *ctx, int argc, sql_value **argv)</argsstring>
+        <name>call</name>
+        <briefdescription>
+<para>A VDBE-memory-compatible call method. </para>        </briefdescription>
+        <detaileddescription>
+<para>SQL built-ins don&apos;t use func base class &quot;call&quot; method to provide a best performance for SQL requests. Access checks are redundant, because all SQL built-ins are predefined and are executed on SQL privilege level. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/sqlInt.h" line="4414" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/sqlInt.h" bodystart="4414" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfunc__sql__builtin_1a31c33095b2fce0012c806d4869f21a88" prot="public" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* func_sql_builtin::finalize) (sql_context *ctx)</definition>
+        <argsstring>)(sql_context *ctx)</argsstring>
+        <name>finalize</name>
+        <briefdescription>
+<para>A VDBE-memory-compatible finalize method (is valid only for aggregate function). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/sqlInt.h" line="4419" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/sqlInt.h" bodystart="4419" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3808">
+        <label>access</label>
+        <link refid="structaccess"/>
+      </node>
+      <node id="3812">
+        <label>credentials</label>
+        <link refid="structcredentials"/>
+        <childnode refid="3813" relation="usage">
+          <edgelabel>in_user</edgelabel>
+        </childnode>
+      </node>
+      <node id="3806">
+        <label>func_sql_builtin</label>
+        <link refid="structfunc__sql__builtin"/>
+        <childnode refid="3807" relation="usage">
+          <edgelabel>base</edgelabel>
+        </childnode>
+      </node>
+      <node id="3813">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="3813" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="3807">
+        <label>func</label>
+        <link refid="structfunc"/>
+        <childnode refid="3808" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="3809" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="3810" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="3812" relation="usage">
+          <edgelabel>owner_credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="3809">
+        <label>func_vtab</label>
+        <link refid="structfunc__vtab"/>
+      </node>
+      <node id="3811">
+        <label>func_opts</label>
+        <link refid="structfunc__opts"/>
+      </node>
+      <node id="3810">
+        <label>func_def</label>
+        <link refid="structfunc__def"/>
+        <childnode refid="3811" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/sql/sqlInt.h" line="4402" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/sqlInt.h" bodystart="4402" bodyend="4420"/>
+    <listofallmembers>
+      <member refid="structfunc__sql__builtin_1a2c3b49fdbc6c911837b91efade557340" prot="public" virt="non-virtual"><scope>func_sql_builtin</scope><name>base</name></member>
+      <member refid="structfunc__sql__builtin_1a0f3128d45e9928b7aaf2a29f680e9e26" prot="public" virt="non-virtual"><scope>func_sql_builtin</scope><name>call</name></member>
+      <member refid="structfunc__sql__builtin_1a31c33095b2fce0012c806d4869f21a88" prot="public" virt="non-virtual"><scope>func_sql_builtin</scope><name>finalize</name></member>
+      <member refid="structfunc__sql__builtin_1abca11cf32405fb03925207602c6c9af2" prot="public" virt="non-virtual"><scope>func_sql_builtin</scope><name>flags</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,596 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structfk__constraint__parse" kind="struct" language="C++" prot="public">
+    <compoundname>fk_constraint_parse</compoundname>
+    <includes local="no">parse_def.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structfk__constraint__parse_1a7863d073d77d9eefeac3e1f5d3860363" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfk__constraint__def" kindref="compound">fk_constraint_def</ref> *</type>
+        <definition>struct fk_constraint_def* fk_constraint_parse::fk_def</definition>
+        <argsstring></argsstring>
+        <name>fk_def</name>
+        <briefdescription>
+<para>Foreign keys constraint declared in &lt;CREATE TABLE ...&gt; statement. </para>        </briefdescription>
+        <detaileddescription>
+<para>They must be coded after space creation. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/parse_def.h" line="108" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/parse_def.h" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfk__constraint__parse_1a63a0d1932c51d45e96ff42376b04a09d" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structExprList" kindref="compound">ExprList</ref> *</type>
+        <definition>struct ExprList* fk_constraint_parse::selfref_cols</definition>
+        <argsstring></argsstring>
+        <name>selfref_cols</name>
+        <briefdescription>
+<para>If inside CREATE TABLE statement we want to declare self-referenced FK constraint, we must delay their resolution until the end of parsing of all columns. </para>        </briefdescription>
+        <detaileddescription>
+<para>E.g.: CREATE TABLE t1(id REFERENCES t1(b), b); </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/parse_def.h" line="115" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/parse_def.h" bodystart="115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfk__constraint__parse_1a2fbaa6032de78512274aeb1fefcae5b3" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool fk_constraint_parse::is_self_referenced</definition>
+        <argsstring></argsstring>
+        <name>is_self_referenced</name>
+        <briefdescription>
+<para>Still, self-referenced columns might be NULL, if we declare FK constraints referencing PK: CREATE TABLE t1(id REFERENCES t1) - it is a valid case. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/parse_def.h" line="121" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/parse_def.h" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfk__constraint__parse_1ae701d482536f71f693525f2c3d38c431" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist fk_constraint_parse::link</definition>
+        <argsstring></argsstring>
+        <name>link</name>
+        <briefdescription>
+<para>Organize these structs into linked list. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/parse_def.h" line="121" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/parse_def.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Structure representing foreign keys constraints appeared within CREATE TABLE statement. </para>    </briefdescription>
+    <detaileddescription>
+<para>Used only during parsing. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="3651">
+        <label>json_tree</label>
+        <link refid="structjson__tree"/>
+        <childnode refid="3652" relation="usage">
+          <edgelabel>root</edgelabel>
+        </childnode>
+      </node>
+      <node id="3608">
+        <label>ExprList</label>
+        <link refid="structExprList"/>
+        <childnode refid="3609" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="3606">
+        <label>fk_constraint_def</label>
+        <link refid="structfk__constraint__def"/>
+        <childnode refid="3607" relation="usage">
+          <edgelabel>links</edgelabel>
+        </childnode>
+      </node>
+      <node id="3643">
+        <label>index_stat</label>
+        <link refid="structindex__stat"/>
+        <childnode refid="3644" relation="usage">
+          <edgelabel>samples</edgelabel>
+        </childnode>
+      </node>
+      <node id="3640">
+        <label>iterator</label>
+        <link refid="structiterator"/>
+        <childnode refid="3637" relation="usage">
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="3647">
+        <label>key_part</label>
+        <link refid="structkey__part"/>
+        <childnode refid="3648" relation="usage">
+          <edgelabel>coll</edgelabel>
+        </childnode>
+      </node>
+      <node id="3644">
+        <label>index_sample</label>
+        <link refid="structindex__sample"/>
+      </node>
+      <node id="3633">
+        <label>TriggerStep</label>
+        <link refid="structTriggerStep"/>
+        <childnode refid="3633" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pLast</edgelabel>
+        </childnode>
+        <childnode refid="3610" relation="usage">
+          <edgelabel>pWhere</edgelabel>
+        </childnode>
+        <childnode refid="3634" relation="usage">
+          <edgelabel>pIdList</edgelabel>
+        </childnode>
+        <childnode refid="3624" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="3608" relation="usage">
+          <edgelabel>pExprList</edgelabel>
+        </childnode>
+      </node>
+      <node id="3652">
+        <label>json_token</label>
+        <link refid="structjson__token"/>
+        <childnode refid="3652" relation="usage">
+          <edgelabel>parent</edgelabel>
+          <edgelabel>children</edgelabel>
+        </childnode>
+      </node>
+      <node id="3619">
+        <label>access</label>
+        <link refid="structaccess"/>
+      </node>
+      <node id="3628">
+        <label>SrcList::SrcList_item</label>
+        <link refid="structSrcList_1_1SrcList__item"/>
+        <childnode refid="3629" relation="usage">
+          <edgelabel>space</edgelabel>
+        </childnode>
+        <childnode refid="3610" relation="usage">
+          <edgelabel>pOn</edgelabel>
+        </childnode>
+        <childnode refid="3634" relation="usage">
+          <edgelabel>pUsing</edgelabel>
+        </childnode>
+        <childnode refid="3641" relation="usage">
+          <edgelabel>pIBIndex</edgelabel>
+        </childnode>
+        <childnode refid="3624" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="3608" relation="usage">
+          <edgelabel>pFuncArg</edgelabel>
+        </childnode>
+      </node>
+      <node id="3626">
+        <label>With::Cte</label>
+        <link refid="structWith_1_1Cte"/>
+        <childnode refid="3624" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="3608" relation="usage">
+          <edgelabel>pCols</edgelabel>
+        </childnode>
+      </node>
+      <node id="3624">
+        <label>Select</label>
+        <link refid="structSelect"/>
+        <childnode refid="3610" relation="usage">
+          <edgelabel>pOffset</edgelabel>
+          <edgelabel>pHaving</edgelabel>
+          <edgelabel>pWhere</edgelabel>
+          <edgelabel>pLimit</edgelabel>
+        </childnode>
+        <childnode refid="3625" relation="usage">
+          <edgelabel>pWith</edgelabel>
+        </childnode>
+        <childnode refid="3624" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pPrior</edgelabel>
+        </childnode>
+        <childnode refid="3627" relation="usage">
+          <edgelabel>pSrc</edgelabel>
+        </childnode>
+        <childnode refid="3608" relation="usage">
+          <edgelabel>pEList</edgelabel>
+          <edgelabel>pOrderBy</edgelabel>
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="3623">
+        <label>credentials</label>
+        <link refid="structcredentials"/>
+        <childnode refid="3605" relation="usage">
+          <edgelabel>in_user</edgelabel>
+        </childnode>
+      </node>
+      <node id="3631">
+        <label>engine_vtab</label>
+        <link refid="structengine__vtab"/>
+        <childnode refid="3629" relation="usage">
+          <edgelabel>create_space</edgelabel>
+        </childnode>
+      </node>
+      <node id="3629">
+        <label>space</label>
+        <link refid="structspace"/>
+        <childnode refid="3611" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="3630" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="3632" relation="usage">
+          <edgelabel>sql_triggers</edgelabel>
+        </childnode>
+        <childnode refid="3619" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="3636" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="3649" relation="usage">
+          <edgelabel>format</edgelabel>
+        </childnode>
+        <childnode refid="3653" relation="usage">
+          <edgelabel>ck_constraint_trigger</edgelabel>
+        </childnode>
+        <childnode refid="3605" relation="usage">
+          <edgelabel>before_replace</edgelabel>
+          <edgelabel>on_replace</edgelabel>
+          <edgelabel>child_fk_constraint</edgelabel>
+          <edgelabel>memtx_stories</edgelabel>
+          <edgelabel>parent_fk_constraint</edgelabel>
+          <edgelabel>ck_constraint</edgelabel>
+        </childnode>
+        <childnode refid="3654" relation="usage">
+          <edgelabel>sequence</edgelabel>
+        </childnode>
+        <childnode refid="3637" relation="usage">
+          <edgelabel>index_map</edgelabel>
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="3607">
+        <label>field_link</label>
+        <link refid="structfield__link"/>
+      </node>
+      <node id="3616">
+        <label>AggInfo::AggInfo_col</label>
+        <link refid="structAggInfo_1_1AggInfo__col"/>
+        <childnode refid="3611" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="3610" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="3638">
+        <label>index_vtab</label>
+        <link refid="structindex__vtab"/>
+        <childnode refid="3639" relation="usage">
+          <edgelabel>create_snapshot_iterator</edgelabel>
+        </childnode>
+        <childnode refid="3640" relation="usage">
+          <edgelabel>create_iterator</edgelabel>
+        </childnode>
+      </node>
+      <node id="3612">
+        <label>tuple_dictionary</label>
+        <link refid="structtuple__dictionary"/>
+      </node>
+      <node id="3610">
+        <label>Expr</label>
+        <link refid="structExpr"/>
+        <childnode refid="3611" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="3615" relation="usage">
+          <edgelabel>pAggInfo</edgelabel>
+        </childnode>
+        <childnode refid="3610" relation="usage">
+          <edgelabel>pRight</edgelabel>
+          <edgelabel>pLeft</edgelabel>
+        </childnode>
+        <childnode refid="3624" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="3608" relation="usage">
+          <edgelabel>pList</edgelabel>
+        </childnode>
+      </node>
+      <node id="3615">
+        <label>AggInfo</label>
+        <link refid="structAggInfo"/>
+        <childnode refid="3616" relation="usage">
+          <edgelabel>aCol</edgelabel>
+        </childnode>
+        <childnode refid="3617" relation="usage">
+          <edgelabel>aFunc</edgelabel>
+        </childnode>
+        <childnode refid="3608" relation="usage">
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="3605">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="3605" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="3639">
+        <label>snapshot_iterator</label>
+        <link refid="structsnapshot__iterator"/>
+      </node>
+      <node id="3627">
+        <label>SrcList</label>
+        <link refid="structSrcList"/>
+        <childnode refid="3628" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="3655">
+        <label>sequence_def</label>
+        <link refid="structsequence__def"/>
+      </node>
+      <node id="3634">
+        <label>IdList</label>
+        <link refid="structIdList"/>
+        <childnode refid="3635" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="3637">
+        <label>index</label>
+        <link refid="structindex"/>
+        <childnode refid="3630" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="3638" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="3641" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="3654">
+        <label>sequence</label>
+        <link refid="structsequence"/>
+        <childnode refid="3619" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="3655" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="3613">
+        <label>field_def</label>
+        <link refid="structfield__def"/>
+        <childnode refid="3610" relation="usage">
+          <edgelabel>default_value_expr</edgelabel>
+        </childnode>
+      </node>
+      <node id="3645">
+        <label>key_def</label>
+        <link refid="structkey__def"/>
+        <childnode refid="3646" relation="usage">
+          <edgelabel>tuple_hash</edgelabel>
+          <edgelabel>tuple_compare_with_key</edgelabel>
+          <edgelabel>tuple_compare</edgelabel>
+          <edgelabel>tuple_hint</edgelabel>
+          <edgelabel>tuple_extract_key</edgelabel>
+        </childnode>
+        <childnode refid="3645" relation="usage">
+          <edgelabel>key_hash</edgelabel>
+          <edgelabel>tuple_extract_key_raw</edgelabel>
+          <edgelabel>key_hint</edgelabel>
+        </childnode>
+        <childnode refid="3618" relation="usage">
+          <edgelabel>func_index_func</edgelabel>
+        </childnode>
+        <childnode refid="3647" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="3653">
+        <label>trigger</label>
+        <link refid="structtrigger"/>
+        <childnode refid="3653" relation="usage">
+          <edgelabel>run</edgelabel>
+          <edgelabel>destroy</edgelabel>
+        </childnode>
+        <childnode refid="3605" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="3646">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="3641">
+        <label>index_def</label>
+        <link refid="structindex__def"/>
+        <childnode refid="3642" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+        <childnode refid="3645" relation="usage">
+          <edgelabel>key_def</edgelabel>
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="3605" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="3614">
+        <label>space_opts</label>
+        <link refid="structspace__opts"/>
+      </node>
+      <node id="3618">
+        <label>func</label>
+        <link refid="structfunc"/>
+        <childnode refid="3619" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="3620" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="3621" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="3623" relation="usage">
+          <edgelabel>owner_credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="3620">
+        <label>func_vtab</label>
+        <link refid="structfunc__vtab"/>
+      </node>
+      <node id="3632">
+        <label>sql_trigger</label>
+        <link refid="structsql__trigger"/>
+        <childnode refid="3633" relation="usage">
+          <edgelabel>step_list</edgelabel>
+        </childnode>
+        <childnode refid="3610" relation="usage">
+          <edgelabel>pWhen</edgelabel>
+        </childnode>
+        <childnode refid="3632" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="3634" relation="usage">
+          <edgelabel>pColumns</edgelabel>
+        </childnode>
+      </node>
+      <node id="3622">
+        <label>func_opts</label>
+        <link refid="structfunc__opts"/>
+      </node>
+      <node id="3650">
+        <label>tuple_format_vtab</label>
+        <link refid="structtuple__format__vtab"/>
+        <childnode refid="3646" relation="usage">
+          <edgelabel>tuple_new</edgelabel>
+        </childnode>
+      </node>
+      <node id="3649">
+        <label>tuple_format</label>
+        <link refid="structtuple__format"/>
+        <childnode refid="3612" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="3650" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="3651" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+      </node>
+      <node id="3621">
+        <label>func_def</label>
+        <link refid="structfunc__def"/>
+        <childnode refid="3622" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="3625">
+        <label>With</label>
+        <link refid="structWith"/>
+        <childnode refid="3626" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+        <childnode refid="3625" relation="usage">
+          <edgelabel>pOuter</edgelabel>
+        </childnode>
+      </node>
+      <node id="3611">
+        <label>space_def</label>
+        <link refid="structspace__def"/>
+        <childnode refid="3612" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="3613" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+        <childnode refid="3614" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="3630">
+        <label>engine</label>
+        <link refid="structengine"/>
+        <childnode refid="3631" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="3605" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="3635">
+        <label>IdList::IdList_item</label>
+        <link refid="structIdList_1_1IdList__item"/>
+      </node>
+      <node id="3648">
+        <label>coll</label>
+        <link refid="structcoll"/>
+        <childnode refid="3648" relation="usage">
+          <edgelabel>cmp</edgelabel>
+          <edgelabel>hint</edgelabel>
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+      <node id="3642">
+        <label>index_opts</label>
+        <link refid="structindex__opts"/>
+        <childnode refid="3643" relation="usage">
+          <edgelabel>stat</edgelabel>
+        </childnode>
+      </node>
+      <node id="3604">
+        <label>fk_constraint_parse</label>
+        <link refid="structfk__constraint__parse"/>
+        <childnode refid="3605" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+        <childnode refid="3606" relation="usage">
+          <edgelabel>fk_def</edgelabel>
+        </childnode>
+        <childnode refid="3608" relation="usage">
+          <edgelabel>selfref_cols</edgelabel>
+        </childnode>
+      </node>
+      <node id="3609">
+        <label>ExprList::ExprList_item</label>
+        <link refid="structExprList_1_1ExprList__item"/>
+        <childnode refid="3610" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="3617">
+        <label>AggInfo::AggInfo_func</label>
+        <link refid="structAggInfo_1_1AggInfo__func"/>
+        <childnode refid="3610" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+        <childnode refid="3618" relation="usage">
+          <edgelabel>func</edgelabel>
+        </childnode>
+      </node>
+      <node id="3636">
+        <label>space_vtab</label>
+        <link refid="structspace__vtab"/>
+        <childnode refid="3637" relation="usage">
+          <edgelabel>create_index</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/sql/parse_def.h" line="103" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/parse_def.h" bodystart="103" bodyend="124"/>
+    <listofallmembers>
+      <member refid="structfk__constraint__parse_1a7863d073d77d9eefeac3e1f5d3860363" prot="public" virt="non-virtual"><scope>fk_constraint_parse</scope><name>fk_def</name></member>
+      <member refid="structfk__constraint__parse_1a2fbaa6032de78512274aeb1fefcae5b3" prot="public" virt="non-virtual"><scope>fk_constraint_parse</scope><name>is_self_referenced</name></member>
+      <member refid="structfk__constraint__parse_1ae701d482536f71f693525f2c3d38c431" prot="public" virt="non-virtual"><scope>fk_constraint_parse</scope><name>link</name></member>
+      <member refid="structfk__constraint__parse_1a63a0d1932c51d45e96ff42376b04a09d" prot="public" virt="non-virtual"><scope>fk_constraint_parse</scope><name>selfref_cols</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

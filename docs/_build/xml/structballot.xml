@@ -1,0 +1,100 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structballot" kind="struct" language="C++" prot="public">
+    <compoundname>ballot</compoundname>
+    <includes local="no">xrow.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structballot_1aafb7c90cbde49dc385c2ef3c76c80273" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool ballot::is_ro</definition>
+        <argsstring></argsstring>
+        <name>is_ro</name>
+        <briefdescription>
+<para>Set if the instance is running in read-only mode. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow.h" line="349" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow.h" bodystart="349" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structballot_1a47960221b0cfdf8b43b441f14351d9e4" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool ballot::is_anon</definition>
+        <argsstring></argsstring>
+        <name>is_anon</name>
+        <briefdescription>
+<para>A flag whether the instance is anonymous, not having an ID, and not going to request it. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow.h" line="354" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow.h" bodystart="354" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structballot_1a1d92998d798c1ccdfc3c898866e5dea7" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool ballot::is_loading</definition>
+        <argsstring></argsstring>
+        <name>is_loading</name>
+        <briefdescription>
+<para>Set if the instance hasn&apos;t finished bootstrap or recovery, or is syncing with other replicas in the replicaset. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow.h" line="359" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow.h" bodystart="359" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structballot_1ae7dfa5a673595e2717f833b070570adf" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvclock" kindref="compound">vclock</ref></type>
+        <definition>struct vclock ballot::vclock</definition>
+        <argsstring></argsstring>
+        <name>vclock</name>
+        <briefdescription>
+<para>Current instance vclock. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow.h" line="359" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow.h" bodystart="361" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structballot_1ab8936eb604745759279cf723382969c1" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvclock" kindref="compound">vclock</ref></type>
+        <definition>struct vclock ballot::gc_vclock</definition>
+        <argsstring></argsstring>
+        <name>gc_vclock</name>
+        <briefdescription>
+<para>Oldest vclock available on the instance. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow.h" line="359" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow.h" bodystart="363" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Reply to IPROTO_VOTE request. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="638">
+        <label>vclock</label>
+        <link refid="structvclock"/>
+      </node>
+      <node id="637">
+        <label>ballot</label>
+        <link refid="structballot"/>
+        <childnode refid="638" relation="usage">
+          <edgelabel>gc_vclock</edgelabel>
+          <edgelabel>vclock</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/xrow.h" line="347" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow.h" bodystart="347" bodyend="364"/>
+    <listofallmembers>
+      <member refid="structballot_1ab8936eb604745759279cf723382969c1" prot="public" virt="non-virtual"><scope>ballot</scope><name>gc_vclock</name></member>
+      <member refid="structballot_1a47960221b0cfdf8b43b441f14351d9e4" prot="public" virt="non-virtual"><scope>ballot</scope><name>is_anon</name></member>
+      <member refid="structballot_1a1d92998d798c1ccdfc3c898866e5dea7" prot="public" virt="non-virtual"><scope>ballot</scope><name>is_loading</name></member>
+      <member refid="structballot_1aafb7c90cbde49dc385c2ef3c76c80273" prot="public" virt="non-virtual"><scope>ballot</scope><name>is_ro</name></member>
+      <member refid="structballot_1ae7dfa5a673595e2717f833b070570adf" prot="public" virt="non-virtual"><scope>ballot</scope><name>vclock</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

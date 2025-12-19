@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structfunc__key__undo" kind="struct" language="C++" prot="public">
+    <compoundname>func_key_undo</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structfunc__key__undo_1ac0f2915b192bbb09bcfe676a705d270c" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist func_key_undo::link</definition>
+        <argsstring></argsstring>
+        <name>link</name>
+        <briefdescription>
+<para>A link to organize entries in list. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tree.c" line="144" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tree.c" bodystart="866" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfunc__key__undo_1abc8251fc4f7b8038be17430ff6178306" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmemtx__tree__data" kindref="compound">memtx_tree_data</ref></type>
+        <definition>struct memtx_tree_data func_key_undo::key</definition>
+        <argsstring></argsstring>
+        <name>key</name>
+        <briefdescription>
+<para>An inserted record copy. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tree.c" line="144" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tree.c" bodystart="868" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>An undo entry for multikey functional index replace operation. </para>    </briefdescription>
+    <detaileddescription>
+<para>Used to roll back a failed insert/replace and restore the original key_hint(s) and to commit a completed insert/replace and destruct old tuple key_hint(s). </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="3788">
+        <label>func_key_undo</label>
+        <link refid="structfunc__key__undo"/>
+        <childnode refid="3789" relation="usage">
+          <edgelabel>key</edgelabel>
+        </childnode>
+        <childnode refid="3791" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="3789">
+        <label>memtx_tree_data</label>
+        <link refid="structmemtx__tree__data"/>
+        <childnode refid="3790" relation="usage">
+          <edgelabel>tuple</edgelabel>
+        </childnode>
+      </node>
+      <node id="3791">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="3791" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="3790">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/memtx_tree.c" line="864" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tree.c" bodystart="864" bodyend="869"/>
+    <listofallmembers>
+      <member refid="structfunc__key__undo_1abc8251fc4f7b8038be17430ff6178306" prot="public" virt="non-virtual"><scope>func_key_undo</scope><name>key</name></member>
+      <member refid="structfunc__key__undo_1ac0f2915b192bbb09bcfe676a705d270c" prot="public" virt="non-virtual"><scope>func_key_undo</scope><name>link</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

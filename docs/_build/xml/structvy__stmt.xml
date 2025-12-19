@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvy__stmt" kind="struct" language="C++" prot="public">
+    <compoundname>vy_stmt</compoundname>
+    <includes local="no">vy_stmt.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvy__stmt_1ac94e0809ee9ad3fd167f3115f23e967a" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtuple" kindref="compound">tuple</ref></type>
+        <definition>struct tuple vy_stmt::base</definition>
+        <argsstring></argsstring>
+        <name>base</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_stmt.h" line="86" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_stmt.h" bodystart="173" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__stmt_1a7e0549845df55b169aaa6ab098913bd4" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t vy_stmt::lsn</definition>
+        <argsstring></argsstring>
+        <name>lsn</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_stmt.h" line="174" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_stmt.h" bodystart="174" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__stmt_1a939c8404b3e237e4c84f219df956de2d" prot="public" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t vy_stmt::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_stmt.h" line="175" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_stmt.h" bodystart="175" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__stmt_1a33fff82d9da0c0028c372bcfa4ff8ba2" prot="public" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t vy_stmt::flags</definition>
+        <argsstring></argsstring>
+        <name>flags</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_stmt.h" line="176" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_stmt.h" bodystart="176" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A vinyl statement can have either key or tuple format. </para>    </briefdescription>
+    <detaileddescription>
+<para>Tuple statement structure: data_offset ^ +-------------------------------<mdash/>+ | 4 bytes 4 bytes MessagePack data. | +---<mdash/>+-<mdash/>+---<mdash/>+------------------------<mdash/>+- - - - - - . tuple, ..., raw: | offN | .. | off1 | header ..|key1|..|keyN|.. | operations | +<ndash/>+<mdash/>+-<mdash/>+<ndash/>+<mdash/>+------------------------<mdash/>+- - - - - - . | ... | ^ ^ | +--------------<mdash/>+ | +-----------------------------------<mdash/>+ Offsets are stored only for indexed fields, though MessagePack&apos;ed tuple data can contain also not indexed fields. For example, if fields 3 and 5 are indexed then before MessagePack data are stored offsets only for field 3 and field 5.</para><para>Key statement structure: +-----------<mdash/>+--------------<mdash/>+ | array header | part1 ... partN | - MessagePack data +-----------<mdash/>+--------------<mdash/>+</para><para>Field &apos;operations&apos; is used for storing operations of UPSERT statement. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="15089">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="15088">
+        <label>vy_stmt</label>
+        <link refid="structvy__stmt"/>
+        <childnode refid="15089" relation="usage">
+          <edgelabel>base</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/vy_stmt.h" line="172" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_stmt.h" bodystart="172" bodyend="182"/>
+    <listofallmembers>
+      <member refid="structvy__stmt_1ac94e0809ee9ad3fd167f3115f23e967a" prot="public" virt="non-virtual"><scope>vy_stmt</scope><name>base</name></member>
+      <member refid="structvy__stmt_1a33fff82d9da0c0028c372bcfa4ff8ba2" prot="public" virt="non-virtual"><scope>vy_stmt</scope><name>flags</name></member>
+      <member refid="structvy__stmt_1a7e0549845df55b169aaa6ab098913bd4" prot="public" virt="non-virtual"><scope>vy_stmt</scope><name>lsn</name></member>
+      <member refid="structvy__stmt_1a939c8404b3e237e4c84f219df956de2d" prot="public" virt="non-virtual"><scope>vy_stmt</scope><name>type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

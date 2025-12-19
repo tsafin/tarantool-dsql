@@ -1,0 +1,692 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="memtx__engine_8h" kind="file" language="C++">
+    <compoundname>memtx_engine.h</compoundname>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes refid="quota_8h" local="no">small/quota.h</includes>
+    <includes refid="small_8h" local="no">small/small.h</includes>
+    <includes refid="mempool_8h" local="no">small/mempool.h</includes>
+    <includes refid="engine_8h" local="yes">engine.h</includes>
+    <includes refid="xlog_8h" local="yes">xlog.h</includes>
+    <includes refid="stailq_8h" local="yes">salad/stailq.h</includes>
+    <includedby refid="box_8cc" local="yes">/home/tsafin/tarantool/src/box/box.cc</includedby>
+    <includedby refid="slab_8c" local="yes">/home/tsafin/tarantool/src/box/lua/slab.c</includedby>
+    <includedby refid="memtx__bitset_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_bitset.c</includedby>
+    <includedby refid="memtx__engine_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_engine.c</includedby>
+    <includedby refid="memtx__hash_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_hash.c</includedby>
+    <includedby refid="memtx__rtree_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_rtree.c</includedby>
+    <includedby refid="memtx__space_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_space.c</includedby>
+    <includedby refid="memtx__tree_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_tree.c</includedby>
+    <incdepgraph>
+      <node id="666">
+        <label>stdbool.h</label>
+      </node>
+      <node id="668">
+        <label>stdint.h</label>
+      </node>
+      <node id="667">
+        <label>stddef.h</label>
+      </node>
+      <node id="665">
+        <label>/home/tsafin/tarantool/src/box/memtx_engine.h</label>
+        <link refid="memtx__engine_8h"/>
+        <childnode refid="666" relation="include">
+        </childnode>
+        <childnode refid="667" relation="include">
+        </childnode>
+        <childnode refid="668" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structmemtx__engine" prot="public">memtx_engine</innerclass>
+    <innerclass refid="structmemtx__gc__task__vtab" prot="public">memtx_gc_task_vtab</innerclass>
+    <innerclass refid="structmemtx__gc__task" prot="public">memtx_gc_task</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="memtx__engine_8h_1a4b96caf5cdd20d59ce22bc23f9814ebc" prot="public" static="no">
+        <name>MEMTX_ITERATOR_SIZE</name>
+        <initializer>(152)</initializer>
+        <briefdescription>
+<para>The size of the biggest memtx iterator. </para>        </briefdescription>
+        <detaileddescription>
+<para>Used with mempool_create. This is the size of the block that will be allocated for each iterator (except rtree index iterator that is significantly bigger so has own pool). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="108" column="9" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="memtx__engine_8h_1a999e05cf3ee5582596cfa22f1e3e578e" prot="public" static="no">
+        <name>memtx_recovery_state</name>
+        <enumvalue id="memtx__engine_8h_1a999e05cf3ee5582596cfa22f1e3e578ea6f0e3e31867ba8a198b6142f50f13295" prot="public">
+          <name>MEMTX_INITIALIZED</name>
+          <briefdescription>
+<para>The space has no indexes. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="memtx__engine_8h_1a999e05cf3ee5582596cfa22f1e3e578ea87fb68be61044f0e24046a2401af5228" prot="public">
+          <name>MEMTX_INITIAL_RECOVERY</name>
+          <briefdescription>
+<para>The space has only the primary index, which is in write-only bulk insert mode. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="memtx__engine_8h_1a999e05cf3ee5582596cfa22f1e3e578ea72adeabe1cba763745a291288fe07a77" prot="public">
+          <name>MEMTX_FINAL_RECOVERY</name>
+          <briefdescription>
+<para>The space has the primary index, which can be used for reads and writes, but secondary indexes are empty. </para>          </briefdescription>
+          <detaileddescription>
+<para>The will be built at the end of recovery. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="memtx__engine_8h_1a999e05cf3ee5582596cfa22f1e3e578ea4d3af76c4d2fea8919a5d5804c648b33" prot="public">
+          <name>MEMTX_OK</name>
+          <briefdescription>
+<para>The space and all its indexes are fully built. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>The state of memtx recovery process. </para>        </briefdescription>
+        <detaileddescription>
+<para>There is a global state of the entire engine state of each space. The state of a space is initialized from the engine state when the space is created. The exception is system spaces, which are always created in the final (OK) state.</para><para>The states exist to speed up recovery: initial state assumes write-only flow of sorted rows from a snapshot. It&apos;s followed by a state for read-write recovery of rows from the write ahead log; these rows are inserted only into the primary key. The final state is for a fully functional space. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="67" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="67" bodyend="85"/>
+      </memberdef>
+      <memberdef kind="enum" id="memtx__engine_8h_1abe068044fad12e87d41058107f447c61" prot="public" static="no">
+        <name>memtx_reserve_extents_num</name>
+        <enumvalue id="memtx__engine_8h_1abe068044fad12e87d41058107f447c61af4c57179443b61da07a0c538f450f446" prot="public">
+          <name>RESERVE_EXTENTS_BEFORE_DELETE</name>
+          <initializer>= 8</initializer>
+          <briefdescription>
+<para>This number is calculated based on the max (realistic) number of insertions a deletion from a B-tree or an R-tree can lead to, and, as a result, the max number of new block allocations. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="memtx__engine_8h_1abe068044fad12e87d41058107f447c61a57f8ccff6e75354e31a434c4512ad753" prot="public">
+          <name>RESERVE_EXTENTS_BEFORE_REPLACE</name>
+          <initializer>= 16</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="90" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="90" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="enum" id="memtx__engine_8h_1a16685eea158879e41b101ca3634de462" prot="public" static="no">
+        <name>@39</name>
+        <enumvalue id="memtx__engine_8h_1a16685eea158879e41b101ca3634de462a06120339f7d763da2858660ebc89584d" prot="public">
+          <name>MEMTX_EXTENT_SIZE</name>
+          <initializer>= 16 * 1024</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="memtx__engine_8h_1a16685eea158879e41b101ca3634de462a49891b76f885caad87ed01ce474ec3b5" prot="public">
+          <name>MEMTX_SLAB_SIZE</name>
+          <initializer>= 4 * 1024 * 1024</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="259" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.h" bodystart="259" bodyend="262"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="memtx__engine_8h_1a5493caefe8d8ed58e67a3632da062bdf" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmempool" kindref="compound">mempool</ref></type>
+        <definition>struct mempool memtx_index_extent_pool</definition>
+        <argsstring></argsstring>
+        <name>memtx_index_extent_pool</name>
+        <briefdescription>
+<para>Memtx extents pool, available to statistics. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="836" column="1"/>
+      </memberdef>
+      <memberdef kind="variable" id="memtx__engine_8h_1a4c9e82fcd7815237136e79d17d537154" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtuple__format__vtab" kindref="compound">tuple_format_vtab</ref></type>
+        <definition>struct tuple_format_vtab memtx_tuple_format_vtab</definition>
+        <argsstring></argsstring>
+        <name>memtx_tuple_format_vtab</name>
+        <briefdescription>
+<para>Tuple format vtab for memtx engine. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="254" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.c" bodystart="1302" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="memtx__engine_8h_1a5e354921cd6f1d2ec36f7b8576d37e21" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void memtx_engine_schedule_gc</definition>
+        <argsstring>(struct memtx_engine *memtx, struct memtx_gc_task *task)</argsstring>
+        <name>memtx_engine_schedule_gc</name>
+        <param>
+          <type>struct <ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref> *</type>
+          <declname>memtx</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structmemtx__gc__task" kindref="compound">memtx_gc_task</ref> *</type>
+          <declname>task</declname>
+        </param>
+        <briefdescription>
+<para>Schedule a garbage collection task for execution. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="209" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.c" bodystart="1142" bodyend="1147"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__engine_8h_1a0d92e51ccdd49207849658537b453905" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref> *</type>
+        <definition>struct memtx_engine* memtx_engine_new</definition>
+        <argsstring>(const char *snap_dirname, bool force_recovery, uint64_t tuple_arena_max_size, uint32_t objsize_min, bool dontdump, float alloc_factor)</argsstring>
+        <name>memtx_engine_new</name>
+        <param>
+          <type>const char *</type>
+          <declname>snap_dirname</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>force_recovery</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>tuple_arena_max_size</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>objsize_min</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>dontdump</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>alloc_factor</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="213" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.c" bodystart="1053" bodyend="1139"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__engine_8h_1ac610881540d78ba26e6924549b043c2d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int memtx_engine_recover_snapshot</definition>
+        <argsstring>(struct memtx_engine *memtx, const struct vclock *vclock)</argsstring>
+        <name>memtx_engine_recover_snapshot</name>
+        <param>
+          <type>struct <ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref> *</type>
+          <declname>memtx</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="219" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.c" bodystart="156" bodyend="203"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__engine_8h_1a37e72802b2ed761a6878aa6868114025" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void memtx_engine_set_snap_io_rate_limit</definition>
+        <argsstring>(struct memtx_engine *memtx, double limit)</argsstring>
+        <name>memtx_engine_set_snap_io_rate_limit</name>
+        <param>
+          <type>struct <ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref> *</type>
+          <declname>memtx</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>limit</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="223" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.c" bodystart="1150" bodyend="1153"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__engine_8h_1a105cd782af6e83f9970ec24de6c42ade" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int memtx_engine_set_memory</definition>
+        <argsstring>(struct memtx_engine *memtx, size_t size)</argsstring>
+        <name>memtx_engine_set_memory</name>
+        <param>
+          <type>struct <ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref> *</type>
+          <declname>memtx</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="226" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.c" bodystart="1156" bodyend="1165"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__engine_8h_1aae017defa41aa46678bf27c946734020" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void memtx_engine_set_max_tuple_size</definition>
+        <argsstring>(struct memtx_engine *memtx, size_t max_size)</argsstring>
+        <name>memtx_engine_set_max_tuple_size</name>
+        <param>
+          <type>struct <ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref> *</type>
+          <declname>memtx</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>max_size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="229" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.c" bodystart="1168" bodyend="1171"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__engine_8h_1a5376c8d159bae2a49345b9513c9d9ff4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void memtx_enter_delayed_free_mode</definition>
+        <argsstring>(struct memtx_engine *memtx)</argsstring>
+        <name>memtx_enter_delayed_free_mode</name>
+        <param>
+          <type>struct <ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref> *</type>
+          <declname>memtx</declname>
+        </param>
+        <briefdescription>
+<para>Enter tuple delayed free mode: tuple allocated before the call won&apos;t be freed until memtx_leave_delayed_free_mode() is called. </para>        </briefdescription>
+        <detaileddescription>
+<para>This function is reentrant, meaning it&apos;s okay to call it multiple times from the same or different fibers - one just has to leave the delayed free mode the same amount of times then. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="239" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.c" bodystart="1174" bodyend="1179"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__engine_8h_1ae2a970997b1144b5f1d72803558151e6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void memtx_leave_delayed_free_mode</definition>
+        <argsstring>(struct memtx_engine *memtx)</argsstring>
+        <name>memtx_leave_delayed_free_mode</name>
+        <param>
+          <type>struct <ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref> *</type>
+          <declname>memtx</declname>
+        </param>
+        <briefdescription>
+<para>Leave tuple delayed free mode. </para>        </briefdescription>
+        <detaileddescription>
+<para>This function undoes the effect of memtx_enter_delayed_free_mode(). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="246" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.c" bodystart="1182" bodyend="1187"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__engine_8h_1a7afa2b12a32389cb83a518f9845820d9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+        <definition>struct tuple* memtx_tuple_new</definition>
+        <argsstring>(struct tuple_format *format, const char *data, const char *end)</argsstring>
+        <name>memtx_tuple_new</name>
+        <param>
+          <type>struct <ref refid="structtuple__format" kindref="compound">tuple_format</ref> *</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>end</declname>
+        </param>
+        <briefdescription>
+<para>Allocate a memtx tuple. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="see"><para>tuple_new(). </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="250" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.c" bodystart="1190" bodyend="1254"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__engine_8h_1a3cec8dff7c07598f53b670a1086f46bf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void memtx_tuple_delete</definition>
+        <argsstring>(struct tuple_format *format, struct tuple *tuple)</argsstring>
+        <name>memtx_tuple_delete</name>
+        <param>
+          <type>struct <ref refid="structtuple__format" kindref="compound">tuple_format</ref> *</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+          <declname>tuple</declname>
+        </param>
+        <briefdescription>
+<para>Free a memtx tuple. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="see"><para>tuple_delete(). </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="254" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.c" bodystart="1257" bodyend="1272"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__engine_8h_1a12826828e98ec1fe1052b117e1c69155" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>void* memtx_index_extent_alloc</definition>
+        <argsstring>(void *ctx)</argsstring>
+        <name>memtx_index_extent_alloc</name>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Allocate a block of size MEMTX_EXTENT_SIZE for memtx index  must point to memtx engine. </para>        </briefdescription>
+        <detaileddescription>
+<para>Allocate a block of size MEMTX_EXTENT_SIZE for memtx index  must point to memtx engine. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="269" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.c" bodystart="1313" bodyend="1340"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__engine_8h_1ae18187fedaa1bf0623c3669b9053ecba" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void memtx_index_extent_free</definition>
+        <argsstring>(void *ctx, void *extent)</argsstring>
+        <name>memtx_index_extent_free</name>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>extent</declname>
+        </param>
+        <briefdescription>
+<para>Free a block previously allocated by memtx_index_extent_alloc  must point to memtx engine. </para>        </briefdescription>
+        <detaileddescription>
+<para>Free a block previously allocated by memtx_index_extent_alloc  must point to memtx engine. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="276" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.c" bodystart="1346" bodyend="1350"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__engine_8h_1a518070ab7df4b961bdeaef4e5f1b637e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int memtx_index_extent_reserve</definition>
+        <argsstring>(struct memtx_engine *memtx, int num)</argsstring>
+        <name>memtx_index_extent_reserve</name>
+        <param>
+          <type>struct <ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref> *</type>
+          <declname>memtx</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>num</declname>
+        </param>
+        <briefdescription>
+<para>Reserve num extents in pool. </para>        </briefdescription>
+        <detaileddescription>
+<para>Ensure that next num extent_alloc will succeed w/o an error </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="283" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.c" bodystart="1357" bodyend="1384"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__engine_8h_1a36d3e2b94981140e3937dc2d7e2b743b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool memtx_index_def_change_requires_rebuild</definition>
+        <argsstring>(struct index *index, const struct index_def *new_def)</argsstring>
+        <name>memtx_index_def_change_requires_rebuild</name>
+        <param>
+          <type>struct <ref refid="structindex" kindref="compound">index</ref> *</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structindex__def" kindref="compound">index_def</ref> *</type>
+          <declname>new_def</declname>
+        </param>
+        <briefdescription>
+<para>Generic implementation of <ref refid="structindex__vtab_1a72d0607782a9fcfc598d0a40421e58ce" kindref="member">index_vtab::def_change_requires_rebuild</ref>, common for all kinds of memtx indexes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_engine.h" line="290" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_engine.c" bodystart="1387" bodyend="1433"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_BOX_MEMTX_ENGINE_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_BOX_MEMTX_ENGINE_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;small/quota.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;small/small.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;small/mempool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;engine.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;xlog.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;salad/stailq.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structindex" kindref="compound">index</ref>;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber" kindref="compound">fiber</ref>;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple" kindref="compound">tuple</ref>;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__format" kindref="compound">tuple_format</ref>;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>memtx_recovery_state<sp/>{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>MEMTX_INITIALIZED,</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>MEMTX_INITIAL_RECOVERY,</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>MEMTX_FINAL_RECOVERY,</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>MEMTX_OK,</highlight></codeline>
+<codeline lineno="85"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmempool" kindref="compound">mempool</ref><sp/>memtx_index_extent_pool;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>memtx_reserve_extents_num<sp/>{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>RESERVE_EXTENTS_BEFORE_DELETE<sp/>=<sp/>8,</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>RESERVE_EXTENTS_BEFORE_REPLACE<sp/>=<sp/>16</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="preprocessor">#define<sp/>MEMTX_ITERATOR_SIZE<sp/>(152)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110" refid="structmemtx__engine" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref><sp/>{</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structengine" kindref="compound">engine</ref><sp/>base;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>memtx_recovery_state<sp/><ref refid="structmemtx__engine_1a777a467390d1892322a902eb14be3ca4" kindref="member">state</ref>;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcheckpoint" kindref="compound">checkpoint</ref><sp/>*<ref refid="structmemtx__engine_1a6b67ad4d5c361db8faedf9552cefa363" kindref="member">checkpoint</ref>;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxdir" kindref="compound">xdir</ref><sp/>snap_dir;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/><ref refid="structmemtx__engine_1a6260d949f95e7a3a26b1367c6b5be2d8" kindref="member">snap_io_rate_limit</ref>;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structmemtx__engine_1a85e993e97e28a5955b3de8e75a4ddc06" kindref="member">force_recovery</ref>;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcord" kindref="compound">cord</ref><sp/>*<ref refid="structmemtx__engine_1a0411613fd02e9af40ef6fd1493613a9e" kindref="member">replica_join_cord</ref>;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structquota" kindref="compound">quota</ref><sp/>quota;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structslab__arena" kindref="compound">slab_arena</ref><sp/>arena;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>slab_cache;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsmall__alloc" kindref="compound">small_alloc</ref><sp/>alloc;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">slab_cache<sp/>index_slab_cache;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmempool" kindref="compound">mempool</ref><sp/>index_extent_pool;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structmemtx__engine_1a00996fcd6e11ca417a096f55a9c47ac6" kindref="member">num_reserved_extents</ref>;</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*reserved_extents;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structmemtx__engine_1ab2e5b64af5c383409110c65193705911" kindref="member">max_tuple_size</ref>;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structmemtx__engine_1a7c4bd7189b8239d600f46f66fece812a" kindref="member">snapshot_version</ref>;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structmemtx__engine_1a9a6ad73c2bb050cab371add5f678bcf2" kindref="member">delayed_free_mode</ref>;</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmempool" kindref="compound">mempool</ref><sp/>rtree_iterator_pool;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmempool" kindref="compound">mempool</ref><sp/>iterator_pool;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber" kindref="compound">fiber</ref><sp/>*<ref refid="structmemtx__engine_1a29a8ed80e0b40cc9d1bd1aa095778479" kindref="member">gc_fiber</ref>;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq" kindref="compound">stailq</ref><sp/>gc_queue;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmemtx__gc__task" kindref="compound">memtx_gc_task</ref>;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185" refid="structmemtx__gc__task__vtab" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmemtx__gc__task__vtab" kindref="compound">memtx_gc_task_vtab</ref><sp/>{</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>void<sp/>(*run)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmemtx__gc__task" kindref="compound">memtx_gc_task</ref><sp/>*task,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>*done);</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>void<sp/>(*free)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmemtx__gc__task" kindref="compound">memtx_gc_task</ref><sp/>*task);</highlight></codeline>
+<codeline lineno="195"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198" refid="structmemtx__gc__task" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmemtx__gc__task" kindref="compound">memtx_gc_task</ref><sp/>{</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>link;</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmemtx__gc__task__vtab" kindref="compound">memtx_gc_task_vtab</ref><sp/>*vtab;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal">memtx_engine_schedule_gc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref><sp/>*memtx,</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmemtx__gc__task" kindref="compound">memtx_gc_task</ref><sp/>*task);</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref><sp/>*</highlight></codeline>
+<codeline lineno="213"><highlight class="normal">memtx_engine_new(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*snap_dirname,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structmemtx__engine_1a85e993e97e28a5955b3de8e75a4ddc06" kindref="member">force_recovery</ref>,</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>tuple_arena_max_size,</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>objsize_min,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>dontdump,</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>alloc_factor);</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal">memtx_engine_recover_snapshot(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref><sp/>*memtx,</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvclock" kindref="compound">vclock</ref><sp/>*<ref refid="structvclock" kindref="compound">vclock</ref>);</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal">memtx_engine_set_snap_io_rate_limit(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref><sp/>*memtx,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>limit);</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal">memtx_engine_set_memory(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref><sp/>*memtx,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal">memtx_engine_set_max_tuple_size(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref><sp/>*memtx,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>max_size);</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="239"><highlight class="normal">memtx_enter_delayed_free_mode(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref><sp/>*memtx);</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="normal">memtx_leave_delayed_free_mode(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref><sp/>*memtx);</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"></highlight></codeline>
+<codeline lineno="249"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple" kindref="compound">tuple</ref><sp/>*</highlight></codeline>
+<codeline lineno="250"><highlight class="normal">memtx_tuple_new(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>*format,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*end);</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"></highlight></codeline>
+<codeline lineno="253"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="254"><highlight class="normal">memtx_tuple_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>*format,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple" kindref="compound">tuple</ref><sp/>*<ref refid="structtuple" kindref="compound">tuple</ref>);</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight></codeline>
+<codeline lineno="257"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__format__vtab" kindref="compound">tuple_format_vtab</ref><sp/>memtx_tuple_format_vtab;</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"></highlight></codeline>
+<codeline lineno="259"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>MEMTX_EXTENT_SIZE<sp/>=<sp/>16<sp/>*<sp/>1024,</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>MEMTX_SLAB_SIZE<sp/>=<sp/>4<sp/>*<sp/>1024<sp/>*<sp/>1024</highlight></codeline>
+<codeline lineno="262"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="269"><highlight class="normal">memtx_index_extent_alloc(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"></highlight></codeline>
+<codeline lineno="275"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="normal">memtx_index_extent_free(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*extent);</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"></highlight></codeline>
+<codeline lineno="282"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="283"><highlight class="normal">memtx_index_extent_reserve(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref><sp/>*memtx,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num);</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"></highlight></codeline>
+<codeline lineno="289"><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="290"><highlight class="normal">memtx_index_def_change_requires_rebuild(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structindex" kindref="compound">index</ref><sp/>*<ref refid="structindex" kindref="compound">index</ref>,</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structindex__def" kindref="compound">index_def</ref><sp/>*new_def);</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"></highlight></codeline>
+<codeline lineno="293"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="294"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="295"><highlight class="normal"></highlight></codeline>
+<codeline lineno="296"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;diag.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="297"><highlight class="normal"></highlight></codeline>
+<codeline lineno="298"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref><sp/>*</highlight></codeline>
+<codeline lineno="299"><highlight class="normal">memtx_engine_new_xc(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*snap_dirname,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structmemtx__engine_1a85e993e97e28a5955b3de8e75a4ddc06" kindref="member">force_recovery</ref>,</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>tuple_arena_max_size,</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>objsize_min,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>dontdump,</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>alloc_factor)</highlight></codeline>
+<codeline lineno="303"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref><sp/>*memtx;</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memtx<sp/>=<sp/>memtx_engine_new(snap_dirname,<sp/><ref refid="structmemtx__engine_1a85e993e97e28a5955b3de8e75a4ddc06" kindref="member">force_recovery</ref>,</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tuple_arena_max_size,</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>objsize_min,<sp/>dontdump,</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>alloc_factor);</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(memtx<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_raise();</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>memtx;</highlight></codeline>
+<codeline lineno="312"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"></highlight></codeline>
+<codeline lineno="314"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="315"><highlight class="normal">memtx_engine_set_memory_xc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref><sp/>*memtx,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="316"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(memtx_engine_set_memory(memtx,<sp/>size)<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_raise();</highlight></codeline>
+<codeline lineno="319"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"></highlight></codeline>
+<codeline lineno="321"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="322"><highlight class="normal">memtx_engine_recover_snapshot_xc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmemtx__engine" kindref="compound">memtx_engine</ref><sp/>*memtx,</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvclock" kindref="compound">vclock</ref><sp/>*<ref refid="structvclock" kindref="compound">vclock</ref>)</highlight></codeline>
+<codeline lineno="324"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(memtx_engine_recover_snapshot(memtx,<sp/>vclock)<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_raise();</highlight></codeline>
+<codeline lineno="327"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"></highlight></codeline>
+<codeline lineno="329"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__plusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="330"><highlight class="normal"></highlight></codeline>
+<codeline lineno="331"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_BOX_MEMTX_ENGINE_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/memtx_engine.h"/>
+  </compounddef>
+</doxygen>

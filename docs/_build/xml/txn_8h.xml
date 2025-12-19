@@ -1,0 +1,1357 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="txn_8h" kind="file" language="C++">
+    <compoundname>txn.h</compoundname>
+    <includes local="no">stdbool.h</includes>
+    <includes refid="stailq_8h" local="yes">salad/stailq.h</includes>
+    <includes local="yes">trigger.h</includes>
+    <includes local="yes">fiber.h</includes>
+    <includes refid="space_8h" local="yes">space.h</includes>
+    <includedby refid="alter_8cc" local="yes">/home/tsafin/tarantool/src/box/alter.cc</includedby>
+    <includedby refid="applier_8cc" local="yes">/home/tsafin/tarantool/src/box/applier.cc</includedby>
+    <includedby refid="sqlInt_8h" local="yes">/home/tsafin/tarantool/src/box/sql/sqlInt.h</includedby>
+    <includedby refid="blackhole_8c" local="yes">/home/tsafin/tarantool/src/box/blackhole.c</includedby>
+    <includedby refid="box_8cc" local="yes">/home/tsafin/tarantool/src/box/box.cc</includedby>
+    <includedby refid="call_8c" local="yes">/home/tsafin/tarantool/src/box/call.c</includedby>
+    <includedby refid="index_8cc" local="yes">/home/tsafin/tarantool/src/box/index.cc</includedby>
+    <includedby refid="box_2lua_2init_8c" local="yes">/home/tsafin/tarantool/src/box/lua/init.c</includedby>
+    <includedby refid="lua_2sequence_8c" local="yes">/home/tsafin/tarantool/src/box/lua/sequence.c</includedby>
+    <includedby refid="space_8cc" local="yes">/home/tsafin/tarantool/src/box/lua/space.cc</includedby>
+    <includedby refid="memtx__bitset_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_bitset.c</includedby>
+    <includedby refid="memtx__engine_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_engine.c</includedby>
+    <includedby refid="memtx__hash_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_hash.c</includedby>
+    <includedby refid="memtx__rtree_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_rtree.c</includedby>
+    <includedby refid="memtx__space_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_space.c</includedby>
+    <includedby refid="memtx__tree_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_tree.c</includedby>
+    <includedby refid="memtx__tx_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_tx.c</includedby>
+    <includedby refid="sequence_8c" local="yes">/home/tsafin/tarantool/src/box/sequence.c</includedby>
+    <includedby refid="space_8c" local="yes">/home/tsafin/tarantool/src/box/space.c</includedby>
+    <includedby refid="vdbe_8c" local="yes">/home/tsafin/tarantool/src/box/sql/vdbe.c</includedby>
+    <includedby refid="vdbeaux_8c" local="yes">/home/tsafin/tarantool/src/box/sql/vdbeaux.c</includedby>
+    <includedby refid="sql_8c" local="yes">/home/tsafin/tarantool/src/box/sql.c</includedby>
+    <includedby refid="txn_8c" local="yes">/home/tsafin/tarantool/src/box/txn.c</includedby>
+    <includedby refid="txn__limbo_8c" local="yes">/home/tsafin/tarantool/src/box/txn_limbo.c</includedby>
+    <includedby refid="vinyl_8c" local="yes">/home/tsafin/tarantool/src/box/vinyl.c</includedby>
+    <includedby refid="vy__scheduler_8c" local="yes">/home/tsafin/tarantool/src/box/vy_scheduler.c</includedby>
+    <incdepgraph>
+      <node id="1192">
+        <label>stdbool.h</label>
+      </node>
+      <node id="1191">
+        <label>/home/tsafin/tarantool/src/box/txn.h</label>
+        <link refid="txn_8h"/>
+        <childnode refid="1192" relation="include">
+        </childnode>
+        <childnode refid="1193" relation="include">
+        </childnode>
+        <childnode refid="1194" relation="include">
+        </childnode>
+      </node>
+      <node id="1193">
+        <label>trigger.h</label>
+      </node>
+      <node id="1194">
+        <label>fiber.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structtxn__stmt" prot="public">txn_stmt</innerclass>
+    <innerclass refid="structtxn__savepoint" prot="public">txn_savepoint</innerclass>
+    <innerclass refid="structautoinc__id__entry" prot="public">autoinc_id_entry</innerclass>
+    <innerclass refid="structtxn" prot="public">txn</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="txn_8h_1a7971afd2028e8f33ed5de04dd62dfad7" prot="public" static="no">
+        <name>txn_flag</name>
+        <enumvalue id="txn_8h_1a7971afd2028e8f33ed5de04dd62dfad7a0384794be8c5688076493d835a434bba" prot="public">
+          <name>TXN_IS_DONE</name>
+          <briefdescription>
+<para>Transaction has been processed. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="txn_8h_1a7971afd2028e8f33ed5de04dd62dfad7a5a5a495b44dd45ec4461b86247f890d3" prot="public">
+          <name>TXN_IS_ABORTED_BY_YIELD</name>
+          <briefdescription>
+<para>Transaction has been aborted by fiber yield so should be rolled back at commit. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="txn_8h_1a7971afd2028e8f33ed5de04dd62dfad7a62f9994b762d487981c27563b8a07bc4" prot="public">
+          <name>TXN_CAN_YIELD</name>
+          <briefdescription>
+<para>fiber_yield() is allowed inside the transaction. </para>          </briefdescription>
+          <detaileddescription>
+<para>See txn_can_yield() for more details. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="txn_8h_1a7971afd2028e8f33ed5de04dd62dfad7a367cc6b3446f760877f1ed8a36034e3e" prot="public">
+          <name>TXN_HAS_TRIGGERS</name>
+          <briefdescription>
+<para>on_commit and/or on_rollback list is not empty. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="txn_8h_1a7971afd2028e8f33ed5de04dd62dfad7af01cd20eed8a251139dc0510a96629eb" prot="public">
+          <name>TXN_WAIT_SYNC</name>
+          <briefdescription>
+<para>Synchronous transaction touched sync spaces, or an asynchronous transaction blocked by a sync one until it is confirmed. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="txn_8h_1a7971afd2028e8f33ed5de04dd62dfad7a6bea3bb166520f97795e0346faeac56e" prot="public">
+          <name>TXN_WAIT_ACK</name>
+          <briefdescription>
+<para>Synchronous transaction &apos;waiting for ACKs&apos; state before commit. </para>          </briefdescription>
+          <detaileddescription>
+<para>In this state it waits until it is replicated onto a quorum of replicas, and only then finishes commit and returns success to a user. TXN_WAIT_SYNC is always set, if TXN_WAIT_ACK is set. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="txn_8h_1a7971afd2028e8f33ed5de04dd62dfad7a03ff8c5d06aad9b9dbf36923e0cd6990" prot="public">
+          <name>TXN_FORCE_ASYNC</name>
+          <briefdescription>
+<para>A transaction may be forced to be asynchronous, not wait for any ACKs, and not depend on prepending sync transactions. </para>          </briefdescription>
+          <detaileddescription>
+<para>This happens in a few special cases. For example, when applier receives snapshot from master. </para>          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="57" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="57" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="enum" id="txn_8h_1a2ee507fea44084259042ff7bb45ecabf" prot="public" static="no">
+        <name>@113</name>
+        <enumvalue id="txn_8h_1a2ee507fea44084259042ff7bb45ecabfa155955ec0899cc80011d5f6ef31f3207" prot="public">
+          <name>TXN_SUB_STMT_MAX</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+<para>Maximum recursion depth for on_replace triggers. </para>          </briefdescription>
+          <detaileddescription>
+<para>Large numbers may corrupt C stack. </para>          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="95" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="95" bodyend="101"/>
+      </memberdef>
+      <memberdef kind="enum" id="txn_8h_1aa7df87806f64f3b241c8cde9eb57cad5" prot="public" static="no">
+        <name>@114</name>
+        <enumvalue id="txn_8h_1aa7df87806f64f3b241c8cde9eb57cad5ac750f1ccc087f8eec42ad0475df93570" prot="public">
+          <name>TXN_SIGNATURE_NOP</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+<para>Signature set for empty transactions. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="txn_8h_1aa7df87806f64f3b241c8cde9eb57cad5af2a0bec81db2445e5f27c2c9ca7e3a6a" prot="public">
+          <name>TXN_SIGNATURE_ROLLBACK</name>
+          <initializer>= -1</initializer>
+          <briefdescription>
+<para>The default signature value for failed transactions. </para>          </briefdescription>
+          <detaileddescription>
+<para>Indicates either write failure or any other failure not caused by synchronous transaction processing. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="txn_8h_1aa7df87806f64f3b241c8cde9eb57cad5a63e088dce8954ee1c512692c3b00828b" prot="public">
+          <name>TXN_SIGNATURE_QUORUM_TIMEOUT</name>
+          <initializer>= -2</initializer>
+          <briefdescription>
+<para>A value set for failed synchronous transactions on master, when not enough acks were collected. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="txn_8h_1aa7df87806f64f3b241c8cde9eb57cad5a6f420876907ee628be54dd48df8a7580" prot="public">
+          <name>TXN_SIGNATURE_SYNC_ROLLBACK</name>
+          <initializer>= -3</initializer>
+          <briefdescription>
+<para>A value set for failed synchronous transactions on replica (or any instance during recovery), when a transaction is rolled back because ROLLBACK message was read. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="103" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="103" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="enum" id="txn_8h_1adaf08cbc3725c4cf7d9cb96ff71b22b0" prot="public" static="no">
+        <name>txn_status</name>
+        <enumvalue id="txn_8h_1adaf08cbc3725c4cf7d9cb96ff71b22b0a7f47d90d73592991560a6cfea330d88e" prot="public">
+          <name>TXN_INPROGRESS</name>
+          <briefdescription>
+<para>Initial state of TX. </para>          </briefdescription>
+          <detaileddescription>
+<para>The only state of a TX that allowed to do read or write actions. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="txn_8h_1adaf08cbc3725c4cf7d9cb96ff71b22b0ae04356cac81b9f9c4ea9dd681b59a132" prot="public">
+          <name>TXN_PREPARED</name>
+          <briefdescription>
+<para>The TX have passed conflict checks and is ready to be committed. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="txn_8h_1adaf08cbc3725c4cf7d9cb96ff71b22b0a0d0decb0be6d8b24e3bfd280613c4b68" prot="public">
+          <name>TXN_CONFLICTED</name>
+          <briefdescription>
+<para>The TX was aborted when other TX was committed due to conflict. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="txn_8h_1adaf08cbc3725c4cf7d9cb96ff71b22b0a73c06f2c040f3124cbb4e827a946c5d4" prot="public">
+          <name>TXN_IN_READ_VIEW</name>
+          <briefdescription>
+<para>The TX was read_only, has a conflict and was sent to read view. </para>          </briefdescription>
+          <detaileddescription>
+<para>Read-only and does not participate in conflict resolution ever more. This transaction can only see a state of the database at some fixed point in the past. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="txn_8h_1adaf08cbc3725c4cf7d9cb96ff71b22b0a3878bbdb05af94a52718e3f250cdca14" prot="public">
+          <name>TXN_COMMITTED</name>
+          <briefdescription>
+<para>The TX was committed. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="txn_8h_1adaf08cbc3725c4cf7d9cb96ff71b22b0abf949f001c664d2bcf2db26f5adfd774" prot="public">
+          <name>TXN_ABORTED</name>
+          <briefdescription>
+<para>The TX was aborted. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Status of a transaction. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="129" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="129" bodyend="158"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="txn_8h_1a729a453eff09fc507eb67edc89484b6c" prot="public" static="no">
+        <type>struct <ref refid="structtxn__savepoint" kindref="compound">txn_savepoint</ref></type>
+        <definition>typedef struct txn_savepoint box_txn_savepoint_t</definition>
+        <argsstring></argsstring>
+        <name>box_txn_savepoint_t</name>
+        <briefdescription>
+<para>FFI bindings: do not throw exceptions, do not accept extra arguments. </para>        </briefdescription>
+        <detaileddescription>
+<para>public </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="669" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="734" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="txn_8h_1ab4ce55787bbf537b6dc4189d6b664a9b" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrmean" kindref="compound">rmean</ref> *</type>
+        <definition>struct rmean* rmean_box</definition>
+        <argsstring></argsstring>
+        <name>rmean_box</name>
+        <briefdescription>
+<para>box statistics </para>        </briefdescription>
+        <detaileddescription>
+<para>box statistics </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="45" column="1" bodyfile="/home/tsafin/tarantool/src/box/box.cc" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="txn_8h_1a32416122221e798aa7ea59b60786f5a7" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t txn_last_psn</definition>
+        <argsstring></argsstring>
+        <name>txn_last_psn</name>
+        <briefdescription>
+<para>Last prepare-sequence-number that was assigned to prepared TX. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="48" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.c" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="txn_8h_1a0c2b7b4599d63178203c66befed98996" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double too_long_threshold</definition>
+        <argsstring></argsstring>
+        <name>too_long_threshold</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="261" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.c" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="txn_8h_1a911525fdd7a252043537a1c0c8eec117" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool txn_has_flag</definition>
+        <argsstring>(struct txn *txn, enum txn_flag flag)</argsstring>
+        <name>txn_has_flag</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <param>
+          <type>enum txn_flag</type>
+          <declname>flag</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="383" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="383" bodyend="386"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1adb60c149aa8638f0cee7c3b2bb1c2f34" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void txn_set_flag</definition>
+        <argsstring>(struct txn *txn, enum txn_flag flag)</argsstring>
+        <name>txn_set_flag</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <param>
+          <type>enum txn_flag</type>
+          <declname>flag</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="389" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="389" bodyend="392"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1aa52983d905f73ba0f62ab335f3b06280" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void txn_clear_flag</definition>
+        <argsstring>(struct txn *txn, enum txn_flag flag)</argsstring>
+        <name>txn_clear_flag</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <param>
+          <type>enum txn_flag</type>
+          <declname>flag</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="395" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="395" bodyend="398"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1a891f350c8b993d36769f591af9b5b237" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+        <definition>static struct txn* in_txn</definition>
+        <argsstring>(void)</argsstring>
+        <name>in_txn</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="402" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="402" bodyend="405"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1ab930479ddd7855b1d8bc84cba3504685" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void fiber_set_txn</definition>
+        <argsstring>(struct fiber *fiber, struct txn *txn)</argsstring>
+        <name>fiber_set_txn</name>
+        <param>
+          <type>struct <ref refid="structfiber" kindref="compound">fiber</ref> *</type>
+          <declname>fiber</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="409" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="409" bodyend="412"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1a6080c273d70ad9ecf8eb5db0cae8ce90" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+        <definition>struct txn* txn_begin</definition>
+        <argsstring>(void)</argsstring>
+        <name>txn_begin</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Start a transaction explicitly. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="pre"><para>no transaction is active </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="419" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.c" bodystart="249" bodyend="287"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1a949c44814214cc3df96b8fe07c88b3b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void txn_complete</definition>
+        <argsstring>(struct txn *txn)</argsstring>
+        <name>txn_complete</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <briefdescription>
+<para>Complete transaction processing. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="425" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.c" bodystart="512" bodyend="581"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1a1bd56f94302ac15b3a3032797632d436" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int txn_commit</definition>
+        <argsstring>(struct txn *txn)</argsstring>
+        <name>txn_commit</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <briefdescription>
+<para>Commit a transaction. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="pre"><para>txn == in_txn()</para></simplesect>
+Return 0 on success. On error, rollback the transaction and return -1. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="435" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.c" bodystart="886" bodyend="964"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1a71f1f90fd2d4d57bfcd09569d043f10c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void txn_rollback</definition>
+        <argsstring>(struct txn *txn)</argsstring>
+        <name>txn_rollback</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <briefdescription>
+<para>Rollback a transaction. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="pre"><para>txn == in_txn() </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="442" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.c" bodystart="976" bodyend="986"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1a1c55095b960cf4e9c0a04e90e38a7ffc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void txn_complete_async</definition>
+        <argsstring>(struct journal_entry *entry)</argsstring>
+        <name>txn_complete_async</name>
+        <param>
+          <type>struct <ref refid="structjournal__entry" kindref="compound">journal_entry</ref> *</type>
+          <declname>entry</declname>
+        </param>
+        <briefdescription>
+<para>Complete asynchronous transaction. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="448" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.c" bodystart="584" bodyend="605"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1afc1b58811fd34f90af6a42232732f97a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int txn_commit_async</definition>
+        <argsstring>(struct txn *txn)</argsstring>
+        <name>txn_commit_async</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <briefdescription>
+<para>Submit a transaction to the journal. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="pre"><para>txn == in_txn()</para></simplesect>
+On success 0 is returned, and the transaction will be freed upon journal write completion. Note, the journal write may still fail. To track transaction status, one is supposed to use on_commit and on_rollback triggers.</para><para>On failure -1 is returned and the transaction is rolled back and freed. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="463" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.c" bodystart="800" bodyend="883"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1a939ce0363610c1ad7210c07d0b106005" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void txn_init_triggers</definition>
+        <argsstring>(struct txn *txn)</argsstring>
+        <name>txn_init_triggers</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <briefdescription>
+<para>Most txns don&apos;t have triggers, and txn objects are created on every access to data, so txns are partially initialized. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="471" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="471" bodyend="479"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1a730b528b1a80a5e076dd60974f1ce6ee" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void txn_on_commit</definition>
+        <argsstring>(struct txn *txn, struct trigger *trigger)</argsstring>
+        <name>txn_on_commit</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtrigger" kindref="compound">trigger</ref> *</type>
+          <declname>trigger</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="482" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="482" bodyend="486"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1a13a270f918690f8f1d1075573a70b5fb" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void txn_on_rollback</definition>
+        <argsstring>(struct txn *txn, struct trigger *trigger)</argsstring>
+        <name>txn_on_rollback</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtrigger" kindref="compound">trigger</ref> *</type>
+          <declname>trigger</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="489" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="489" bodyend="493"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1a7001ac67937a8f11e1c8e137a8ffec1e" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void txn_on_wal_write</definition>
+        <argsstring>(struct txn *txn, struct trigger *trigger)</argsstring>
+        <name>txn_on_wal_write</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtrigger" kindref="compound">trigger</ref> *</type>
+          <declname>trigger</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="496" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="496" bodyend="500"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1a55a6eb045fd6704b73e5079233fd3eae" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void txn_stmt_init_triggers</definition>
+        <argsstring>(struct txn_stmt *stmt)</argsstring>
+        <name>txn_stmt_init_triggers</name>
+        <param>
+          <type>struct <ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref> *</type>
+          <declname>stmt</declname>
+        </param>
+        <briefdescription>
+<para>Most statements don&apos;t have triggers, and txn objects are created on every access to data, so statements are partially initialized. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="508" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="508" bodyend="515"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1a2ec45a5f657eea1b83412dc73f7facef" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void txn_stmt_on_commit</definition>
+        <argsstring>(struct txn_stmt *stmt, struct trigger *trigger)</argsstring>
+        <name>txn_stmt_on_commit</name>
+        <param>
+          <type>struct <ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref> *</type>
+          <declname>stmt</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtrigger" kindref="compound">trigger</ref> *</type>
+          <declname>trigger</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="518" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="518" bodyend="522"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1a0827777e09df8199bd8549cb79a6d79c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void txn_stmt_on_rollback</definition>
+        <argsstring>(struct txn_stmt *stmt, struct trigger *trigger)</argsstring>
+        <name>txn_stmt_on_rollback</name>
+        <param>
+          <type>struct <ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref> *</type>
+          <declname>stmt</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtrigger" kindref="compound">trigger</ref> *</type>
+          <declname>trigger</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="525" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="525" bodyend="529"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1a179ce1d153621b3694380d20852eb447" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int txn_n_rows</definition>
+        <argsstring>(struct txn *txn)</argsstring>
+        <name>txn_n_rows</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="535" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="535" bodyend="538"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1a4a0d042748deb064b57ec4c8c3b0ce87" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int txn_begin_stmt</definition>
+        <argsstring>(struct txn *txn, struct space *space)</argsstring>
+        <name>txn_begin_stmt</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structspace" kindref="compound">space</ref> *</type>
+          <declname>space</declname>
+        </param>
+        <briefdescription>
+<para>Start a new statement. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="544" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.c" bodystart="309" bodyend="350"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1ad02e0714c38264681f9c81cb69746521" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int txn_begin_in_engine</definition>
+        <argsstring>(struct engine *engine, struct txn *txn)</argsstring>
+        <name>txn_begin_in_engine</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="547" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.c" bodystart="290" bodyend="306"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1ab56bb9b7e6a2a17c8f4cf801854530ad" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int txn_begin_ro_stmt</definition>
+        <argsstring>(struct space *space, struct txn **txn)</argsstring>
+        <name>txn_begin_ro_stmt</name>
+        <param>
+          <type>struct <ref refid="structspace" kindref="compound">space</ref> *</type>
+          <declname>space</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> **</type>
+          <declname>txn</declname>
+        </param>
+        <briefdescription>
+<para>This is an optimization, which exists to speed up selects in autocommit mode. </para>        </briefdescription>
+        <detaileddescription>
+<para>For such selects, we only need to manage fiber garbage heap. If autocommit mode is off, however, we must start engine transaction with the first select. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="557" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="557" bodyend="565"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1aa779041b75c86a2d43df53b78f57c194" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void txn_commit_ro_stmt</definition>
+        <argsstring>(struct txn *txn)</argsstring>
+        <name>txn_commit_ro_stmt</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="568" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="568" bodyend="576"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1ad586a080f0ac681a5c8df79dd1067bc4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool txn_is_distributed</definition>
+        <argsstring>(struct txn *txn)</argsstring>
+        <name>txn_is_distributed</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <briefdescription>
+<para>Check whether a transaction which is used to apply remote master rows generated some local changes. </para>        </briefdescription>
+        <detaileddescription>
+<para>Such transaction must be aborted, since we wouldn&apos;t be able to <emphasis>consistently</emphasis> apply the local changes to the remote master. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="586" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.c" bodystart="353" bodyend="363"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1ae6ea9651d3e61bb2456a8fe1da82c299" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int txn_commit_stmt</definition>
+        <argsstring>(struct txn *txn, struct request *request)</argsstring>
+        <name>txn_commit_stmt</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structrequest" kindref="compound">request</ref> *</type>
+          <declname>request</declname>
+        </param>
+        <briefdescription>
+<para>End a statement. </para>        </briefdescription>
+        <detaileddescription>
+<para>In autocommit mode, end the current transaction as well.</para><para>Return 0 on success. On error, rollback the statement and return -1. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="596" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.c" bodystart="369" bodyend="448"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1a6a9e4adaab454c7fe153b0d68bfd952c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void txn_rollback_stmt</definition>
+        <argsstring>(struct txn *txn)</argsstring>
+        <name>txn_rollback_stmt</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <briefdescription>
+<para>Rollback a statement. </para>        </briefdescription>
+        <detaileddescription>
+<para>In autocommit mode, rolls back the entire transaction. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="603" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.c" bodystart="967" bodyend="973"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1adab6a17f011f8ea1acecc78cb1f02e61" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int txn_check_singlestatement</definition>
+        <argsstring>(struct txn *txn, const char *where)</argsstring>
+        <name>txn_check_singlestatement</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>where</declname>
+        </param>
+        <briefdescription>
+<para>Raise an error if this is a multi-statement transaction: a yielding DDL operation, such as index build or space format check, can not be part of a multi-statement transaction, because there may be uncommitted objects in the schema cache, which would be revealed to other fibers on yield. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="613" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.c" bodystart="989" bodyend="996"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1a52ce4dcb16ab9bd8ad9fad32baf57017" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool txn_can_yield</definition>
+        <argsstring>(struct txn *txn, bool set)</argsstring>
+        <name>txn_can_yield</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>set</declname>
+        </param>
+        <briefdescription>
+<para>Enables or disables fiber yields inside the current transaction depending on the value of the given flag. </para>        </briefdescription>
+        <detaileddescription>
+<para>Yields are disabled by installing a fiber-on-yield trigger that marks the transaction as aborted, which results in rolling back the transaction on commit.</para><para>This function is used only by memtx engine because there are cases when it doesn&apos;t support yields inside transactions. It is also used to temporarily enable yields for long DDL operations such as building an index or checking a space format.</para><para>Return previous state of the flag: true - yields were enabled, false - yields were disabled before the function call. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="631" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.c" bodystart="999" bodyend="1012"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1adbd105f59679de93d4e1a6a5c3517001" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool txn_is_first_statement</definition>
+        <argsstring>(struct txn *txn)</argsstring>
+        <name>txn_is_first_statement</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <briefdescription>
+<para>Returns true if the transaction has a single statement. </para>        </briefdescription>
+        <detaileddescription>
+<para>Supposed to be used from a space on_replace trigger to detect transaction boundaries. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="639" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="639" bodyend="642"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1a8f8af255f03a19aebb518dec41e7f3a8" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref> *</type>
+        <definition>static struct txn_stmt* txn_current_stmt</definition>
+        <argsstring>(struct txn *txn)</argsstring>
+        <name>txn_current_stmt</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <briefdescription>
+<para>The current statement of the transaction. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="646" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="646" bodyend="653"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1af9fae4d74e173b892dddca850a5d16f9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structtxn__savepoint" kindref="compound">txn_savepoint</ref> *</type>
+        <definition>struct txn_savepoint* txn_savepoint_new</definition>
+        <argsstring>(struct txn *txn, const char *name)</argsstring>
+        <name>txn_savepoint_new</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>Allocate new savepoint object using region allocator. </para>        </briefdescription>
+        <detaileddescription>
+<para>Savepoint is allowed to be anonymous (i.e. without name). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="661" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.c" bodystart="1097" bodyend="1130"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1ad6b7bf5e1cfca2c29bb0d709a58893d0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structtxn__savepoint" kindref="compound">txn_savepoint</ref> *</type>
+        <definition>struct txn_savepoint* txn_savepoint_by_name</definition>
+        <argsstring>(struct txn *txn, const char *name)</argsstring>
+        <name>txn_savepoint_by_name</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>Find savepoint by its name in savepoint list. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="665" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.c" bodystart="1133" bodyend="1142"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1a4443d80e3e8230a60d791d55052dc220" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void txn_savepoint_release</definition>
+        <argsstring>(struct txn_savepoint *svp)</argsstring>
+        <name>txn_savepoint_release</name>
+        <param>
+          <type>struct <ref refid="structtxn__savepoint" kindref="compound">txn_savepoint</ref> *</type>
+          <declname>svp</declname>
+        </param>
+        <briefdescription>
+<para>Remove given and all newer entries from savepoint list. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="669" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.c" bodystart="1186" bodyend="1201"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1ac4131beeef56fcdff539523b6dba9f04" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structtxn__savepoint" kindref="compound">box_txn_savepoint_t</ref> *</type>
+        <definition>box_txn_savepoint_t* box_txn_savepoint</definition>
+        <argsstring>(void)</argsstring>
+        <name>box_txn_savepoint</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Create a new savepoint. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>not</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NULL Savepoint object. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Client or memory error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="742" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.c" bodystart="1145" bodyend="1153"/>
+      </memberdef>
+      <memberdef kind="function" id="txn_8h_1ad1746c958580f3ff89e5b9b193ed3847" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int box_txn_rollback_to_savepoint</definition>
+        <argsstring>(box_txn_savepoint_t *savepoint)</argsstring>
+        <name>box_txn_rollback_to_savepoint</name>
+        <param>
+          <type><ref refid="structtxn__savepoint" kindref="compound">box_txn_savepoint_t</ref> *</type>
+          <declname>savepoint</declname>
+        </param>
+        <briefdescription>
+<para>Rollback to <emphasis>savepoint</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Rollback all statements newer than a saved statement.  savepoint can be rolled back multiple times. All existing savepoints, newer than <emphasis>savepoint</emphasis>, are deleted and can not be used.  savepoint must be from a current transaction, else the rollback crashes. To validate savepoints store transaction id together with <emphasis>savepoint</emphasis>. <parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Success. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Client error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="756" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.c" bodystart="1156" bodyend="1183"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_BOX_TXN_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_BOX_TXN_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;salad/stailq.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trigger.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;fiber.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;space.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrmean" kindref="compound">rmean</ref><sp/>*rmean_box;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>int64_t<sp/>txn_last_psn;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjournal__entry" kindref="compound">journal_entry</ref>;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structengine" kindref="compound">engine</ref>;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structspace" kindref="compound">space</ref>;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple" kindref="compound">tuple</ref>;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__header" kindref="compound">xrow_header</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structVdbe" kindref="compound">Vdbe</ref>;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>txn_flag<sp/>{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TXN_IS_DONE,</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TXN_IS_ABORTED_BY_YIELD,</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TXN_CAN_YIELD,</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TXN_HAS_TRIGGERS,</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TXN_WAIT_SYNC,</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TXN_WAIT_ACK,</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TXN_FORCE_ASYNC,</highlight></codeline>
+<codeline lineno="93"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TXN_SUB_STMT_MAX<sp/>=<sp/>3</highlight></codeline>
+<codeline lineno="101"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TXN_SIGNATURE_NOP<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TXN_SIGNATURE_ROLLBACK<sp/>=<sp/>-1,</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TXN_SIGNATURE_QUORUM_TIMEOUT<sp/>=<sp/>-2,</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TXN_SIGNATURE_SYNC_ROLLBACK<sp/>=<sp/>-3,</highlight></codeline>
+<codeline lineno="124"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>txn_status<sp/>{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TXN_INPROGRESS,</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TXN_PREPARED,</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TXN_CONFLICTED,</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TXN_IN_READ_VIEW,</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TXN_COMMITTED,</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TXN_ABORTED,</highlight></codeline>
+<codeline lineno="158"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164" refid="structtxn__stmt" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref><sp/>{</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>(!)<sp/>Please<sp/>update<sp/>txn_stmt_new()<sp/>after<sp/>changing<sp/>members<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>next;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn" kindref="compound">txn</ref><sp/>*<ref refid="structtxn__stmt_1a991f47cd3c3a8e1d5e828ff958750a5c" kindref="member">txn</ref>;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structspace" kindref="compound">space</ref><sp/>*<ref refid="structtxn__stmt_1a18884f207ab2a5d1eec5cdbdcd33dccd" kindref="member">space</ref>;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple" kindref="compound">tuple</ref><sp/>*old_tuple;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple" kindref="compound">tuple</ref><sp/>*new_tuple;</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmemtx__story" kindref="compound">memtx_story</ref><sp/>*<ref refid="structtxn__stmt_1ad4315717265200b8d79f7606ee1fde3a" kindref="member">add_story</ref>;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmemtx__story" kindref="compound">memtx_story</ref><sp/>*<ref refid="structtxn__stmt_1a418151f9e24aab95774df6296bcaf6b2" kindref="member">del_story</ref>;</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref><sp/>*<ref refid="structtxn__stmt_1a81db79b036ce6d41e05f0160a3949fce" kindref="member">next_in_del_list</ref>;</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structtxn__stmt_1ada047ffacb1f918bbd258104835a0f59" kindref="member">engine_savepoint</ref>;</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__header" kindref="compound">xrow_header</ref><sp/>*<ref refid="structtxn__stmt_1a37997f66d8dcfa0a07b19b576fa82f87" kindref="member">row</ref>;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structtxn__stmt_1a381a7914dcdca0fcb37c4fa7e9a88700" kindref="member">has_triggers</ref>;</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structtxn__stmt_1af5e38dca7852cb932f209e4993bf78c2" kindref="member">does_require_old_tuple</ref>;</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>on_commit;</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>on_rollback;</highlight></codeline>
+<codeline lineno="218"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="225" refid="structtxn__savepoint" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn__savepoint" kindref="compound">txn_savepoint</ref><sp/>{</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>in_sub_stmt;</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>*stmt;</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>fk_deferred_count;</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>link;</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>name[1];</highlight></codeline>
+<codeline lineno="259"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>too_long_threshold;</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"></highlight></codeline>
+<codeline lineno="267" refid="structautoinc__id__entry" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structautoinc__id__entry" kindref="compound">autoinc_id_entry</ref><sp/>{</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>link;</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>id;</highlight></codeline>
+<codeline lineno="270"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"></highlight></codeline>
+<codeline lineno="272" refid="structtxn" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn" kindref="compound">txn</ref><sp/>{</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>in_txn_cache;</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structregion" kindref="compound">region</ref><sp/>region;</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>id;</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>psn;</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>rv_psn;</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>txn_status<sp/>status;</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq" kindref="compound">stailq</ref><sp/>stmts;</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n_new_rows;</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n_local_rows;</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n_applier_rows;</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>flags;</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int8_t<sp/>in_sub_stmt;</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>*sub_stmt_begin[TXN_SUB_STMT_MAX<sp/>+<sp/>1];</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>signature;</highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structengine" kindref="compound">engine</ref><sp/>*<ref refid="structengine" kindref="compound">engine</ref>;</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*engine_tx;</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>A<sp/>fiber<sp/>to<sp/>wake<sp/>up<sp/>when<sp/>transaction<sp/>is<sp/>finished.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber" kindref="compound">fiber</ref><sp/>*<ref refid="structfiber" kindref="compound">fiber</ref>;</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>start_tm;</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtrigger" kindref="compound">trigger</ref><sp/>fiber_on_yield;</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtrigger" kindref="compound">trigger</ref><sp/>fiber_on_stop;</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>on_commit,<sp/>on_rollback,<sp/>on_wal_write;</highlight></codeline>
+<codeline lineno="359"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>fk_deferred_count;</highlight></codeline>
+<codeline lineno="361"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>savepoints;</highlight></codeline>
+<codeline lineno="367"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>conflict_list;</highlight></codeline>
+<codeline lineno="373"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>conflicted_by_list;</highlight></codeline>
+<codeline lineno="377"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>in_read_view_txs;</highlight></codeline>
+<codeline lineno="379"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>read_set;</highlight></codeline>
+<codeline lineno="380"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="381"><highlight class="normal"></highlight></codeline>
+<codeline lineno="382"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="383"><highlight class="normal">txn_has_flag(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn" kindref="compound">txn</ref><sp/>*<ref refid="structtxn" kindref="compound">txn</ref>,<sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>txn_flag<sp/>flag)</highlight></codeline>
+<codeline lineno="384"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="385"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(txn-&gt;<ref refid="structtxn_1ab31af1911df52b86ca7d075948327359" kindref="member">flags</ref><sp/>&amp;<sp/>(1<sp/>&lt;&lt;<sp/>flag))<sp/>!=<sp/>0;</highlight></codeline>
+<codeline lineno="386"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="387"><highlight class="normal"></highlight></codeline>
+<codeline lineno="388"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="389"><highlight class="normal">txn_set_flag(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn,<sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>txn_flag<sp/>flag)</highlight></codeline>
+<codeline lineno="390"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="391"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn-&gt;<ref refid="structtxn_1ab31af1911df52b86ca7d075948327359" kindref="member">flags</ref><sp/>|=<sp/>1<sp/>&lt;&lt;<sp/>flag;</highlight></codeline>
+<codeline lineno="392"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="393"><highlight class="normal"></highlight></codeline>
+<codeline lineno="394"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="395"><highlight class="normal">txn_clear_flag(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn,<sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>txn_flag<sp/>flag)</highlight></codeline>
+<codeline lineno="396"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="397"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn-&gt;<ref refid="structtxn_1ab31af1911df52b86ca7d075948327359" kindref="member">flags</ref><sp/>&amp;=<sp/>~(1<sp/>&lt;&lt;<sp/>flag);</highlight></codeline>
+<codeline lineno="398"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="399"><highlight class="normal"></highlight></codeline>
+<codeline lineno="400"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Pointer<sp/>to<sp/>the<sp/>current<sp/>transaction<sp/>(if<sp/>any)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="401"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">txn<sp/>*</highlight></codeline>
+<codeline lineno="402"><highlight class="normal">in_txn(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="403"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="404"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="structfiber" kindref="compound">fiber</ref>()-&gt;<ref refid="structfiber_1ad563db87d2a972504a2890457f9e5040" kindref="member">storage</ref>.txn;</highlight></codeline>
+<codeline lineno="405"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="406"><highlight class="normal"></highlight></codeline>
+<codeline lineno="407"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Set<sp/>to<sp/>the<sp/>current<sp/>transaction<sp/>(if<sp/>any)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="408"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="409"><highlight class="normal">fiber_set_txn(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfiber" kindref="compound">fiber</ref><sp/>*<ref refid="structfiber" kindref="compound">fiber</ref>,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn)</highlight></codeline>
+<codeline lineno="410"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="411"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fiber-&gt;<ref refid="structfiber_1ad563db87d2a972504a2890457f9e5040" kindref="member">storage</ref>.txn<sp/>=<sp/><ref refid="structtxn__stmt_1a991f47cd3c3a8e1d5e828ff958750a5c" kindref="member">txn</ref>;</highlight></codeline>
+<codeline lineno="412"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="413"><highlight class="normal"></highlight></codeline>
+<codeline lineno="418"><highlight class="keyword">struct<sp/></highlight><highlight class="normal">txn<sp/>*</highlight></codeline>
+<codeline lineno="419"><highlight class="normal">txn_begin(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="420"><highlight class="normal"></highlight></codeline>
+<codeline lineno="424"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="425"><highlight class="normal">txn_complete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn);</highlight></codeline>
+<codeline lineno="426"><highlight class="normal"></highlight></codeline>
+<codeline lineno="434"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="435"><highlight class="normal">txn_commit(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn);</highlight></codeline>
+<codeline lineno="436"><highlight class="normal"></highlight></codeline>
+<codeline lineno="441"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="442"><highlight class="normal">txn_rollback(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn);</highlight></codeline>
+<codeline lineno="443"><highlight class="normal"></highlight></codeline>
+<codeline lineno="447"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="448"><highlight class="normal">txn_complete_async(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjournal__entry" kindref="compound">journal_entry</ref><sp/>*entry);</highlight></codeline>
+<codeline lineno="449"><highlight class="normal"></highlight></codeline>
+<codeline lineno="462"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="463"><highlight class="normal">txn_commit_async(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn);</highlight></codeline>
+<codeline lineno="464"><highlight class="normal"></highlight></codeline>
+<codeline lineno="470"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="471"><highlight class="normal">txn_init_triggers(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn)</highlight></codeline>
+<codeline lineno="472"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="473"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!txn_has_flag(txn,<sp/>TXN_HAS_TRIGGERS))<sp/>{</highlight></codeline>
+<codeline lineno="474"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_create(&amp;txn-&gt;on_commit);</highlight></codeline>
+<codeline lineno="475"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_create(&amp;txn-&gt;on_rollback);</highlight></codeline>
+<codeline lineno="476"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_create(&amp;txn-&gt;<ref refid="structtxn_1a58ffb1d05e16f9b1a0d863b934adb672" kindref="member">on_wal_write</ref>);</highlight></codeline>
+<codeline lineno="477"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_set_flag(txn,<sp/>TXN_HAS_TRIGGERS);</highlight></codeline>
+<codeline lineno="478"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="479"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="480"><highlight class="normal"></highlight></codeline>
+<codeline lineno="481"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="482"><highlight class="normal">txn_on_commit(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtrigger" kindref="compound">trigger</ref><sp/>*<ref refid="structtrigger" kindref="compound">trigger</ref>)</highlight></codeline>
+<codeline lineno="483"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="484"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_init_triggers(txn);</highlight></codeline>
+<codeline lineno="485"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>trigger_add(&amp;txn-&gt;on_commit,<sp/>trigger);</highlight></codeline>
+<codeline lineno="486"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="487"><highlight class="normal"></highlight></codeline>
+<codeline lineno="488"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="489"><highlight class="normal">txn_on_rollback(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>trigger<sp/>*trigger)</highlight></codeline>
+<codeline lineno="490"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="491"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_init_triggers(txn);</highlight></codeline>
+<codeline lineno="492"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>trigger_add(&amp;txn-&gt;on_rollback,<sp/>trigger);</highlight></codeline>
+<codeline lineno="493"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="494"><highlight class="normal"></highlight></codeline>
+<codeline lineno="495"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="496"><highlight class="normal">txn_on_wal_write(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>trigger<sp/>*trigger)</highlight></codeline>
+<codeline lineno="497"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="498"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_init_triggers(txn);</highlight></codeline>
+<codeline lineno="499"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>trigger_add(&amp;txn-&gt;<ref refid="structtxn_1a58ffb1d05e16f9b1a0d863b934adb672" kindref="member">on_wal_write</ref>,<sp/>trigger);</highlight></codeline>
+<codeline lineno="500"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="501"><highlight class="normal"></highlight></codeline>
+<codeline lineno="507"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="508"><highlight class="normal">txn_stmt_init_triggers(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref><sp/>*stmt)</highlight></codeline>
+<codeline lineno="509"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="510"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!stmt-&gt;<ref refid="structtxn__stmt_1a381a7914dcdca0fcb37c4fa7e9a88700" kindref="member">has_triggers</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="511"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_create(&amp;stmt-&gt;<ref refid="structtxn__stmt_1a3e5ffa54cdfc0354ff13d40e2bf757e4" kindref="member">on_commit</ref>);</highlight></codeline>
+<codeline lineno="512"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_create(&amp;stmt-&gt;on_rollback);</highlight></codeline>
+<codeline lineno="513"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stmt-&gt;<ref refid="structtxn__stmt_1a381a7914dcdca0fcb37c4fa7e9a88700" kindref="member">has_triggers</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="514"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="515"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="516"><highlight class="normal"></highlight></codeline>
+<codeline lineno="517"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="518"><highlight class="normal">txn_stmt_on_commit(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref><sp/>*stmt,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>trigger<sp/>*trigger)</highlight></codeline>
+<codeline lineno="519"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="520"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_stmt_init_triggers(stmt);</highlight></codeline>
+<codeline lineno="521"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>trigger_add(&amp;stmt-&gt;<ref refid="structtxn__stmt_1a3e5ffa54cdfc0354ff13d40e2bf757e4" kindref="member">on_commit</ref>,<sp/>trigger);</highlight></codeline>
+<codeline lineno="522"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="523"><highlight class="normal"></highlight></codeline>
+<codeline lineno="524"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="525"><highlight class="normal">txn_stmt_on_rollback(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref><sp/>*stmt,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>trigger<sp/>*trigger)</highlight></codeline>
+<codeline lineno="526"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="527"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txn_stmt_init_triggers(stmt);</highlight></codeline>
+<codeline lineno="528"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>trigger_add(&amp;stmt-&gt;on_rollback,<sp/>trigger);</highlight></codeline>
+<codeline lineno="529"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="530"><highlight class="normal"></highlight></codeline>
+<codeline lineno="531"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="532"><highlight class="comment"><sp/>*<sp/>Return<sp/>the<sp/>total<sp/>number<sp/>of<sp/>rows<sp/>committed<sp/>in<sp/>the<sp/>txn.</highlight></codeline>
+<codeline lineno="533"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="534"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="535"><highlight class="normal">txn_n_rows(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn)</highlight></codeline>
+<codeline lineno="536"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="537"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>txn-&gt;<ref refid="structtxn_1a4b2ce4dee36915a6ceaa5539a792379c" kindref="member">n_new_rows</ref><sp/>+<sp/>txn-&gt;<ref refid="structtxn_1a6dd4f5f7557c8170260d6b5c8e0f66af" kindref="member">n_applier_rows</ref>;</highlight></codeline>
+<codeline lineno="538"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="539"><highlight class="normal"></highlight></codeline>
+<codeline lineno="543"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="544"><highlight class="normal">txn_begin_stmt(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structspace" kindref="compound">space</ref><sp/>*<ref refid="structspace" kindref="compound">space</ref>);</highlight></codeline>
+<codeline lineno="545"><highlight class="normal"></highlight></codeline>
+<codeline lineno="546"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="547"><highlight class="normal">txn_begin_in_engine(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structengine" kindref="compound">engine</ref><sp/>*<ref refid="structengine" kindref="compound">engine</ref>,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn);</highlight></codeline>
+<codeline lineno="548"><highlight class="normal"></highlight></codeline>
+<codeline lineno="556"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="557"><highlight class="normal">txn_begin_ro_stmt(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>space<sp/>*space,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>**txn)</highlight></codeline>
+<codeline lineno="558"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="559"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*txn<sp/>=<sp/>in_txn();</highlight></codeline>
+<codeline lineno="560"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(*txn<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="561"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">engine<sp/>*engine<sp/>=<sp/>space-&gt;<ref refid="structspace_1a99717c070838ccc65ce48e92b3da5bac" kindref="member">engine</ref>;</highlight></codeline>
+<codeline lineno="562"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>txn_begin_in_engine(engine,<sp/>*txn);</highlight></codeline>
+<codeline lineno="563"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="564"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="565"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="566"><highlight class="normal"></highlight></codeline>
+<codeline lineno="567"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="568"><highlight class="normal">txn_commit_ro_stmt(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn)</highlight></codeline>
+<codeline lineno="569"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="570"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(txn<sp/>==<sp/>in_txn());</highlight></codeline>
+<codeline lineno="571"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(txn)<sp/>{</highlight></codeline>
+<codeline lineno="572"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>nothing<sp/>to<sp/>do<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="573"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="574"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fiber_gc();</highlight></codeline>
+<codeline lineno="575"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="576"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="577"><highlight class="normal"></highlight></codeline>
+<codeline lineno="585"><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="586"><highlight class="normal">txn_is_distributed(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn);</highlight></codeline>
+<codeline lineno="587"><highlight class="normal"></highlight></codeline>
+<codeline lineno="595"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="596"><highlight class="normal">txn_commit_stmt(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrequest" kindref="compound">request</ref><sp/>*<ref refid="structrequest" kindref="compound">request</ref>);</highlight></codeline>
+<codeline lineno="597"><highlight class="normal"></highlight></codeline>
+<codeline lineno="602"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="603"><highlight class="normal">txn_rollback_stmt(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn);</highlight></codeline>
+<codeline lineno="604"><highlight class="normal"></highlight></codeline>
+<codeline lineno="612"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="613"><highlight class="normal">txn_check_singlestatement(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*where);</highlight></codeline>
+<codeline lineno="614"><highlight class="normal"></highlight></codeline>
+<codeline lineno="630"><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="631"><highlight class="normal">txn_can_yield(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">set</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="632"><highlight class="normal"></highlight></codeline>
+<codeline lineno="638"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="639"><highlight class="normal">txn_is_first_statement(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn)</highlight></codeline>
+<codeline lineno="640"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="641"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>stailq_last(&amp;txn-&gt;<ref refid="structtxn_1ac0a346481106e91f1c1a5958780ff4d0" kindref="member">stmts</ref>)<sp/>==<sp/>stailq_first(&amp;txn-&gt;<ref refid="structtxn_1ac0a346481106e91f1c1a5958780ff4d0" kindref="member">stmts</ref>);</highlight></codeline>
+<codeline lineno="642"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="643"><highlight class="normal"></highlight></codeline>
+<codeline lineno="645"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref><sp/>*</highlight></codeline>
+<codeline lineno="646"><highlight class="normal">txn_current_stmt(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn)</highlight></codeline>
+<codeline lineno="647"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="648"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(txn-&gt;<ref refid="structtxn_1a9b9b2ab4a11733b1e494e264098e7d5b" kindref="member">in_sub_stmt</ref><sp/>==<sp/>0)</highlight></codeline>
+<codeline lineno="649"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="650"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>*stmt<sp/>=<sp/>txn-&gt;<ref refid="structtxn_1abc83acc555cb5b157d07269ccdf43334" kindref="member">sub_stmt_begin</ref>[txn-&gt;<ref refid="structtxn_1a9b9b2ab4a11733b1e494e264098e7d5b" kindref="member">in_sub_stmt</ref><sp/>-<sp/>1];</highlight></codeline>
+<codeline lineno="651"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stmt<sp/>=<sp/>stmt<sp/>!=<sp/>NULL<sp/>?<sp/>stailq_next(stmt)<sp/>:<sp/>stailq_first(&amp;txn-&gt;<ref refid="structtxn_1ac0a346481106e91f1c1a5958780ff4d0" kindref="member">stmts</ref>);</highlight></codeline>
+<codeline lineno="652"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref>(stmt,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref>,<sp/><ref refid="structtxn__stmt_1af51d70ac8f22b6e1e30cafbf06046c87" kindref="member">next</ref>);</highlight></codeline>
+<codeline lineno="653"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="654"><highlight class="normal"></highlight></codeline>
+<codeline lineno="660"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn__savepoint" kindref="compound">txn_savepoint</ref><sp/>*</highlight></codeline>
+<codeline lineno="661"><highlight class="normal">txn_savepoint_new(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structtxn__savepoint_1a0d8f6c8dc7362c0bd9c10f431ca614dd" kindref="member">name</ref>);</highlight></codeline>
+<codeline lineno="662"><highlight class="normal"></highlight></codeline>
+<codeline lineno="664"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn__savepoint" kindref="compound">txn_savepoint</ref><sp/>*</highlight></codeline>
+<codeline lineno="665"><highlight class="normal">txn_savepoint_by_name(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name);</highlight></codeline>
+<codeline lineno="666"><highlight class="normal"></highlight></codeline>
+<codeline lineno="668"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="669"><highlight class="normal">txn_savepoint_release(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__savepoint" kindref="compound">txn_savepoint</ref><sp/>*svp);</highlight></codeline>
+<codeline lineno="670"><highlight class="normal"></highlight></codeline>
+<codeline lineno="683"><highlight class="normal">API_EXPORT<sp/>int64_t</highlight></codeline>
+<codeline lineno="684"><highlight class="normal">box_txn_id(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="685"><highlight class="normal"></highlight></codeline>
+<codeline lineno="689"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="690"><highlight class="normal">box_txn(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="691"><highlight class="normal"></highlight></codeline>
+<codeline lineno="702"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="703"><highlight class="normal">box_txn_begin(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="704"><highlight class="normal"></highlight></codeline>
+<codeline lineno="711"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="712"><highlight class="normal">box_txn_commit(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="713"><highlight class="normal"></highlight></codeline>
+<codeline lineno="719"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="720"><highlight class="normal">box_txn_rollback(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="721"><highlight class="normal"></highlight></codeline>
+<codeline lineno="729"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="730"><highlight class="normal">box_txn_alloc(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="731"><highlight class="normal"></highlight></codeline>
+<codeline lineno="734"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn__savepoint" kindref="compound">txn_savepoint</ref><sp/>box_txn_savepoint_t;</highlight></codeline>
+<codeline lineno="735"><highlight class="normal"></highlight></codeline>
+<codeline lineno="741"><highlight class="normal">API_EXPORT<sp/>box_txn_savepoint_t<sp/>*</highlight></codeline>
+<codeline lineno="742"><highlight class="normal">box_txn_savepoint(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="743"><highlight class="normal"></highlight></codeline>
+<codeline lineno="755"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="756"><highlight class="normal">box_txn_rollback_to_savepoint(box_txn_savepoint_t<sp/>*savepoint);</highlight></codeline>
+<codeline lineno="757"><highlight class="normal"></highlight></codeline>
+<codeline lineno="758"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="759"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="760"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="761"><highlight class="normal"></highlight></codeline>
+<codeline lineno="762"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_BOX_TXN_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/txn.h"/>
+  </compounddef>
+</doxygen>

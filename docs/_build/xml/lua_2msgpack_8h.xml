@@ -1,0 +1,391 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="lua_2msgpack_8h" kind="file" language="C++">
+    <compoundname>msgpack.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes refid="utils_8h" local="yes">utils.h</includes>
+    <includes local="no">lua.h</includes>
+    <includedby refid="lua_2call_8c" local="yes">/home/tsafin/tarantool/src/box/lua/call.c</includedby>
+    <includedby refid="console_8c" local="yes">/home/tsafin/tarantool/src/box/lua/console.c</includedby>
+    <includedby refid="lua_2execute_8c" local="yes">/home/tsafin/tarantool/src/box/lua/execute.c</includedby>
+    <includedby refid="box_2lua_2init_8c" local="yes">/home/tsafin/tarantool/src/box/lua/init.c</includedby>
+    <includedby refid="misc_8cc" local="yes">/home/tsafin/tarantool/src/box/lua/misc.cc</includedby>
+    <includedby refid="net__box_8c" local="yes">/home/tsafin/tarantool/src/box/lua/net_box.c</includedby>
+    <includedby refid="lua_2tuple_8c" local="yes">/home/tsafin/tarantool/src/box/lua/tuple.c</includedby>
+    <includedby refid="lua_2xlog_8c" local="no">/home/tsafin/tarantool/src/box/lua/xlog.c</includedby>
+    <includedby refid="sql_2func_8c" local="yes">/home/tsafin/tarantool/src/box/sql/func.c</includedby>
+    <includedby refid="lua_2init_8c" local="yes">/home/tsafin/tarantool/src/lua/init.c</includedby>
+    <includedby refid="lua_2msgpack_8c" local="yes">/home/tsafin/tarantool/src/lua/msgpack.c</includedby>
+    <includedby refid="lua_2pickle_8c" local="yes">/home/tsafin/tarantool/src/lua/pickle.c</includedby>
+    <incdepgraph>
+      <node id="739">
+        <label>stdbool.h</label>
+      </node>
+      <node id="740">
+        <label>lua.h</label>
+      </node>
+      <node id="738">
+        <label>stdint.h</label>
+      </node>
+      <node id="737">
+        <label>/home/tsafin/tarantool/src/lua/msgpack.h</label>
+        <link refid="lua_2msgpack_8h"/>
+        <childnode refid="738" relation="include">
+        </childnode>
+        <childnode refid="739" relation="include">
+        </childnode>
+        <childnode refid="740" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="lua_2msgpack_8h_1a5347260c3611a5e649db7a4a8370d3c5" prot="public" static="no">
+        <name>@262</name>
+        <enumvalue id="lua_2msgpack_8h_1a5347260c3611a5e649db7a4a8370d3c5a486b51d8c8e4a175421d4651699c8ad0" prot="public">
+          <name>LUAMP_ALLOC_FACTOR</name>
+          <initializer>= 256</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/msgpack.h" line="62" column="1" bodyfile="/home/tsafin/tarantool/src/lua/msgpack.h" bodystart="62" bodyend="62"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="lua_2msgpack_8h_1af5aedc99ff0632f2e9deb470f5c29aa0" prot="public" static="no">
+        <type>enum <ref refid="msgpuck_8h_1a2d475ca7ff94ba648ab4fbdc8e49eabd" kindref="member">mp_type</ref>(*</type>
+        <definition>typedef enum mp_type(* luamp_encode_extension_f) (struct lua_State *, int, struct mpstream *)</definition>
+        <argsstring>)(struct lua_State *, int, struct mpstream *)</argsstring>
+        <name>luamp_encode_extension_f</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/msgpack.h" line="76" column="1" bodyfile="/home/tsafin/tarantool/src/lua/msgpack.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="lua_2msgpack_8h_1a6939564ba8e80414b980ff60d249a064" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* luamp_decode_extension_f) (struct lua_State *L, const char **data)</definition>
+        <argsstring>)(struct lua_State *L, const char **data)</argsstring>
+        <name>luamp_decode_extension_f</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/msgpack.h" line="89" column="1" bodyfile="/home/tsafin/tarantool/src/lua/msgpack.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="lua_2msgpack_8h_1afaeac338ce55e8a2fcbfb14b37279341" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref> *</type>
+        <definition>struct luaL_serializer* luaL_msgpack_default</definition>
+        <argsstring></argsstring>
+        <name>luaL_msgpack_default</name>
+        <briefdescription>
+<para>Default instance of msgpack serializer (msgpack = require(&apos;msgpack&apos;)). </para>        </briefdescription>
+        <detaileddescription>
+<para>This instance is used by all box&apos;s Lua/C API bindings (e.g. space:replace()). All changes made by msgpack.cfg{} function are also affect box&apos;s bindings (this is a feature). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/msgpack.h" line="54" column="1" bodyfile="/home/tsafin/tarantool/src/lua/msgpack.c" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="lua_2msgpack_8h_1ac3dbab6dedc43425e93bbae89cb8d354" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void luamp_error</definition>
+        <argsstring>(void *)</argsstring>
+        <name>luamp_error</name>
+        <param>
+          <type>void *</type>
+        </param>
+        <briefdescription>
+<para>luaL_error() </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/msgpack.h" line="60" column="1" bodyfile="/home/tsafin/tarantool/src/lua/msgpack.c" bodystart="52" bodyend="56"/>
+      </memberdef>
+      <memberdef kind="function" id="lua_2msgpack_8h_1a3358f8de5d7f0e7639b1ff369f986e6a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>enum <ref refid="msgpuck_8h_1a2d475ca7ff94ba648ab4fbdc8e49eabd" kindref="member">mp_type</ref></type>
+        <definition>enum mp_type luamp_encode_r</definition>
+        <argsstring>(struct lua_State *L, struct luaL_serializer *cfg, const struct serializer_opts *opts, struct mpstream *stream, struct luaL_field *field, int level)</argsstring>
+        <name>luamp_encode_r</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structserializer__opts" kindref="compound">serializer_opts</ref> *</type>
+          <declname>opts</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structluaL__field" kindref="compound">luaL_field</ref> *</type>
+          <declname>field</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>level</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/msgpack.h" line="60" column="1" bodyfile="/home/tsafin/tarantool/src/lua/msgpack.c" bodystart="112" bodyend="215"/>
+      </memberdef>
+      <memberdef kind="function" id="lua_2msgpack_8h_1a78559c446f8a056923b7101f45856b88" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>enum <ref refid="msgpuck_8h_1a2d475ca7ff94ba648ab4fbdc8e49eabd" kindref="member">mp_type</ref></type>
+        <definition>enum mp_type luamp_encode</definition>
+        <argsstring>(struct lua_State *L, struct luaL_serializer *cfg, const struct serializer_opts *opts, struct mpstream *stream, int index)</argsstring>
+        <name>luamp_encode</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structserializer__opts" kindref="compound">serializer_opts</ref> *</type>
+          <declname>opts</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structmpstream" kindref="compound">mpstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/msgpack.h" line="60" column="1" bodyfile="/home/tsafin/tarantool/src/lua/msgpack.c" bodystart="218" bodyend="241"/>
+      </memberdef>
+      <memberdef kind="function" id="lua_2msgpack_8h_1ad797c9f0fff475de28e2076e3003dbe3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void luamp_decode</definition>
+        <argsstring>(struct lua_State *L, struct luaL_serializer *cfg, const char **data)</argsstring>
+        <name>luamp_decode</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <param>
+          <type>const char **</type>
+          <declname>data</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/msgpack.h" line="76" column="1" bodyfile="/home/tsafin/tarantool/src/lua/msgpack.c" bodystart="244" bodyend="347"/>
+      </memberdef>
+      <memberdef kind="function" id="lua_2msgpack_8h_1a652a8f5200c23cce71185803ded5c282" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void luamp_set_encode_extension</definition>
+        <argsstring>(luamp_encode_extension_f handler)</argsstring>
+        <name>luamp_set_encode_extension</name>
+        <param>
+          <type>luamp_encode_extension_f</type>
+          <declname>handler</declname>
+        </param>
+        <briefdescription>
+<para>Set a callback that executed by encoder on unsupported Lua type. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>handler</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>callback </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/msgpack.h" line="87" column="1" bodyfile="/home/tsafin/tarantool/src/lua/msgpack.c" bodystart="83" bodyend="90"/>
+      </memberdef>
+      <memberdef kind="function" id="lua_2msgpack_8h_1ae44ff44a4d661e9370d8439d61edfffd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void luamp_set_decode_extension</definition>
+        <argsstring>(luamp_decode_extension_f handler)</argsstring>
+        <name>luamp_set_decode_extension</name>
+        <param>
+          <type>luamp_decode_extension_f</type>
+          <declname>handler</declname>
+        </param>
+        <briefdescription>
+<para>Set a callback that executed by decode on unsupported extension. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>handler</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>callback </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/msgpack.h" line="97" column="1" bodyfile="/home/tsafin/tarantool/src/lua/msgpack.c" bodystart="102" bodyend="109"/>
+      </memberdef>
+      <memberdef kind="function" id="lua_2msgpack_8h_1a95da4d442d8ca11c286f683bcef4e4c2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>LUALIB_API int</type>
+        <definition>LUALIB_API int luaopen_msgpack</definition>
+        <argsstring>(lua_State *L)</argsstring>
+        <name>luaopen_msgpack</name>
+        <param>
+          <type>lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <briefdescription>
+<para>Lua/C API exports. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>L</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Lua stack </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>1 </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/msgpack.h" line="105" column="1" bodyfile="/home/tsafin/tarantool/src/lua/msgpack.c" bodystart="590" bodyend="594"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LUA_MSGPACK_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LUA_MSGPACK_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2018,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;utils.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;lua.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref>;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmpstream" kindref="compound">mpstream</ref>;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structserializer__opts" kindref="compound">serializer_opts</ref>;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref><sp/>*luaL_msgpack_default;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal">luamp_error(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*);</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{<sp/>LUAMP_ALLOC_FACTOR<sp/>=<sp/>256<sp/>};</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>low-level<sp/>function<sp/>needed<sp/>for<sp/>execute_lua_call()<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="msgpuck_8h_1a2d475ca7ff94ba648ab4fbdc8e49eabd" kindref="member">mp_type</ref></highlight></codeline>
+<codeline lineno="66"><highlight class="normal">luamp_encode_r(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref><sp/>*cfg,</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structserializer__opts" kindref="compound">serializer_opts</ref><sp/>*opts,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream,</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structluaL__field" kindref="compound">luaL_field</ref><sp/>*field,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>level);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="msgpuck_8h_1a2d475ca7ff94ba648ab4fbdc8e49eabd" kindref="member">mp_type</ref></highlight></codeline>
+<codeline lineno="71"><highlight class="normal">luamp_encode(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref><sp/>*cfg,</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structserializer__opts" kindref="compound">serializer_opts</ref><sp/>*opts,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*stream,</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structindex" kindref="compound">index</ref>);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal">luamp_decode(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref><sp/>*cfg,</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**data);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="msgpuck_8h_1a2d475ca7ff94ba648ab4fbdc8e49eabd" kindref="member">mp_type</ref></highlight></codeline>
+<codeline lineno="80"><highlight class="normal">(*luamp_encode_extension_f)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">lua_State<sp/>*,<sp/>int,<sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmpstream" kindref="compound">mpstream</ref><sp/>*);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal">luamp_set_encode_extension(luamp_encode_extension_f<sp/>handler);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void</highlight></codeline>
+<codeline lineno="90"><highlight class="normal">(*luamp_decode_extension_f)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">lua_State<sp/>*L,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**data);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal">luamp_set_decode_extension(luamp_decode_extension_f<sp/>handler);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal">LUALIB_API<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal">luaopen_msgpack(lua_State<sp/>*L);</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_LUA_MSGPACK_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lua/msgpack.h"/>
+  </compounddef>
+</doxygen>

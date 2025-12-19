@@ -1,0 +1,100 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structsynchro__entry" kind="struct" language="C++" prot="public">
+    <compoundname>synchro_entry</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structsynchro__entry_1a3d4fe7ff366b6d7342da2db31152276d" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structsynchro__body__bin" kindref="compound">synchro_body_bin</ref></type>
+        <definition>struct synchro_body_bin synchro_entry::body_bin</definition>
+        <argsstring></argsstring>
+        <name>body_bin</name>
+        <briefdescription>
+<para>Encoded form of a synchro record. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.cc" line="1617" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.cc" bodystart="780" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsynchro__entry_1a071ec9375f94036223db841df17b2d23" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structxrow__header" kindref="compound">xrow_header</ref></type>
+        <definition>struct xrow_header synchro_entry::row</definition>
+        <argsstring></argsstring>
+        <name>row</name>
+        <briefdescription>
+<para>xrow to write, used by the journal engine. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.cc" line="1617" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.cc" bodystart="783" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsynchro__entry_1af2edb55365b2895c423156879ca47328" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structjournal__entry" kindref="compound">journal_entry</ref></type>
+        <definition>struct journal_entry synchro_entry::journal_entry</definition>
+        <argsstring></argsstring>
+        <name>journal_entry</name>
+        <briefdescription>
+<para>The journal entry itself. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note since it has unsized array it must be the last entry in the structure. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/applier.cc" line="1617" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.cc" bodystart="790" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="10497">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="10497" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="10494">
+        <label>synchro_entry</label>
+        <link refid="structsynchro__entry"/>
+        <childnode refid="10495" relation="usage">
+          <edgelabel>body_bin</edgelabel>
+        </childnode>
+        <childnode refid="10496" relation="usage">
+          <edgelabel>journal_entry</edgelabel>
+        </childnode>
+        <childnode refid="10498" relation="usage">
+          <edgelabel>row</edgelabel>
+        </childnode>
+      </node>
+      <node id="10496">
+        <label>journal_entry</label>
+        <link refid="structjournal__entry"/>
+        <childnode refid="10497" relation="usage">
+          <edgelabel>fifo</edgelabel>
+        </childnode>
+        <childnode refid="10496" relation="usage">
+          <edgelabel>write_async_cb</edgelabel>
+        </childnode>
+        <childnode refid="10498" relation="usage">
+          <edgelabel>rows</edgelabel>
+        </childnode>
+      </node>
+      <node id="10498">
+        <label>xrow_header</label>
+        <link refid="structxrow__header"/>
+      </node>
+      <node id="10495">
+        <label>synchro_body_bin</label>
+        <link refid="structsynchro__body__bin"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/applier.cc" line="778" column="1" bodyfile="/home/tsafin/tarantool/src/box/applier.cc" bodystart="778" bodyend="791"/>
+    <listofallmembers>
+      <member refid="structsynchro__entry_1a3d4fe7ff366b6d7342da2db31152276d" prot="public" virt="non-virtual"><scope>synchro_entry</scope><name>body_bin</name></member>
+      <member refid="structsynchro__entry_1af2edb55365b2895c423156879ca47328" prot="public" virt="non-virtual"><scope>synchro_entry</scope><name>journal_entry</name></member>
+      <member refid="structsynchro__entry_1a071ec9375f94036223db841df17b2d23" prot="public" virt="non-virtual"><scope>synchro_entry</scope><name>row</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

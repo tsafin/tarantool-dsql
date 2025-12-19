@@ -1,0 +1,959 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structraft" kind="struct" language="C++" prot="public">
+    <compoundname>raft</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structraft_1a0499d6b03b517f2780185d29fbdf0333" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t raft::leader</definition>
+        <argsstring></argsstring>
+        <name>leader</name>
+        <briefdescription>
+<para>Instance ID of leader of the current term. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="94" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structraft_1a22b9978117406c38ebc03e64a454dd16" prot="public" static="no" mutable="no">
+        <type>enum raft_state</type>
+        <definition>enum raft_state raft::state</definition>
+        <argsstring></argsstring>
+        <name>state</name>
+        <briefdescription>
+<para>State of the instance. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="94" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structraft_1a2b870b67709b75cb81bfe4c2dc039816" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t raft::volatile_term</definition>
+        <argsstring></argsstring>
+        <name>volatile_term</name>
+        <briefdescription>
+<para>Volatile part of the Raft state, whose WAL write may be still in-progress, and yet the state may be already used. </para>        </briefdescription>
+        <detaileddescription>
+<para>Volatile state is never sent to anywhere, but the state machine makes decisions based on it. That is vital. As an example, volatile vote needs to be used to reject votes inside a term, where the instance already voted (even if the vote WAL write is not finished yet). Otherwise the instance would try to write several votes inside one term. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="107" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.h" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structraft_1adfe83dc5db600f2acb277bd975e0dd23" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t raft::volatile_vote</definition>
+        <argsstring></argsstring>
+        <name>volatile_vote</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="108" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.h" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structraft_1a6d0ddea47c040236338d872a59345e18" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool raft::is_enabled</definition>
+        <argsstring></argsstring>
+        <name>is_enabled</name>
+        <briefdescription>
+<para>Flag whether Raft is enabled. </para>        </briefdescription>
+        <detaileddescription>
+<para>When disabled, it still persists terms so as to quickly enroll into the cluster when (if) it is enabled. In everything else disabled Raft does not affect instance work. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="114" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.h" bodystart="114" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structraft_1afd3617fc6dabc2a75c6937e8c1fabb69" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool raft::is_candidate</definition>
+        <argsstring></argsstring>
+        <name>is_candidate</name>
+        <briefdescription>
+<para>Flag whether the node can become a leader. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is an accumulated value of configuration options Raft enabled and Raft candidate. If at least one is false - the instance is not a candidate. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="120" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structraft_1a5d6c9307664de1a1233a637a65732c0e" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool raft::is_cfg_candidate</definition>
+        <argsstring></argsstring>
+        <name>is_cfg_candidate</name>
+        <briefdescription>
+<para>Flag whether the instance is allowed to be a leader. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="122" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.h" bodystart="122" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structraft_1abef8a5aa1f20b0ffe7e549180b996ed1" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool raft::is_write_in_progress</definition>
+        <argsstring></argsstring>
+        <name>is_write_in_progress</name>
+        <briefdescription>
+<para>Flag whether Raft currently tries to write something into WAL. </para>        </briefdescription>
+        <detaileddescription>
+<para>It happens asynchronously, not right after Raft state is updated. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="127" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.h" bodystart="127" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structraft_1a1530612e1f6b922d91c8170064155028" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool raft::is_broadcast_scheduled</definition>
+        <argsstring></argsstring>
+        <name>is_broadcast_scheduled</name>
+        <briefdescription>
+<para>Flag whether Raft wants to broadcast its state. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is done asynchronously in the worker fiber. That allows to collect multiple updates into one batch if they happen in one event loop iteration. Usually even in one function. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="134" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.h" bodystart="134" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structraft_1acc125d7e7e401cbdd2d5fab69bb0bad7" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t raft::term</definition>
+        <argsstring></argsstring>
+        <name>term</name>
+        <briefdescription>
+<para>Persisted Raft state. </para>        </briefdescription>
+        <detaileddescription>
+<para>These values are used when need to tell current Raft state to other nodes. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="139" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.h" bodystart="139" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structraft_1aadca7b12c7c224e461adb32cc9ac2284" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t raft::vote</definition>
+        <argsstring></argsstring>
+        <name>vote</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="140" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.h" bodystart="140" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structraft_1aa039b7ed1263a37ecb0ca79d462434b5" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t raft::vote_mask</definition>
+        <argsstring></argsstring>
+        <name>vote_mask</name>
+        <briefdescription>
+<para>Bit 1 on position N means that a vote from instance with ID = N was obtained. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="145" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.h" bodystart="145" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structraft_1a1b558c3f490ff2ff0e42ccc9b5546bea" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int raft::vote_count</definition>
+        <argsstring></argsstring>
+        <name>vote_count</name>
+        <briefdescription>
+<para>Number of votes for this instance. </para>        </briefdescription>
+        <detaileddescription>
+<para>Valid only in candidate state. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="147" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.h" bodystart="147" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structraft_1af90084ba0d2728ceb336726bcaf8db05" prot="public" static="no" mutable="no">
+        <type>struct ev_timer</type>
+        <definition>struct ev_timer raft::timer</definition>
+        <argsstring></argsstring>
+        <name>timer</name>
+        <briefdescription>
+<para>State machine timed event trigger. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="147" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.h" bodystart="149" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structraft_1acc5ef73be11819e3f7808a42ae2153eb" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfiber" kindref="compound">fiber</ref> *</type>
+        <definition>struct fiber* raft::worker</definition>
+        <argsstring></argsstring>
+        <name>worker</name>
+        <briefdescription>
+<para>Worker fiber to execute blocking tasks like IO. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="151" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.h" bodystart="151" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structraft_1a3f1a5c6527e92497336fbd96edee9dd3" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double raft::election_timeout</definition>
+        <argsstring></argsstring>
+        <name>election_timeout</name>
+        <briefdescription>
+<para>Configured election timeout in seconds. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="153" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.h" bodystart="153" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structraft_1a8434ee2593c48e6e197cce70dd4ebe9a" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist raft::on_update</definition>
+        <argsstring></argsstring>
+        <name>on_update</name>
+        <briefdescription>
+<para>Trigger invoked each time any of the Raft node visible attributes are changed. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="153" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.h" bodystart="158" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="7667">
+        <label>serializer_opts</label>
+        <link refid="structserializer__opts"/>
+      </node>
+      <node id="7659">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="7651">
+        <label>json_tree</label>
+        <link refid="structjson__tree"/>
+        <childnode refid="7652" relation="usage">
+          <edgelabel>root</edgelabel>
+        </childnode>
+      </node>
+      <node id="7624">
+        <label>ExprList</label>
+        <link refid="structExprList"/>
+        <childnode refid="7625" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="7635">
+        <label>index_stat</label>
+        <link refid="structindex__stat"/>
+        <childnode refid="7636" relation="usage">
+          <edgelabel>samples</edgelabel>
+        </childnode>
+      </node>
+      <node id="7648">
+        <label>iterator</label>
+        <link refid="structiterator"/>
+        <childnode refid="7645" relation="usage">
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="7656">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="7656" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="7604">
+        <label>raft</label>
+        <link refid="structraft"/>
+        <childnode refid="7605" relation="usage">
+          <edgelabel>worker</edgelabel>
+        </childnode>
+        <childnode refid="7623" relation="usage">
+          <edgelabel>on_update</edgelabel>
+        </childnode>
+      </node>
+      <node id="7657">
+        <label>region</label>
+        <link refid="structregion"/>
+        <childnode refid="7658" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="7660" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="7639">
+        <label>key_part</label>
+        <link refid="structkey__part"/>
+        <childnode refid="7640" relation="usage">
+          <edgelabel>coll</edgelabel>
+        </childnode>
+      </node>
+      <node id="7636">
+        <label>index_sample</label>
+        <link refid="structindex__sample"/>
+      </node>
+      <node id="7668">
+        <label>session_vtab</label>
+        <link refid="structsession__vtab"/>
+      </node>
+      <node id="7643">
+        <label>TriggerStep</label>
+        <link refid="structTriggerStep"/>
+        <childnode refid="7643" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pLast</edgelabel>
+        </childnode>
+        <childnode refid="7613" relation="usage">
+          <edgelabel>pWhere</edgelabel>
+        </childnode>
+        <childnode refid="7631" relation="usage">
+          <edgelabel>pIdList</edgelabel>
+        </childnode>
+        <childnode refid="7626" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="7624" relation="usage">
+          <edgelabel>pExprList</edgelabel>
+        </childnode>
+      </node>
+      <node id="7670">
+        <label>diag</label>
+        <link refid="structdiag"/>
+      </node>
+      <node id="7652">
+        <label>json_token</label>
+        <link refid="structjson__token"/>
+        <childnode refid="7652" relation="usage">
+          <edgelabel>parent</edgelabel>
+          <edgelabel>children</edgelabel>
+        </childnode>
+      </node>
+      <node id="7664">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="7656" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="7618">
+        <label>access</label>
+        <link refid="structaccess"/>
+      </node>
+      <node id="7630">
+        <label>SrcList::SrcList_item</label>
+        <link refid="structSrcList_1_1SrcList__item"/>
+        <childnode refid="7609" relation="usage">
+          <edgelabel>space</edgelabel>
+        </childnode>
+        <childnode refid="7613" relation="usage">
+          <edgelabel>pOn</edgelabel>
+        </childnode>
+        <childnode refid="7631" relation="usage">
+          <edgelabel>pUsing</edgelabel>
+        </childnode>
+        <childnode refid="7633" relation="usage">
+          <edgelabel>pIBIndex</edgelabel>
+        </childnode>
+        <childnode refid="7626" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="7624" relation="usage">
+          <edgelabel>pFuncArg</edgelabel>
+        </childnode>
+      </node>
+      <node id="7628">
+        <label>With::Cte</label>
+        <link refid="structWith_1_1Cte"/>
+        <childnode refid="7626" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="7624" relation="usage">
+          <edgelabel>pCols</edgelabel>
+        </childnode>
+      </node>
+      <node id="7626">
+        <label>Select</label>
+        <link refid="structSelect"/>
+        <childnode refid="7613" relation="usage">
+          <edgelabel>pOffset</edgelabel>
+          <edgelabel>pHaving</edgelabel>
+          <edgelabel>pWhere</edgelabel>
+          <edgelabel>pLimit</edgelabel>
+        </childnode>
+        <childnode refid="7627" relation="usage">
+          <edgelabel>pWith</edgelabel>
+        </childnode>
+        <childnode refid="7626" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pPrior</edgelabel>
+        </childnode>
+        <childnode refid="7629" relation="usage">
+          <edgelabel>pSrc</edgelabel>
+        </childnode>
+        <childnode refid="7624" relation="usage">
+          <edgelabel>pEList</edgelabel>
+          <edgelabel>pOrderBy</edgelabel>
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="7622">
+        <label>credentials</label>
+        <link refid="structcredentials"/>
+        <childnode refid="7623" relation="usage">
+          <edgelabel>in_user</edgelabel>
+        </childnode>
+      </node>
+      <node id="7608">
+        <label>engine_vtab</label>
+        <link refid="structengine__vtab"/>
+        <childnode refid="7609" relation="usage">
+          <edgelabel>create_space</edgelabel>
+        </childnode>
+      </node>
+      <node id="7609">
+        <label>space</label>
+        <link refid="structspace"/>
+        <childnode refid="7610" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="7607" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="7642" relation="usage">
+          <edgelabel>sql_triggers</edgelabel>
+        </childnode>
+        <childnode refid="7618" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="7644" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="7649" relation="usage">
+          <edgelabel>format</edgelabel>
+        </childnode>
+        <childnode refid="7653" relation="usage">
+          <edgelabel>ck_constraint_trigger</edgelabel>
+        </childnode>
+        <childnode refid="7623" relation="usage">
+          <edgelabel>before_replace</edgelabel>
+          <edgelabel>on_replace</edgelabel>
+          <edgelabel>child_fk_constraint</edgelabel>
+          <edgelabel>memtx_stories</edgelabel>
+          <edgelabel>parent_fk_constraint</edgelabel>
+          <edgelabel>ck_constraint</edgelabel>
+        </childnode>
+        <childnode refid="7654" relation="usage">
+          <edgelabel>sequence</edgelabel>
+        </childnode>
+        <childnode refid="7645" relation="usage">
+          <edgelabel>index_map</edgelabel>
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="7669">
+        <label>clock_stat</label>
+        <link refid="structclock__stat"/>
+      </node>
+      <node id="7615">
+        <label>AggInfo::AggInfo_col</label>
+        <link refid="structAggInfo_1_1AggInfo__col"/>
+        <childnode refid="7610" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="7613" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="7646">
+        <label>index_vtab</label>
+        <link refid="structindex__vtab"/>
+        <childnode refid="7647" relation="usage">
+          <edgelabel>create_snapshot_iterator</edgelabel>
+        </childnode>
+        <childnode refid="7648" relation="usage">
+          <edgelabel>create_iterator</edgelabel>
+        </childnode>
+      </node>
+      <node id="7611">
+        <label>tuple_dictionary</label>
+        <link refid="structtuple__dictionary"/>
+      </node>
+      <node id="7613">
+        <label>Expr</label>
+        <link refid="structExpr"/>
+        <childnode refid="7610" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="7614" relation="usage">
+          <edgelabel>pAggInfo</edgelabel>
+        </childnode>
+        <childnode refid="7613" relation="usage">
+          <edgelabel>pRight</edgelabel>
+          <edgelabel>pLeft</edgelabel>
+        </childnode>
+        <childnode refid="7626" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="7624" relation="usage">
+          <edgelabel>pList</edgelabel>
+        </childnode>
+      </node>
+      <node id="7606">
+        <label>txn</label>
+        <link refid="structtxn"/>
+        <childnode refid="7607" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="7656" relation="usage">
+          <edgelabel>in_txn_cache</edgelabel>
+          <edgelabel>sub_stmt_begin</edgelabel>
+        </childnode>
+        <childnode refid="7657" relation="usage">
+          <edgelabel>region</edgelabel>
+        </childnode>
+        <childnode refid="7605" relation="usage">
+          <edgelabel>fiber</edgelabel>
+        </childnode>
+        <childnode refid="7653" relation="usage">
+          <edgelabel>fiber_on_stop</edgelabel>
+          <edgelabel>fiber_on_yield</edgelabel>
+        </childnode>
+        <childnode refid="7623" relation="usage">
+          <edgelabel>on_wal_write</edgelabel>
+          <edgelabel>read_set</edgelabel>
+          <edgelabel>conflict_list</edgelabel>
+          <edgelabel>in_read_view_txs</edgelabel>
+          <edgelabel>savepoints</edgelabel>
+          <edgelabel>conflicted_by_list</edgelabel>
+        </childnode>
+        <childnode refid="7664" relation="usage">
+          <edgelabel>stmts</edgelabel>
+        </childnode>
+      </node>
+      <node id="7614">
+        <label>AggInfo</label>
+        <link refid="structAggInfo"/>
+        <childnode refid="7615" relation="usage">
+          <edgelabel>aCol</edgelabel>
+        </childnode>
+        <childnode refid="7616" relation="usage">
+          <edgelabel>aFunc</edgelabel>
+        </childnode>
+        <childnode refid="7624" relation="usage">
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="7623">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="7623" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="7647">
+        <label>snapshot_iterator</label>
+        <link refid="structsnapshot__iterator"/>
+      </node>
+      <node id="7658">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="7659" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="7623" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="7629">
+        <label>SrcList</label>
+        <link refid="structSrcList"/>
+        <childnode refid="7630" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="7673">
+        <label>ipc_msg</label>
+        <link refid="structipc__msg"/>
+      </node>
+      <node id="7655">
+        <label>sequence_def</label>
+        <link refid="structsequence__def"/>
+      </node>
+      <node id="7631">
+        <label>IdList</label>
+        <link refid="structIdList"/>
+        <childnode refid="7632" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="7645">
+        <label>index</label>
+        <link refid="structindex"/>
+        <childnode refid="7607" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="7646" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="7633" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="7654">
+        <label>sequence</label>
+        <link refid="structsequence"/>
+        <childnode refid="7618" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="7655" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="7612">
+        <label>field_def</label>
+        <link refid="structfield__def"/>
+        <childnode refid="7613" relation="usage">
+          <edgelabel>default_value_expr</edgelabel>
+        </childnode>
+      </node>
+      <node id="7637">
+        <label>key_def</label>
+        <link refid="structkey__def"/>
+        <childnode refid="7638" relation="usage">
+          <edgelabel>tuple_hash</edgelabel>
+          <edgelabel>tuple_compare_with_key</edgelabel>
+          <edgelabel>tuple_compare</edgelabel>
+          <edgelabel>tuple_hint</edgelabel>
+          <edgelabel>tuple_extract_key</edgelabel>
+        </childnode>
+        <childnode refid="7637" relation="usage">
+          <edgelabel>key_hash</edgelabel>
+          <edgelabel>tuple_extract_key_raw</edgelabel>
+          <edgelabel>key_hint</edgelabel>
+        </childnode>
+        <childnode refid="7617" relation="usage">
+          <edgelabel>func_index_func</edgelabel>
+        </childnode>
+        <childnode refid="7639" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="7653">
+        <label>trigger</label>
+        <link refid="structtrigger"/>
+        <childnode refid="7653" relation="usage">
+          <edgelabel>run</edgelabel>
+          <edgelabel>destroy</edgelabel>
+        </childnode>
+        <childnode refid="7623" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="7638">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="7662">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="7633">
+        <label>index_def</label>
+        <link refid="structindex__def"/>
+        <childnode refid="7634" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+        <childnode refid="7637" relation="usage">
+          <edgelabel>key_def</edgelabel>
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="7623" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="7641">
+        <label>space_opts</label>
+        <link refid="structspace__opts"/>
+      </node>
+      <node id="7617">
+        <label>func</label>
+        <link refid="structfunc"/>
+        <childnode refid="7618" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="7619" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="7620" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="7622" relation="usage">
+          <edgelabel>owner_credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="7619">
+        <label>func_vtab</label>
+        <link refid="structfunc__vtab"/>
+      </node>
+      <node id="7642">
+        <label>sql_trigger</label>
+        <link refid="structsql__trigger"/>
+        <childnode refid="7643" relation="usage">
+          <edgelabel>step_list</edgelabel>
+        </childnode>
+        <childnode refid="7613" relation="usage">
+          <edgelabel>pWhen</edgelabel>
+        </childnode>
+        <childnode refid="7642" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="7631" relation="usage">
+          <edgelabel>pColumns</edgelabel>
+        </childnode>
+      </node>
+      <node id="7663">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="7661">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="7662" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="7663" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="7621">
+        <label>func_opts</label>
+        <link refid="structfunc__opts"/>
+      </node>
+      <node id="7660">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="7658" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="7661" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="7650">
+        <label>tuple_format_vtab</label>
+        <link refid="structtuple__format__vtab"/>
+        <childnode refid="7638" relation="usage">
+          <edgelabel>tuple_new</edgelabel>
+        </childnode>
+      </node>
+      <node id="7649">
+        <label>tuple_format</label>
+        <link refid="structtuple__format"/>
+        <childnode refid="7611" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="7650" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="7651" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+      </node>
+      <node id="7620">
+        <label>func_def</label>
+        <link refid="structfunc__def"/>
+        <childnode refid="7621" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="7627">
+        <label>With</label>
+        <link refid="structWith"/>
+        <childnode refid="7628" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+        <childnode refid="7627" relation="usage">
+          <edgelabel>pOuter</edgelabel>
+        </childnode>
+      </node>
+      <node id="7610">
+        <label>space_def</label>
+        <link refid="structspace__def"/>
+        <childnode refid="7611" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="7612" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+        <childnode refid="7641" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="7607">
+        <label>engine</label>
+        <link refid="structengine"/>
+        <childnode refid="7608" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="7623" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="7632">
+        <label>IdList::IdList_item</label>
+        <link refid="structIdList_1_1IdList__item"/>
+      </node>
+      <node id="7672">
+        <label>ipc_wait_pad</label>
+        <link refid="structipc__wait__pad"/>
+        <childnode refid="7673" relation="usage">
+          <edgelabel>msg</edgelabel>
+        </childnode>
+      </node>
+      <node id="7640">
+        <label>coll</label>
+        <link refid="structcoll"/>
+        <childnode refid="7640" relation="usage">
+          <edgelabel>cmp</edgelabel>
+          <edgelabel>hint</edgelabel>
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+      <node id="7605">
+        <label>fiber</label>
+        <link refid="structfiber"/>
+        <childnode refid="7606" relation="usage">
+          <edgelabel>txn</edgelabel>
+        </childnode>
+        <childnode refid="7657" relation="usage">
+          <edgelabel>gc</edgelabel>
+        </childnode>
+        <childnode refid="7605" relation="usage">
+          <edgelabel>caller</edgelabel>
+        </childnode>
+        <childnode refid="7622" relation="usage">
+          <edgelabel>credentials</edgelabel>
+        </childnode>
+        <childnode refid="7665" relation="usage">
+          <edgelabel>session</edgelabel>
+        </childnode>
+        <childnode refid="7669" relation="usage">
+          <edgelabel>clock_stat</edgelabel>
+        </childnode>
+        <childnode refid="7623" relation="usage">
+          <edgelabel>wake</edgelabel>
+          <edgelabel>on_stop</edgelabel>
+          <edgelabel>on_yield</edgelabel>
+          <edgelabel>link</edgelabel>
+          <edgelabel>state</edgelabel>
+        </childnode>
+        <childnode refid="7670" relation="usage">
+          <edgelabel>diag</edgelabel>
+        </childnode>
+        <childnode refid="7671" relation="usage">
+          <edgelabel>stack_slab</edgelabel>
+        </childnode>
+        <childnode refid="7672" relation="usage">
+          <edgelabel>wait_pad</edgelabel>
+        </childnode>
+      </node>
+      <node id="7671">
+        <label>slab</label>
+        <link refid="structslab"/>
+        <childnode refid="7623" relation="usage">
+          <edgelabel>next_in_cache</edgelabel>
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+      <node id="7666">
+        <label>session_meta</label>
+        <link refid="structsession__meta"/>
+        <childnode refid="7667" relation="usage">
+          <edgelabel>serializer_opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="7634">
+        <label>index_opts</label>
+        <link refid="structindex__opts"/>
+        <childnode refid="7635" relation="usage">
+          <edgelabel>stat</edgelabel>
+        </childnode>
+      </node>
+      <node id="7665">
+        <label>session</label>
+        <link refid="structsession"/>
+        <childnode refid="7666" relation="usage">
+          <edgelabel>meta</edgelabel>
+        </childnode>
+        <childnode refid="7668" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="7653" relation="usage">
+          <edgelabel>fiber_on_stop</edgelabel>
+        </childnode>
+        <childnode refid="7622" relation="usage">
+          <edgelabel>credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="7625">
+        <label>ExprList::ExprList_item</label>
+        <link refid="structExprList_1_1ExprList__item"/>
+        <childnode refid="7613" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="7616">
+        <label>AggInfo::AggInfo_func</label>
+        <link refid="structAggInfo_1_1AggInfo__func"/>
+        <childnode refid="7613" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+        <childnode refid="7617" relation="usage">
+          <edgelabel>func</edgelabel>
+        </childnode>
+      </node>
+      <node id="7644">
+        <label>space_vtab</label>
+        <link refid="structspace__vtab"/>
+        <childnode refid="7645" relation="usage">
+          <edgelabel>create_index</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/raft.h" line="92" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.h" bodystart="92" bodyend="159"/>
+    <listofallmembers>
+      <member refid="structraft_1a3f1a5c6527e92497336fbd96edee9dd3" prot="public" virt="non-virtual"><scope>raft</scope><name>election_timeout</name></member>
+      <member refid="structraft_1a1530612e1f6b922d91c8170064155028" prot="public" virt="non-virtual"><scope>raft</scope><name>is_broadcast_scheduled</name></member>
+      <member refid="structraft_1afd3617fc6dabc2a75c6937e8c1fabb69" prot="public" virt="non-virtual"><scope>raft</scope><name>is_candidate</name></member>
+      <member refid="structraft_1a5d6c9307664de1a1233a637a65732c0e" prot="public" virt="non-virtual"><scope>raft</scope><name>is_cfg_candidate</name></member>
+      <member refid="structraft_1a6d0ddea47c040236338d872a59345e18" prot="public" virt="non-virtual"><scope>raft</scope><name>is_enabled</name></member>
+      <member refid="structraft_1abef8a5aa1f20b0ffe7e549180b996ed1" prot="public" virt="non-virtual"><scope>raft</scope><name>is_write_in_progress</name></member>
+      <member refid="structraft_1a0499d6b03b517f2780185d29fbdf0333" prot="public" virt="non-virtual"><scope>raft</scope><name>leader</name></member>
+      <member refid="structraft_1a8434ee2593c48e6e197cce70dd4ebe9a" prot="public" virt="non-virtual"><scope>raft</scope><name>on_update</name></member>
+      <member refid="structraft_1a22b9978117406c38ebc03e64a454dd16" prot="public" virt="non-virtual"><scope>raft</scope><name>state</name></member>
+      <member refid="structraft_1acc125d7e7e401cbdd2d5fab69bb0bad7" prot="public" virt="non-virtual"><scope>raft</scope><name>term</name></member>
+      <member refid="structraft_1af90084ba0d2728ceb336726bcaf8db05" prot="public" virt="non-virtual"><scope>raft</scope><name>timer</name></member>
+      <member refid="structraft_1a2b870b67709b75cb81bfe4c2dc039816" prot="public" virt="non-virtual"><scope>raft</scope><name>volatile_term</name></member>
+      <member refid="structraft_1adfe83dc5db600f2acb277bd975e0dd23" prot="public" virt="non-virtual"><scope>raft</scope><name>volatile_vote</name></member>
+      <member refid="structraft_1aadca7b12c7c224e461adb32cc9ac2284" prot="public" virt="non-virtual"><scope>raft</scope><name>vote</name></member>
+      <member refid="structraft_1a1b558c3f490ff2ff0e42ccc9b5546bea" prot="public" virt="non-virtual"><scope>raft</scope><name>vote_count</name></member>
+      <member refid="structraft_1aa039b7ed1263a37ecb0ca79d462434b5" prot="public" virt="non-virtual"><scope>raft</scope><name>vote_mask</name></member>
+      <member refid="structraft_1acc5ef73be11819e3f7808a42ae2153eb" prot="public" virt="non-virtual"><scope>raft</scope><name>worker</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

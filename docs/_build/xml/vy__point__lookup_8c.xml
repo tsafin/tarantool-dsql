@@ -1,0 +1,604 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="vy__point__lookup_8c" kind="file" language="C++">
+    <compoundname>vy_point_lookup.c</compoundname>
+    <includes refid="vy__point__lookup_8h" local="yes">vy_point_lookup.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes refid="region_8h" local="no">small/region.h</includes>
+    <includes refid="rlist_8h" local="no">small/rlist.h</includes>
+    <includes local="yes">fiber.h</includes>
+    <includes refid="vy__lsm_8h" local="yes">vy_lsm.h</includes>
+    <includes refid="vy__stmt_8h" local="yes">vy_stmt.h</includes>
+    <includes refid="vy__tx_8h" local="yes">vy_tx.h</includes>
+    <includes refid="vy__mem_8h" local="yes">vy_mem.h</includes>
+    <includes refid="vy__run_8h" local="yes">vy_run.h</includes>
+    <includes refid="vy__cache_8h" local="yes">vy_cache.h</includes>
+    <includes refid="vy__history_8h" local="yes">vy_history.h</includes>
+    <incdepgraph>
+      <node id="1316">
+        <label>stdbool.h</label>
+      </node>
+      <node id="1315">
+        <label>/home/tsafin/tarantool/src/box/vy_point_lookup.c</label>
+        <link refid="vy__point__lookup_8c"/>
+        <childnode refid="1316" relation="include">
+        </childnode>
+        <childnode refid="1317" relation="include">
+        </childnode>
+        <childnode refid="1318" relation="include">
+        </childnode>
+        <childnode refid="1319" relation="include">
+        </childnode>
+      </node>
+      <node id="1318">
+        <label>stdint.h</label>
+      </node>
+      <node id="1317">
+        <label>stddef.h</label>
+      </node>
+      <node id="1319">
+        <label>fiber.h</label>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="vy__point__lookup_8c_1a167bedcca46f26b79bf297c5297228bd" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int vy_point_lookup_scan_txw</definition>
+        <argsstring>(struct vy_lsm *lsm, struct vy_tx *tx, struct vy_entry key, struct vy_history *history)</argsstring>
+        <name>vy_point_lookup_scan_txw</name>
+        <param>
+          <type>struct <ref refid="structvy__lsm" kindref="compound">vy_lsm</ref> *</type>
+          <declname>lsm</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__tx" kindref="compound">vy_tx</ref> *</type>
+          <declname>tx</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__history" kindref="compound">vy_history</ref> *</type>
+          <declname>history</declname>
+        </param>
+        <briefdescription>
+<para>Scan TX write set for given key. </para>        </briefdescription>
+        <detaileddescription>
+<para>Add one or no statement to the history list. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_point_lookup.c" line="55" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_point_lookup.c" bodystart="55" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__point__lookup_8c_1a1e937416bdbbbc7177bc9e4e479c4149" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int vy_point_lookup_scan_cache</definition>
+        <argsstring>(struct vy_lsm *lsm, const struct vy_read_view **rv, struct vy_entry key, struct vy_history *history)</argsstring>
+        <name>vy_point_lookup_scan_cache</name>
+        <param>
+          <type>struct <ref refid="structvy__lsm" kindref="compound">vy_lsm</ref> *</type>
+          <declname>lsm</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvy__read__view" kindref="compound">vy_read_view</ref> **</type>
+          <declname>rv</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__history" kindref="compound">vy_history</ref> *</type>
+          <declname>history</declname>
+        </param>
+        <briefdescription>
+<para>Scan LSM tree cache for given key. </para>        </briefdescription>
+        <detaileddescription>
+<para>Add one or no statement to the history list. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_point_lookup.c" line="76" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_point_lookup.c" bodystart="76" bodyend="87"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__point__lookup_8c_1a3e560cb477d76da8440289b41d6ade8e" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int vy_point_lookup_scan_mem</definition>
+        <argsstring>(struct vy_lsm *lsm, struct vy_mem *mem, const struct vy_read_view **rv, struct vy_entry key, struct vy_history *history)</argsstring>
+        <name>vy_point_lookup_scan_mem</name>
+        <param>
+          <type>struct <ref refid="structvy__lsm" kindref="compound">vy_lsm</ref> *</type>
+          <declname>lsm</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__mem" kindref="compound">vy_mem</ref> *</type>
+          <declname>mem</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvy__read__view" kindref="compound">vy_read_view</ref> **</type>
+          <declname>rv</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__history" kindref="compound">vy_history</ref> *</type>
+          <declname>history</declname>
+        </param>
+        <briefdescription>
+<para>Scan one particular mem. </para>        </briefdescription>
+        <detaileddescription>
+<para>Add found statements to the history list up to terminal statement. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_point_lookup.c" line="94" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_point_lookup.c" bodystart="94" bodyend="108"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__point__lookup_8c_1afa70e3233b2eb79d748799c4c08548cc" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int vy_point_lookup_scan_mems</definition>
+        <argsstring>(struct vy_lsm *lsm, const struct vy_read_view **rv, struct vy_entry key, struct vy_history *history)</argsstring>
+        <name>vy_point_lookup_scan_mems</name>
+        <param>
+          <type>struct <ref refid="structvy__lsm" kindref="compound">vy_lsm</ref> *</type>
+          <declname>lsm</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvy__read__view" kindref="compound">vy_read_view</ref> **</type>
+          <declname>rv</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__history" kindref="compound">vy_history</ref> *</type>
+          <declname>history</declname>
+        </param>
+        <briefdescription>
+<para>Scan all mems that belongs to the LSM tree. </para>        </briefdescription>
+        <detaileddescription>
+<para>Add found statements to the history list up to terminal statement. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_point_lookup.c" line="115" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_point_lookup.c" bodystart="115" bodyend="128"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__point__lookup_8c_1ae2789952a64ec28da9d4953cc4549779" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int vy_point_lookup_scan_slice</definition>
+        <argsstring>(struct vy_lsm *lsm, struct vy_slice *slice, const struct vy_read_view **rv, struct vy_entry key, struct vy_history *history)</argsstring>
+        <name>vy_point_lookup_scan_slice</name>
+        <param>
+          <type>struct <ref refid="structvy__lsm" kindref="compound">vy_lsm</ref> *</type>
+          <declname>lsm</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__slice" kindref="compound">vy_slice</ref> *</type>
+          <declname>slice</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvy__read__view" kindref="compound">vy_read_view</ref> **</type>
+          <declname>rv</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__history" kindref="compound">vy_history</ref> *</type>
+          <declname>history</declname>
+        </param>
+        <briefdescription>
+<para>Scan one particular slice. </para>        </briefdescription>
+        <detaileddescription>
+<para>Add found statements to the history list up to terminal statement. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_point_lookup.c" line="135" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_point_lookup.c" bodystart="135" bodyend="154"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__point__lookup_8c_1afc10b7024ffccff7a17588c7e109871e" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int vy_point_lookup_scan_slices</definition>
+        <argsstring>(struct vy_lsm *lsm, const struct vy_read_view **rv, struct vy_entry key, struct vy_history *history)</argsstring>
+        <name>vy_point_lookup_scan_slices</name>
+        <param>
+          <type>struct <ref refid="structvy__lsm" kindref="compound">vy_lsm</ref> *</type>
+          <declname>lsm</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvy__read__view" kindref="compound">vy_read_view</ref> **</type>
+          <declname>rv</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__history" kindref="compound">vy_history</ref> *</type>
+          <declname>history</declname>
+        </param>
+        <briefdescription>
+<para>Find a range and scan all slices that belongs to the range. </para>        </briefdescription>
+        <detaileddescription>
+<para>Add found statements to the history list up to terminal statement. All slices are pinned before first slice scan, so it&apos;s guaranteed that complete history from runs will be extracted. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_point_lookup.c" line="163" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_point_lookup.c" bodystart="163" bodyend="193"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__point__lookup_8c_1a6168d88bc05e2de0688b96999830a7b8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int vy_point_lookup</definition>
+        <argsstring>(struct vy_lsm *lsm, struct vy_tx *tx, const struct vy_read_view **rv, struct vy_entry key, struct vy_entry *ret)</argsstring>
+        <name>vy_point_lookup</name>
+        <param>
+          <type>struct <ref refid="structvy__lsm" kindref="compound">vy_lsm</ref> *</type>
+          <declname>lsm</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__tx" kindref="compound">vy_tx</ref> *</type>
+          <declname>tx</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvy__read__view" kindref="compound">vy_read_view</ref> **</type>
+          <declname>rv</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref> *</type>
+          <declname>ret</declname>
+        </param>
+        <briefdescription>
+<para>Given a key that has all index parts (including primary index parts in case of a secondary index), lookup the corresponding tuple in the LSM tree. </para>        </briefdescription>
+        <detaileddescription>
+<para>The tuple is returned in  with its reference counter elevated.</para><para>Note, this function doesn&apos;t track the result in the transaction read set, i.e. it is up to the caller to call vy_tx_track() if necessary. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_point_lookup.c" line="196" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_point_lookup.c" bodystart="196" bodyend="297"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__point__lookup_8c_1af35e420026df747b5a2d2a66d0025fdf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int vy_point_lookup_mem</definition>
+        <argsstring>(struct vy_lsm *lsm, const struct vy_read_view **rv, struct vy_entry key, struct vy_entry *ret)</argsstring>
+        <name>vy_point_lookup_mem</name>
+        <param>
+          <type>struct <ref refid="structvy__lsm" kindref="compound">vy_lsm</ref> *</type>
+          <declname>lsm</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvy__read__view" kindref="compound">vy_read_view</ref> **</type>
+          <declname>rv</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref> *</type>
+          <declname>ret</declname>
+        </param>
+        <briefdescription>
+<para>Look up a tuple by key in memory. </para>        </briefdescription>
+        <detaileddescription>
+<para>This function works just like vy_point_lookup() except:</para><para><itemizedlist>
+<listitem><para>It only scans in-memory level and cache and hence doesn&apos;t yield.</para></listitem><listitem><para>It doesn&apos;t turn DELETE into NULL so it returns NULL if and only if no terminal statement matching the key is present in memory (there still may be statements stored on disk though).</para></listitem><listitem><para>It doesn&apos;t account the lookup to LSM tree stats (as it never descends to lower levels).</para></listitem></itemizedlist>
+</para><para>The function returns 0 on success, -1 on memory allocation error. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_point_lookup.c" line="300" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_point_lookup.c" bodystart="300" bodyend="329"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2017,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>AUTHORS<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>AUTHORS<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;vy_point_lookup.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;small/region.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;small/rlist.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;fiber.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;vy_lsm.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;vy_stmt.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;vy_tx.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;vy_mem.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;vy_run.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;vy_cache.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;vy_history.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal">vy_point_lookup_scan_txw(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__lsm" kindref="compound">vy_lsm</ref><sp/>*lsm,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__tx" kindref="compound">vy_tx</ref><sp/>*tx,</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>key,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__history" kindref="compound">vy_history</ref><sp/>*history)</highlight></codeline>
+<codeline lineno="57"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(tx<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lsm-&gt;<ref refid="structvy__lsm_1a2feffbee2a543f5617bade9b42d76fda" kindref="member">stat</ref>.<ref refid="structvy__lsm__stat_1a46f84c897c07b817180c080e7c0505d5" kindref="member">txw</ref>.<ref refid="structvy__lsm__stat_1a4454613f4eb2bb45e9a47678b98fef3e" kindref="member">iterator</ref>.<ref refid="structvy__mem__iterator__stat_1aca60ca6f361c45c66f42730c361f0628" kindref="member">lookup</ref>++;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxv" kindref="compound">txv</ref><sp/>*<ref refid="structtxv" kindref="compound">txv</ref><sp/>=</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>write_set_search_key(&amp;tx-&gt;<ref refid="structvy__tx_1aaca774fd17a2f0188e84b75fc14f402f" kindref="member">write_set</ref>,<sp/>lsm,<sp/>key);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(txv<sp/>==<sp/>NULL<sp/>||<sp/>txv-&gt;<ref refid="structtxv_1a69996c82687317540f09c0183aa6ce4c" kindref="member">lsm</ref><sp/>==<sp/>lsm);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(txv<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_stmt_counter_acct_tuple(&amp;lsm-&gt;<ref refid="structvy__lsm_1a2feffbee2a543f5617bade9b42d76fda" kindref="member">stat</ref>.<ref refid="structvy__lsm__stat_1a46f84c897c07b817180c080e7c0505d5" kindref="member">txw</ref>.<ref refid="structvy__lsm__stat_1a4454613f4eb2bb45e9a47678b98fef3e" kindref="member">iterator</ref>.<ref refid="structvy__mem__iterator__stat_1a770338fc8b04d527e762d71aade8807a" kindref="member">get</ref>,</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>txv-&gt;<ref refid="structtxv_1ab8a203c36dca257208bf4571c4dc9ba5" kindref="member">entry</ref>.stmt);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>vy_history_append_stmt(history,<sp/>txv-&gt;<ref refid="structtxv_1ab8a203c36dca257208bf4571c4dc9ba5" kindref="member">entry</ref>);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal">vy_point_lookup_scan_cache(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__lsm" kindref="compound">vy_lsm</ref><sp/>*lsm,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__view" kindref="compound">vy_read_view</ref><sp/>**rv,</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>key,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__history" kindref="compound">vy_history</ref><sp/>*history)</highlight></codeline>
+<codeline lineno="78"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lsm-&gt;<ref refid="structvy__lsm_1a38b9dd641c7ca4735c3e7770916e5526" kindref="member">cache</ref>.stat.<ref refid="structvy__cache__stat_1adbfd06115ef8ad03c6925d0b4fdbe029" kindref="member">lookup</ref>++;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>entry<sp/>=<sp/>vy_cache_get(&amp;lsm-&gt;<ref refid="structvy__lsm_1a38b9dd641c7ca4735c3e7770916e5526" kindref="member">cache</ref>,<sp/>key);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(entry.stmt<sp/>==<sp/>NULL<sp/>||<sp/>vy_stmt_lsn(entry.stmt)<sp/>&gt;<sp/>(*rv)-&gt;vlsn)</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_stmt_counter_acct_tuple(&amp;lsm-&gt;<ref refid="structvy__lsm_1a38b9dd641c7ca4735c3e7770916e5526" kindref="member">cache</ref>.stat.<ref refid="structvy__cache__stat_1af7acedcd83efdd2f57c47592dd6f4b3d" kindref="member">get</ref>,<sp/>entry.stmt);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>vy_history_append_stmt(history,<sp/>entry);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal">vy_point_lookup_scan_mem(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__lsm" kindref="compound">vy_lsm</ref><sp/>*lsm,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__mem" kindref="compound">vy_mem</ref><sp/>*mem,</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__view" kindref="compound">vy_read_view</ref><sp/>**rv,</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>key,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__history" kindref="compound">vy_history</ref><sp/>*history)</highlight></codeline>
+<codeline lineno="97"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__mem__iterator" kindref="compound">vy_mem_iterator</ref><sp/>mem_itr;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_mem_iterator_open(&amp;mem_itr,<sp/>&amp;lsm-&gt;<ref refid="structvy__lsm_1a2feffbee2a543f5617bade9b42d76fda" kindref="member">stat</ref>.<ref refid="structvy__lsm__stat_1a9f8ebb720d2195007f54c5c2a67ab272" kindref="member">memory</ref>.<ref refid="structvy__lsm__stat_1a4454613f4eb2bb45e9a47678b98fef3e" kindref="member">iterator</ref>,</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mem,<sp/>ITER_EQ,<sp/>key,<sp/>rv);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__history" kindref="compound">vy_history</ref><sp/>mem_history;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_history_create(&amp;mem_history,<sp/>&amp;lsm-&gt;<ref refid="structvy__lsm_1a877eb283418d75049232cabb27b98e99" kindref="member">env</ref>-&gt;<ref refid="structvy__lsm__env_1abcae02612786a38473fc73fc76b07fe4" kindref="member">history_node_pool</ref>);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>rc<sp/>=<sp/>vy_mem_iterator_next(&amp;mem_itr,<sp/>&amp;mem_history);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_history_splice(history,<sp/>&amp;mem_history);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_mem_iterator_close(&amp;mem_itr);</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rc;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal">vy_point_lookup_scan_mems(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__lsm" kindref="compound">vy_lsm</ref><sp/>*lsm,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__view" kindref="compound">vy_read_view</ref><sp/>**rv,</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>key,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__history" kindref="compound">vy_history</ref><sp/>*history)</highlight></codeline>
+<codeline lineno="117"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(lsm-&gt;<ref refid="structvy__lsm_1ae859786d62a8360ce4eb6cfabbc64035" kindref="member">mem</ref><sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>rc<sp/>=<sp/>vy_point_lookup_scan_mem(lsm,<sp/>lsm-&gt;<ref refid="structvy__lsm_1ae859786d62a8360ce4eb6cfabbc64035" kindref="member">mem</ref>,<sp/>rv,<sp/>key,<sp/>history);</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__mem" kindref="compound">vy_mem</ref><sp/>*mem;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_foreach_entry(mem,<sp/>&amp;lsm-&gt;<ref refid="structvy__lsm_1abc8a991fe1ddfb7a357a8a9b09e5c9e9" kindref="member">sealed</ref>,<sp/><ref refid="structvy__mem_1aae0ae379af2ac98e3ebb54491ad24c8e" kindref="member">in_sealed</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rc<sp/>!=<sp/>0<sp/>||<sp/>vy_history_is_terminal(history))</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rc;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rc<sp/>=<sp/>vy_point_lookup_scan_mem(lsm,<sp/>mem,<sp/>rv,<sp/>key,<sp/>history);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal">vy_point_lookup_scan_slice(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__lsm" kindref="compound">vy_lsm</ref><sp/>*lsm,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__slice" kindref="compound">vy_slice</ref><sp/>*slice,</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__view" kindref="compound">vy_read_view</ref><sp/>**rv,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>key,</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__history" kindref="compound">vy_history</ref><sp/>*history)</highlight></codeline>
+<codeline lineno="138"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="140"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>The<sp/>format<sp/>of<sp/>the<sp/>statement<sp/>must<sp/>be<sp/>exactly<sp/>the<sp/>space</highlight></codeline>
+<codeline lineno="141"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>format<sp/>with<sp/>the<sp/>same<sp/>identifier<sp/>to<sp/>fully<sp/>match<sp/>the</highlight></codeline>
+<codeline lineno="142"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>format<sp/>in<sp/>vy_mem.</highlight></codeline>
+<codeline lineno="143"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__run__iterator" kindref="compound">vy_run_iterator</ref><sp/>run_itr;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_run_iterator_open(&amp;run_itr,<sp/>&amp;lsm-&gt;<ref refid="structvy__lsm_1a2feffbee2a543f5617bade9b42d76fda" kindref="member">stat</ref>.<ref refid="structvy__lsm__stat_1a702a4c25fa7e54719fae7d6f34cdb48c" kindref="member">disk</ref>.<ref refid="structvy__lsm__stat_1a4454613f4eb2bb45e9a47678b98fef3e" kindref="member">iterator</ref>,<sp/>slice,</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ITER_EQ,<sp/>key,<sp/>rv,<sp/>lsm-&gt;<ref refid="structvy__lsm_1a47503f223ff14139afa6cfba29708a3e" kindref="member">cmp_def</ref>,<sp/>lsm-&gt;<ref refid="structvy__lsm_1a577b40bf559d5c29848290d5a8102c46" kindref="member">key_def</ref>,</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lsm-&gt;<ref refid="structvy__lsm_1abd53bb0125dd6a2539fcc3f80a87bf49" kindref="member">disk_format</ref>);</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__history" kindref="compound">vy_history</ref><sp/>slice_history;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_history_create(&amp;slice_history,<sp/>&amp;lsm-&gt;<ref refid="structvy__lsm_1a877eb283418d75049232cabb27b98e99" kindref="member">env</ref>-&gt;<ref refid="structvy__lsm__env_1abcae02612786a38473fc73fc76b07fe4" kindref="member">history_node_pool</ref>);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>rc<sp/>=<sp/>vy_run_iterator_next(&amp;run_itr,<sp/>&amp;slice_history);</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_history_splice(history,<sp/>&amp;slice_history);</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_run_iterator_close(&amp;run_itr);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rc;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal">vy_point_lookup_scan_slices(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__lsm" kindref="compound">vy_lsm</ref><sp/>*lsm,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__view" kindref="compound">vy_read_view</ref><sp/>**rv,</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>key,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__history" kindref="compound">vy_history</ref><sp/>*history)</highlight></codeline>
+<codeline lineno="165"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>*range<sp/>=<sp/>vy_range_tree_find_by_key(&amp;lsm-&gt;<ref refid="structvy__lsm_1afb1895dfa6e548757221802fed9c580e" kindref="member">range_tree</ref>,</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ITER_EQ,<sp/>key);</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(range<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structvy__range_1a07060b3823e7da9c507551679899d370" kindref="member">slice_count</ref><sp/>=<sp/>range-&gt;<ref refid="structvy__range_1a07060b3823e7da9c507551679899d370" kindref="member">slice_count</ref>;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__slice" kindref="compound">vy_slice</ref><sp/>**slices<sp/>=</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>region_alloc_array(&amp;<ref refid="structfiber" kindref="compound">fiber</ref>()-&gt;gc,<sp/>typeof(slices[0]),<sp/>slice_count,</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;size);</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slices<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(OutOfMemory,<sp/>size,<sp/></highlight><highlight class="stringliteral">&quot;region_alloc_array&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;slices&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__slice" kindref="compound">vy_slice</ref><sp/>*slice;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_foreach_entry(slice,<sp/>&amp;range-&gt;<ref refid="structvy__range_1af93da84c0d6c77b4eb3166118cb08c90" kindref="member">slices</ref>,<sp/><ref refid="structvy__slice_1abcc918d6776b1db6a51fc10dd9c40ff1" kindref="member">in_range</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_slice_pin(slice);</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slices[i++]<sp/>=<sp/>slice;</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(i<sp/>==<sp/>slice_count);</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>rc<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>slice_count;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rc<sp/>==<sp/>0<sp/>&amp;&amp;<sp/>!vy_history_is_terminal(history))</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rc<sp/>=<sp/>vy_point_lookup_scan_slice(lsm,<sp/>slices[i],</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rv,<sp/>key,<sp/>history);</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_slice_unpin(slices[i]);</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rc;</highlight></codeline>
+<codeline lineno="193"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal">vy_point_lookup(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__lsm" kindref="compound">vy_lsm</ref><sp/>*lsm,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__tx" kindref="compound">vy_tx</ref><sp/>*tx,</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__view" kindref="compound">vy_read_view</ref><sp/>**rv,</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>key,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>*ret)</highlight></codeline>
+<codeline lineno="199"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>All<sp/>key<sp/>parts<sp/>must<sp/>be<sp/>set<sp/>for<sp/>a<sp/>point<sp/>lookup.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(vy_stmt_is_full_key(key.stmt,<sp/>lsm-&gt;<ref refid="structvy__lsm_1a47503f223ff14139afa6cfba29708a3e" kindref="member">cmp_def</ref>));</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(tx<sp/>==<sp/>NULL<sp/>||<sp/>tx-&gt;<ref refid="structvy__tx_1acfbf285e5841de8a5ecd047b41e90b0f" kindref="member">state</ref><sp/>==<sp/>VINYL_TX_READY);</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*ret<sp/>=<sp/>vy_entry_none();</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>rc<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>History<sp/>list<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__history" kindref="compound">vy_history</ref><sp/>history,<sp/>mem_history,<sp/>disk_history;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_history_create(&amp;history,<sp/>&amp;lsm-&gt;<ref refid="structvy__lsm_1a877eb283418d75049232cabb27b98e99" kindref="member">env</ref>-&gt;<ref refid="structvy__lsm__env_1abcae02612786a38473fc73fc76b07fe4" kindref="member">history_node_pool</ref>);</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_history_create(&amp;mem_history,<sp/>&amp;lsm-&gt;<ref refid="structvy__lsm_1a877eb283418d75049232cabb27b98e99" kindref="member">env</ref>-&gt;<ref refid="structvy__lsm__env_1abcae02612786a38473fc73fc76b07fe4" kindref="member">history_node_pool</ref>);</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_history_create(&amp;disk_history,<sp/>&amp;lsm-&gt;<ref refid="structvy__lsm_1a877eb283418d75049232cabb27b98e99" kindref="member">env</ref>-&gt;<ref refid="structvy__lsm__env_1abcae02612786a38473fc73fc76b07fe4" kindref="member">history_node_pool</ref>);</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rc<sp/>=<sp/>vy_point_lookup_scan_txw(lsm,<sp/>tx,<sp/>key,<sp/>&amp;history);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rc<sp/>!=<sp/>0<sp/>||<sp/>vy_history_is_terminal(&amp;history))</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>done;</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rc<sp/>=<sp/>vy_point_lookup_scan_cache(lsm,<sp/>rv,<sp/>key,<sp/>&amp;history);</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rc<sp/>!=<sp/>0<sp/>||<sp/>vy_history_is_terminal(&amp;history))</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>done;</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal">restart:</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rc<sp/>=<sp/>vy_point_lookup_scan_mems(lsm,<sp/>rv,<sp/>key,<sp/>&amp;mem_history);</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rc<sp/>!=<sp/>0<sp/>||<sp/>vy_history_is_terminal(&amp;mem_history))</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>done;</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Save<sp/>version<sp/>before<sp/>yield<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>mem_version<sp/>=<sp/>lsm-&gt;<ref refid="structvy__lsm_1ae859786d62a8360ce4eb6cfabbc64035" kindref="member">mem</ref>-&gt;<ref refid="structvy__mem_1a1a07da83554b96088bb2687565150060" kindref="member">version</ref>;</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>mem_list_version<sp/>=<sp/>lsm-&gt;<ref refid="structvy__lsm_1a8b71c62c27bb66c2cc422a4276d9768c" kindref="member">mem_list_version</ref>;</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rc<sp/>=<sp/>vy_point_lookup_scan_slices(lsm,<sp/>rv,<sp/>key,<sp/>&amp;disk_history);</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rc<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>done;</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ERROR_INJECT(ERRINJ_VY_POINT_ITER_WAIT,<sp/>{</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(mem_list_version<sp/>==<sp/>lsm-&gt;<ref refid="structvy__lsm_1a8b71c62c27bb66c2cc422a4276d9768c" kindref="member">mem_list_version</ref>)</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fiber_sleep(0.01);</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Turn<sp/>of<sp/>the<sp/>injection<sp/>to<sp/>avoid<sp/>infinite<sp/>loop<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structerrinj" kindref="compound">errinj</ref>(ERRINJ_VY_POINT_ITER_WAIT,<sp/>ERRINJ_BOOL)-&gt;<ref refid="structerrinj_1a272bb22f16031e3e6e1c8bb9a21bb834" kindref="member">bparam</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>});</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(tx<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>tx-&gt;<ref refid="structvy__tx_1acfbf285e5841de8a5ecd047b41e90b0f" kindref="member">state</ref><sp/>==<sp/>VINYL_TX_ABORT)<sp/>{</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="243"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>The<sp/>transaction<sp/>was<sp/>aborted<sp/>while<sp/>we<sp/>were<sp/>reading</highlight></codeline>
+<codeline lineno="244"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>disk.<sp/>We<sp/>must<sp/>stop<sp/>now<sp/>and<sp/>return<sp/>an<sp/>error<sp/>as<sp/>this</highlight></codeline>
+<codeline lineno="245"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>function<sp/>could<sp/>be<sp/>called<sp/>by<sp/>a<sp/>DML<sp/>request<sp/>aborted</highlight></codeline>
+<codeline lineno="246"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>by<sp/>a<sp/>DDL<sp/>operation:<sp/>failing<sp/>early<sp/>will<sp/>prevent<sp/>it</highlight></codeline>
+<codeline lineno="247"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>from<sp/>dereferencing<sp/>a<sp/>destroyed<sp/>space.</highlight></codeline>
+<codeline lineno="248"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(ClientError,<sp/>ER_TRANSACTION_CONFLICT);</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rc<sp/>=<sp/>-1;</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>done;</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"></highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mem_list_version<sp/>!=<sp/>lsm-&gt;<ref refid="structvy__lsm_1a8b71c62c27bb66c2cc422a4276d9768c" kindref="member">mem_list_version</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="256"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Mem<sp/>list<sp/>was<sp/>changed<sp/>during<sp/>yield.<sp/>This<sp/>could<sp/>be<sp/>rotation</highlight></codeline>
+<codeline lineno="257"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>or<sp/>a<sp/>dump.<sp/>In<sp/>case<sp/>of<sp/>dump<sp/>the<sp/>memory<sp/>referenced<sp/>by</highlight></codeline>
+<codeline lineno="258"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>statement<sp/>history<sp/>is<sp/>gone<sp/>and<sp/>we<sp/>need<sp/>to<sp/>reread<sp/>new<sp/>history.</highlight></codeline>
+<codeline lineno="259"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>This<sp/>in<sp/>unnecessary<sp/>in<sp/>case<sp/>of<sp/>rotation<sp/>but<sp/>since<sp/>we</highlight></codeline>
+<codeline lineno="260"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>cannot<sp/>distinguish<sp/>these<sp/>two<sp/>cases<sp/>we<sp/>always<sp/>restart.</highlight></codeline>
+<codeline lineno="261"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_history_cleanup(&amp;mem_history);</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_history_cleanup(&amp;disk_history);</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>restart;</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"></highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mem_version<sp/>!=<sp/>lsm-&gt;<ref refid="structvy__lsm_1ae859786d62a8360ce4eb6cfabbc64035" kindref="member">mem</ref>-&gt;<ref refid="structvy__mem_1a1a07da83554b96088bb2687565150060" kindref="member">version</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="269"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Rescan<sp/>the<sp/>memory<sp/>level<sp/>if<sp/>its<sp/>version<sp/>changed<sp/>while<sp/>we</highlight></codeline>
+<codeline lineno="270"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>were<sp/>reading<sp/>disk,<sp/>because<sp/>there<sp/>may<sp/>be<sp/>new<sp/>statements</highlight></codeline>
+<codeline lineno="271"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>matching<sp/>the<sp/>search<sp/>key.</highlight></codeline>
+<codeline lineno="272"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_history_cleanup(&amp;mem_history);</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rc<sp/>=<sp/>vy_point_lookup_scan_mems(lsm,<sp/>rv,<sp/>key,<sp/>&amp;mem_history);</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rc<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>done;</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(vy_history_is_terminal(&amp;mem_history))</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_history_cleanup(&amp;disk_history);</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"></highlight></codeline>
+<codeline lineno="281"><highlight class="normal">done:</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_history_splice(&amp;history,<sp/>&amp;mem_history);</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_history_splice(&amp;history,<sp/>&amp;disk_history);</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"></highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rc<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>upserts_applied;</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rc<sp/>=<sp/>vy_history_apply(&amp;history,<sp/>lsm-&gt;<ref refid="structvy__lsm_1a47503f223ff14139afa6cfba29708a3e" kindref="member">cmp_def</ref>,</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">,<sp/>&amp;upserts_applied,<sp/>ret);</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lsm-&gt;<ref refid="structvy__lsm_1a2feffbee2a543f5617bade9b42d76fda" kindref="member">stat</ref>.<ref refid="structvy__lsm__stat_1a5640c337d7915318897c055ab9f95f89" kindref="member">upsert</ref>.<ref refid="structvy__lsm__stat_1a84bbf4737e25913aa62876bdd035b5da" kindref="member">applied</ref><sp/>+=<sp/>upserts_applied;</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_history_cleanup(&amp;history);</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"></highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rc<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"></highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="297"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"></highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal">vy_point_lookup_mem(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__lsm" kindref="compound">vy_lsm</ref><sp/>*lsm,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__view" kindref="compound">vy_read_view</ref><sp/>**rv,</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>key,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>*ret)</highlight></codeline>
+<codeline lineno="302"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(vy_stmt_is_full_key(key.stmt,<sp/>lsm-&gt;<ref refid="structvy__lsm_1a47503f223ff14139afa6cfba29708a3e" kindref="member">cmp_def</ref>));</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"></highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>rc;</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__history" kindref="compound">vy_history</ref><sp/>history;</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_history_create(&amp;history,<sp/>&amp;lsm-&gt;<ref refid="structvy__lsm_1a877eb283418d75049232cabb27b98e99" kindref="member">env</ref>-&gt;<ref refid="structvy__lsm__env_1abcae02612786a38473fc73fc76b07fe4" kindref="member">history_node_pool</ref>);</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"></highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rc<sp/>=<sp/>vy_point_lookup_scan_cache(lsm,<sp/>rv,<sp/>key,<sp/>&amp;history);</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rc<sp/>!=<sp/>0<sp/>||<sp/>vy_history_is_terminal(&amp;history))</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>done;</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"></highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rc<sp/>=<sp/>vy_point_lookup_scan_mems(lsm,<sp/>rv,<sp/>key,<sp/>&amp;history);</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rc<sp/>!=<sp/>0<sp/>||<sp/>vy_history_is_terminal(&amp;history))</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>done;</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"></highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*ret<sp/>=<sp/>vy_entry_none();</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>out;</highlight></codeline>
+<codeline lineno="319"><highlight class="normal">done:</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rc<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>upserts_applied;</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rc<sp/>=<sp/>vy_history_apply(&amp;history,<sp/>lsm-&gt;<ref refid="structvy__lsm_1a47503f223ff14139afa6cfba29708a3e" kindref="member">cmp_def</ref>,</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">,<sp/>&amp;upserts_applied,<sp/>ret);</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lsm-&gt;<ref refid="structvy__lsm_1a2feffbee2a543f5617bade9b42d76fda" kindref="member">stat</ref>.<ref refid="structvy__lsm__stat_1a5640c337d7915318897c055ab9f95f89" kindref="member">upsert</ref>.<ref refid="structvy__lsm__stat_1a84bbf4737e25913aa62876bdd035b5da" kindref="member">applied</ref><sp/>+=<sp/>upserts_applied;</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="326"><highlight class="normal">out:</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_history_cleanup(&amp;history);</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rc;</highlight></codeline>
+<codeline lineno="329"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/vy_point_lookup.c"/>
+  </compounddef>
+</doxygen>

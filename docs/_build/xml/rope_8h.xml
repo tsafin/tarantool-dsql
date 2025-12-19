@@ -1,0 +1,1759 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="rope_8h" kind="file" language="C++">
+    <compoundname>rope.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stdio.h</includes>
+    <includes local="no">assert.h</includes>
+    <includedby refid="xrow__update__array_8c" local="yes">/home/tsafin/tarantool/src/box/xrow_update_array.c</includedby>
+    <includedby refid="rope_8c" local="yes">/home/tsafin/tarantool/src/lib/salad/rope.c</includedby>
+    <incdepgraph>
+      <node id="2248">
+        <label>stdbool.h</label>
+      </node>
+      <node id="2250">
+        <label>assert.h</label>
+      </node>
+      <node id="2247">
+        <label>stdint.h</label>
+      </node>
+      <node id="2246">
+        <label>/home/tsafin/tarantool/src/lib/salad/rope.h</label>
+        <link refid="rope_8h"/>
+        <childnode refid="2247" relation="include">
+        </childnode>
+        <childnode refid="2248" relation="include">
+        </childnode>
+        <childnode refid="2249" relation="include">
+        </childnode>
+        <childnode refid="2250" relation="include">
+        </childnode>
+      </node>
+      <node id="2249">
+        <label>stdio.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structrope__node" prot="public">rope_node</innerclass>
+    <innerclass refid="structrope" prot="public">rope</innerclass>
+    <innerclass refid="structrope__iter" prot="public">rope_iter</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="rope_8h_1af9c17ad83a7d56918f081ef7d14294ca" prot="public" static="no">
+        <name>NEED_UNDEF_MAX</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="59" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1afa99ec4acc4ecb2dc3c2d05da15d0e3f" prot="public" static="no">
+        <name>MAX</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <initializer>((a) &gt; (b) ? (a) : (b))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="60" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a4908a55fdfba15fbe68086c48d11f807" prot="public" static="no">
+        <name>CONCAT_R</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <initializer>a##b</initializer>
+        <briefdescription>
+<para>}}} AVL private API </para>        </briefdescription>
+        <detaileddescription>
+<para>Needed definitions:</para><para>rope_name, optional rope_data_t rope_ctx_t ROPE_SPLIT_F ROPE_ALLOC_F ROPE_FREE_F, optional </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="117" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="117" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a88fa737059e67b4b17ec980e5877361e" prot="public" static="no">
+        <name>CONCAT</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <initializer>CONCAT_R(a, b)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="118" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1af5e0a42a45245f9bc0e1674d318dff81" prot="public" static="no">
+        <name>CONCAT3_R</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <param><defname>c</defname></param>
+        <initializer>a##b##c</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="119" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="119" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a868df059137332f71b6617da5f7d92b6" prot="public" static="no">
+        <name>CONCAT3</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <param><defname>c</defname></param>
+        <initializer>CONCAT3_R(a, b, c)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="120" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a38543e791ac04af9fe50ed227b5efb0d" prot="public" static="no">
+        <name>rope_api</name>
+        <param><defname>x</defname></param>
+        <initializer>CONCAT(rope_, x)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="128" column="11" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="128" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a5f80da814132ba43103937c5b3abaf10" prot="public" static="no">
+        <name>ROPE_FREE</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <initializer>do { (void) a; (void) b; } while(0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="132" column="10" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a683f3428f6331e48453ffa53b54ccc3b" prot="public" static="no">
+        <name>rope_node</name>
+        <initializer>rope_api(<ref refid="structnode" kindref="compound">node</ref>)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="137" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="137" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a432b7e7a33023749d5fe19c4fab2681f" prot="public" static="no">
+        <name>rope_node_size</name>
+        <initializer>rope_api(node_size)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="138" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="138" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a2d1b27e2adebf3be9746f1a06975bb47" prot="public" static="no">
+        <name>rope_leaf_size</name>
+        <initializer>rope_api(leaf_size)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="139" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="139" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a1ee6f0f376626975fd925dd0f3c23a1e" prot="public" static="no">
+        <name>rope_leaf_data</name>
+        <initializer>rope_api(leaf_data)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="140" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="140" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a41ab6914029fa2dd9777aa7b5270baeb" prot="public" static="no">
+        <name>rope_iter</name>
+        <initializer>rope_api(iter)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="141" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="141" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a41cb647ae5be3a36ddd740e2264196f0" prot="public" static="no">
+        <name>rope_create</name>
+        <initializer>rope_api(create)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="142" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="142" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1ae7c3175faae3dbc7478d9f37419758a4" prot="public" static="no">
+        <name>rope_new</name>
+        <initializer>rope_api(new)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="143" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="143" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1ac6fb446109e2899a9c10232449616e84" prot="public" static="no">
+        <name>rope_size</name>
+        <initializer>rope_api(size)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="144" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="144" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a9dfacbe7b21a4d57f919b7d2b3a70a1f" prot="public" static="no">
+        <name>rope_clear</name>
+        <initializer>rope_api(clear)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="145" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="145" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1ab2650ffb3e1568a1335a2764678f6a50" prot="public" static="no">
+        <name>rope_delete</name>
+        <initializer>rope_api(delete)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="146" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="146" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a27ba5908d7d8870fb61b1cf5114dbd8b" prot="public" static="no">
+        <name>rope_node_new</name>
+        <initializer>rope_api(node_new)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="147" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="147" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a38f21bce0942d3a019df66fd0bc53059" prot="public" static="no">
+        <name>rope_node_split</name>
+        <initializer>rope_api(node_split)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="148" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="148" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1aeec053620fb2b2e014ca22cd89ef95b7" prot="public" static="no">
+        <name>rope_insert</name>
+        <initializer>rope_api(insert)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="149" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="149" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1add91ee456b310f2429769ad08b3b28ca" prot="public" static="no">
+        <name>rope_append</name>
+        <initializer>rope_api(append)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="150" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="150" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a8b73265921464dc337f395775f196061" prot="public" static="no">
+        <name>rope_extract_node</name>
+        <initializer>rope_api(extract_node)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="151" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="151" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1acd5a43c4318968d202d3b976540474b2" prot="public" static="no">
+        <name>rope_extract</name>
+        <initializer>rope_api(extract)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="152" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="152" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1af67fe56f1559e68b99f90349dca43047" prot="public" static="no">
+        <name>rope_erase</name>
+        <initializer>rope_api(erase)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="153" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="153" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a1b110b74c9923c1fc3ad1345ee4d4d1d" prot="public" static="no">
+        <name>rope_iter_create</name>
+        <initializer>rope_api(iter_create)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="154" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="154" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a79af011fe65222e356373722877ded47" prot="public" static="no">
+        <name>rope_iter_new</name>
+        <initializer>rope_api(iter_new)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="155" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="155" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a5ce4fa47821bbe3b106c6160fe6a2eb8" prot="public" static="no">
+        <name>rope_iter_start</name>
+        <initializer>rope_api(iter_start)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="156" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="156" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1ad0cf2f02ce059b62ec6f8a64eceec940" prot="public" static="no">
+        <name>rope_iter_next</name>
+        <initializer>rope_api(iter_next)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="157" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="157" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a982cf257fd660074c67819c9037f0536" prot="public" static="no">
+        <name>rope_iter_delete</name>
+        <initializer>rope_api(iter_delete)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="158" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="158" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a087f5c763013e1123b67336e02b2f7cb" prot="public" static="no">
+        <name>rope_traverse</name>
+        <initializer>rope_api(traverse)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="159" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="159" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a3620e4b6c232f9624e2e4a11a5a85be3" prot="public" static="no">
+        <name>rope_check</name>
+        <initializer>rope_api(check)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="160" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="160" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a0ee0627f42cb4e10efe59b85158d2aa1" prot="public" static="no">
+        <name>rope_node_print</name>
+        <initializer>rope_api(node_print)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="161" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="161" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a0407d3db31d92f6b2661d946001b0d29" prot="public" static="no">
+        <name>rope_pretty_print</name>
+        <initializer>rope_api(pretty_print)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="162" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="162" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rope_8h_1a39cb224ed89cb25bb8c267ab17e47fc1" prot="public" static="no">
+        <name>ROPE_HEIGHT_MAX</name>
+        <initializer>46</initializer>
+        <briefdescription>
+<para>Tallest allowable tree, 1.44*log(2^32) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="168" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="168" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="rope_8h_1ab49ae11a63a214816e4eaee2d4d0dc04" prot="public" static="no">
+        <type>uint32_t</type>
+        <definition>typedef uint32_t rope_size_t</definition>
+        <argsstring></argsstring>
+        <name>rope_size_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="164" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="164" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="rope_8h_1ae25e3e0c062a08b244d63389f9bbe4f4" prot="public" static="no">
+        <type>int32_t</type>
+        <definition>typedef int32_t rope_ssize_t</definition>
+        <argsstring></argsstring>
+        <name>rope_ssize_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="165" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="165" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="rope_8h_1a110358133415ec76a5d431f9e078ca7a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void avl_rebalance_after_insert</definition>
+        <argsstring>(struct avl_node ***path, struct avl_node ***p_end, int insert_height)</argsstring>
+        <name>avl_rebalance_after_insert</name>
+        <param>
+          <type>struct avl_node ***</type>
+          <declname>path</declname>
+        </param>
+        <param>
+          <type>struct avl_node ***</type>
+          <declname>p_end</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>insert_height</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="69" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.c" bodystart="98" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1a37cb250908eb3519ba8b22fa42cc7af8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void avl_rebalance_after_delete</definition>
+        <argsstring>(struct avl_node ***path, struct avl_node ***p_end)</argsstring>
+        <name>avl_rebalance_after_delete</name>
+        <param>
+          <type>struct avl_node ***</type>
+          <declname>path</declname>
+        </param>
+        <param>
+          <type>struct avl_node ***</type>
+          <declname>p_end</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="73" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.c" bodystart="163" bodyend="198"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1acae76a4cb376044a8cf100ab0c73670b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct avl_node ***</type>
+        <definition>struct avl_node*** avl_route_to_offset</definition>
+        <argsstring>(struct avl_node ***path, uint32_t *p_offset, ssize_t adjust_size)</argsstring>
+        <name>avl_route_to_offset</name>
+        <param>
+          <type>struct avl_node ***</type>
+          <declname>path</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>p_offset</declname>
+        </param>
+        <param>
+          <type>ssize_t</type>
+          <declname>adjust_size</declname>
+        </param>
+        <briefdescription>
+<para>Find a rope node which contains the substring at <emphasis>p_offset</emphasis>, adjusting tree size with <emphasis>adjust_size</emphasis> and saving the path in <emphasis>path</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>The end of the route. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="83" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.c" bodystart="201" bodyend="234"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1af7cab6a28fe1ec7e464a58d1d0ddc7f0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct avl_node ***</type>
+        <definition>struct avl_node*** avl_route_to_next</definition>
+        <argsstring>(struct avl_node ***path, int dir, int32_t adjust_size)</argsstring>
+        <name>avl_route_to_next</name>
+        <param>
+          <type>struct avl_node ***</type>
+          <declname>path</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>dir</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>adjust_size</declname>
+        </param>
+        <briefdescription>
+<para>Route to successor or predecessor node of the node in <emphasis>path</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>It&apos;s either the rightmost leaf of the left child (previous node) or leftmost leaf of the right child. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="92" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.c" bodystart="237" bodyend="247"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1ac9c8ca5103d44869fcc46480e5f55ffe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct avl_node *</type>
+        <definition>struct avl_node* avl_iter_start</definition>
+        <argsstring>(struct avl_iter *it)</argsstring>
+        <name>avl_iter_start</name>
+        <param>
+          <type>struct avl_iter *</type>
+          <declname>it</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="96" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.c" bodystart="266" bodyend="274"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1a23198a35575018f0a1b089b1c499e98f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct avl_node *</type>
+        <definition>struct avl_node* avl_iter_next</definition>
+        <argsstring>(struct avl_iter *it)</argsstring>
+        <name>avl_iter_next</name>
+        <param>
+          <type>struct avl_iter *</type>
+          <declname>it</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="99" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.c" bodystart="277" bodyend="309"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1a74aeb9c772288ba634b8e6ce1160cdee" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void avl_iter_check</definition>
+        <argsstring>(struct avl_iter *iter)</argsstring>
+        <name>avl_iter_check</name>
+        <param>
+          <type>struct avl_iter *</type>
+          <declname>iter</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="102" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.c" bodystart="312" bodyend="332"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1abd8aa8e2d33066139a03f50d27f66d1d" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>rope_size_t</type>
+        <definition>static rope_size_t rope_node_size</definition>
+        <argsstring>(struct rope_node *node)</argsstring>
+        <name>rope_node_size</name>
+        <param>
+          <type>struct <ref refid="structrope__node" kindref="compound">rope_node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="203" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="203" bodyend="206"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1a2d165eb1d8ec862a2f65e8445a7677d3" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>rope_size_t</type>
+        <definition>static rope_size_t rope_leaf_size</definition>
+        <argsstring>(struct rope_node *node)</argsstring>
+        <name>rope_leaf_size</name>
+        <param>
+          <type>struct <ref refid="structrope__node" kindref="compound">rope_node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="209" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="209" bodyend="212"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1a6f3cc02ef9a56763abc3438e18d9a2b2" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>rope_data_t</type>
+        <definition>static rope_data_t rope_leaf_data</definition>
+        <argsstring>(struct rope_node *node)</argsstring>
+        <name>rope_leaf_data</name>
+        <param>
+          <type>struct <ref refid="structrope__node" kindref="compound">rope_node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="215" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="215" bodyend="218"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1a47798fbd7fd3efe8b1c52b20d03fbd45" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>rope_size_t</type>
+        <definition>static rope_size_t rope_size</definition>
+        <argsstring>(struct rope *rope)</argsstring>
+        <name>rope_size</name>
+        <param>
+          <type>struct <ref refid="structrope" kindref="compound">rope</ref> *</type>
+          <declname>rope</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="221" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="221" bodyend="224"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1a47bd104b44d3e0150f4458d0a5df86b8" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void rope_create</definition>
+        <argsstring>(struct rope *rope, rope_ctx_t ctx)</argsstring>
+        <name>rope_create</name>
+        <param>
+          <type>struct <ref refid="structrope" kindref="compound">rope</ref> *</type>
+          <declname>rope</declname>
+        </param>
+        <param>
+          <type>rope_ctx_t</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Everything below is not needed in the rope&apos;s own source file, so it is macrosed out. </para>        </briefdescription>
+        <detaileddescription>
+<para>Initialize an empty rope. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="234" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="234" bodyend="238"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1aa725633a117c96c9b29aff48f18ec86b" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structrope" kindref="compound">rope</ref> *</type>
+        <definition>static struct rope* rope_new</definition>
+        <argsstring>(rope_ctx_t ctx)</argsstring>
+        <name>rope_new</name>
+        <param>
+          <type>rope_ctx_t</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Create a new empty rope. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>alloc_ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>allocator context</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>an empty rope, or NULL if failed to allocate memory </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="247" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="247" bodyend="253"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1aa4866ce42a819b27a50971f634097543" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void rope_clear</definition>
+        <argsstring>(struct rope *rope)</argsstring>
+        <name>rope_clear</name>
+        <param>
+          <type>struct <ref refid="structrope" kindref="compound">rope</ref> *</type>
+          <declname>rope</declname>
+        </param>
+        <briefdescription>
+<para>Delete rope contents. </para>        </briefdescription>
+        <detaileddescription>
+<para>Can also be used to free a rope which is allocated on stack. Doesn&apos;t delete rope substrings, only rope nodes. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="261" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="261" bodyend="283"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1a9bf14807560636b56aa354639ca33c72" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void rope_delete</definition>
+        <argsstring>(struct rope *rope)</argsstring>
+        <name>rope_delete</name>
+        <param>
+          <type>struct <ref refid="structrope" kindref="compound">rope</ref> *</type>
+          <declname>rope</declname>
+        </param>
+        <briefdescription>
+<para>Delete a rope allocated with rope_new() </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="287" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="287" bodyend="291"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1a9bbb91fa1dbdb3bba0ea27d3cb4bef50" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structrope__node" kindref="compound">rope_node</ref> *</type>
+        <definition>static struct rope_node* rope_node_new</definition>
+        <argsstring>(struct rope *rope, rope_data_t data, rope_size_t size)</argsstring>
+        <name>rope_node_new</name>
+        <param>
+          <type>struct <ref refid="structrope" kindref="compound">rope</ref> *</type>
+          <declname>rope</declname>
+        </param>
+        <param>
+          <type>rope_data_t</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>rope_size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="294" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="294" bodyend="306"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1ae74324c695b41a97ddbad3adeec72a1e" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structrope__node" kindref="compound">rope_node</ref> *</type>
+        <definition>static struct rope_node* rope_node_split</definition>
+        <argsstring>(struct rope *rope, struct rope_node *node, rope_size_t offset)</argsstring>
+        <name>rope_node_split</name>
+        <param>
+          <type>struct <ref refid="structrope" kindref="compound">rope</ref> *</type>
+          <declname>rope</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structrope__node" kindref="compound">rope_node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>rope_size_t</type>
+          <declname>offset</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="309" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="309" bodyend="318"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1ac21e4ff4f08921dc5adf42cebe8572ac" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int rope_insert</definition>
+        <argsstring>(struct rope *rope, rope_size_t offset, rope_data_t data, rope_size_t size)</argsstring>
+        <name>rope_insert</name>
+        <param>
+          <type>struct <ref refid="structrope" kindref="compound">rope</ref> *</type>
+          <declname>rope</declname>
+        </param>
+        <param>
+          <type>rope_size_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>rope_data_t</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>rope_size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Insert a substring into a rope at the given offset. </para>        </briefdescription>
+        <detaileddescription>
+<para>If offset is greater than rope size, insertion happens at the end. A new node is always inserted at a leaf position. If insertion unbalances the tree, the rebalancing procedure may put the node into an intermediate position.</para><para>While traversing the tree, we simultaneously update tree sizes of all intermediate nodes, taking into account the size of the new node.</para><para>When insertion offset falls at the middle of an existing node, we truncate this node and attach its tail to the left leaf of the new node. This trim operation doesn&apos;t decrease the old subtree height, and, while it does change subtree size temporarily, as long as we attach the new node to the right subtree of the truncated node, truncation has no effect on the tree size either.</para><para>Rebalancing, when it occurs, will correctly update subtree heights and sizes of all modified nodes.</para><para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Success. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Memory error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="346" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="346" bodyend="393"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1ac3e9ef5081f76807816d37e5cbbb5341" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int rope_append</definition>
+        <argsstring>(struct rope *rope, rope_data_t data, size_t size)</argsstring>
+        <name>rope_append</name>
+        <param>
+          <type>struct <ref refid="structrope" kindref="compound">rope</ref> *</type>
+          <declname>rope</declname>
+        </param>
+        <param>
+          <type>rope_data_t</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Append a substring at rope tail. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="397" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="397" bodyend="400"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1a7f2c2aedacaf5472a883cf1b716f3db6" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structrope__node" kindref="compound">rope_node</ref> *</type>
+        <definition>static struct rope_node* rope_extract_node</definition>
+        <argsstring>(struct rope *rope, rope_size_t offset)</argsstring>
+        <name>rope_extract_node</name>
+        <param>
+          <type>struct <ref refid="structrope" kindref="compound">rope</ref> *</type>
+          <declname>rope</declname>
+        </param>
+        <param>
+          <type>rope_size_t</type>
+          <declname>offset</declname>
+        </param>
+        <briefdescription>
+<para>Make sure there is a rope node which has a substring which starts at the given offset. </para>        </briefdescription>
+        <detaileddescription>
+<para>Useful when rope substrings carry additional information.</para><para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>failed to allocate memory for a new tree node </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="410" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="410" bodyend="432"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1aea20cbd4f7e371b515a01d6fae39ab72" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>rope_data_t</type>
+        <definition>static rope_data_t rope_extract</definition>
+        <argsstring>(struct rope *rope, rope_size_t offset)</argsstring>
+        <name>rope_extract</name>
+        <param>
+          <type>struct <ref refid="structrope" kindref="compound">rope</ref> *</type>
+          <declname>rope</declname>
+        </param>
+        <param>
+          <type>rope_size_t</type>
+          <declname>offset</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="435" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="435" bodyend="438"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1ab69ef87e377d5ba4bb97056bdcad1947" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int rope_erase</definition>
+        <argsstring>(struct rope *rope, rope_size_t offset)</argsstring>
+        <name>rope_erase</name>
+        <param>
+          <type>struct <ref refid="structrope" kindref="compound">rope</ref> *</type>
+          <declname>rope</declname>
+        </param>
+        <param>
+          <type>rope_size_t</type>
+          <declname>offset</declname>
+        </param>
+        <briefdescription>
+<para>Erase a single element from the rope. </para>        </briefdescription>
+        <detaileddescription>
+<para>This is a straightforward implementation for a single-element deletion from a rope. A generic cut from a rope involves 2 tree splits and one merge.</para><para>When deleting a single element, 3 cases are possible:<itemizedlist>
+<listitem><para>offset falls at a node with a single element. In this case we perform a normal AVL tree delete.</para></listitem><listitem><para>offset falls at the end or the beginning of an existing node with leaf_size &gt; 1. In that case we trim the existing node and return.</para></listitem><listitem><para>offset falls inside an existing node. In that case we split the existing node at offset, and insert the tail.</para></listitem></itemizedlist>
+</para><para>The implementation is a copycat of rope_insert(). If you&apos;re trying to understand the code, it&apos;s recommended to start from rope_insert(). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="459" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="459" bodyend="551"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1a6db44f69aaaf51e42ddb7495e2e2b663" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void rope_iter_create</definition>
+        <argsstring>(struct rope_iter *it, struct rope *rope)</argsstring>
+        <name>rope_iter_create</name>
+        <param>
+          <type>struct <ref refid="structrope__iter" kindref="compound">rope_iter</ref> *</type>
+          <declname>it</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structrope" kindref="compound">rope</ref> *</type>
+          <declname>rope</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an iterator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="555" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="555" bodyend="558"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1afc8bb2e3f6f844622e8ef834608cb04b" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structrope__iter" kindref="compound">rope_iter</ref> *</type>
+        <definition>static struct rope_iter* rope_iter_new</definition>
+        <argsstring>(struct rope *rope)</argsstring>
+        <name>rope_iter_new</name>
+        <param>
+          <type>struct <ref refid="structrope" kindref="compound">rope</ref> *</type>
+          <declname>rope</declname>
+        </param>
+        <briefdescription>
+<para>Create an iterator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="562" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="562" bodyend="569"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1a54a2b904bb1ffb343a536337d07feeb6" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structrope__node" kindref="compound">rope_node</ref> *</type>
+        <definition>static struct rope_node* rope_iter_start</definition>
+        <argsstring>(struct rope_iter *it)</argsstring>
+        <name>rope_iter_start</name>
+        <param>
+          <type>struct <ref refid="structrope__iter" kindref="compound">rope_iter</ref> *</type>
+          <declname>it</declname>
+        </param>
+        <briefdescription>
+<para>Begin iteration. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the rope is empty </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="576" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="576" bodyend="579"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1af1a930b6e9f7f5c806b907b806ca5a23" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structrope__node" kindref="compound">rope_node</ref> *</type>
+        <definition>static struct rope_node* rope_iter_next</definition>
+        <argsstring>(struct rope_iter *it)</argsstring>
+        <name>rope_iter_next</name>
+        <param>
+          <type>struct <ref refid="structrope__iter" kindref="compound">rope_iter</ref> *</type>
+          <declname>it</declname>
+        </param>
+        <briefdescription>
+<para>Advance to the next rope node. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>node, or NULL if iterator has advanced beyond the last node. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="589" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="589" bodyend="592"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1a525a1ec1e27fe4ae70ed57c4e412c750" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void rope_iter_delete</definition>
+        <argsstring>(struct rope_iter *it)</argsstring>
+        <name>rope_iter_delete</name>
+        <param>
+          <type>struct <ref refid="structrope__iter" kindref="compound">rope_iter</ref> *</type>
+          <declname>it</declname>
+        </param>
+        <briefdescription>
+<para>Free iterator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="596" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="596" bodyend="599"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1aef2ec1daac6d037fb66fa6a154a4d50e" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void rope_traverse</definition>
+        <argsstring>(struct rope *rope, void(*visit_leaf)(rope_data_t, size_t))</argsstring>
+        <name>rope_traverse</name>
+        <param>
+          <type>struct <ref refid="structrope" kindref="compound">rope</ref> *</type>
+          <declname>rope</declname>
+        </param>
+        <param>
+          <type>void(*)(rope_data_t, size_t)</type>
+          <declname>visit_leaf</declname>
+        </param>
+        <briefdescription>
+<para>Apply visit_leaf function to every rope leaf. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="603" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="603" bodyend="616"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1a244bd28579325c14b1a699eacba6799f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void rope_check</definition>
+        <argsstring>(struct rope *rope)</argsstring>
+        <name>rope_check</name>
+        <param>
+          <type>struct <ref refid="structrope" kindref="compound">rope</ref> *</type>
+          <declname>rope</declname>
+        </param>
+        <briefdescription>
+<para>Check AVL tree consistency. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="620" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="620" bodyend="625"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1af5103092fa2c8bcb421df1d1e038aa8a" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void rope_node_print</definition>
+        <argsstring>(struct rope_node *node, void(*print)(rope_data_t, size_t), const char *prefix, int dir)</argsstring>
+        <name>rope_node_print</name>
+        <param>
+          <type>struct <ref refid="structrope__node" kindref="compound">rope_node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>void(*)(rope_data_t, size_t)</type>
+          <declname>print</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>prefix</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>dir</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="628" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="628" bodyend="662"/>
+      </memberdef>
+      <memberdef kind="function" id="rope_8h_1a262b686cf84bb8467899bb9bedc38cde" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void rope_pretty_print</definition>
+        <argsstring>(struct rope *rope, void(*print_leaf)(rope_data_t, size_t))</argsstring>
+        <name>rope_pretty_print</name>
+        <param>
+          <type>struct <ref refid="structrope" kindref="compound">rope</ref> *</type>
+          <declname>rope</declname>
+        </param>
+        <param>
+          <type>void(*)(rope_data_t, size_t)</type>
+          <declname>print_leaf</declname>
+        </param>
+        <briefdescription>
+<para>Pretty print a rope. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/rope.h" line="666" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/rope.h" bodystart="666" bodyend="673"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2019,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>(c)<sp/>1993-1994<sp/>by<sp/>Xerox<sp/>Corporation.<sp/><sp/>All<sp/>rights<sp/>reserved.</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*<sp/>THIS<sp/>MATERIAL<sp/>IS<sp/>PROVIDED<sp/>AS<sp/>IS,<sp/>WITH<sp/>ABSOLUTELY<sp/>NO<sp/>WARRANTY<sp/>EXPRESSED</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*<sp/>OR<sp/>IMPLIED.<sp/><sp/>ANY<sp/>USE<sp/>IS<sp/>AT<sp/>YOUR<sp/>OWN<sp/>RISK.</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="37"><highlight class="comment"><sp/>*<sp/>Permission<sp/>is<sp/>hereby<sp/>granted<sp/>to<sp/>use<sp/>or<sp/>copy<sp/>this<sp/>program</highlight></codeline>
+<codeline lineno="38"><highlight class="comment"><sp/>*<sp/>for<sp/>any<sp/>purpose,<sp/><sp/>provided<sp/>the<sp/>above<sp/>notices<sp/>are<sp/>retained<sp/>on<sp/>all<sp/>copies.</highlight></codeline>
+<codeline lineno="39"><highlight class="comment"><sp/>*<sp/>Permission<sp/>to<sp/>modify<sp/>the<sp/>code<sp/>and<sp/>to<sp/>distribute<sp/>modified<sp/>code<sp/>is<sp/>granted,</highlight></codeline>
+<codeline lineno="40"><highlight class="comment"><sp/>*<sp/>provided<sp/>the<sp/>above<sp/>notices<sp/>are<sp/>retained,<sp/>and<sp/>a<sp/>notice<sp/>that<sp/>the<sp/>code<sp/>was</highlight></codeline>
+<codeline lineno="41"><highlight class="comment"><sp/>*<sp/>modified<sp/>is<sp/>included<sp/>with<sp/>the<sp/>above<sp/>copyright<sp/>notice.</highlight></codeline>
+<codeline lineno="42"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="43"><highlight class="comment"><sp/>*<sp/>Author:<sp/>Hans-J.<sp/>Boehm<sp/>(boehm@parc.xerox.com)</highlight></codeline>
+<codeline lineno="44"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="46"><highlight class="comment"><sp/>*<sp/>This<sp/>is<sp/>a<sp/>rope<sp/>implementation<sp/>which<sp/>uses<sp/>AVL<sp/>tree</highlight></codeline>
+<codeline lineno="47"><highlight class="comment"><sp/>*<sp/>balancing<sp/>algorithm<sp/>for<sp/>rope<sp/>tree<sp/>balance.</highlight></codeline>
+<codeline lineno="48"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdio.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;assert.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>MAX</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>NEED_UNDEF_MAX</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>MAX(a,<sp/>b)<sp/>((a)<sp/>&gt;<sp/>(b)<sp/>?<sp/>(a)<sp/>:<sp/>(b))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>MAX<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="keyword">struct<sp/></highlight><highlight class="normal">avl_node;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">avl_iter;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal">avl_rebalance_after_insert(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_node<sp/>***path,</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_node<sp/>***p_end,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>insert_height);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal">avl_rebalance_after_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_node<sp/>***path,</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_node<sp/>***p_end);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="keyword">struct<sp/></highlight><highlight class="normal">avl_node<sp/>***</highlight></codeline>
+<codeline lineno="83"><highlight class="normal">avl_route_to_offset(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_node<sp/>***path,<sp/>uint32_t<sp/>*p_offset,</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ssize_t<sp/>adjust_size);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="keyword">struct<sp/></highlight><highlight class="normal">avl_node<sp/>***</highlight></codeline>
+<codeline lineno="92"><highlight class="normal">avl_route_to_next(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_node<sp/>***path,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>dir,</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>adjust_size);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">avl_node<sp/>*</highlight></codeline>
+<codeline lineno="96"><highlight class="normal">avl_iter_start(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_iter<sp/>*it);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">avl_node<sp/>*</highlight></codeline>
+<codeline lineno="99"><highlight class="normal">avl_iter_next(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_iter<sp/>*it);</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal">avl_iter_check(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_iter<sp/>*iter);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="preprocessor">#define<sp/>CONCAT_R(a,<sp/>b)<sp/>a##b</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CONCAT(a,<sp/>b)<sp/>CONCAT_R(a,<sp/>b)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CONCAT3_R(a,<sp/>b,<sp/>c)<sp/>a##b##c</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CONCAT3(a,<sp/>b,<sp/>c)<sp/>CONCAT3_R(a,<sp/>b,<sp/>c)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(ROPE_SRC)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>#define<sp/>rope_api(x)<sp/>CONCAT(avl_,<sp/>x)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(rope_name)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>#define<sp/>rope_api(x)<sp/>CONCAT3(rope_name,<sp/>_rope_,<sp/>x)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>#define<sp/>rope<sp/>CONCAT(rope_name,<sp/>_rope)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>#define<sp/>rope_api(x)<sp/>CONCAT(rope_,<sp/>x)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>ROPE_FREE_F</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>#define<sp/>ROPE_FREE(a,<sp/>b)<sp/>do<sp/>{<sp/>(void)<sp/>a;<sp/>(void)<sp/>b;<sp/>}<sp/>while(0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>#define<sp/>ROPE_FREE(a,<sp/>b)<sp/>ROPE_FREE_F(a,<sp/>b)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_node<sp/>rope_api(node)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_node_size<sp/>rope_api(node_size)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_leaf_size<sp/>rope_api(leaf_size)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_leaf_data<sp/>rope_api(leaf_data)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_iter<sp/>rope_api(iter)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_create<sp/>rope_api(create)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_new<sp/>rope_api(new)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_size<sp/>rope_api(size)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_clear<sp/>rope_api(clear)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_delete<sp/>rope_api(delete)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_node_new<sp/>rope_api(node_new)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_node_split<sp/>rope_api(node_split)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_insert<sp/>rope_api(insert)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_append<sp/>rope_api(append)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_extract_node<sp/>rope_api(extract_node)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_extract<sp/>rope_api(extract)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_erase<sp/>rope_api(erase)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_iter_create<sp/>rope_api(iter_create)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_iter_new<sp/>rope_api(iter_new)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_iter_start<sp/>rope_api(iter_start)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_iter_next<sp/>rope_api(iter_next)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_iter_delete<sp/>rope_api(iter_delete)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_traverse<sp/>rope_api(traverse)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_check<sp/>rope_api(check)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_node_print<sp/>rope_api(node_print)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>rope_pretty_print<sp/>rope_api(pretty_print)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>uint32_t<sp/>rope_size_t;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>int32_t<sp/>rope_ssize_t;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="preprocessor">#define<sp/>ROPE_HEIGHT_MAX<sp/>46</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170" refid="structrope__node" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>{</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structrope__node_1ac687175cb1350862b5a05ae1815b9f2b" kindref="member">height</ref>;</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope_size_t<sp/><ref refid="structrope__node_1aa61bdc25e98810464982f6158f70cd53" kindref="member">tree_size</ref>;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Substring<sp/>size.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope_size_t<sp/>leaf_size;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Left<sp/>(0)<sp/>and<sp/>right<sp/>(1)<sp/>links<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*link[2];</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Substring.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope_data_t<sp/>data;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186" refid="structrope" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope" kindref="compound">rope</ref><sp/>{</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*root;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope_ctx_t<sp/>ctx;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193" refid="structrope__iter" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__iter" kindref="compound">rope_iter</ref><sp/>{</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope" kindref="compound">rope</ref><sp/>*<ref refid="structrope" kindref="compound">rope</ref>;</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>**top;</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*path[ROPE_HEIGHT_MAX];</highlight></codeline>
+<codeline lineno="200"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>rope_size_t</highlight></codeline>
+<codeline lineno="203"><highlight class="normal">rope_node_size(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*<ref refid="structnode" kindref="compound">node</ref>)</highlight></codeline>
+<codeline lineno="204"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>node<sp/>?<sp/>node-&gt;<ref refid="structrope__node_1aa61bdc25e98810464982f6158f70cd53" kindref="member">tree_size</ref><sp/>:<sp/>0;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>rope_size_t</highlight></codeline>
+<codeline lineno="209"><highlight class="normal">rope_leaf_size(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*node)</highlight></codeline>
+<codeline lineno="210"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>node-&gt;leaf_size;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>rope_data_t</highlight></codeline>
+<codeline lineno="215"><highlight class="normal">rope_leaf_data(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*node)</highlight></codeline>
+<codeline lineno="216"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>node-&gt;data;</highlight></codeline>
+<codeline lineno="218"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>rope_size_t</highlight></codeline>
+<codeline lineno="221"><highlight class="normal">rope_size(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrope" kindref="compound">rope</ref><sp/>*<ref refid="structrope" kindref="compound">rope</ref>)</highlight></codeline>
+<codeline lineno="222"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rope_node_size(rope-&gt;<ref refid="structrope_1ae3fb58c4c5a3bfbabeaa1dd3147660b7" kindref="member">root</ref>);</highlight></codeline>
+<codeline lineno="224"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="preprocessor">#ifndef<sp/>ROPE_SRC</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight></codeline>
+<codeline lineno="233"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="normal">rope_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>rope<sp/>*rope,<sp/>rope_ctx_t<sp/>ctx)</highlight></codeline>
+<codeline lineno="235"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope-&gt;<ref refid="structrope_1ae3fb58c4c5a3bfbabeaa1dd3147660b7" kindref="member">root</ref><sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope-&gt;<ref refid="structrope_1a30a9480b00d07fea4bd7d2e24424984d" kindref="member">ctx</ref><sp/>=<sp/>ctx;</highlight></codeline>
+<codeline lineno="238"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">rope<sp/>*</highlight></codeline>
+<codeline lineno="247"><highlight class="normal">rope_new(rope_ctx_t<sp/>ctx)</highlight></codeline>
+<codeline lineno="248"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">rope<sp/>*rope<sp/>=<sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">rope<sp/>*)<sp/>ROPE_ALLOC_F(ctx,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*rope));</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rope<sp/>!=<sp/>NULL)</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope_create(rope,<sp/>ctx);</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rope;</highlight></codeline>
+<codeline lineno="253"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"></highlight></codeline>
+<codeline lineno="260"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="normal">rope_clear(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>rope<sp/>*rope)</highlight></codeline>
+<codeline lineno="262"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>ROPE_FREE_F</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*it<sp/>=<sp/>rope-&gt;<ref refid="structrope_1ae3fb58c4c5a3bfbabeaa1dd3147660b7" kindref="member">root</ref>;</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*save;</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"></highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Destruction<sp/>by<sp/>rotation<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(it<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(it-&gt;link[0]<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Remove<sp/>node<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>save<sp/>=<sp/>it-&gt;link[1];</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ROPE_FREE(rope-&gt;<ref refid="structrope_1a30a9480b00d07fea4bd7d2e24424984d" kindref="member">ctx</ref>,<sp/>it);</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Rotate<sp/>right<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>save<sp/>=<sp/>it-&gt;link[0];</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>it-&gt;link[0]<sp/>=<sp/>save-&gt;link[1];</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>save-&gt;link[1]<sp/>=<sp/>it;</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>it<sp/>=<sp/>save;</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>ROPE_FREE_F<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope-&gt;<ref refid="structrope_1ae3fb58c4c5a3bfbabeaa1dd3147660b7" kindref="member">root</ref><sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="283"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="287"><highlight class="normal">rope_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>rope<sp/>*rope)</highlight></codeline>
+<codeline lineno="288"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope_clear(rope);</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ROPE_FREE(rope-&gt;<ref refid="structrope_1a30a9480b00d07fea4bd7d2e24424984d" kindref="member">ctx</ref>,<sp/>rope);</highlight></codeline>
+<codeline lineno="291"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"></highlight></codeline>
+<codeline lineno="293"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*</highlight></codeline>
+<codeline lineno="294"><highlight class="normal">rope_node_new(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>rope<sp/>*rope,<sp/>rope_data_t<sp/>data,<sp/>rope_size_t<sp/>size)</highlight></codeline>
+<codeline lineno="295"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*node<sp/>=</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*)<sp/>ROPE_ALLOC_F(rope-&gt;<ref refid="structrope_1a30a9480b00d07fea4bd7d2e24424984d" kindref="member">ctx</ref>,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*node));</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structrope__node_1ac687175cb1350862b5a05ae1815b9f2b" kindref="member">height</ref><sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structrope__node_1aa61bdc25e98810464982f6158f70cd53" kindref="member">tree_size</ref><sp/>=<sp/>node-&gt;leaf_size<sp/>=<sp/>size;</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>node-&gt;data<sp/>=<sp/>data;</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>node-&gt;link[0]<sp/>=<sp/>node-&gt;link[1]<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"></highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>node;</highlight></codeline>
+<codeline lineno="306"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"></highlight></codeline>
+<codeline lineno="308"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*</highlight></codeline>
+<codeline lineno="309"><highlight class="normal">rope_node_split(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>rope<sp/>*rope,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*node,<sp/>rope_size_t<sp/>offset)</highlight></codeline>
+<codeline lineno="310"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope_size_t<sp/>old_size<sp/>=<sp/>node-&gt;leaf_size;</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>node-&gt;leaf_size<sp/>=<sp/>offset;</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"></highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope_data_t<sp/>data<sp/>=<sp/>ROPE_SPLIT_F(rope-&gt;<ref refid="structrope_1a30a9480b00d07fea4bd7d2e24424984d" kindref="member">ctx</ref>,<sp/>node-&gt;data,<sp/>old_size,</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>offset);</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"></highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rope_node_new(rope,<sp/>data,<sp/>old_size<sp/>-<sp/>offset);</highlight></codeline>
+<codeline lineno="318"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"></highlight></codeline>
+<codeline lineno="345"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="346"><highlight class="normal">rope_insert(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>rope<sp/>*rope,<sp/>rope_size_t<sp/>offset,<sp/>rope_data_t<sp/>data,</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope_size_t<sp/>size)</highlight></codeline>
+<codeline lineno="348"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="349"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(offset<sp/>&gt;<sp/>rope_size(rope))</highlight></codeline>
+<codeline lineno="350"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>offset<sp/>=<sp/>rope_size(rope);</highlight></codeline>
+<codeline lineno="351"><highlight class="normal"></highlight></codeline>
+<codeline lineno="352"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(size);</highlight></codeline>
+<codeline lineno="353"><highlight class="normal"></highlight></codeline>
+<codeline lineno="354"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*new_node<sp/>=<sp/>rope_node_new(rope,<sp/>data,<sp/>size);</highlight></codeline>
+<codeline lineno="355"><highlight class="normal"></highlight></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(new_node<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="357"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="358"><highlight class="normal"></highlight></codeline>
+<codeline lineno="359"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>**path[ROPE_HEIGHT_MAX];</highlight></codeline>
+<codeline lineno="360"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>path[0]<sp/>=<sp/>&amp;rope-&gt;<ref refid="structrope_1ae3fb58c4c5a3bfbabeaa1dd3147660b7" kindref="member">root</ref>;</highlight></codeline>
+<codeline lineno="361"><highlight class="normal"></highlight></codeline>
+<codeline lineno="362"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>***p_end<sp/>=<sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>***)</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>avl_route_to_offset((</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_node<sp/>***)<sp/>path,<sp/>&amp;offset,<sp/>size);</highlight></codeline>
+<codeline lineno="364"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(**p_end<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="365"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="366"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>The<sp/>offset<sp/>is<sp/>inside<sp/>an<sp/>existing</highlight></codeline>
+<codeline lineno="367"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>substring<sp/>in<sp/>the<sp/>rope.<sp/>If<sp/>offset<sp/>is<sp/>0,</highlight></codeline>
+<codeline lineno="368"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>then<sp/>insert<sp/>the<sp/>new<sp/>node<sp/>at<sp/>the<sp/>rightmost<sp/>leaf</highlight></codeline>
+<codeline lineno="369"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>of<sp/>the<sp/>left<sp/>child.<sp/>Otherwise,<sp/>cut<sp/>the<sp/>tail<sp/>of</highlight></codeline>
+<codeline lineno="370"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>the<sp/>substring,<sp/>make<sp/>it<sp/>a<sp/>prefix<sp/>of<sp/>the<sp/>inserted</highlight></codeline>
+<codeline lineno="371"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>string,<sp/>and<sp/>insert<sp/>the<sp/>result<sp/>at<sp/>the<sp/>leftmost</highlight></codeline>
+<codeline lineno="372"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>leaf<sp/>of<sp/>the<sp/>right<sp/>child.</highlight></codeline>
+<codeline lineno="373"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="374"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(offset<sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*split_node;</highlight></codeline>
+<codeline lineno="376"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>split_node<sp/>=<sp/>rope_node_split(rope,<sp/>**p_end,<sp/>offset);</highlight></codeline>
+<codeline lineno="377"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(split_node<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="378"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="379"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>split_node-&gt;link[0]<sp/>=<sp/>new_node;</highlight></codeline>
+<codeline lineno="380"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>split_node-&gt;<ref refid="structrope__node_1ac687175cb1350862b5a05ae1815b9f2b" kindref="member">height</ref>++;</highlight></codeline>
+<codeline lineno="381"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>split_node-&gt;<ref refid="structrope__node_1aa61bdc25e98810464982f6158f70cd53" kindref="member">tree_size</ref><sp/>+=<sp/>new_node-&gt;<ref refid="structrope__node_1aa61bdc25e98810464982f6158f70cd53" kindref="member">tree_size</ref>;</highlight></codeline>
+<codeline lineno="382"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>new_node<sp/>=<sp/>split_node;</highlight></codeline>
+<codeline lineno="383"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="384"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p_end<sp/>=<sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>***)</highlight></codeline>
+<codeline lineno="385"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>avl_route_to_next((</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_node<sp/>***)<sp/>p_end,</highlight></codeline>
+<codeline lineno="386"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>offset<sp/>!=<sp/>0,<sp/>new_node-&gt;<ref refid="structrope__node_1aa61bdc25e98810464982f6158f70cd53" kindref="member">tree_size</ref>);</highlight></codeline>
+<codeline lineno="387"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="388"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>**p_end<sp/>=<sp/>new_node;</highlight></codeline>
+<codeline lineno="389"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>avl_rebalance_after_insert((</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_node<sp/>***)<sp/>path,</highlight></codeline>
+<codeline lineno="390"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_node<sp/>***)<sp/>p_end,</highlight></codeline>
+<codeline lineno="391"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>new_node-&gt;<ref refid="structrope__node_1ac687175cb1350862b5a05ae1815b9f2b" kindref="member">height</ref>);</highlight></codeline>
+<codeline lineno="392"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="393"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="394"><highlight class="normal"></highlight></codeline>
+<codeline lineno="396"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="397"><highlight class="normal">rope_append(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>rope<sp/>*rope,<sp/>rope_data_t<sp/>data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="398"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="399"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rope_insert(rope,<sp/>rope_size(rope),<sp/>data,<sp/>size);</highlight></codeline>
+<codeline lineno="400"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="401"><highlight class="normal"></highlight></codeline>
+<codeline lineno="409"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*</highlight></codeline>
+<codeline lineno="410"><highlight class="normal">rope_extract_node(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>rope<sp/>*rope,<sp/>rope_size_t<sp/>offset)</highlight></codeline>
+<codeline lineno="411"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="412"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(offset<sp/>&lt;<sp/>rope_size(rope));</highlight></codeline>
+<codeline lineno="413"><highlight class="normal"></highlight></codeline>
+<codeline lineno="414"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>**path[ROPE_HEIGHT_MAX];</highlight></codeline>
+<codeline lineno="415"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>path[0]<sp/>=<sp/>&amp;rope-&gt;<ref refid="structrope_1ae3fb58c4c5a3bfbabeaa1dd3147660b7" kindref="member">root</ref>;</highlight></codeline>
+<codeline lineno="416"><highlight class="normal"></highlight></codeline>
+<codeline lineno="417"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>***p_end<sp/>=<sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>***)</highlight></codeline>
+<codeline lineno="418"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>avl_route_to_offset((</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_node<sp/>***)<sp/>path,<sp/>&amp;offset,<sp/>0);</highlight></codeline>
+<codeline lineno="419"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(offset<sp/>==<sp/>0)</highlight></codeline>
+<codeline lineno="420"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>**p_end;</highlight></codeline>
+<codeline lineno="421"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*new_node<sp/>=<sp/>rope_node_split(rope,<sp/>**p_end,<sp/>offset);</highlight></codeline>
+<codeline lineno="422"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(new_node<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="423"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="424"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p_end<sp/>=<sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>***)</highlight></codeline>
+<codeline lineno="425"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>avl_route_to_next((</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_node<sp/>***)<sp/>p_end,<sp/>1,</highlight></codeline>
+<codeline lineno="426"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>new_node-&gt;<ref refid="structrope__node_1aa61bdc25e98810464982f6158f70cd53" kindref="member">tree_size</ref>);</highlight></codeline>
+<codeline lineno="427"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>**p_end<sp/>=<sp/>new_node;</highlight></codeline>
+<codeline lineno="428"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>avl_rebalance_after_insert((</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_node<sp/>***)<sp/>path,</highlight></codeline>
+<codeline lineno="429"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_node<sp/>***)<sp/>p_end,</highlight></codeline>
+<codeline lineno="430"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>new_node-&gt;<ref refid="structrope__node_1ac687175cb1350862b5a05ae1815b9f2b" kindref="member">height</ref>);</highlight></codeline>
+<codeline lineno="431"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>new_node;</highlight></codeline>
+<codeline lineno="432"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="433"><highlight class="normal"></highlight></codeline>
+<codeline lineno="434"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>rope_data_t</highlight></codeline>
+<codeline lineno="435"><highlight class="normal">rope_extract(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>rope<sp/>*rope,<sp/>rope_size_t<sp/>offset)</highlight></codeline>
+<codeline lineno="436"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="437"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rope_leaf_data(rope_extract_node(rope,<sp/>offset));</highlight></codeline>
+<codeline lineno="438"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="439"><highlight class="normal"></highlight></codeline>
+<codeline lineno="458"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="459"><highlight class="normal">rope_erase(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>rope<sp/>*rope,<sp/>rope_size_t<sp/>offset)</highlight></codeline>
+<codeline lineno="460"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="461"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(offset<sp/>&lt;<sp/>rope_size(rope));</highlight></codeline>
+<codeline lineno="462"><highlight class="normal"></highlight></codeline>
+<codeline lineno="463"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>**path[ROPE_HEIGHT_MAX];</highlight></codeline>
+<codeline lineno="464"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>path[0]<sp/>=<sp/>&amp;rope-&gt;<ref refid="structrope_1ae3fb58c4c5a3bfbabeaa1dd3147660b7" kindref="member">root</ref>;</highlight></codeline>
+<codeline lineno="465"><highlight class="normal"></highlight></codeline>
+<codeline lineno="466"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>***p_end<sp/>=<sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>***)</highlight></codeline>
+<codeline lineno="467"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>avl_route_to_offset((</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_node<sp/>***)<sp/>path,<sp/>&amp;offset,<sp/>-1);</highlight></codeline>
+<codeline lineno="468"><highlight class="normal"></highlight></codeline>
+<codeline lineno="469"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*node<sp/>=<sp/>**p_end;</highlight></codeline>
+<codeline lineno="470"><highlight class="normal"></highlight></codeline>
+<codeline lineno="471"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node-&gt;leaf_size<sp/>&gt;<sp/>1)<sp/>{</highlight></codeline>
+<codeline lineno="472"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Check<sp/>if<sp/>we<sp/>can<sp/>simply<sp/>trim<sp/>the<sp/>node.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="473"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(offset<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="474"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Cut<sp/>the<sp/>head.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="475"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>node-&gt;data<sp/>=<sp/>ROPE_SPLIT_F(rope-&gt;<ref refid="structrope_1a30a9480b00d07fea4bd7d2e24424984d" kindref="member">ctx</ref>,<sp/>node-&gt;data,</highlight></codeline>
+<codeline lineno="476"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>node-&gt;leaf_size,<sp/>1);</highlight></codeline>
+<codeline lineno="477"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>node-&gt;leaf_size<sp/>-=<sp/>1;</highlight></codeline>
+<codeline lineno="478"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="479"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="480"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope_size_t<sp/>size<sp/>=<sp/>node-&gt;leaf_size;</highlight></codeline>
+<codeline lineno="481"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Cut<sp/>the<sp/>tail<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="482"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope_data_t<sp/>next<sp/>=<sp/>ROPE_SPLIT_F(rope-&gt;<ref refid="structrope_1a30a9480b00d07fea4bd7d2e24424984d" kindref="member">ctx</ref>,<sp/>node-&gt;data,</highlight></codeline>
+<codeline lineno="483"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>node-&gt;leaf_size,<sp/>offset);</highlight></codeline>
+<codeline lineno="484"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>node-&gt;leaf_size<sp/>=<sp/>offset;</highlight></codeline>
+<codeline lineno="485"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(offset<sp/>==<sp/>size<sp/>-<sp/>1)</highlight></codeline>
+<codeline lineno="486"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;<sp/></highlight><highlight class="comment">/*<sp/>Trimmed<sp/>the<sp/>tail,<sp/>nothing<sp/>else<sp/>to<sp/>do<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="487"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="488"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Offset<sp/>falls<sp/>inside<sp/>a<sp/>substring.<sp/>Erase<sp/>the</highlight></codeline>
+<codeline lineno="489"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>first<sp/>field<sp/>and<sp/>insert<sp/>the<sp/>tail.</highlight></codeline>
+<codeline lineno="490"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="491"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>next<sp/>=<sp/>ROPE_SPLIT_F(rope-&gt;<ref refid="structrope_1a30a9480b00d07fea4bd7d2e24424984d" kindref="member">ctx</ref>,<sp/>next,<sp/>size<sp/>-<sp/>offset,<sp/>1);</highlight></codeline>
+<codeline lineno="492"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*new_node<sp/>=</highlight></codeline>
+<codeline lineno="493"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope_node_new(rope,<sp/>next,<sp/>size<sp/>-<sp/>offset<sp/>-<sp/>1);</highlight></codeline>
+<codeline lineno="494"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(new_node<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="495"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="496"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Trim<sp/>the<sp/>old<sp/>node.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="497"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p_end<sp/>=<sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>***)</highlight></codeline>
+<codeline lineno="498"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>avl_route_to_next((</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_node<sp/>***)<sp/>p_end,<sp/>1,</highlight></codeline>
+<codeline lineno="499"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>new_node-&gt;<ref refid="structrope__node_1aa61bdc25e98810464982f6158f70cd53" kindref="member">tree_size</ref>);</highlight></codeline>
+<codeline lineno="500"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>**p_end<sp/>=<sp/>new_node;</highlight></codeline>
+<codeline lineno="501"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>avl_rebalance_after_insert((</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_node<sp/>***)<sp/>path,</highlight></codeline>
+<codeline lineno="502"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_node<sp/>***)<sp/>p_end,</highlight></codeline>
+<codeline lineno="503"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>new_node-&gt;<ref refid="structrope__node_1ac687175cb1350862b5a05ae1815b9f2b" kindref="member">height</ref>);</highlight></codeline>
+<codeline lineno="504"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="505"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="506"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>We<sp/>need<sp/>to<sp/>delete<sp/>the<sp/>node.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="507"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(offset<sp/>==<sp/>0);</highlight></codeline>
+<codeline lineno="508"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>direction;</highlight></codeline>
+<codeline lineno="509"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node-&gt;link[0]<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>node-&gt;link[1]<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="510"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="511"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>The<sp/>node<sp/>has<sp/>two<sp/>non-NULL<sp/>leaves.<sp/>We<sp/>can&apos;t</highlight></codeline>
+<codeline lineno="512"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>simply<sp/>delete<sp/>the<sp/>node<sp/>since<sp/>in<sp/>that<sp/>case<sp/>we</highlight></codeline>
+<codeline lineno="513"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>won&apos;t<sp/>know<sp/>what<sp/>to<sp/>do<sp/>with<sp/>one<sp/>of<sp/>the<sp/>leaves.</highlight></codeline>
+<codeline lineno="514"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Instead<sp/>of<sp/>deleting<sp/>the<sp/>node,<sp/>store<sp/>in<sp/>it<sp/>data</highlight></codeline>
+<codeline lineno="515"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>from<sp/>the<sp/>rightmost<sp/>node<sp/>in<sp/>the<sp/>left<sp/>subtree,<sp/>or</highlight></codeline>
+<codeline lineno="516"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>the<sp/>leftmost<sp/>node<sp/>in<sp/>the<sp/>right<sp/>subtree,</highlight></codeline>
+<codeline lineno="517"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>(depending<sp/>on<sp/>which<sp/>subtree<sp/>is<sp/>taller),<sp/>and</highlight></codeline>
+<codeline lineno="518"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>delete<sp/>this<sp/>leftmost/rightmost<sp/>node<sp/>instead.</highlight></codeline>
+<codeline lineno="519"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="520"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*save<sp/>=<sp/>node;</highlight></codeline>
+<codeline lineno="521"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>direction<sp/>=<sp/>node-&gt;link[1]-&gt;<ref refid="structrope__node_1ac687175cb1350862b5a05ae1815b9f2b" kindref="member">height</ref><sp/>&gt;<sp/>node-&gt;link[0]-&gt;<ref refid="structrope__node_1ac687175cb1350862b5a05ae1815b9f2b" kindref="member">height</ref>;</highlight></codeline>
+<codeline lineno="522"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p_end<sp/>=<sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>***)</highlight></codeline>
+<codeline lineno="523"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>avl_route_to_next((</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_node<sp/>***)<sp/>p_end,</highlight></codeline>
+<codeline lineno="524"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>direction,<sp/>0)<sp/>-<sp/>1;</highlight></codeline>
+<codeline lineno="525"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>node<sp/>=<sp/>**p_end;</highlight></codeline>
+<codeline lineno="526"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Move<sp/>the<sp/>data<sp/>pointers.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="527"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>save-&gt;data<sp/>=<sp/>node-&gt;data;</highlight></codeline>
+<codeline lineno="528"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>save-&gt;leaf_size<sp/>=<sp/>node-&gt;leaf_size;</highlight></codeline>
+<codeline lineno="529"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="530"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Now<sp/>follow<sp/>the<sp/>path<sp/>again<sp/>and<sp/>update<sp/>tree_size</highlight></codeline>
+<codeline lineno="531"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>in<sp/>the<sp/>parents<sp/>of<sp/>the<sp/>moved<sp/>child.</highlight></codeline>
+<codeline lineno="532"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="533"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>save<sp/>=<sp/>save-&gt;link[direction];</highlight></codeline>
+<codeline lineno="534"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(save<sp/>!=<sp/>node)<sp/>{</highlight></codeline>
+<codeline lineno="535"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>save-&gt;<ref refid="structrope__node_1aa61bdc25e98810464982f6158f70cd53" kindref="member">tree_size</ref><sp/>-=<sp/>node-&gt;leaf_size;</highlight></codeline>
+<codeline lineno="536"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>save<sp/>=<sp/>save-&gt;link[!direction];</highlight></codeline>
+<codeline lineno="537"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="538"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="539"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="540"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Left<sp/>or<sp/>right<sp/>subtree<sp/>are<sp/>NULL,<sp/>so<sp/>we</highlight></codeline>
+<codeline lineno="541"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>can<sp/>simply<sp/>put<sp/>the<sp/>non-NULL<sp/>leaf<sp/>in<sp/>place</highlight></codeline>
+<codeline lineno="542"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>of<sp/>the<sp/>parent.</highlight></codeline>
+<codeline lineno="543"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="544"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>direction<sp/>=<sp/>node-&gt;link[0]<sp/>==<sp/>NULL;</highlight></codeline>
+<codeline lineno="545"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="546"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>**p_end<sp/>=<sp/>node-&gt;link[direction];</highlight></codeline>
+<codeline lineno="547"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ROPE_FREE(rope-&gt;<ref refid="structrope_1a30a9480b00d07fea4bd7d2e24424984d" kindref="member">ctx</ref>,<sp/>node);</highlight></codeline>
+<codeline lineno="548"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>avl_rebalance_after_delete((</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_node<sp/>***)<sp/>path,</highlight></codeline>
+<codeline lineno="549"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_node<sp/>***)<sp/>p_end);</highlight></codeline>
+<codeline lineno="550"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="551"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="552"><highlight class="normal"></highlight></codeline>
+<codeline lineno="554"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="555"><highlight class="normal">rope_iter_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrope__iter" kindref="compound">rope_iter</ref><sp/>*it,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>rope<sp/>*rope)</highlight></codeline>
+<codeline lineno="556"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="557"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>it-&gt;<ref refid="structrope__iter_1a28b740ade3b4fc3ac9bdce0ce02686a9" kindref="member">rope</ref><sp/>=<sp/>rope;</highlight></codeline>
+<codeline lineno="558"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="559"><highlight class="normal"></highlight></codeline>
+<codeline lineno="561"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__iter" kindref="compound">rope_iter</ref><sp/>*</highlight></codeline>
+<codeline lineno="562"><highlight class="normal">rope_iter_new(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>rope<sp/>*rope)</highlight></codeline>
+<codeline lineno="563"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="564"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__iter" kindref="compound">rope_iter</ref><sp/>*it<sp/>=</highlight></codeline>
+<codeline lineno="565"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__iter" kindref="compound">rope_iter</ref><sp/>*)<sp/>ROPE_ALLOC_F(rope-&gt;<ref refid="structrope_1a30a9480b00d07fea4bd7d2e24424984d" kindref="member">ctx</ref>,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*it));</highlight></codeline>
+<codeline lineno="566"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(it<sp/>!=<sp/>NULL)</highlight></codeline>
+<codeline lineno="567"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope_iter_create(it,<sp/>rope);</highlight></codeline>
+<codeline lineno="568"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>it;</highlight></codeline>
+<codeline lineno="569"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="570"><highlight class="normal"></highlight></codeline>
+<codeline lineno="575"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*</highlight></codeline>
+<codeline lineno="576"><highlight class="normal">rope_iter_start(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrope__iter" kindref="compound">rope_iter</ref><sp/>*it)</highlight></codeline>
+<codeline lineno="577"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="578"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*)<sp/>avl_iter_start((</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_iter<sp/>*)<sp/>it);</highlight></codeline>
+<codeline lineno="579"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="580"><highlight class="normal"></highlight></codeline>
+<codeline lineno="588"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*</highlight></codeline>
+<codeline lineno="589"><highlight class="normal">rope_iter_next(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrope__iter" kindref="compound">rope_iter</ref><sp/>*it)</highlight></codeline>
+<codeline lineno="590"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="591"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*)<sp/>avl_iter_next((</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_iter<sp/>*)<sp/>it);</highlight></codeline>
+<codeline lineno="592"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="593"><highlight class="normal"></highlight></codeline>
+<codeline lineno="595"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="596"><highlight class="normal">rope_iter_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrope__iter" kindref="compound">rope_iter</ref><sp/>*it)</highlight></codeline>
+<codeline lineno="597"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="598"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ROPE_FREE(it-&gt;<ref refid="structrope__iter_1a28b740ade3b4fc3ac9bdce0ce02686a9" kindref="member">rope</ref>-&gt;<ref refid="structrope_1a30a9480b00d07fea4bd7d2e24424984d" kindref="member">ctx</ref>,<sp/>it);</highlight></codeline>
+<codeline lineno="599"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="600"><highlight class="normal"></highlight></codeline>
+<codeline lineno="602"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="603"><highlight class="normal">rope_traverse(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>rope<sp/>*rope,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>(*visit_leaf)(rope_data_t,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">))</highlight></codeline>
+<codeline lineno="604"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="605"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__iter" kindref="compound">rope_iter</ref><sp/>iter;</highlight></codeline>
+<codeline lineno="606"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope_iter_create(&amp;iter,<sp/>rope);</highlight></codeline>
+<codeline lineno="607"><highlight class="normal"></highlight></codeline>
+<codeline lineno="608"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*leaf;</highlight></codeline>
+<codeline lineno="609"><highlight class="normal"></highlight></codeline>
+<codeline lineno="610"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(leaf<sp/>=<sp/>rope_iter_start(&amp;iter);</highlight></codeline>
+<codeline lineno="611"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>leaf<sp/>!=<sp/>NULL;</highlight></codeline>
+<codeline lineno="612"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>leaf<sp/>=<sp/>rope_iter_next(&amp;iter))<sp/>{</highlight></codeline>
+<codeline lineno="613"><highlight class="normal"></highlight></codeline>
+<codeline lineno="614"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>visit_leaf(leaf-&gt;data,<sp/>leaf-&gt;leaf_size);</highlight></codeline>
+<codeline lineno="615"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="616"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="617"><highlight class="normal"></highlight></codeline>
+<codeline lineno="619"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="620"><highlight class="normal">rope_check(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>rope<sp/>*rope)</highlight></codeline>
+<codeline lineno="621"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="622"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrope__iter" kindref="compound">rope_iter</ref><sp/>iter;</highlight></codeline>
+<codeline lineno="623"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope_iter_create(&amp;iter,<sp/>rope);</highlight></codeline>
+<codeline lineno="624"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>avl_iter_check((</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>avl_iter<sp/>*)<sp/>&amp;iter);</highlight></codeline>
+<codeline lineno="625"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="626"><highlight class="normal"></highlight></codeline>
+<codeline lineno="627"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="628"><highlight class="normal">rope_node_print(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrope__node" kindref="compound">rope_node</ref><sp/>*node,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>(*print)(rope_data_t,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">),</highlight></codeline>
+<codeline lineno="629"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*prefix,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>dir)</highlight></codeline>
+<codeline lineno="630"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="631"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*conn[]<sp/>=<sp/>{<sp/></highlight><highlight class="stringliteral">&quot;┌──&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;└──&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="632"><highlight class="normal"></highlight></codeline>
+<codeline lineno="633"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*padding[]<sp/>=<sp/>{<sp/></highlight><highlight class="stringliteral">&quot;│<sp/><sp/><sp/>&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/><sp/>&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="634"><highlight class="normal"></highlight></codeline>
+<codeline lineno="635"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope_size_t<sp/>child_prefix_len<sp/>=<sp/>strlen(prefix)<sp/>+<sp/>strlen(padding[0])<sp/>+<sp/>1;</highlight></codeline>
+<codeline lineno="636"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*child_prefix<sp/>=<sp/>malloc(child_prefix_len);</highlight></codeline>
+<codeline lineno="637"><highlight class="normal"></highlight></codeline>
+<codeline lineno="638"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node<sp/>&amp;&amp;<sp/>(node-&gt;link[0]<sp/>||<sp/>node-&gt;link[1]))<sp/>{</highlight></codeline>
+<codeline lineno="639"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>snprintf(child_prefix,<sp/>child_prefix_len<sp/>-<sp/>1,</highlight></codeline>
+<codeline lineno="640"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;%s%s&quot;</highlight><highlight class="normal">,<sp/>prefix,<sp/>padding[!dir]);</highlight></codeline>
+<codeline lineno="641"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope_node_print(node-&gt;link[0],<sp/>print,<sp/>child_prefix,<sp/>0);</highlight></codeline>
+<codeline lineno="642"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="643"><highlight class="normal"></highlight></codeline>
+<codeline lineno="644"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>snprintf(child_prefix,<sp/>child_prefix_len<sp/>-<sp/>1,<sp/></highlight><highlight class="stringliteral">&quot;%s%s&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="645"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>prefix,<sp/>padding[dir]);</highlight></codeline>
+<codeline lineno="646"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;%s%s&quot;</highlight><highlight class="normal">,<sp/>prefix,<sp/>conn[dir]);</highlight></codeline>
+<codeline lineno="647"><highlight class="normal"></highlight></codeline>
+<codeline lineno="648"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="649"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;nil\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="650"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="651"><highlight class="normal"></highlight></codeline>
+<codeline lineno="652"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;{<sp/>len<sp/>=<sp/>%zu,<sp/>height<sp/>=<sp/>%d,<sp/>data<sp/>=<sp/>&apos;&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="653"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)<sp/>node-&gt;leaf_size,<sp/>node-&gt;<ref refid="structrope__node_1ac687175cb1350862b5a05ae1815b9f2b" kindref="member">height</ref>);</highlight></codeline>
+<codeline lineno="654"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>print(node-&gt;data,<sp/>node-&gt;leaf_size);</highlight></codeline>
+<codeline lineno="655"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;&apos;}\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="656"><highlight class="normal"></highlight></codeline>
+<codeline lineno="657"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node-&gt;link[0]<sp/>||<sp/>node-&gt;link[1])</highlight></codeline>
+<codeline lineno="658"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope_node_print(node-&gt;link[1],<sp/>print,<sp/>child_prefix,<sp/>1);</highlight></codeline>
+<codeline lineno="659"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="660"><highlight class="normal"></highlight></codeline>
+<codeline lineno="661"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>free(child_prefix);</highlight></codeline>
+<codeline lineno="662"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="663"><highlight class="normal"></highlight></codeline>
+<codeline lineno="665"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="666"><highlight class="normal">rope_pretty_print(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>rope<sp/>*rope,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>(*print_leaf)(rope_data_t,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">))</highlight></codeline>
+<codeline lineno="667"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="668"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;size<sp/>=<sp/>%zu\nstring<sp/>=<sp/>&apos;&quot;</highlight><highlight class="normal">,<sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)<sp/>rope_size(rope));</highlight></codeline>
+<codeline lineno="669"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope_traverse(rope,<sp/>print_leaf);</highlight></codeline>
+<codeline lineno="670"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;&apos;\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="671"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rope_node_print(rope-&gt;<ref refid="structrope_1ae3fb58c4c5a3bfbabeaa1dd3147660b7" kindref="member">root</ref>,<sp/>print_leaf,<sp/></highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="672"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="673"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="674"><highlight class="normal"></highlight></codeline>
+<codeline lineno="675"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>NEED_UNDEF_MAX</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="676"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>NEED_UNDEF_MAX</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="677"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>MAX</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="678"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="679"><highlight class="normal"></highlight></codeline>
+<codeline lineno="680"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>ROPE_SRC<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="681"><highlight class="normal"></highlight></codeline>
+<codeline lineno="682"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_node</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="683"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_node_size</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="684"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_leaf_size</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="685"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_leaf_data</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="686"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_iter</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="687"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_create</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="688"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_new</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="689"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_size</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="690"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_clear</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="691"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_delete</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="692"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_node_new</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="693"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_node_split</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="694"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_insert</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="695"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_append</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="696"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_extract_node</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="697"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_extract</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="698"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_erase</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="699"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_iter_create</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="700"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_iter_new</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="701"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_iter_start</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="702"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_iter_next</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="703"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_iter_delete</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="704"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_traverse</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="705"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_check</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="706"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_node_print</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="707"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_pretty_print</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="708"><highlight class="normal"></highlight></codeline>
+<codeline lineno="709"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="710"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_api</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="711"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_name</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="712"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>ROPE_HEIGHT_MAX</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="713"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_ctx_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="714"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>rope_data_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="715"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>ROPE_SPLIT_F</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="716"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>ROPE_ALLOC_F</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="717"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>ROPE_FREE_F</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="718"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>ROPE_FREE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="719"><highlight class="normal"></highlight></codeline>
+<codeline lineno="720"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>CONCAT_R</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="721"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>CONCAT</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="722"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>CONCAT3_R</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="723"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>CONCAT3</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="724"><highlight class="normal"></highlight></codeline>
+<codeline lineno="725"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="726"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="727"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/salad/rope.h"/>
+  </compounddef>
+</doxygen>

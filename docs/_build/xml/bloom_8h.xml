@@ -1,0 +1,537 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="bloom_8h" kind="file" language="C++">
+    <compoundname>bloom.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">limits.h</includes>
+    <includes refid="bit_8h" local="yes">bit/bit.h</includes>
+    <includedby refid="tuple__bloom_8h" local="yes">/home/tsafin/tarantool/src/box/tuple_bloom.h</includedby>
+    <includedby refid="tuple__bloom_8c" local="yes">/home/tsafin/tarantool/src/box/tuple_bloom.c</includedby>
+    <includedby refid="bloom_8c" local="yes">/home/tsafin/tarantool/src/lib/salad/bloom.c</includedby>
+    <incdepgraph>
+      <node id="2211">
+        <label>stdbool.h</label>
+      </node>
+      <node id="2210">
+        <label>stdint.h</label>
+      </node>
+      <node id="2212">
+        <label>stddef.h</label>
+      </node>
+      <node id="2213">
+        <label>limits.h</label>
+      </node>
+      <node id="2214">
+        <label>bit/bit.h</label>
+        <link refid="bit_8h"/>
+        <childnode refid="2212" relation="include">
+        </childnode>
+        <childnode refid="2210" relation="include">
+        </childnode>
+        <childnode refid="2211" relation="include">
+        </childnode>
+        <childnode refid="2213" relation="include">
+        </childnode>
+      </node>
+      <node id="2209">
+        <label>/home/tsafin/tarantool/src/lib/salad/bloom.h</label>
+        <link refid="bloom_8h"/>
+        <childnode refid="2210" relation="include">
+        </childnode>
+        <childnode refid="2211" relation="include">
+        </childnode>
+        <childnode refid="2212" relation="include">
+        </childnode>
+        <childnode refid="2213" relation="include">
+        </childnode>
+        <childnode refid="2214" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structbloom__block" prot="public">bloom_block</innerclass>
+    <innerclass refid="structbloom" prot="public">bloom</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="bloom_8h_1afccaefcc48c7849e1f3defa3f1fd1f8a" prot="public" static="no">
+        <name>@225</name>
+        <enumvalue id="bloom_8h_1afccaefcc48c7849e1f3defa3f1fd1f8aa6641c90a0c77cda8b72d9259f78eba68" prot="public">
+          <name>BLOOM_CACHE_LINE</name>
+          <initializer>= 64</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/bloom.h" line="56" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/bloom.h" bodystart="56" bodyend="59"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="bloom_8h_1a1f59cd7b6b10fb205509effa2c1f7165" prot="public" static="no">
+        <type>uint32_t</type>
+        <definition>typedef uint32_t bloom_hash_t</definition>
+        <argsstring></argsstring>
+        <name>bloom_hash_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/bloom.h" line="61" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/bloom.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="bloom_8h_1aab3de51e88d755c3acdce6a454fcd831" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int bloom_create</definition>
+        <argsstring>(struct bloom *bloom, uint32_t number_of_values, double false_positive_rate)</argsstring>
+        <name>bloom_create</name>
+        <param>
+          <type>struct <ref refid="structbloom" kindref="compound">bloom</ref> *</type>
+          <declname>bloom</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>number_of_values</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>false_positive_rate</declname>
+        </param>
+        <briefdescription>
+<para>Allocate and initialize an instance of bloom filter. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bloom</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- structure to initialize </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>number_of_values</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- estimated number of values to be added </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>false_positive_rate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- desired false positive rate </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>0 - OK, -1 - memory error </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/bloom.h" line="93" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/bloom.c" bodystart="43" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="bloom_8h_1a9d2ed737a081a4112aa3138d58a5bcce" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void bloom_destroy</definition>
+        <argsstring>(struct bloom *bloom)</argsstring>
+        <name>bloom_destroy</name>
+        <param>
+          <type>struct <ref refid="structbloom" kindref="compound">bloom</ref> *</type>
+          <declname>bloom</declname>
+        </param>
+        <briefdescription>
+<para>Free resources of the bloom filter. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bloom</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- the bloom filter </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/bloom.h" line="102" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/bloom.c" bodystart="62" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="bloom_8h_1a9e9bc2b9ed2c729eec76e99a7e0c0ae4" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void bloom_add</definition>
+        <argsstring>(struct bloom *bloom, bloom_hash_t hash)</argsstring>
+        <name>bloom_add</name>
+        <param>
+          <type>struct <ref refid="structbloom" kindref="compound">bloom</ref> *</type>
+          <declname>bloom</declname>
+        </param>
+        <param>
+          <type>bloom_hash_t</type>
+          <declname>hash</declname>
+        </param>
+        <briefdescription>
+<para>Add a value into the data set. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bloom</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- the bloom filter </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hash</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- hash of the value </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/bloom.h" line="110" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/bloom.h" bodystart="166" bodyend="183"/>
+      </memberdef>
+      <memberdef kind="function" id="bloom_8h_1a914a6d1a5914e593c4a4ab5172028e26" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool bloom_maybe_has</definition>
+        <argsstring>(const struct bloom *bloom, bloom_hash_t hash)</argsstring>
+        <name>bloom_maybe_has</name>
+        <param>
+          <type>const struct <ref refid="structbloom" kindref="compound">bloom</ref> *</type>
+          <declname>bloom</declname>
+        </param>
+        <param>
+          <type>bloom_hash_t</type>
+          <declname>hash</declname>
+        </param>
+        <briefdescription>
+<para>Query for presence of a value in the data set. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bloom</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- the bloom filter </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hash</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- hash of the value </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true - the value could be in data set; false - the value is definitively not in data set </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/bloom.h" line="121" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/bloom.h" bodystart="186" bodyend="205"/>
+      </memberdef>
+      <memberdef kind="function" id="bloom_8h_1a6dfd21893c8ba45b8df6f8c5d64b599a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double bloom_fpr</definition>
+        <argsstring>(const struct bloom *bloom, uint32_t number_of_values)</argsstring>
+        <name>bloom_fpr</name>
+        <param>
+          <type>const struct <ref refid="structbloom" kindref="compound">bloom</ref> *</type>
+          <declname>bloom</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>number_of_values</declname>
+        </param>
+        <briefdescription>
+<para>Return the expected false positive rate of a bloom filter. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bloom</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- the bloom filter </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>number_of_values</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- number of values stored in the filter </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>- expected false positive rate </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/bloom.h" line="130" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/bloom.c" bodystart="68" bodyend="78"/>
+      </memberdef>
+      <memberdef kind="function" id="bloom_8h_1a77e7666d49c4f01c835acaed4a0bad46" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t bloom_store_size</definition>
+        <argsstring>(const struct bloom *bloom)</argsstring>
+        <name>bloom_store_size</name>
+        <param>
+          <type>const struct <ref refid="structbloom" kindref="compound">bloom</ref> *</type>
+          <declname>bloom</declname>
+        </param>
+        <briefdescription>
+<para>Calculate size of a buffer that is needed for storing bloom table. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bloom</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- the bloom filter to store </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>- Exact size </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/bloom.h" line="138" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/bloom.c" bodystart="81" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="bloom_8h_1a2424dfce54ddd4c40a738749b739b1f2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>char *</type>
+        <definition>char* bloom_store</definition>
+        <argsstring>(const struct bloom *bloom, char *table)</argsstring>
+        <name>bloom_store</name>
+        <param>
+          <type>const struct <ref refid="structbloom" kindref="compound">bloom</ref> *</type>
+          <declname>bloom</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>table</declname>
+        </param>
+        <briefdescription>
+<para>Store bloom filter table to the given buffer Other struct bloom members must be stored manually. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bloom</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- the bloom filter to store </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>table</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- buffer to store to #return - end of written buffer </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/bloom.h" line="148" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/bloom.c" bodystart="87" bodyend="92"/>
+      </memberdef>
+      <memberdef kind="function" id="bloom_8h_1a0e271cbad3187cfd565d6ce23ad10cb7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int bloom_load_table</definition>
+        <argsstring>(struct bloom *bloom, const char *table)</argsstring>
+        <name>bloom_load_table</name>
+        <param>
+          <type>struct <ref refid="structbloom" kindref="compound">bloom</ref> *</type>
+          <declname>bloom</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>table</declname>
+        </param>
+        <briefdescription>
+<para>Allocate table and load it from given buffer. </para>        </briefdescription>
+        <detaileddescription>
+<para>Other struct bloom members must be loaded manually.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bloom</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- structure to load to </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>table</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- data to load </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>0 - OK, -1 - memory error </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/bloom.h" line="159" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/bloom.c" bodystart="95" bodyend="103"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LIB_SALAD_BLOOM_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LIB_SALAD_BLOOM_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2019,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Classic<sp/>bloom<sp/>filter<sp/>with<sp/>several<sp/>improvements</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*<sp/>1)<sp/>Cache<sp/>oblivious:</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*<sp/><sp/>Putze,<sp/>F.;<sp/>Sanders,<sp/>P.;<sp/>Singler,<sp/>J.<sp/>(2007),</highlight></codeline>
+<codeline lineno="37"><highlight class="comment"><sp/>*<sp/><sp/>&quot;Cache-,<sp/>Hash-<sp/>and<sp/>Space-Efficient<sp/>Bloom<sp/>Filters&quot;</highlight></codeline>
+<codeline lineno="38"><highlight class="comment"><sp/>*<sp/><sp/>http://algo2.iti.kit.edu/singler/publications/cacheefficientbloomfilters-wea2007.pdf</highlight></codeline>
+<codeline lineno="39"><highlight class="comment"><sp/>*<sp/>2)<sp/>Fast<sp/>hash<sp/>function<sp/>calculation:</highlight></codeline>
+<codeline lineno="40"><highlight class="comment"><sp/>*<sp/><sp/>Kirsch,<sp/>Adam;<sp/>Mitzenmacher,<sp/>Michael<sp/>(2006)</highlight></codeline>
+<codeline lineno="41"><highlight class="comment"><sp/>*<sp/><sp/>&quot;Less<sp/>Hashing,<sp/>Same<sp/>Performance:<sp/>Building<sp/>a<sp/>Better<sp/>Bloom<sp/>Filter&quot;</highlight></codeline>
+<codeline lineno="42"><highlight class="comment"><sp/>*<sp/><sp/><sp/>https://www.eecs.harvard.edu/~michaelm/postscripts/tr-02-05.pdf</highlight></codeline>
+<codeline lineno="43"><highlight class="comment"><sp/>*<sp/>3)<sp/>Using<sp/>only<sp/>one<sp/>hash<sp/>value<sp/>that<sp/>is<sp/>splitted<sp/>into<sp/>several<sp/>independent<sp/>parts</highlight></codeline>
+<codeline lineno="44"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;limits.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="bit_8h" kindref="compound">bit/bit.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Expected<sp/>cache<sp/>line<sp/>of<sp/>target<sp/>processor<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>BLOOM_CACHE_LINE<sp/>=<sp/>64,</highlight></codeline>
+<codeline lineno="59"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>uint32_t<sp/>bloom_hash_t;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66" refid="structbloom__block" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structbloom__block" kindref="compound">bloom_block</ref><sp/>{</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>bits[BLOOM_CACHE_LINE];</highlight></codeline>
+<codeline lineno="68"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73" refid="structbloom" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structbloom" kindref="compound">bloom</ref><sp/>{</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Number<sp/>of<sp/>buckets<sp/>(blocks)<sp/>in<sp/>the<sp/>table<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>table_size;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Number<sp/>of<sp/>hash<sp/>function<sp/>per<sp/>value<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>hash_count;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Bit<sp/>field<sp/>table<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structbloom__block" kindref="compound">bloom_block</ref><sp/>*table;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>{{{<sp/>API<sp/>declaration<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal">bloom_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structbloom" kindref="compound">bloom</ref><sp/>*<ref refid="structbloom" kindref="compound">bloom</ref>,<sp/>uint32_t<sp/>number_of_values,</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>false_positive_rate);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal">bloom_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>bloom<sp/>*bloom);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal">bloom_add(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>bloom<sp/>*bloom,<sp/>bloom_hash_t<sp/>hash);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal">bloom_maybe_has(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>bloom<sp/>*bloom,<sp/>bloom_hash_t<sp/>hash);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="keywordtype">double</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal">bloom_fpr(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>bloom<sp/>*bloom,<sp/>uint32_t<sp/>number_of_values);</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal">bloom_store_size(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>bloom<sp/>*bloom);</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="148"><highlight class="normal">bloom_store(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>bloom<sp/>*bloom,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*table);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal">bloom_load_table(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>bloom<sp/>*bloom,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*table);</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>}}}<sp/>API<sp/>declaration<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>{{{<sp/>API<sp/>definition<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal">bloom_add(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>bloom<sp/>*bloom,<sp/>bloom_hash_t<sp/>hash)</highlight></codeline>
+<codeline lineno="167"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Using<sp/>lower<sp/>part<sp/>of<sp/>the<sp/>has<sp/>for<sp/>finding<sp/>a<sp/>block<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bloom_hash_t<sp/>pos<sp/>=<sp/>hash<sp/>%<sp/>bloom-&gt;table_size;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hash<sp/>=<sp/>hash<sp/>/<sp/>bloom-&gt;table_size;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>__builtin_prefetch(bloom-&gt;table<sp/>+<sp/>pos,<sp/>1);<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>bloom_hash_t<sp/>bloom_block_bits<sp/>=<sp/>BLOOM_CACHE_LINE<sp/>*<sp/>CHAR_BIT;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>bit_no<sp/>in<sp/>block<sp/>is<sp/>less<sp/>than<sp/>bloom_block_bits<sp/>(512).</highlight></codeline>
+<codeline lineno="174"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>split<sp/>the<sp/>given<sp/>hash<sp/>into<sp/>independent<sp/>lower<sp/>part<sp/>and<sp/>high<sp/>part.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bloom_hash_t<sp/>hash2<sp/>=<sp/>hash<sp/>/<sp/>bloom_block_bits<sp/>+<sp/>1;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(bloom_hash_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>bloom-&gt;hash_count;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bloom_hash_t<sp/>bit_no<sp/>=<sp/>hash<sp/>%<sp/>bloom_block_bits;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="bit_8h_1a91efcd67af8d8835cb1977948c77e92d" kindref="member">bit_set</ref>(bloom-&gt;table[pos].bits,<sp/>bit_no);</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Combine<sp/>two<sp/>hashes<sp/>to<sp/>create<sp/>required<sp/>number<sp/>of<sp/>hashes<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Add<sp/>i**2<sp/>for<sp/>better<sp/>distribution<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hash<sp/>+=<sp/>hash2<sp/>+<sp/>i<sp/>*<sp/>i;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="183"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal">bloom_maybe_has(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>bloom<sp/>*bloom,<sp/>bloom_hash_t<sp/>hash)</highlight></codeline>
+<codeline lineno="187"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Using<sp/>lower<sp/>part<sp/>of<sp/>the<sp/>has<sp/>for<sp/>finding<sp/>a<sp/>block<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bloom_hash_t<sp/>pos<sp/>=<sp/>hash<sp/>%<sp/>bloom-&gt;table_size;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hash<sp/>=<sp/>hash<sp/>/<sp/>bloom-&gt;table_size;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>__builtin_prefetch(bloom-&gt;table<sp/>+<sp/>pos,<sp/>0);<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>bloom_hash_t<sp/>bloom_block_bits<sp/>=<sp/>BLOOM_CACHE_LINE<sp/>*<sp/>CHAR_BIT;</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>bit_no<sp/>in<sp/>block<sp/>is<sp/>less<sp/>than<sp/>bloom_block_bits<sp/>(512).</highlight></codeline>
+<codeline lineno="194"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>split<sp/>the<sp/>given<sp/>hash<sp/>into<sp/>independent<sp/>lower<sp/>part<sp/>and<sp/>high<sp/>part.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bloom_hash_t<sp/>hash2<sp/>=<sp/>hash<sp/>/<sp/>bloom_block_bits<sp/>+<sp/>1;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(bloom_hash_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>bloom-&gt;hash_count;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bloom_hash_t<sp/>bit_no<sp/>=<sp/>hash<sp/>%<sp/>bloom_block_bits;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="bit_8h_1a92b200c6c3366079e32b3af2855d3b7b" kindref="member">bit_test</ref>(bloom-&gt;table[pos].bits,<sp/>bit_no))</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Combine<sp/>two<sp/>hashes<sp/>to<sp/>create<sp/>required<sp/>number<sp/>of<sp/>hashes<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Add<sp/>i**2<sp/>for<sp/>better<sp/>distribution<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hash<sp/>+=<sp/>hash2<sp/>+<sp/>i<sp/>*<sp/>i;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="205"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>}}}<sp/>API<sp/>definition<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_LIB_SALAD_BLOOM_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/salad/bloom.h"/>
+  </compounddef>
+</doxygen>

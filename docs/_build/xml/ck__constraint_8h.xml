@@ -1,0 +1,526 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="ck__constraint_8h" kind="file" language="C++">
+    <compoundname>ck_constraint.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes refid="rlist_8h" local="yes">small/rlist.h</includes>
+    <includedby refid="alter_8cc" local="yes">/home/tsafin/tarantool/src/box/alter.cc</includedby>
+    <includedby refid="ck__constraint_8c" local="yes">/home/tsafin/tarantool/src/box/ck_constraint.c</includedby>
+    <includedby refid="space_8cc" local="yes">/home/tsafin/tarantool/src/box/lua/space.cc</includedby>
+    <includedby refid="space_8c" local="yes">/home/tsafin/tarantool/src/box/space.c</includedby>
+    <includedby refid="build_8c" local="yes">/home/tsafin/tarantool/src/box/sql/build.c</includedby>
+    <includedby refid="insert_8c" local="yes">/home/tsafin/tarantool/src/box/sql/insert.c</includedby>
+    <incdepgraph>
+      <node id="98">
+        <label>stdint.h</label>
+      </node>
+      <node id="97">
+        <label>/home/tsafin/tarantool/src/box/ck_constraint.h</label>
+        <link refid="ck__constraint_8h"/>
+        <childnode refid="98" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structck__constraint__def" prot="public">ck_constraint_def</innerclass>
+    <innerclass refid="structck__constraint" prot="public">ck_constraint</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="ck__constraint_8h_1a5e9deef216d4ccef8596ef5d8e9a7cfe" prot="public" static="no">
+        <name>ck_constraint_language</name>
+        <enumvalue id="ck__constraint_8h_1a5e9deef216d4ccef8596ef5d8e9a7cfea554102d1950f4f07254bfe75b22cfa1d" prot="public">
+          <name>CK_CONSTRAINT_LANGUAGE_SQL</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="ck__constraint_8h_1a5e9deef216d4ccef8596ef5d8e9a7cfea20df9f360ca7924e41d4dcfdee6160c4" prot="public">
+          <name>ck_constraint_language_MAX</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Supported languages of ck constraint. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/ck_constraint.h" line="48" column="1" bodyfile="/home/tsafin/tarantool/src/box/ck_constraint.h" bodystart="48" bodyend="51"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="ck__constraint_8h_1ab0235053c30ce464fe6f15a5af4576e8" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* ck_constraint_language_strs[]</definition>
+        <argsstring>[]</argsstring>
+        <name>ck_constraint_language_strs</name>
+        <briefdescription>
+<para>The supported languages strings. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/ck_constraint.h" line="54" column="1" bodyfile="/home/tsafin/tarantool/src/box/ck_constraint.c" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="ck__constraint_8h_1aba0f02669beb2fee235c7a633ebc8484" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t ck_constraint_def_sizeof</definition>
+        <argsstring>(uint32_t name_len, uint32_t expr_str_len, uint32_t *expr_str_offset)</argsstring>
+        <name>ck_constraint_def_sizeof</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>name_len</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>expr_str_len</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>expr_str_offset</declname>
+        </param>
+        <briefdescription>
+<para>Calculate check constraint definition memory size and fields offsets for given arguments. </para>        </briefdescription>
+        <detaileddescription>
+<para>Alongside with struct <ref refid="structck__constraint__def" kindref="compound">ck_constraint_def</ref> itself, we reserve memory for string containing its name and expression string.</para><para>Memory layout: +--------------------------<mdash/>+ &lt;- Allocated memory starts here <table rows="4" cols="1"><row>
+<entry thead="yes"><para>struct <ref refid="structck__constraint__def" kindref="compound">ck_constraint_def</ref>  </para></entry></row>
+<row>
+<entry thead="no"><para>name + \0 </para></entry></row>
+<row>
+<entry thead="no"><para>--------------------------<mdash/> </para></entry></row>
+<row>
+<entry thead="no"><para>expr_str + \0 </para></entry></row>
+</table>
++--------------------------<mdash/>+</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>name_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The length of the name. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>expr_str_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The length of the expr_str. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">expr_str_offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The offset of the expr_str string. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The size of the ck constraint definition object for given parameters. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/ck_constraint.h" line="131" column="1" bodyfile="/home/tsafin/tarantool/src/box/ck_constraint.h" bodystart="131" bodyend="136"/>
+      </memberdef>
+      <memberdef kind="function" id="ck__constraint_8h_1a468dfb5712886ce1d2f74999657349d0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structck__constraint__def" kindref="compound">ck_constraint_def</ref> *</type>
+        <definition>struct ck_constraint_def* ck_constraint_def_new</definition>
+        <argsstring>(const char *name, uint32_t name_len, const char *expr, uint32_t expr_str_len, uint32_t space_id, enum ck_constraint_language language, bool is_enabled)</argsstring>
+        <name>ck_constraint_def_new</name>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>name_len</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>expr</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>expr_str_len</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>space_id</declname>
+        </param>
+        <param>
+          <type>enum ck_constraint_language</type>
+          <declname>language</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>is_enabled</declname>
+        </param>
+        <briefdescription>
+<para>Create a new check constraint definition object with given fields. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The name string of a new ck constraint definition. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The length of <emphasis>name</emphasis> string. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>expr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The check expression string. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>expr_str_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The length of the <emphasis>expr</emphasis> string. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>space_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The identifier of the target space. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>language</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The language of the <emphasis>expr</emphasis> string. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>is_enabled</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Whether this ck constraint should be fired. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>not</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NULL Check constraint definition object pointer on success. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Otherwise. The diag message is set. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/ck_constraint.h" line="154" column="1" bodyfile="/home/tsafin/tarantool/src/box/ck_constraint.c" bodystart="46" bodyend="68"/>
+      </memberdef>
+      <memberdef kind="function" id="ck__constraint_8h_1a8ecbb61896d39a22762c75505dac9b34" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ck_constraint_def_delete</definition>
+        <argsstring>(struct ck_constraint_def *ck_def)</argsstring>
+        <name>ck_constraint_def_delete</name>
+        <param>
+          <type>struct <ref refid="structck__constraint__def" kindref="compound">ck_constraint_def</ref> *</type>
+          <declname>ck_def</declname>
+        </param>
+        <briefdescription>
+<para>Destroy check constraint definition memory, release acquired resources. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ck_def</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The check constraint definition object to destroy. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/ck_constraint.h" line="165" column="1" bodyfile="/home/tsafin/tarantool/src/box/ck_constraint.c" bodystart="71" bodyend="74"/>
+      </memberdef>
+      <memberdef kind="function" id="ck__constraint_8h_1a28291f4c5b41b8f7cca050ba7abc6a6e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structck__constraint" kindref="compound">ck_constraint</ref> *</type>
+        <definition>struct ck_constraint* ck_constraint_new</definition>
+        <argsstring>(struct ck_constraint_def *ck_constraint_def, struct space_def *space_def)</argsstring>
+        <name>ck_constraint_new</name>
+        <param>
+          <type>struct <ref refid="structck__constraint__def" kindref="compound">ck_constraint_def</ref> *</type>
+          <declname>ck_constraint_def</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structspace__def" kindref="compound">space_def</ref> *</type>
+          <declname>space_def</declname>
+        </param>
+        <briefdescription>
+<para>Create a new check constraint object by given check constraint definition and definition of the space this constraint is related to. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="structck__constraint__def" kindref="compound">ck_constraint_def</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The check constraint definition object to use. Expected to be allocated with malloc. Ck constraint object manages this allocation in case of successful creation. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="structspace__def" kindref="compound">space_def</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The space definition of the space this check constraint must be constructed for. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>not</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NULL Check constraint object pointer on success. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Otherwise. The diag message is set. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/ck_constraint.h" line="183" column="1" bodyfile="/home/tsafin/tarantool/src/box/ck_constraint.c" bodystart="215" bodyend="254"/>
+      </memberdef>
+      <memberdef kind="function" id="ck__constraint_8h_1abcf65fb1cf026aae3d24d131b963149c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void ck_constraint_delete</definition>
+        <argsstring>(struct ck_constraint *ck_constraint)</argsstring>
+        <name>ck_constraint_delete</name>
+        <param>
+          <type>struct <ref refid="structck__constraint" kindref="compound">ck_constraint</ref> *</type>
+          <declname>ck_constraint</declname>
+        </param>
+        <briefdescription>
+<para>Destroy check constraint memory, release acquired resources. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="structck__constraint" kindref="compound">ck_constraint</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The check constraint object to destroy. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/ck_constraint.h" line="191" column="1" bodyfile="/home/tsafin/tarantool/src/box/ck_constraint.c" bodystart="257" bodyend="263"/>
+      </memberdef>
+      <memberdef kind="function" id="ck__constraint_8h_1a5a53ff46658ea6715619343cc212b3ec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int ck_constraint_on_replace_trigger</definition>
+        <argsstring>(struct trigger *trigger, void *event)</argsstring>
+        <name>ck_constraint_on_replace_trigger</name>
+        <param>
+          <type>struct <ref refid="structtrigger" kindref="compound">trigger</ref> *</type>
+          <declname>trigger</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+<para>Ck constraint trigger function. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is expected to be executed in <ref refid="structspace_1a88d31b15c170d8c9a22bc8470e8a3d99" kindref="member">space::on_replace</ref> trigger.</para><para>It performs all ck constraints defined for a given space running the precompiled bytecode to test a new tuple before it will be inserted in destination space. The trigger data stores space identifier instead of space pointer to make ck constraint independent of specific space object version.</para><para>Returns error code when some ck constraint is unsatisfied. The diag message is set. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/ck_constraint.h" line="208" column="1" bodyfile="/home/tsafin/tarantool/src/box/ck_constraint.c" bodystart="181" bodyend="212"/>
+      </memberdef>
+      <memberdef kind="function" id="ck__constraint_8h_1a869d65345162aa9f2c6656f51326c575" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structck__constraint" kindref="compound">ck_constraint</ref> *</type>
+        <definition>struct ck_constraint* space_ck_constraint_by_name</definition>
+        <argsstring>(struct space *space, const char *name, uint32_t name_len)</argsstring>
+        <name>space_ck_constraint_by_name</name>
+        <param>
+          <type>struct <ref refid="structspace" kindref="compound">space</ref> *</type>
+          <declname>space</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>name_len</declname>
+        </param>
+        <briefdescription>
+<para>Find check constraint object in space by given name and name_len. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>space</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The space to lookup check constraint. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The check constraint name. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The length of the name. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>Not</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NULL Ck constraint pointer if exists. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Otherwise. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/ck_constraint.h" line="220" column="1" bodyfile="/home/tsafin/tarantool/src/box/ck_constraint.c" bodystart="266" bodyend="276"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>INCLUDES_BOX_CK_CONSTRAINT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INCLUDES_BOX_CK_CONSTRAINT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2019,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;small/rlist.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structspace" kindref="compound">space</ref>;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structspace__def" kindref="compound">space_def</ref>;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">sql_stmt;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structExpr" kindref="compound">Expr</ref>;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtrigger" kindref="compound">trigger</ref>;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>ck_constraint_language<sp/>{</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/>CK_CONSTRAINT_LANGUAGE_SQL,</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/>ck_constraint_language_MAX,</highlight></codeline>
+<codeline lineno="51"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*ck_constraint_language_strs[];</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61" refid="structck__constraint__def" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structck__constraint__def" kindref="compound">ck_constraint_def</ref><sp/>{</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structck__constraint__def_1a04dd15c3beb2f1fd294b3017c4d929fb" kindref="member">expr_str</ref>;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structck__constraint__def_1af1dda2e1e1246be98a0e47a9cb58cac7" kindref="member">space_id</ref>;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structck__constraint__def_1a1967a07a555c0e25d306352478c02fcb" kindref="member">is_enabled</ref>;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>ck_constraint_language<sp/><ref refid="structck__constraint__def_1af2f68fa0dffd6a1289421d4b1d343879" kindref="member">language</ref>;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="structck__constraint__def_1ae851bc840031c7da0a627a57eeb8e12d" kindref="member">name</ref>[0];</highlight></codeline>
+<codeline lineno="86"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92" refid="structck__constraint" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structck__constraint" kindref="compound">ck_constraint</ref><sp/>{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structck__constraint__def" kindref="compound">ck_constraint_def</ref><sp/>*def;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">sql_stmt<sp/>*stmt;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>link;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t</highlight></codeline>
+<codeline lineno="131"><highlight class="normal">ck_constraint_def_sizeof(uint32_t<sp/>name_len,<sp/>uint32_t<sp/>expr_str_len,</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>*expr_str_offset)</highlight></codeline>
+<codeline lineno="133"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*expr_str_offset<sp/>=<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structck__constraint__def" kindref="compound">ck_constraint_def</ref>)<sp/>+<sp/>name_len<sp/>+<sp/>1;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>*expr_str_offset<sp/>+<sp/>expr_str_len<sp/>+<sp/>1;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structck__constraint__def" kindref="compound">ck_constraint_def</ref><sp/>*</highlight></codeline>
+<codeline lineno="154"><highlight class="normal">ck_constraint_def_new(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structck__constraint__def_1ae851bc840031c7da0a627a57eeb8e12d" kindref="member">name</ref>,<sp/>uint32_t<sp/>name_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*expr,</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>expr_str_len,<sp/>uint32_t<sp/><ref refid="structck__constraint__def_1af1dda2e1e1246be98a0e47a9cb58cac7" kindref="member">space_id</ref>,</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>ck_constraint_language<sp/><ref refid="structck__constraint__def_1af2f68fa0dffd6a1289421d4b1d343879" kindref="member">language</ref>,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structck__constraint__def_1a1967a07a555c0e25d306352478c02fcb" kindref="member">is_enabled</ref>);</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal">ck_constraint_def_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structck__constraint__def" kindref="compound">ck_constraint_def</ref><sp/>*ck_def);</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structck__constraint" kindref="compound">ck_constraint</ref><sp/>*</highlight></codeline>
+<codeline lineno="183"><highlight class="normal">ck_constraint_new(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structck__constraint__def" kindref="compound">ck_constraint_def</ref><sp/>*<ref refid="structck__constraint__def" kindref="compound">ck_constraint_def</ref>,</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structspace__def" kindref="compound">space_def</ref><sp/>*<ref refid="structspace__def" kindref="compound">space_def</ref>);</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal">ck_constraint_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structck__constraint" kindref="compound">ck_constraint</ref><sp/>*<ref refid="structck__constraint" kindref="compound">ck_constraint</ref>);</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal">ck_constraint_on_replace_trigger(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtrigger" kindref="compound">trigger</ref><sp/>*<ref refid="structtrigger" kindref="compound">trigger</ref>,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*event);</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="keyword">struct<sp/></highlight><highlight class="normal">ck_constraint<sp/>*</highlight></codeline>
+<codeline lineno="220"><highlight class="normal">space_ck_constraint_by_name(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structspace" kindref="compound">space</ref><sp/>*<ref refid="structspace" kindref="compound">space</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>name_len);</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="224"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>{<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>INCLUDES_BOX_CK_CONSTRAINT_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/ck_constraint.h"/>
+  </compounddef>
+</doxygen>

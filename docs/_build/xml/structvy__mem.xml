@@ -1,0 +1,429 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvy__mem" kind="struct" language="C++" prot="public">
+    <compoundname>vy_mem</compoundname>
+    <includes local="no">vy_mem.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvy__mem_1a211285caf50a73db4b29e53d9b2d2b65" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__mem__env" kindref="compound">vy_mem_env</ref> *</type>
+        <definition>struct vy_mem_env* vy_mem::env</definition>
+        <argsstring></argsstring>
+        <name>env</name>
+        <briefdescription>
+<para>Vinyl memory environment. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_mem.h" line="160" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_mem.h" bodystart="160" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__mem_1aae0ae379af2ac98e3ebb54491ad24c8e" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist vy_mem::in_sealed</definition>
+        <argsstring></argsstring>
+        <name>in_sealed</name>
+        <briefdescription>
+<para>Link in range-&gt;sealed list. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_mem.h" line="160" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_mem.h" bodystart="162" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__mem_1ae3851af38812716901df6ed48f0fb5c6" prot="public" static="no" mutable="no">
+        <type>struct vy_mem_tree</type>
+        <definition>struct vy_mem_tree vy_mem::tree</definition>
+        <argsstring></argsstring>
+        <name>tree</name>
+        <briefdescription>
+<para>BPS tree. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_mem.h" line="160" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_mem.h" bodystart="164" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__mem_1a6e8536234e8397e4e163865ba7ca2c25" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t vy_mem::tree_extent_size</definition>
+        <argsstring></argsstring>
+        <name>tree_extent_size</name>
+        <briefdescription>
+<para>Size of memory used for storing tree extents. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_mem.h" line="166" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_mem.h" bodystart="166" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__mem_1a998e90359dc2873107073c4b67f7001f" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__stmt__counter" kindref="compound">vy_stmt_counter</ref></type>
+        <definition>struct vy_stmt_counter vy_mem::count</definition>
+        <argsstring></argsstring>
+        <name>count</name>
+        <briefdescription>
+<para>Number of statements. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_mem.h" line="166" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_mem.h" bodystart="168" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__mem_1ac9f14dcd6d2bfaf56c860e1e290eb364" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t vy_mem::dump_lsn</definition>
+        <argsstring></argsstring>
+        <name>dump_lsn</name>
+        <briefdescription>
+<para>Max LSN covered by this in-memory tree. </para>        </briefdescription>
+        <detaileddescription>
+<para>Once the tree is dumped to disk it will be used to update <ref refid="structvy__lsm_1af88fad06d4549ced011d3f9a021be78b" kindref="member">vy_lsm::dump_lsn</ref>, see vy_task_dump_new().</para><para>Note, we account not only original LSN (vy_stmt_lsn()) in this variable, but also WAL LSN of deferred DELETE statements. This is needed to skip WAL recovery of both deferred and normal statements that have been dumped to disk. See vy_deferred_delete_on_replace() for more details. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_mem.h" line="181" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_mem.h" bodystart="181" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__mem_1afe4b11945ca7cce2e38b01bec8b453df" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+        <definition>struct key_def* vy_mem::cmp_def</definition>
+        <argsstring></argsstring>
+        <name>cmp_def</name>
+        <briefdescription>
+<para>Key definition for this index, extended with primary key parts. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_mem.h" line="186" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_mem.h" bodystart="186" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__mem_1a1a07da83554b96088bb2687565150060" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t vy_mem::version</definition>
+        <argsstring></argsstring>
+        <name>version</name>
+        <briefdescription>
+<para>version is initially 0 and is incremented on every write </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_mem.h" line="188" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_mem.h" bodystart="188" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__mem_1a7297919bff76a953fb77e23b5566f18b" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t vy_mem::space_cache_version</definition>
+        <argsstring></argsstring>
+        <name>space_cache_version</name>
+        <briefdescription>
+<para>Data dictionary cache version at the time of creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_mem.h" line="190" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_mem.h" bodystart="190" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__mem_1ad87bd83b951105f3e27d11750fd0ed87" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t vy_mem::generation</definition>
+        <argsstring></argsstring>
+        <name>generation</name>
+        <briefdescription>
+<para>Generation of statements stored in the tree. </para>        </briefdescription>
+        <detaileddescription>
+<para>Used as lsregion allocator identifier. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_mem.h" line="195" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_mem.h" bodystart="195" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__mem_1a4d0ed365a3359bdad09e37886b0f6a66" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtuple__format" kindref="compound">tuple_format</ref> *</type>
+        <definition>struct tuple_format* vy_mem::format</definition>
+        <argsstring></argsstring>
+        <name>format</name>
+        <briefdescription>
+<para>Format of statements stored in this in-memory index. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note, the statements don&apos;t reference the format by themselves, instead it is referenced once by <ref refid="structvy__mem" kindref="compound">vy_mem</ref>. This allows us to drop <ref refid="structvy__mem" kindref="compound">vy_mem</ref> in O(1). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_mem.h" line="202" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_mem.h" bodystart="202" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__mem_1abe32f6fdbc53595d5f201de30f912d9f" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int vy_mem::pin_count</definition>
+        <argsstring></argsstring>
+        <name>pin_count</name>
+        <briefdescription>
+<para>Number of active writers to this index. </para>        </briefdescription>
+        <detaileddescription>
+<para>Incremented for modified in-memory trees when preparing a transaction. Decremented after writing to WAL or rollback. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_mem.h" line="210" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_mem.h" bodystart="210" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__mem_1af3a3ad0a8e16f5e72ec039d4d9f0d42b" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfiber__cond" kindref="compound">fiber_cond</ref></type>
+        <definition>struct fiber_cond vy_mem::pin_cond</definition>
+        <argsstring></argsstring>
+        <name>pin_cond</name>
+        <briefdescription>
+<para>Condition variable signaled by vy_mem_unpin() if pin_count reaches 0. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_mem.h" line="210" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_mem.h" bodystart="215" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>false </para>    </briefdescription>
+    <detaileddescription>
+<para><ref refid="structvy__mem" kindref="compound">vy_mem</ref> is an in-memory container for tuples in a single vinyl range. Internally it uses <ref refid="structbps__tree" kindref="compound">bps_tree</ref> to store tuples, which are ordered by statement key and, for the same key, by lsn, in descending order.</para><para>For example, assume there are two statements with the same key, but different LSN. These are duplicates of the same key, maintained for the purpose of MVCC/consistent read view. In Vinyl terms, they form a duplicate chain.</para><para><ref refid="structvy__mem" kindref="compound">vy_mem</ref> distinguishes between the first duplicate in the chain and other keys in that chain. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="13463">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="13456">
+        <label>json_tree</label>
+        <link refid="structjson__tree"/>
+        <childnode refid="13457" relation="usage">
+          <edgelabel>root</edgelabel>
+        </childnode>
+      </node>
+      <node id="13460">
+        <label>lsregion</label>
+        <link refid="structlsregion"/>
+        <childnode refid="13461" relation="usage">
+          <edgelabel>cached</edgelabel>
+        </childnode>
+        <childnode refid="13462" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="13464" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="13450">
+        <label>key_part</label>
+        <link refid="structkey__part"/>
+        <childnode refid="13451" relation="usage">
+          <edgelabel>coll</edgelabel>
+        </childnode>
+      </node>
+      <node id="13457">
+        <label>json_token</label>
+        <link refid="structjson__token"/>
+        <childnode refid="13457" relation="usage">
+          <edgelabel>parent</edgelabel>
+          <edgelabel>children</edgelabel>
+        </childnode>
+      </node>
+      <node id="13444">
+        <label>access</label>
+        <link refid="structaccess"/>
+      </node>
+      <node id="13448">
+        <label>credentials</label>
+        <link refid="structcredentials"/>
+        <childnode refid="13449" relation="usage">
+          <edgelabel>in_user</edgelabel>
+        </childnode>
+      </node>
+      <node id="13454">
+        <label>tuple_dictionary</label>
+        <link refid="structtuple__dictionary"/>
+      </node>
+      <node id="13440">
+        <label>vy_mem</label>
+        <link refid="structvy__mem"/>
+        <childnode refid="13441" relation="usage">
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="13452" relation="usage">
+          <edgelabel>pin_cond</edgelabel>
+        </childnode>
+        <childnode refid="13453" relation="usage">
+          <edgelabel>format</edgelabel>
+        </childnode>
+        <childnode refid="13458" relation="usage">
+          <edgelabel>count</edgelabel>
+        </childnode>
+        <childnode refid="13449" relation="usage">
+          <edgelabel>in_sealed</edgelabel>
+        </childnode>
+        <childnode refid="13459" relation="usage">
+          <edgelabel>env</edgelabel>
+        </childnode>
+      </node>
+      <node id="13449">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="13449" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="13462">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="13463" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="13449" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="13441">
+        <label>key_def</label>
+        <link refid="structkey__def"/>
+        <childnode refid="13442" relation="usage">
+          <edgelabel>tuple_hash</edgelabel>
+          <edgelabel>tuple_compare_with_key</edgelabel>
+          <edgelabel>tuple_compare</edgelabel>
+          <edgelabel>tuple_hint</edgelabel>
+          <edgelabel>tuple_extract_key</edgelabel>
+        </childnode>
+        <childnode refid="13441" relation="usage">
+          <edgelabel>key_hash</edgelabel>
+          <edgelabel>tuple_extract_key_raw</edgelabel>
+          <edgelabel>key_hint</edgelabel>
+        </childnode>
+        <childnode refid="13443" relation="usage">
+          <edgelabel>func_index_func</edgelabel>
+        </childnode>
+        <childnode refid="13450" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="13442">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="13465">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="13443">
+        <label>func</label>
+        <link refid="structfunc"/>
+        <childnode refid="13444" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="13445" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="13446" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="13448" relation="usage">
+          <edgelabel>owner_credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="13445">
+        <label>func_vtab</label>
+        <link refid="structfunc__vtab"/>
+      </node>
+      <node id="13461">
+        <label>lslab</label>
+        <link refid="structlslab"/>
+        <childnode refid="13449" relation="usage">
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+      <node id="13466">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="13464">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="13465" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="13466" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="13447">
+        <label>func_opts</label>
+        <link refid="structfunc__opts"/>
+      </node>
+      <node id="13455">
+        <label>tuple_format_vtab</label>
+        <link refid="structtuple__format__vtab"/>
+        <childnode refid="13442" relation="usage">
+          <edgelabel>tuple_new</edgelabel>
+        </childnode>
+      </node>
+      <node id="13453">
+        <label>tuple_format</label>
+        <link refid="structtuple__format"/>
+        <childnode refid="13454" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="13455" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="13456" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+      </node>
+      <node id="13446">
+        <label>func_def</label>
+        <link refid="structfunc__def"/>
+        <childnode refid="13447" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="13452">
+        <label>fiber_cond</label>
+        <link refid="structfiber__cond"/>
+        <childnode refid="13449" relation="usage">
+          <edgelabel>waiters</edgelabel>
+        </childnode>
+      </node>
+      <node id="13451">
+        <label>coll</label>
+        <link refid="structcoll"/>
+        <childnode refid="13451" relation="usage">
+          <edgelabel>cmp</edgelabel>
+          <edgelabel>hint</edgelabel>
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+      <node id="13459">
+        <label>vy_mem_env</label>
+        <link refid="structvy__mem__env"/>
+        <childnode refid="13460" relation="usage">
+          <edgelabel>allocator</edgelabel>
+        </childnode>
+        <childnode refid="13465" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="13464" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="13458">
+        <label>vy_stmt_counter</label>
+        <link refid="structvy__stmt__counter"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/vy_mem.h" line="158" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_mem.h" bodystart="158" bodyend="216"/>
+    <listofallmembers>
+      <member refid="structvy__mem_1afe4b11945ca7cce2e38b01bec8b453df" prot="public" virt="non-virtual"><scope>vy_mem</scope><name>cmp_def</name></member>
+      <member refid="structvy__mem_1a998e90359dc2873107073c4b67f7001f" prot="public" virt="non-virtual"><scope>vy_mem</scope><name>count</name></member>
+      <member refid="structvy__mem_1ac9f14dcd6d2bfaf56c860e1e290eb364" prot="public" virt="non-virtual"><scope>vy_mem</scope><name>dump_lsn</name></member>
+      <member refid="structvy__mem_1a211285caf50a73db4b29e53d9b2d2b65" prot="public" virt="non-virtual"><scope>vy_mem</scope><name>env</name></member>
+      <member refid="structvy__mem_1a4d0ed365a3359bdad09e37886b0f6a66" prot="public" virt="non-virtual"><scope>vy_mem</scope><name>format</name></member>
+      <member refid="structvy__mem_1ad87bd83b951105f3e27d11750fd0ed87" prot="public" virt="non-virtual"><scope>vy_mem</scope><name>generation</name></member>
+      <member refid="structvy__mem_1aae0ae379af2ac98e3ebb54491ad24c8e" prot="public" virt="non-virtual"><scope>vy_mem</scope><name>in_sealed</name></member>
+      <member refid="structvy__mem_1af3a3ad0a8e16f5e72ec039d4d9f0d42b" prot="public" virt="non-virtual"><scope>vy_mem</scope><name>pin_cond</name></member>
+      <member refid="structvy__mem_1abe32f6fdbc53595d5f201de30f912d9f" prot="public" virt="non-virtual"><scope>vy_mem</scope><name>pin_count</name></member>
+      <member refid="structvy__mem_1a7297919bff76a953fb77e23b5566f18b" prot="public" virt="non-virtual"><scope>vy_mem</scope><name>space_cache_version</name></member>
+      <member refid="structvy__mem_1ae3851af38812716901df6ed48f0fb5c6" prot="public" virt="non-virtual"><scope>vy_mem</scope><name>tree</name></member>
+      <member refid="structvy__mem_1a6e8536234e8397e4e163865ba7ca2c25" prot="public" virt="non-virtual"><scope>vy_mem</scope><name>tree_extent_size</name></member>
+      <member refid="structvy__mem_1a1a07da83554b96088bb2687565150060" prot="public" virt="non-virtual"><scope>vy_mem</scope><name>version</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

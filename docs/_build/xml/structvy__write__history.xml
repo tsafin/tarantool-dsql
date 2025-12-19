@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvy__write__history" kind="struct" language="C++" prot="public">
+    <compoundname>vy_write_history</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvy__write__history_1a2f12ce5698ca2e25618448919930e48a" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__write__history" kindref="compound">vy_write_history</ref> *</type>
+        <definition>struct vy_write_history* vy_write_history::next</definition>
+        <argsstring></argsstring>
+        <name>next</name>
+        <briefdescription>
+<para>Next version with greater LSN. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.c" line="84" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__write__history_1a097ea6e518e2be8bdab6374a515dd0cb" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+        <definition>struct vy_entry vy_write_history::entry</definition>
+        <argsstring></argsstring>
+        <name>entry</name>
+        <briefdescription>
+<para>Key. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.c" line="84" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A sequence of versions of a key, sorted by LSN in ascending order. </para>    </briefdescription>
+    <detaileddescription>
+<para>(history-&gt;entry.stmt.lsn &lt; history-&gt;next-&gt;entry.stmt.lsn). </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="15719">
+        <label>vy_entry</label>
+        <link refid="structvy__entry"/>
+        <childnode refid="15720" relation="usage">
+          <edgelabel>stmt</edgelabel>
+        </childnode>
+      </node>
+      <node id="15720">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="15718">
+        <label>vy_write_history</label>
+        <link refid="structvy__write__history"/>
+        <childnode refid="15719" relation="usage">
+          <edgelabel>entry</edgelabel>
+        </childnode>
+        <childnode refid="15718" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.c" line="82" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="82" bodyend="87"/>
+    <listofallmembers>
+      <member refid="structvy__write__history_1a097ea6e518e2be8bdab6374a515dd0cb" prot="public" virt="non-virtual"><scope>vy_write_history</scope><name>entry</name></member>
+      <member refid="structvy__write__history_1a2f12ce5698ca2e25618448919930e48a" prot="public" virt="non-virtual"><scope>vy_write_history</scope><name>next</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

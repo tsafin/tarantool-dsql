@@ -1,0 +1,178 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvy__cache__env" kind="struct" language="C++" prot="public">
+    <compoundname>vy_cache_env</compoundname>
+    <includes local="no">vy_cache.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvy__cache__env_1af54c51458c571b3376f3ebed25d96d24" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist vy_cache_env::cache_lru</definition>
+        <argsstring></argsstring>
+        <name>cache_lru</name>
+        <briefdescription>
+<para>Common LRU list of read cache. </para>        </briefdescription>
+        <detaileddescription>
+<para>The first element is the newest </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="67" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="119" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__cache__env_1a009461d912fc227cd1ed5400a197b694" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmempool" kindref="compound">mempool</ref></type>
+        <definition>struct mempool vy_cache_env::cache_node_mempool</definition>
+        <argsstring></argsstring>
+        <name>cache_node_mempool</name>
+        <briefdescription>
+<para>Common mempool for <ref refid="structvy__cache__node" kindref="compound">vy_cache_node</ref> struct. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="67" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__cache__env_1a2e31be5c35992931af7cba7f3fe48614" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t vy_cache_env::mem_used</definition>
+        <argsstring></argsstring>
+        <name>mem_used</name>
+        <briefdescription>
+<para>Size of memory occupied by cached tuples. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="123" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__cache__env_1a60e2dbdd54b15986bff04aba3301138c" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t vy_cache_env::mem_quota</definition>
+        <argsstring></argsstring>
+        <name>mem_quota</name>
+        <briefdescription>
+<para>Max memory size that can be used for cache. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="125" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Environment of the cache. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="12758">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="12752">
+        <label>vy_cache_env</label>
+        <link refid="structvy__cache__env"/>
+        <childnode refid="12753" relation="usage">
+          <edgelabel>cache_node_mempool</edgelabel>
+        </childnode>
+        <childnode refid="12755" relation="usage">
+          <edgelabel>cache_lru</edgelabel>
+        </childnode>
+      </node>
+      <node id="12753">
+        <label>mempool</label>
+        <link refid="structmempool"/>
+        <childnode refid="12754" relation="usage">
+          <edgelabel>spare</edgelabel>
+          <edgelabel>first_hot_slab</edgelabel>
+        </childnode>
+        <childnode refid="12757" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="12759" relation="usage">
+          <edgelabel>link</edgelabel>
+          <edgelabel>delayed</edgelabel>
+        </childnode>
+        <childnode refid="12755" relation="usage">
+          <edgelabel>cold_slabs</edgelabel>
+        </childnode>
+        <childnode refid="12760" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="12755">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="12755" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="12757">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="12758" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="12755" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="12762">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="12754">
+        <label>mslab</label>
+        <link refid="structmslab"/>
+        <childnode refid="12755" relation="usage">
+          <edgelabel>next_in_cold</edgelabel>
+        </childnode>
+        <childnode refid="12756" relation="usage">
+          <edgelabel>slab</edgelabel>
+        </childnode>
+      </node>
+      <node id="12763">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="12761">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="12762" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="12763" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="12760">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="12757" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="12761" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="12759">
+        <label>lifo</label>
+        <link refid="structlifo"/>
+      </node>
+      <node id="12756">
+        <label>slab</label>
+        <link refid="structslab"/>
+        <childnode refid="12755" relation="usage">
+          <edgelabel>next_in_cache</edgelabel>
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/vy_cache.h" line="117" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_cache.h" bodystart="117" bodyend="126"/>
+    <listofallmembers>
+      <member refid="structvy__cache__env_1af54c51458c571b3376f3ebed25d96d24" prot="public" virt="non-virtual"><scope>vy_cache_env</scope><name>cache_lru</name></member>
+      <member refid="structvy__cache__env_1a009461d912fc227cd1ed5400a197b694" prot="public" virt="non-virtual"><scope>vy_cache_env</scope><name>cache_node_mempool</name></member>
+      <member refid="structvy__cache__env_1a60e2dbdd54b15986bff04aba3301138c" prot="public" virt="non-virtual"><scope>vy_cache_env</scope><name>mem_quota</name></member>
+      <member refid="structvy__cache__env_1a2e31be5c35992931af7cba7f3fe48614" prot="public" virt="non-virtual"><scope>vy_cache_env</scope><name>mem_used</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

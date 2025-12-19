@@ -1,0 +1,102 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structspace__opts" kind="struct" language="C++" prot="public">
+    <compoundname>space_opts</compoundname>
+    <includes local="no">space_def.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structspace__opts_1a29e37d55064fd847036769ca534deed8" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t space_opts::group_id</definition>
+        <argsstring></argsstring>
+        <name>group_id</name>
+        <briefdescription>
+<para>Replication group identifier. </para>        </briefdescription>
+        <detaileddescription>
+<para>Defines how changes made to a space are replicated. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/space_def.h" line="49" column="1" bodyfile="/home/tsafin/tarantool/src/box/space_def.h" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structspace__opts_1ac381b760d02bcd1a0a887ab28a6242f1" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool space_opts::is_temporary</definition>
+        <argsstring></argsstring>
+        <name>is_temporary</name>
+        <briefdescription>
+<para>The space is a temporary: </para>        </briefdescription>
+        <detaileddescription>
+<para><itemizedlist>
+<listitem><para>it is empty at server start</para></listitem><listitem><para>changes are not written to WAL</para></listitem><listitem><para>changes are not part of a snapshot</para></listitem><listitem><para>in SQL: <ref refid="structspace__def" kindref="compound">space_def</ref> memory is allocated on region and does not require manual release. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/space_def.h" line="58" column="1" bodyfile="/home/tsafin/tarantool/src/box/space_def.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structspace__opts_1a4a1b9c0ff361adbc1735f6d0df3113e0" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool space_opts::is_ephemeral</definition>
+        <argsstring></argsstring>
+        <name>is_ephemeral</name>
+        <briefdescription>
+<para>This flag is set if space is ephemeral and hence its format might be re-used. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/space_def.h" line="63" column="1" bodyfile="/home/tsafin/tarantool/src/box/space_def.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structspace__opts_1ad5381d2d56bed1aa3a2b98b30812311d" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool space_opts::is_view</definition>
+        <argsstring></argsstring>
+        <name>is_view</name>
+        <briefdescription>
+<para>If the space is a view, then it can&apos;t feature any indexes, and must have SQL statement. </para>        </briefdescription>
+        <detaileddescription>
+<para>Moreover, this flag can&apos;t be changed after space creation. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/space_def.h" line="69" column="1" bodyfile="/home/tsafin/tarantool/src/box/space_def.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structspace__opts_1a1a39496d9a47759fdfe0fd428228bdda" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool space_opts::is_sync</definition>
+        <argsstring></argsstring>
+        <name>is_sync</name>
+        <briefdescription>
+<para>Synchronous space makes all transactions, affecting its data, synchronous. </para>        </briefdescription>
+        <detaileddescription>
+<para>That means they are not applied until replicated to a quorum of replicas. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/space_def.h" line="75" column="1" bodyfile="/home/tsafin/tarantool/src/box/space_def.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structspace__opts_1a8e222ad3827dec29bf9634967fecc497" prot="public" static="no" mutable="no">
+        <type>char *</type>
+        <definition>char* space_opts::sql</definition>
+        <argsstring></argsstring>
+        <name>sql</name>
+        <briefdescription>
+<para>SQL statement that produced this space. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/space_def.h" line="77" column="1" bodyfile="/home/tsafin/tarantool/src/box/space_def.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Space options. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/tsafin/tarantool/src/box/space_def.h" line="44" column="1" bodyfile="/home/tsafin/tarantool/src/box/space_def.h" bodystart="44" bodyend="78"/>
+    <listofallmembers>
+      <member refid="structspace__opts_1a29e37d55064fd847036769ca534deed8" prot="public" virt="non-virtual"><scope>space_opts</scope><name>group_id</name></member>
+      <member refid="structspace__opts_1a4a1b9c0ff361adbc1735f6d0df3113e0" prot="public" virt="non-virtual"><scope>space_opts</scope><name>is_ephemeral</name></member>
+      <member refid="structspace__opts_1a1a39496d9a47759fdfe0fd428228bdda" prot="public" virt="non-virtual"><scope>space_opts</scope><name>is_sync</name></member>
+      <member refid="structspace__opts_1ac381b760d02bcd1a0a887ab28a6242f1" prot="public" virt="non-virtual"><scope>space_opts</scope><name>is_temporary</name></member>
+      <member refid="structspace__opts_1ad5381d2d56bed1aa3a2b98b30812311d" prot="public" virt="non-virtual"><scope>space_opts</scope><name>is_view</name></member>
+      <member refid="structspace__opts_1a8e222ad3827dec29bf9634967fecc497" prot="public" virt="non-virtual"><scope>space_opts</scope><name>sql</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

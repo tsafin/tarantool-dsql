@@ -1,0 +1,196 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structiproto__kharon" kind="struct" language="C++" prot="public">
+    <compoundname>iproto_kharon</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structiproto__kharon_1a1820aae5bbc78c277c8c1adf649f4d93" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcmsg" kindref="compound">cmsg</ref></type>
+        <definition>struct cmsg iproto_kharon::base</definition>
+        <argsstring></argsstring>
+        <name>base</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="79" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structiproto__kharon_1a2af98cedc31d657bb9db986cb056cf54" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structiproto__wpos" kindref="compound">iproto_wpos</ref></type>
+        <definition>struct iproto_wpos iproto_kharon::wpos</definition>
+        <argsstring></argsstring>
+        <name>wpos</name>
+        <briefdescription>
+<para>Tx thread sets wpos to the current position in the output buffer and sends the message to iproto thread. </para>        </briefdescription>
+        <detaileddescription>
+<para>Iproto returns the message to tx after setting wpos to the last flushed position (similarly to <ref refid="structiproto__msg_1a329aae3293c705b050410fc0f400a65d" kindref="member">iproto_msg.wpos</ref>). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="79" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>In Greek mythology, Kharon is the ferryman who carries souls of the newly deceased across the river Styx that divided the world of the living from the world of the dead. </para>    </briefdescription>
+    <detaileddescription>
+<para>Here Kharon is a cbus message and does similar work. It notifies the iproto thread about new data in a connection output buffer and carries back to tx thread the position in the output buffer which has been successfully flushed to the socket. Styx here is cpipe, and the boat is cbus message. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="4552">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="4564">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="4564" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="4563">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="4564" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="4547">
+        <label>iproto_kharon</label>
+        <link refid="structiproto__kharon"/>
+        <childnode refid="4548" relation="usage">
+          <edgelabel>wpos</edgelabel>
+        </childnode>
+        <childnode refid="4558" relation="usage">
+          <edgelabel>base</edgelabel>
+        </childnode>
+      </node>
+      <node id="4560">
+        <label>cpipe</label>
+        <link refid="structcpipe"/>
+        <childnode refid="4553" relation="usage">
+          <edgelabel>on_flush</edgelabel>
+        </childnode>
+        <childnode refid="4561" relation="usage">
+          <edgelabel>endpoint</edgelabel>
+        </childnode>
+        <childnode refid="4563" relation="usage">
+          <edgelabel>input</edgelabel>
+        </childnode>
+      </node>
+      <node id="4559">
+        <label>cmsg_hop</label>
+        <link refid="structcmsg__hop"/>
+        <childnode refid="4560" relation="usage">
+          <edgelabel>pipe</edgelabel>
+        </childnode>
+        <childnode refid="4558" relation="usage">
+          <edgelabel>f</edgelabel>
+        </childnode>
+      </node>
+      <node id="4549">
+        <label>obuf</label>
+        <link refid="structobuf"/>
+        <childnode refid="4550" relation="usage">
+          <edgelabel>slabc</edgelabel>
+        </childnode>
+      </node>
+      <node id="4548">
+        <label>iproto_wpos</label>
+        <link refid="structiproto__wpos"/>
+        <childnode refid="4549" relation="usage">
+          <edgelabel>obuf</edgelabel>
+        </childnode>
+        <childnode refid="4557" relation="usage">
+          <edgelabel>svp</edgelabel>
+        </childnode>
+      </node>
+      <node id="4553">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="4553" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="4558">
+        <label>cmsg</label>
+        <link refid="structcmsg"/>
+        <childnode refid="4559" relation="usage">
+          <edgelabel>hop</edgelabel>
+          <edgelabel>route</edgelabel>
+        </childnode>
+        <childnode refid="4564" relation="usage">
+          <edgelabel>fifo</edgelabel>
+        </childnode>
+      </node>
+      <node id="4551">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="4552" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="4553" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="4555">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="4556">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="4554">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="4555" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="4556" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="4550">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="4551" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="4554" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="4557">
+        <label>obuf_svp</label>
+        <link refid="structobuf__svp"/>
+      </node>
+      <node id="4562">
+        <label>fiber_cond</label>
+        <link refid="structfiber__cond"/>
+        <childnode refid="4553" relation="usage">
+          <edgelabel>waiters</edgelabel>
+        </childnode>
+      </node>
+      <node id="4561">
+        <label>cbus_endpoint</label>
+        <link refid="structcbus__endpoint"/>
+        <childnode refid="4562" relation="usage">
+          <edgelabel>cond</edgelabel>
+        </childnode>
+        <childnode refid="4553" relation="usage">
+          <edgelabel>in_cbus</edgelabel>
+        </childnode>
+        <childnode refid="4563" relation="usage">
+          <edgelabel>output</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="100" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="100" bodyend="110"/>
+    <listofallmembers>
+      <member refid="structiproto__kharon_1a1820aae5bbc78c277c8c1adf649f4d93" prot="public" virt="non-virtual"><scope>iproto_kharon</scope><name>base</name></member>
+      <member refid="structiproto__kharon_1a2af98cedc31d657bb9db986cb056cf54" prot="public" virt="non-virtual"><scope>iproto_kharon</scope><name>wpos</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

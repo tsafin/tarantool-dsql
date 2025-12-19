@@ -1,0 +1,518 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="execute_8h" kind="file" language="C++">
+    <compoundname>execute.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes refid="box_2port_8h" local="yes">port.h</includes>
+    <includedby refid="ck__constraint_8c" local="yes">/home/tsafin/tarantool/src/box/ck_constraint.c</includedby>
+    <includedby refid="execute_8c" local="yes">/home/tsafin/tarantool/src/box/execute.c</includedby>
+    <includedby refid="iproto_8cc" local="yes">/home/tsafin/tarantool/src/box/iproto.cc</includedby>
+    <includedby refid="lua_2execute_8c" local="yes">/home/tsafin/tarantool/src/box/lua/execute.c</includedby>
+    <includedby refid="net__box_8c" local="yes">/home/tsafin/tarantool/src/box/lua/net_box.c</includedby>
+    <includedby refid="analyze_8c" local="yes">/home/tsafin/tarantool/src/box/sql/analyze.c</includedby>
+    <includedby refid="legacy_8c" local="yes">/home/tsafin/tarantool/src/box/sql/legacy.c</includedby>
+    <includedby refid="vdbeaux_8c" local="yes">/home/tsafin/tarantool/src/box/sql/vdbeaux.c</includedby>
+    <includedby refid="sql__stmt__cache_8c" local="yes">/home/tsafin/tarantool/src/box/sql_stmt_cache.c</includedby>
+    <incdepgraph>
+      <node id="168">
+        <label>stdbool.h</label>
+      </node>
+      <node id="167">
+        <label>stdint.h</label>
+      </node>
+      <node id="166">
+        <label>/home/tsafin/tarantool/src/box/execute.h</label>
+        <link refid="execute_8h"/>
+        <childnode refid="167" relation="include">
+        </childnode>
+        <childnode refid="168" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structport__sql" prot="public">port_sql</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="execute_8h_1a82ebaf2cb6694dab319addc106d95f0a" prot="public" static="no">
+        <name>sql_info_key</name>
+        <enumvalue id="execute_8h_1a82ebaf2cb6694dab319addc106d95f0aa2cc0029cd1acb6427ef178bef80e7009" prot="public">
+          <name>SQL_INFO_ROW_COUNT</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="execute_8h_1a82ebaf2cb6694dab319addc106d95f0aa0b0bc602d179a49e9fdb6fccec895d75" prot="public">
+          <name>SQL_INFO_AUTOINCREMENT_IDS</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="execute_8h_1a82ebaf2cb6694dab319addc106d95f0aa193a31eecf19f1ec6443b7a85d448ff3" prot="public">
+          <name>sql_info_key_MAX</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Keys of IPROTO_SQL_INFO map. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/execute.h" line="43" column="1" bodyfile="/home/tsafin/tarantool/src/box/execute.h" bodystart="43" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="enum" id="execute_8h_1a34e4e28beddd609ac43bdac1335398e0" prot="public" static="no">
+        <name>sql_serialization_format</name>
+        <enumvalue id="execute_8h_1a34e4e28beddd609ac43bdac1335398e0ac6f2e4405320346c127d714357133505" prot="public">
+          <name>DQL_EXECUTE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="execute_8h_1a34e4e28beddd609ac43bdac1335398e0a7a60ca0e4509d4d65a3bb7e04223df09" prot="public">
+          <name>DML_EXECUTE</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="execute_8h_1a34e4e28beddd609ac43bdac1335398e0ae9c800689f2babe1509d28f91ebaf65c" prot="public">
+          <name>DQL_PREPARE</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="execute_8h_1a34e4e28beddd609ac43bdac1335398e0a6298f3b76f5a153d0325e2562ace0023" prot="public">
+          <name>DML_PREPARE</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>One of possible formats used to dump msgpack/Lua. </para>        </briefdescription>
+        <detaileddescription>
+<para>For details see port_sql_dump_msgpack() and port_sql_dump_lua(). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/execute.h" line="53" column="1" bodyfile="/home/tsafin/tarantool/src/box/execute.h" bodystart="53" bodyend="58"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="execute_8h_1a7fdb2c71a36d70e53f6f51060d30ef7d" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* sql_info_key_strs[]</definition>
+        <argsstring>[]</argsstring>
+        <name>sql_info_key_strs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/execute.h" line="60" column="1" bodyfile="/home/tsafin/tarantool/src/box/execute.c" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="execute_8h_1aa2b780cda248d20e5f641774d8bbe4fa" prot="public" static="no" mutable="no">
+        <type>const struct <ref refid="structport__vtab" kindref="compound">port_vtab</ref></type>
+        <definition>const struct port_vtab port_sql_vtab</definition>
+        <argsstring></argsstring>
+        <name>port_sql_vtab</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/execute.h" line="87" column="1" bodyfile="/home/tsafin/tarantool/src/box/execute.c" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="execute_8h_1a86cb09dcee78dd36108d8cbdfac46b5c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sql_unprepare</definition>
+        <argsstring>(uint32_t stmt_id)</argsstring>
+        <name>sql_unprepare</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>stmt_id</declname>
+        </param>
+        <briefdescription>
+<para>Deallocate prepared statement from current session: remove its ID from session-local hash and unref entry in global holder. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/execute.h" line="66" column="1" bodyfile="/home/tsafin/tarantool/src/box/execute.c" bodystart="646" bodyend="655"/>
+      </memberdef>
+      <memberdef kind="function" id="execute_8h_1a4b83617cfc7e704092452a8ffc75bb7b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sql_execute_prepared</definition>
+        <argsstring>(uint32_t query_id, const struct sql_bind *bind, uint32_t bind_count, struct port *port, struct region *region)</argsstring>
+        <name>sql_execute_prepared</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>query_id</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structsql__bind" kindref="compound">sql_bind</ref> *</type>
+          <declname>bind</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>bind_count</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structport" kindref="compound">port</ref> *</type>
+          <declname>port</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structregion" kindref="compound">region</ref> *</type>
+          <declname>region</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/execute.h" line="69" column="1" bodyfile="/home/tsafin/tarantool/src/box/execute.c" bodystart="696" bodyend="734"/>
+      </memberdef>
+      <memberdef kind="function" id="execute_8h_1a948ab7e8181150f8efdf8c204a4f82c6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sql_prepare_and_execute</definition>
+        <argsstring>(const char *sql, int len, const struct sql_bind *bind, uint32_t bind_count, struct port *port, struct region *region)</argsstring>
+        <name>sql_prepare_and_execute</name>
+        <param>
+          <type>const char *</type>
+          <declname>sql</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structsql__bind" kindref="compound">sql_bind</ref> *</type>
+          <declname>bind</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>bind_count</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structport" kindref="compound">port</ref> *</type>
+          <declname>port</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structregion" kindref="compound">region</ref> *</type>
+          <declname>region</declname>
+        </param>
+        <briefdescription>
+<para>Prepare and execute an SQL statement. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sql</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SQL statement. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of <emphasis>sql</emphasis>. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bind</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of parameters. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bind_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of <emphasis>bind</emphasis>. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">port</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Port to store SQL response. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>region</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Runtime allocator for temporary objects (columns, tuples ...).</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Success. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Client or memory error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/execute.h" line="87" column="1" bodyfile="/home/tsafin/tarantool/src/box/execute.c" bodystart="737" bodyend="753"/>
+      </memberdef>
+      <memberdef kind="function" id="execute_8h_1a88cd9b1c78a2faeb0fbae9f3032df113" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sql_stmt_finalize</definition>
+        <argsstring>(struct sql_stmt *stmt)</argsstring>
+        <name>sql_stmt_finalize</name>
+        <param>
+          <type>struct sql_stmt *</type>
+          <declname>stmt</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/execute.h" line="121" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeapi.c" bodystart="80" bodyend="89"/>
+      </memberdef>
+      <memberdef kind="function" id="execute_8h_1afa9a76d466243ac614078665245843d7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t sql_stmt_est_size</definition>
+        <argsstring>(const struct sql_stmt *stmt)</argsstring>
+        <name>sql_stmt_est_size</name>
+        <param>
+          <type>const struct sql_stmt *</type>
+          <declname>stmt</declname>
+        </param>
+        <briefdescription>
+<para>Calculate estimated size of memory occupied by VM. </para>        </briefdescription>
+        <detaileddescription>
+<para>See sqlVdbeMakeReady() for details concerning allocated memory. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/execute.h" line="129" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeapi.c" bodystart="799" bodyend="850"/>
+      </memberdef>
+      <memberdef kind="function" id="execute_8h_1ae7e47c95a4e2e5b3815e076ce7f4663c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char* sql_stmt_query_str</definition>
+        <argsstring>(const struct sql_stmt *stmt)</argsstring>
+        <name>sql_stmt_query_str</name>
+        <param>
+          <type>const struct sql_stmt *</type>
+          <declname>stmt</declname>
+        </param>
+        <briefdescription>
+<para>Return string of SQL query. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/execute.h" line="135" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeapi.c" bodystart="853" bodyend="857"/>
+      </memberdef>
+      <memberdef kind="function" id="execute_8h_1afc259fdd33194077a583ed234ca3e228" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sql_stmt_busy</definition>
+        <argsstring>(const struct sql_stmt *stmt)</argsstring>
+        <name>sql_stmt_busy</name>
+        <param>
+          <type>const struct sql_stmt *</type>
+          <declname>stmt</declname>
+        </param>
+        <briefdescription>
+<para>Return true if statement executes right now. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/execute.h" line="139" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeapi.c" bodystart="1200" bodyend="1205"/>
+      </memberdef>
+      <memberdef kind="function" id="execute_8h_1a6aebf06baefed84914be55b5d704142e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sql_prepare</definition>
+        <argsstring>(const char *sql, int len, struct port *port)</argsstring>
+        <name>sql_prepare</name>
+        <param>
+          <type>const char *</type>
+          <declname>sql</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structport" kindref="compound">port</ref> *</type>
+          <declname>port</declname>
+        </param>
+        <briefdescription>
+<para>Prepare (compile into VDBE byte-code) statement. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sql</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UTF-8 encoded SQL statement. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sql</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>in bytes. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>port</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Port to store request response.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+Prepare (compile into VDBE byte-code) statement. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/execute.h" line="149" column="1" bodyfile="/home/tsafin/tarantool/src/box/execute.c" bodystart="610" bodyend="638"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_SQL_EXECUTE_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_SQL_EXECUTE_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2017,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;port.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>sql_info_key<sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SQL_INFO_ROW_COUNT<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SQL_INFO_AUTOINCREMENT_IDS<sp/>=<sp/>1,</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sql_info_key_MAX,</highlight></codeline>
+<codeline lineno="47"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>sql_serialization_format<sp/>{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>DQL_EXECUTE<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>DML_EXECUTE<sp/>=<sp/>1,</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>DQL_PREPARE<sp/>=<sp/>2,</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>DML_PREPARE<sp/>=<sp/>3,</highlight></codeline>
+<codeline lineno="58"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sql_info_key_strs[];</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structregion" kindref="compound">region</ref>;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsql__bind" kindref="compound">sql_bind</ref>;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal">sql_unprepare(uint32_t<sp/>stmt_id);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal">sql_execute_prepared(uint32_t<sp/>query_id,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsql__bind" kindref="compound">sql_bind</ref><sp/>*bind,</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>bind_count,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structport" kindref="compound">port</ref><sp/>*<ref refid="structport" kindref="compound">port</ref>,</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structregion" kindref="compound">region</ref><sp/>*<ref refid="structregion" kindref="compound">region</ref>);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal">sql_prepare_and_execute(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structsql" kindref="compound">sql</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsql__bind" kindref="compound">sql_bind</ref><sp/>*bind,</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>bind_count,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structport" kindref="compound">port</ref><sp/>*<ref refid="structport" kindref="compound">port</ref>,</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structregion" kindref="compound">region</ref><sp/>*<ref refid="structregion" kindref="compound">region</ref>);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101" refid="structport__sql" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structport__sql" kindref="compound">port_sql</ref><sp/>{</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structport__c" kindref="compound">port_c</ref><sp/>base;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Prepared<sp/>SQL<sp/>statement.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">sql_stmt<sp/>*stmt;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structport__sql_1a003d88917430fc08debc68e95fb25fec" kindref="member">serialization_format</ref>;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structport__sql_1a599aaf031b01c862c727b51fdaa7b23e" kindref="member">do_finalize</ref>;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structport__vtab" kindref="compound">port_vtab</ref><sp/>port_sql_vtab;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal">sql_stmt_finalize(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sql_stmt<sp/>*stmt);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal">sql_stmt_est_size(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sql_stmt<sp/>*stmt);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="135"><highlight class="normal">sql_stmt_query_str(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sql_stmt<sp/>*stmt);</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal">sql_stmt_busy(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sql_stmt<sp/>*stmt);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal">sql_prepare(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structsql" kindref="compound">sql</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>len,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structport" kindref="compound">port</ref><sp/>*<ref refid="structport" kindref="compound">port</ref>);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>{<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_SQL_EXECUTE_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/execute.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,120 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="in-operator_8md" kind="file" language="Markdown">
+    <compoundname>in-operator.md</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">IN-Operator<sp/>Implementation<sp/>Notes</highlight></codeline>
+<codeline><highlight class="normal">================================</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">##<sp/>Definitions:</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">An<sp/>IN<sp/>operator<sp/>has<sp/>one<sp/>of<sp/>the<sp/>following<sp/>formats:</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>x<sp/>IN<sp/>(y1,y2,y3,...,yN)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>x<sp/>IN<sp/>(subquery)</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">The<sp/>&quot;x&quot;<sp/>is<sp/>referred<sp/>to<sp/>as<sp/>the<sp/>LHS<sp/>(left-hand<sp/>side).<sp/><sp/>The<sp/>list<sp/>or<sp/>subquery</highlight></codeline>
+<codeline><highlight class="normal">on<sp/>the<sp/>right<sp/>is<sp/>called<sp/>the<sp/>RHS<sp/>(right-hand<sp/>side).<sp/><sp/>If<sp/>the<sp/>RHS<sp/>is<sp/>a<sp/>list</highlight></codeline>
+<codeline><highlight class="normal">it<sp/>must<sp/>be<sp/>a<sp/>non-empty<sp/>list.<sp/><sp/>But<sp/>if<sp/>the<sp/>RHS<sp/>is<sp/>a<sp/>subquery,<sp/>it<sp/>can<sp/>be<sp/>an</highlight></codeline>
+<codeline><highlight class="normal">empty<sp/>set.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">The<sp/>LHS<sp/>can<sp/>be<sp/>a<sp/>scalar<sp/>(a<sp/>single<sp/>quantity)<sp/>or<sp/>a<sp/>vector<sp/>(a<sp/>list<sp/>of</highlight></codeline>
+<codeline><highlight class="normal">two<sp/>or<sp/>or<sp/>more<sp/>values)<sp/>or<sp/>a<sp/>subquery<sp/>that<sp/>returns<sp/>one<sp/>or<sp/>more<sp/>columns.</highlight></codeline>
+<codeline><highlight class="normal">We<sp/>use<sp/>the<sp/>term<sp/>&quot;vector&quot;<sp/>to<sp/>mean<sp/>an<sp/>actually<sp/>list<sp/>of<sp/>values<sp/>or<sp/>a</highlight></codeline>
+<codeline><highlight class="normal">subquery<sp/>that<sp/>returns<sp/>two<sp/>or<sp/>more<sp/>columns.<sp/><sp/>An<sp/>isolated<sp/>value<sp/>or</highlight></codeline>
+<codeline><highlight class="normal">a<sp/>subquery<sp/>that<sp/>returns<sp/>a<sp/>single<sp/>columns<sp/>is<sp/>called<sp/>a<sp/>scalar.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">The<sp/>RHS<sp/>can<sp/>be<sp/>a<sp/>subquery<sp/>that<sp/>returns<sp/>a<sp/>single<sp/>column,<sp/>a<sp/>subquery</highlight></codeline>
+<codeline><highlight class="normal">that<sp/>returns<sp/>two<sp/>or<sp/>more<sp/>columns,<sp/>or<sp/>a<sp/>list<sp/>of<sp/>scalars.<sp/><sp/>It<sp/>is<sp/>not</highlight></codeline>
+<codeline><highlight class="normal">currently<sp/>support<sp/>for<sp/>the<sp/>RHS<sp/>to<sp/>be<sp/>a<sp/>list<sp/>of<sp/>vectors.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">The<sp/>number<sp/>of<sp/>columns<sp/>for<sp/>LHS<sp/>must<sp/>match<sp/>the<sp/>number<sp/>of<sp/>columns<sp/>for</highlight></codeline>
+<codeline><highlight class="normal">the<sp/>RHS.<sp/><sp/>If<sp/>the<sp/>RHS<sp/>is<sp/>a<sp/>list<sp/>of<sp/>values,<sp/>then<sp/>the<sp/>LHS<sp/>must<sp/>be<sp/>a<sp/></highlight></codeline>
+<codeline><highlight class="normal">scalar.<sp/><sp/>If<sp/>the<sp/>RHS<sp/>is<sp/>a<sp/>subquery<sp/>returning<sp/>N<sp/>columns,<sp/>then<sp/>the<sp/>LHS</highlight></codeline>
+<codeline><highlight class="normal">must<sp/>be<sp/>a<sp/>vector<sp/>of<sp/>size<sp/>N.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">NULL<sp/>values<sp/>can<sp/>occur<sp/>in<sp/>either<sp/>or<sp/>both<sp/>of<sp/>the<sp/>LHS<sp/>and<sp/>RHS.</highlight></codeline>
+<codeline><highlight class="normal">If<sp/>the<sp/>LHS<sp/>contains<sp/>only</highlight></codeline>
+<codeline><highlight class="normal">NULL<sp/>values<sp/>then<sp/>we<sp/>say<sp/>that<sp/>it<sp/>is<sp/>a<sp/>&quot;total-NULL&quot;.<sp/><sp/>If<sp/>the<sp/>LHS<sp/>contains</highlight></codeline>
+<codeline><highlight class="normal">some<sp/>NULL<sp/>values<sp/>and<sp/>some<sp/>non-NULL<sp/>values,<sp/>then<sp/>it<sp/>is<sp/>a<sp/>&quot;partial-NULL&quot;.</highlight></codeline>
+<codeline><highlight class="normal">For<sp/>a<sp/>scalar,<sp/>there<sp/>is<sp/>no<sp/>difference<sp/>between<sp/>a<sp/>partial-NULL<sp/>and<sp/>a<sp/>total-NULL.</highlight></codeline>
+<codeline><highlight class="normal">The<sp/>RHS<sp/>is<sp/>a<sp/>partial-NULL<sp/>if<sp/>any<sp/>row<sp/>contains<sp/>a<sp/>NULL<sp/>value.<sp/><sp/>The<sp/>RHS<sp/>is</highlight></codeline>
+<codeline><highlight class="normal">a<sp/>total-NULL<sp/>if<sp/>it<sp/>contains<sp/>one<sp/>or<sp/>more<sp/>rows<sp/>that<sp/>contain<sp/>only<sp/>NULL<sp/>values.</highlight></codeline>
+<codeline><highlight class="normal">The<sp/>LHS<sp/>is<sp/>called<sp/>&quot;non-NULL&quot;<sp/>if<sp/>it<sp/>contains<sp/>no<sp/>NULL<sp/>values.<sp/><sp/>The<sp/>RHS<sp/>is</highlight></codeline>
+<codeline><highlight class="normal">called<sp/>&quot;non-NULL&quot;<sp/>if<sp/>it<sp/>contains<sp/>no<sp/>NULL<sp/>values<sp/>in<sp/>any<sp/>row.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">The<sp/>result<sp/>of<sp/>an<sp/>IN<sp/>operator<sp/>is<sp/>one<sp/>of<sp/>TRUE,<sp/>FALSE,<sp/>or<sp/>NULL.<sp/><sp/>A<sp/>NULL<sp/>result</highlight></codeline>
+<codeline><highlight class="normal">means<sp/>that<sp/>it<sp/>cannot<sp/>be<sp/>determined<sp/>if<sp/>the<sp/>LHS<sp/>is<sp/>contained<sp/>in<sp/>the<sp/>RHS<sp/>due</highlight></codeline>
+<codeline><highlight class="normal">to<sp/>the<sp/>presence<sp/>of<sp/>NULL<sp/>values.<sp/><sp/>In<sp/>some<sp/>contexts<sp/>(for<sp/>example,<sp/>when<sp/>the<sp/>IN</highlight></codeline>
+<codeline><highlight class="normal">operator<sp/>occurs<sp/>in<sp/>a<sp/>WHERE<sp/>clause)</highlight></codeline>
+<codeline><highlight class="normal">the<sp/>system<sp/>only<sp/>needs<sp/>a<sp/>binary<sp/>result:<sp/>TRUE<sp/>or<sp/>NOT-TRUE.<sp/><sp/>One<sp/>can<sp/>also</highlight></codeline>
+<codeline><highlight class="normal">to<sp/>define<sp/>a<sp/>binary<sp/>result<sp/>of<sp/>FALSE<sp/>and<sp/>NOT-FALSE,<sp/>but</highlight></codeline>
+<codeline><highlight class="normal">it<sp/>turns<sp/>out<sp/>that<sp/>no<sp/>extra<sp/>optimizations<sp/>are<sp/>possible<sp/>in<sp/>that<sp/>case,<sp/>so<sp/>if</highlight></codeline>
+<codeline><highlight class="normal">the<sp/>FALSE/NOT-FALSE<sp/>binary<sp/>is<sp/>needed,<sp/>we<sp/>have<sp/>to<sp/>compute<sp/>the<sp/>three-state</highlight></codeline>
+<codeline><highlight class="normal">TRUE/FALSE/NULL<sp/>result<sp/>and<sp/>then<sp/>combine<sp/>the<sp/>TRUE<sp/>and<sp/>NULL<sp/>values<sp/>into<sp/></highlight></codeline>
+<codeline><highlight class="normal">NOT-FALSE.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">A<sp/>&quot;NOT<sp/>IN&quot;<sp/>operator<sp/>is<sp/>computed<sp/>by<sp/>first<sp/>computing<sp/>the<sp/>equivalent<sp/>IN</highlight></codeline>
+<codeline><highlight class="normal">operator,<sp/>then<sp/>interchanging<sp/>the<sp/>TRUE<sp/>and<sp/>FALSE<sp/>results.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">##<sp/>Simple<sp/>Full-Scan<sp/>Algorithm</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">The<sp/>following<sp/>algorithm<sp/>always<sp/>compute<sp/>the<sp/>correct<sp/>answer.<sp/><sp/>However,<sp/>this</highlight></codeline>
+<codeline><highlight class="normal">algorithm<sp/>is<sp/>suboptimal,<sp/>especially<sp/>if<sp/>there<sp/>are<sp/>many<sp/>rows<sp/>on<sp/>the<sp/>RHS.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>1.<sp/><sp/>Set<sp/>the<sp/>null-flag<sp/>to<sp/>false</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>2.<sp/><sp/>For<sp/>each<sp/>row<sp/>in<sp/>the<sp/>RHS:</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>&lt;ol<sp/>type=&apos;a&apos;&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>&lt;li&gt;<sp/><sp/>Compare<sp/>the<sp/>LHS<sp/>against<sp/>the<sp/>RHS</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>&lt;li&gt;<sp/><sp/>If<sp/>the<sp/>LHS<sp/>exactly<sp/>matches<sp/>the<sp/>RHS,<sp/>immediately<sp/>return<sp/>TRUE</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>&lt;li&gt;<sp/><sp/>If<sp/>the<sp/>comparison<sp/>result<sp/>is<sp/>NULL,<sp/>set<sp/>the<sp/>null-flag<sp/>to<sp/>true</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>&lt;/ol&gt;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>3.<sp/><sp/>If<sp/>the<sp/>null-flag<sp/>is<sp/>true,<sp/>return<sp/>NULL.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>4.<sp/><sp/>Return<sp/>FALSE</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">##<sp/>Optimized<sp/>Algorithm</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">The<sp/>following<sp/>procedure<sp/>computes<sp/>the<sp/>same<sp/>answer<sp/>as<sp/>the<sp/>simple<sp/>full-scan</highlight></codeline>
+<codeline><highlight class="normal">algorithm,<sp/>though<sp/>it<sp/>does<sp/>so<sp/>with<sp/>less<sp/>work<sp/>in<sp/>the<sp/>common<sp/>case.<sp/><sp/>This</highlight></codeline>
+<codeline><highlight class="normal">is<sp/>the<sp/>algorithm<sp/>that<sp/>is<sp/>implemented<sp/>in<sp/>sql.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>1.<sp/><sp/>If<sp/>the<sp/>RHS<sp/>is<sp/>a<sp/>constant<sp/>list<sp/>of<sp/>length<sp/>1<sp/>or<sp/>2,<sp/>then<sp/>rewrite<sp/>the</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>IN<sp/>operator<sp/>as<sp/>a<sp/>simple<sp/>expression.<sp/><sp/>Implement</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>x<sp/>IN<sp/>(y1,y2)</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>as<sp/>if<sp/>it<sp/>were</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>x=y1<sp/>OR<sp/>x=y2</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>This<sp/>is<sp/>the<sp/>INDEX_NOOP<sp/>optimization<sp/>and<sp/>is<sp/>only<sp/>undertaken<sp/>if<sp/>the</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>IN<sp/>operator<sp/>is<sp/>used<sp/>for<sp/>membership<sp/>testing.<sp/><sp/>If<sp/>the<sp/>IN<sp/>operator<sp/>is</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>driving<sp/>a<sp/>loop,<sp/>then<sp/>skip<sp/>this<sp/>step<sp/>entirely.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>2.<sp/><sp/>Check<sp/>the<sp/>LHS<sp/>to<sp/>see<sp/>if<sp/>it<sp/>is<sp/>a<sp/>partial-NULL<sp/>and<sp/>if<sp/>it<sp/>is,<sp/>jump</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>ahead<sp/>to<sp/>step<sp/>5.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>3.<sp/><sp/>Do<sp/>a<sp/>binary<sp/>search<sp/>of<sp/>the<sp/>RHS<sp/>using<sp/>the<sp/>LHS<sp/>as<sp/>a<sp/>probe.<sp/><sp/>If</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>an<sp/>exact<sp/>match<sp/>is<sp/>found,<sp/>return<sp/>TRUE.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>4.<sp/><sp/>If<sp/>the<sp/>RHS<sp/>is<sp/>non-NULL<sp/>then<sp/>return<sp/>FALSE.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>5.<sp/><sp/>If<sp/>we<sp/>do<sp/>not<sp/>need<sp/>to<sp/>distinguish<sp/>between<sp/>FALSE<sp/>and<sp/>NULL,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>then<sp/>return<sp/>FALSE.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>6.<sp/><sp/>For<sp/>each<sp/>row<sp/>in<sp/>the<sp/>RHS,<sp/>compare<sp/>that<sp/>row<sp/>against<sp/>the<sp/>LHS<sp/>and</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>the<sp/>result<sp/>is<sp/>NULL,<sp/>immediately<sp/>return<sp/>NULL.<sp/><sp/>In<sp/>the<sp/>case</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>of<sp/>a<sp/>scalar<sp/>IN<sp/>operator,<sp/>we<sp/>only<sp/>need<sp/>to<sp/>look<sp/>at<sp/>the<sp/>very<sp/>first</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>row<sp/>the<sp/>RHS<sp/>because<sp/>for<sp/>a<sp/>scalar<sp/>RHS,<sp/>all<sp/>NULLs<sp/>will<sp/>always<sp/>come<sp/></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>first.<sp/><sp/>If<sp/>the<sp/>RHS<sp/>is<sp/>empty,<sp/>this<sp/>step<sp/>is<sp/>a<sp/>no-op.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/>7.<sp/><sp/>Return<sp/>FALSE.</highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/sql/in-operator.md"/>
+  </compounddef>
+</doxygen>

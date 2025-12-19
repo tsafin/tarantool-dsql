@@ -1,0 +1,492 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="errinj_8h" kind="file" language="C++">
+    <compoundname>errinj.h</compoundname>
+    <includes local="no">limits.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes refid="util_8h" local="yes">trivia/util.h</includes>
+    <includedby refid="tuple__format_8h" local="yes">/home/tsafin/tarantool/src/box/tuple_format.h</includedby>
+    <includedby refid="applier_8cc" local="yes">/home/tsafin/tarantool/src/box/applier.cc</includedby>
+    <includedby refid="func_8c" local="yes">/home/tsafin/tarantool/src/box/func.c</includedby>
+    <includedby refid="iproto_8cc" local="yes">/home/tsafin/tarantool/src/box/iproto.cc</includedby>
+    <includedby refid="lua_2error_8cc" local="no">/home/tsafin/tarantool/src/box/lua/error.cc</includedby>
+    <includedby refid="memtx__engine_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_engine.c</includedby>
+    <includedby refid="memtx__hash_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_hash.c</includedby>
+    <includedby refid="memtx__rtree_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_rtree.c</includedby>
+    <includedby refid="memtx__tree_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_tree.c</includedby>
+    <includedby refid="box_2port_8c" local="yes">/home/tsafin/tarantool/src/box/port.c</includedby>
+    <includedby refid="relay_8cc" local="yes">/home/tsafin/tarantool/src/box/relay.cc</includedby>
+    <includedby refid="box_2sql_2util_8c" local="yes">/home/tsafin/tarantool/src/box/sql/util.c</includedby>
+    <includedby refid="txn_8c" local="yes">/home/tsafin/tarantool/src/box/txn.c</includedby>
+    <includedby refid="vy__log_8c" local="yes">/home/tsafin/tarantool/src/box/vy_log.c</includedby>
+    <includedby refid="vy__scheduler_8c" local="yes">/home/tsafin/tarantool/src/box/vy_scheduler.c</includedby>
+    <includedby refid="wal_8c" local="yes">/home/tsafin/tarantool/src/box/wal.c</includedby>
+    <includedby refid="xlog_8c" local="yes">/home/tsafin/tarantool/src/box/xlog.c</includedby>
+    <includedby refid="curl_8c" local="yes">/home/tsafin/tarantool/src/curl.c</includedby>
+    <includedby refid="httpc_8c" local="yes">/home/tsafin/tarantool/src/httpc.c</includedby>
+    <includedby refid="coio__file_8c" local="yes">/home/tsafin/tarantool/src/lib/core/coio_file.c</includedby>
+    <includedby refid="errinj_8c" local="yes">/home/tsafin/tarantool/src/lib/core/errinj.c</includedby>
+    <includedby refid="lib_2core_2fiber_8c" local="yes">/home/tsafin/tarantool/src/lib/core/fiber.c</includedby>
+    <includedby refid="say_8c" local="yes">/home/tsafin/tarantool/src/lib/core/say.c</includedby>
+    <includedby refid="sio_8c" local="yes">/home/tsafin/tarantool/src/lib/core/sio.c</includedby>
+    <includedby refid="lib_2swim_2swim_8c" local="yes">/home/tsafin/tarantool/src/lib/swim/swim.c</includedby>
+    <incdepgraph>
+      <node id="1866">
+        <label>/home/tsafin/tarantool/src/lib/core/errinj.h</label>
+        <link refid="errinj_8h"/>
+        <childnode refid="1867" relation="include">
+        </childnode>
+        <childnode refid="1868" relation="include">
+        </childnode>
+      </node>
+      <node id="1868">
+        <label>stddef.h</label>
+      </node>
+      <node id="1867">
+        <label>limits.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structerrinj" prot="public">errinj</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="errinj_8h_1a2db92e472b86a0beb8e19f6c794e3502" prot="public" static="no">
+        <name>ERRINJ_LIST</name>
+        <param><defname>_</defname></param>
+        <briefdescription>
+<para>list of error injection handles. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/errinj.h" line="73" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/errinj.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="errinj_8h_1a6232e04b17cfd575166ff2492ec74a28" prot="public" static="no">
+        <name>errinj</name>
+        <param><defname>ID</defname></param>
+        <param><defname>TYPE</defname></param>
+        <initializer>({ \
+		assert(ID &gt;= 0 &amp;&amp; ID &lt; errinj_id_MAX); \
+		assert(errinjs[ID].type == TYPE); \
+		&amp;errinjs[ID]; \
+	})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/errinj.h" line="178" column="15" bodyfile="/home/tsafin/tarantool/src/lib/core/errinj.h" bodystart="178" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="errinj_8h_1a894d6661be084ea0775595e1510621e7" prot="public" static="no">
+        <name>ERROR_INJECT</name>
+        <param><defname>ID</defname></param>
+        <param><defname>CODE</defname></param>
+        <initializer>do { \
+		if (<ref refid="structerrinj" kindref="compound">errinj</ref>(ID, ERRINJ_BOOL)-&gt;bparam) \
+			CODE; \
+	} while (0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/errinj.h" line="184" column="11" bodyfile="/home/tsafin/tarantool/src/lib/core/errinj.h" bodystart="184" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="errinj_8h_1a67dd549ac5fe69cfa5172590e9f22749" prot="public" static="no">
+        <name>ERROR_INJECT_WHILE</name>
+        <param><defname>ID</defname></param>
+        <param><defname>CODE</defname></param>
+        <initializer>do { \
+		while (<ref refid="structerrinj" kindref="compound">errinj</ref>(ID, ERRINJ_BOOL)-&gt;bparam) \
+			CODE; \
+	} while (0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/errinj.h" line="189" column="11" bodyfile="/home/tsafin/tarantool/src/lib/core/errinj.h" bodystart="189" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="errinj_8h_1ad3a59f5937c30d6780f508034672b0c6" prot="public" static="no">
+        <name>ERROR_INJECT_COUNTDOWN</name>
+        <param><defname>ID</defname></param>
+        <param><defname>CODE</defname></param>
+        <initializer>do {								\
+		if (<ref refid="structerrinj" kindref="compound">errinj</ref>(ID, ERRINJ_INT)-&gt;iparam-- == 0) {		\
+			CODE;						\
+		}							\
+	} while (0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/errinj.h" line="194" column="11" bodyfile="/home/tsafin/tarantool/src/lib/core/errinj.h" bodystart="194" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="errinj_8h_1a66022057d865173c38cc0213585fe38c" prot="public" static="no">
+        <name>ERROR_INJECT_RETURN</name>
+        <param><defname>ID</defname></param>
+        <initializer>ERROR_INJECT(ID, return -1)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/errinj.h" line="202" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/errinj.h" bodystart="202" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="errinj_8h_1aaede3c8d859d881c4a5080286533c4dc" prot="public" static="no">
+        <name>ERROR_INJECT_SLEEP</name>
+        <param><defname>ID</defname></param>
+        <initializer>ERROR_INJECT_WHILE(ID, usleep(1000))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/errinj.h" line="203" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/errinj.h" bodystart="203" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="errinj_8h_1a492902c05a8772b0885d8399f9076ba1" prot="public" static="no">
+        <name>ERROR_INJECT_YIELD</name>
+        <param><defname>ID</defname></param>
+        <initializer>ERROR_INJECT_WHILE(ID, fiber_sleep(0.001))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/errinj.h" line="204" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/errinj.h" bodystart="204" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="errinj_8h_1ac1ab916550cad643a12db6f0300d91c4" prot="public" static="no">
+        <name>errinj_type</name>
+        <enumvalue id="errinj_8h_1ac1ab916550cad643a12db6f0300d91c4a8023064803706f1b2f703cd950b95b42" prot="public">
+          <name>ERRINJ_BOOL</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+<para>boolean </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="errinj_8h_1ac1ab916550cad643a12db6f0300d91c4af003092bc73a4aeb6ecf0fa76f8d2120" prot="public">
+          <name>ERRINJ_INT</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+<para>uint64_t </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="errinj_8h_1ac1ab916550cad643a12db6f0300d91c4afa0c80e6bb6fdf260e275bdb5dfb8e4a" prot="public">
+          <name>ERRINJ_DOUBLE</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+<para>double </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Injection type. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/errinj.h" line="43" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/errinj.h" bodystart="43" bodyend="50"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="errinj_8h_1a642208e53b3a751831b91b86655060a6" prot="public" static="no">
+        <type>int(*</type>
+        <definition>typedef int(* errinj_cb) (struct errinj *e, void *cb_ctx)</definition>
+        <argsstring>)(struct errinj *e, void *cb_ctx)</argsstring>
+        <name>errinj_cb</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/errinj.h" line="163" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/errinj.h" bodystart="163" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="errinj_8h_1a8930341eddeb3dae6fddfcec2612f19f" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structerrinj" kindref="compound">errinj</ref></type>
+        <definition>struct errinj errinjs[]</definition>
+        <argsstring>[]</argsstring>
+        <name>errinjs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/errinj.h" line="153" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/errinj.c" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="errinj_8h_1af983083e856fe5453c55806c5bcb9a9c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>ENUM0</definition>
+        <argsstring>(errinj_id, ERRINJ_LIST)</argsstring>
+        <name>ENUM0</name>
+        <param>
+          <type>errinj_id</type>
+        </param>
+        <param>
+          <type>ERRINJ_LIST</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/errinj.h" line="153" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="errinj_8h_1ada54566266b09821fc70caf42207d637" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structerrinj" kindref="compound">errinj</ref> *</type>
+        <definition>struct errinj* errinj_by_name</definition>
+        <argsstring>(char *name)</argsstring>
+        <name>errinj_by_name</name>
+        <param>
+          <type>char *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>Returns the error injection by name. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>injection name, e.g ERRINJ_WAL_WRITE </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/errinj.h" line="161" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/errinj.c" bodystart="48" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="errinj_8h_1a30b242b249aba5840814ec7716cd0904" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int errinj_foreach</definition>
+        <argsstring>(errinj_cb cb, void *cb_ctx)</argsstring>
+        <name>errinj_foreach</name>
+        <param>
+          <type>errinj_cb</type>
+          <declname>cb</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>cb_ctx</declname>
+        </param>
+        <briefdescription>
+<para>Iterate over all error injections. </para>        </briefdescription>
+        <detaileddescription>
+<para>Iterate over all error injections. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/errinj.h" line="169" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/errinj.c" bodystart="60" bodyend="68"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LIB_CORE_ERRINJ_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LIB_CORE_ERRINJ_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;limits.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trivia/util.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>errinj_type<sp/>{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ERRINJ_BOOL<sp/><sp/><sp/><sp/><sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ERRINJ_INT<sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>1,</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ERRINJ_DOUBLE<sp/><sp/><sp/>=<sp/>2</highlight></codeline>
+<codeline lineno="50"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55" refid="structerrinj" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerrinj" kindref="compound">errinj</ref><sp/>{</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structerrinj_1a32e5dbf7dc1312c1656ca147572edf09" kindref="member">name</ref>;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>errinj_type<sp/><ref refid="structerrinj_1af72448c17f2337f0bf6d28e7c38cb4e8" kindref="member">type</ref>;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structerrinj_1a272bb22f16031e3e6e1c8bb9a21bb834" kindref="member">bparam</ref>;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structerrinj_1a5dc9be8ac25ad3a39a33dedcbe6ce13d" kindref="member">iparam</ref>;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structerrinj_1a439825e10d68ee6abcacd9752566c698" kindref="member">dparam</ref>;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="68"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="preprocessor">#define<sp/>ERRINJ_LIST(_)<sp/>\</highlight></codeline>
+<codeline lineno="74"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_TESTING,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="75"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_WAL_IO,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="76"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_WAL_SYNC,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="77"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_WAL_ROTATE,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="78"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_WAL_WRITE,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="79"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_WAL_WRITE_PARTIAL,<sp/>ERRINJ_INT,<sp/>{.iparam<sp/>=<sp/>-1})<sp/>\</highlight></codeline>
+<codeline lineno="80"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_WAL_WRITE_DISK,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="81"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_WAL_WRITE_EOF,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="82"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_WAL_DELAY,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="83"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_WAL_DELAY_COUNTDOWN,<sp/>ERRINJ_INT,<sp/>{.iparam<sp/>=<sp/>-1})<sp/>\</highlight></codeline>
+<codeline lineno="84"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_WAL_FALLOCATE,<sp/>ERRINJ_INT,<sp/>{.iparam<sp/>=<sp/>0})<sp/>\</highlight></codeline>
+<codeline lineno="85"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_WAL_WRITE_COUNT,<sp/>ERRINJ_INT,<sp/>{.iparam<sp/>=<sp/>0})<sp/>\</highlight></codeline>
+<codeline lineno="86"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_INDEX_ALLOC,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="87"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_TUPLE_ALLOC,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="88"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_TUPLE_FIELD,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="89"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_RUN_WRITE,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="90"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_RUN_WRITE_DELAY,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="91"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_RUN_DISCARD,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="92"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_INDEX_DUMP,<sp/>ERRINJ_INT,<sp/>{.iparam<sp/>=<sp/>-1})<sp/>\</highlight></codeline>
+<codeline lineno="93"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_TASK_COMPLETE,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="94"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_READ_PAGE,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="95"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_READ_PAGE_DELAY,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="96"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_READ_PAGE_TIMEOUT,<sp/>ERRINJ_DOUBLE,<sp/>{.dparam<sp/>=<sp/>0})<sp/>\</highlight></codeline>
+<codeline lineno="97"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_SQUASH_TIMEOUT,<sp/>ERRINJ_DOUBLE,<sp/>{.dparam<sp/>=<sp/>0})<sp/>\</highlight></codeline>
+<codeline lineno="98"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_SCHED_TIMEOUT,<sp/>ERRINJ_DOUBLE,<sp/>{.dparam<sp/>=<sp/>0})<sp/>\</highlight></codeline>
+<codeline lineno="99"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_GC,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="100"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_LOG_FLUSH,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="101"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_LOG_FLUSH_DELAY,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="102"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_RELAY_SEND_DELAY,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="103"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_RELAY_TIMEOUT,<sp/>ERRINJ_DOUBLE,<sp/>{.dparam<sp/>=<sp/>0})<sp/>\</highlight></codeline>
+<codeline lineno="104"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_RELAY_REPORT_INTERVAL,<sp/>ERRINJ_DOUBLE,<sp/>{.dparam<sp/>=<sp/>0})<sp/>\</highlight></codeline>
+<codeline lineno="105"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_RELAY_FINAL_SLEEP,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="106"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_RELAY_FINAL_JOIN,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="107"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_REPLICA_JOIN_DELAY,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="108"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_PORT_DUMP,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="109"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_XLOG_GARBAGE,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="110"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_XLOG_META,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="111"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_XLOG_READ,<sp/>ERRINJ_INT,<sp/>{.iparam<sp/>=<sp/>-1})<sp/>\</highlight></codeline>
+<codeline lineno="112"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VYRUN_DATA_READ,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="113"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_CHECK_FORMAT_DELAY,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="114"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_BUILD_INDEX,<sp/>ERRINJ_INT,<sp/>{.iparam<sp/>=<sp/>-1})<sp/>\</highlight></codeline>
+<codeline lineno="115"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_BUILD_INDEX_DELAY,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="116"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_POINT_ITER_WAIT,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="117"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_RELAY_EXIT_DELAY,<sp/>ERRINJ_DOUBLE,<sp/>{.dparam<sp/>=<sp/>0})<sp/>\</highlight></codeline>
+<codeline lineno="118"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_DELAY_PK_LOOKUP,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="119"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_RUN_WRITE_STMT_TIMEOUT,<sp/>ERRINJ_DOUBLE,<sp/>{.dparam<sp/>=<sp/>0})<sp/>\</highlight></codeline>
+<codeline lineno="120"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_IPROTO_TX_DELAY,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="121"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_HTTPC_EXECUTE,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="122"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_LOG_ROTATE,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="123"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_SNAP_WRITE_DELAY,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="124"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_SNAP_COMMIT_DELAY,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="125"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_HTTP_RESPONSE_ADD_WAIT,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="126"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_LOG_FILE_RENAME,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="127"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_RUN_FILE_RENAME,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="128"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_INDEX_FILE_RENAME,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="129"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_RELAY_BREAK_LSN,<sp/>ERRINJ_INT,<sp/>{.iparam<sp/>=<sp/>-1})<sp/>\</highlight></codeline>
+<codeline lineno="130"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_WAL_BREAK_LSN,<sp/>ERRINJ_INT,<sp/>{.iparam<sp/>=<sp/>-1})<sp/>\</highlight></codeline>
+<codeline lineno="131"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_DUMP_DELAY,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="132"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_COMPACTION_DELAY,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="133"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_TUPLE_FORMAT_COUNT,<sp/>ERRINJ_INT,<sp/>{.iparam<sp/>=<sp/>-1})<sp/>\</highlight></codeline>
+<codeline lineno="134"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_MEMTX_DELAY_GC,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="135"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_SIO_READ_MAX,<sp/>ERRINJ_INT,<sp/>{.iparam<sp/>=<sp/>-1})<sp/>\</highlight></codeline>
+<codeline lineno="136"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_SQL_NAME_NORMALIZATION,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="137"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_COIO_SENDFILE_CHUNK,<sp/>ERRINJ_INT,<sp/>{.iparam<sp/>=<sp/>-1})<sp/>\</highlight></codeline>
+<codeline lineno="138"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_SWIM_FD_ONLY,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="139"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_DYN_MODULE_COUNT,<sp/>ERRINJ_INT,<sp/>{.iparam<sp/>=<sp/>0})<sp/>\</highlight></codeline>
+<codeline lineno="140"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_FIBER_MADVISE,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="141"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_FIBER_MPROTECT,<sp/>ERRINJ_INT,<sp/>{.iparam<sp/>=<sp/>-1})<sp/>\</highlight></codeline>
+<codeline lineno="142"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_RELAY_FASTER_THAN_TX,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="143"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_INDEX_RESERVE,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})\</highlight></codeline>
+<codeline lineno="144"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_TXN_COMMIT_ASYNC,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})\</highlight></codeline>
+<codeline lineno="145"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_STMT_ALLOC,<sp/>ERRINJ_INT,<sp/>{.iparam<sp/>=<sp/>-1})\</highlight></codeline>
+<codeline lineno="146"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_READ_VIEW_MERGE_FAIL,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})\</highlight></codeline>
+<codeline lineno="147"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_WRITE_ITERATOR_START_FAIL,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})\</highlight></codeline>
+<codeline lineno="148"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_VY_RUN_OPEN,<sp/>ERRINJ_INT,<sp/>{.iparam<sp/>=<sp/>-1})\</highlight></codeline>
+<codeline lineno="149"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_AUTO_UPGRADE,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})\</highlight></codeline>
+<codeline lineno="150"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_COIO_WRITE_CHUNK,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="151"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_(ERRINJ_APPLIER_SLOW_ACK,<sp/>ERRINJ_BOOL,<sp/>{.bparam<sp/>=<sp/>false})<sp/>\</highlight></codeline>
+<codeline lineno="152"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal">ENUM0(errinj_id,<sp/>ERRINJ_LIST);</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerrinj" kindref="compound">errinj</ref><sp/>errinjs[];</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerrinj" kindref="compound">errinj</ref><sp/>*</highlight></codeline>
+<codeline lineno="161"><highlight class="normal">errinj_by_name(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structerrinj_1a32e5dbf7dc1312c1656ca147572edf09" kindref="member">name</ref>);</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>int<sp/>(*errinj_cb)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerrinj" kindref="compound">errinj</ref><sp/>*e,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*cb_ctx);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal">errinj_foreach(errinj_cb<sp/>cb,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*cb_ctx);</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>NDEBUG</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>ERROR_INJECT(ID,<sp/>CODE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>ERROR_INJECT_WHILE(ID,<sp/>CODE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>errinj(ID,<sp/>TYPE)<sp/>((struct<sp/>errinj<sp/>*)<sp/>NULL)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>ERROR_INJECT_COUNTDOWN(ID,<sp/>CODE)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/></highlight><highlight class="comment">/*<sp/>Returns<sp/>the<sp/>error<sp/>injection<sp/>by<sp/>id<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>errinj(ID,<sp/>TYPE)<sp/>\</highlight></codeline>
+<codeline lineno="179"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>({<sp/>\</highlight></codeline>
+<codeline lineno="180"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(ID<sp/>&gt;=<sp/>0<sp/>&amp;&amp;<sp/>ID<sp/>&lt;<sp/>errinj_id_MAX);<sp/>\</highlight></codeline>
+<codeline lineno="181"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(errinjs[ID].type<sp/>==<sp/>TYPE);<sp/>\</highlight></codeline>
+<codeline lineno="182"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;errinjs[ID];<sp/>\</highlight></codeline>
+<codeline lineno="183"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>ERROR_INJECT(ID,<sp/>CODE)<sp/>\</highlight></codeline>
+<codeline lineno="185"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>do<sp/>{<sp/>\</highlight></codeline>
+<codeline lineno="186"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(errinj(ID,<sp/>ERRINJ_BOOL)-&gt;bparam)<sp/>\</highlight></codeline>
+<codeline lineno="187"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CODE;<sp/>\</highlight></codeline>
+<codeline lineno="188"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/>while<sp/>(0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>ERROR_INJECT_WHILE(ID,<sp/>CODE)<sp/>\</highlight></codeline>
+<codeline lineno="190"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>do<sp/>{<sp/>\</highlight></codeline>
+<codeline lineno="191"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>while<sp/>(errinj(ID,<sp/>ERRINJ_BOOL)-&gt;bparam)<sp/>\</highlight></codeline>
+<codeline lineno="192"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CODE;<sp/>\</highlight></codeline>
+<codeline lineno="193"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/>while<sp/>(0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight><highlight class="preprocessor">#<sp/><sp/>define<sp/>ERROR_INJECT_COUNTDOWN(ID,<sp/>CODE)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="195"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="196"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(errinj(ID,<sp/>ERRINJ_INT)-&gt;iparam--<sp/>==<sp/>0)<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="197"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CODE;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="198"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="199"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/>while<sp/>(0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ERROR_INJECT_RETURN(ID)<sp/>ERROR_INJECT(ID,<sp/>return<sp/>-1)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ERROR_INJECT_SLEEP(ID)<sp/>ERROR_INJECT_WHILE(ID,<sp/>usleep(1000))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ERROR_INJECT_YIELD(ID)<sp/>ERROR_INJECT_WHILE(ID,<sp/>fiber_sleep(0.001))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TATRANTOOL_ERRINJ_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/core/errinj.h"/>
+  </compounddef>
+</doxygen>

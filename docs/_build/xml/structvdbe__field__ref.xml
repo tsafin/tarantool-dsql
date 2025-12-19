@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvdbe__field__ref" kind="struct" language="C++" prot="public">
+    <compoundname>vdbe_field_ref</compoundname>
+    <includes local="no">sql.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvdbe__field__ref_1a7cb504d64ad71bdb4b02234493bc3a43" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+        <definition>struct tuple* vdbe_field_ref::tuple</definition>
+        <argsstring></argsstring>
+        <name>tuple</name>
+        <briefdescription>
+<para>Tuple pointer or NULL when undefined. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="380" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql.h" bodystart="380" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvdbe__field__ref_1a0f8386b6bccb8ebd1e51932e90303acf" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* vdbe_field_ref::data</definition>
+        <argsstring></argsstring>
+        <name>data</name>
+        <briefdescription>
+<para>Tuple data pointer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="382" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql.h" bodystart="382" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvdbe__field__ref_1a1fe38503a356edfb9aab2dacd1645950" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t vdbe_field_ref::data_sz</definition>
+        <argsstring></argsstring>
+        <name>data_sz</name>
+        <briefdescription>
+<para>Tuple data size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="384" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql.h" bodystart="384" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvdbe__field__ref_1ab6ba24cb7c36d82846ead5e2348d7354" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t vdbe_field_ref::field_count</definition>
+        <argsstring></argsstring>
+        <name>field_count</name>
+        <briefdescription>
+<para>Count of fields in tuple. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="386" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql.h" bodystart="386" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvdbe__field__ref_1af70f3797dfda534afd2010e0d2a050a1" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t vdbe_field_ref::slot_bitmask</definition>
+        <argsstring></argsstring>
+        <name>slot_bitmask</name>
+        <briefdescription>
+<para>Bitmask of initialized slots. </para>        </briefdescription>
+        <detaileddescription>
+<para>The fieldno == 0 slot must be initialized in <ref refid="structvdbe__field__ref" kindref="compound">vdbe_field_ref</ref> constructor. This bitmap allows to lookup for the nearest initialized slot for a given fieldno to perform as few extra tuple decoding as possible. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="394" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql.h" bodystart="394" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvdbe__field__ref_1a0fb3bbfe011eecb9acab3f275e2b4041" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t vdbe_field_ref::slots[1]</definition>
+        <argsstring>[1]</argsstring>
+        <name>slots</name>
+        <briefdescription>
+<para>Array of offsets of tuple fields. </para>        </briefdescription>
+        <detaileddescription>
+<para>Only values &lt;= rightmost_slot are valid. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="399" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql.h" bodystart="399" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Auxiliary VDBE structure to speed-up tuple data field access. </para>    </briefdescription>
+    <detaileddescription>
+<para>A memory allocation that manage this structure must have trailing unused bytes that extends the last &apos;slots&apos; array. The amount of reserved memory should correspond to the problem to be solved and is usually equal to the greatest number of fields in the tuple.</para><para>+----------------------<mdash/>+ | struct <ref refid="structvdbe__field__ref" kindref="compound">vdbe_field_ref</ref> | +----------------------<mdash/>+ | RESERVED MEMORY | +----------------------<mdash/>+ </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="11926">
+        <label>vdbe_field_ref</label>
+        <link refid="structvdbe__field__ref"/>
+        <childnode refid="11927" relation="usage">
+          <edgelabel>tuple</edgelabel>
+        </childnode>
+      </node>
+      <node id="11927">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/sql.h" line="378" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql.h" bodystart="378" bodyend="400"/>
+    <listofallmembers>
+      <member refid="structvdbe__field__ref_1a0f8386b6bccb8ebd1e51932e90303acf" prot="public" virt="non-virtual"><scope>vdbe_field_ref</scope><name>data</name></member>
+      <member refid="structvdbe__field__ref_1a1fe38503a356edfb9aab2dacd1645950" prot="public" virt="non-virtual"><scope>vdbe_field_ref</scope><name>data_sz</name></member>
+      <member refid="structvdbe__field__ref_1ab6ba24cb7c36d82846ead5e2348d7354" prot="public" virt="non-virtual"><scope>vdbe_field_ref</scope><name>field_count</name></member>
+      <member refid="structvdbe__field__ref_1af70f3797dfda534afd2010e0d2a050a1" prot="public" virt="non-virtual"><scope>vdbe_field_ref</scope><name>slot_bitmask</name></member>
+      <member refid="structvdbe__field__ref_1a0fb3bbfe011eecb9acab3f275e2b4041" prot="public" virt="non-virtual"><scope>vdbe_field_ref</scope><name>slots</name></member>
+      <member refid="structvdbe__field__ref_1a7cb504d64ad71bdb4b02234493bc3a43" prot="public" virt="non-virtual"><scope>vdbe_field_ref</scope><name>tuple</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

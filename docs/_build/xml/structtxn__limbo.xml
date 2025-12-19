@@ -1,0 +1,150 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structtxn__limbo" kind="struct" language="C++" prot="public">
+    <compoundname>txn_limbo</compoundname>
+    <includes local="no">txn_limbo.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structtxn__limbo_1acbd34d259c659a9503819a49d8c6c295" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist txn_limbo::queue</definition>
+        <argsstring></argsstring>
+        <name>queue</name>
+        <briefdescription>
+<para>Queue of limbo entries. </para>        </briefdescription>
+        <detaileddescription>
+<para>Ordered by LSN. Some of the entries in the end may not have an LSN yet (their local WAL write is still in progress), but their order won&apos;t change anyway. Because WAL write completions will give them LSNs in the same order. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.h" line="69" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtxn__limbo_1a2846319bdff8c104a8ce75e8c1f3cf7e" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t txn_limbo::instance_id</definition>
+        <argsstring></argsstring>
+        <name>instance_id</name>
+        <briefdescription>
+<para>Instance ID of the owner of all the transactions in the queue. </para>        </briefdescription>
+        <detaileddescription>
+<para>Strictly speaking, nothing prevents to store not own transactions here, originated from some other instance. But still the queue may contain only transactions of the same instance. Otherwise LSN order won&apos;t make sense - different nodes have own independent LSNs in their vclock components. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.h" line="106" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.h" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtxn__limbo_1a2350b507c033990bb332c34847bede81" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfiber__cond" kindref="compound">fiber_cond</ref></type>
+        <definition>struct fiber_cond txn_limbo::wait_cond</definition>
+        <argsstring></argsstring>
+        <name>wait_cond</name>
+        <briefdescription>
+<para>Condition to wait for completion. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is supposed to be signaled when the synchro parameters change. Allowing the sleeping fibers to reconsider their timeouts when the parameters are updated. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.h" line="106" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.h" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtxn__limbo_1af07ac3668341f2990e6114eb451bef08" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvclock" kindref="compound">vclock</ref></type>
+        <definition>struct vclock txn_limbo::vclock</definition>
+        <argsstring></argsstring>
+        <name>vclock</name>
+        <briefdescription>
+<para>All components of the vclock are versions of the limbo owner&apos;s LSN, how it is visible on other nodes. </para>        </briefdescription>
+        <detaileddescription>
+<para>For example, assume instance ID of the limbo is 1. Then vclock[1] here is local LSN of the instance 1. vclock[2] is how replica with ID 2 sees LSN of instance 1. vclock[3] is how replica with ID 3 sees LSN of instance 1, and so on. In that way by looking at this vclock it is always can be said up to which LSN there is a sync quorum for transactions, created on the limbo&apos;s owner node. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.h" line="106" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.h" bodystart="127" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtxn__limbo_1acb4c5515bf3cadc680ebe5f63a80608d" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t txn_limbo::confirmed_lsn</definition>
+        <argsstring></argsstring>
+        <name>confirmed_lsn</name>
+        <briefdescription>
+<para>Maximal LSN gathered quorum and either already confirmed in WAL, or whose confirmation is in progress right now. </para>        </briefdescription>
+        <detaileddescription>
+<para>Any attempt to confirm something smaller than this value can be safely ignored. Moreover, any attempt to rollback something starting from &lt;= this LSN is illegal. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.h" line="135" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.h" bodystart="135" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtxn__limbo_1a540fca87926da1c0a700f00327212c1b" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t txn_limbo::rollback_count</definition>
+        <argsstring></argsstring>
+        <name>rollback_count</name>
+        <briefdescription>
+<para>Total number of performed rollbacks. </para>        </briefdescription>
+        <detaileddescription>
+<para>It used as a guard to do some actions assuming all limbo transactions will be confirmed, and to check that there were no rollbacks in the end. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.h" line="142" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.h" bodystart="142" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtxn__limbo_1ac55bc2e4b2fc25cff17c68496b14917d" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool txn_limbo::is_in_rollback</definition>
+        <argsstring></argsstring>
+        <name>is_in_rollback</name>
+        <briefdescription>
+<para>Whether the limbo is in rollback mode. </para>        </briefdescription>
+        <detaileddescription>
+<para>The meaning is exactly the same as for the similar WAL flag. In theory this should be deleted if the limbo will be ever moved to WAL thread. It would reuse the WAL flag. It is a sign to immediately rollback all new limbo entries, if there is an existing rollback in progress. This technique is called &apos;cascading rollback&apos;. Cascading rollback does not allow to write to WAL anything new so as not to violate the &apos;reversed rollback order&apos; rule. Without cascading rollback it could happen, that the limbo would start writing ROLLBACK to WAL, then a new transaction would be added to limbo and sent to WAL too. In the result the new transaction would be stored in WAL after ROLLBACK, and yet it should be rolled back too by the &apos;reversed rollback order&apos; rule - contradiction. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn_limbo.h" line="159" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.h" bodystart="159" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Limbo is a place where transactions are stored, which are finished, but not committed nor rolled back. </para>    </briefdescription>
+    <detaileddescription>
+<para>These are synchronous transactions in progress of collecting ACKs from replicas. Limbo&apos;s main purposes<itemizedlist>
+<listitem><para>maintain the transactions ordered by LSN of their emitter;</para></listitem><listitem><para>be a link between transaction and replication modules, so as they wouldn&apos;t depend on each other directly. </para></listitem></itemizedlist>
+</para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="11277">
+        <label>txn_limbo</label>
+        <link refid="structtxn__limbo"/>
+        <childnode refid="11278" relation="usage">
+          <edgelabel>wait_cond</edgelabel>
+        </childnode>
+        <childnode refid="11280" relation="usage">
+          <edgelabel>vclock</edgelabel>
+        </childnode>
+        <childnode refid="11279" relation="usage">
+          <edgelabel>queue</edgelabel>
+        </childnode>
+      </node>
+      <node id="11279">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="11279" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="11280">
+        <label>vclock</label>
+        <link refid="structvclock"/>
+      </node>
+      <node id="11278">
+        <label>fiber_cond</label>
+        <link refid="structfiber__cond"/>
+        <childnode refid="11279" relation="usage">
+          <edgelabel>waiters</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/txn_limbo.h" line="88" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn_limbo.h" bodystart="88" bodyend="160"/>
+    <listofallmembers>
+      <member refid="structtxn__limbo_1acb4c5515bf3cadc680ebe5f63a80608d" prot="public" virt="non-virtual"><scope>txn_limbo</scope><name>confirmed_lsn</name></member>
+      <member refid="structtxn__limbo_1a2846319bdff8c104a8ce75e8c1f3cf7e" prot="public" virt="non-virtual"><scope>txn_limbo</scope><name>instance_id</name></member>
+      <member refid="structtxn__limbo_1ac55bc2e4b2fc25cff17c68496b14917d" prot="public" virt="non-virtual"><scope>txn_limbo</scope><name>is_in_rollback</name></member>
+      <member refid="structtxn__limbo_1acbd34d259c659a9503819a49d8c6c295" prot="public" virt="non-virtual"><scope>txn_limbo</scope><name>queue</name></member>
+      <member refid="structtxn__limbo_1a540fca87926da1c0a700f00327212c1b" prot="public" virt="non-virtual"><scope>txn_limbo</scope><name>rollback_count</name></member>
+      <member refid="structtxn__limbo_1af07ac3668341f2990e6114eb451bef08" prot="public" virt="non-virtual"><scope>txn_limbo</scope><name>vclock</name></member>
+      <member refid="structtxn__limbo_1a2350b507c033990bb332c34847bede81" prot="public" virt="non-virtual"><scope>txn_limbo</scope><name>wait_cond</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,110 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structsession__vtab" kind="struct" language="C++" prot="public">
+    <compoundname>session_vtab</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structsession__vtab_1a861fbae2acef841866f65b68d4dfb715" prot="public" static="no" mutable="no">
+        <type>int(*</type>
+        <definition>int(* session_vtab::push) (struct session *session, struct port *port)</definition>
+        <argsstring>)(struct session *session, struct port *port)</argsstring>
+        <name>push</name>
+        <briefdescription>
+<para>Push a port data into a session data channel - socket, console or something. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>session</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Session to push into. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>port</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Port with data to push.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Success. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.h" line="138" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.h" bodystart="139" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsession__vtab_1ae5838650c0eb7c6649433778660b6b59" prot="public" static="no" mutable="no">
+        <type>int(*</type>
+        <definition>int(* session_vtab::fd) (struct session *session)</definition>
+        <argsstring>)(struct session *session)</argsstring>
+        <name>fd</name>
+        <briefdescription>
+<para>Get session file descriptor if exists. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>session</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Session to get descriptor from. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>No fd. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>&gt;=0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Found fd. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.h" line="146" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.h" bodystart="147" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsession__vtab_1ac12fe60eed843494e5a8fc4e0eaf4776" prot="public" static="no" mutable="no">
+        <type>int64_t(*</type>
+        <definition>int64_t(* session_vtab::sync) (struct session *session)</definition>
+        <argsstring>)(struct session *session)</argsstring>
+        <name>sync</name>
+        <briefdescription>
+<para>For iproto requests, we set sync to the value of packet sync. </para>        </briefdescription>
+        <detaileddescription>
+<para>Since the session may be reused between many requests, the value is true only at the beginning of the request, and gets distorted after the first yield. For other sessions it is 0. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.h" line="155" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.h" bodystart="156" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/tsafin/tarantool/src/box/session.h" line="128" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.h" bodystart="128" bodyend="157"/>
+    <listofallmembers>
+      <member refid="structsession__vtab_1ae5838650c0eb7c6649433778660b6b59" prot="public" virt="non-virtual"><scope>session_vtab</scope><name>fd</name></member>
+      <member refid="structsession__vtab_1a861fbae2acef841866f65b68d4dfb715" prot="public" virt="non-virtual"><scope>session_vtab</scope><name>push</name></member>
+      <member refid="structsession__vtab_1ac12fe60eed843494e5a8fc4e0eaf4776" prot="public" virt="non-virtual"><scope>session_vtab</scope><name>sync</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,340 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="classAlterSpaceOp" kind="class" language="C++" prot="public">
+    <compoundname>AlterSpaceOp</compoundname>
+    <derivedcompoundref refid="classCheckSpaceFormat" prot="public" virt="non-virtual">CheckSpaceFormat</derivedcompoundref>
+    <derivedcompoundref refid="classCreateConstraintID" prot="public" virt="non-virtual">CreateConstraintID</derivedcompoundref>
+    <derivedcompoundref refid="classCreateIndex" prot="public" virt="non-virtual">CreateIndex</derivedcompoundref>
+    <derivedcompoundref refid="classDropConstraintID" prot="public" virt="non-virtual">DropConstraintID</derivedcompoundref>
+    <derivedcompoundref refid="classDropIndex" prot="public" virt="non-virtual">DropIndex</derivedcompoundref>
+    <derivedcompoundref refid="classModifyIndex" prot="public" virt="non-virtual">ModifyIndex</derivedcompoundref>
+    <derivedcompoundref refid="classModifySpace" prot="public" virt="non-virtual">ModifySpace</derivedcompoundref>
+    <derivedcompoundref refid="classMoveCkConstraints" prot="public" virt="non-virtual">MoveCkConstraints</derivedcompoundref>
+    <derivedcompoundref refid="classMoveIndex" prot="public" virt="non-virtual">MoveIndex</derivedcompoundref>
+    <derivedcompoundref refid="classRebuildCkConstraints" prot="public" virt="non-virtual">RebuildCkConstraints</derivedcompoundref>
+    <derivedcompoundref refid="classRebuildIndex" prot="public" virt="non-virtual">RebuildIndex</derivedcompoundref>
+    <derivedcompoundref refid="classTruncateIndex" prot="public" virt="non-virtual">TruncateIndex</derivedcompoundref>
+    <derivedcompoundref refid="classUpdateSchemaVersion" prot="public" virt="non-virtual">UpdateSchemaVersion</derivedcompoundref>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classAlterSpaceOp_1a18479b187ef8611fe72e6ee92904f1be" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist AlterSpaceOp::link</definition>
+        <argsstring></argsstring>
+        <name>link</name>
+        <briefdescription>
+<para>Link in <ref refid="structalter__space_1a20e556e9b56a0009ec23977a3490544a" kindref="member">alter_space::ops</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="768" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="771" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classAlterSpaceOp_1ab74f256d2f9bf750c48d8f9496eb0bc9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>AlterSpaceOp::AlterSpaceOp</definition>
+        <argsstring>(struct alter_space *alter)</argsstring>
+        <name>AlterSpaceOp</name>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+          <declname>alter</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="768" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="908" bodyend="912"/>
+      </memberdef>
+      <memberdef kind="function" id="classAlterSpaceOp_1ada87e0e1106f5316848e451f5609b7a4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void AlterSpaceOp::alter_def</definition>
+        <argsstring>(struct alter_space *)</argsstring>
+        <name>alter_def</name>
+        <reimplementedby refid="classModifySpace_1a3b7a3b2bb7407c534ae63a2f484216f8">alter_def</reimplementedby>
+        <reimplementedby refid="classDropIndex_1a4d764f2235260eb69b19cbd432bad193">alter_def</reimplementedby>
+        <reimplementedby refid="classModifyIndex_1af9fdac9a28897910adf46ac3daa348e5">alter_def</reimplementedby>
+        <reimplementedby refid="classCreateIndex_1a78debc247f366ffbed390fe7b6e7b212">alter_def</reimplementedby>
+        <reimplementedby refid="classRebuildIndex_1a1ad2199970ffb36700601200c0082c40">alter_def</reimplementedby>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+        </param>
+        <briefdescription>
+<para>Called before creating the new space. </para>        </briefdescription>
+        <detaileddescription>
+<para>Used to update the space definition and/or key list that will be used for creating the new space. Must not yield or fail. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="777" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="777" bodyend="777"/>
+      </memberdef>
+      <memberdef kind="function" id="classAlterSpaceOp_1a5c35fcc6fa0a26b350e2bfd8b73c7d8c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void AlterSpaceOp::prepare</definition>
+        <argsstring>(struct alter_space *)</argsstring>
+        <name>prepare</name>
+        <reimplementedby refid="classCheckSpaceFormat_1a13d66c1e99d5ac18feab623fd2935826">prepare</reimplementedby>
+        <reimplementedby refid="classDropIndex_1a205d725493dff8e8e625fe04af1ba2e4">prepare</reimplementedby>
+        <reimplementedby refid="classCreateIndex_1a0dcfe894fa81f9c64a7c3ccb3d1bc265">prepare</reimplementedby>
+        <reimplementedby refid="classRebuildIndex_1abacd991495d49a8004ea9950d698810b">prepare</reimplementedby>
+        <reimplementedby refid="classTruncateIndex_1a765ced6ddbb88a3ab743637fed325c37">prepare</reimplementedby>
+        <reimplementedby refid="classRebuildCkConstraints_1a4b0b70851e88a12e86ab401f01333908">prepare</reimplementedby>
+        <reimplementedby refid="classCreateConstraintID_1a6bc5cbe97faf32d358437e57228f8c31">prepare</reimplementedby>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+        </param>
+        <briefdescription>
+<para>Called after creating a new space. </para>        </briefdescription>
+        <detaileddescription>
+<para>Used for performing long-lasting operations, such as index rebuild or format check. May yield. May throw an exception. Must not modify the old space. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="784" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="784" bodyend="784"/>
+      </memberdef>
+      <memberdef kind="function" id="classAlterSpaceOp_1a378a5a70c9583adc7e8e37039deac0c0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void AlterSpaceOp::alter</definition>
+        <argsstring>(struct alter_space *)</argsstring>
+        <name>alter</name>
+        <reimplementedby refid="classModifySpace_1a1f192e429b69fcbe9427c7d7ba9dc757">alter</reimplementedby>
+        <reimplementedby refid="classMoveIndex_1aa969e5da682bd2a8ba502a88854c5e5d">alter</reimplementedby>
+        <reimplementedby refid="classModifyIndex_1a8c3c5501b2f574526b066f42d72ff288">alter</reimplementedby>
+        <reimplementedby refid="classUpdateSchemaVersion_1a15c4de938b1ef0047c6f19e512aad1d7">alter</reimplementedby>
+        <reimplementedby refid="classRebuildCkConstraints_1ad21e8bdaae712e06f458bb285e893d65">alter</reimplementedby>
+        <reimplementedby refid="classMoveCkConstraints_1a548a3710ad8e9be9f41f70aa1e23f75f">alter</reimplementedby>
+        <reimplementedby refid="classCreateConstraintID_1a9ca3e48b20bd0b9f3b41d2ae80c0b461">alter</reimplementedby>
+        <reimplementedby refid="classDropConstraintID_1abdb85ee4cb4d9809bdd38a171bee2ebc">alter</reimplementedby>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+        </param>
+        <briefdescription>
+<para>Called after all registered operations have completed the preparation phase. </para>        </briefdescription>
+        <detaileddescription>
+<para>Used to propagate the old space state to the new space (e.g. move unchanged indexes). Must not yield or fail. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="791" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="791" bodyend="791"/>
+      </memberdef>
+      <memberdef kind="function" id="classAlterSpaceOp_1a87e8be9739a71a0f4100d3a67bd75100" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void AlterSpaceOp::commit</definition>
+        <argsstring>(struct alter_space *, int64_t)</argsstring>
+        <name>commit</name>
+        <reimplementedby refid="classDropIndex_1a2c88720091cab83542080aa9f605cb1c">commit</reimplementedby>
+        <reimplementedby refid="classModifyIndex_1addd1ac51e440ee268fce4795bdb0de4f">commit</reimplementedby>
+        <reimplementedby refid="classCreateIndex_1aed1046f3d0f2111ff92a43b3fef3c838">commit</reimplementedby>
+        <reimplementedby refid="classRebuildIndex_1ad89190f448e7b0e6368c9d54113fed39">commit</reimplementedby>
+        <reimplementedby refid="classTruncateIndex_1a10df7271db13ffec3c3beb8ae995d02e">commit</reimplementedby>
+        <reimplementedby refid="classCreateConstraintID_1a992f33142de4996a372d9a32936c7d88">commit</reimplementedby>
+        <reimplementedby refid="classDropConstraintID_1a079cb16caab2b11fca5b7d6a1484abea">commit</reimplementedby>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+        </param>
+        <param>
+          <type>int64_t</type>
+        </param>
+        <briefdescription>
+<para>Called after the change has been successfully written to WAL. </para>        </briefdescription>
+        <detaileddescription>
+<para>Must not fail. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="796" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="796" bodyend="797"/>
+      </memberdef>
+      <memberdef kind="function" id="classAlterSpaceOp_1aa67d5c66e41e7972f5db131c5a3d9775" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void AlterSpaceOp::rollback</definition>
+        <argsstring>(struct alter_space *)</argsstring>
+        <name>rollback</name>
+        <reimplementedby refid="classModifySpace_1aaa723829c37d46f86de93bd83ce35489">rollback</reimplementedby>
+        <reimplementedby refid="classMoveIndex_1ae2f06af685888a3bddda16fec032e221">rollback</reimplementedby>
+        <reimplementedby refid="classModifyIndex_1a3d0ba8414513869c71a791c36976a951">rollback</reimplementedby>
+        <reimplementedby refid="classRebuildCkConstraints_1a28d03be0aca02e7693db45d5de0fc1ac">rollback</reimplementedby>
+        <reimplementedby refid="classMoveCkConstraints_1aad8217afe9b8c0b2b9447c3c214fc8bd">rollback</reimplementedby>
+        <reimplementedby refid="classCreateConstraintID_1a9e136f19f1cff7c5c397d96a9b6b0260">rollback</reimplementedby>
+        <reimplementedby refid="classDropConstraintID_1a595c6756cdc2aca5696ccd702d7eee8e">rollback</reimplementedby>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+        </param>
+        <briefdescription>
+<para>Called in case a WAL error occurred. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is supposed to undo the effect of <ref refid="classAlterSpaceOp_1a5c35fcc6fa0a26b350e2bfd8b73c7d8c" kindref="member">AlterSpaceOp::prepare</ref> and <ref refid="classAlterSpaceOp_1a378a5a70c9583adc7e8e37039deac0c0" kindref="member">AlterSpaceOp::alter</ref>. Must not fail. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="803" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="803" bodyend="803"/>
+      </memberdef>
+      <memberdef kind="function" id="classAlterSpaceOp_1a5549e172b94739b9fa7445b9599f506c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type></type>
+        <definition>virtual AlterSpaceOp::~AlterSpaceOp</definition>
+        <argsstring>()</argsstring>
+        <name>~AlterSpaceOp</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="805" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="805" bodyend="805"/>
+      </memberdef>
+      <memberdef kind="function" id="classAlterSpaceOp_1ad200979e4bf5c00b78bfef43f259ceba" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void *</type>
+        <definition>void* AlterSpaceOp::operator new</definition>
+        <argsstring>(size_t size)</argsstring>
+        <name>operator new</name>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="807" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="807" bodyend="811"/>
+      </memberdef>
+      <memberdef kind="function" id="classAlterSpaceOp_1a700d3df81c1d87dc0818191dde139cae" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void AlterSpaceOp::operator delete</definition>
+        <argsstring>(void *)</argsstring>
+        <name>operator delete</name>
+        <param>
+          <type>void *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="812" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="812" bodyend="812"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="267">
+        <label>MoveCkConstraints</label>
+        <link refid="classMoveCkConstraints"/>
+        <childnode refid="259" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="272">
+        <label>TruncateIndex</label>
+        <link refid="classTruncateIndex"/>
+        <childnode refid="259" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="271">
+        <label>RebuildFuncIndex</label>
+        <link refid="classRebuildFuncIndex"/>
+        <childnode refid="270" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="270">
+        <label>RebuildIndex</label>
+        <link refid="classRebuildIndex"/>
+        <childnode refid="259" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="262">
+        <label>CreateIndex</label>
+        <link refid="classCreateIndex"/>
+        <childnode refid="259" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="260">
+        <label>CheckSpaceFormat</label>
+        <link refid="classCheckSpaceFormat"/>
+        <childnode refid="259" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="263">
+        <label>DropConstraintID</label>
+        <link refid="classDropConstraintID"/>
+        <childnode refid="259" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="269">
+        <label>RebuildCkConstraints</label>
+        <link refid="classRebuildCkConstraints"/>
+        <childnode refid="259" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="259">
+        <label>AlterSpaceOp</label>
+        <link refid="classAlterSpaceOp"/>
+      </node>
+      <node id="265">
+        <label>ModifyIndex</label>
+        <link refid="classModifyIndex"/>
+        <childnode refid="259" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="266">
+        <label>ModifySpace</label>
+        <link refid="classModifySpace"/>
+        <childnode refid="259" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="261">
+        <label>CreateConstraintID</label>
+        <link refid="classCreateConstraintID"/>
+        <childnode refid="259" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="268">
+        <label>MoveIndex</label>
+        <link refid="classMoveIndex"/>
+        <childnode refid="259" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="264">
+        <label>DropIndex</label>
+        <link refid="classDropIndex"/>
+        <childnode refid="259" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="273">
+        <label>UpdateSchemaVersion</label>
+        <link refid="classUpdateSchemaVersion"/>
+        <childnode refid="259" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="275">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="275" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="274">
+        <label>AlterSpaceOp</label>
+        <link refid="classAlterSpaceOp"/>
+        <childnode refid="275" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/alter.cc" line="766" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="766" bodyend="813"/>
+    <listofallmembers>
+      <member refid="classAlterSpaceOp_1a378a5a70c9583adc7e8e37039deac0c0" prot="public" virt="virtual"><scope>AlterSpaceOp</scope><name>alter</name></member>
+      <member refid="classAlterSpaceOp_1ada87e0e1106f5316848e451f5609b7a4" prot="public" virt="virtual"><scope>AlterSpaceOp</scope><name>alter_def</name></member>
+      <member refid="classAlterSpaceOp_1ab74f256d2f9bf750c48d8f9496eb0bc9" prot="public" virt="non-virtual"><scope>AlterSpaceOp</scope><name>AlterSpaceOp</name></member>
+      <member refid="classAlterSpaceOp_1a87e8be9739a71a0f4100d3a67bd75100" prot="public" virt="virtual"><scope>AlterSpaceOp</scope><name>commit</name></member>
+      <member refid="classAlterSpaceOp_1a18479b187ef8611fe72e6ee92904f1be" prot="public" virt="non-virtual"><scope>AlterSpaceOp</scope><name>link</name></member>
+      <member refid="classAlterSpaceOp_1a700d3df81c1d87dc0818191dde139cae" prot="public" virt="non-virtual"><scope>AlterSpaceOp</scope><name>operator delete</name></member>
+      <member refid="classAlterSpaceOp_1ad200979e4bf5c00b78bfef43f259ceba" prot="public" virt="non-virtual"><scope>AlterSpaceOp</scope><name>operator new</name></member>
+      <member refid="classAlterSpaceOp_1a5c35fcc6fa0a26b350e2bfd8b73c7d8c" prot="public" virt="virtual"><scope>AlterSpaceOp</scope><name>prepare</name></member>
+      <member refid="classAlterSpaceOp_1aa67d5c66e41e7972f5db131c5a3d9775" prot="public" virt="virtual"><scope>AlterSpaceOp</scope><name>rollback</name></member>
+      <member refid="classAlterSpaceOp_1a5549e172b94739b9fa7445b9599f506c" prot="public" virt="virtual"><scope>AlterSpaceOp</scope><name>~AlterSpaceOp</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

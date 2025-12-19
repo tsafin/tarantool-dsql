@@ -1,0 +1,116 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="small_2README_8md" kind="file" language="Markdown">
+    <compoundname>README.md</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">#<sp/>small<sp/>-<sp/>a<sp/>collection<sp/>of<sp/>Specialized<sp/>Memory<sp/>ALLocators<sp/>for<sp/>small<sp/>allocations</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">[![Build<sp/>Status](https://travis-ci.org/tarantool/small.png?branch=master)](https://travis-ci.org/tarantool/small)</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">The<sp/>library<sp/>provides<sp/>the<sp/>following<sp/>facilities:</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">#<sp/>quota</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">Set<sp/>a<sp/>limit<sp/>on<sp/>the<sp/>amount<sp/>of<sp/>memory<sp/>all<sp/>allocators<sp/>use.</highlight></codeline>
+<codeline><highlight class="normal">Thread-safe.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">##<sp/>slab_arena</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">To<sp/>initialize<sp/>an<sp/>arena,<sp/>you<sp/>need<sp/>a<sp/>quota.<sp/>Multiple<sp/>arenas</highlight></codeline>
+<codeline><highlight class="normal">can<sp/>use<sp/>a<sp/>shared<sp/>quota<sp/>object.<sp/>Thread<sp/>safe.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">Defines<sp/>an<sp/>API<sp/>with<sp/>two<sp/>methods:<sp/>map()<sp/>and<sp/>unmap().</highlight></codeline>
+<codeline><highlight class="normal">Map<sp/>returns<sp/>a<sp/>memory<sp/>area.<sp/>Unmap<sp/>returns<sp/>this<sp/>area<sp/>to<sp/>the<sp/>arena.</highlight></codeline>
+<codeline><highlight class="normal">All<sp/>objects<sp/>returned<sp/>by<sp/>arena<sp/>have<sp/>the<sp/>same<sp/>size,<sp/>defined<sp/>in</highlight></codeline>
+<codeline><highlight class="normal">initialization-time<sp/>constant<sp/>SLAB_MAX_SIZE.</highlight></codeline>
+<codeline><highlight class="normal">By<sp/>default,<sp/>SLAB_MAX_SIZE<sp/>is<sp/>4M.<sp/>All<sp/>objects<sp/>returned<sp/>by<sp/>arena</highlight></codeline>
+<codeline><highlight class="normal">are<sp/>aligned<sp/>by<sp/>SLAB_MAX_SIZE:<sp/>(ptr<sp/>&amp;<sp/>(SLAB_MAX_SIZE<sp/>-<sp/>1))<sp/>is</highlight></codeline>
+<codeline><highlight class="normal">always<sp/>0.<sp/>SLAB_MAX_SIZE<sp/>therefore<sp/>must<sp/>be<sp/>a<sp/>power<sp/>of<sp/>2.<sp/>Limiting</highlight></codeline>
+<codeline><highlight class="normal">SLAB_MAX_SIZE<sp/>is<sp/>important<sp/>to<sp/>avoid<sp/>internal<sp/>fragmentation.</highlight></codeline>
+<codeline><highlight class="normal">Multiple<sp/>arenas<sp/>can<sp/>exist,<sp/>an<sp/>object<sp/>must<sp/>be<sp/>returned<sp/>to<sp/>the<sp/>same</highlight></codeline>
+<codeline><highlight class="normal">arena<sp/>in<sp/>which<sp/>it<sp/>was<sp/>allocated.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">There<sp/>is<sp/>a<sp/>number<sp/>of<sp/>different<sp/>implementations<sp/>of<sp/>slab_arena</highlight></codeline>
+<codeline><highlight class="normal">API:</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">-<sp/>huge_arena:<sp/>this<sp/>implementation<sp/>maps<sp/>at<sp/>initialization</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>time<sp/>a<sp/>huge<sp/>region<sp/>of<sp/>memory,<sp/>and<sp/>then<sp/>uses<sp/>this<sp/>region<sp/>to</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>produce<sp/>objects.<sp/>Can<sp/>be<sp/>configured<sp/>to<sp/>use<sp/>shared<sp/>or<sp/>private</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>mappings.</highlight></codeline>
+<codeline><highlight class="normal">-<sp/>grow_arena<sp/>-<sp/>mmaps()<sp/>each<sp/>individual<sp/>block.<sp/>Thus<sp/>can<sp/>incur</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>fragmentation<sp/>of<sp/>the<sp/>address<sp/>space,<sp/>but<sp/>actually</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/>returns<sp/>objects<sp/>to<sp/>the<sp/>OS<sp/>on<sp/>unmap.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">Use<sp/>of<sp/>instances<sp/>of<sp/>slab_arena<sp/>is<sp/>thread-safe:<sp/>multiple</highlight></codeline>
+<codeline><highlight class="normal">threads<sp/>can<sp/>use<sp/>the<sp/>same<sp/>arena.</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/></highlight></codeline>
+<codeline><highlight class="normal">##<sp/>slab_cache</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">Requires<sp/>an<sp/>arena<sp/>for<sp/>initialization,<sp/>which<sp/>works</highlight></codeline>
+<codeline><highlight class="normal">as<sp/>a<sp/>memory<sp/>source<sp/>for<sp/>slab_cache.</highlight></codeline>
+<codeline><highlight class="normal">Returns<sp/>power-of-two<sp/>sized<sp/>slabs,<sp/>with<sp/>size-aligned<sp/>address.</highlight></codeline>
+<codeline><highlight class="normal">Uses<sp/>a<sp/>buddy<sp/>system<sp/>to<sp/>deal<sp/>with<sp/>memory<sp/>fragmentation.</highlight></codeline>
+<codeline><highlight class="normal">Is<sp/>expected<sp/>to<sp/>be<sp/>thread-local.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">##<sp/>mempool</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">A<sp/>memory<sp/>pool<sp/>for<sp/>objects<sp/>of<sp/>the<sp/>same<sp/>size.<sp/>Thread<sp/>local.</highlight></codeline>
+<codeline><highlight class="normal">Requires<sp/>a<sp/>slab<sp/>cache,<sp/>which<sp/>works<sp/>as<sp/>a<sp/>source<sp/>of<sp/>memory.</highlight></codeline>
+<codeline><highlight class="normal">Automatically<sp/>defines<sp/>the<sp/>optimal<sp/>slab<sp/>size,<sp/>given<sp/></highlight></codeline>
+<codeline><highlight class="normal">the<sp/>object<sp/>size.<sp/>Supports<sp/>alloc()<sp/>and<sp/>free().</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">##<sp/>region</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">A<sp/>typical<sp/>region<sp/>allocator.<sp/>Very<sp/>cheap<sp/>allocation,</highlight></codeline>
+<codeline><highlight class="normal">but<sp/>all<sp/>memory<sp/>can<sp/>be<sp/>freed<sp/>at<sp/>once<sp/>only.<sp/>Supports<sp/>savepoints,</highlight></codeline>
+<codeline><highlight class="normal">i.e.<sp/>an<sp/>allocation<sp/>point<sp/>to<sp/>which<sp/>it<sp/>can<sp/>roll<sp/>back,<sp/>i.e.</highlight></codeline>
+<codeline><highlight class="normal">free<sp/>all<sp/>memory<sp/>allocated<sp/>after<sp/>a<sp/>savepoint.</highlight></codeline>
+<codeline><highlight class="normal">Uses<sp/>slab_cache<sp/>as<sp/>a<sp/>memory<sp/>source.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">##<sp/>small</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">A<sp/>typical<sp/>slab<sp/>allocator.<sp/>Built<sp/>as<sp/>a<sp/>collection<sp/></highlight></codeline>
+<codeline><highlight class="normal">of<sp/>mempool<sp/>allocators,<sp/>each<sp/>mempool<sp/>suited<sp/>for<sp/>a<sp/>particular</highlight></codeline>
+<codeline><highlight class="normal">object<sp/>size.<sp/>Has<sp/>stepped<sp/>pools,<sp/>i.e.<sp/>pools<sp/>for<sp/>small<sp/>objects<sp/></highlight></codeline>
+<codeline><highlight class="normal">up<sp/>to<sp/>500<sp/>bytes,<sp/>and<sp/>factored<sp/>pools,<sp/>for<sp/>larger<sp/>objects.</highlight></codeline>
+<codeline><highlight class="normal">The<sp/>difference<sp/>between<sp/>stepped<sp/>and<sp/>factored<sp/>pools<sp/>is<sp/>that</highlight></codeline>
+<codeline><highlight class="normal">object<sp/>size<sp/>in<sp/>stepped<sp/>pools<sp/>grows<sp/>step<sp/>by<sp/>step,<sp/>each</highlight></codeline>
+<codeline><highlight class="normal">next<sp/>pool<sp/>serving<sp/>objects<sp/>of<sp/>prev_pool_object_size<sp/>+<sp/>8.</highlight></codeline>
+<codeline><highlight class="normal">In<sp/>factored<sp/>pools<sp/>a<sp/>growth<sp/>factor<sp/>is<sp/>used,<sp/>i.e.<sp/></highlight></codeline>
+<codeline><highlight class="normal">given<sp/>a<sp/>factor<sp/>of<sp/>1.1<sp/>and<sp/>previous<sp/>pool<sp/>for<sp/>objects</highlight></codeline>
+<codeline><highlight class="normal">of<sp/>size<sp/>up<sp/>to<sp/>1000,<sp/>next<sp/>pool<sp/>will<sp/>serve<sp/>objects<sp/>in<sp/>range</highlight></codeline>
+<codeline><highlight class="normal">1001-1100.</highlight></codeline>
+<codeline><highlight class="normal">Since<sp/>is<sp/>based<sp/>on<sp/>mempool,<sp/>uses<sp/>slab_cache<sp/>as<sp/>a<sp/>memory<sp/>source.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">##<sp/>ibuf</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">A<sp/>typical<sp/>input<sp/>buffer,<sp/>which<sp/>could<sp/>be<sp/>seen<sp/>as<sp/>a<sp/>memory<sp/>allocator</highlight></codeline>
+<codeline><highlight class="normal">as<sp/>well,<sp/>which<sp/>reallocates<sp/>itself<sp/>when<sp/>it<sp/>gets<sp/>full.</highlight></codeline>
+<codeline><highlight class="normal">Uses<sp/>slab_cache<sp/>as<sp/>a<sp/>memory<sp/>source.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">##<sp/>obuf</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">Another<sp/>implementation<sp/>of<sp/>an<sp/>output<sp/>buffer,<sp/>which,<sp/>for<sp/>growth,</highlight></codeline>
+<codeline><highlight class="normal">instead<sp/>of<sp/>reallocation,<sp/>used<sp/>a<sp/>collection<sp/>of<sp/>buffers,</highlight></codeline>
+<codeline><highlight class="normal">size<sp/>of<sp/>each<sp/>next<sp/>buffer<sp/>in<sp/>a<sp/>collection<sp/>twice<sp/>the</highlight></codeline>
+<codeline><highlight class="normal">size<sp/>the<sp/>prevoius<sp/>one.<sp/></highlight></codeline>
+<codeline><highlight class="normal">Uses<sp/>slab_cache<sp/>as<sp/>a<sp/>memory<sp/>source.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">##<sp/>matras</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">This<sp/>is<sp/>the<sp/>best<sp/>one.<sp/>Memory<sp/>Address<sp/>Translating</highlight></codeline>
+<codeline><highlight class="normal">allocator.<sp/>Only<sp/>allows<sp/>to<sp/>allocate<sp/>objects<sp/>of<sp/>size</highlight></codeline>
+<codeline><highlight class="normal">which<sp/>is<sp/>a<sp/>power<sp/>of<sp/>two.<sp/>Provides<sp/>a<sp/>32-bit</highlight></codeline>
+<codeline><highlight class="normal">id<sp/>for<sp/>each<sp/>allocated<sp/>object.<sp/>Supports<sp/>multi-versioning</highlight></codeline>
+<codeline><highlight class="normal">for<sp/>all<sp/>allocated<sp/>objects,<sp/>i.e.<sp/>it&apos;s<sp/>possible<sp/>to<sp/>create</highlight></codeline>
+<codeline><highlight class="normal">a<sp/>consistent<sp/>read<sp/>view<sp/>of<sp/>all<sp/>allocated<sp/>memory.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">Uses<sp/>slab_cache<sp/>as<sp/>a<sp/>memory<sp/>source.</highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/small/README.md"/>
+  </compounddef>
+</doxygen>

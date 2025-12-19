@@ -1,0 +1,831 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="rb__rand_8cc" kind="file" language="C++">
+    <compoundname>rb_rand.cc</compoundname>
+    <includes local="no">iostream</includes>
+    <includes refid="unit_8h" local="yes">unit.h</includes>
+    <includes refid="rb_8h" local="yes">../small/rb.h</includes>
+    <includes local="no">stdlib.h</includes>
+    <includes local="no">time.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="yes">assert.h</includes>
+    <includes refid="string_8h" local="no">string.h</includes>
+    <includes local="no">set</includes>
+    <includes local="no">utility</includes>
+    <includes local="no">algorithm</includes>
+    <incdepgraph>
+      <node id="2464">
+        <label>stdbool.h</label>
+      </node>
+      <node id="2460">
+        <label>/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc</label>
+        <link refid="rb__rand_8cc"/>
+        <childnode refid="2461" relation="include">
+        </childnode>
+        <childnode refid="2462" relation="include">
+        </childnode>
+        <childnode refid="2463" relation="include">
+        </childnode>
+        <childnode refid="2464" relation="include">
+        </childnode>
+        <childnode refid="2465" relation="include">
+        </childnode>
+        <childnode refid="2466" relation="include">
+        </childnode>
+        <childnode refid="2467" relation="include">
+        </childnode>
+        <childnode refid="2468" relation="include">
+        </childnode>
+        <childnode refid="2469" relation="include">
+        </childnode>
+      </node>
+      <node id="2466">
+        <label>assert.h</label>
+      </node>
+      <node id="2465">
+        <label>stdint.h</label>
+      </node>
+      <node id="2462">
+        <label>stdlib.h</label>
+      </node>
+      <node id="2468">
+        <label>utility</label>
+      </node>
+      <node id="2463">
+        <label>time.h</label>
+      </node>
+      <node id="2461">
+        <label>iostream</label>
+      </node>
+      <node id="2467">
+        <label>set</label>
+      </node>
+      <node id="2469">
+        <label>algorithm</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structnode__s" prot="public">node_s</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="rb__rand_8cc_1a3cb816ed7690a32c5d6f67d7cb615ca4" prot="public" static="no">
+        <name>MAX_KEY</name>
+        <initializer>30</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="14" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="14" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rb__rand_8cc_1a884ceaa850e86ebd3bd9ebd16352545f" prot="public" static="no">
+        <name>RB_COMPACT</name>
+        <initializer>0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="15" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="15" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rb__rand_8cc_1a546a88c8d7123aed182bcb10f4b04976" prot="public" static="no">
+        <name>DEFAULT_NODES</name>
+        <initializer>100</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="16" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="16" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rb__rand_8cc_1a34686e9e285289449f2091ab4d3d7ce4" prot="public" static="no">
+        <name>NUMBER_OPERS</name>
+        <initializer>5000</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="17" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="17" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="rb__rand_8cc_1a064ac0df1ea890d0f700c320ac28566f" prot="public" static="no">
+        <name>check</name>
+        <param><defname>stl_it</defname></param>
+        <param><defname>stl_tree</defname></param>
+        <param><defname>res</defname></param>
+        <param><defname>res_it</defname></param>
+        <initializer>if (stl_it == stl_tree.end()) {						\
+		fail_unless(res == NULL);				\
+		fail_unless(res_it == NULL);				\
+} else {								\
+		fail_unless(res != NULL &amp;&amp;				\
+				key_node_cmp((*stl_it), res) == 0);	\
+		fail_unless(res_it != NULL &amp;&amp;				\
+				key_node_cmp((*stl_it), res_it) == 0);	\
+	}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="98" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="rb__rand_8cc_1acaa280649cf091aa7beb40e296263011" prot="public" static="no">
+        <name>OPERS</name>
+        <enumvalue id="rb__rand_8cc_1acaa280649cf091aa7beb40e296263011aa15c451953b2d2a93403afe786930d0f" prot="public">
+          <name>INSERT</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="rb__rand_8cc_1acaa280649cf091aa7beb40e296263011a9d61e82a9a12752f10aece1b22183913" prot="public">
+          <name>DELETE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="rb__rand_8cc_1acaa280649cf091aa7beb40e296263011a803088a5d28b83b0f9d0828150ca4e76" prot="public">
+          <name>SEARCH</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="rb__rand_8cc_1acaa280649cf091aa7beb40e296263011a1c30bb53503b288990cdfe93875a9a93" prot="public">
+          <name>SEARCH_GE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="rb__rand_8cc_1acaa280649cf091aa7beb40e296263011a955bac1b7b48ba446e77a4ca7a1f230e" prot="public">
+          <name>SEARCH_LE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="rb__rand_8cc_1acaa280649cf091aa7beb40e296263011a0923ce98916b28b16ba4701ccdf45e54" prot="public">
+          <name>SEARCH_GT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="rb__rand_8cc_1acaa280649cf091aa7beb40e296263011af208d36b4102ddf677b9f8288f8aaab8" prot="public">
+          <name>SEARCH_LT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="54" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="54" bodyend="62"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="rb__rand_8cc_1a33b99e5345d46cf63926673aa2b9ff83" prot="public" static="no">
+        <type>struct <ref refid="structnode__s" kindref="compound">node_s</ref></type>
+        <definition>typedef struct node_s node_t</definition>
+        <argsstring></argsstring>
+        <name>node_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="24" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="19" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="rb__rand_8cc_1a0abf304676c2c20029528510d19d79b8" prot="public" static="no">
+        <type>std::pair&lt; int, int &gt;</type>
+        <definition>typedef std::pair&lt;int, int&gt; my_pair</definition>
+        <argsstring></argsstring>
+        <name>my_pair</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="21" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="21" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="rb__rand_8cc_1aab385cd99aee7d047d9430c37a4ba787" prot="public" static="no">
+        <type>std::set&lt; my_pair &gt;</type>
+        <definition>typedef std::set&lt;my_pair&gt; my_set</definition>
+        <argsstring></argsstring>
+        <name>my_set</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="29" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="29" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="rb__rand_8cc_1a309c4c15bafb28d9d41eea5a4329823d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef rb_tree</definition>
+        <argsstring>(node_t) tree_t</argsstring>
+        <name>rb_tree</name>
+        <param>
+          <type><ref refid="structnode__s" kindref="compound">node_t</ref></type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="28" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb.c" bodystart="21" bodyend="27"/>
+      </memberdef>
+      <memberdef kind="function" id="rb__rand_8cc_1a478d47be1d1763025fde129c52be97ad" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int key_cmp</definition>
+        <argsstring>(const my_pair &amp;a, const my_pair &amp;b)</argsstring>
+        <name>key_cmp</name>
+        <param>
+          <type>const my_pair &amp;</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const my_pair &amp;</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="32" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="32" bodyend="36"/>
+      </memberdef>
+      <memberdef kind="function" id="rb__rand_8cc_1abb5cb08cc36c6186f08e5cae2ddef886" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int key_node_cmp</definition>
+        <argsstring>(const my_pair &amp;a, const node_t *b)</argsstring>
+        <name>key_node_cmp</name>
+        <param>
+          <type>const my_pair &amp;</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structnode__s" kindref="compound">node_t</ref> *</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="39" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="39" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="rb__rand_8cc_1aa7515cc468b585e9a427d3dbbf07b94b" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int node_cmp</definition>
+        <argsstring>(const node_t *a, const node_t *b)</argsstring>
+        <name>node_cmp</name>
+        <param>
+          <type>const <ref refid="structnode__s" kindref="compound">node_t</ref> *</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structnode__s" kindref="compound">node_t</ref> *</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="45" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="45" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="function" id="rb__rand_8cc_1aaba37e0cfbb3f0fe56d285c2d5b01740" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>rb_gen_ext_key</definition>
+        <argsstring>(static inline MAYBE_UNUSED, test_, tree_t, node_t, node, node_cmp, my_pair, key_node_cmp)</argsstring>
+        <name>rb_gen_ext_key</name>
+        <param>
+          <type>static inline</type>
+          <declname>MAYBE_UNUSED</declname>
+        </param>
+        <param>
+          <type>test_</type>
+        </param>
+        <param>
+          <type>tree_t</type>
+        </param>
+        <param>
+          <type><ref refid="structnode__s" kindref="compound">node_t</ref></type>
+        </param>
+        <param>
+          <type><ref refid="structnode" kindref="compound">node</ref></type>
+        </param>
+        <param>
+          <type>node_cmp</type>
+        </param>
+        <param>
+          <type>my_pair</type>
+        </param>
+        <param>
+          <type>key_node_cmp</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="50" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="rb__rand_8cc_1af2d6fd65969ff6f5945cb4b21e79adcc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void insert</definition>
+        <argsstring>(tree_t *tree, my_set &amp;stl_tree)</argsstring>
+        <name>insert</name>
+        <param>
+          <type>tree_t *</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>my_set &amp;</type>
+          <declname>stl_tree</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="65" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="65" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="function" id="rb__rand_8cc_1aa7b8c3ff2207efcadc5e66d50097ae6a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void remove</definition>
+        <argsstring>(tree_t *tree, my_set &amp;stl_tree)</argsstring>
+        <name>remove</name>
+        <param>
+          <type>tree_t *</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>my_set &amp;</type>
+          <declname>stl_tree</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="79" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="79" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="rb__rand_8cc_1a8c1f47f5c1cb3d6561c1fcaa6e22c01d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void filling</definition>
+        <argsstring>(tree_t *tree, my_set &amp;stl_tree)</argsstring>
+        <name>filling</name>
+        <param>
+          <type>tree_t *</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>my_set &amp;</type>
+          <declname>stl_tree</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="91" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="91" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="rb__rand_8cc_1a104c026663f71ea9895ed37e2daafc95" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void search</definition>
+        <argsstring>(tree_t *tree, my_set &amp;stl_tree)</argsstring>
+        <name>search</name>
+        <param>
+          <type>tree_t *</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>my_set &amp;</type>
+          <declname>stl_tree</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="110" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="110" bodyend="119"/>
+      </memberdef>
+      <memberdef kind="function" id="rb__rand_8cc_1a6591c68b0adb2dd527ba97b0df07429d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void search_ge</definition>
+        <argsstring>(tree_t *tree, my_set &amp;stl_tree)</argsstring>
+        <name>search_ge</name>
+        <param>
+          <type>tree_t *</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>my_set &amp;</type>
+          <declname>stl_tree</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="122" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="122" bodyend="132"/>
+      </memberdef>
+      <memberdef kind="function" id="rb__rand_8cc_1a9241aedc8ca049d36c7985df7f7a7fa2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void search_gt</definition>
+        <argsstring>(tree_t *tree, my_set &amp;stl_tree)</argsstring>
+        <name>search_gt</name>
+        <param>
+          <type>tree_t *</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>my_set &amp;</type>
+          <declname>stl_tree</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="135" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="135" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="rb__rand_8cc_1a9207502a169a540a90a51951e1fd48f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void search_le</definition>
+        <argsstring>(tree_t *tree, my_set &amp;stl_tree)</argsstring>
+        <name>search_le</name>
+        <param>
+          <type>tree_t *</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>my_set &amp;</type>
+          <declname>stl_tree</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="146" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="146" bodyend="162"/>
+      </memberdef>
+      <memberdef kind="function" id="rb__rand_8cc_1a88a0dd23aafa07e615cb4b9581a3cda1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void search_lt</definition>
+        <argsstring>(tree_t *tree, my_set &amp;stl_tree)</argsstring>
+        <name>search_lt</name>
+        <param>
+          <type>tree_t *</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>my_set &amp;</type>
+          <declname>stl_tree</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="165" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="165" bodyend="183"/>
+      </memberdef>
+      <memberdef kind="function" id="rb__rand_8cc_1aa668e73405ca6ba1e1c3993e468007a4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void opers</definition>
+        <argsstring>(tree_t *tree, my_set &amp;stl_tree)</argsstring>
+        <name>opers</name>
+        <param>
+          <type>tree_t *</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>my_set &amp;</type>
+          <declname>stl_tree</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="186" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="186" bodyend="215"/>
+      </memberdef>
+      <memberdef kind="function" id="rb__rand_8cc_1a8e39c1fc687138bbc5eb3e72a68b6442" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void delete_all</definition>
+        <argsstring>(tree_t *tree, my_set &amp;stl_tree)</argsstring>
+        <name>delete_all</name>
+        <param>
+          <type>tree_t *</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>my_set &amp;</type>
+          <declname>stl_tree</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="217" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="217" bodyend="227"/>
+      </memberdef>
+      <memberdef kind="function" id="rb__rand_8cc_1ae66f6b31b5ad750f1fe042a706a4e3d4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int main</definition>
+        <argsstring>()</argsstring>
+        <name>main</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" line="229" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc" bodystart="229" bodyend="240"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&lt;iostream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;unit.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../small/rb.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdlib.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;time.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;set&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;utility&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;algorithm&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>MAX_KEY<sp/>30</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>RB_COMPACT<sp/>0</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>DEFAULT_NODES<sp/>100</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>NUMBER_OPERS<sp/>5000</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structnode__s" kindref="compound">node_s</ref><sp/><ref refid="structnode__s" kindref="compound">node_t</ref>;</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>std::pair&lt;int,<sp/>int&gt;<sp/>my_pair;</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structnode__s" kindref="compound">node_s</ref><sp/>{</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rb_node(<ref refid="structnode__s" kindref="compound">node_t</ref>)<sp/><ref refid="structnode" kindref="compound">node</ref>;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>my_pair<sp/>key;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/><ref refid="vclock_8h_1a15322e8502106a1fe47e37b5147a8644" kindref="member">rb_tree</ref>(<ref refid="structnode__s" kindref="compound">node_t</ref>)<sp/>tree_t;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>std::set&lt;my_pair&gt;<sp/>my_set;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal">key_cmp(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>my_pair<sp/>&amp;a,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>my_pair<sp/>&amp;b)</highlight></codeline>
+<codeline lineno="33"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(a.first<sp/>&gt;<sp/>b.first)<sp/>?<sp/>1<sp/>:<sp/>(a.first<sp/>&lt;<sp/>b.first)<sp/>?<sp/>-1<sp/>:</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(a.second<sp/>&gt;<sp/>b.second)<sp/>?<sp/>1<sp/>:<sp/>(a.second<sp/>&lt;<sp/>b.second)<sp/>?<sp/>-1:<sp/>0;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal">key_node_cmp(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>my_pair<sp/>&amp;a<sp/>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structnode__s" kindref="compound">node_t</ref><sp/>*b)</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>key_cmp(a,<sp/>b-&gt;key);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal">node_cmp(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structnode__s" kindref="compound">node_t</ref><sp/>*a,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structnode__s" kindref="compound">node_t</ref><sp/>*b)</highlight></codeline>
+<codeline lineno="46"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>key_cmp(a-&gt;key,<sp/>b-&gt;key);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal">rb_gen_ext_key(</highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>MAYBE_UNUSED,<sp/>test_,<sp/>tree_t,</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structnode__s" kindref="compound">node_t</ref>,<sp/><ref refid="structnode" kindref="compound">node</ref>,<sp/>node_cmp,</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>my_pair,<sp/>key_node_cmp);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>OPERS<sp/>{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>INSERT<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>DELETE,</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SEARCH,</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SEARCH_GE,</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SEARCH_LE,</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SEARCH_GT,</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SEARCH_LT,</highlight></codeline>
+<codeline lineno="62"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal">insert(tree_t<sp/>*tree,<sp/>my_set&amp;<sp/>stl_tree)</highlight></codeline>
+<codeline lineno="66"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structnode__s" kindref="compound">node_t</ref><sp/>*<ref refid="structnode" kindref="compound">node</ref><sp/>=<sp/>(<ref refid="structnode__s" kindref="compound">node_t</ref><sp/>*)<sp/>calloc(1,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*node));</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!node)</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>node-&gt;key<sp/>=<sp/>std::make_pair(rand()<sp/>%<sp/>MAX_KEY,<sp/>rand()<sp/>%<sp/>MAX_KEY);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>res<sp/>=<sp/>stl_tree.insert(node-&gt;key);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res.second)<sp/>{</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>test_insert(tree,<sp/>node);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="75"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight><highlight class="keyword">remove</highlight><highlight class="normal">(tree_t<sp/>*tree,<sp/>my_set<sp/>&amp;stl_tree)<sp/>{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>my_pair<sp/>key<sp/>=<sp/>std::make_pair(rand()<sp/>%<sp/>MAX_KEY,<sp/>rand()<sp/>%<sp/>MAX_KEY);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structnode__s" kindref="compound">node_t</ref><sp/>*<sp/>res<sp/>=<sp/>test_search(tree,<sp/>key);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res)<sp/>{</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>without<sp/>check<sp/>segfault<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stl_tree.erase(key);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>test_remove(tree,<sp/>res);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>free(res);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="88"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal">filling(tree_t<sp/>*tree,<sp/>my_set&amp;<sp/>stl_tree)</highlight></codeline>
+<codeline lineno="92"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>DEFAULT_NODES;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>insert(tree,<sp/>stl_tree);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="96"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>check(stl_it,<sp/>stl_tree,<sp/>res,<sp/>res_it)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="99"><highlight class="preprocessor">if<sp/>(stl_it<sp/>==<sp/>stl_tree.end())<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="100"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fail_unless(res<sp/>==<sp/>NULL);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="101"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fail_unless(res_it<sp/>==<sp/>NULL);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="102"><highlight class="preprocessor">}<sp/>else<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="103"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fail_unless(res<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="104"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>key_node_cmp((*stl_it),<sp/>res)<sp/>==<sp/>0);<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="105"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fail_unless(res_it<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="106"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>key_node_cmp((*stl_it),<sp/>res_it)<sp/>==<sp/>0);<sp/><sp/>\</highlight></codeline>
+<codeline lineno="107"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal">search(tree_t<sp/>*tree,<sp/>my_set&amp;<sp/>stl_tree)</highlight></codeline>
+<codeline lineno="111"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>my_pair<sp/>key<sp/>=<sp/>std::make_pair(rand()<sp/>%<sp/>MAX_KEY,<sp/>rand()<sp/>%<sp/>MAX_KEY);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structnode__s" kindref="compound">node_t</ref><sp/>*res<sp/>=<sp/>test_search(tree,<sp/>key);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>test_iterator<sp/>it;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>test_isearch(tree,<sp/>key,<sp/>&amp;it);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structnode__s" kindref="compound">node_t</ref><sp/>*res_it<sp/>=<sp/>test_iterator_get(&amp;it);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>stl_it<sp/>=<sp/>stl_tree.find(key);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>check(stl_it,<sp/>stl_tree,<sp/>res,<sp/>res_it);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal">search_ge(tree_t<sp/>*tree,<sp/>my_set&amp;<sp/>stl_tree)</highlight></codeline>
+<codeline lineno="123"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>my_pair<sp/>key<sp/>=<sp/>std::make_pair(rand()<sp/>%<sp/>MAX_KEY,<sp/>rand()<sp/>%<sp/>MAX_KEY);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structnode__s" kindref="compound">node_t</ref><sp/>*res<sp/>=<sp/>test_nsearch(tree,<sp/>key);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>test_iterator<sp/>it;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>test_isearch_ge(tree,<sp/>key,<sp/>&amp;it);</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structnode__s" kindref="compound">node_t</ref><sp/>*res_it<sp/>=<sp/>test_iterator_get(&amp;it);</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>stl_it<sp/>=<sp/>stl_tree.lower_bound(key);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>lower<sp/>bound<sp/>is<sp/>first<sp/>not<sp/>less,<sp/>a.k.a<sp/>greater<sp/>or<sp/>equal<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>check(stl_it,<sp/>stl_tree,<sp/>res,<sp/>res_it);</highlight></codeline>
+<codeline lineno="132"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal">search_gt(tree_t<sp/>*tree,<sp/>my_set&amp;<sp/>stl_tree)</highlight></codeline>
+<codeline lineno="136"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>my_pair<sp/>key<sp/>=<sp/>std::make_pair(rand()<sp/>%<sp/>MAX_KEY,<sp/>rand()<sp/>%<sp/>MAX_KEY);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>test_iterator<sp/>it;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>test_isearch_gt(tree,<sp/>key,<sp/>&amp;it);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structnode__s" kindref="compound">node_t</ref><sp/>*res_it<sp/>=<sp/>test_iterator_get(&amp;it);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>stl_it<sp/>=<sp/>stl_tree.upper_bound(key);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>check(stl_it,<sp/>stl_tree,<sp/>res_it,<sp/>res_it);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal">search_le(tree_t<sp/>*tree,<sp/>my_set&amp;<sp/>stl_tree)</highlight></codeline>
+<codeline lineno="147"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>my_pair<sp/>key<sp/>=<sp/>std::make_pair(rand()<sp/>%<sp/>MAX_KEY,<sp/>rand()<sp/>%<sp/>MAX_KEY);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structnode__s" kindref="compound">node_t</ref><sp/>*res<sp/>=<sp/>test_psearch(tree,<sp/>key);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>test_iterator<sp/>it;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>test_isearch_le(tree,<sp/>key,<sp/>&amp;it);</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structnode__s" kindref="compound">node_t</ref><sp/>*res_it<sp/>=<sp/>test_iterator_get(&amp;it);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>my_set::iterator<sp/>stl_it<sp/>=<sp/>stl_tree.upper_bound(key);</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>upper_bound<sp/>is<sp/>one<sp/>step<sp/>further<sp/>than<sp/>le<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(stl_it<sp/>==<sp/>stl_tree.begin())<sp/>{</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>begin<sp/>is<sp/>not<sp/>decrementable<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stl_it<sp/>=<sp/>stl_tree.end();</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stl_it--;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>check(stl_it,<sp/>stl_tree,<sp/>res,<sp/>res_it);</highlight></codeline>
+<codeline lineno="162"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal">search_lt(tree_t<sp/>*tree,<sp/>my_set&amp;<sp/>stl_tree)</highlight></codeline>
+<codeline lineno="166"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>my_pair<sp/>key<sp/>=<sp/>std::make_pair(rand()<sp/>%<sp/>MAX_KEY,<sp/>rand()<sp/>%<sp/>MAX_KEY);</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>test_iterator<sp/>it;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>test_isearch_lt(tree,<sp/>key,<sp/>&amp;it);</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structnode__s" kindref="compound">node_t</ref><sp/>*res_it<sp/>=<sp/>test_iterator_get(&amp;it);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>my_set::iterator<sp/>stl_it<sp/>=<sp/>stl_tree.lower_bound(key);</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>lower_bound<sp/>is<sp/>one<sp/>step<sp/>further<sp/>than<sp/>lt<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(stl_it<sp/>==<sp/>stl_tree.begin())<sp/>{</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>begin<sp/>is<sp/>not<sp/>decrementable<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stl_it<sp/>=<sp/>stl_tree.end();</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(stl_it<sp/>==<sp/>stl_tree.end())<sp/>{</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>if<sp/>key<sp/>is<sp/>bigger<sp/>than<sp/>the<sp/>largest<sp/>in<sp/>tree<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stl_it<sp/>=<sp/>std::max_element(stl_tree.begin(),<sp/>stl_tree.end());</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stl_it--;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>check(stl_it,<sp/>stl_tree,<sp/>res_it,<sp/>res_it);</highlight></codeline>
+<codeline lineno="183"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal">opers(tree_t<sp/>*tree,<sp/>my_set&amp;<sp/>stl_tree)</highlight></codeline>
+<codeline lineno="187"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>NUMBER_OPERS;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>op<sp/>=<sp/>rand()<sp/>%<sp/>7;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(op)<sp/>{</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>INSERT:</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>insert(tree,<sp/>stl_tree);</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>DELETE:</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">remove</highlight><highlight class="normal">(tree,<sp/>stl_tree);</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>SEARCH:</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>search(tree,<sp/>stl_tree);</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>SEARCH_GE:</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>search_ge(tree,<sp/>stl_tree);</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>SEARCH_LE:</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>search_le(tree,<sp/>stl_tree);</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>SEARCH_GT:</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>search_gt(tree,<sp/>stl_tree);</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>SEARCH_LT:</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>search_lt(tree,<sp/>stl_tree);</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="215"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>delete_all(tree_t<sp/>*tree,<sp/>my_set&amp;<sp/>stl_tree)</highlight></codeline>
+<codeline lineno="218"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">auto</highlight><highlight class="normal"><sp/>it<sp/>=<sp/>stl_tree.begin();<sp/>it<sp/>!=<sp/>stl_tree.end();<sp/>++it){</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>my_pair<sp/>p<sp/>=<sp/>*it;</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structnode__s" kindref="compound">node_t</ref><sp/>*n<sp/>=<sp/>test_search(tree,<sp/>p);</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fail_unless(n);</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>test_remove(tree,<sp/>n);</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>free(n);</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stl_tree.clear();</highlight></codeline>
+<codeline lineno="227"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>main()</highlight></codeline>
+<codeline lineno="230"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>srand<sp/>(time(NULL));</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tree_t<sp/>tree;</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>test_new(&amp;tree);</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>my_set<sp/>stl_tree;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>filling(&amp;tree,<sp/>stl_tree);</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>opers(&amp;tree,<sp/>stl_tree);</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>clear<sp/>all<sp/>remaining<sp/>in<sp/>tree*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>delete_all(&amp;tree,<sp/>stl_tree);</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;success&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="240"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/small/test/rb_rand.cc"/>
+  </compounddef>
+</doxygen>

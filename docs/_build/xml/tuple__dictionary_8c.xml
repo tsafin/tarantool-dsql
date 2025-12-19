@@ -1,0 +1,649 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="tuple__dictionary_8c" kind="file" language="C++">
+    <compoundname>tuple_dictionary.c</compoundname>
+    <includes refid="tuple__dictionary_8h" local="yes">tuple_dictionary.h</includes>
+    <includes refid="box_2error_8h" local="yes">error.h</includes>
+    <includes refid="diag_8h" local="yes">diag.h</includes>
+    <includes refid="mhash_8h" local="yes">salad/mhash.h</includes>
+    <innerclass refid="structmh__strnu32__key__t" prot="public">mh_strnu32_key_t</innerclass>
+    <innerclass refid="structmh__strnu32__node__t" prot="public">mh_strnu32_node_t</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="tuple__dictionary_8c_1a62c28de86b5d617c72b1729ce2f7140a" prot="public" static="no">
+        <name>mh_name</name>
+        <initializer>_strnu32</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_dictionary.c" line="37" column="9" bodyfile="/home/tsafin/tarantool/src/box/tuple_dictionary.c" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tuple__dictionary_8c_1a8b88f85ab100851f0e70141e2abb98ca" prot="public" static="no">
+        <name>mh_key_t</name>
+        <initializer>struct <ref refid="structmh__strnu32__key__t" kindref="compound">mh_strnu32_key_t</ref> *</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_dictionary.c" line="43" column="9" bodyfile="/home/tsafin/tarantool/src/box/tuple_dictionary.c" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tuple__dictionary_8c_1afcad8c682f15e1a5cffcc222d4d5db29" prot="public" static="no">
+        <name>mh_node_t</name>
+        <initializer>struct <ref refid="structmh__strnu32__node__t" kindref="compound">mh_strnu32_node_t</ref></initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_dictionary.c" line="50" column="9" bodyfile="/home/tsafin/tarantool/src/box/tuple_dictionary.c" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tuple__dictionary_8c_1a33b30ebd2602839e35eec7483a0e7306" prot="public" static="no">
+        <name>mh_arg_t</name>
+        <initializer>void *</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_dictionary.c" line="52" column="9" bodyfile="/home/tsafin/tarantool/src/box/tuple_dictionary.c" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tuple__dictionary_8c_1a1a17e76708ec5391df669872117ab22c" prot="public" static="no">
+        <name>mh_hash</name>
+        <param><defname>a</defname></param>
+        <param><defname>arg</defname></param>
+        <initializer>((a)-&gt;hash)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_dictionary.c" line="53" column="9" bodyfile="/home/tsafin/tarantool/src/box/tuple_dictionary.c" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tuple__dictionary_8c_1a0cceab23a0a48746a9a1228bcad8cf48" prot="public" static="no">
+        <name>mh_hash_key</name>
+        <param><defname>a</defname></param>
+        <param><defname>arg</defname></param>
+        <initializer>mh_hash(a, arg)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_dictionary.c" line="54" column="9" bodyfile="/home/tsafin/tarantool/src/box/tuple_dictionary.c" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tuple__dictionary_8c_1a4529a821b842b5b4ca3ae6c4ad70b616" prot="public" static="no">
+        <name>mh_cmp</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <param><defname>arg</defname></param>
+        <initializer>((a)-&gt;len != (b)-&gt;len || \
+			   memcmp((a)-&gt;str, (b)-&gt;str, (a)-&gt;len))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_dictionary.c" line="55" column="9" bodyfile="/home/tsafin/tarantool/src/box/tuple_dictionary.c" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tuple__dictionary_8c_1acb15dd7f011a2a4323b6e7f3ebe9dd65" prot="public" static="no">
+        <name>mh_cmp_key</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <param><defname>arg</defname></param>
+        <initializer>mh_cmp(a, b, arg)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_dictionary.c" line="57" column="9" bodyfile="/home/tsafin/tarantool/src/box/tuple_dictionary.c" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tuple__dictionary_8c_1a2e8d16cb81e7f905e97ce15c877cff93" prot="public" static="no">
+        <name>MH_SOURCE</name>
+        <initializer>1</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_dictionary.c" line="58" column="9" bodyfile="/home/tsafin/tarantool/src/box/tuple_dictionary.c" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="tuple__dictionary_8c_1a2f4e21bfb72c84c3bad758abab870321" prot="public" static="no" mutable="no">
+        <type>field_name_hash_f</type>
+        <definition>field_name_hash_f field_name_hash</definition>
+        <argsstring></argsstring>
+        <name>field_name_hash</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_dictionary.c" line="35" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_dictionary.c" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="tuple__dictionary_8c_1a67dc7f40417df74c3c484aa429441620" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void tuple_dictionary_delete_hash</definition>
+        <argsstring>(struct mh_strnu32_t *hash)</argsstring>
+        <name>tuple_dictionary_delete_hash</name>
+        <param>
+          <type>struct mh_strnu32_t *</type>
+          <declname>hash</declname>
+        </param>
+        <briefdescription>
+<para>Free names hash and its content. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_dictionary.c" line="63" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_dictionary.c" bodystart="63" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__dictionary_8c_1a34f1f8f8d21991a06eb761fe21333ea2" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void tuple_dictionary_delete</definition>
+        <argsstring>(struct tuple_dictionary *dict)</argsstring>
+        <name>tuple_dictionary_delete</name>
+        <param>
+          <type>struct <ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref> *</type>
+          <declname>dict</declname>
+        </param>
+        <briefdescription>
+<para>Free tuple dictionary and its content. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_dictionary.c" line="74" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_dictionary.c" bodystart="74" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__dictionary_8c_1a6e3a19dda96aa3b84576db705790ff91" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int tuple_dictionary_set_name</definition>
+        <argsstring>(struct tuple_dictionary *dict, const char *name, uint32_t name_len, uint32_t fieldno)</argsstring>
+        <name>tuple_dictionary_set_name</name>
+        <param>
+          <type>struct <ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref> *</type>
+          <declname>dict</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>name_len</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>fieldno</declname>
+        </param>
+        <briefdescription>
+<para>Set a new name in a dictionary. </para>        </briefdescription>
+        <detaileddescription>
+<para>Check duplicates. Memory must be reserved already. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dict</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Tuple dictionary. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New name. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of <emphasis>name</emphasis>. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fieldno</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field number.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Success. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Duplicate name error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_dictionary.c" line="98" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_dictionary.c" bodystart="98" bodyend="120"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__dictionary_8c_1ad005beb9255994dc11bfd88e2d305d5a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref> *</type>
+        <definition>struct tuple_dictionary* tuple_dictionary_new</definition>
+        <argsstring>(const struct field_def *fields, uint32_t field_count)</argsstring>
+        <name>tuple_dictionary_new</name>
+        <param>
+          <type>const struct <ref refid="structfield__def" kindref="compound">field_def</ref> *</type>
+          <declname>fields</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>field_count</declname>
+        </param>
+        <briefdescription>
+<para>Create a new tuple dictionary. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fields</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of space fields. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>field_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of <emphasis>fields</emphasis>.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Memory error. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>not</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NULL Tuple dictionary with one ref. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_dictionary.c" line="123" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_dictionary.c" bodystart="123" bodyend="176"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__dictionary_8c_1a423a4ed7da0b839fb71f6dd2bb8d65e7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tuple_dictionary_swap</definition>
+        <argsstring>(struct tuple_dictionary *a, struct tuple_dictionary *b)</argsstring>
+        <name>tuple_dictionary_swap</name>
+        <param>
+          <type>struct <ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref> *</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref> *</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Swap content of two dictionaries. </para>        </briefdescription>
+        <detaileddescription>
+<para>Reference counters are not swaped. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_dictionary.c" line="179" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_dictionary.c" bodystart="179" bodyend="188"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__dictionary_8c_1aa47de5e5ff13bd31ccfa5c2e1f8f7c5f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tuple_dictionary_unref</definition>
+        <argsstring>(struct tuple_dictionary *dict)</argsstring>
+        <name>tuple_dictionary_unref</name>
+        <param>
+          <type>struct <ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref> *</type>
+          <declname>dict</declname>
+        </param>
+        <briefdescription>
+<para>Decrement reference counter. </para>        </briefdescription>
+        <detaileddescription>
+<para>If a new reference counter value is 0, then the dictionary is deleted. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_dictionary.c" line="191" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_dictionary.c" bodystart="191" bodyend="196"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__dictionary_8c_1ae6ddbc5ecf67c6737c1f95fa90e0d772" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tuple_dictionary_ref</definition>
+        <argsstring>(struct tuple_dictionary *dict)</argsstring>
+        <name>tuple_dictionary_ref</name>
+        <param>
+          <type>struct <ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref> *</type>
+          <declname>dict</declname>
+        </param>
+        <briefdescription>
+<para>Increment reference counter. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_dictionary.c" line="199" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_dictionary.c" bodystart="199" bodyend="202"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__dictionary_8c_1a2a9f02d93885f335e109696d496b6a26" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tuple_fieldno_by_name</definition>
+        <argsstring>(struct tuple_dictionary *dict, const char *name, uint32_t name_len, uint32_t name_hash, uint32_t *fieldno)</argsstring>
+        <name>tuple_fieldno_by_name</name>
+        <param>
+          <type>struct <ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref> *</type>
+          <declname>dict</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>name_len</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>name_hash</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>fieldno</declname>
+        </param>
+        <briefdescription>
+<para>Get field number by a name. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dict</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Tuple dictionary. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name to search. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of <emphasis>name</emphasis>. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name_hash</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="structHash" kindref="compound">Hash</ref> of <emphasis>name</emphasis>. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">fieldno</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field number, if it is found.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field is found. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>No such field. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_dictionary.c" line="205" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_dictionary.c" bodystart="205" bodyend="217"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tuple_dictionary.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;error.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;diag.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal">field_name_hash_f<sp/>field_name_hash;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_name<sp/>_strnu32</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38" refid="structmh__strnu32__key__t" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmh__strnu32__key__t" kindref="compound">mh_strnu32_key_t</ref><sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*str;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>hash;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_key_t<sp/>struct<sp/>mh_strnu32_key_t<sp/>*</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="structmh__strnu32__node__t" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmh__strnu32__node__t" kindref="compound">mh_strnu32_node_t</ref><sp/>{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*str;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>hash;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>val;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_node_t<sp/>struct<sp/>mh_strnu32_node_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_arg_t<sp/>void<sp/>*</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_hash(a,<sp/>arg)<sp/>((a)-&gt;hash)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_hash_key(a,<sp/>arg)<sp/>mh_hash(a,<sp/>arg)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_cmp(a,<sp/>b,<sp/>arg)<sp/>((a)-&gt;len<sp/>!=<sp/>(b)-&gt;len<sp/>||<sp/>\</highlight></codeline>
+<codeline lineno="56"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcmp((a)-&gt;str,<sp/>(b)-&gt;str,<sp/>(a)-&gt;len))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_cmp_key(a,<sp/>b,<sp/>arg)<sp/>mh_cmp(a,<sp/>b,<sp/>arg)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>MH_SOURCE<sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;salad/mhash.h&quot;</highlight><highlight class="normal"><sp/></highlight><highlight class="comment">/*<sp/>Create<sp/>mh_strnu32_t<sp/>hash.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal">tuple_dictionary_delete_hash(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>mh_strnu32_t<sp/>*hash)</highlight></codeline>
+<codeline lineno="64"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(mh_size(hash))<sp/>{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_int_t<sp/>i<sp/>=<sp/>mh_first(hash);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_strnu32_del(hash,<sp/>i,<sp/>NULL);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_strnu32_delete(hash);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal">tuple_dictionary_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref><sp/>*dict)</highlight></codeline>
+<codeline lineno="75"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(dict-&gt;<ref refid="structtuple__dictionary_1a81ee08892bee3e18915490c01b6caa68" kindref="member">refs</ref><sp/>==<sp/>0);</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dict-&gt;<ref refid="structtuple__dictionary_1a1df7df2870bb12fec3d523b0853646d9" kindref="member">hash</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tuple_dictionary_delete_hash(dict-&gt;<ref refid="structtuple__dictionary_1a1df7df2870bb12fec3d523b0853646d9" kindref="member">hash</ref>);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>free(dict-&gt;<ref refid="structtuple__dictionary_1a69694b84691d46499ea2afb76decf511" kindref="member">names</ref>);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(dict-&gt;<ref refid="structtuple__dictionary_1a69694b84691d46499ea2afb76decf511" kindref="member">names</ref><sp/>==<sp/>NULL);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>free(dict);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal">tuple_dictionary_set_name(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref><sp/>*dict,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>name_len,<sp/>uint32_t<sp/>fieldno)</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(fieldno<sp/>&lt;<sp/>dict-&gt;name_count);</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>name_hash<sp/>=<sp/>field_name_hash(name,<sp/>name_len);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmh__strnu32__key__t" kindref="compound">mh_strnu32_key_t</ref><sp/>key<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>name,<sp/>name_len,<sp/>name_hash</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_int_t<sp/>rc<sp/>=<sp/>mh_strnu32_find(dict-&gt;<ref refid="structtuple__dictionary_1a1df7df2870bb12fec3d523b0853646d9" kindref="member">hash</ref>,<sp/>&amp;key,<sp/>NULL);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rc<sp/>!=<sp/>mh_end(dict-&gt;<ref refid="structtuple__dictionary_1a1df7df2870bb12fec3d523b0853646d9" kindref="member">hash</ref>))<sp/>{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(ClientError,<sp/>ER_SPACE_FIELD_IS_DUPLICATE,</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>name);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmh__strnu32__node__t" kindref="compound">mh_strnu32_node_t</ref><sp/>name_node<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>name,<sp/>name_len,<sp/>name_hash,<sp/>fieldno</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rc<sp/>=<sp/>mh_strnu32_put(dict-&gt;<ref refid="structtuple__dictionary_1a1df7df2870bb12fec3d523b0853646d9" kindref="member">hash</ref>,<sp/>&amp;name_node,<sp/>NULL,<sp/>NULL);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Memory<sp/>was<sp/>reserved<sp/>in<sp/>new().<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(rc<sp/>!=<sp/>mh_end(dict-&gt;<ref refid="structtuple__dictionary_1a1df7df2870bb12fec3d523b0853646d9" kindref="member">hash</ref>));</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<sp/>rc;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref><sp/>*</highlight></codeline>
+<codeline lineno="123"><highlight class="normal">tuple_dictionary_new(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfield__def" kindref="compound">field_def</ref><sp/>*fields,<sp/>uint32_t<sp/>field_count)</highlight></codeline>
+<codeline lineno="124"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref><sp/>*dict<sp/>=</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref><sp/>*)calloc(1,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*dict));</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dict<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(OutOfMemory,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*dict),<sp/></highlight><highlight class="stringliteral">&quot;malloc&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;dict&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dict-&gt;<ref refid="structtuple__dictionary_1a81ee08892bee3e18915490c01b6caa68" kindref="member">refs</ref><sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dict-&gt;<ref refid="structtuple__dictionary_1aa48d198cbbcff2969060e75d6c050390" kindref="member">name_count</ref><sp/>=<sp/>field_count;</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(field_count<sp/>==<sp/>0)</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>dict;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>names_offset<sp/>=<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(dict-&gt;<ref refid="structtuple__dictionary_1a69694b84691d46499ea2afb76decf511" kindref="member">names</ref>[0])<sp/>*<sp/>field_count;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>total<sp/>=<sp/>names_offset;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint32_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>field_count;<sp/>++i)</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>total<sp/>+=<sp/>strlen(fields[i].name)<sp/>+<sp/>1;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dict-&gt;<ref refid="structtuple__dictionary_1a69694b84691d46499ea2afb76decf511" kindref="member">names</ref><sp/>=<sp/>(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**)<sp/>malloc(total);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dict-&gt;<ref refid="structtuple__dictionary_1a69694b84691d46499ea2afb76decf511" kindref="member">names</ref><sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(OutOfMemory,<sp/>total,<sp/></highlight><highlight class="stringliteral">&quot;malloc&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;dict-&gt;names&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>err_memory;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dict-&gt;<ref refid="structtuple__dictionary_1a1df7df2870bb12fec3d523b0853646d9" kindref="member">hash</ref><sp/>=<sp/>mh_strnu32_new();</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dict-&gt;<ref refid="structtuple__dictionary_1a1df7df2870bb12fec3d523b0853646d9" kindref="member">hash</ref><sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(OutOfMemory,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*dict-&gt;<ref refid="structtuple__dictionary_1a1df7df2870bb12fec3d523b0853646d9" kindref="member">hash</ref>),</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;mh_strnu32_new&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;dict-&gt;hash&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>err_hash;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mh_strnu32_reserve(dict-&gt;<ref refid="structtuple__dictionary_1a1df7df2870bb12fec3d523b0853646d9" kindref="member">hash</ref>,<sp/>field_count,<sp/>NULL)<sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(OutOfMemory,<sp/>field_count<sp/>*</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmh__strnu32__node__t" kindref="compound">mh_strnu32_node_t</ref>),<sp/></highlight><highlight class="stringliteral">&quot;mh_strnu32_reserve&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;dict-&gt;hash&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>err_name;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*pos<sp/>=<sp/>(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*)<sp/>dict-&gt;<ref refid="structtuple__dictionary_1a69694b84691d46499ea2afb76decf511" kindref="member">names</ref><sp/>+<sp/>names_offset;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>for<sp/>(uint32_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>field_count;<sp/>++i)<sp/>{</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>len<sp/>=<sp/>strlen(fields[i].name);</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(pos,<sp/>fields[i].name,<sp/>len);</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pos[len]<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dict-&gt;<ref refid="structtuple__dictionary_1a69694b84691d46499ea2afb76decf511" kindref="member">names</ref>[i]<sp/>=<sp/>pos;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(tuple_dictionary_set_name(dict,<sp/>pos,<sp/>len,<sp/>i)<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>err_name;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pos<sp/>+=<sp/>len<sp/>+<sp/>1;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>dict;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal">err_name:</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tuple_dictionary_delete_hash(dict-&gt;<ref refid="structtuple__dictionary_1a1df7df2870bb12fec3d523b0853646d9" kindref="member">hash</ref>);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal">err_hash:</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>free(dict-&gt;<ref refid="structtuple__dictionary_1a69694b84691d46499ea2afb76decf511" kindref="member">names</ref>);</highlight></codeline>
+<codeline lineno="173"><highlight class="normal">err_memory:</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>free(dict);</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal">tuple_dictionary_swap(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref><sp/>*a,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref><sp/>*b)</highlight></codeline>
+<codeline lineno="180"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a_refs<sp/>=<sp/>a-&gt;<ref refid="structtuple__dictionary_1a81ee08892bee3e18915490c01b6caa68" kindref="member">refs</ref>;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>b_refs<sp/>=<sp/>b-&gt;<ref refid="structtuple__dictionary_1a81ee08892bee3e18915490c01b6caa68" kindref="member">refs</ref>;</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref><sp/>t<sp/>=<sp/>*a;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*a<sp/>=<sp/>*b;</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*b<sp/>=<sp/>t;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>a-&gt;<ref refid="structtuple__dictionary_1a81ee08892bee3e18915490c01b6caa68" kindref="member">refs</ref><sp/>=<sp/>a_refs;</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>b-&gt;<ref refid="structtuple__dictionary_1a81ee08892bee3e18915490c01b6caa68" kindref="member">refs</ref><sp/>=<sp/>b_refs;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal">tuple_dictionary_unref(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref><sp/>*dict)</highlight></codeline>
+<codeline lineno="192"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(dict-&gt;<ref refid="structtuple__dictionary_1a81ee08892bee3e18915490c01b6caa68" kindref="member">refs</ref><sp/>&gt;<sp/>0);</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(--dict-&gt;<ref refid="structtuple__dictionary_1a81ee08892bee3e18915490c01b6caa68" kindref="member">refs</ref><sp/>==<sp/>0)</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tuple_dictionary_delete(dict);</highlight></codeline>
+<codeline lineno="196"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal">tuple_dictionary_ref(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref><sp/>*dict)</highlight></codeline>
+<codeline lineno="200"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>++dict-&gt;<ref refid="structtuple__dictionary_1a81ee08892bee3e18915490c01b6caa68" kindref="member">refs</ref>;</highlight></codeline>
+<codeline lineno="202"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal">tuple_fieldno_by_name(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref><sp/>*dict,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>name_len,<sp/>uint32_t<sp/>name_hash,<sp/>uint32_t<sp/>*fieldno)</highlight></codeline>
+<codeline lineno="207"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">mh_strnu32_t<sp/>*hash<sp/>=<sp/>dict-&gt;<ref refid="structtuple__dictionary_1a1df7df2870bb12fec3d523b0853646d9" kindref="member">hash</ref>;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hash<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmh__strnu32__key__t" kindref="compound">mh_strnu32_key_t</ref><sp/>key<sp/>=<sp/>{name,<sp/>name_len,<sp/>name_hash};</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_int_t<sp/>rc<sp/>=<sp/>mh_strnu32_find(hash,<sp/>&amp;key,<sp/>NULL);</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rc<sp/>==<sp/>mh_end(hash))</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*fieldno<sp/>=<sp/>mh_strnu32_node(hash,<sp/>rc)-&gt;val;</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="217"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/tuple_dictionary.c"/>
+  </compounddef>
+</doxygen>

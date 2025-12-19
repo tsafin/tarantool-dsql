@@ -1,0 +1,114 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvy__stmt__env" kind="struct" language="C++" prot="public">
+    <compoundname>vy_stmt_env</compoundname>
+    <includes local="no">vy_stmt.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvy__stmt__env_1a79e3ade23a423aefc845048f8f1cbb74" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtuple__format__vtab" kindref="compound">tuple_format_vtab</ref></type>
+        <definition>struct tuple_format_vtab vy_stmt_env::tuple_format_vtab</definition>
+        <argsstring></argsstring>
+        <name>tuple_format_vtab</name>
+        <briefdescription>
+<para>Vinyl statement vtable. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_stmt.h" line="748" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_stmt.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__stmt__env_1afc93f8cb80e07a59308fa440dbd1957a" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t vy_stmt_env::max_tuple_size</definition>
+        <argsstring></argsstring>
+        <name>max_tuple_size</name>
+        <briefdescription>
+<para>Max tuple size. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="see"><para>box.cfg.vinyl_max_tuple_size </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_stmt.h" line="76" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_stmt.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__stmt__env_1a9cb680dd170d1eb0b5b27cd3bb46e37a" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtuple__format" kindref="compound">tuple_format</ref> *</type>
+        <definition>struct tuple_format* vy_stmt_env::key_format</definition>
+        <argsstring></argsstring>
+        <name>key_format</name>
+        <briefdescription>
+<para>Tuple format used for creating key statements (e.g. </para>        </briefdescription>
+        <detaileddescription>
+<para>statements read from secondary index runs). It doesn&apos;t impose any restrictions on tuple fields, neither does it setup offset map.</para><para>Note, all key statements must use this format, because vy_stmt_is_key() is built upon that assumption. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_stmt.h" line="86" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_stmt.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Vinyl statement environment. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="15098">
+        <label>json_tree</label>
+        <link refid="structjson__tree"/>
+        <childnode refid="15099" relation="usage">
+          <edgelabel>root</edgelabel>
+        </childnode>
+      </node>
+      <node id="15093">
+        <label>vy_stmt_env</label>
+        <link refid="structvy__stmt__env"/>
+        <childnode refid="15094" relation="usage">
+          <edgelabel>tuple_format_vtab</edgelabel>
+        </childnode>
+        <childnode refid="15096" relation="usage">
+          <edgelabel>key_format</edgelabel>
+        </childnode>
+      </node>
+      <node id="15099">
+        <label>json_token</label>
+        <link refid="structjson__token"/>
+        <childnode refid="15099" relation="usage">
+          <edgelabel>parent</edgelabel>
+          <edgelabel>children</edgelabel>
+        </childnode>
+      </node>
+      <node id="15097">
+        <label>tuple_dictionary</label>
+        <link refid="structtuple__dictionary"/>
+      </node>
+      <node id="15095">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="15096">
+        <label>tuple_format</label>
+        <link refid="structtuple__format"/>
+        <childnode refid="15097" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="15094" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="15098" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+      </node>
+      <node id="15094">
+        <label>tuple_format_vtab</label>
+        <link refid="structtuple__format__vtab"/>
+        <childnode refid="15095" relation="usage">
+          <edgelabel>tuple_new</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/vy_stmt.h" line="69" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_stmt.h" bodystart="69" bodyend="87"/>
+    <listofallmembers>
+      <member refid="structvy__stmt__env_1a9cb680dd170d1eb0b5b27cd3bb46e37a" prot="public" virt="non-virtual"><scope>vy_stmt_env</scope><name>key_format</name></member>
+      <member refid="structvy__stmt__env_1afc93f8cb80e07a59308fa440dbd1957a" prot="public" virt="non-virtual"><scope>vy_stmt_env</scope><name>max_tuple_size</name></member>
+      <member refid="structvy__stmt__env_1a79e3ade23a423aefc845048f8f1cbb74" prot="public" virt="non-virtual"><scope>vy_stmt_env</scope><name>tuple_format_vtab</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

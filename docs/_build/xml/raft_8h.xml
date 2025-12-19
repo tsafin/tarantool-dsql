@@ -1,0 +1,539 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="raft_8h" kind="file" language="C++">
+    <compoundname>raft.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="yes">tarantool_ev.h</includes>
+    <includes local="yes">trigger.h</includes>
+    <includedby refid="applier_8cc" local="yes">/home/tsafin/tarantool/src/box/applier.cc</includedby>
+    <includedby refid="box_8cc" local="yes">/home/tsafin/tarantool/src/box/box.cc</includedby>
+    <includedby refid="box_2lua_2info_8c" local="yes">/home/tsafin/tarantool/src/box/lua/info.c</includedby>
+    <includedby refid="memtx__engine_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_engine.c</includedby>
+    <includedby refid="raft_8c" local="yes">/home/tsafin/tarantool/src/box/raft.c</includedby>
+    <includedby refid="relay_8cc" local="yes">/home/tsafin/tarantool/src/box/relay.cc</includedby>
+    <incdepgraph>
+      <node id="774">
+        <label>stdbool.h</label>
+      </node>
+      <node id="773">
+        <label>stdint.h</label>
+      </node>
+      <node id="775">
+        <label>tarantool_ev.h</label>
+      </node>
+      <node id="772">
+        <label>/home/tsafin/tarantool/src/box/raft.h</label>
+        <link refid="raft_8h"/>
+        <childnode refid="773" relation="include">
+        </childnode>
+        <childnode refid="774" relation="include">
+        </childnode>
+        <childnode refid="775" relation="include">
+        </childnode>
+        <childnode refid="776" relation="include">
+        </childnode>
+      </node>
+      <node id="776">
+        <label>trigger.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structraft" prot="public">raft</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="raft_8h_1a8f6ab26958bfc1a71631ee04fda556e4" prot="public" static="no">
+        <name>raft_state</name>
+        <enumvalue id="raft_8h_1a8f6ab26958bfc1a71631ee04fda556e4a41b1033a28ad6d8f0f9f76f9ced4073c" prot="public">
+          <name>RAFT_STATE_FOLLOWER</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+<para>Can&apos;t write. </para>          </briefdescription>
+          <detaileddescription>
+<para>Can only accept data from a leader. Node in this state either monitors an existing leader, or there is an on-going election and the node voted for another node, or it can&apos;t be a candidate and does not do anything. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="raft_8h_1a8f6ab26958bfc1a71631ee04fda556e4a4c3b23b26012e4b0d15baf13f4c1b553" prot="public">
+          <name>RAFT_STATE_CANDIDATE</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+<para>The node can&apos;t write. </para>          </briefdescription>
+          <detaileddescription>
+<para>There is an active election, in which the node voted for self. Now it waits for election outcome. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="raft_8h_1a8f6ab26958bfc1a71631ee04fda556e4ad8d8065a452e39c58ba95893b7623401" prot="public">
+          <name>RAFT_STATE_LEADER</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+<para>Election was successful. </para>          </briefdescription>
+          <detaileddescription>
+<para>The node accepts write requests. </para>          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="73" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.h" bodystart="73" bodyend="88"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="raft_8h_1a367a4fe130b667bb3ee3276978e76fbc" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* raft_state_strs[]</definition>
+        <argsstring>[]</argsstring>
+        <name>raft_state_strs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="90" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.c" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="raft_8h_1a6461e74438475f3073fabbddf74ac42f" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structraft" kindref="compound">raft</ref></type>
+        <definition>struct raft raft</definition>
+        <argsstring></argsstring>
+        <name>raft</name>
+        <briefdescription>
+<para>Raft state of this instance. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="90" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.c" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="raft_8h_1aa08e9a68ee80310621275cc27f2d1da7" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool raft_is_ro</definition>
+        <argsstring>(void)</argsstring>
+        <name>raft_is_ro</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>A flag whether the instance is read-only according to Raft. </para>        </briefdescription>
+        <detaileddescription>
+<para>Even if Raft allows writes though, it does not mean the instance is writable. It can be affected by box.cfg.read_only, connection quorum. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="169" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.h" bodystart="169" bodyend="172"/>
+      </memberdef>
+      <memberdef kind="function" id="raft_8h_1a102f6ef1e57869bb2f38cb8873887ddf" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool raft_is_source_allowed</definition>
+        <argsstring>(uint32_t source_id)</argsstring>
+        <name>raft_is_source_allowed</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>source_id</declname>
+        </param>
+        <briefdescription>
+<para>See if the instance can accept rows from an instance with the given ID. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="176" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.h" bodystart="176" bodyend="179"/>
+      </memberdef>
+      <memberdef kind="function" id="raft_8h_1a95eed2d0803cbd0c2f173dc3f28e2ce6" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool raft_is_enabled</definition>
+        <argsstring>(void)</argsstring>
+        <name>raft_is_enabled</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Check if Raft is enabled. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="183" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.h" bodystart="183" bodyend="186"/>
+      </memberdef>
+      <memberdef kind="function" id="raft_8h_1afbb899f96c0068981271d8f44de8c377" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void raft_process_recovery</definition>
+        <argsstring>(const struct raft_request *req)</argsstring>
+        <name>raft_process_recovery</name>
+        <param>
+          <type>const struct <ref refid="structraft__request" kindref="compound">raft_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <briefdescription>
+<para>Process a raft entry stored in WAL/snapshot. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="190" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.c" bodystart="313" bodyend="338"/>
+      </memberdef>
+      <memberdef kind="function" id="raft_8h_1a89d54abad7a163c8894cdd2d87de9426" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int raft_process_msg</definition>
+        <argsstring>(const struct raft_request *req, uint32_t source)</argsstring>
+        <name>raft_process_msg</name>
+        <param>
+          <type>const struct <ref refid="structraft__request" kindref="compound">raft_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>source</declname>
+        </param>
+        <briefdescription>
+<para>Process a raft status message coming from the network. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>req</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Raft request. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>source</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Instance ID of the message sender. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="198" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.c" bodystart="341" bodyend="481"/>
+      </memberdef>
+      <memberdef kind="function" id="raft_8h_1a16d959f44542fc538b17f24570bd09b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void raft_process_heartbeat</definition>
+        <argsstring>(uint32_t source)</argsstring>
+        <name>raft_process_heartbeat</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>source</declname>
+        </param>
+        <briefdescription>
+<para>Process a heartbeat message from an instance with the given ID. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is used to watch leader&apos;s health and start election when necessary. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="205" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.c" bodystart="484" bodyend="519"/>
+      </memberdef>
+      <memberdef kind="function" id="raft_8h_1a407c3cb58b96f439a8ce379d3748693a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void raft_cfg_is_enabled</definition>
+        <argsstring>(bool is_enabled)</argsstring>
+        <name>raft_cfg_is_enabled</name>
+        <param>
+          <type>bool</type>
+          <declname>is_enabled</declname>
+        </param>
+        <briefdescription>
+<para>Configure whether Raft is enabled. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="209" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.c" bodystart="921" bodyend="930"/>
+      </memberdef>
+      <memberdef kind="function" id="raft_8h_1ad5960ab30be3b170e8d20f63c5822006" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void raft_cfg_is_candidate</definition>
+        <argsstring>(bool is_candidate)</argsstring>
+        <name>raft_cfg_is_candidate</name>
+        <param>
+          <type>bool</type>
+          <declname>is_candidate</declname>
+        </param>
+        <briefdescription>
+<para>Configure whether the instance can be elected as Raft leader. </para>        </briefdescription>
+        <detaileddescription>
+<para>Even if false, the node still can vote, when Raft is enabled. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="216" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.c" bodystart="933" bodyend="963"/>
+      </memberdef>
+      <memberdef kind="function" id="raft_8h_1ac97abd1a574c02e28a11a96b1e378c4e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void raft_cfg_election_timeout</definition>
+        <argsstring>(double timeout)</argsstring>
+        <name>raft_cfg_election_timeout</name>
+        <param>
+          <type>double</type>
+          <declname>timeout</declname>
+        </param>
+        <briefdescription>
+<para>Configure Raft leader election timeout. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="220" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.c" bodystart="966" bodyend="980"/>
+      </memberdef>
+      <memberdef kind="function" id="raft_8h_1a3a51f29c902f580f8f499a003dba3196" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void raft_cfg_election_quorum</definition>
+        <argsstring>(void)</argsstring>
+        <name>raft_cfg_election_quorum</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Configure Raft leader election quorum. </para>        </briefdescription>
+        <detaileddescription>
+<para>There is no a separate option. Instead, synchronous replication quorum is used. Since Raft is tightly bound with synchronous replication. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="228" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.c" bodystart="983" bodyend="991"/>
+      </memberdef>
+      <memberdef kind="function" id="raft_8h_1a887621d19fb569f34bf954fc7cbbac2a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void raft_cfg_death_timeout</definition>
+        <argsstring>(void)</argsstring>
+        <name>raft_cfg_death_timeout</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Configure Raft leader death timeout. </para>        </briefdescription>
+        <detaileddescription>
+<para>I.e. number of seconds without heartbeats from the leader to consider it dead. There is no a separate option. Raft uses replication timeout for that. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="236" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.c" bodystart="994" bodyend="1006"/>
+      </memberdef>
+      <memberdef kind="function" id="raft_8h_1a32c104d8302a8c2650141bf85c7230be" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void raft_new_term</definition>
+        <argsstring>(void)</argsstring>
+        <name>raft_new_term</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Bump the term. </para>        </briefdescription>
+        <detaileddescription>
+<para>When it is persisted, the node checks if there is a leader, and if there is not, a new election is started. That said, this function can be used as tool to forcefully start new election, or restart an existing. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="244" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.c" bodystart="1009" bodyend="1013"/>
+      </memberdef>
+      <memberdef kind="function" id="raft_8h_1a5d7dc92fc77afc3c6da6ab1745d48a81" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void raft_serialize_for_network</definition>
+        <argsstring>(struct raft_request *req, struct vclock *vclock)</argsstring>
+        <name>raft_serialize_for_network</name>
+        <param>
+          <type>struct <ref refid="structraft__request" kindref="compound">raft_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <briefdescription>
+<para>Save complete Raft state into a request to be sent to other instances of the cluster. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is allowed to save anything here, not only persistent state. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="251" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.c" bodystart="886" bodyend="904"/>
+      </memberdef>
+      <memberdef kind="function" id="raft_8h_1a683fad3c50bb3717e5f10957f518314f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void raft_serialize_for_disk</definition>
+        <argsstring>(struct raft_request *req)</argsstring>
+        <name>raft_serialize_for_disk</name>
+        <param>
+          <type>struct <ref refid="structraft__request" kindref="compound">raft_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <briefdescription>
+<para>Save complete Raft state into a request to be persisted on disk. </para>        </briefdescription>
+        <detaileddescription>
+<para>Only term and vote are being persisted. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="258" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.c" bodystart="907" bodyend="912"/>
+      </memberdef>
+      <memberdef kind="function" id="raft_8h_1ab354d3e6c50c174197364559a1333a5d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void raft_on_update</definition>
+        <argsstring>(struct trigger *trigger)</argsstring>
+        <name>raft_on_update</name>
+        <param>
+          <type>struct <ref refid="structtrigger" kindref="compound">trigger</ref> *</type>
+          <declname>trigger</declname>
+        </param>
+        <briefdescription>
+<para>Add a trigger invoked each time any of the Raft node visible attributes are changed. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="265" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.c" bodystart="915" bodyend="918"/>
+      </memberdef>
+      <memberdef kind="function" id="raft_8h_1ac392ee330fe09d1424a1e4409be59106" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void raft_init</definition>
+        <argsstring>(void)</argsstring>
+        <name>raft_init</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize Raft global data structures. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/raft.h" line="269" column="1" bodyfile="/home/tsafin/tarantool/src/box/raft.c" bodystart="1054" bodyend="1058"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2020,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tarantool_ev.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trigger.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber" kindref="compound">fiber</ref>;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structraft__request" kindref="compound">raft_request</ref>;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvclock" kindref="compound">vclock</ref>;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>raft_state<sp/>{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>RAFT_STATE_FOLLOWER<sp/>=<sp/>1,</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>RAFT_STATE_CANDIDATE<sp/>=<sp/>2,</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>RAFT_STATE_LEADER<sp/>=<sp/>3,</highlight></codeline>
+<codeline lineno="88"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*raft_state_strs[];</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92" refid="structraft" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structraft" kindref="compound">raft</ref><sp/>{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structraft_1a0499d6b03b517f2780185d29fbdf0333" kindref="member">leader</ref>;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>raft_state<sp/><ref refid="structraft_1a22b9978117406c38ebc03e64a454dd16" kindref="member">state</ref>;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/><ref refid="structraft_1a2b870b67709b75cb81bfe4c2dc039816" kindref="member">volatile_term</ref>;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>volatile_vote;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structraft_1a6d0ddea47c040236338d872a59345e18" kindref="member">is_enabled</ref>;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structraft_1afd3617fc6dabc2a75c6937e8c1fabb69" kindref="member">is_candidate</ref>;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structraft_1a5d6c9307664de1a1233a637a65732c0e" kindref="member">is_cfg_candidate</ref>;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structraft_1abef8a5aa1f20b0ffe7e549180b996ed1" kindref="member">is_write_in_progress</ref>;</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structraft_1a1530612e1f6b922d91c8170064155028" kindref="member">is_broadcast_scheduled</ref>;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/><ref refid="structraft_1acc125d7e7e401cbdd2d5fab69bb0bad7" kindref="member">term</ref>;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>vote;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structraft_1aa039b7ed1263a37ecb0ca79d462434b5" kindref="member">vote_mask</ref>;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structraft_1a1b558c3f490ff2ff0e42ccc9b5546bea" kindref="member">vote_count</ref>;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">ev_timer<sp/>timer;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber" kindref="compound">fiber</ref><sp/>*<ref refid="structraft_1acc5ef73be11819e3f7808a42ae2153eb" kindref="member">worker</ref>;</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structraft_1a3f1a5c6527e92497336fbd96edee9dd3" kindref="member">election_timeout</ref>;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>on_update;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structraft" kindref="compound">raft</ref><sp/>raft;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal">raft_is_ro(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="170"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>raft.<ref refid="structraft_1a6d0ddea47c040236338d872a59345e18" kindref="member">is_enabled</ref><sp/>&amp;&amp;<sp/>raft.<ref refid="structraft_1a22b9978117406c38ebc03e64a454dd16" kindref="member">state</ref><sp/>!=<sp/>RAFT_STATE_LEADER;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal">raft_is_source_allowed(uint32_t<sp/>source_id)</highlight></codeline>
+<codeline lineno="177"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>!raft.<ref refid="structraft_1a6d0ddea47c040236338d872a59345e18" kindref="member">is_enabled</ref><sp/>||<sp/>raft.<ref refid="structraft_1a0499d6b03b517f2780185d29fbdf0333" kindref="member">leader</ref><sp/>==<sp/>source_id;</highlight></codeline>
+<codeline lineno="179"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal">raft_is_enabled(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="184"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>raft.<ref refid="structraft_1a6d0ddea47c040236338d872a59345e18" kindref="member">is_enabled</ref>;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal">raft_process_recovery(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structraft__request" kindref="compound">raft_request</ref><sp/>*req);</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="197"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal">raft_process_msg(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structraft__request" kindref="compound">raft_request</ref><sp/>*req,<sp/>uint32_t<sp/>source);</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal">raft_process_heartbeat(uint32_t<sp/>source);</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal">raft_cfg_is_enabled(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structraft_1a6d0ddea47c040236338d872a59345e18" kindref="member">is_enabled</ref>);</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal">raft_cfg_is_candidate(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structraft_1afd3617fc6dabc2a75c6937e8c1fabb69" kindref="member">is_candidate</ref>);</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal">raft_cfg_election_timeout(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>timeout);</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal">raft_cfg_election_quorum(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight></codeline>
+<codeline lineno="235"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal">raft_cfg_death_timeout(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="244"><highlight class="normal">raft_new_term(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"></highlight></codeline>
+<codeline lineno="250"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="normal">raft_serialize_for_network(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structraft__request" kindref="compound">raft_request</ref><sp/>*req,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvclock" kindref="compound">vclock</ref><sp/>*<ref refid="structvclock" kindref="compound">vclock</ref>);</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"></highlight></codeline>
+<codeline lineno="257"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="258"><highlight class="normal">raft_serialize_for_disk(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structraft__request" kindref="compound">raft_request</ref><sp/>*req);</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"></highlight></codeline>
+<codeline lineno="264"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="265"><highlight class="normal">raft_on_update(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtrigger" kindref="compound">trigger</ref><sp/>*<ref refid="structtrigger" kindref="compound">trigger</ref>);</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="269"><highlight class="normal">raft_init(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/raft.h"/>
+  </compounddef>
+</doxygen>

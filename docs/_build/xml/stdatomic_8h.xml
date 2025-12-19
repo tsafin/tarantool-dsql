@@ -1,0 +1,1566 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="stdatomic_8h" kind="file" language="C++">
+    <compoundname>stdatomic.h</compoundname>
+    <includes local="no">sys/cdefs.h</includes>
+    <includes local="no">sys/_types.h</includes>
+    <incdepgraph>
+      <node id="2267">
+        <label>/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h</label>
+        <link refid="stdatomic_8h"/>
+        <childnode refid="2268" relation="include">
+        </childnode>
+        <childnode refid="2269" relation="include">
+        </childnode>
+      </node>
+      <node id="2269">
+        <label>sys/_types.h</label>
+      </node>
+      <node id="2268">
+        <label>sys/cdefs.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structatomic__flag" prot="public">atomic_flag</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="stdatomic_8h_1ad501bafcd2074b392f630497545de87d" prot="public" static="no">
+        <name>ATOMIC_VAR_INIT</name>
+        <param><defname>value</defname></param>
+        <initializer>{ .__val = (value) }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="89" column="10" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1af8a9cbe9495fcafaa892b24b383acf96" prot="public" static="no">
+        <name>atomic_init</name>
+        <param><defname>obj</defname></param>
+        <param><defname>value</defname></param>
+        <initializer>((void)((obj)-&gt;__val = (value)))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="90" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1a8faf1f097f05558889df4c44d052d35e" prot="public" static="no">
+        <name>__ATOMIC_RELAXED</name>
+        <initializer>0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="100" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="100" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1a762c3361bcfeccc1f2742cc94b1ab65b" prot="public" static="no">
+        <name>__ATOMIC_CONSUME</name>
+        <initializer>1</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="103" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1a72e3c30a05bd2bb63d76550e451a438e" prot="public" static="no">
+        <name>__ATOMIC_ACQUIRE</name>
+        <initializer>2</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="106" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1a5822cf04414d99e0ee81e8bbe182226b" prot="public" static="no">
+        <name>__ATOMIC_RELEASE</name>
+        <initializer>3</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="109" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1acdfdd67de0664b690c42bba327cf7da1" prot="public" static="no">
+        <name>__ATOMIC_ACQ_REL</name>
+        <initializer>4</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="112" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1a0609dc2b702d5980de44c01bd373136a" prot="public" static="no">
+        <name>__ATOMIC_SEQ_CST</name>
+        <initializer>5</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="115" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1a6e87cf22c6c854b1144fbba53bf579bb" prot="public" static="no">
+        <name>atomic_is_lock_free</name>
+        <param><defname>obj</defname></param>
+        <initializer>((void)(obj), sizeof((obj)-&gt;__val) &lt;= sizeof(void *))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="179" column="10" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="179" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1acae05e7d22f3a07fb8ced71a4804edb6" prot="public" static="no">
+        <name>__atomic_apply_stride</name>
+        <param><defname>object</defname></param>
+        <param><defname>operand</defname></param>
+        <initializer>(((__typeof__((object)-&gt;__val))0) + (operand))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="284" column="10" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="284" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1a3ba706e3bbbabf5036356c09441559e2" prot="public" static="no">
+        <name>atomic_compare_exchange_strong_explicit</name>
+        <param><defname>object</defname></param>
+        <param><defname>expected</defname></param>
+        <param><defname>desired</defname></param>
+        <param><defname>success</defname></param>
+        <param><defname>failure</defname></param>
+        <initializer>__extension__ ({			\
+	__typeof__(expected) __ep = (expected);				\
+	__typeof__(*__ep) __e = *__ep;					\
+	(void)(success); (void)(failure);				\
+	(_Bool)((*__ep = __sync_val_compare_and_swap(&amp;(object)-&gt;__val,	\
+	    __e, desired)) == __e);					\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="287" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="286" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1ae7f81d6541b8feec676e997952555882" prot="public" static="no">
+        <name>atomic_compare_exchange_weak_explicit</name>
+        <param><defname>object</defname></param>
+        <param><defname>expected</defname></param>
+        <param><defname>desired</defname></param>
+        <param><defname>success</defname></param>
+        <param><defname>failure</defname></param>
+        <initializer>atomic_compare_exchange_strong_explicit(object, expected,	\
+		desired, success, failure)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="295" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="294" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1abc7db808dcdfb37a76f5dc646422fe29" prot="public" static="no">
+        <name>atomic_exchange_explicit</name>
+        <param><defname>object</defname></param>
+        <param><defname>desired</defname></param>
+        <param><defname>order</defname></param>
+        <initializer>__extension__ ({							\
+	__typeof__(object) __o = (object);				\
+	__typeof__(desired) __d = (desired);				\
+	(void)(order);							\
+	__sync_synchronize();						\
+	__sync_lock_test_and_set(&amp;(__o)-&gt;__val, __d);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="308" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="308" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1a1d2b72b5d6ad1392c4f805054be0bdd1" prot="public" static="no">
+        <name>atomic_fetch_add_explicit</name>
+        <param><defname>object</defname></param>
+        <param><defname>operand</defname></param>
+        <param><defname>order</defname></param>
+        <initializer>((void)(order), __sync_fetch_and_add(&amp;(object)-&gt;__val,		\
+	    __atomic_apply_stride(object, operand)))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="317" column="10" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="317" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1aeef65522da3712b76bc1bd0d981d48ac" prot="public" static="no">
+        <name>atomic_fetch_and_explicit</name>
+        <param><defname>object</defname></param>
+        <param><defname>operand</defname></param>
+        <param><defname>order</defname></param>
+        <initializer>((void)(order), __sync_fetch_and_and(&amp;(object)-&gt;__val, operand))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="320" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="320" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1aa9a7edeec6d650c3e7a43257ffd923bb" prot="public" static="no">
+        <name>atomic_fetch_or_explicit</name>
+        <param><defname>object</defname></param>
+        <param><defname>operand</defname></param>
+        <param><defname>order</defname></param>
+        <initializer>((void)(order), __sync_fetch_and_or(&amp;(object)-&gt;__val, operand))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="322" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="322" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1af952088a1a3bea5f3c11d67118eb729b" prot="public" static="no">
+        <name>atomic_fetch_sub_explicit</name>
+        <param><defname>object</defname></param>
+        <param><defname>operand</defname></param>
+        <param><defname>order</defname></param>
+        <initializer>((void)(order), __sync_fetch_and_sub(&amp;(object)-&gt;__val,		\
+	    __atomic_apply_stride(object, operand)))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="324" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="324" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1ae067c20ab4471deddd41ecee572fe35f" prot="public" static="no">
+        <name>atomic_fetch_xor_explicit</name>
+        <param><defname>object</defname></param>
+        <param><defname>operand</defname></param>
+        <param><defname>order</defname></param>
+        <initializer>((void)(order), __sync_fetch_and_xor(&amp;(object)-&gt;__val, operand))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="327" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="327" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1a714cabdfee3dff182363e10401689371" prot="public" static="no">
+        <name>atomic_load_explicit</name>
+        <param><defname>object</defname></param>
+        <param><defname>order</defname></param>
+        <initializer>((void)(order), __sync_fetch_and_add(&amp;(object)-&gt;__val, 0))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="329" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="329" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1ad559c29e007899c11142f0d899625397" prot="public" static="no">
+        <name>atomic_store_explicit</name>
+        <param><defname>object</defname></param>
+        <param><defname>desired</defname></param>
+        <param><defname>order</defname></param>
+        <initializer>((void)atomic_exchange_explicit(object, desired, order))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="331" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="331" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1a363f436785249f132da5f94f30587f98" prot="public" static="no">
+        <name>atomic_compare_exchange_strong</name>
+        <param><defname>object</defname></param>
+        <param><defname>expected</defname></param>
+        <param><defname>desired</defname></param>
+        <initializer>atomic_compare_exchange_strong_explicit(object, expected,	\
+	    desired, memory_order_seq_cst, memory_order_seq_cst)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="343" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="343" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1a084c8c95aa5ded790928e7ca78dff7eb" prot="public" static="no">
+        <name>atomic_compare_exchange_weak</name>
+        <param><defname>object</defname></param>
+        <param><defname>expected</defname></param>
+        <param><defname>desired</defname></param>
+        <initializer>atomic_compare_exchange_weak_explicit(object, expected,		\
+	    desired, memory_order_seq_cst, memory_order_seq_cst)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="346" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="346" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1a3a0241b6f3d907f3fc497cf0c747e4ea" prot="public" static="no">
+        <name>atomic_exchange</name>
+        <param><defname>object</defname></param>
+        <param><defname>desired</defname></param>
+        <initializer>atomic_exchange_explicit(object, desired, memory_order_seq_cst)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="349" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="349" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1aedf6fb62e0fc9e8f8cf2e3685f0a1e88" prot="public" static="no">
+        <name>atomic_fetch_add</name>
+        <param><defname>object</defname></param>
+        <param><defname>operand</defname></param>
+        <initializer>atomic_fetch_add_explicit(object, operand, memory_order_seq_cst)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="351" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="351" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1adb8eef1235f98b5b418480b474f0fa16" prot="public" static="no">
+        <name>atomic_fetch_and</name>
+        <param><defname>object</defname></param>
+        <param><defname>operand</defname></param>
+        <initializer>atomic_fetch_and_explicit(object, operand, memory_order_seq_cst)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="353" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="353" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1a516561c3d6db1e6adfd4c97894a63cfb" prot="public" static="no">
+        <name>atomic_fetch_or</name>
+        <param><defname>object</defname></param>
+        <param><defname>operand</defname></param>
+        <initializer>atomic_fetch_or_explicit(object, operand, memory_order_seq_cst)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="355" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="355" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1a66aaef69cdadfe5e0eb87f6beff352df" prot="public" static="no">
+        <name>atomic_fetch_sub</name>
+        <param><defname>object</defname></param>
+        <param><defname>operand</defname></param>
+        <initializer>atomic_fetch_sub_explicit(object, operand, memory_order_seq_cst)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="357" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="357" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1a00b017a65180805ce9ab091864c0a60e" prot="public" static="no">
+        <name>atomic_fetch_xor</name>
+        <param><defname>object</defname></param>
+        <param><defname>operand</defname></param>
+        <initializer>atomic_fetch_xor_explicit(object, operand, memory_order_seq_cst)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="359" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="359" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1acced2a78b2a440317feed51f3e505d1d" prot="public" static="no">
+        <name>atomic_load</name>
+        <param><defname>object</defname></param>
+        <initializer>atomic_load_explicit(object, memory_order_seq_cst)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="361" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="361" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1a0241b1f231c55cdf092b2d509e8d83df" prot="public" static="no">
+        <name>atomic_store</name>
+        <param><defname>object</defname></param>
+        <param><defname>desired</defname></param>
+        <initializer>atomic_store_explicit(object, desired, memory_order_seq_cst)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="363" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="363" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stdatomic_8h_1a3cf6ded3b463faf0cedce1718caaa695" prot="public" static="no">
+        <name>ATOMIC_FLAG_INIT</name>
+        <initializer>{ ATOMIC_VAR_INIT(0) }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="378" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="378" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="stdatomic_8h_1a17c2de5ae768960284c047a320f17d1b" prot="public" static="no">
+        <name>memory_order</name>
+        <enumvalue id="stdatomic_8h_1a17c2de5ae768960284c047a320f17d1bac6489d0374e297a776f6a3db7ea5654a" prot="public">
+          <name>memory_order_relaxed</name>
+          <initializer>= __ATOMIC_RELAXED</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="stdatomic_8h_1a17c2de5ae768960284c047a320f17d1ba0745f54882bc00251a719e42969db110" prot="public">
+          <name>memory_order_consume</name>
+          <initializer>= __ATOMIC_CONSUME</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="stdatomic_8h_1a17c2de5ae768960284c047a320f17d1bafb313754331704b978e9a80a933b3da7" prot="public">
+          <name>memory_order_acquire</name>
+          <initializer>= __ATOMIC_ACQUIRE</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="stdatomic_8h_1a17c2de5ae768960284c047a320f17d1ba685a90c8fc516895354973c3918a5f7b" prot="public">
+          <name>memory_order_release</name>
+          <initializer>= __ATOMIC_RELEASE</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="stdatomic_8h_1a17c2de5ae768960284c047a320f17d1bae17e60cbfd766a7f165872c36e2f7bc5" prot="public">
+          <name>memory_order_acq_rel</name>
+          <initializer>= __ATOMIC_ACQ_REL</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="stdatomic_8h_1a17c2de5ae768960284c047a320f17d1ba2d21914d1edd227a890107e7878a3752" prot="public">
+          <name>memory_order_seq_cst</name>
+          <initializer>= __ATOMIC_SEQ_CST</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="125" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="125" bodyend="132"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="stdatomic_8h_1abce1935671683ffbde73c5272b289086" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>__inline void</type>
+        <definition>static __inline void atomic_thread_fence</definition>
+        <argsstring>(memory_order __order __unused)</argsstring>
+        <name>atomic_thread_fence</name>
+        <param>
+          <type>memory_order __order</type>
+          <declname>__unused</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="139" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="139" bodyend="149"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a2a65a45a36f48c7ada1c019afbb9a22e" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>__inline void</type>
+        <definition>static __inline void atomic_signal_fence</definition>
+        <argsstring>(memory_order __order __unused)</argsstring>
+        <name>atomic_signal_fence</name>
+        <param>
+          <type>memory_order __order</type>
+          <declname>__unused</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="152" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="152" bodyend="162"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1afff57ffb45845b688f5b8749a5ee4f64" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(_Bool) atomic_bool</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>_Bool</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="187" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a8e19866b311b12ce62b7630c4caa37f1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(char) atomic_char</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>char</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="188" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1adaadc59d9812e139d9d86b88cf293815" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(signed char) atomic_schar</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>signed</type>
+          <declname>char</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="189" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a87b753c5b9dbb5af1cd2b0efcb162011" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(unsigned char) atomic_uchar</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>unsigned</type>
+          <declname>char</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="190" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a2d00d380f0af818a2cb3b8c27a1de160" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(short) atomic_short</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>short</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="191" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a85aacaf1a58e72cbd6ee6dc634e5061e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(int) atomic_int</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="193" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1ae4ff20d782847ebd507c4d8b207b3678" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(long) atomic_long</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>long</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="195" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1aaa8eb04f4785cbe6295fbed13b311579" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(unsigned long long) atomic_ullong</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>unsigned long</type>
+          <declname>long</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="198" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1ade498be5413e577a12283e66f2d80c98" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__char16_t) atomic_char16_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__char16_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="199" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a059ecc9fc6ae544cec28352219b2b768" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__char32_t) atomic_char32_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__char32_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="200" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a564838e65d7245af7850f5b367264b48" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(___wchar_t) atomic_wchar_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>___wchar_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="201" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a791e40d377be1b920c40504591b0c02b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__int_least8_t) atomic_int_least8_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__int_least8_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="202" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a58e31c7403c1c06bbbce97dbbdf6b98e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__uint_least8_t) atomic_uint_least8_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__uint_least8_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="203" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1ab78a9e76f8b8f922913d50ba58b865fe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__int_least16_t) atomic_int_least16_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__int_least16_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="204" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a94c8177692a6c26d2497824b25ae2cfa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__uint_least16_t) atomic_uint_least16_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__uint_least16_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="205" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a4b889f98d080cf29154085fd8f52f609" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__int_least32_t) atomic_int_least32_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__int_least32_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="206" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a187edd4d36bbea92a11a244805f12796" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__uint_least32_t) atomic_uint_least32_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__uint_least32_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="207" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a4c719c4188d3bc2e20df2b0cca39237c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__int_least64_t) atomic_int_least64_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__int_least64_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="208" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a5d3135860700b1c9734a12d483dd4805" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__uint_least64_t) atomic_uint_least64_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__uint_least64_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="209" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1af0f41a1cf87377e7400ecd1028c0fd66" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__int_fast8_t) atomic_int_fast8_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__int_fast8_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="210" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a8a7f2a1a0bcbe28b26c7bb09f14730da" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__uint_fast8_t) atomic_uint_fast8_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__uint_fast8_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="211" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a1476a61b0a623f3afc7cf04470553988" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__int_fast16_t) atomic_int_fast16_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__int_fast16_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="212" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1afbb2b564f3be10599fa7d3918e2944ae" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__uint_fast16_t) atomic_uint_fast16_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__uint_fast16_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="213" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a20eb15d7b655b6b9e5ce94485691ae50" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__int_fast32_t) atomic_int_fast32_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__int_fast32_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="214" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a51d4cf1f94ec899ced290b8fe1c1ace0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__uint_fast32_t) atomic_uint_fast32_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__uint_fast32_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="215" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a0c6e0ebffccea652ed760ab6296592b2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__int_fast64_t) atomic_int_fast64_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__int_fast64_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="216" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1ad217af03b6cd3f2a21b182c54906b3e2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__uint_fast64_t) atomic_uint_fast64_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__uint_fast64_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="217" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a731bf0d116f11d886db9accfe086d55c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__intptr_t) atomic_intptr_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__intptr_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="218" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a7a663a7f1a5cea1fd370fc551e2eaf30" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__uintptr_t) atomic_uintptr_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__uintptr_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="219" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a1a4e0671f95fa87a1059322d43967b3b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__size_t) atomic_size_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__size_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="220" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a9e641b2daee20bcf5ca2dd55a2743a12" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__ptrdiff_t) atomic_ptrdiff_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__ptrdiff_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="221" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a56748357ce15cbdf81b0dc2359898a48" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__intmax_t) atomic_intmax_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__intmax_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="222" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1abe350209946ca8258020c3505c2e7f92" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef _Atomic</definition>
+        <argsstring>(__uintmax_t) atomic_uintmax_t</argsstring>
+        <name>_Atomic</name>
+        <param>
+          <type>__uintmax_t</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="223" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a7be8dd1202fe6293d77b24b7f22f714c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>__inline _Bool</type>
+        <definition>static __inline _Bool atomic_flag_test_and_set_explicit</definition>
+        <argsstring>(volatile atomic_flag *__object, memory_order __order)</argsstring>
+        <name>atomic_flag_test_and_set_explicit</name>
+        <param>
+          <type>volatile <ref refid="structatomic__flag" kindref="compound">atomic_flag</ref> *</type>
+          <declname>__object</declname>
+        </param>
+        <param>
+          <type>memory_order</type>
+          <declname>__order</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="381" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="381" bodyend="385"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a0e7fba7d971458bc65f390aa28b72a1f" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>__inline void</type>
+        <definition>static __inline void atomic_flag_clear_explicit</definition>
+        <argsstring>(volatile atomic_flag *__object, memory_order __order)</argsstring>
+        <name>atomic_flag_clear_explicit</name>
+        <param>
+          <type>volatile <ref refid="structatomic__flag" kindref="compound">atomic_flag</ref> *</type>
+          <declname>__object</declname>
+        </param>
+        <param>
+          <type>memory_order</type>
+          <declname>__order</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="388" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="388" bodyend="392"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a5c0715a72228e12d7736561c33230d1f" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>__inline _Bool</type>
+        <definition>static __inline _Bool atomic_flag_test_and_set</definition>
+        <argsstring>(volatile atomic_flag *__object)</argsstring>
+        <name>atomic_flag_test_and_set</name>
+        <param>
+          <type>volatile <ref refid="structatomic__flag" kindref="compound">atomic_flag</ref> *</type>
+          <declname>__object</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="396" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="396" bodyend="401"/>
+      </memberdef>
+      <memberdef kind="function" id="stdatomic_8h_1a891f48a3189709ceb19913070df3fbf3" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>__inline void</type>
+        <definition>static __inline void atomic_flag_clear</definition>
+        <argsstring>(volatile atomic_flag *__object)</argsstring>
+        <name>atomic_flag_clear</name>
+        <param>
+          <type>volatile <ref refid="structatomic__flag" kindref="compound">atomic_flag</ref> *</type>
+          <declname>__object</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" line="404" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h" bodystart="404" bodyend="408"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*-</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>(c)<sp/>2011<sp/>Ed<sp/>Schouten<sp/>&lt;ed@FreeBSD.org&gt;</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>David<sp/>Chisnall<sp/>&lt;theraven@FreeBSD.org&gt;</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>All<sp/>rights<sp/>reserved.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above<sp/>copyright</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above<sp/>copyright</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer<sp/>in<sp/>the</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>documentation<sp/>and/or<sp/>other<sp/>materials<sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>AUTHOR<sp/>AND<sp/>CONTRIBUTORS<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>THE</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHOR<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>FOR<sp/>ANY<sp/>DIRECT,<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF<sp/>SUBSTITUTE<sp/>GOODS</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR<sp/>BUSINESS<sp/>INTERRUPTION)</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>OR<sp/>TORT<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>$FreeBSD:<sp/>releng/10.1/sys/sys/stdatomic.h<sp/>264496<sp/>2014-04-15<sp/>09:41:52Z<sp/>tijl<sp/>$</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>_STDATOMIC_H_</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>_STDATOMIC_H_</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sys/cdefs.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sys/_types.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__has_extension(c_atomic)<sp/>||<sp/>__has_extension(cxx_atomic)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__CLANG_ATOMICS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>__GNUC_PREREQ__(4,<sp/>7)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__GNUC_ATOMICS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(__GNUC__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__SYNC_ATOMICS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#error<sp/>&quot;stdatomic.h<sp/>does<sp/>not<sp/>support<sp/>your<sp/>compiler&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="47"><highlight class="comment"><sp/>*<sp/>7.17.1<sp/>Atomic<sp/>lock-free<sp/>macros.</highlight></codeline>
+<codeline lineno="48"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__GCC_ATOMIC_BOOL_LOCK_FREE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ATOMIC_BOOL_LOCK_FREE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__GCC_ATOMIC_BOOL_LOCK_FREE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__GCC_ATOMIC_CHAR_LOCK_FREE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ATOMIC_CHAR_LOCK_FREE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__GCC_ATOMIC_CHAR_LOCK_FREE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__GCC_ATOMIC_CHAR16_T_LOCK_FREE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ATOMIC_CHAR16_T_LOCK_FREE<sp/><sp/><sp/><sp/><sp/><sp/><sp/>__GCC_ATOMIC_CHAR16_T_LOCK_FREE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__GCC_ATOMIC_CHAR32_T_LOCK_FREE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ATOMIC_CHAR32_T_LOCK_FREE<sp/><sp/><sp/><sp/><sp/><sp/><sp/>__GCC_ATOMIC_CHAR32_T_LOCK_FREE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__GCC_ATOMIC_WCHAR_T_LOCK_FREE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ATOMIC_WCHAR_T_LOCK_FREE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__GCC_ATOMIC_WCHAR_T_LOCK_FREE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__GCC_ATOMIC_SHORT_LOCK_FREE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ATOMIC_SHORT_LOCK_FREE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__GCC_ATOMIC_SHORT_LOCK_FREE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__GCC_ATOMIC_INT_LOCK_FREE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ATOMIC_INT_LOCK_FREE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__GCC_ATOMIC_INT_LOCK_FREE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__GCC_ATOMIC_LONG_LOCK_FREE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ATOMIC_LONG_LOCK_FREE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__GCC_ATOMIC_LONG_LOCK_FREE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__GCC_ATOMIC_LLONG_LOCK_FREE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ATOMIC_LLONG_LOCK_FREE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__GCC_ATOMIC_LLONG_LOCK_FREE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__GCC_ATOMIC_POINTER_LOCK_FREE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ATOMIC_POINTER_LOCK_FREE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__GCC_ATOMIC_POINTER_LOCK_FREE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="82"><highlight class="comment"><sp/>*<sp/>7.17.2<sp/>Initialization.</highlight></codeline>
+<codeline lineno="83"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__CLANG_ATOMICS)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ATOMIC_VAR_INIT(value)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(value)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_init(obj,<sp/>value)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__c11_atomic_init(obj,<sp/>value)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ATOMIC_VAR_INIT(value)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>.__val<sp/>=<sp/>(value)<sp/>}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_init(obj,<sp/>value)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((void)((obj)-&gt;__val<sp/>=<sp/>(value)))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="94"><highlight class="comment"><sp/>*<sp/>Clang<sp/>and<sp/>recent<sp/>GCC<sp/>both<sp/>provide<sp/>predefined<sp/>macros<sp/>for<sp/>the<sp/>memory</highlight></codeline>
+<codeline lineno="95"><highlight class="comment"><sp/>*<sp/>orderings.<sp/><sp/>If<sp/>we<sp/>are<sp/>using<sp/>a<sp/>compiler<sp/>that<sp/>doesn&apos;t<sp/>define<sp/>them,<sp/>use<sp/>the</highlight></codeline>
+<codeline lineno="96"><highlight class="comment"><sp/>*<sp/>clang<sp/>values<sp/>-<sp/>these<sp/>will<sp/>be<sp/>ignored<sp/>in<sp/>the<sp/>fallback<sp/>path.</highlight></codeline>
+<codeline lineno="97"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>__ATOMIC_RELAXED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__ATOMIC_RELAXED<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>__ATOMIC_CONSUME</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__ATOMIC_CONSUME<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>__ATOMIC_ACQUIRE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__ATOMIC_ACQUIRE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>2</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>__ATOMIC_RELEASE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__ATOMIC_RELEASE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>3</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>__ATOMIC_ACQ_REL</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__ATOMIC_ACQ_REL<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>4</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>__ATOMIC_SEQ_CST</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__ATOMIC_SEQ_CST<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>5</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="119"><highlight class="comment"><sp/>*<sp/>7.17.3<sp/>Order<sp/>and<sp/>consistency.</highlight></codeline>
+<codeline lineno="120"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="121"><highlight class="comment"><sp/>*<sp/>The<sp/>memory_order_*<sp/>constants<sp/>that<sp/>denote<sp/>the<sp/>barrier<sp/>behaviour<sp/>of<sp/>the</highlight></codeline>
+<codeline lineno="122"><highlight class="comment"><sp/>*<sp/>atomic<sp/>operations.</highlight></codeline>
+<codeline lineno="123"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memory_order_relaxed<sp/>=<sp/>__ATOMIC_RELAXED,</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memory_order_consume<sp/>=<sp/>__ATOMIC_CONSUME,</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memory_order_acquire<sp/>=<sp/>__ATOMIC_ACQUIRE,</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memory_order_release<sp/>=<sp/>__ATOMIC_RELEASE,</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memory_order_acq_rel<sp/>=<sp/>__ATOMIC_ACQ_REL,</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memory_order_seq_cst<sp/>=<sp/>__ATOMIC_SEQ_CST</highlight></codeline>
+<codeline lineno="132"><highlight class="normal">}<sp/>memory_order;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="135"><highlight class="comment"><sp/>*<sp/>7.17.4<sp/>Fences.</highlight></codeline>
+<codeline lineno="136"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>__inline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal">atomic_thread_fence(memory_order<sp/>__order<sp/>__unused)</highlight></codeline>
+<codeline lineno="140"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__CLANG_ATOMICS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__c11_atomic_thread_fence(__order);</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(__GNUC_ATOMICS)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__atomic_thread_fence(__order);</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__sync_synchronize();</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>__inline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal">atomic_signal_fence(memory_order<sp/>__order<sp/>__unused)</highlight></codeline>
+<codeline lineno="153"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__CLANG_ATOMICS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__c11_atomic_signal_fence(__order);</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(__GNUC_ATOMICS)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__atomic_signal_fence(__order);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__asm<sp/></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>(</highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal"><sp/>:::<sp/></highlight><highlight class="stringliteral">&quot;memory&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="165"><highlight class="comment"><sp/>*<sp/>7.17.5<sp/>Lock-free<sp/>property.</highlight></codeline>
+<codeline lineno="166"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(_KERNEL)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Atomics<sp/>in<sp/>kernelspace<sp/>are<sp/>always<sp/>lock-free.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_is_lock_free(obj)<sp/>\</highlight></codeline>
+<codeline lineno="171"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((void)(obj),<sp/>(_Bool)1)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(__CLANG_ATOMICS)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_is_lock_free(obj)<sp/>\</highlight></codeline>
+<codeline lineno="174"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__atomic_is_lock_free(sizeof(*(obj)),<sp/>obj)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(__GNUC_ATOMICS)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_is_lock_free(obj)<sp/>\</highlight></codeline>
+<codeline lineno="177"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__atomic_is_lock_free(sizeof((obj)-&gt;__val),<sp/>&amp;(obj)-&gt;__val)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_is_lock_free(obj)<sp/>\</highlight></codeline>
+<codeline lineno="180"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((void)(obj),<sp/>sizeof((obj)-&gt;__val)<sp/>&lt;=<sp/>sizeof(void<sp/>*))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="184"><highlight class="comment"><sp/>*<sp/>7.17.6<sp/>Atomic<sp/>integer<sp/>types.</highlight></codeline>
+<codeline lineno="185"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(_Bool)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_bool;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal">)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_char;</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(</highlight><highlight class="keywordtype">signed</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_schar;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal">)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_uchar;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(</highlight><highlight class="keywordtype">short</highlight><highlight class="normal">)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_short;</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">short</highlight><highlight class="normal">)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_ushort;</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_int;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_uint;</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(</highlight><highlight class="keywordtype">long</highlight><highlight class="normal">)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_long;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal">)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_ulong;</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(</highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal">)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_llong;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal">)<sp/><sp/><sp/><sp/><sp/>atomic_ullong;</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__char16_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_char16_t;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__char32_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_char32_t;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(___wchar_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_wchar_t;</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__int_least8_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_int_least8_t;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__uint_least8_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_uint_least8_t;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__int_least16_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_int_least16_t;</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__uint_least16_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_uint_least16_t;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__int_least32_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_int_least32_t;</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__uint_least32_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_uint_least32_t;</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__int_least64_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_int_least64_t;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__uint_least64_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_uint_least64_t;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__int_fast8_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_int_fast8_t;</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__uint_fast8_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_uint_fast8_t;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__int_fast16_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_int_fast16_t;</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__uint_fast16_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_uint_fast16_t;</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__int_fast32_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_int_fast32_t;</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__uint_fast32_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_uint_fast32_t;</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__int_fast64_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_int_fast64_t;</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__uint_fast64_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_uint_fast64_t;</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__intptr_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_intptr_t;</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__uintptr_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_uintptr_t;</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__size_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_size_t;</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__ptrdiff_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_ptrdiff_t;</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__intmax_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_intmax_t;</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>_Atomic(__uintmax_t)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_uintmax_t;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="226"><highlight class="comment"><sp/>*<sp/>7.17.7<sp/>Operations<sp/>on<sp/>atomic<sp/>types.</highlight></codeline>
+<codeline lineno="227"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="230"><highlight class="comment"><sp/>*<sp/>Compiler-specific<sp/>operations.</highlight></codeline>
+<codeline lineno="231"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__CLANG_ATOMICS)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_compare_exchange_strong_explicit(object,<sp/>expected,<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="235"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>desired,<sp/>success,<sp/>failure)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="236"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__c11_atomic_compare_exchange_strong(object,<sp/>expected,<sp/>desired,<sp/>\</highlight></codeline>
+<codeline lineno="237"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>success,<sp/>failure)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_compare_exchange_weak_explicit(object,<sp/>expected,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="239"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>desired,<sp/>success,<sp/>failure)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="240"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__c11_atomic_compare_exchange_weak(object,<sp/>expected,<sp/>desired,<sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="241"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>success,<sp/>failure)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_exchange_explicit(object,<sp/>desired,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="243"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__c11_atomic_exchange(object,<sp/>desired,<sp/>order)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="244"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_fetch_add_explicit(object,<sp/>operand,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="245"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__c11_atomic_fetch_add(object,<sp/>operand,<sp/>order)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_fetch_and_explicit(object,<sp/>operand,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="247"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__c11_atomic_fetch_and(object,<sp/>operand,<sp/>order)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="248"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_fetch_or_explicit(object,<sp/>operand,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="249"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__c11_atomic_fetch_or(object,<sp/>operand,<sp/>order)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="250"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_fetch_sub_explicit(object,<sp/>operand,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="251"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__c11_atomic_fetch_sub(object,<sp/>operand,<sp/>order)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="252"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_fetch_xor_explicit(object,<sp/>operand,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="253"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__c11_atomic_fetch_xor(object,<sp/>operand,<sp/>order)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="254"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_load_explicit(object,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="255"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__c11_atomic_load(object,<sp/>order)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="256"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_store_explicit(object,<sp/>desired,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="257"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__c11_atomic_store(object,<sp/>desired,<sp/>order)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="258"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(__GNUC_ATOMICS)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="259"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_compare_exchange_strong_explicit(object,<sp/>expected,<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="260"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>desired,<sp/>success,<sp/>failure)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="261"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__atomic_compare_exchange_n(&amp;(object)-&gt;__val,<sp/>expected,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="262"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>desired,<sp/>0,<sp/>success,<sp/>failure)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_compare_exchange_weak_explicit(object,<sp/>expected,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="264"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>desired,<sp/>success,<sp/>failure)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="265"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__atomic_compare_exchange_n(&amp;(object)-&gt;__val,<sp/>expected,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="266"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>desired,<sp/>1,<sp/>success,<sp/>failure)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="267"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_exchange_explicit(object,<sp/>desired,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="268"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__atomic_exchange_n(&amp;(object)-&gt;__val,<sp/>desired,<sp/>order)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_fetch_add_explicit(object,<sp/>operand,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="270"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__atomic_fetch_add(&amp;(object)-&gt;__val,<sp/>operand,<sp/>order)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_fetch_and_explicit(object,<sp/>operand,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="272"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__atomic_fetch_and(&amp;(object)-&gt;__val,<sp/>operand,<sp/>order)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_fetch_or_explicit(object,<sp/>operand,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="274"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__atomic_fetch_or(&amp;(object)-&gt;__val,<sp/>operand,<sp/>order)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="275"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_fetch_sub_explicit(object,<sp/>operand,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="276"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__atomic_fetch_sub(&amp;(object)-&gt;__val,<sp/>operand,<sp/>order)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="277"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_fetch_xor_explicit(object,<sp/>operand,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="278"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__atomic_fetch_xor(&amp;(object)-&gt;__val,<sp/>operand,<sp/>order)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="279"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_load_explicit(object,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="280"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__atomic_load_n(&amp;(object)-&gt;__val,<sp/>order)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="281"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_store_explicit(object,<sp/>desired,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="282"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__atomic_store_n(&amp;(object)-&gt;__val,<sp/>desired,<sp/>order)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="283"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="284"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__atomic_apply_stride(object,<sp/>operand)<sp/>\</highlight></codeline>
+<codeline lineno="285"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(((__typeof__((object)-&gt;__val))0)<sp/>+<sp/>(operand))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_compare_exchange_strong_explicit(object,<sp/>expected,<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="287"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>desired,<sp/>success,<sp/>failure)<sp/><sp/>__extension__<sp/>({<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="288"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__typeof__(expected)<sp/>__ep<sp/>=<sp/>(expected);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="289"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__typeof__(*__ep)<sp/>__e<sp/>=<sp/>*__ep;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="290"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)(success);<sp/>(void)(failure);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="291"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(_Bool)((*__ep<sp/>=<sp/>__sync_val_compare_and_swap(&amp;(object)-&gt;__val,<sp/><sp/>\</highlight></codeline>
+<codeline lineno="292"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__e,<sp/>desired))<sp/>==<sp/>__e);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="293"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="294"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_compare_exchange_weak_explicit(object,<sp/>expected,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="295"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>desired,<sp/>success,<sp/>failure)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="296"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_compare_exchange_strong_explicit(object,<sp/>expected,<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="297"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>desired,<sp/>success,<sp/>failure)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="298"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__has_builtin(__sync_swap)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Clang<sp/>provides<sp/>a<sp/>full-barrier<sp/>atomic<sp/>exchange<sp/>-<sp/>use<sp/>it<sp/>if<sp/>available.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_exchange_explicit(object,<sp/>desired,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="301"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((void)(order),<sp/>__sync_swap(&amp;(object)-&gt;__val,<sp/>desired))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="302"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="303"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="304"><highlight class="comment"><sp/>*<sp/>__sync_lock_test_and_set()<sp/>is<sp/>only<sp/>an<sp/>acquire<sp/>barrier<sp/>in<sp/>theory<sp/>(although<sp/>in</highlight></codeline>
+<codeline lineno="305"><highlight class="comment"><sp/>*<sp/>practice<sp/>it<sp/>is<sp/>usually<sp/>a<sp/>full<sp/>barrier)<sp/>so<sp/>we<sp/>need<sp/>an<sp/>explicit<sp/>barrier<sp/>before</highlight></codeline>
+<codeline lineno="306"><highlight class="comment"><sp/>*<sp/>it.</highlight></codeline>
+<codeline lineno="307"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="308"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_exchange_explicit(object,<sp/>desired,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="309"><highlight class="preprocessor">__extension__<sp/>({<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="310"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__typeof__(object)<sp/>__o<sp/>=<sp/>(object);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="311"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__typeof__(desired)<sp/>__d<sp/>=<sp/>(desired);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="312"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)(order);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="313"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__sync_synchronize();<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="314"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__sync_lock_test_and_set(&amp;(__o)-&gt;__val,<sp/>__d);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="315"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="316"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="317"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_fetch_add_explicit(object,<sp/>operand,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="318"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((void)(order),<sp/>__sync_fetch_and_add(&amp;(object)-&gt;__val,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="319"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__atomic_apply_stride(object,<sp/>operand)))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="320"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_fetch_and_explicit(object,<sp/>operand,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="321"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((void)(order),<sp/>__sync_fetch_and_and(&amp;(object)-&gt;__val,<sp/>operand))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="322"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_fetch_or_explicit(object,<sp/>operand,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="323"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((void)(order),<sp/>__sync_fetch_and_or(&amp;(object)-&gt;__val,<sp/>operand))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="324"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_fetch_sub_explicit(object,<sp/>operand,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="325"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((void)(order),<sp/>__sync_fetch_and_sub(&amp;(object)-&gt;__val,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="326"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__atomic_apply_stride(object,<sp/>operand)))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="327"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_fetch_xor_explicit(object,<sp/>operand,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="328"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((void)(order),<sp/>__sync_fetch_and_xor(&amp;(object)-&gt;__val,<sp/>operand))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="329"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_load_explicit(object,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="330"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((void)(order),<sp/>__sync_fetch_and_add(&amp;(object)-&gt;__val,<sp/>0))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="331"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_store_explicit(object,<sp/>desired,<sp/>order)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="332"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((void)atomic_exchange_explicit(object,<sp/>desired,<sp/>order))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="333"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="334"><highlight class="normal"></highlight></codeline>
+<codeline lineno="335"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="336"><highlight class="comment"><sp/>*<sp/>Convenience<sp/>functions.</highlight></codeline>
+<codeline lineno="337"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="338"><highlight class="comment"><sp/>*<sp/>Don&apos;t<sp/>provide<sp/>these<sp/>in<sp/>kernel<sp/>space.<sp/>In<sp/>kernel<sp/>space,<sp/>we<sp/>should<sp/>be</highlight></codeline>
+<codeline lineno="339"><highlight class="comment"><sp/>*<sp/>disciplined<sp/>enough<sp/>to<sp/>always<sp/>provide<sp/>explicit<sp/>barriers.</highlight></codeline>
+<codeline lineno="340"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="341"><highlight class="normal"></highlight></codeline>
+<codeline lineno="342"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>_KERNEL</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="343"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_compare_exchange_strong(object,<sp/>expected,<sp/>desired)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="344"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_compare_exchange_strong_explicit(object,<sp/>expected,<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="345"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>desired,<sp/>memory_order_seq_cst,<sp/>memory_order_seq_cst)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="346"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_compare_exchange_weak(object,<sp/>expected,<sp/>desired)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="347"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_compare_exchange_weak_explicit(object,<sp/>expected,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="348"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>desired,<sp/>memory_order_seq_cst,<sp/>memory_order_seq_cst)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="349"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_exchange(object,<sp/>desired)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="350"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_exchange_explicit(object,<sp/>desired,<sp/>memory_order_seq_cst)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="351"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_fetch_add(object,<sp/>operand)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="352"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_fetch_add_explicit(object,<sp/>operand,<sp/>memory_order_seq_cst)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="353"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_fetch_and(object,<sp/>operand)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="354"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_fetch_and_explicit(object,<sp/>operand,<sp/>memory_order_seq_cst)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="355"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_fetch_or(object,<sp/>operand)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="356"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_fetch_or_explicit(object,<sp/>operand,<sp/>memory_order_seq_cst)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="357"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_fetch_sub(object,<sp/>operand)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="358"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_fetch_sub_explicit(object,<sp/>operand,<sp/>memory_order_seq_cst)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="359"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_fetch_xor(object,<sp/>operand)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="360"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_fetch_xor_explicit(object,<sp/>operand,<sp/>memory_order_seq_cst)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="361"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_load(object)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="362"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_load_explicit(object,<sp/>memory_order_seq_cst)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="363"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>atomic_store(object,<sp/>desired)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="364"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_store_explicit(object,<sp/>desired,<sp/>memory_order_seq_cst)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="365"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>!_KERNEL<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="366"><highlight class="normal"></highlight></codeline>
+<codeline lineno="367"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="368"><highlight class="comment"><sp/>*<sp/>7.17.8<sp/>Atomic<sp/>flag<sp/>type<sp/>and<sp/>operations.</highlight></codeline>
+<codeline lineno="369"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="370"><highlight class="comment"><sp/>*<sp/>XXX:<sp/>Assume<sp/>atomic_bool<sp/>can<sp/>be<sp/>used<sp/>as<sp/>an<sp/>atomic_flag.<sp/>Is<sp/>there<sp/>some</highlight></codeline>
+<codeline lineno="371"><highlight class="comment"><sp/>*<sp/>kind<sp/>of<sp/>compiler<sp/>built-in<sp/>type<sp/>we<sp/>could<sp/>use?</highlight></codeline>
+<codeline lineno="372"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="373"><highlight class="normal"></highlight></codeline>
+<codeline lineno="374" refid="structatomic__flag" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_bool<sp/><sp/><sp/><sp/><sp/>__flag;</highlight></codeline>
+<codeline lineno="376"><highlight class="normal">}<sp/><ref refid="structatomic__flag" kindref="compound">atomic_flag</ref>;</highlight></codeline>
+<codeline lineno="377"><highlight class="normal"></highlight></codeline>
+<codeline lineno="378"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ATOMIC_FLAG_INIT<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>ATOMIC_VAR_INIT(0)<sp/>}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="379"><highlight class="normal"></highlight></codeline>
+<codeline lineno="380"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>__inline<sp/>_Bool</highlight></codeline>
+<codeline lineno="381"><highlight class="normal">atomic_flag_test_and_set_explicit(</highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/><ref refid="structatomic__flag" kindref="compound">atomic_flag</ref><sp/>*__object,</highlight></codeline>
+<codeline lineno="382"><highlight class="normal"><sp/><sp/><sp/><sp/>memory_order<sp/>__order)</highlight></codeline>
+<codeline lineno="383"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="384"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(atomic_exchange_explicit(&amp;__object-&gt;__flag,<sp/>1,<sp/>__order));</highlight></codeline>
+<codeline lineno="385"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="386"><highlight class="normal"></highlight></codeline>
+<codeline lineno="387"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>__inline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="388"><highlight class="normal">atomic_flag_clear_explicit(</highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/><ref refid="structatomic__flag" kindref="compound">atomic_flag</ref><sp/>*__object,<sp/>memory_order<sp/>__order)</highlight></codeline>
+<codeline lineno="389"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="390"><highlight class="normal"></highlight></codeline>
+<codeline lineno="391"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_store_explicit(&amp;__object-&gt;__flag,<sp/>0,<sp/>__order);</highlight></codeline>
+<codeline lineno="392"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="393"><highlight class="normal"></highlight></codeline>
+<codeline lineno="394"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>_KERNEL</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="395"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>__inline<sp/>_Bool</highlight></codeline>
+<codeline lineno="396"><highlight class="normal">atomic_flag_test_and_set(</highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/><ref refid="structatomic__flag" kindref="compound">atomic_flag</ref><sp/>*__object)</highlight></codeline>
+<codeline lineno="397"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="398"><highlight class="normal"></highlight></codeline>
+<codeline lineno="399"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(atomic_flag_test_and_set_explicit(__object,</highlight></codeline>
+<codeline lineno="400"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memory_order_seq_cst));</highlight></codeline>
+<codeline lineno="401"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="402"><highlight class="normal"></highlight></codeline>
+<codeline lineno="403"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>__inline<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="404"><highlight class="normal">atomic_flag_clear(</highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/><ref refid="structatomic__flag" kindref="compound">atomic_flag</ref><sp/>*__object)</highlight></codeline>
+<codeline lineno="405"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="406"><highlight class="normal"></highlight></codeline>
+<codeline lineno="407"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>atomic_flag_clear_explicit(__object,<sp/>memory_order_seq_cst);</highlight></codeline>
+<codeline lineno="408"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="409"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>!_KERNEL<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="410"><highlight class="normal"></highlight></codeline>
+<codeline lineno="411"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>!_STDATOMIC_H_<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/small/pmatomic/stdatomic.h"/>
+  </compounddef>
+</doxygen>

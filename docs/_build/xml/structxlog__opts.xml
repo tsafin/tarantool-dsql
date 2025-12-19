@@ -1,0 +1,86 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structxlog__opts" kind="struct" language="C++" prot="public">
+    <compoundname>xlog_opts</compoundname>
+    <includes local="no">xlog.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structxlog__opts_1acdcfede17a14a07bf58d139475382b9e" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t xlog_opts::rate_limit</definition>
+        <argsstring></argsstring>
+        <name>rate_limit</name>
+        <briefdescription>
+<para>Write rate limit, in bytes per second. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="58" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxlog__opts_1a4ef7fed701fda970ae0635b0c0938004" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t xlog_opts::sync_interval</definition>
+        <argsstring></argsstring>
+        <name>sync_interval</name>
+        <briefdescription>
+<para>Sync interval, in bytes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="60" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxlog__opts_1a96bc484ec78f3e7ab64fa5bdb6ecfba8" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool xlog_opts::free_cache</definition>
+        <argsstring></argsstring>
+        <name>free_cache</name>
+        <briefdescription>
+<para>If this flag is set and sync interval is greater than 0, page cache will be freed after each sync. </para>        </briefdescription>
+        <detaileddescription>
+<para>This option is useful for memtx snapshots, which won&apos;t be reread soon and hence shouldn&apos;t stay cached in memory. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="68" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxlog__opts_1a5e9e7034f0f275f6385f24968ea76b0a" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool xlog_opts::sync_is_async</definition>
+        <argsstring></argsstring>
+        <name>sync_is_async</name>
+        <briefdescription>
+<para>If this flag is set, xlog file will be synced in a coio thread on close. </para>        </briefdescription>
+        <detaileddescription>
+<para>This option is useful for WAL files as it allows not to block writers when an xlog is rotated. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="76" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxlog__opts_1a1509ef2f1030e737c29aae4662b00d32" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool xlog_opts::no_compression</definition>
+        <argsstring></argsstring>
+        <name>no_compression</name>
+        <briefdescription>
+<para>If this flag is set, the xlog writer won&apos;t use zstd compression. </para>        </briefdescription>
+        <detaileddescription>
+<para>This option is useful for xlog files that are intended to be read frequently, e.g. L1 run files in Vinyl. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="84" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This structure combines all xlog write options set on xlog creation. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/tsafin/tarantool/src/box/xlog.h" line="56" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="56" bodyend="85"/>
+    <listofallmembers>
+      <member refid="structxlog__opts_1a96bc484ec78f3e7ab64fa5bdb6ecfba8" prot="public" virt="non-virtual"><scope>xlog_opts</scope><name>free_cache</name></member>
+      <member refid="structxlog__opts_1a1509ef2f1030e737c29aae4662b00d32" prot="public" virt="non-virtual"><scope>xlog_opts</scope><name>no_compression</name></member>
+      <member refid="structxlog__opts_1acdcfede17a14a07bf58d139475382b9e" prot="public" virt="non-virtual"><scope>xlog_opts</scope><name>rate_limit</name></member>
+      <member refid="structxlog__opts_1a4ef7fed701fda970ae0635b0c0938004" prot="public" virt="non-virtual"><scope>xlog_opts</scope><name>sync_interval</name></member>
+      <member refid="structxlog__opts_1a5e9e7034f0f275f6385f24968ea76b0a" prot="public" virt="non-virtual"><scope>xlog_opts</scope><name>sync_is_async</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,126 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="exports_8c" kind="file" language="C++">
+    <compoundname>exports.c</compoundname>
+    <includes refid="exports_8h" local="yes">exports.h</includes>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="exports_8c_1a1f8bc8913038063215a3fae67b2a5ef6" prot="public" static="no">
+        <name>EXPORT</name>
+        <param><defname>symbol</defname></param>
+        <initializer>extern void symbol(void);</initializer>
+        <briefdescription>
+<para>The file is a hack to force the linker keep the needed symbols in the result tarantool executable file. </para>        </briefdescription>
+        <detaileddescription>
+<para>Problem is that if a symbol is defined inside a static library, but never used in the final executable, the linker may throw it away. But many symbols are needed for Lua FFI and for the public C API used by dynamic modules.</para><para>This file creates a &apos;false usage&apos; of needed symbols. It stores pointers at them into a big array, and returns it like if the caller will use them somehow. Call, write by their address, or anything else.</para><para>In reality the symbols are never touched after export from here, but the compiler and the linker can&apos;t tell that.</para><para>Below are some alternatives, which may replace the current solution in future. Both are better in being able to declare a symbol as exported right where it is defined. Or sometimes in another place if necessary. For example, when the needed symbol is defined somewhere in a third_party library.</para><para>** Solution 1 - user-defined ELF sections. **</para><para>That way is similar to what is used by the Linux kernel. To implement it there is a macros, lets call it EXPORT_SYMBOL. The macros takes one parameter - symbol name. In its implementation the macros defines a global struct keeping pointer at that symbol, and stored in a special section. For example, .tntexp section. Later when all is complied into the final executable, there is a linker script, which takes all the symbols defined in that section, and creates a reference at them, which is then somehow used in the code.</para><para>A pseudocode example of how can it look in theory: <verbatim>    struct tnt_exported_symbol {
+            void *sym;
+    };
+
+    #define EXPORT_SYMBOL(symbol) \
+            __attribute__((section(&quot;.tntexp&quot;)))
+            struct tnt_exported_symbol tnt_exported_##sym = { \
+                    .sym = (void *) symbol \
+            };
+</verbatim></para><para>For more info see EXPORT_SYMBOL() macros in include/linux/export.h file in the kernel sources.</para><para>** Solution 2 - precompile script which would find all exported functions and generate this file automatically. **</para><para>Not much to explain. Introduce a macros EXPORT_SYMBOL, and walk all the source code, looking for it. When see a symbol marked so, remember it. Then generate the exports.c like it is defined below. But automatically. Symbol is just an address. No need to know its definition or even type to get that address. Even an integer global variable can be referenced as extern void(*)(void). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/exports.c" line="96" column="9" bodyfile="/home/tsafin/tarantool/src/exports.c" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="exports_8c_1a1f8bc8913038063215a3fae67b2a5ef6" prot="public" static="no">
+        <name>EXPORT</name>
+        <param><defname>symbol</defname></param>
+        <initializer>((void *)symbol),</initializer>
+        <briefdescription>
+<para>The file is a hack to force the linker keep the needed symbols in the result tarantool executable file. </para>        </briefdescription>
+        <detaileddescription>
+<para>Problem is that if a symbol is defined inside a static library, but never used in the final executable, the linker may throw it away. But many symbols are needed for Lua FFI and for the public C API used by dynamic modules.</para><para>This file creates a &apos;false usage&apos; of needed symbols. It stores pointers at them into a big array, and returns it like if the caller will use them somehow. Call, write by their address, or anything else.</para><para>In reality the symbols are never touched after export from here, but the compiler and the linker can&apos;t tell that.</para><para>Below are some alternatives, which may replace the current solution in future. Both are better in being able to declare a symbol as exported right where it is defined. Or sometimes in another place if necessary. For example, when the needed symbol is defined somewhere in a third_party library.</para><para>** Solution 1 - user-defined ELF sections. **</para><para>That way is similar to what is used by the Linux kernel. To implement it there is a macros, lets call it EXPORT_SYMBOL. The macros takes one parameter - symbol name. In its implementation the macros defines a global struct keeping pointer at that symbol, and stored in a special section. For example, .tntexp section. Later when all is complied into the final executable, there is a linker script, which takes all the symbols defined in that section, and creates a reference at them, which is then somehow used in the code.</para><para>A pseudocode example of how can it look in theory: <verbatim>    struct tnt_exported_symbol {
+            void *sym;
+    };
+
+    #define EXPORT_SYMBOL(symbol) \
+            __attribute__((section(&quot;.tntexp&quot;)))
+            struct tnt_exported_symbol tnt_exported_##sym = { \
+                    .sym = (void *) symbol \
+            };
+</verbatim></para><para>For more info see EXPORT_SYMBOL() macros in include/linux/export.h file in the kernel sources.</para><para>** Solution 2 - precompile script which would find all exported functions and generate this file automatically. **</para><para>Not much to explain. Introduce a macros EXPORT_SYMBOL, and walk all the source code, looking for it. When see a symbol marked so, remember it. Then generate the exports.c like it is defined below. But automatically. Symbol is just an address. No need to know its definition or even type to get that address. Even an integer global variable can be referenced as extern void(*)(void). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/exports.c" line="108" column="10" bodyfile="/home/tsafin/tarantool/src/exports.c" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="exports_8c_1a536f3d1149ebbb833f301646dc7ac0d5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void **</type>
+        <definition>void** export_syms</definition>
+        <argsstring>(void)</argsstring>
+        <name>export_syms</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/exports.c" line="101" column="1" bodyfile="/home/tsafin/tarantool/src/exports.c" bodystart="101" bodyend="114"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2020,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="preprocessor">#define<sp/>EXPORT(symbol)<sp/>extern<sp/>void<sp/>symbol(void);</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;exports.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>EXPORT</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>**</highlight></codeline>
+<codeline lineno="101"><highlight class="normal">export_syms(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="102"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="104"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Compiler<sp/>should<sp/>think<sp/>the<sp/>exported<sp/>symbols<sp/>are</highlight></codeline>
+<codeline lineno="105"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>reachable.<sp/>When<sp/>they<sp/>are<sp/>returned<sp/>as<sp/>an<sp/>array,<sp/>the</highlight></codeline>
+<codeline lineno="106"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>compiler<sp/>can&apos;t<sp/>assume<sp/>anything,<sp/>and<sp/>can&apos;t<sp/>remove<sp/>them.</highlight></codeline>
+<codeline lineno="107"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>#define<sp/>EXPORT(symbol)<sp/>((void<sp/>*)symbol),</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*symbols[]<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>#include<sp/>&quot;exports.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>#undef<sp/>EXPORT</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>symbols;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/exports.c"/>
+  </compounddef>
+</doxygen>

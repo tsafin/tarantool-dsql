@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structfield__map__builder" kind="struct" language="C++" prot="public">
+    <compoundname>field_map_builder</compoundname>
+    <includes local="no">field_map.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structfield__map__builder_1a129f283afdb106eb62aff223989600d8" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfield__map__builder__slot" kindref="compound">field_map_builder_slot</ref> *</type>
+        <definition>struct field_map_builder_slot* field_map_builder::slots</definition>
+        <argsstring></argsstring>
+        <name>slots</name>
+        <briefdescription>
+<para>The pointer to the end of field_map allocation. </para>        </briefdescription>
+        <detaileddescription>
+<para>Its elements are accessible by negative indexes that coinciding with offset_slot(s). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/field_map.h" line="89" column="1" bodyfile="/home/tsafin/tarantool/src/box/field_map.h" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfield__map__builder_1a788d34ddf1c311c5d63d91310b3c3bdf" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t field_map_builder::slot_count</definition>
+        <argsstring></argsstring>
+        <name>slot_count</name>
+        <briefdescription>
+<para>The count of slots in <ref refid="structfield__map__builder_1a129f283afdb106eb62aff223989600d8" kindref="member">field_map_builder::slots</ref> allocation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/field_map.h" line="94" column="1" bodyfile="/home/tsafin/tarantool/src/box/field_map.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfield__map__builder_1a0a3c6b803c0b76d9a371765c5426b7b6" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t field_map_builder::extents_size</definition>
+        <argsstring></argsstring>
+        <name>extents_size</name>
+        <briefdescription>
+<para>Total size of memory is allocated for field_map extents. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/field_map.h" line="99" column="1" bodyfile="/home/tsafin/tarantool/src/box/field_map.h" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A field map is a special area is reserved before tuple&apos;s MessagePack data. </para>    </briefdescription>
+    <detaileddescription>
+<para>It is a sequence of the 32-bit unsigned offsets of tuple&apos;s indexed fields.</para><para>These slots are numbered with negative indices called offset_slot(s) starting with -1 (this is necessary to organize the inheritance of tuples). Allocation and assignment of offset_slot(s) is performed on <ref refid="structtuple__format" kindref="compound">tuple_format</ref> creation on index create or alter (see tuple_format_create()). <verbatim>   4b   4b      4b          4b       MessagePack data.
+  +-----------+------+----+------+------------------------+
+</verbatim> tuple: |cnt|off1|..| offN | .. | off1 | header ..|key1|..|keyN|| +--<mdash/>+--<mdash/>+<ndash/>+<mdash/>+-<mdash/>+<ndash/>+<mdash/>+---------------------<mdash/>+ ext1 ^ | | ... | ^ ^ +--<mdash/>|-----<mdash/>+ | | | indirection | +--------------<mdash/>+ | +-------------------------------------------<mdash/>+ (offset_slot = N, extent_slot = 1) <ndash/>&gt; offset</para><para>This <ref refid="structfield__map__builder" kindref="compound">field_map_builder</ref> class is used for tuple field_map construction. It encapsulates field_map build logic and size estimation implementation-specific details.</para><para>Each field offset is a positive number, except the case when a field is not in the tuple. In this case offset is 0.</para><para>In case of multikey index, the slot may refer to the &quot;field_map_extent&quot; sequence that contains an additional sequence of length defined before (the count of keys in the multikey index for given tuple). In such case offset slot represents int32_t negative value - the offset relative to the field_map pointer. The i-th extent&apos;s slot contains the positive offset of the i-th key field of the multikey index. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="3535">
+        <label>field_map_builder</label>
+        <link refid="structfield__map__builder"/>
+        <childnode refid="3536" relation="usage">
+          <edgelabel>slots</edgelabel>
+        </childnode>
+      </node>
+      <node id="3536">
+        <label>field_map_builder_slot</label>
+        <link refid="structfield__map__builder__slot"/>
+        <childnode refid="3537" relation="usage">
+          <edgelabel>extent</edgelabel>
+        </childnode>
+      </node>
+      <node id="3537">
+        <label>field_map_builder_slot_extent</label>
+        <link refid="structfield__map__builder__slot__extent"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/field_map.h" line="83" column="1" bodyfile="/home/tsafin/tarantool/src/box/field_map.h" bodystart="83" bodyend="100"/>
+    <listofallmembers>
+      <member refid="structfield__map__builder_1a0a3c6b803c0b76d9a371765c5426b7b6" prot="public" virt="non-virtual"><scope>field_map_builder</scope><name>extents_size</name></member>
+      <member refid="structfield__map__builder_1a788d34ddf1c311c5d63d91310b3c3bdf" prot="public" virt="non-virtual"><scope>field_map_builder</scope><name>slot_count</name></member>
+      <member refid="structfield__map__builder_1a129f283afdb106eb62aff223989600d8" prot="public" virt="non-virtual"><scope>field_map_builder</scope><name>slots</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

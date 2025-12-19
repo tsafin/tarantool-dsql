@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structToken" kind="struct" language="C++" prot="public">
+    <compoundname>Token</compoundname>
+    <includes local="no">parse_def.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structToken_1a57b502141e3018e4a02773424acb4ffd" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* Token::z</definition>
+        <argsstring></argsstring>
+        <name>z</name>
+        <briefdescription>
+<para>Text of the token. </para>        </briefdescription>
+        <detaileddescription>
+<para>Not NULL-terminated! </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/parse_def.h" line="84" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/parse_def.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structToken_1ad8442439e00ab9713a9b91a53e44c2aa" prot="public" static="no" mutable="no">
+        <type>unsigned int</type>
+        <definition>unsigned int Token::n</definition>
+        <argsstring></argsstring>
+        <name>n</name>
+        <briefdescription>
+<para>Number of characters in this token. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/parse_def.h" line="86" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/parse_def.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structToken_1a83f2801388ff954dd3588c9979f91f85" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Token::isReserved</definition>
+        <argsstring></argsstring>
+        <name>isReserved</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/parse_def.h" line="87" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/parse_def.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This file contains auxiliary structures and functions which are used only during parsing routine (see parse.y). </para>    </briefdescription>
+    <detaileddescription>
+<para>Their main purpose is to assemble common parts of altered entities (such as name, or IF EXISTS clause) and pass them as a one object to further functions.</para><para>Hierarchy is following:</para><para>Base structure is ALTER. ALTER is omitted only for CREATE TABLE since table is filled with meta-information just-in-time of parsing: for instance, as soon as field&apos;s name and type are recognized they are added to space definition.</para><para>DROP is general for all existing objects and includes name of object itself, name of parent object (table), IF EXISTS clause and may contain on-drop behaviour (CASCADE/RESTRICT, but now it is always RESTRICT). Hence, it terms of grammar - it is a terminal symbol.</para><para>RENAME can be applied only to table (at least now, since it is ANSI extension), so it is also terminal symbol.</para><para>CREATE in turn can be expanded to nonterminal symbol CREATE CONSTRAINT or to terminal CREATE TABLE/INDEX/TRIGGER. CREATE CONSTRAINT unfolds to FOREIGN KEY or UNIQUE/PRIMARY KEY.</para><para>For instance: ALTER TABLE t ADD CONSTRAINT c FOREIGN KEY REFERENCES t2(id); ALTER <emphasis>TABLE</emphasis> -&gt; CREATE ENTITY -&gt; CREATE CONSTRAINT -&gt; CREATE FK</para><para>CREATE TRIGGER tr1 ... ALTER <emphasis>TABLE</emphasis> -&gt; CREATE ENTITY -&gt; CREATE TRIGGER</para><para>All terminal symbols are stored as a union within parsing context (struct <ref refid="structParse" kindref="compound">Parse</ref>). Each token coming out of the lexer is an instance of this structure. Tokens are also used as part of an expression. </para>    </detaileddescription>
+    <location file="/home/tsafin/tarantool/src/box/sql/parse_def.h" line="82" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/parse_def.h" bodystart="82" bodyend="88"/>
+    <listofallmembers>
+      <member refid="structToken_1a83f2801388ff954dd3588c9979f91f85" prot="public" virt="non-virtual"><scope>Token</scope><name>isReserved</name></member>
+      <member refid="structToken_1ad8442439e00ab9713a9b91a53e44c2aa" prot="public" virt="non-virtual"><scope>Token</scope><name>n</name></member>
+      <member refid="structToken_1a57b502141e3018e4a02773424acb4ffd" prot="public" virt="non-virtual"><scope>Token</scope><name>z</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

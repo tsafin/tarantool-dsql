@@ -1,0 +1,313 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="vy__read__iterator_8h" kind="file" language="C++">
+    <compoundname>vy_read_iterator.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes refid="iterator__type_8h" local="yes">iterator_type.h</includes>
+    <includes refid="util_8h" local="yes">trivia/util.h</includes>
+    <includes refid="vy__entry_8h" local="yes">vy_entry.h</includes>
+    <includedby refid="vinyl_8c" local="yes">/home/tsafin/tarantool/src/box/vinyl.c</includedby>
+    <includedby refid="vy__read__iterator_8c" local="yes">/home/tsafin/tarantool/src/box/vy_read_iterator.c</includedby>
+    <incdepgraph>
+      <node id="1353">
+        <label>stdbool.h</label>
+      </node>
+      <node id="1351">
+        <label>/home/tsafin/tarantool/src/box/vy_read_iterator.h</label>
+        <link refid="vy__read__iterator_8h"/>
+        <childnode refid="1352" relation="include">
+        </childnode>
+        <childnode refid="1353" relation="include">
+        </childnode>
+      </node>
+      <node id="1352">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structvy__read__iterator" prot="public">vy_read_iterator</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="vy__read__iterator_8h_1a89f54352ccc068f6ae9e497d04774905" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_read_iterator_open</definition>
+        <argsstring>(struct vy_read_iterator *itr, struct vy_lsm *lsm, struct vy_tx *tx, enum iterator_type iterator_type, struct vy_entry key, const struct vy_read_view **rv)</argsstring>
+        <name>vy_read_iterator_open</name>
+        <param>
+          <type>struct <ref refid="structvy__read__iterator" kindref="compound">vy_read_iterator</ref> *</type>
+          <declname>itr</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__lsm" kindref="compound">vy_lsm</ref> *</type>
+          <declname>lsm</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__tx" kindref="compound">vy_tx</ref> *</type>
+          <declname>tx</declname>
+        </param>
+        <param>
+          <type>enum iterator_type</type>
+          <declname>iterator_type</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvy__read__view" kindref="compound">vy_read_view</ref> **</type>
+          <declname>rv</declname>
+        </param>
+        <briefdescription>
+<para>Open the read iterator. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>itr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Read iterator. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lsm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LSM tree to iterate. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current transaction, if exists. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>iterator_type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of the iterator that determines order of the iteration. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Key for the iteration. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rv</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Read view. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_read_iterator.h" line="134" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_read_iterator.c" bodystart="628" bodyend="668"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__read__iterator_8h_1af9874d9804ed0c54749fce4c7a79ee0a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>NODISCARD int</type>
+        <definition>NODISCARD int vy_read_iterator_next</definition>
+        <argsstring>(struct vy_read_iterator *itr, struct vy_entry *result)</argsstring>
+        <name>vy_read_iterator_next</name>
+        <param>
+          <type>struct <ref refid="structvy__read__iterator" kindref="compound">vy_read_iterator</ref> *</type>
+          <declname>itr</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref> *</type>
+          <declname>result</declname>
+        </param>
+        <briefdescription>
+<para>Get the next statement with another key, or start the iterator, if it wasn&apos;t started. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>itr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Read iterator. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">result</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Found statement is stored here.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Success. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Read error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_read_iterator.h" line="148" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_read_iterator.c" bodystart="807" bodyend="845"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__read__iterator_8h_1ad1df93ad3158fc030c70b1eaaab9d9bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_read_iterator_cache_add</definition>
+        <argsstring>(struct vy_read_iterator *itr, struct vy_entry entry)</argsstring>
+        <name>vy_read_iterator_cache_add</name>
+        <param>
+          <type>struct <ref refid="structvy__read__iterator" kindref="compound">vy_read_iterator</ref> *</type>
+          <declname>itr</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>entry</declname>
+        </param>
+        <briefdescription>
+<para>Add the last tuple returned by the read iterator to the cache. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>itr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Read iterator </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>entry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Last tuple returned by the iterator.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+We use a separate function for populating the cache rather than doing that right in vy_read_iterator_next() so that we can store full tuples in a secondary index cache, thus saving some memory.</para><para>Usage pattern:<itemizedlist>
+<listitem><para>Call vy_read_iterator_next() to get a partial tuple.</para></listitem><listitem><para>Call vy_point_lookup() to get the full tuple corresponding to the partial tuple returned by the iterator.</para></listitem><listitem><para>Call vy_read_iterator_cache_add() on the full tuple to add the result to the cache. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_read_iterator.h" line="167" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_read_iterator.c" bodystart="848" bodyend="863"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__read__iterator_8h_1a3421e18819ae2d971925c840270d7c50" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_read_iterator_close</definition>
+        <argsstring>(struct vy_read_iterator *itr)</argsstring>
+        <name>vy_read_iterator_close</name>
+        <param>
+          <type>struct <ref refid="structvy__read__iterator" kindref="compound">vy_read_iterator</ref> *</type>
+          <declname>itr</declname>
+        </param>
+        <briefdescription>
+<para>Close the iterator and free resources. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_read_iterator.h" line="173" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_read_iterator.c" bodystart="869" bodyend="878"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>INCLUDES_TARANTOOL_BOX_VY_READ_ITERATOR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INCLUDES_TARANTOOL_BOX_VY_READ_ITERATOR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2017,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>AUTHORS<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>AUTHORS<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;iterator_type.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trivia/util.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;vy_entry.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50" refid="structvy__read__iterator" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__read__iterator" kindref="compound">vy_read_iterator</ref><sp/>{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__lsm" kindref="compound">vy_lsm</ref><sp/>*<ref refid="structvy__read__iterator_1a1e214c467cf204ca5ae4726ddb31be02" kindref="member">lsm</ref>;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__tx" kindref="compound">vy_tx</ref><sp/>*<ref refid="structvy__read__iterator_1a595ab1d5ebe0a6009c8fb795c97c8546" kindref="member">tx</ref>;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="structvy__read__iterator_1a793923b9db497c2e216d3964966fb8a3" kindref="member">iterator_type</ref><sp/><ref refid="structvy__read__iterator_1a793923b9db497c2e216d3964966fb8a3" kindref="member">iterator_type</ref>;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>key;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__read__view" kindref="compound">vy_read_view</ref><sp/>**<ref refid="structvy__read__iterator_1a28032a1394462a97f712c2813e1f032c" kindref="member">read_view</ref>;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structvy__read__iterator_1ab5bca1081273128dfd0400c82fdadbab" kindref="member">need_check_eq</ref>;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>last;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>last_cached;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__read__iterator_1a91bd179fd4a7884c24a1ecca35c28a95" kindref="member">range_tree_version</ref>;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__read__iterator_1a9155a0a2df76f98c9d0cf4c85ce4969d" kindref="member">mem_list_version</ref>;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__read__iterator_1a10ab80925aa05a0689832b90a8339326" kindref="member">range_version</ref>;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__range" kindref="compound">vy_range</ref><sp/>*<ref refid="structvy__read__iterator_1abf6694a67ad7d3eca3156676482da43a" kindref="member">curr_range</ref>;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__read__src" kindref="compound">vy_read_src</ref><sp/>*<ref refid="structvy__read__iterator_1af4aa89f90ff0601d0bcd16b1ddeedfcb" kindref="member">src</ref>;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__read__iterator_1ab173a624f8fbf398fdfaa02c826b0b91" kindref="member">src_count</ref>;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__read__iterator_1ac0b63e198a258323a60ba25e121aa651" kindref="member">src_capacity</ref>;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__read__iterator_1ab9a93829aa0582e08476681bb7650c43" kindref="member">txw_src</ref>;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__read__iterator_1a5acb5dbe0110723395cc9b36a2714be4" kindref="member">cache_src</ref>;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__read__iterator_1a93cb6f7cd7bc601f0a9bada5a2a7c6ce" kindref="member">mem_src</ref>;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__read__iterator_1aabec4bd2f18fc2bfe8a814a366caa61c" kindref="member">disk_src</ref>;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__read__iterator_1ae387b4a0c2d61cf85e33a6ed0699e92b" kindref="member">skipped_src</ref>;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__read__iterator_1a259238b5d8e637b060f9656a642f79e4" kindref="member">front_id</ref>;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__read__iterator_1ace1dae00912fe9c2babc20662e8fe559" kindref="member">prev_front_id</ref>;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal">vy_read_iterator_open(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__iterator" kindref="compound">vy_read_iterator</ref><sp/>*itr,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__lsm" kindref="compound">vy_lsm</ref><sp/>*<ref refid="structvy__read__iterator_1a1e214c467cf204ca5ae4726ddb31be02" kindref="member">lsm</ref>,</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__tx" kindref="compound">vy_tx</ref><sp/>*<ref refid="structvy__read__iterator_1a595ab1d5ebe0a6009c8fb795c97c8546" kindref="member">tx</ref>,<sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="structvy__read__iterator_1a793923b9db497c2e216d3964966fb8a3" kindref="member">iterator_type</ref><sp/><ref refid="structvy__read__iterator_1a793923b9db497c2e216d3964966fb8a3" kindref="member">iterator_type</ref>,</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/><ref refid="structvy__read__iterator_1a7e43b3ae1c4a0a3da390760701b1cf96" kindref="member">key</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__view" kindref="compound">vy_read_view</ref><sp/>**rv);</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal">NODISCARD<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal">vy_read_iterator_next(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__iterator" kindref="compound">vy_read_iterator</ref><sp/>*itr,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>*result);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal">vy_read_iterator_cache_add(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__iterator" kindref="compound">vy_read_iterator</ref><sp/>*itr,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>entry);</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal">vy_read_iterator_close(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__iterator" kindref="compound">vy_read_iterator</ref><sp/>*itr);</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>INCLUDES_TARANTOOL_BOX_VY_READ_ITERATOR_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/vy_read_iterator.h"/>
+  </compounddef>
+</doxygen>

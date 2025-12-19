@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="classAlterSpaceLock" kind="class" language="C++" prot="public">
+    <compoundname>AlterSpaceLock</compoundname>
+      <sectiondef kind="private-static-attrib">
+      <memberdef kind="variable" id="classAlterSpaceLock_1ae204520f2ec952e361cac71a6723c8b8" prot="private" static="yes" mutable="no">
+        <type>struct mh_i32_t *</type>
+        <definition>struct mh_i32_t * AlterSpaceLock::registry</definition>
+        <argsstring></argsstring>
+        <name>registry</name>
+        <briefdescription>
+<para>Set of all taken locks. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="946" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="946" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classAlterSpaceLock_1a5f7f7b7c0e5643d9a2ac06d6a88fbe2c" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t AlterSpaceLock::space_id</definition>
+        <argsstring></argsstring>
+        <name>space_id</name>
+        <briefdescription>
+<para>Identifier of the space this lock is for. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="948" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="948" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classAlterSpaceLock_1aaa13611aaeb8856e756b3c9b4902363e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>AlterSpaceLock::AlterSpaceLock</definition>
+        <argsstring>(struct alter_space *alter)</argsstring>
+        <name>AlterSpaceLock</name>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+          <declname>alter</declname>
+        </param>
+        <briefdescription>
+<para>Take a lock for the altered space. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="951" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="951" bodyend="968"/>
+      </memberdef>
+      <memberdef kind="function" id="classAlterSpaceLock_1aee58d8bf08a9138ca762437d86c8a676" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>AlterSpaceLock::~AlterSpaceLock</definition>
+        <argsstring>()</argsstring>
+        <name>~AlterSpaceLock</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="969" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="969" bodyend="973"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This is a per-space lock which protects the space from concurrent DDL. </para>    </briefdescription>
+    <detaileddescription>
+<para>The current algorithm template for DDL is: 1) Capture change of a system table in a on_replace trigger 2) Build new schema object, e..g new struct space, and insert it in the cache - all the subsequent transactions will begin using this object 3) Write the operation to WAL; this yields, giving a window to concurrent transactions to use the object, but if there is a rollback of WAL write, the roll back is <emphasis>cascading</emphasis>, so all subsequent transactions are rolled back first. Step 2 doesn&apos;t yield most of the time - e.g. rename of a column, or a compatible change of the format builds a new space objects immediately. Some long operations run in background, after WAL write: this is drop index, and, transitively, drop space, so these don&apos;t yield either. But a few operations need to do a long job <emphasis>before</emphasis> WAL write: this is create index and deploy of the new format, which checks each space row to conform with index/format constraints, row by row. So this lock is here exactly for these operations. If we allow another DDL against the same space to get in while these operations are in progress, it will use old space object in the space cache, and thus overwrite this transaction&apos;s space object, or, worse yet, will get overwritten itself when a long-running DDL completes.</para><para>Since we consider such concurrent operations to be rare, this lock is optimistic: if there is a lock already, we simply throw an exception. </para>    </detaileddescription>
+    <location file="/home/tsafin/tarantool/src/box/alter.cc" line="944" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="944" bodyend="974"/>
+    <listofallmembers>
+      <member refid="classAlterSpaceLock_1aaa13611aaeb8856e756b3c9b4902363e" prot="public" virt="non-virtual"><scope>AlterSpaceLock</scope><name>AlterSpaceLock</name></member>
+      <member refid="classAlterSpaceLock_1ae204520f2ec952e361cac71a6723c8b8" prot="private" virt="non-virtual"><scope>AlterSpaceLock</scope><name>registry</name></member>
+      <member refid="classAlterSpaceLock_1a5f7f7b7c0e5643d9a2ac06d6a88fbe2c" prot="private" virt="non-virtual"><scope>AlterSpaceLock</scope><name>space_id</name></member>
+      <member refid="classAlterSpaceLock_1aee58d8bf08a9138ca762437d86c8a676" prot="public" virt="non-virtual"><scope>AlterSpaceLock</scope><name>~AlterSpaceLock</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

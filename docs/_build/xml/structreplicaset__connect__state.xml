@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structreplicaset__connect__state" kind="struct" language="C++" prot="public">
+    <compoundname>replicaset_connect_state</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structreplicaset__connect__state_1afbb143d02ba676b18f065b3c7a69c123" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int replicaset_connect_state::connected</definition>
+        <argsstring></argsstring>
+        <name>connected</name>
+        <briefdescription>
+<para>Number of successfully connected appliers. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.cc" line="621" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="621" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structreplicaset__connect__state_1aa11fd720bceea275c3e0f40cdcad7ef4" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int replicaset_connect_state::failed</definition>
+        <argsstring></argsstring>
+        <name>failed</name>
+        <briefdescription>
+<para>Number of appliers that failed to connect. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.cc" line="623" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="623" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structreplicaset__connect__state_1a0de002000f618de9f976c95bf68108db" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfiber__cond" kindref="compound">fiber_cond</ref></type>
+        <definition>struct fiber_cond replicaset_connect_state::wakeup</definition>
+        <argsstring></argsstring>
+        <name>wakeup</name>
+        <briefdescription>
+<para>Signaled when an applier connects or stops. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/replication.cc" line="623" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="625" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Replica set configuration state, shared among appliers. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="8651">
+        <label>replicaset_connect_state</label>
+        <link refid="structreplicaset__connect__state"/>
+        <childnode refid="8652" relation="usage">
+          <edgelabel>wakeup</edgelabel>
+        </childnode>
+      </node>
+      <node id="8653">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="8653" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="8652">
+        <label>fiber_cond</label>
+        <link refid="structfiber__cond"/>
+        <childnode refid="8653" relation="usage">
+          <edgelabel>waiters</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/replication.cc" line="619" column="1" bodyfile="/home/tsafin/tarantool/src/box/replication.cc" bodystart="619" bodyend="626"/>
+    <listofallmembers>
+      <member refid="structreplicaset__connect__state_1afbb143d02ba676b18f065b3c7a69c123" prot="public" virt="non-virtual"><scope>replicaset_connect_state</scope><name>connected</name></member>
+      <member refid="structreplicaset__connect__state_1aa11fd720bceea275c3e0f40cdcad7ef4" prot="public" virt="non-virtual"><scope>replicaset_connect_state</scope><name>failed</name></member>
+      <member refid="structreplicaset__connect__state_1a0de002000f618de9f976c95bf68108db" prot="public" virt="non-virtual"><scope>replicaset_connect_state</scope><name>wakeup</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

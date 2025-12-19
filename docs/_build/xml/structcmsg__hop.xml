@@ -1,0 +1,123 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structcmsg__hop" kind="struct" language="C++" prot="public">
+    <compoundname>cmsg_hop</compoundname>
+    <includes local="no">cbus.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structcmsg__hop_1ac57cdd6ac2f9409a251854420d549750" prot="public" static="no" mutable="no">
+        <type>cmsg_f</type>
+        <definition>cmsg_f cmsg_hop::f</definition>
+        <argsstring></argsstring>
+        <name>f</name>
+        <briefdescription>
+<para>The message delivery function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="71" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcmsg__hop_1a76e12895cd879e84e5f8f2b594d9b1f4" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcpipe" kindref="compound">cpipe</ref> *</type>
+        <definition>struct cpipe* cmsg_hop::pipe</definition>
+        <argsstring></argsstring>
+        <name>pipe</name>
+        <briefdescription>
+<para>The next destination to which the message should be routed after its delivered locally. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="76" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>One hop in a message travel route. </para>    </briefdescription>
+    <detaileddescription>
+<para>A message may need to be delivered to many destinations before it can be dispensed with. For example, it may be necessary to return a message to the sender just to destroy it.</para><para>Message travel route is an array of <ref refid="structcmsg__hop" kindref="compound">cmsg_hop</ref> entries. The first entry contains a delivery function at the first destination, and the next destination. Subsequent entries are alike. The last entry has a delivery function (most often a message destructor) and NULL for the next destination. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="1224">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="1224" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="1223">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="1224" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="1219">
+        <label>cpipe</label>
+        <link refid="structcpipe"/>
+        <childnode refid="1220" relation="usage">
+          <edgelabel>on_flush</edgelabel>
+        </childnode>
+        <childnode refid="1221" relation="usage">
+          <edgelabel>endpoint</edgelabel>
+        </childnode>
+        <childnode refid="1223" relation="usage">
+          <edgelabel>input</edgelabel>
+        </childnode>
+      </node>
+      <node id="1218">
+        <label>cmsg_hop</label>
+        <link refid="structcmsg__hop"/>
+        <childnode refid="1219" relation="usage">
+          <edgelabel>pipe</edgelabel>
+        </childnode>
+        <childnode refid="1225" relation="usage">
+          <edgelabel>f</edgelabel>
+        </childnode>
+      </node>
+      <node id="1220">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="1220" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="1225">
+        <label>cmsg</label>
+        <link refid="structcmsg"/>
+        <childnode refid="1218" relation="usage">
+          <edgelabel>hop</edgelabel>
+          <edgelabel>route</edgelabel>
+        </childnode>
+        <childnode refid="1224" relation="usage">
+          <edgelabel>fifo</edgelabel>
+        </childnode>
+      </node>
+      <node id="1222">
+        <label>fiber_cond</label>
+        <link refid="structfiber__cond"/>
+        <childnode refid="1220" relation="usage">
+          <edgelabel>waiters</edgelabel>
+        </childnode>
+      </node>
+      <node id="1221">
+        <label>cbus_endpoint</label>
+        <link refid="structcbus__endpoint"/>
+        <childnode refid="1222" relation="usage">
+          <edgelabel>cond</edgelabel>
+        </childnode>
+        <childnode refid="1220" relation="usage">
+          <edgelabel>in_cbus</edgelabel>
+        </childnode>
+        <childnode refid="1223" relation="usage">
+          <edgelabel>output</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="69" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="69" bodyend="77"/>
+    <listofallmembers>
+      <member refid="structcmsg__hop_1ac57cdd6ac2f9409a251854420d549750" prot="public" virt="non-virtual"><scope>cmsg_hop</scope><name>f</name></member>
+      <member refid="structcmsg__hop_1a76e12895cd879e84e5f8f2b594d9b1f4" prot="public" virt="non-virtual"><scope>cmsg_hop</scope><name>pipe</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

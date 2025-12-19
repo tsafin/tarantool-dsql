@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structslab__list" kind="struct" language="C++" prot="public">
+    <compoundname>slab_list</compoundname>
+    <includes local="no">slab_cache.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structslab__list_1afe5194290d6a2635d97e5eaa133f663c" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist slab_list::slabs</definition>
+        <argsstring></argsstring>
+        <name>slabs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="82" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structslab__list_1ac501108982f9025d0bddc5cf72a8324c" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structsmall__stats" kindref="compound">small_stats</ref></type>
+        <definition>struct small_stats slab_list::stats</definition>
+        <argsstring></argsstring>
+        <name>stats</name>
+        <briefdescription>
+<para>Total/used bytes in this list. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="82" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="100" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A general purpose list of slabs. </para>    </briefdescription>
+    <detaileddescription>
+<para>Is used to store unused slabs of a certain order in the slab cache, as well as to contain allocated slabs of a specialized allocator. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="9044">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="9045">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="9045" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="9043">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="9044" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="9045" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="97" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="97" bodyend="101"/>
+    <listofallmembers>
+      <member refid="structslab__list_1afe5194290d6a2635d97e5eaa133f663c" prot="public" virt="non-virtual"><scope>slab_list</scope><name>slabs</name></member>
+      <member refid="structslab__list_1ac501108982f9025d0bddc5cf72a8324c" prot="public" virt="non-virtual"><scope>slab_list</scope><name>stats</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

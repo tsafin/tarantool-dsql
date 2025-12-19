@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvy__read__view" kind="struct" language="C++" prot="public">
+    <compoundname>vy_read_view</compoundname>
+    <includes local="no">vy_read_view.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvy__read__view_1addb80fae0c3f112462315c0bfd60a1ab" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t vy_read_view::vlsn</definition>
+        <argsstring></argsstring>
+        <name>vlsn</name>
+        <briefdescription>
+<para>Consistent read view LSN. </para>        </briefdescription>
+        <detaileddescription>
+<para>Originally read-only transactions receive a read view lsn upon creation and do not see further changes. Other transactions are expected to be read-write and have vlsn == INT64_MAX to read newest data. Once a value read by such a transaction (T) is overwritten by another commiting transaction, T permanently goes to read view that does not see this change. If T does not have any write statements by the commit time it will be committed successfully, or aborted as conflicted otherwise. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_read_view.h" line="57" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_read_view.h" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__read__view_1a575768fa48aa754f7d009d810dcac962" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist vy_read_view::in_read_views</definition>
+        <argsstring></argsstring>
+        <name>in_read_views</name>
+        <briefdescription>
+<para>The link in read_views of the TX manager. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_read_view.h" line="57" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_read_view.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__read__view_1ae4d411c902651362cefec86005786b02" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int vy_read_view::refs</definition>
+        <argsstring></argsstring>
+        <name>refs</name>
+        <briefdescription>
+<para>The number of references to this read view. </para>        </briefdescription>
+        <detaileddescription>
+<para>The global read view has zero refs, we don&apos;t do reference count it as it is missing from read_views list. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_read_view.h" line="65" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_read_view.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The state of the database the cursor should be looking at. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="14077">
+        <label>vy_read_view</label>
+        <link refid="structvy__read__view"/>
+        <childnode refid="14078" relation="usage">
+          <edgelabel>in_read_views</edgelabel>
+        </childnode>
+      </node>
+      <node id="14078">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="14078" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/vy_read_view.h" line="44" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_read_view.h" bodystart="44" bodyend="66"/>
+    <listofallmembers>
+      <member refid="structvy__read__view_1a575768fa48aa754f7d009d810dcac962" prot="public" virt="non-virtual"><scope>vy_read_view</scope><name>in_read_views</name></member>
+      <member refid="structvy__read__view_1ae4d411c902651362cefec86005786b02" prot="public" virt="non-virtual"><scope>vy_read_view</scope><name>refs</name></member>
+      <member refid="structvy__read__view_1addb80fae0c3f112462315c0bfd60a1ab" prot="public" virt="non-virtual"><scope>vy_read_view</scope><name>vlsn</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

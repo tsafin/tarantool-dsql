@@ -1,0 +1,117 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structslab" kind="struct" language="C++" prot="public">
+    <compoundname>slab</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structslab_1a5b58ba99971f4289752a1cc3df9db54d" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist slab::next_in_cache</definition>
+        <argsstring></argsstring>
+        <name>next_in_cache</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="307" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structslab_1acac11cea151207e93167f2da91676346" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist slab::next_in_list</definition>
+        <argsstring></argsstring>
+        <name>next_in_list</name>
+        <briefdescription>
+<para>Next slab in slab_list-&gt;slabs list. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="307" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structslab_1ae3a69594772182a1a2ba5b255361383d" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t slab::size</definition>
+        <argsstring></argsstring>
+        <name>size</name>
+        <briefdescription>
+<para>Allocated size. </para>        </briefdescription>
+        <detaileddescription>
+<para>Is different from (SLAB_MIN_SIZE &lt;&lt; slab-&gt;order) when requested size is bigger than SLAB_MAX_SIZE (i.e. slab-&gt;order is SLAB_CLASS_LAST). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="64" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structslab_1ad2a3a1f5191079923c627f05a70135ce" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t slab::magic</definition>
+        <argsstring></argsstring>
+        <name>magic</name>
+        <briefdescription>
+<para>Slab magic (for sanity checks). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="66" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structslab_1aa5a8861326307f46c5ecf490ce624df9" prot="public" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t slab::order</definition>
+        <argsstring></argsstring>
+        <name>order</name>
+        <briefdescription>
+<para>Base of lb(size) for ordered slabs. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="68" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structslab_1af36d6a10e2f02234563d890fe8fddbf5" prot="public" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t slab::in_use</definition>
+        <argsstring></argsstring>
+        <name>in_use</name>
+        <briefdescription>
+<para>Only used for buddy slabs. </para>        </briefdescription>
+        <detaileddescription>
+<para>If the buddy of the current free slab is also free, both slabs are merged and a free slab of the higher order emerges. Value of 0 means the slab is free. Otherwise slab-&gt;in_use is set to slab-&gt;order + 1. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="76" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="9029">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="9029" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="9028">
+        <label>slab</label>
+        <link refid="structslab"/>
+        <childnode refid="9029" relation="usage">
+          <edgelabel>next_in_cache</edgelabel>
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="47" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="47" bodyend="77"/>
+    <listofallmembers>
+      <member refid="structslab_1af36d6a10e2f02234563d890fe8fddbf5" prot="public" virt="non-virtual"><scope>slab</scope><name>in_use</name></member>
+      <member refid="structslab_1ad2a3a1f5191079923c627f05a70135ce" prot="public" virt="non-virtual"><scope>slab</scope><name>magic</name></member>
+      <member refid="structslab_1a5b58ba99971f4289752a1cc3df9db54d" prot="public" virt="non-virtual"><scope>slab</scope><name>next_in_cache</name></member>
+      <member refid="structslab_1acac11cea151207e93167f2da91676346" prot="public" virt="non-virtual"><scope>slab</scope><name>next_in_list</name></member>
+      <member refid="structslab_1aa5a8861326307f46c5ecf490ce624df9" prot="public" virt="non-virtual"><scope>slab</scope><name>order</name></member>
+      <member refid="structslab_1ae3a69594772182a1a2ba5b255361383d" prot="public" virt="non-virtual"><scope>slab</scope><name>size</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

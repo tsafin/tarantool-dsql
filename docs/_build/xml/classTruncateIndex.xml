@@ -1,0 +1,178 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="classTruncateIndex" kind="class" language="C++" prot="public">
+    <compoundname>TruncateIndex</compoundname>
+    <basecompoundref refid="classAlterSpaceOp" prot="public" virt="non-virtual">AlterSpaceOp</basecompoundref>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classTruncateIndex_1a850a2fce9328610d4840f68751837ae7" prot="private" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t TruncateIndex::iid</definition>
+        <argsstring></argsstring>
+        <name>iid</name>
+        <briefdescription>
+<para>id of the index to truncate. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1592" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1592" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classTruncateIndex_1a7015e96cf31c23cb7c7f9b12f0d08bf9" prot="private" static="no" mutable="no">
+        <type>struct <ref refid="structindex" kindref="compound">index</ref> *</type>
+        <definition>struct index* TruncateIndex::old_index</definition>
+        <argsstring></argsstring>
+        <name>old_index</name>
+        <briefdescription>
+<para>In case TRUNCATE fails, we need to clean up the new index data in the engine. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1597" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1597" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classTruncateIndex_1a3cbbec80845c54e0027c9c6c1c97306a" prot="private" static="no" mutable="no">
+        <type>struct <ref refid="structindex" kindref="compound">index</ref> *</type>
+        <definition>struct index* TruncateIndex::new_index</definition>
+        <argsstring></argsstring>
+        <name>new_index</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1598" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1598" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classTruncateIndex_1a5305f78133f0e3596bfd447882afc4b3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>TruncateIndex::TruncateIndex</definition>
+        <argsstring>(struct alter_space *alter, uint32_t iid)</argsstring>
+        <name>TruncateIndex</name>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+          <declname>alter</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>iid</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1600" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1600" bodyend="1602"/>
+      </memberdef>
+      <memberdef kind="function" id="classTruncateIndex_1a765ced6ddbb88a3ab743637fed325c37" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void TruncateIndex::prepare</definition>
+        <argsstring>(struct alter_space *alter)</argsstring>
+        <name>prepare</name>
+        <reimplements refid="classAlterSpaceOp_1a5c35fcc6fa0a26b350e2bfd8b73c7d8c">prepare</reimplements>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+        </param>
+        <briefdescription>
+<para>Called after creating a new space. </para>        </briefdescription>
+        <detaileddescription>
+<para>Used for performing long-lasting operations, such as index rebuild or format check. May yield. May throw an exception. Must not modify the old space. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1603" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1609" bodyend="1632"/>
+      </memberdef>
+      <memberdef kind="function" id="classTruncateIndex_1a10df7271db13ffec3c3beb8ae995d02e" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void TruncateIndex::commit</definition>
+        <argsstring>(struct alter_space *alter, int64_t signature)</argsstring>
+        <name>commit</name>
+        <reimplements refid="classAlterSpaceOp_1a87e8be9739a71a0f4100d3a67bd75100">commit</reimplements>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+        </param>
+        <param>
+          <type>int64_t</type>
+        </param>
+        <briefdescription>
+<para>Called after the change has been successfully written to WAL. </para>        </briefdescription>
+        <detaileddescription>
+<para>Must not fail. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1604" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1635" bodyend="1641"/>
+      </memberdef>
+      <memberdef kind="function" id="classTruncateIndex_1aa848f07b17b372363135a10014d2ed6e" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>TruncateIndex::~TruncateIndex</definition>
+        <argsstring>()</argsstring>
+        <name>~TruncateIndex</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1605" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1643" bodyend="1648"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classTruncateIndex" kindref="compound">TruncateIndex</ref> - truncate an index. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="10969">
+        <label>TruncateIndex</label>
+        <link refid="classTruncateIndex"/>
+        <childnode refid="10970" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="10970">
+        <label>AlterSpaceOp</label>
+        <link refid="classAlterSpaceOp"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="10971">
+        <label>TruncateIndex</label>
+        <link refid="classTruncateIndex"/>
+        <childnode refid="10972" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="10973">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="10973" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="10972">
+        <label>AlterSpaceOp</label>
+        <link refid="classAlterSpaceOp"/>
+        <childnode refid="10973" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1590" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1589" bodyend="1606"/>
+    <listofallmembers>
+      <member refid="classAlterSpaceOp_1a378a5a70c9583adc7e8e37039deac0c0" prot="public" virt="virtual"><scope>TruncateIndex</scope><name>alter</name></member>
+      <member refid="classAlterSpaceOp_1ada87e0e1106f5316848e451f5609b7a4" prot="public" virt="virtual"><scope>TruncateIndex</scope><name>alter_def</name></member>
+      <member refid="classAlterSpaceOp_1ab74f256d2f9bf750c48d8f9496eb0bc9" prot="public" virt="non-virtual"><scope>TruncateIndex</scope><name>AlterSpaceOp</name></member>
+      <member refid="classTruncateIndex_1a10df7271db13ffec3c3beb8ae995d02e" prot="public" virt="virtual"><scope>TruncateIndex</scope><name>commit</name></member>
+      <member refid="classTruncateIndex_1a850a2fce9328610d4840f68751837ae7" prot="private" virt="non-virtual"><scope>TruncateIndex</scope><name>iid</name></member>
+      <member refid="classAlterSpaceOp_1a18479b187ef8611fe72e6ee92904f1be" prot="public" virt="non-virtual"><scope>TruncateIndex</scope><name>link</name></member>
+      <member refid="classTruncateIndex_1a3cbbec80845c54e0027c9c6c1c97306a" prot="private" virt="non-virtual"><scope>TruncateIndex</scope><name>new_index</name></member>
+      <member refid="classTruncateIndex_1a7015e96cf31c23cb7c7f9b12f0d08bf9" prot="private" virt="non-virtual"><scope>TruncateIndex</scope><name>old_index</name></member>
+      <member refid="classAlterSpaceOp_1a700d3df81c1d87dc0818191dde139cae" prot="public" virt="non-virtual"><scope>TruncateIndex</scope><name>operator delete</name></member>
+      <member refid="classAlterSpaceOp_1ad200979e4bf5c00b78bfef43f259ceba" prot="public" virt="non-virtual"><scope>TruncateIndex</scope><name>operator new</name></member>
+      <member refid="classTruncateIndex_1a765ced6ddbb88a3ab743637fed325c37" prot="public" virt="virtual"><scope>TruncateIndex</scope><name>prepare</name></member>
+      <member refid="classAlterSpaceOp_1aa67d5c66e41e7972f5db131c5a3d9775" prot="public" virt="virtual"><scope>TruncateIndex</scope><name>rollback</name></member>
+      <member refid="classTruncateIndex_1a5305f78133f0e3596bfd447882afc4b3" prot="public" virt="non-virtual"><scope>TruncateIndex</scope><name>TruncateIndex</name></member>
+      <member refid="classAlterSpaceOp_1a5549e172b94739b9fa7445b9599f506c" prot="public" virt="virtual"><scope>TruncateIndex</scope><name>~AlterSpaceOp</name></member>
+      <member refid="classTruncateIndex_1aa848f07b17b372363135a10014d2ed6e" prot="public" virt="virtual"><scope>TruncateIndex</scope><name>~TruncateIndex</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,124 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structfunc" kind="struct" language="C++" prot="public">
+    <compoundname>func</compoundname>
+    <includes local="no">func.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structfunc_1aa7970bb95b22ca82b103e72177d1217b" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfunc__def" kindref="compound">func_def</ref> *</type>
+        <definition>struct func_def* func::def</definition>
+        <argsstring></argsstring>
+        <name>def</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/func.h" line="73" column="1" bodyfile="/home/tsafin/tarantool/src/box/func.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfunc_1a8272f7aa23fb239f7cdf330c69ce9a18" prot="public" static="no" mutable="no">
+        <type>const struct <ref refid="structfunc__vtab" kindref="compound">func_vtab</ref> *</type>
+        <definition>const struct func_vtab* func::vtab</definition>
+        <argsstring></argsstring>
+        <name>vtab</name>
+        <briefdescription>
+<para>Virtual method table. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/func.h" line="75" column="1" bodyfile="/home/tsafin/tarantool/src/box/func.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfunc_1a052e5ef118224f9e723ccef990cf0332" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcredentials" kindref="compound">credentials</ref></type>
+        <definition>struct credentials func::owner_credentials</definition>
+        <argsstring></argsstring>
+        <name>owner_credentials</name>
+        <briefdescription>
+<para>Authentication id of the owner of the function, used for set-user-id functions. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/func.h" line="75" column="1" bodyfile="/home/tsafin/tarantool/src/box/func.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfunc_1a141d794ca017bcf52c86a631711c55f1" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structaccess" kindref="compound">access</ref></type>
+        <definition>struct access func::access[BOX_USER_MAX]</definition>
+        <argsstring>[BOX_USER_MAX]</argsstring>
+        <name>access</name>
+        <briefdescription>
+<para>Cached runtime access information. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/func.h" line="75" column="1" bodyfile="/home/tsafin/tarantool/src/box/func.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Stored function. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3658">
+        <label>access</label>
+        <link refid="structaccess"/>
+      </node>
+      <node id="3662">
+        <label>credentials</label>
+        <link refid="structcredentials"/>
+        <childnode refid="3663" relation="usage">
+          <edgelabel>in_user</edgelabel>
+        </childnode>
+      </node>
+      <node id="3663">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="3663" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="3657">
+        <label>func</label>
+        <link refid="structfunc"/>
+        <childnode refid="3658" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="3659" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="3660" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="3662" relation="usage">
+          <edgelabel>owner_credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="3659">
+        <label>func_vtab</label>
+        <link refid="structfunc__vtab"/>
+      </node>
+      <node id="3661">
+        <label>func_opts</label>
+        <link refid="structfunc__opts"/>
+      </node>
+      <node id="3660">
+        <label>func_def</label>
+        <link refid="structfunc__def"/>
+        <childnode refid="3661" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/func.h" line="72" column="1" bodyfile="/home/tsafin/tarantool/src/box/func.h" bodystart="72" bodyend="85"/>
+    <listofallmembers>
+      <member refid="structfunc_1a141d794ca017bcf52c86a631711c55f1" prot="public" virt="non-virtual"><scope>func</scope><name>access</name></member>
+      <member refid="structfunc_1aa7970bb95b22ca82b103e72177d1217b" prot="public" virt="non-virtual"><scope>func</scope><name>def</name></member>
+      <member refid="structfunc_1a052e5ef118224f9e723ccef990cf0332" prot="public" virt="non-virtual"><scope>func</scope><name>owner_credentials</name></member>
+      <member refid="structfunc_1a8272f7aa23fb239f7cdf330c69ce9a18" prot="public" virt="non-virtual"><scope>func</scope><name>vtab</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

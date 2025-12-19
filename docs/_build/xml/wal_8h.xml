@@ -1,0 +1,722 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="wal_8h" kind="file" language="C++">
+    <compoundname>wal.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">sys/types.h</includes>
+    <includes refid="rlist_8h" local="yes">small/rlist.h</includes>
+    <includes refid="cbus_8h" local="yes">cbus.h</includes>
+    <includes refid="journal_8h" local="yes">journal.h</includes>
+    <includes refid="vclock_8h" local="yes">vclock.h</includes>
+    <includedby refid="applier_8cc" local="yes">/home/tsafin/tarantool/src/box/applier.cc</includedby>
+    <includedby refid="box_8cc" local="yes">/home/tsafin/tarantool/src/box/box.cc</includedby>
+    <includedby refid="gc_8c" local="yes">/home/tsafin/tarantool/src/box/gc.c</includedby>
+    <includedby refid="box_2lua_2info_8c" local="yes">/home/tsafin/tarantool/src/box/lua/info.c</includedby>
+    <includedby refid="recovery_8cc" local="yes">/home/tsafin/tarantool/src/box/recovery.cc</includedby>
+    <includedby refid="relay_8cc" local="yes">/home/tsafin/tarantool/src/box/relay.cc</includedby>
+    <includedby refid="vinyl_8c" local="yes">/home/tsafin/tarantool/src/box/vinyl.c</includedby>
+    <includedby refid="vy__log_8c" local="yes">/home/tsafin/tarantool/src/box/vy_log.c</includedby>
+    <includedby refid="wal_8c" local="yes">/home/tsafin/tarantool/src/box/wal.c</includedby>
+    <incdepgraph>
+      <node id="1485">
+        <label>stdbool.h</label>
+      </node>
+      <node id="1487">
+        <label>assert.h</label>
+      </node>
+      <node id="1482">
+        <label>stdint.h</label>
+      </node>
+      <node id="1489">
+        <label>stddef.h</label>
+      </node>
+      <node id="1486">
+        <label>limits.h</label>
+      </node>
+      <node id="1488">
+        <label>bit/bit.h</label>
+        <link refid="bit_8h"/>
+        <childnode refid="1489" relation="include">
+        </childnode>
+        <childnode refid="1482" relation="include">
+        </childnode>
+        <childnode refid="1485" relation="include">
+        </childnode>
+        <childnode refid="1486" relation="include">
+        </childnode>
+      </node>
+      <node id="1483">
+        <label>sys/types.h</label>
+      </node>
+      <node id="1481">
+        <label>/home/tsafin/tarantool/src/box/wal.h</label>
+        <link refid="wal_8h"/>
+        <childnode refid="1482" relation="include">
+        </childnode>
+        <childnode refid="1483" relation="include">
+        </childnode>
+        <childnode refid="1484" relation="include">
+        </childnode>
+      </node>
+      <node id="1484">
+        <label>vclock.h</label>
+        <link refid="vclock_8h"/>
+        <childnode refid="1482" relation="include">
+        </childnode>
+        <childnode refid="1485" relation="include">
+        </childnode>
+        <childnode refid="1486" relation="include">
+        </childnode>
+        <childnode refid="1487" relation="include">
+        </childnode>
+        <childnode refid="1488" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structwal__watcher__msg" prot="public">wal_watcher_msg</innerclass>
+    <innerclass refid="structwal__watcher" prot="public">wal_watcher</innerclass>
+    <innerclass refid="structwal__checkpoint" prot="public">wal_checkpoint</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="wal_8h_1a1512de4f2ce7d4c039741d78944664b7" prot="public" static="no">
+        <name>wal_mode</name>
+        <enumvalue id="wal_8h_1a1512de4f2ce7d4c039741d78944664b7ac8862304daca3b522fd0915fe732295a" prot="public">
+          <name>WAL_NONE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="wal_8h_1a1512de4f2ce7d4c039741d78944664b7a9ea9398ccf12441330eb7ff329b49488" prot="public">
+          <name>WAL_WRITE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="wal_8h_1a1512de4f2ce7d4c039741d78944664b7a61ef511166e61e2a1ecbff8c90e6c467" prot="public">
+          <name>WAL_FSYNC</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="wal_8h_1a1512de4f2ce7d4c039741d78944664b7aa902b0fc8c320c0f3037356dfc02cfdb" prot="public">
+          <name>WAL_MODE_MAX</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="44" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.h" bodystart="44" bodyend="44"/>
+      </memberdef>
+      <memberdef kind="enum" id="wal_8h_1a0a28cf10bf72f80c90de5e5e1e698bfb" prot="public" static="no">
+        <name>@142</name>
+        <enumvalue id="wal_8h_1a0a28cf10bf72f80c90de5e5e1e698bfbad9c38c3f430f28833116e2920334742d" prot="public">
+          <name>WAL_ROWS_PER_YIELD</name>
+          <initializer>= 32000</initializer>
+          <briefdescription>
+<para>Recovery yields once per that number of rows read and applied from WAL. </para>          </briefdescription>
+          <detaileddescription>
+<para>It allows not to block the event loop for the whole recovery stage. </para>          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="46" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.h" bodystart="46" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="enum" id="wal_8h_1ace840b3b4fcb9cee57ac53c16ae00e1f" prot="public" static="no">
+        <name>wal_event</name>
+        <enumvalue id="wal_8h_1ace840b3b4fcb9cee57ac53c16ae00e1fa3bc0022f12c6b542f2e2cf98b6bcbb3f" prot="public">
+          <name>WAL_EVENT_WRITE</name>
+          <initializer>= (1 &lt;&lt; 0)</initializer>
+          <briefdescription>
+<para>A row is written to the current WAL. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="wal_8h_1ace840b3b4fcb9cee57ac53c16ae00e1fa95e1085d50340cd6b3dae3a3961cee59" prot="public">
+          <name>WAL_EVENT_ROTATE</name>
+          <initializer>= (1 &lt;&lt; 1)</initializer>
+          <briefdescription>
+<para>A new WAL is created. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="114" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.h" bodystart="114" bodyend="119"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="wal_8h_1a8e0b79732d3be429ddd84fac8543669b" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* wal_on_garbage_collection_f) (const struct vclock *vclock)</definition>
+        <argsstring>)(const struct vclock *vclock)</argsstring>
+        <name>wal_on_garbage_collection_f</name>
+        <briefdescription>
+<para>Callback invoked in the TX thread when the WAL thread runs out of disk space and has to delete some old WAL files to continue. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is supposed to shoot off WAL consumers that need the deleted files. The vclock of the oldest WAL row still available on the instance is passed in . </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="71" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="wal_8h_1a5d3b7f15c32d8de2c4aeb434626d50f1" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* wal_on_checkpoint_threshold_f) (void)</definition>
+        <argsstring>)(void)</argsstring>
+        <name>wal_on_checkpoint_threshold_f</name>
+        <briefdescription>
+<para>Callback invoked in the TX thread when the total size of WAL files written since the last checkpoint exceeds the configured threshold. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="78" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="wal_8h_1a2e2b5cf29d0b824ca7de0b38c817ea9c" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* wal_mode_STRS[]</definition>
+        <argsstring>[]</argsstring>
+        <name>wal_mode_STRS</name>
+        <briefdescription>
+<para>String constants for the supported modes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="56" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="wal_8h_1ad216ae19a818576820d978e43e57c8eb" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int wal_dir_lock</definition>
+        <argsstring></argsstring>
+        <name>wal_dir_lock</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="58" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="wal_8h_1a707ab920aeb459fc02486a9ed3b4e2eb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int wal_init</definition>
+        <argsstring>(enum wal_mode wal_mode, const char *wal_dirname, int64_t wal_max_size, const struct tt_uuid *instance_uuid, wal_on_garbage_collection_f on_garbage_collection, wal_on_checkpoint_threshold_f on_checkpoint_threshold)</argsstring>
+        <name>wal_init</name>
+        <param>
+          <type>enum wal_mode</type>
+          <declname>wal_mode</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>wal_dirname</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>wal_max_size</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref> *</type>
+          <declname>instance_uuid</declname>
+        </param>
+        <param>
+          <type>wal_on_garbage_collection_f</type>
+          <declname>on_garbage_collection</declname>
+        </param>
+        <param>
+          <type>wal_on_checkpoint_threshold_f</type>
+          <declname>on_checkpoint_threshold</declname>
+        </param>
+        <briefdescription>
+<para>Start WAL thread and initialize WAL writer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="84" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="531" bodyend="550"/>
+      </memberdef>
+      <memberdef kind="function" id="wal_8h_1a3cd101a4f56401968b2f348485c6ea6f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int wal_enable</definition>
+        <argsstring>(void)</argsstring>
+        <name>wal_enable</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Setup WAL writer as journaling subsystem. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="93" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="553" bodyend="575"/>
+      </memberdef>
+      <memberdef kind="function" id="wal_8h_1a690c572065b2b653967892bdf1d3dd0f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void wal_free</definition>
+        <argsstring>(void)</argsstring>
+        <name>wal_free</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Stop WAL thread and free WAL writer resources. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="99" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="578" bodyend="590"/>
+      </memberdef>
+      <memberdef kind="function" id="wal_8h_1ae166af744d657517348965aea5d4bab9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char* wal_dir</definition>
+        <argsstring>(void)</argsstring>
+        <name>wal_dir</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Get WAL directory path. </para>        </briefdescription>
+        <detaileddescription>
+<para>The value never changes after box is configured first time. Safe to use from multiple threads. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="106" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="205" bodyend="208"/>
+      </memberdef>
+      <memberdef kind="function" id="wal_8h_1a9088a0d43197022c9bb2af2d101e1643" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void wal_set_watcher</definition>
+        <argsstring>(struct wal_watcher *watcher, const char *name, void(*watcher_cb)(struct wal_watcher *, unsigned events), void(*process_cb)(struct cbus_endpoint *))</argsstring>
+        <name>wal_set_watcher</name>
+        <param>
+          <type>struct <ref refid="structwal__watcher" kindref="compound">wal_watcher</ref> *</type>
+          <declname>watcher</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>void(*)(struct <ref refid="structwal__watcher" kindref="compound">wal_watcher</ref> *, unsigned events)</type>
+          <declname>watcher_cb</declname>
+        </param>
+        <param>
+          <type>void(*)(struct <ref refid="structcbus__endpoint" kindref="compound">cbus_endpoint</ref> *)</type>
+          <declname>process_cb</declname>
+        </param>
+        <briefdescription>
+<para>Subscribe to WAL events. </para>        </briefdescription>
+        <detaileddescription>
+<para>The caller will receive a notification after a WAL write with unspecified but reasonable latency. The first notification is sent right after registering the watcher so that the caller can process WALs written before the function was called.</para><para>Note WAL notifications are delivered via cbus hence the caller must have set up the cbus endpoint and started the event loop. Alternatively, one can pass a callback invoking cbus_process() to this function.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>watcher</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>WAL watcher to register. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of the cbus endpoint at the caller&apos;s cord. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>watcher_cb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Callback to invoke from the caller&apos;s cord upon receiving a WAL event. Apart from the watcher itself, it takes a bit mask of events. Events are described in wal_event enum. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>process_cb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function called to process cbus messages while the watcher is being attached or NULL if the cbus loop is running elsewhere. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="167" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="1478" bodyend="1498"/>
+      </memberdef>
+      <memberdef kind="function" id="wal_8h_1a5e0a194e6b57c5d8c558626d7a14b799" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void wal_clear_watcher</definition>
+        <argsstring>(struct wal_watcher *watcher, void(*process_cb)(struct cbus_endpoint *))</argsstring>
+        <name>wal_clear_watcher</name>
+        <param>
+          <type>struct <ref refid="structwal__watcher" kindref="compound">wal_watcher</ref> *</type>
+          <declname>watcher</declname>
+        </param>
+        <param>
+          <type>void(*)(struct <ref refid="structcbus__endpoint" kindref="compound">cbus_endpoint</ref> *)</type>
+          <declname>process_cb</declname>
+        </param>
+        <briefdescription>
+<para>Unsubscribe from WAL events. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>watcher</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>WAL watcher to unregister. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>process_cb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function invoked to process cbus messages while the watcher is being detached or NULL if the cbus loop is running elsewhere. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="180" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="1501" bodyend="1508"/>
+      </memberdef>
+      <memberdef kind="function" id="wal_8h_1aefaf03547b215e3a533cdf296135d775" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void wal_atfork</definition>
+        <argsstring>(void)</argsstring>
+        <name>wal_atfork</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>After fork, the WAL writer thread disappears. </para>        </briefdescription>
+        <detaileddescription>
+<para>Make sure that atexit() handlers in the child do not try to stop a non-existent thread or write a second EOF marker to an open file. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="184" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="1526" bodyend="1532"/>
+      </memberdef>
+      <memberdef kind="function" id="wal_8h_1a31caf0c660ee00492e409879180d4118" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>enum wal_mode</type>
+        <definition>enum wal_mode wal_mode</definition>
+        <argsstring>(void)</argsstring>
+        <name>wal_mode</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="184" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="199" bodyend="202"/>
+      </memberdef>
+      <memberdef kind="function" id="wal_8h_1a65ff54b466eedd145e9bd1e519413c90" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int wal_sync</definition>
+        <argsstring>(struct vclock *vclock)</argsstring>
+        <name>wal_sync</name>
+        <param>
+          <type>struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <briefdescription>
+<para>Wait until all submitted writes are successfully flushed to disk. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns 0 on success, -1 if write failed. Corresponding vclock is returned in <emphasis>vclock</emphasis> unless it is NULL. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="196" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="612" bodyend="638"/>
+      </memberdef>
+      <memberdef kind="function" id="wal_8h_1a6db739587a65ad00e0568d3cc38f8679" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int wal_begin_checkpoint</definition>
+        <argsstring>(struct wal_checkpoint *checkpoint)</argsstring>
+        <name>wal_begin_checkpoint</name>
+        <param>
+          <type>struct <ref refid="structwal__checkpoint" kindref="compound">wal_checkpoint</ref> *</type>
+          <declname>checkpoint</declname>
+        </param>
+        <briefdescription>
+<para>Prepare WAL for checkpointing. </para>        </briefdescription>
+        <detaileddescription>
+<para>This function flushes all pending changes and rotates the current WAL. Checkpoint info is returned in . It is supposed to be passed to wal_commit_checkpoint() upon successful checkpoint creation. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="223" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="673" bodyend="700"/>
+      </memberdef>
+      <memberdef kind="function" id="wal_8h_1a3e78e1b5b6bb1be665fd97f19352b737" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void wal_commit_checkpoint</definition>
+        <argsstring>(struct wal_checkpoint *checkpoint)</argsstring>
+        <name>wal_commit_checkpoint</name>
+        <param>
+          <type>struct <ref refid="structwal__checkpoint" kindref="compound">wal_checkpoint</ref> *</type>
+          <declname>checkpoint</declname>
+        </param>
+        <briefdescription>
+<para>This function is called upon successful checkpoint creation. </para>        </briefdescription>
+        <detaileddescription>
+<para>It updates the WAL thread&apos;s version of the last checkpoint vclock. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="231" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="725" bodyend="737"/>
+      </memberdef>
+      <memberdef kind="function" id="wal_8h_1a33de509434d4fcc5865f3bdd6ccaafc8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void wal_set_checkpoint_threshold</definition>
+        <argsstring>(int64_t threshold)</argsstring>
+        <name>wal_set_checkpoint_threshold</name>
+        <param>
+          <type>int64_t</type>
+          <declname>threshold</declname>
+        </param>
+        <briefdescription>
+<para>Set the WAL size threshold exceeding which will trigger checkpointing in TX. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="238" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="755" bodyend="767"/>
+      </memberdef>
+      <memberdef kind="function" id="wal_8h_1a1f789043de1b8b4ad1a7c8b6028c89f1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void wal_collect_garbage</definition>
+        <argsstring>(const struct vclock *vclock)</argsstring>
+        <name>wal_collect_garbage</name>
+        <param>
+          <type>const struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <briefdescription>
+<para>Remove WAL files that are not needed by consumers reading rows at  or newer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="245" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="804" bodyend="815"/>
+      </memberdef>
+      <memberdef kind="function" id="wal_8h_1a051345656eeefffa8f0f26b441d2d52c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void wal_init_vy_log</definition>
+        <argsstring>(void)</argsstring>
+        <name>wal_init_vy_log</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="248" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="1331" bodyend="1334"/>
+      </memberdef>
+      <memberdef kind="function" id="wal_8h_1a183e02fcb5ec60a97c8e4cc8618cb958" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int wal_write_vy_log</definition>
+        <argsstring>(struct journal_entry *req)</argsstring>
+        <name>wal_write_vy_log</name>
+        <param>
+          <type>struct <ref refid="structjournal__entry" kindref="compound">journal_entry</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <briefdescription>
+<para>Write xrows to the vinyl metadata log. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="254" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="1363" bodyend="1374"/>
+      </memberdef>
+      <memberdef kind="function" id="wal_8h_1a9348cae449b096dc5ee006616c334353" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void wal_rotate_vy_log</definition>
+        <argsstring>(void)</argsstring>
+        <name>wal_rotate_vy_log</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Rotate the vinyl metadata log. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="260" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.c" bodystart="1386" bodyend="1394"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_WAL_WRITER_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_WAL_WRITER_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sys/types.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;small/rlist.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;cbus.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;journal.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="vclock_8h" kindref="compound">vclock.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber" kindref="compound">fiber</ref>;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structwal__writer" kindref="compound">wal_writer</ref>;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref>;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>wal_mode<sp/>{<sp/>WAL_NONE<sp/>=<sp/>0,<sp/>WAL_WRITE,<sp/>WAL_FSYNC,<sp/>WAL_MODE_MAX<sp/>};</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>WAL_ROWS_PER_YIELD<sp/>=<sp/>32000,</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*wal_mode_STRS[];</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>wal_dir_lock;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*wal_on_garbage_collection_f)(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvclock" kindref="compound">vclock</ref><sp/>*<ref refid="structvclock" kindref="compound">vclock</ref>);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*wal_on_checkpoint_threshold_f)(void);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal">wal_init(</highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>wal_mode<sp/>wal_mode,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*wal_dirname,</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>wal_max_size,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*instance_uuid,</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wal_on_garbage_collection_f<sp/>on_garbage_collection,</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wal_on_checkpoint_threshold_f<sp/>on_checkpoint_threshold);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal">wal_enable(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal">wal_free(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="106"><highlight class="normal">wal_dir(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108" refid="structwal__watcher__msg" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structwal__watcher__msg" kindref="compound">wal_watcher_msg</ref><sp/>{</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcmsg" kindref="compound">cmsg</ref><sp/>cmsg;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structwal__watcher" kindref="compound">wal_watcher</ref><sp/>*watcher;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>events;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>wal_event<sp/>{</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>WAL_EVENT_WRITE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(1<sp/>&lt;&lt;<sp/>0),</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>WAL_EVENT_ROTATE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(1<sp/>&lt;&lt;<sp/>1),</highlight></codeline>
+<codeline lineno="119"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121" refid="structwal__watcher" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structwal__watcher" kindref="compound">wal_watcher</ref><sp/>{</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>next;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>void<sp/>(*cb)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structwal__watcher" kindref="compound">wal_watcher</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>events);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcpipe" kindref="compound">cpipe</ref><sp/>wal_pipe;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcpipe" kindref="compound">cpipe</ref><sp/>watcher_pipe;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcmsg__hop" kindref="compound">cmsg_hop</ref><sp/>route[2];</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structwal__watcher__msg" kindref="compound">wal_watcher_msg</ref><sp/>msg;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>pending_events;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal">wal_set_watcher(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structwal__watcher" kindref="compound">wal_watcher</ref><sp/>*watcher,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>(*watcher_cb)(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structwal__watcher" kindref="compound">wal_watcher</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>events),</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>(*process_cb)(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcbus__endpoint" kindref="compound">cbus_endpoint</ref><sp/>*));</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal">wal_clear_watcher(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structwal__watcher" kindref="compound">wal_watcher</ref><sp/>*watcher,</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>(*process_cb)(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcbus__endpoint" kindref="compound">cbus_endpoint</ref><sp/>*));</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal">wal_atfork(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>wal_mode</highlight></codeline>
+<codeline lineno="187"><highlight class="normal">wal_mode(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal">wal_sync(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvclock" kindref="compound">vclock</ref><sp/>*<ref refid="structvclock" kindref="compound">vclock</ref>);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198" refid="structwal__checkpoint" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structwal__checkpoint" kindref="compound">wal_checkpoint</ref><sp/>{</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcbus__call__msg" kindref="compound">cbus_call_msg</ref><sp/>base;</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">vclock<sp/>vclock;</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>wal_size;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="222"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal">wal_begin_checkpoint(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structwal__checkpoint" kindref="compound">wal_checkpoint</ref><sp/>*<ref refid="structcheckpoint" kindref="compound">checkpoint</ref>);</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal">wal_commit_checkpoint(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structwal__checkpoint" kindref="compound">wal_checkpoint</ref><sp/>*checkpoint);</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal">wal_set_checkpoint_threshold(int64_t<sp/>threshold);</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight></codeline>
+<codeline lineno="244"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="normal">wal_collect_garbage(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vclock<sp/>*vclock);</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"></highlight></codeline>
+<codeline lineno="247"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="248"><highlight class="normal">wal_init_vy_log(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"></highlight></codeline>
+<codeline lineno="253"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="254"><highlight class="normal">wal_write_vy_log(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjournal__entry" kindref="compound">journal_entry</ref><sp/>*req);</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight></codeline>
+<codeline lineno="259"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="260"><highlight class="normal">wal_rotate_vy_log(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="263"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="264"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="265"><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_WAL_WRITER_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/wal.h"/>
+  </compounddef>
+</doxygen>

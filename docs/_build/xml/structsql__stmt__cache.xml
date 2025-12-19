@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structsql__stmt__cache" kind="struct" language="C++" prot="public">
+    <compoundname>sql_stmt_cache</compoundname>
+    <includes local="no">sql_stmt_cache.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structsql__stmt__cache_1a2df892a2af51a6c9ab56aae15c278a83" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t sql_stmt_cache::mem_used</definition>
+        <argsstring></argsstring>
+        <name>mem_used</name>
+        <briefdescription>
+<para>Size of memory currently occupied by prepared statements. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" line="66" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsql__stmt__cache_1a251f6abbec2aaa86523f9c1e1c30e20d" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t sql_stmt_cache::mem_quota</definition>
+        <argsstring></argsstring>
+        <name>mem_quota</name>
+        <briefdescription>
+<para>Max memory size that can be used for cache. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" line="68" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsql__stmt__cache_1a46a2dc0e5810c63273797ec79b756d01" prot="public" static="no" mutable="no">
+        <type>struct mh_i32ptr_t *</type>
+        <definition>struct mh_i32ptr_t* sql_stmt_cache::hash</definition>
+        <argsstring></argsstring>
+        <name>hash</name>
+        <briefdescription>
+<para>Query id -&gt; struct stmt_cahce_entry hash. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" line="70" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsql__stmt__cache_1acada0f07c5b3e346495e78e47555266c" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist sql_stmt_cache::gc_queue</definition>
+        <argsstring></argsstring>
+        <name>gc_queue</name>
+        <briefdescription>
+<para>After deallocation statements are not deleted, but moved to this list. </para>        </briefdescription>
+        <detaileddescription>
+<para>GC process is triggered only when memory limit has reached. It allows to reduce workload on session&apos;s disconnect. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" line="70" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsql__stmt__cache_1a47ae4e10e608b95631a4fc10038b4d3f" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref> *</type>
+        <definition>struct stmt_cache_entry* sql_stmt_cache::last_found</definition>
+        <argsstring></argsstring>
+        <name>last_found</name>
+        <briefdescription>
+<para>Last result of sql_stmt_cache_find() invocation. </para>        </briefdescription>
+        <detaileddescription>
+<para>Since during processing prepared statement it may require to find the same statement several times. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" line="84" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Global prepared statements holder. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="9752">
+        <label>stmt_cache_entry</label>
+        <link refid="structstmt__cache__entry"/>
+        <childnode refid="9751" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="9751">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="9751" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="9750">
+        <label>sql_stmt_cache</label>
+        <link refid="structsql__stmt__cache"/>
+        <childnode refid="9751" relation="usage">
+          <edgelabel>gc_queue</edgelabel>
+        </childnode>
+        <childnode refid="9752" relation="usage">
+          <edgelabel>last_found</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" line="64" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" bodystart="64" bodyend="85"/>
+    <listofallmembers>
+      <member refid="structsql__stmt__cache_1acada0f07c5b3e346495e78e47555266c" prot="public" virt="non-virtual"><scope>sql_stmt_cache</scope><name>gc_queue</name></member>
+      <member refid="structsql__stmt__cache_1a46a2dc0e5810c63273797ec79b756d01" prot="public" virt="non-virtual"><scope>sql_stmt_cache</scope><name>hash</name></member>
+      <member refid="structsql__stmt__cache_1a47ae4e10e608b95631a4fc10038b4d3f" prot="public" virt="non-virtual"><scope>sql_stmt_cache</scope><name>last_found</name></member>
+      <member refid="structsql__stmt__cache_1a251f6abbec2aaa86523f9c1e1c30e20d" prot="public" virt="non-virtual"><scope>sql_stmt_cache</scope><name>mem_quota</name></member>
+      <member refid="structsql__stmt__cache_1a2df892a2af51a6c9ab56aae15c278a83" prot="public" virt="non-virtual"><scope>sql_stmt_cache</scope><name>mem_used</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

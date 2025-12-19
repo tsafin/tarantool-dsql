@@ -1,0 +1,1429 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structrelay" kind="struct" language="C++" prot="public">
+    <compoundname>relay</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structrelay_1af87b89b6eeb81f80a7c37c88fa023b5c" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcord" kindref="compound">cord</ref></type>
+        <definition>struct cord relay::cord</definition>
+        <argsstring></argsstring>
+        <name>cord</name>
+        <briefdescription>
+<para>The thread in which we relay data to the replica. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="82" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1a874efd7f224438ddd1111869c95106f4" prot="public" static="no" mutable="no">
+        <type>struct ev_io</type>
+        <definition>struct ev_io relay::io</definition>
+        <argsstring></argsstring>
+        <name>io</name>
+        <briefdescription>
+<para>Replica connection. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="82" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1aa36213031a48d8e3339f42277b2427fc" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t relay::sync</definition>
+        <argsstring></argsstring>
+        <name>sync</name>
+        <briefdescription>
+<para>Request sync. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="94" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1a689b44c1fc8e9a58c4d27c2626228203" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrecovery" kindref="compound">recovery</ref> *</type>
+        <definition>struct recovery* relay::r</definition>
+        <argsstring></argsstring>
+        <name>r</name>
+        <briefdescription>
+<para>Recovery instance to read xlog from the disk. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="96" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1ad3a68ab7da23e2700d2a86fdae25883e" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structxstream" kindref="compound">xstream</ref></type>
+        <definition>struct xstream relay::stream</definition>
+        <argsstring></argsstring>
+        <name>stream</name>
+        <briefdescription>
+<para>Xstream argument to recovery. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="96" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1ae37558047a6db6b1d634f0d78ea7f12b" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvclock" kindref="compound">vclock</ref></type>
+        <definition>struct vclock relay::stop_vclock</definition>
+        <argsstring></argsstring>
+        <name>stop_vclock</name>
+        <briefdescription>
+<para>Vclock to stop playing xlogs. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="96" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="100" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1a723648c16719c11e0b69863641761e92" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structreplica" kindref="compound">replica</ref> *</type>
+        <definition>struct replica* relay::replica</definition>
+        <argsstring></argsstring>
+        <name>replica</name>
+        <briefdescription>
+<para>Remote replica. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="102" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1a74e8d36ed359073de7babfc727782f3f" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structwal__watcher" kindref="compound">wal_watcher</ref></type>
+        <definition>struct wal_watcher relay::wal_watcher</definition>
+        <argsstring></argsstring>
+        <name>wal_watcher</name>
+        <briefdescription>
+<para>WAL event watcher. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="102" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1a52a7c69a1603cf18e99b0866310eabc1" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfiber__cond" kindref="compound">fiber_cond</ref></type>
+        <definition>struct fiber_cond relay::reader_cond</definition>
+        <argsstring></argsstring>
+        <name>reader_cond</name>
+        <briefdescription>
+<para>Relay reader cond. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="102" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1ab9ec6630cb27092b4b669758ad99f899" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structdiag" kindref="compound">diag</ref></type>
+        <definition>struct diag relay::diag</definition>
+        <argsstring></argsstring>
+        <name>diag</name>
+        <briefdescription>
+<para>Relay diagnostics. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="102" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1aeaf371c78ecfddd704df2afdc382fb75" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvclock" kindref="compound">vclock</ref></type>
+        <definition>struct vclock relay::recv_vclock</definition>
+        <argsstring></argsstring>
+        <name>recv_vclock</name>
+        <briefdescription>
+<para>Vclock recieved from replica. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="102" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="110" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1ae8ce65fb4748e1289fb6d40a5846425d" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t relay::version_id</definition>
+        <argsstring></argsstring>
+        <name>version_id</name>
+        <briefdescription>
+<para>Replicatoin slave version. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="112" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1a16ab5dc2419c92ffbe6038258a6cc7bc" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t relay::id_filter</definition>
+        <argsstring></argsstring>
+        <name>id_filter</name>
+        <briefdescription>
+<para>A filter of replica ids whose rows should be ignored. </para>        </briefdescription>
+        <detaileddescription>
+<para>Each set filter bit corresponds to a replica id whose rows shouldn&apos;t be relayed. The list of ids to ignore is passed by the replica on subscribe. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="119" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="119" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1a5846e925db75a16d4127c5f2fc4f26cc" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvclock" kindref="compound">vclock</ref></type>
+        <definition>struct vclock relay::local_vclock_at_subscribe</definition>
+        <argsstring></argsstring>
+        <name>local_vclock_at_subscribe</name>
+        <briefdescription>
+<para>Local vclock at the moment of subscribe, used to check dataset on the other side and send missing data rows if any. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="119" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="124" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1a23b25374e7365a12b9bdb654f92f9828" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcbus__endpoint" kindref="compound">cbus_endpoint</ref></type>
+        <definition>struct cbus_endpoint relay::endpoint</definition>
+        <argsstring></argsstring>
+        <name>endpoint</name>
+        <briefdescription>
+<para>Relay endpoint. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="119" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="127" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1ad7757d8da29518546714312264eb4fca" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcpipe" kindref="compound">cpipe</ref></type>
+        <definition>struct cpipe relay::tx_pipe</definition>
+        <argsstring></argsstring>
+        <name>tx_pipe</name>
+        <briefdescription>
+<para>A pipe from &apos;relay&apos; thread to &apos;tx&apos;. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="119" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="129" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1a241019d2d3e260e9a10a03f48579e612" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcpipe" kindref="compound">cpipe</ref></type>
+        <definition>struct cpipe relay::relay_pipe</definition>
+        <argsstring></argsstring>
+        <name>relay_pipe</name>
+        <briefdescription>
+<para>A pipe from &apos;tx&apos; thread to &apos;relay&apos;. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="119" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="131" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1a221e87bce4a0b2a56554754c7b2f4856" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrelay__status__msg" kindref="compound">relay_status_msg</ref></type>
+        <definition>struct relay_status_msg relay::status_msg</definition>
+        <argsstring></argsstring>
+        <name>status_msg</name>
+        <briefdescription>
+<para>Status message. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="119" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1af65643687be2d4d59764d154ff5b6efa" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structstailq" kindref="compound">stailq</ref></type>
+        <definition>struct stailq relay::pending_gc</definition>
+        <argsstring></argsstring>
+        <name>pending_gc</name>
+        <briefdescription>
+<para>List of garbage collection messages awaiting confirmation from the replica. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="119" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="138" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1aeb87f4960634863414760f2626766d6b" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double relay::last_row_time</definition>
+        <argsstring></argsstring>
+        <name>last_row_time</name>
+        <briefdescription>
+<para>Time when last row was sent to peer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="140" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="140" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1a9789f884f302c2dc1690fad6b3a4e2ab" prot="public" static="no" mutable="no">
+        <type>enum relay_state</type>
+        <definition>enum relay_state relay::state</definition>
+        <argsstring></argsstring>
+        <name>state</name>
+        <briefdescription>
+<para>Relay sync state. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="140" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="142" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1a01e7ecc7f007a0fc19e8565d5a2c5971" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvclock" kindref="compound">vclock</ref></type>
+        <definition>struct vclock relay::vclock</definition>
+        <argsstring></argsstring>
+        <name>vclock</name>
+        <briefdescription>
+<para>Known relay vclock. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="146" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="148" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1aacec76a2820a8cee6d20b28f260558bd" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool relay::is_raft_enabled</definition>
+        <argsstring></argsstring>
+        <name>is_raft_enabled</name>
+        <briefdescription>
+<para>True if the relay needs Raft updates. </para>        </briefdescription>
+        <detaileddescription>
+<para>It can live fine without sending Raft updates, if it is a relay to an anonymous replica, for example. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="154" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="154" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrelay_1a254d487f6049b1035ac137e768fdfd0c" prot="public" static="no" mutable="no">
+        <type>struct relay::@51</type>
+        <definition>struct relay::@51  relay::tx</definition>
+        <argsstring></argsstring>
+        <name>tx</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.cc" line="155" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>State of a replication relay. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="7954">
+        <label>serializer_opts</label>
+        <link refid="structserializer__opts"/>
+      </node>
+      <node id="7946">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="7939">
+        <label>json_tree</label>
+        <link refid="structjson__tree"/>
+        <childnode refid="7940" relation="usage">
+          <edgelabel>root</edgelabel>
+        </childnode>
+      </node>
+      <node id="7887">
+        <label>replica</label>
+        <link refid="structreplica"/>
+        <childnode refid="7888" relation="usage">
+          <edgelabel>uuid</edgelabel>
+        </childnode>
+        <childnode refid="7889" relation="usage">
+          <edgelabel>on_applier_state</edgelabel>
+        </childnode>
+        <childnode refid="7891" relation="usage">
+          <edgelabel>gc</edgelabel>
+        </childnode>
+        <childnode refid="7886" relation="usage">
+          <edgelabel>relay</edgelabel>
+        </childnode>
+        <childnode refid="7890" relation="usage">
+          <edgelabel>in_anon</edgelabel>
+        </childnode>
+        <childnode refid="7893" relation="usage">
+          <edgelabel>order_latch</edgelabel>
+        </childnode>
+        <childnode refid="7961" relation="usage">
+          <edgelabel>applier</edgelabel>
+        </childnode>
+      </node>
+      <node id="7912">
+        <label>ExprList</label>
+        <link refid="structExprList"/>
+        <childnode refid="7913" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="7972">
+        <label>wal_watcher_msg</label>
+        <link refid="structwal__watcher__msg"/>
+        <childnode refid="7971" relation="usage">
+          <edgelabel>watcher</edgelabel>
+        </childnode>
+        <childnode refid="7967" relation="usage">
+          <edgelabel>cmsg</edgelabel>
+        </childnode>
+      </node>
+      <node id="7965">
+        <label>ibuf</label>
+        <link refid="structibuf"/>
+        <childnode refid="7947" relation="usage">
+          <edgelabel>slabc</edgelabel>
+        </childnode>
+      </node>
+      <node id="7923">
+        <label>index_stat</label>
+        <link refid="structindex__stat"/>
+        <childnode refid="7924" relation="usage">
+          <edgelabel>samples</edgelabel>
+        </childnode>
+      </node>
+      <node id="7936">
+        <label>iterator</label>
+        <link refid="structiterator"/>
+        <childnode refid="7933" relation="usage">
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="7943">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="7943" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="7944">
+        <label>region</label>
+        <link refid="structregion"/>
+        <childnode refid="7945" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="7947" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="7927">
+        <label>key_part</label>
+        <link refid="structkey__part"/>
+        <childnode refid="7928" relation="usage">
+          <edgelabel>coll</edgelabel>
+        </childnode>
+      </node>
+      <node id="7981">
+        <label>mempool</label>
+        <link refid="structmempool"/>
+        <childnode refid="7982" relation="usage">
+          <edgelabel>spare</edgelabel>
+          <edgelabel>first_hot_slab</edgelabel>
+        </childnode>
+        <childnode refid="7945" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="7983" relation="usage">
+          <edgelabel>link</edgelabel>
+          <edgelabel>delayed</edgelabel>
+        </childnode>
+        <childnode refid="7890" relation="usage">
+          <edgelabel>cold_slabs</edgelabel>
+        </childnode>
+        <childnode refid="7947" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="7978">
+        <label>xlog_tx_cursor</label>
+        <link refid="structxlog__tx__cursor"/>
+        <childnode refid="7965" relation="usage">
+          <edgelabel>rows</edgelabel>
+        </childnode>
+      </node>
+      <node id="7924">
+        <label>index_sample</label>
+        <link refid="structindex__sample"/>
+      </node>
+      <node id="7955">
+        <label>session_vtab</label>
+        <link refid="structsession__vtab"/>
+      </node>
+      <node id="7931">
+        <label>TriggerStep</label>
+        <link refid="structTriggerStep"/>
+        <childnode refid="7931" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pLast</edgelabel>
+        </childnode>
+        <childnode refid="7902" relation="usage">
+          <edgelabel>pWhere</edgelabel>
+        </childnode>
+        <childnode refid="7919" relation="usage">
+          <edgelabel>pIdList</edgelabel>
+        </childnode>
+        <childnode refid="7914" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="7912" relation="usage">
+          <edgelabel>pExprList</edgelabel>
+        </childnode>
+      </node>
+      <node id="7957">
+        <label>diag</label>
+        <link refid="structdiag"/>
+      </node>
+      <node id="7940">
+        <label>json_token</label>
+        <link refid="structjson__token"/>
+        <childnode refid="7940" relation="usage">
+          <edgelabel>parent</edgelabel>
+          <edgelabel>children</edgelabel>
+        </childnode>
+      </node>
+      <node id="7951">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="7943" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="7907">
+        <label>access</label>
+        <link refid="structaccess"/>
+      </node>
+      <node id="7974">
+        <label>xdir</label>
+        <link refid="structxdir"/>
+        <childnode refid="7975" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+        <childnode refid="7888" relation="usage">
+          <edgelabel>instance_uuid</edgelabel>
+        </childnode>
+      </node>
+      <node id="7918">
+        <label>SrcList::SrcList_item</label>
+        <link refid="structSrcList_1_1SrcList__item"/>
+        <childnode refid="7898" relation="usage">
+          <edgelabel>space</edgelabel>
+        </childnode>
+        <childnode refid="7902" relation="usage">
+          <edgelabel>pOn</edgelabel>
+        </childnode>
+        <childnode refid="7919" relation="usage">
+          <edgelabel>pUsing</edgelabel>
+        </childnode>
+        <childnode refid="7921" relation="usage">
+          <edgelabel>pIBIndex</edgelabel>
+        </childnode>
+        <childnode refid="7914" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="7912" relation="usage">
+          <edgelabel>pFuncArg</edgelabel>
+        </childnode>
+      </node>
+      <node id="7916">
+        <label>With::Cte</label>
+        <link refid="structWith_1_1Cte"/>
+        <childnode refid="7914" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="7912" relation="usage">
+          <edgelabel>pCols</edgelabel>
+        </childnode>
+      </node>
+      <node id="7914">
+        <label>Select</label>
+        <link refid="structSelect"/>
+        <childnode refid="7902" relation="usage">
+          <edgelabel>pOffset</edgelabel>
+          <edgelabel>pHaving</edgelabel>
+          <edgelabel>pWhere</edgelabel>
+          <edgelabel>pLimit</edgelabel>
+        </childnode>
+        <childnode refid="7915" relation="usage">
+          <edgelabel>pWith</edgelabel>
+        </childnode>
+        <childnode refid="7914" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pPrior</edgelabel>
+        </childnode>
+        <childnode refid="7917" relation="usage">
+          <edgelabel>pSrc</edgelabel>
+        </childnode>
+        <childnode refid="7912" relation="usage">
+          <edgelabel>pEList</edgelabel>
+          <edgelabel>pOrderBy</edgelabel>
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="7911">
+        <label>credentials</label>
+        <link refid="structcredentials"/>
+        <childnode refid="7890" relation="usage">
+          <edgelabel>in_user</edgelabel>
+        </childnode>
+      </node>
+      <node id="7897">
+        <label>engine_vtab</label>
+        <link refid="structengine__vtab"/>
+        <childnode refid="7898" relation="usage">
+          <edgelabel>create_space</edgelabel>
+        </childnode>
+      </node>
+      <node id="7898">
+        <label>space</label>
+        <link refid="structspace"/>
+        <childnode refid="7899" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="7896" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="7930" relation="usage">
+          <edgelabel>sql_triggers</edgelabel>
+        </childnode>
+        <childnode refid="7907" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="7932" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="7937" relation="usage">
+          <edgelabel>format</edgelabel>
+        </childnode>
+        <childnode refid="7889" relation="usage">
+          <edgelabel>ck_constraint_trigger</edgelabel>
+        </childnode>
+        <childnode refid="7890" relation="usage">
+          <edgelabel>before_replace</edgelabel>
+          <edgelabel>on_replace</edgelabel>
+          <edgelabel>child_fk_constraint</edgelabel>
+          <edgelabel>memtx_stories</edgelabel>
+          <edgelabel>parent_fk_constraint</edgelabel>
+          <edgelabel>ck_constraint</edgelabel>
+        </childnode>
+        <childnode refid="7941" relation="usage">
+          <edgelabel>sequence</edgelabel>
+        </childnode>
+        <childnode refid="7933" relation="usage">
+          <edgelabel>index_map</edgelabel>
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="7969">
+        <label>cpipe</label>
+        <link refid="structcpipe"/>
+        <childnode refid="7890" relation="usage">
+          <edgelabel>on_flush</edgelabel>
+        </childnode>
+        <childnode refid="7970" relation="usage">
+          <edgelabel>endpoint</edgelabel>
+        </childnode>
+        <childnode refid="7951" relation="usage">
+          <edgelabel>input</edgelabel>
+        </childnode>
+      </node>
+      <node id="7956">
+        <label>clock_stat</label>
+        <link refid="structclock__stat"/>
+      </node>
+      <node id="7904">
+        <label>AggInfo::AggInfo_col</label>
+        <link refid="structAggInfo_1_1AggInfo__col"/>
+        <childnode refid="7899" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="7902" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="7968">
+        <label>cmsg_hop</label>
+        <link refid="structcmsg__hop"/>
+        <childnode refid="7969" relation="usage">
+          <edgelabel>pipe</edgelabel>
+        </childnode>
+        <childnode refid="7967" relation="usage">
+          <edgelabel>f</edgelabel>
+        </childnode>
+      </node>
+      <node id="7934">
+        <label>index_vtab</label>
+        <link refid="structindex__vtab"/>
+        <childnode refid="7935" relation="usage">
+          <edgelabel>create_snapshot_iterator</edgelabel>
+        </childnode>
+        <childnode refid="7936" relation="usage">
+          <edgelabel>create_iterator</edgelabel>
+        </childnode>
+      </node>
+      <node id="7900">
+        <label>tuple_dictionary</label>
+        <link refid="structtuple__dictionary"/>
+      </node>
+      <node id="7902">
+        <label>Expr</label>
+        <link refid="structExpr"/>
+        <childnode refid="7899" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="7903" relation="usage">
+          <edgelabel>pAggInfo</edgelabel>
+        </childnode>
+        <childnode refid="7902" relation="usage">
+          <edgelabel>pRight</edgelabel>
+          <edgelabel>pLeft</edgelabel>
+        </childnode>
+        <childnode refid="7914" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="7912" relation="usage">
+          <edgelabel>pList</edgelabel>
+        </childnode>
+      </node>
+      <node id="7895">
+        <label>txn</label>
+        <link refid="structtxn"/>
+        <childnode refid="7896" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="7943" relation="usage">
+          <edgelabel>in_txn_cache</edgelabel>
+          <edgelabel>sub_stmt_begin</edgelabel>
+        </childnode>
+        <childnode refid="7944" relation="usage">
+          <edgelabel>region</edgelabel>
+        </childnode>
+        <childnode refid="7894" relation="usage">
+          <edgelabel>fiber</edgelabel>
+        </childnode>
+        <childnode refid="7889" relation="usage">
+          <edgelabel>fiber_on_stop</edgelabel>
+          <edgelabel>fiber_on_yield</edgelabel>
+        </childnode>
+        <childnode refid="7890" relation="usage">
+          <edgelabel>on_wal_write</edgelabel>
+          <edgelabel>read_set</edgelabel>
+          <edgelabel>conflict_list</edgelabel>
+          <edgelabel>in_read_view_txs</edgelabel>
+          <edgelabel>savepoints</edgelabel>
+          <edgelabel>conflicted_by_list</edgelabel>
+        </childnode>
+        <childnode refid="7951" relation="usage">
+          <edgelabel>stmts</edgelabel>
+        </childnode>
+      </node>
+      <node id="7903">
+        <label>AggInfo</label>
+        <link refid="structAggInfo"/>
+        <childnode refid="7904" relation="usage">
+          <edgelabel>aCol</edgelabel>
+        </childnode>
+        <childnode refid="7905" relation="usage">
+          <edgelabel>aFunc</edgelabel>
+        </childnode>
+        <childnode refid="7912" relation="usage">
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="7890">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="7890" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="7967">
+        <label>cmsg</label>
+        <link refid="structcmsg"/>
+        <childnode refid="7968" relation="usage">
+          <edgelabel>hop</edgelabel>
+          <edgelabel>route</edgelabel>
+        </childnode>
+        <childnode refid="7943" relation="usage">
+          <edgelabel>fifo</edgelabel>
+        </childnode>
+      </node>
+      <node id="7935">
+        <label>snapshot_iterator</label>
+        <link refid="structsnapshot__iterator"/>
+      </node>
+      <node id="7945">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="7946" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="7890" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="7979">
+        <label>xstream</label>
+        <link refid="structxstream"/>
+        <childnode refid="7979" relation="usage">
+          <edgelabel>write</edgelabel>
+        </childnode>
+      </node>
+      <node id="7917">
+        <label>SrcList</label>
+        <link refid="structSrcList"/>
+        <childnode refid="7918" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="7960">
+        <label>ipc_msg</label>
+        <link refid="structipc__msg"/>
+      </node>
+      <node id="7942">
+        <label>sequence_def</label>
+        <link refid="structsequence__def"/>
+      </node>
+      <node id="7919">
+        <label>IdList</label>
+        <link refid="structIdList"/>
+        <childnode refid="7920" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="7886">
+        <label>relay</label>
+        <link refid="structrelay"/>
+        <childnode refid="7887" relation="usage">
+          <edgelabel>replica</edgelabel>
+        </childnode>
+        <childnode refid="7963" relation="usage">
+          <edgelabel>reader_cond</edgelabel>
+        </childnode>
+        <childnode refid="7966" relation="usage">
+          <edgelabel>status_msg</edgelabel>
+        </childnode>
+        <childnode refid="7971" relation="usage">
+          <edgelabel>wal_watcher</edgelabel>
+        </childnode>
+        <childnode refid="7892" relation="usage">
+          <edgelabel>stop_vclock</edgelabel>
+          <edgelabel>recv_vclock</edgelabel>
+          <edgelabel>vclock</edgelabel>
+          <edgelabel>local_vclock_at_subscribe</edgelabel>
+        </childnode>
+        <childnode refid="7957" relation="usage">
+          <edgelabel>diag</edgelabel>
+        </childnode>
+        <childnode refid="7969" relation="usage">
+          <edgelabel>tx_pipe</edgelabel>
+          <edgelabel>relay_pipe</edgelabel>
+        </childnode>
+        <childnode refid="7951" relation="usage">
+          <edgelabel>pending_gc</edgelabel>
+        </childnode>
+        <childnode refid="7970" relation="usage">
+          <edgelabel>endpoint</edgelabel>
+        </childnode>
+        <childnode refid="7973" relation="usage">
+          <edgelabel>r</edgelabel>
+        </childnode>
+        <childnode refid="7979" relation="usage">
+          <edgelabel>stream</edgelabel>
+        </childnode>
+        <childnode refid="7980" relation="usage">
+          <edgelabel>cord</edgelabel>
+        </childnode>
+      </node>
+      <node id="7933">
+        <label>index</label>
+        <link refid="structindex"/>
+        <childnode refid="7896" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="7934" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="7921" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="7891">
+        <label>gc_consumer</label>
+        <link refid="structgc__consumer"/>
+        <childnode refid="7892" relation="usage">
+          <edgelabel>vclock</edgelabel>
+        </childnode>
+      </node>
+      <node id="7941">
+        <label>sequence</label>
+        <link refid="structsequence"/>
+        <childnode refid="7907" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="7942" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="7901">
+        <label>field_def</label>
+        <link refid="structfield__def"/>
+        <childnode refid="7902" relation="usage">
+          <edgelabel>default_value_expr</edgelabel>
+        </childnode>
+      </node>
+      <node id="7925">
+        <label>key_def</label>
+        <link refid="structkey__def"/>
+        <childnode refid="7926" relation="usage">
+          <edgelabel>tuple_hash</edgelabel>
+          <edgelabel>tuple_compare_with_key</edgelabel>
+          <edgelabel>tuple_compare</edgelabel>
+          <edgelabel>tuple_hint</edgelabel>
+          <edgelabel>tuple_extract_key</edgelabel>
+        </childnode>
+        <childnode refid="7925" relation="usage">
+          <edgelabel>key_hash</edgelabel>
+          <edgelabel>tuple_extract_key_raw</edgelabel>
+          <edgelabel>key_hint</edgelabel>
+        </childnode>
+        <childnode refid="7906" relation="usage">
+          <edgelabel>func_index_func</edgelabel>
+        </childnode>
+        <childnode refid="7927" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="7889">
+        <label>trigger</label>
+        <link refid="structtrigger"/>
+        <childnode refid="7889" relation="usage">
+          <edgelabel>run</edgelabel>
+          <edgelabel>destroy</edgelabel>
+        </childnode>
+        <childnode refid="7890" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="7926">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="7949">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="7921">
+        <label>index_def</label>
+        <link refid="structindex__def"/>
+        <childnode refid="7922" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+        <childnode refid="7925" relation="usage">
+          <edgelabel>key_def</edgelabel>
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="7890" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="7929">
+        <label>space_opts</label>
+        <link refid="structspace__opts"/>
+      </node>
+      <node id="7982">
+        <label>mslab</label>
+        <link refid="structmslab"/>
+        <childnode refid="7890" relation="usage">
+          <edgelabel>next_in_cold</edgelabel>
+        </childnode>
+        <childnode refid="7958" relation="usage">
+          <edgelabel>slab</edgelabel>
+        </childnode>
+      </node>
+      <node id="7977">
+        <label>xlog_meta</label>
+        <link refid="structxlog__meta"/>
+        <childnode refid="7888" relation="usage">
+          <edgelabel>instance_uuid</edgelabel>
+        </childnode>
+        <childnode refid="7892" relation="usage">
+          <edgelabel>vclock</edgelabel>
+          <edgelabel>prev_vclock</edgelabel>
+        </childnode>
+      </node>
+      <node id="7906">
+        <label>func</label>
+        <link refid="structfunc"/>
+        <childnode refid="7907" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="7908" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="7909" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="7911" relation="usage">
+          <edgelabel>owner_credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="7908">
+        <label>func_vtab</label>
+        <link refid="structfunc__vtab"/>
+      </node>
+      <node id="7964">
+        <label>uri</label>
+        <link refid="structuri"/>
+      </node>
+      <node id="7930">
+        <label>sql_trigger</label>
+        <link refid="structsql__trigger"/>
+        <childnode refid="7931" relation="usage">
+          <edgelabel>step_list</edgelabel>
+        </childnode>
+        <childnode refid="7902" relation="usage">
+          <edgelabel>pWhen</edgelabel>
+        </childnode>
+        <childnode refid="7930" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="7919" relation="usage">
+          <edgelabel>pColumns</edgelabel>
+        </childnode>
+      </node>
+      <node id="7893">
+        <label>latch</label>
+        <link refid="structlatch"/>
+        <childnode refid="7894" relation="usage">
+          <edgelabel>owner</edgelabel>
+        </childnode>
+        <childnode refid="7890" relation="usage">
+          <edgelabel>queue</edgelabel>
+        </childnode>
+      </node>
+      <node id="7950">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="7948">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="7949" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="7950" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="7910">
+        <label>func_opts</label>
+        <link refid="structfunc__opts"/>
+      </node>
+      <node id="7971">
+        <label>wal_watcher</label>
+        <link refid="structwal__watcher"/>
+        <childnode refid="7968" relation="usage">
+          <edgelabel>route</edgelabel>
+        </childnode>
+        <childnode refid="7972" relation="usage">
+          <edgelabel>msg</edgelabel>
+        </childnode>
+        <childnode refid="7890" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="7969" relation="usage">
+          <edgelabel>wal_pipe</edgelabel>
+          <edgelabel>watcher_pipe</edgelabel>
+        </childnode>
+      </node>
+      <node id="7976">
+        <label>xlog_cursor</label>
+        <link refid="structxlog__cursor"/>
+        <childnode refid="7977" relation="usage">
+          <edgelabel>meta</edgelabel>
+        </childnode>
+        <childnode refid="7965" relation="usage">
+          <edgelabel>rbuf</edgelabel>
+        </childnode>
+        <childnode refid="7978" relation="usage">
+          <edgelabel>tx_cursor</edgelabel>
+        </childnode>
+      </node>
+      <node id="7975">
+        <label>xlog_opts</label>
+        <link refid="structxlog__opts"/>
+      </node>
+      <node id="7947">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="7945" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="7948" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="7938">
+        <label>tuple_format_vtab</label>
+        <link refid="structtuple__format__vtab"/>
+        <childnode refid="7926" relation="usage">
+          <edgelabel>tuple_new</edgelabel>
+        </childnode>
+      </node>
+      <node id="7937">
+        <label>tuple_format</label>
+        <link refid="structtuple__format"/>
+        <childnode refid="7900" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="7938" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="7939" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+      </node>
+      <node id="7909">
+        <label>func_def</label>
+        <link refid="structfunc__def"/>
+        <childnode refid="7910" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="7973">
+        <label>recovery</label>
+        <link refid="structrecovery"/>
+        <childnode refid="7894" relation="usage">
+          <edgelabel>watcher</edgelabel>
+        </childnode>
+        <childnode refid="7974" relation="usage">
+          <edgelabel>wal_dir</edgelabel>
+        </childnode>
+        <childnode refid="7976" relation="usage">
+          <edgelabel>cursor</edgelabel>
+        </childnode>
+        <childnode refid="7892" relation="usage">
+          <edgelabel>vclock</edgelabel>
+        </childnode>
+        <childnode refid="7890" relation="usage">
+          <edgelabel>on_close_log</edgelabel>
+        </childnode>
+      </node>
+      <node id="7915">
+        <label>With</label>
+        <link refid="structWith"/>
+        <childnode refid="7916" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+        <childnode refid="7915" relation="usage">
+          <edgelabel>pOuter</edgelabel>
+        </childnode>
+      </node>
+      <node id="7892">
+        <label>vclock</label>
+        <link refid="structvclock"/>
+      </node>
+      <node id="7899">
+        <label>space_def</label>
+        <link refid="structspace__def"/>
+        <childnode refid="7900" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="7901" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+        <childnode refid="7929" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="7983">
+        <label>lifo</label>
+        <link refid="structlifo"/>
+      </node>
+      <node id="7896">
+        <label>engine</label>
+        <link refid="structengine"/>
+        <childnode refid="7897" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="7890" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="7963">
+        <label>fiber_cond</label>
+        <link refid="structfiber__cond"/>
+        <childnode refid="7890" relation="usage">
+          <edgelabel>waiters</edgelabel>
+        </childnode>
+      </node>
+      <node id="7984">
+        <label>cpu_stat</label>
+        <link refid="structcpu__stat"/>
+      </node>
+      <node id="7888">
+        <label>tt_uuid</label>
+        <link refid="structtt__uuid"/>
+      </node>
+      <node id="7920">
+        <label>IdList::IdList_item</label>
+        <link refid="structIdList_1_1IdList__item"/>
+      </node>
+      <node id="7962">
+        <label>ballot</label>
+        <link refid="structballot"/>
+        <childnode refid="7892" relation="usage">
+          <edgelabel>gc_vclock</edgelabel>
+          <edgelabel>vclock</edgelabel>
+        </childnode>
+      </node>
+      <node id="7959">
+        <label>ipc_wait_pad</label>
+        <link refid="structipc__wait__pad"/>
+        <childnode refid="7960" relation="usage">
+          <edgelabel>msg</edgelabel>
+        </childnode>
+      </node>
+      <node id="7961">
+        <label>applier</label>
+        <link refid="structapplier"/>
+        <childnode refid="7888" relation="usage">
+          <edgelabel>uuid</edgelabel>
+        </childnode>
+        <childnode refid="7962" relation="usage">
+          <edgelabel>ballot</edgelabel>
+        </childnode>
+        <childnode refid="7963" relation="usage">
+          <edgelabel>writer_cond</edgelabel>
+          <edgelabel>resume_cond</edgelabel>
+        </childnode>
+        <childnode refid="7964" relation="usage">
+          <edgelabel>uri</edgelabel>
+        </childnode>
+        <childnode refid="7894" relation="usage">
+          <edgelabel>writer</edgelabel>
+          <edgelabel>reader</edgelabel>
+        </childnode>
+        <childnode refid="7892" relation="usage">
+          <edgelabel>remote_vclock_at_subscribe</edgelabel>
+        </childnode>
+        <childnode refid="7890" relation="usage">
+          <edgelabel>on_state</edgelabel>
+        </childnode>
+        <childnode refid="7957" relation="usage">
+          <edgelabel>diag</edgelabel>
+        </childnode>
+        <childnode refid="7965" relation="usage">
+          <edgelabel>ibuf</edgelabel>
+        </childnode>
+      </node>
+      <node id="7928">
+        <label>coll</label>
+        <link refid="structcoll"/>
+        <childnode refid="7928" relation="usage">
+          <edgelabel>cmp</edgelabel>
+          <edgelabel>hint</edgelabel>
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+      <node id="7894">
+        <label>fiber</label>
+        <link refid="structfiber"/>
+        <childnode refid="7895" relation="usage">
+          <edgelabel>txn</edgelabel>
+        </childnode>
+        <childnode refid="7944" relation="usage">
+          <edgelabel>gc</edgelabel>
+        </childnode>
+        <childnode refid="7894" relation="usage">
+          <edgelabel>caller</edgelabel>
+        </childnode>
+        <childnode refid="7911" relation="usage">
+          <edgelabel>credentials</edgelabel>
+        </childnode>
+        <childnode refid="7952" relation="usage">
+          <edgelabel>session</edgelabel>
+        </childnode>
+        <childnode refid="7956" relation="usage">
+          <edgelabel>clock_stat</edgelabel>
+        </childnode>
+        <childnode refid="7890" relation="usage">
+          <edgelabel>wake</edgelabel>
+          <edgelabel>on_stop</edgelabel>
+          <edgelabel>on_yield</edgelabel>
+          <edgelabel>link</edgelabel>
+          <edgelabel>state</edgelabel>
+        </childnode>
+        <childnode refid="7957" relation="usage">
+          <edgelabel>diag</edgelabel>
+        </childnode>
+        <childnode refid="7958" relation="usage">
+          <edgelabel>stack_slab</edgelabel>
+        </childnode>
+        <childnode refid="7959" relation="usage">
+          <edgelabel>wait_pad</edgelabel>
+        </childnode>
+      </node>
+      <node id="7958">
+        <label>slab</label>
+        <link refid="structslab"/>
+        <childnode refid="7890" relation="usage">
+          <edgelabel>next_in_cache</edgelabel>
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+      <node id="7953">
+        <label>session_meta</label>
+        <link refid="structsession__meta"/>
+        <childnode refid="7954" relation="usage">
+          <edgelabel>serializer_opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="7966">
+        <label>relay_status_msg</label>
+        <link refid="structrelay__status__msg"/>
+        <childnode refid="7892" relation="usage">
+          <edgelabel>vclock</edgelabel>
+        </childnode>
+        <childnode refid="7886" relation="usage">
+          <edgelabel>relay</edgelabel>
+        </childnode>
+        <childnode refid="7967" relation="usage">
+          <edgelabel>msg</edgelabel>
+        </childnode>
+      </node>
+      <node id="7922">
+        <label>index_opts</label>
+        <link refid="structindex__opts"/>
+        <childnode refid="7923" relation="usage">
+          <edgelabel>stat</edgelabel>
+        </childnode>
+      </node>
+      <node id="7952">
+        <label>session</label>
+        <link refid="structsession"/>
+        <childnode refid="7953" relation="usage">
+          <edgelabel>meta</edgelabel>
+        </childnode>
+        <childnode refid="7955" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="7889" relation="usage">
+          <edgelabel>fiber_on_stop</edgelabel>
+        </childnode>
+        <childnode refid="7911" relation="usage">
+          <edgelabel>credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="7980">
+        <label>cord</label>
+        <link refid="structcord"/>
+        <childnode refid="7981" relation="usage">
+          <edgelabel>fiber_mempool</edgelabel>
+        </childnode>
+        <childnode refid="7984" relation="usage">
+          <edgelabel>cpu_stat</edgelabel>
+        </childnode>
+        <childnode refid="7894" relation="usage">
+          <edgelabel>sched</edgelabel>
+          <edgelabel>fiber</edgelabel>
+        </childnode>
+        <childnode refid="7956" relation="usage">
+          <edgelabel>clock_stat</edgelabel>
+        </childnode>
+        <childnode refid="7890" relation="usage">
+          <edgelabel>dead</edgelabel>
+          <edgelabel>alive</edgelabel>
+          <edgelabel>ready</edgelabel>
+        </childnode>
+        <childnode refid="7947" relation="usage">
+          <edgelabel>slabc</edgelabel>
+        </childnode>
+        <childnode refid="7985" relation="usage">
+          <edgelabel>on_exit</edgelabel>
+        </childnode>
+      </node>
+      <node id="7985">
+        <label>cord_on_exit</label>
+        <link refid="structcord__on__exit"/>
+      </node>
+      <node id="7913">
+        <label>ExprList::ExprList_item</label>
+        <link refid="structExprList_1_1ExprList__item"/>
+        <childnode refid="7902" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="7905">
+        <label>AggInfo::AggInfo_func</label>
+        <link refid="structAggInfo_1_1AggInfo__func"/>
+        <childnode refid="7902" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+        <childnode refid="7906" relation="usage">
+          <edgelabel>func</edgelabel>
+        </childnode>
+      </node>
+      <node id="7970">
+        <label>cbus_endpoint</label>
+        <link refid="structcbus__endpoint"/>
+        <childnode refid="7963" relation="usage">
+          <edgelabel>cond</edgelabel>
+        </childnode>
+        <childnode refid="7890" relation="usage">
+          <edgelabel>in_cbus</edgelabel>
+        </childnode>
+        <childnode refid="7951" relation="usage">
+          <edgelabel>output</edgelabel>
+        </childnode>
+      </node>
+      <node id="7932">
+        <label>space_vtab</label>
+        <link refid="structspace__vtab"/>
+        <childnode refid="7933" relation="usage">
+          <edgelabel>create_index</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/relay.cc" line="88" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="88" bodyend="156"/>
+    <listofallmembers>
+      <member refid="structrelay_1af87b89b6eeb81f80a7c37c88fa023b5c" prot="public" virt="non-virtual"><scope>relay</scope><name>cord</name></member>
+      <member refid="structrelay_1ab9ec6630cb27092b4b669758ad99f899" prot="public" virt="non-virtual"><scope>relay</scope><name>diag</name></member>
+      <member refid="structrelay_1a23b25374e7365a12b9bdb654f92f9828" prot="public" virt="non-virtual"><scope>relay</scope><name>endpoint</name></member>
+      <member refid="structrelay_1a16ab5dc2419c92ffbe6038258a6cc7bc" prot="public" virt="non-virtual"><scope>relay</scope><name>id_filter</name></member>
+      <member refid="structrelay_1a874efd7f224438ddd1111869c95106f4" prot="public" virt="non-virtual"><scope>relay</scope><name>io</name></member>
+      <member refid="structrelay_1aacec76a2820a8cee6d20b28f260558bd" prot="public" virt="non-virtual"><scope>relay</scope><name>is_raft_enabled</name></member>
+      <member refid="structrelay_1aeb87f4960634863414760f2626766d6b" prot="public" virt="non-virtual"><scope>relay</scope><name>last_row_time</name></member>
+      <member refid="structrelay_1a5846e925db75a16d4127c5f2fc4f26cc" prot="public" virt="non-virtual"><scope>relay</scope><name>local_vclock_at_subscribe</name></member>
+      <member refid="structrelay_1af65643687be2d4d59764d154ff5b6efa" prot="public" virt="non-virtual"><scope>relay</scope><name>pending_gc</name></member>
+      <member refid="structrelay_1a689b44c1fc8e9a58c4d27c2626228203" prot="public" virt="non-virtual"><scope>relay</scope><name>r</name></member>
+      <member refid="structrelay_1a52a7c69a1603cf18e99b0866310eabc1" prot="public" virt="non-virtual"><scope>relay</scope><name>reader_cond</name></member>
+      <member refid="structrelay_1aeaf371c78ecfddd704df2afdc382fb75" prot="public" virt="non-virtual"><scope>relay</scope><name>recv_vclock</name></member>
+      <member refid="structrelay_1a241019d2d3e260e9a10a03f48579e612" prot="public" virt="non-virtual"><scope>relay</scope><name>relay_pipe</name></member>
+      <member refid="structrelay_1a723648c16719c11e0b69863641761e92" prot="public" virt="non-virtual"><scope>relay</scope><name>replica</name></member>
+      <member refid="structrelay_1a9789f884f302c2dc1690fad6b3a4e2ab" prot="public" virt="non-virtual"><scope>relay</scope><name>state</name></member>
+      <member refid="structrelay_1a221e87bce4a0b2a56554754c7b2f4856" prot="public" virt="non-virtual"><scope>relay</scope><name>status_msg</name></member>
+      <member refid="structrelay_1ae37558047a6db6b1d634f0d78ea7f12b" prot="public" virt="non-virtual"><scope>relay</scope><name>stop_vclock</name></member>
+      <member refid="structrelay_1ad3a68ab7da23e2700d2a86fdae25883e" prot="public" virt="non-virtual"><scope>relay</scope><name>stream</name></member>
+      <member refid="structrelay_1aa36213031a48d8e3339f42277b2427fc" prot="public" virt="non-virtual"><scope>relay</scope><name>sync</name></member>
+      <member refid="structrelay_1a254d487f6049b1035ac137e768fdfd0c" prot="public" virt="non-virtual"><scope>relay</scope><name>tx</name></member>
+      <member refid="structrelay_1ad7757d8da29518546714312264eb4fca" prot="public" virt="non-virtual"><scope>relay</scope><name>tx_pipe</name></member>
+      <member refid="structrelay_1a01e7ecc7f007a0fc19e8565d5a2c5971" prot="public" virt="non-virtual"><scope>relay</scope><name>vclock</name></member>
+      <member refid="structrelay_1ae8ce65fb4748e1289fb6d40a5846425d" prot="public" virt="non-virtual"><scope>relay</scope><name>version_id</name></member>
+      <member refid="structrelay_1a74e8d36ed359073de7babfc727782f3f" prot="public" virt="non-virtual"><scope>relay</scope><name>wal_watcher</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

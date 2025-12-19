@@ -1,0 +1,147 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvy__mem__env" kind="struct" language="C++" prot="public">
+    <compoundname>vy_mem_env</compoundname>
+    <includes local="no">vy_mem.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvy__mem__env_1a0a6705d9260e810fe583638a0280dc8b" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structlsregion" kindref="compound">lsregion</ref></type>
+        <definition>struct lsregion vy_mem_env::allocator</definition>
+        <argsstring></argsstring>
+        <name>allocator</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_mem.h" line="427" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_mem.h" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__mem__env_1a02c6db096a2a1ae771ec2035bca917b5" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structslab__arena" kindref="compound">slab_arena</ref></type>
+        <definition>struct slab_arena vy_mem_env::arena</definition>
+        <argsstring></argsstring>
+        <name>arena</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_mem.h" line="427" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_mem.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__mem__env_1a04a5187df41e0b0c4be9703260511cdc" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structquota" kindref="compound">quota</ref></type>
+        <definition>struct quota vy_mem_env::quota</definition>
+        <argsstring></argsstring>
+        <name>quota</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_mem.h" line="427" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_mem.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__mem__env_1a3ec628129c6398628f41a226fad1eed7" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t vy_mem_env::tree_extent_size</definition>
+        <argsstring></argsstring>
+        <name>tree_extent_size</name>
+        <briefdescription>
+<para>Size of memory used for storing tree extents. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_mem.h" line="61" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_mem.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Vinyl memory environment. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="13473">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="13469">
+        <label>lsregion</label>
+        <link refid="structlsregion"/>
+        <childnode refid="13470" relation="usage">
+          <edgelabel>cached</edgelabel>
+        </childnode>
+        <childnode refid="13472" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="13474" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="13471">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="13471" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="13472">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="13473" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="13471" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="13475">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="13470">
+        <label>lslab</label>
+        <link refid="structlslab"/>
+        <childnode refid="13471" relation="usage">
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+      <node id="13476">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="13474">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="13475" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="13476" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="13468">
+        <label>vy_mem_env</label>
+        <link refid="structvy__mem__env"/>
+        <childnode refid="13469" relation="usage">
+          <edgelabel>allocator</edgelabel>
+        </childnode>
+        <childnode refid="13475" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="13474" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/vy_mem.h" line="56" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_mem.h" bodystart="56" bodyend="62"/>
+    <listofallmembers>
+      <member refid="structvy__mem__env_1a0a6705d9260e810fe583638a0280dc8b" prot="public" virt="non-virtual"><scope>vy_mem_env</scope><name>allocator</name></member>
+      <member refid="structvy__mem__env_1a02c6db096a2a1ae771ec2035bca917b5" prot="public" virt="non-virtual"><scope>vy_mem_env</scope><name>arena</name></member>
+      <member refid="structvy__mem__env_1a04a5187df41e0b0c4be9703260511cdc" prot="public" virt="non-virtual"><scope>vy_mem_env</scope><name>quota</name></member>
+      <member refid="structvy__mem__env_1a3ec628129c6398628f41a226fad1eed7" prot="public" virt="non-virtual"><scope>vy_mem_env</scope><name>tree_extent_size</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

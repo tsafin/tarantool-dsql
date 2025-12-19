@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structjson__tree" kind="struct" language="C++" prot="public">
+    <compoundname>json_tree</compoundname>
+    <includes local="no">json.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structjson__tree_1a6023c2bf7ea4008a9cc7e61f9080c0f8" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref></type>
+        <definition>struct json_token json_tree::root</definition>
+        <argsstring></argsstring>
+        <name>root</name>
+        <briefdescription>
+<para>Preallocated token corresponding to the JSON tree root. </para>        </briefdescription>
+        <detaileddescription>
+<para>It doesn&apos;t have a key (set to JSON_TOKEN_END). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="90" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="180" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structjson__tree_1a11c858e9be4339b6785cd57fef9bc81b" prot="public" static="no" mutable="no">
+        <type>struct mh_json_t *</type>
+        <definition>struct mh_json_t* json_tree::hash</definition>
+        <argsstring></argsstring>
+        <name>hash</name>
+        <briefdescription>
+<para><ref refid="structHash" kindref="compound">Hash</ref> table that is used to quickly look up a token corresponding to a JSON map item given a key and a parent token. </para>        </briefdescription>
+        <detaileddescription>
+<para>We store all tokens that have type JSON_TOKEN_STR in this hash table. Apparently, we don&apos;t need to store JSON_TOKEN_NUM tokens as we can quickly look them up in the children array anyway.</para><para>The hash table uses pair &lt;parent, key&gt; as key, so even tokens that happen to have the same key will have different keys in the hash. To look up a tree node corresponding to a particular path, we split the path into tokens and look up the first token in the root node and each following token in the node returned at the previous step.</para><para>We compute a hash value for a token by hashing its key using the hash value of its parent as seed. This is equivalent to computing hash for the path leading to the token. However, we don&apos;t need to recompute hash starting from the root at each step as we descend the tree looking for a specific path, and we can start descent from any node, not only from the root.</para><para>As a consequence of this hashing technique, even though we don&apos;t need to store JSON_TOKEN_NUM tokens in the hash table, we still have to compute hash values for them. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="210" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="210" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This structure is used for organizing JSON tokens produced by a lexer in a tree-like structure reflecting a JSON document structure. </para>    </briefdescription>
+    <detaileddescription>
+<para>Each intermediate node of the tree corresponds to either a JSON map or an array, depending on the key type used by its children (JSON_TOKEN_STR or JSON_TOKEN_NUM, respectively). Leaf nodes may represent both complex JSON structures and final values - it is not mandated by the JSON tree design. The root of the tree doesn&apos;t have a key and is preallocated when the tree is created.</para><para>The <ref refid="structjson__token" kindref="compound">json_token</ref> structure is intrusive by design, i.e. to store arbitrary information in a JSON tree, one has to incorporate it into a user defined structure.</para><para>Example:</para><para>struct data { ... struct <ref refid="structjson__token" kindref="compound">json_token</ref> token; };</para><para>struct <ref refid="structjson__tree" kindref="compound">json_tree</ref> tree; json_tree_create(&amp;tree); struct <ref refid="structjson__token" kindref="compound">json_token</ref> *parent = &amp;tree-&gt;root;</para><para>// Add a path to the tree. struct data *data = data_new(); struct <ref refid="structjson__lexer" kindref="compound">json_lexer</ref> lexer; json_lexer_create(&amp;lexer, path, path_len); json_lexer_next_token(&amp;lexer, &amp;data-&gt;token); while (data-&gt;token.type != JSON_TOKEN_END) { json_tree_add(&amp;tree, parent, &amp;data-&gt;token); parent = &amp;data-&gt;token; data = data_new(); json_lexer_next_token(&amp;lexer, &amp;data-&gt;token); } data_delete(data);</para><para>// Look up a path in the tree. data = json_tree_lookup_path(&amp;tree, &amp;tree.root, path, path_len); </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="4671">
+        <label>json_tree</label>
+        <link refid="structjson__tree"/>
+        <childnode refid="4672" relation="usage">
+          <edgelabel>root</edgelabel>
+        </childnode>
+      </node>
+      <node id="4672">
+        <label>json_token</label>
+        <link refid="structjson__token"/>
+        <childnode refid="4672" relation="usage">
+          <edgelabel>parent</edgelabel>
+          <edgelabel>children</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="175" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="175" bodyend="211"/>
+    <listofallmembers>
+      <member refid="structjson__tree_1a11c858e9be4339b6785cd57fef9bc81b" prot="public" virt="non-virtual"><scope>json_tree</scope><name>hash</name></member>
+      <member refid="structjson__tree_1a6023c2bf7ea4008a9cc7e61f9080c0f8" prot="public" virt="non-virtual"><scope>json_tree</scope><name>root</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

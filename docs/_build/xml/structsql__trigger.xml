@@ -1,0 +1,627 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structsql__trigger" kind="struct" language="C++" prot="public">
+    <compoundname>sql_trigger</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structsql__trigger_1a0c5d13771f691cee821be4a6ba4d3588" prot="public" static="no" mutable="no">
+        <type>char *</type>
+        <definition>char* sql_trigger::zName</definition>
+        <argsstring></argsstring>
+        <name>zName</name>
+        <briefdescription>
+<para>The name of the trigger. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/sqlInt.h" line="2345" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/sqlInt.h" bodystart="2345" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsql__trigger_1ae6cf61c78bb8b6dd50ad7b702485f182" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t sql_trigger::space_id</definition>
+        <argsstring></argsstring>
+        <name>space_id</name>
+        <briefdescription>
+<para>The ID of space the trigger refers to. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/sqlInt.h" line="2347" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/sqlInt.h" bodystart="2347" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsql__trigger_1a4bc95585bcd1946230a70507a162f6ba" prot="public" static="no" mutable="no">
+        <type>u8</type>
+        <definition>u8 sql_trigger::op</definition>
+        <argsstring></argsstring>
+        <name>op</name>
+        <briefdescription>
+<para>One of TK_DELETE, TK_UPDATE, TK_INSERT. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/sqlInt.h" line="2349" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/sqlInt.h" bodystart="2349" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsql__trigger_1add80e78ef4a9cabdfcbdc469e54b2f0c" prot="public" static="no" mutable="no">
+        <type>u8</type>
+        <definition>u8 sql_trigger::tr_tm</definition>
+        <argsstring></argsstring>
+        <name>tr_tm</name>
+        <briefdescription>
+<para>One of TRIGGER_BEFORE, TRIGGER_AFTER. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/sqlInt.h" line="2351" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/sqlInt.h" bodystart="2351" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsql__trigger_1aae0daf7b9325e8226389e413439b8343" prot="public" static="no" mutable="no">
+        <type><ref refid="structExpr" kindref="compound">Expr</ref> *</type>
+        <definition>Expr* sql_trigger::pWhen</definition>
+        <argsstring></argsstring>
+        <name>pWhen</name>
+        <briefdescription>
+<para>The WHEN clause of the expression (may be NULL). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/sqlInt.h" line="2353" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/sqlInt.h" bodystart="2353" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsql__trigger_1af7f1826f1d56eaa3b3bdd65c491536f0" prot="public" static="no" mutable="no">
+        <type><ref refid="structIdList" kindref="compound">IdList</ref> *</type>
+        <definition>IdList* sql_trigger::pColumns</definition>
+        <argsstring></argsstring>
+        <name>pColumns</name>
+        <briefdescription>
+<para>If this is an UPDATE OF &lt;column-list&gt; trigger, the &lt;column-list&gt; is stored here. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/sqlInt.h" line="2358" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/sqlInt.h" bodystart="2358" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsql__trigger_1a5ee27132be98e8b649915b33929c6069" prot="public" static="no" mutable="no">
+        <type><ref refid="structTriggerStep" kindref="compound">TriggerStep</ref> *</type>
+        <definition>TriggerStep* sql_trigger::step_list</definition>
+        <argsstring></argsstring>
+        <name>step_list</name>
+        <briefdescription>
+<para>Link list of trigger program steps. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/sqlInt.h" line="2360" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/sqlInt.h" bodystart="2360" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsql__trigger_1a569c06c5041a1ea3f4d601454443b910" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structsql__trigger" kindref="compound">sql_trigger</ref> *</type>
+        <definition>struct sql_trigger* sql_trigger::next</definition>
+        <argsstring></argsstring>
+        <name>next</name>
+        <briefdescription>
+<para>Next trigger associated with the table. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/sqlInt.h" line="2362" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/sqlInt.h" bodystart="2362" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="9796">
+        <label>json_tree</label>
+        <link refid="structjson__tree"/>
+        <childnode refid="9797" relation="usage">
+          <edgelabel>root</edgelabel>
+        </childnode>
+      </node>
+      <node id="9771">
+        <label>ExprList</label>
+        <link refid="structExprList"/>
+        <childnode refid="9772" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="9788">
+        <label>index_stat</label>
+        <link refid="structindex__stat"/>
+        <childnode refid="9789" relation="usage">
+          <edgelabel>samples</edgelabel>
+        </childnode>
+      </node>
+      <node id="9785">
+        <label>iterator</label>
+        <link refid="structiterator"/>
+        <childnode refid="9782" relation="usage">
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="9792">
+        <label>key_part</label>
+        <link refid="structkey__part"/>
+        <childnode refid="9793" relation="usage">
+          <edgelabel>coll</edgelabel>
+        </childnode>
+      </node>
+      <node id="9789">
+        <label>index_sample</label>
+        <link refid="structindex__sample"/>
+      </node>
+      <node id="9755">
+        <label>TriggerStep</label>
+        <link refid="structTriggerStep"/>
+        <childnode refid="9755" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pLast</edgelabel>
+        </childnode>
+        <childnode refid="9756" relation="usage">
+          <edgelabel>pWhere</edgelabel>
+        </childnode>
+        <childnode refid="9801" relation="usage">
+          <edgelabel>pIdList</edgelabel>
+        </childnode>
+        <childnode refid="9773" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="9771" relation="usage">
+          <edgelabel>pExprList</edgelabel>
+        </childnode>
+      </node>
+      <node id="9797">
+        <label>json_token</label>
+        <link refid="structjson__token"/>
+        <childnode refid="9797" relation="usage">
+          <edgelabel>parent</edgelabel>
+          <edgelabel>children</edgelabel>
+        </childnode>
+      </node>
+      <node id="9765">
+        <label>access</label>
+        <link refid="structaccess"/>
+      </node>
+      <node id="9777">
+        <label>SrcList::SrcList_item</label>
+        <link refid="structSrcList_1_1SrcList__item"/>
+        <childnode refid="9778" relation="usage">
+          <edgelabel>space</edgelabel>
+        </childnode>
+        <childnode refid="9756" relation="usage">
+          <edgelabel>pOn</edgelabel>
+        </childnode>
+        <childnode refid="9801" relation="usage">
+          <edgelabel>pUsing</edgelabel>
+        </childnode>
+        <childnode refid="9786" relation="usage">
+          <edgelabel>pIBIndex</edgelabel>
+        </childnode>
+        <childnode refid="9773" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="9771" relation="usage">
+          <edgelabel>pFuncArg</edgelabel>
+        </childnode>
+      </node>
+      <node id="9775">
+        <label>With::Cte</label>
+        <link refid="structWith_1_1Cte"/>
+        <childnode refid="9773" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="9771" relation="usage">
+          <edgelabel>pCols</edgelabel>
+        </childnode>
+      </node>
+      <node id="9773">
+        <label>Select</label>
+        <link refid="structSelect"/>
+        <childnode refid="9756" relation="usage">
+          <edgelabel>pOffset</edgelabel>
+          <edgelabel>pHaving</edgelabel>
+          <edgelabel>pWhere</edgelabel>
+          <edgelabel>pLimit</edgelabel>
+        </childnode>
+        <childnode refid="9774" relation="usage">
+          <edgelabel>pWith</edgelabel>
+        </childnode>
+        <childnode refid="9773" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pPrior</edgelabel>
+        </childnode>
+        <childnode refid="9776" relation="usage">
+          <edgelabel>pSrc</edgelabel>
+        </childnode>
+        <childnode refid="9771" relation="usage">
+          <edgelabel>pEList</edgelabel>
+          <edgelabel>pOrderBy</edgelabel>
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="9769">
+        <label>credentials</label>
+        <link refid="structcredentials"/>
+        <childnode refid="9770" relation="usage">
+          <edgelabel>in_user</edgelabel>
+        </childnode>
+      </node>
+      <node id="9780">
+        <label>engine_vtab</label>
+        <link refid="structengine__vtab"/>
+        <childnode refid="9778" relation="usage">
+          <edgelabel>create_space</edgelabel>
+        </childnode>
+      </node>
+      <node id="9778">
+        <label>space</label>
+        <link refid="structspace"/>
+        <childnode refid="9757" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="9779" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="9754" relation="usage">
+          <edgelabel>sql_triggers</edgelabel>
+        </childnode>
+        <childnode refid="9765" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="9781" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="9794" relation="usage">
+          <edgelabel>format</edgelabel>
+        </childnode>
+        <childnode refid="9798" relation="usage">
+          <edgelabel>ck_constraint_trigger</edgelabel>
+        </childnode>
+        <childnode refid="9770" relation="usage">
+          <edgelabel>before_replace</edgelabel>
+          <edgelabel>on_replace</edgelabel>
+          <edgelabel>child_fk_constraint</edgelabel>
+          <edgelabel>memtx_stories</edgelabel>
+          <edgelabel>parent_fk_constraint</edgelabel>
+          <edgelabel>ck_constraint</edgelabel>
+        </childnode>
+        <childnode refid="9799" relation="usage">
+          <edgelabel>sequence</edgelabel>
+        </childnode>
+        <childnode refid="9782" relation="usage">
+          <edgelabel>index_map</edgelabel>
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="9762">
+        <label>AggInfo::AggInfo_col</label>
+        <link refid="structAggInfo_1_1AggInfo__col"/>
+        <childnode refid="9757" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="9756" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="9783">
+        <label>index_vtab</label>
+        <link refid="structindex__vtab"/>
+        <childnode refid="9784" relation="usage">
+          <edgelabel>create_snapshot_iterator</edgelabel>
+        </childnode>
+        <childnode refid="9785" relation="usage">
+          <edgelabel>create_iterator</edgelabel>
+        </childnode>
+      </node>
+      <node id="9758">
+        <label>tuple_dictionary</label>
+        <link refid="structtuple__dictionary"/>
+      </node>
+      <node id="9756">
+        <label>Expr</label>
+        <link refid="structExpr"/>
+        <childnode refid="9757" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="9761" relation="usage">
+          <edgelabel>pAggInfo</edgelabel>
+        </childnode>
+        <childnode refid="9756" relation="usage">
+          <edgelabel>pRight</edgelabel>
+          <edgelabel>pLeft</edgelabel>
+        </childnode>
+        <childnode refid="9773" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="9771" relation="usage">
+          <edgelabel>pList</edgelabel>
+        </childnode>
+      </node>
+      <node id="9761">
+        <label>AggInfo</label>
+        <link refid="structAggInfo"/>
+        <childnode refid="9762" relation="usage">
+          <edgelabel>aCol</edgelabel>
+        </childnode>
+        <childnode refid="9763" relation="usage">
+          <edgelabel>aFunc</edgelabel>
+        </childnode>
+        <childnode refid="9771" relation="usage">
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="9770">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="9770" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="9784">
+        <label>snapshot_iterator</label>
+        <link refid="structsnapshot__iterator"/>
+      </node>
+      <node id="9776">
+        <label>SrcList</label>
+        <link refid="structSrcList"/>
+        <childnode refid="9777" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="9800">
+        <label>sequence_def</label>
+        <link refid="structsequence__def"/>
+      </node>
+      <node id="9801">
+        <label>IdList</label>
+        <link refid="structIdList"/>
+        <childnode refid="9802" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="9782">
+        <label>index</label>
+        <link refid="structindex"/>
+        <childnode refid="9779" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="9783" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="9786" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="9799">
+        <label>sequence</label>
+        <link refid="structsequence"/>
+        <childnode refid="9765" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="9800" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="9759">
+        <label>field_def</label>
+        <link refid="structfield__def"/>
+        <childnode refid="9756" relation="usage">
+          <edgelabel>default_value_expr</edgelabel>
+        </childnode>
+      </node>
+      <node id="9790">
+        <label>key_def</label>
+        <link refid="structkey__def"/>
+        <childnode refid="9791" relation="usage">
+          <edgelabel>tuple_hash</edgelabel>
+          <edgelabel>tuple_compare_with_key</edgelabel>
+          <edgelabel>tuple_compare</edgelabel>
+          <edgelabel>tuple_hint</edgelabel>
+          <edgelabel>tuple_extract_key</edgelabel>
+        </childnode>
+        <childnode refid="9790" relation="usage">
+          <edgelabel>key_hash</edgelabel>
+          <edgelabel>tuple_extract_key_raw</edgelabel>
+          <edgelabel>key_hint</edgelabel>
+        </childnode>
+        <childnode refid="9764" relation="usage">
+          <edgelabel>func_index_func</edgelabel>
+        </childnode>
+        <childnode refid="9792" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="9798">
+        <label>trigger</label>
+        <link refid="structtrigger"/>
+        <childnode refid="9798" relation="usage">
+          <edgelabel>run</edgelabel>
+          <edgelabel>destroy</edgelabel>
+        </childnode>
+        <childnode refid="9770" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="9791">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="9786">
+        <label>index_def</label>
+        <link refid="structindex__def"/>
+        <childnode refid="9787" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+        <childnode refid="9790" relation="usage">
+          <edgelabel>key_def</edgelabel>
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="9770" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="9760">
+        <label>space_opts</label>
+        <link refid="structspace__opts"/>
+      </node>
+      <node id="9764">
+        <label>func</label>
+        <link refid="structfunc"/>
+        <childnode refid="9765" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="9766" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="9767" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="9769" relation="usage">
+          <edgelabel>owner_credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="9766">
+        <label>func_vtab</label>
+        <link refid="structfunc__vtab"/>
+      </node>
+      <node id="9754">
+        <label>sql_trigger</label>
+        <link refid="structsql__trigger"/>
+        <childnode refid="9755" relation="usage">
+          <edgelabel>step_list</edgelabel>
+        </childnode>
+        <childnode refid="9756" relation="usage">
+          <edgelabel>pWhen</edgelabel>
+        </childnode>
+        <childnode refid="9754" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="9801" relation="usage">
+          <edgelabel>pColumns</edgelabel>
+        </childnode>
+      </node>
+      <node id="9768">
+        <label>func_opts</label>
+        <link refid="structfunc__opts"/>
+      </node>
+      <node id="9795">
+        <label>tuple_format_vtab</label>
+        <link refid="structtuple__format__vtab"/>
+        <childnode refid="9791" relation="usage">
+          <edgelabel>tuple_new</edgelabel>
+        </childnode>
+      </node>
+      <node id="9794">
+        <label>tuple_format</label>
+        <link refid="structtuple__format"/>
+        <childnode refid="9758" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="9795" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="9796" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+      </node>
+      <node id="9767">
+        <label>func_def</label>
+        <link refid="structfunc__def"/>
+        <childnode refid="9768" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="9774">
+        <label>With</label>
+        <link refid="structWith"/>
+        <childnode refid="9775" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+        <childnode refid="9774" relation="usage">
+          <edgelabel>pOuter</edgelabel>
+        </childnode>
+      </node>
+      <node id="9757">
+        <label>space_def</label>
+        <link refid="structspace__def"/>
+        <childnode refid="9758" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="9759" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+        <childnode refid="9760" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="9779">
+        <label>engine</label>
+        <link refid="structengine"/>
+        <childnode refid="9780" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="9770" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="9802">
+        <label>IdList::IdList_item</label>
+        <link refid="structIdList_1_1IdList__item"/>
+      </node>
+      <node id="9793">
+        <label>coll</label>
+        <link refid="structcoll"/>
+        <childnode refid="9793" relation="usage">
+          <edgelabel>cmp</edgelabel>
+          <edgelabel>hint</edgelabel>
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+      <node id="9787">
+        <label>index_opts</label>
+        <link refid="structindex__opts"/>
+        <childnode refid="9788" relation="usage">
+          <edgelabel>stat</edgelabel>
+        </childnode>
+      </node>
+      <node id="9772">
+        <label>ExprList::ExprList_item</label>
+        <link refid="structExprList_1_1ExprList__item"/>
+        <childnode refid="9756" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="9763">
+        <label>AggInfo::AggInfo_func</label>
+        <link refid="structAggInfo_1_1AggInfo__func"/>
+        <childnode refid="9756" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+        <childnode refid="9764" relation="usage">
+          <edgelabel>func</edgelabel>
+        </childnode>
+      </node>
+      <node id="9781">
+        <label>space_vtab</label>
+        <link refid="structspace__vtab"/>
+        <childnode refid="9782" relation="usage">
+          <edgelabel>create_index</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/sql/sqlInt.h" line="2343" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/sqlInt.h" bodystart="2343" bodyend="2363"/>
+    <listofallmembers>
+      <member refid="structsql__trigger_1a569c06c5041a1ea3f4d601454443b910" prot="public" virt="non-virtual"><scope>sql_trigger</scope><name>next</name></member>
+      <member refid="structsql__trigger_1a4bc95585bcd1946230a70507a162f6ba" prot="public" virt="non-virtual"><scope>sql_trigger</scope><name>op</name></member>
+      <member refid="structsql__trigger_1af7f1826f1d56eaa3b3bdd65c491536f0" prot="public" virt="non-virtual"><scope>sql_trigger</scope><name>pColumns</name></member>
+      <member refid="structsql__trigger_1aae0daf7b9325e8226389e413439b8343" prot="public" virt="non-virtual"><scope>sql_trigger</scope><name>pWhen</name></member>
+      <member refid="structsql__trigger_1ae6cf61c78bb8b6dd50ad7b702485f182" prot="public" virt="non-virtual"><scope>sql_trigger</scope><name>space_id</name></member>
+      <member refid="structsql__trigger_1a5ee27132be98e8b649915b33929c6069" prot="public" virt="non-virtual"><scope>sql_trigger</scope><name>step_list</name></member>
+      <member refid="structsql__trigger_1add80e78ef4a9cabdfcbdc469e54b2f0c" prot="public" virt="non-virtual"><scope>sql_trigger</scope><name>tr_tm</name></member>
+      <member refid="structsql__trigger_1a0c5d13771f691cee821be4a6ba4d3588" prot="public" virt="non-virtual"><scope>sql_trigger</scope><name>zName</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

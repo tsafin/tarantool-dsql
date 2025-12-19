@@ -1,0 +1,658 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="stailq_8h" kind="file" language="C++">
+    <compoundname>stailq.h</compoundname>
+    <includes local="no">stddef.h</includes>
+    <includedby refid="txn_8h" local="yes">/home/tsafin/tarantool/src/box/txn.h</includedby>
+    <includedby refid="journal_8h" local="yes">/home/tsafin/tarantool/src/box/journal.h</includedby>
+    <includedby refid="memtx__engine_8h" local="yes">/home/tsafin/tarantool/src/box/memtx_engine.h</includedby>
+    <includedby refid="vy__read__set_8h" local="yes">/home/tsafin/tarantool/src/box/vy_read_set.h</includedby>
+    <includedby refid="vy__tx_8h" local="yes">/home/tsafin/tarantool/src/box/vy_tx.h</includedby>
+    <includedby refid="vy__log_8h" local="yes">/home/tsafin/tarantool/src/box/vy_log.h</includedby>
+    <includedby refid="vy__scheduler_8h" local="yes">/home/tsafin/tarantool/src/box/vy_scheduler.h</includedby>
+    <includedby refid="vy__log_8c" local="yes">/home/tsafin/tarantool/src/box/vy_log.c</includedby>
+    <includedby refid="vy__scheduler_8c" local="yes">/home/tsafin/tarantool/src/box/vy_scheduler.c</includedby>
+    <includedby refid="vy__tx_8c" local="yes">/home/tsafin/tarantool/src/box/vy_tx.c</includedby>
+    <includedby refid="xrow__update__field_8h" local="yes">/home/tsafin/tarantool/src/box/xrow_update_field.h</includedby>
+    <includedby refid="lib_2core_2fiber_8h" local="yes">/home/tsafin/tarantool/src/lib/core/fiber.h</includedby>
+    <includedby refid="cbus_8h" local="yes">/home/tsafin/tarantool/src/lib/core/cbus.h</includedby>
+    <includedby refid="fiber__pool_8h" local="yes">/home/tsafin/tarantool/src/lib/core/fiber_pool.h</includedby>
+    <includedby refid="swim__io_8h" local="yes">/home/tsafin/tarantool/src/lib/swim/swim_io.h</includedby>
+    <incdepgraph>
+      <node id="2263">
+        <label>stddef.h</label>
+      </node>
+      <node id="2262">
+        <label>/home/tsafin/tarantool/src/lib/salad/stailq.h</label>
+        <link refid="stailq_8h"/>
+        <childnode refid="2263" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structstailq__entry" prot="public">stailq_entry</innerclass>
+    <innerclass refid="structstailq" prot="public">stailq</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="stailq_8h_1a1119e6ec77bb1767207342f9748fd6cf" prot="public" static="no">
+        <name>typeof</name>
+        <initializer>__typeof__</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="40" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stailq_8h_1a91132f1dee380a72a42845f7d4ca6b83" prot="public" static="no">
+        <name>stailq_entry</name>
+        <param><defname>item</defname></param>
+        <param><defname>type</defname></param>
+        <param><defname>member</defname></param>
+        <initializer>({				\
+	const typeof( ((type *)0)-&gt;member ) *__mptr = (item);		\
+	(type *)( (char *)__mptr - ((size_t) &amp;((type *)0)-&gt;member) ); })</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="197" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="197" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stailq_8h_1a0152dc4bb9f1b0a6b18164db8d14c90e" prot="public" static="no">
+        <name>stailq_first_entry</name>
+        <param><defname>head</defname></param>
+        <param><defname>type</defname></param>
+        <param><defname>member</defname></param>
+        <initializer><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref>(stailq_first(head), type, member)</initializer>
+        <briefdescription>
+<para>return first entry </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="204" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="204" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stailq_8h_1a33f58e913080038737b2d7b0a65d7274" prot="public" static="no">
+        <name>stailq_last_entry</name>
+        <param><defname>head</defname></param>
+        <param><defname>type</defname></param>
+        <param><defname>member</defname></param>
+        <initializer><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref>(stailq_last(head), type, member)</initializer>
+        <briefdescription>
+<para>return first entry </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="210" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="210" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stailq_8h_1a13ef92c6f8eea32071e21f81487dc73a" prot="public" static="no">
+        <name>stailq_next_entry</name>
+        <param><defname>item</defname></param>
+        <param><defname>member</defname></param>
+        <initializer><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref>(stailq_next(&amp;(item)-&gt;member), typeof(*item), member)</initializer>
+        <briefdescription>
+<para>return next entry </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="216" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="216" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stailq_8h_1a7d110a44fe8229b1c0dabd8ca527926b" prot="public" static="no">
+        <name>stailq_foreach_entry</name>
+        <param><defname>item</defname></param>
+        <param><defname>head</defname></param>
+        <param><defname>member</defname></param>
+        <initializer>for (item = stailq_first_entry((head), typeof(*item), member);	\
+	     item != <ref refid="structstailq__entry" kindref="compound">stailq_entry</ref>(0, typeof(*item), member);		\
+	     item = stailq_next_entry(item, member))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="219" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="219" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stailq_8h_1a9b317a01681a0ad41159beee212d7580" prot="public" static="no">
+        <name>stailq_foreach_entry_safe</name>
+        <param><defname>item</defname></param>
+        <param><defname>next</defname></param>
+        <param><defname>head</defname></param>
+        <param><defname>member</defname></param>
+        <initializer>for (item = stailq_first_entry((head), typeof(*item), member);	\
+	     item != <ref refid="structstailq__entry" kindref="compound">stailq_entry</ref>(0, typeof(*item), member) &amp;&amp;		\
+	     (next = stailq_next_entry(item, member), 1);		\
+	     item = next)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="224" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="224" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stailq_8h_1a1600a9b8e4804581a6bbefa33ed5c54a" prot="public" static="no">
+        <name>stailq_shift_entry</name>
+        <param><defname>head</defname></param>
+        <param><defname>type</defname></param>
+        <param><defname>member</defname></param>
+        <initializer><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref>(stailq_shift(head), type, member)			\</initializer>
+        <briefdescription>
+<para>Remove one element from the list and return it. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="pre"><para>the list is not empty </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="234" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="234" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stailq_8h_1a87ec11295eec5903601add255ee926f9" prot="public" static="no">
+        <name>stailq_add_entry</name>
+        <param><defname>head</defname></param>
+        <param><defname>item</defname></param>
+        <param><defname>member</defname></param>
+        <initializer>stailq_add((head), &amp;(item)-&gt;member)</initializer>
+        <briefdescription>
+<para>add entry to list </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="240" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="240" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stailq_8h_1a5985c2785aca3b4faf6b0f1ec77bce2f" prot="public" static="no">
+        <name>stailq_add_tail_entry</name>
+        <param><defname>head</defname></param>
+        <param><defname>item</defname></param>
+        <param><defname>member</defname></param>
+        <initializer>stailq_add_tail((head), &amp;(item)-&gt;member)</initializer>
+        <briefdescription>
+<para>add entry to list tail </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="246" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="246" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stailq_8h_1a0c15633e44aa8dbb565bd4b66d7de8e6" prot="public" static="no">
+        <name>stailq_insert_entry</name>
+        <param><defname>head</defname></param>
+        <param><defname>item</defname></param>
+        <param><defname>prev</defname></param>
+        <param><defname>member</defname></param>
+        <initializer>stailq_insert((head), &amp;(item)-&gt;member, &amp;(prev)-&gt;member)</initializer>
+        <briefdescription>
+<para>insert entry into list </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="252" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="252" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="stailq_8h_1ac1f291f539bbcf439e0c05e4fdb6a00e" prot="public" static="no">
+        <name>stailq_foreach</name>
+        <param><defname>item</defname></param>
+        <param><defname>head</defname></param>
+        <initializer>for (item = stailq_first(head); item; item = item-&gt;next)</initializer>
+        <briefdescription>
+<para>foreach through list </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="258" column="9" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="258" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="stailq_8h_1af6ace7385890c8e240ea56f030baebd8" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void stailq_create</definition>
+        <argsstring>(struct stailq *head)</argsstring>
+        <name>stailq_create</name>
+        <param>
+          <type>struct <ref refid="structstailq" kindref="compound">stailq</ref> *</type>
+          <declname>head</declname>
+        </param>
+        <briefdescription>
+<para>init list head (or list entry as ins&apos;t included in list) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="57" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="57" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="stailq_8h_1a0856fae62e4e2c3976c9999c6c79e145" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void stailq_add</definition>
+        <argsstring>(struct stailq *head, struct stailq_entry *item)</argsstring>
+        <name>stailq_add</name>
+        <param>
+          <type>struct <ref refid="structstailq" kindref="compound">stailq</ref> *</type>
+          <declname>head</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structstailq__entry" kindref="compound">stailq_entry</ref> *</type>
+          <declname>item</declname>
+        </param>
+        <briefdescription>
+<para>Add an item to list head. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="67" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="67" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="function" id="stailq_8h_1ad5f6cc48d189dcba219327ada74d2711" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structstailq__entry" kindref="compound">stailq_entry</ref> *</type>
+        <definition>static struct stailq_entry* stailq_shift</definition>
+        <argsstring>(struct stailq *head)</argsstring>
+        <name>stailq_shift</name>
+        <param>
+          <type>struct <ref refid="structstailq" kindref="compound">stailq</ref> *</type>
+          <declname>head</declname>
+        </param>
+        <briefdescription>
+<para>Pop an item from list head. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="79" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="79" bodyend="85"/>
+      </memberdef>
+      <memberdef kind="function" id="stailq_8h_1ad3ff5c0b1d120649ecff89a8f73ebd08" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void stailq_add_tail</definition>
+        <argsstring>(struct stailq *head, struct stailq_entry *item)</argsstring>
+        <name>stailq_add_tail</name>
+        <param>
+          <type>struct <ref refid="structstailq" kindref="compound">stailq</ref> *</type>
+          <declname>head</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structstailq__entry" kindref="compound">stailq_entry</ref> *</type>
+          <declname>item</declname>
+        </param>
+        <briefdescription>
+<para>Add an item to list tail. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="91" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="91" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="stailq_8h_1a794f92b70047a7bc5d1ef89e189c4c33" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void stailq_insert</definition>
+        <argsstring>(struct stailq *head, struct stailq_entry *item, struct stailq_entry *prev)</argsstring>
+        <name>stailq_insert</name>
+        <param>
+          <type>struct <ref refid="structstailq" kindref="compound">stailq</ref> *</type>
+          <declname>head</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structstailq__entry" kindref="compound">stailq_entry</ref> *</type>
+          <declname>item</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structstailq__entry" kindref="compound">stailq_entry</ref> *</type>
+          <declname>prev</declname>
+        </param>
+        <briefdescription>
+<para>Insert  into list  after . </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="102" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="102" bodyend="109"/>
+      </memberdef>
+      <memberdef kind="function" id="stailq_8h_1afc8befbcc4f2815a674654eafa80a17f" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structstailq__entry" kindref="compound">stailq_entry</ref> *</type>
+        <definition>static struct stailq_entry* stailq_first</definition>
+        <argsstring>(struct stailq *head)</argsstring>
+        <name>stailq_first</name>
+        <param>
+          <type>struct <ref refid="structstailq" kindref="compound">stailq</ref> *</type>
+          <declname>head</declname>
+        </param>
+        <briefdescription>
+<para>return first element </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="115" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="115" bodyend="118"/>
+      </memberdef>
+      <memberdef kind="function" id="stailq_8h_1adcad56af34ba096fa33a87cbf77e562c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structstailq__entry" kindref="compound">stailq_entry</ref> *</type>
+        <definition>static struct stailq_entry* stailq_last</definition>
+        <argsstring>(struct stailq *head)</argsstring>
+        <name>stailq_last</name>
+        <param>
+          <type>struct <ref refid="structstailq" kindref="compound">stailq</ref> *</type>
+          <declname>head</declname>
+        </param>
+        <briefdescription>
+<para>return last element </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="124" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="124" bodyend="128"/>
+      </memberdef>
+      <memberdef kind="function" id="stailq_8h_1a3e95b6c69309fbba622bd86e5fc215c3" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structstailq__entry" kindref="compound">stailq_entry</ref> *</type>
+        <definition>static struct stailq_entry* stailq_next</definition>
+        <argsstring>(struct stailq_entry *item)</argsstring>
+        <name>stailq_next</name>
+        <param>
+          <type>struct <ref refid="structstailq__entry" kindref="compound">stailq_entry</ref> *</type>
+          <declname>item</declname>
+        </param>
+        <briefdescription>
+<para>return next element by element </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="134" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="134" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="stailq_8h_1a60f1cdac841fae494ad87e1e67ec56a6" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int stailq_empty</definition>
+        <argsstring>(struct stailq *head)</argsstring>
+        <name>stailq_empty</name>
+        <param>
+          <type>struct <ref refid="structstailq" kindref="compound">stailq</ref> *</type>
+          <declname>head</declname>
+        </param>
+        <briefdescription>
+<para>return TRUE if list is empty </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="143" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="143" bodyend="146"/>
+      </memberdef>
+      <memberdef kind="function" id="stailq_8h_1a4fcb53d9a75c789b0766d0ecc422fe46" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void stailq_concat</definition>
+        <argsstring>(struct stailq *dest, struct stailq *src)</argsstring>
+        <name>stailq_concat</name>
+        <param>
+          <type>struct <ref refid="structstailq" kindref="compound">stailq</ref> *</type>
+          <declname>dest</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structstailq" kindref="compound">stailq</ref> *</type>
+          <declname>src</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="152" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="152" bodyend="159"/>
+      </memberdef>
+      <memberdef kind="function" id="stailq_8h_1a440dc58929749065fa1087fb4945ede0" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void stailq_reverse</definition>
+        <argsstring>(struct stailq *head)</argsstring>
+        <name>stailq_reverse</name>
+        <param>
+          <type>struct <ref refid="structstailq" kindref="compound">stailq</ref> *</type>
+          <declname>head</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="163" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="163" bodyend="172"/>
+      </memberdef>
+      <memberdef kind="function" id="stailq_8h_1aa79be82b7340f7e4f4390d3f3ce7d115" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void stailq_cut_tail</definition>
+        <argsstring>(struct stailq *head, struct stailq_entry *last, struct stailq *tail)</argsstring>
+        <name>stailq_cut_tail</name>
+        <param>
+          <type>struct <ref refid="structstailq" kindref="compound">stailq</ref> *</type>
+          <declname>head</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structstailq__entry" kindref="compound">stailq_entry</ref> *</type>
+          <declname>last</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structstailq" kindref="compound">stailq</ref> *</type>
+          <declname>tail</declname>
+        </param>
+        <briefdescription>
+<para>Move elements of list  starting from -&gt;next to list . </para>        </briefdescription>
+        <detaileddescription>
+<para>If  is NULL, then this function moves all elements from  to . Note, all elements of list  are discarded. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h" line="181" column="1" bodyfile="/home/tsafin/tarantool/src/lib/salad/stailq.h" bodystart="181" bodyend="195"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LIB_SALAD_STAILQ_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LIB_SALAD_STAILQ_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>typeof</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>TODO:<sp/>&apos;typeof&apos;<sp/>is<sp/>a<sp/>GNU<sp/>extension<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>typeof<sp/>__typeof__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43" refid="structstailq__entry" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>*next;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47" refid="structstailq" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq" kindref="compound">stailq</ref><sp/>{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>*first;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>**last;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal">stailq_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structstailq" kindref="compound">stailq</ref><sp/>*head)</highlight></codeline>
+<codeline lineno="58"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>head-&gt;first<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>head-&gt;last<sp/>=<sp/>&amp;head-&gt;first;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal">stailq_add(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structstailq" kindref="compound">stailq</ref><sp/>*head,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>*item)</highlight></codeline>
+<codeline lineno="68"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>item-&gt;next<sp/>=<sp/>head-&gt;first;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(item-&gt;next<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>head-&gt;last<sp/>=<sp/>&amp;item-&gt;next;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>head-&gt;first<sp/>=<sp/>item;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>*</highlight></codeline>
+<codeline lineno="79"><highlight class="normal">stailq_shift(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structstailq" kindref="compound">stailq</ref><sp/>*head)</highlight></codeline>
+<codeline lineno="80"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>*shift<sp/>=<sp/>head-&gt;first;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((head-&gt;first<sp/>=<sp/>head-&gt;first-&gt;next)<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>head-&gt;last<sp/>=<sp/>&amp;head-&gt;first;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>shift;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal">stailq_add_tail(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structstailq" kindref="compound">stailq</ref><sp/>*head,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>*item)</highlight></codeline>
+<codeline lineno="92"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>item-&gt;next<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*head-&gt;last<sp/>=<sp/>item;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>head-&gt;last<sp/>=<sp/>&amp;item-&gt;next;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal">stailq_insert(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structstailq" kindref="compound">stailq</ref><sp/>*head,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>*item,</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>*prev)</highlight></codeline>
+<codeline lineno="104"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>item-&gt;next<sp/>=<sp/>prev-&gt;next;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>prev-&gt;next<sp/>=<sp/>item;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(item-&gt;next<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>head-&gt;last<sp/>=<sp/>&amp;item-&gt;next;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>*</highlight></codeline>
+<codeline lineno="115"><highlight class="normal">stailq_first(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structstailq" kindref="compound">stailq</ref><sp/>*head)</highlight></codeline>
+<codeline lineno="116"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>head-&gt;first;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>*</highlight></codeline>
+<codeline lineno="124"><highlight class="normal">stailq_last(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structstailq" kindref="compound">stailq</ref><sp/>*head)</highlight></codeline>
+<codeline lineno="125"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>head-&gt;last<sp/>==<sp/>&amp;head-&gt;first<sp/>?<sp/>NULL<sp/>:</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>*)<sp/>head-&gt;last;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>*</highlight></codeline>
+<codeline lineno="134"><highlight class="normal">stailq_next(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>*item)</highlight></codeline>
+<codeline lineno="135"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>item-&gt;next;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal">stailq_empty(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structstailq" kindref="compound">stailq</ref><sp/>*head)</highlight></codeline>
+<codeline lineno="144"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>head-&gt;first<sp/>==<sp/>NULL;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="149"><highlight class="comment"><sp/>*<sp/>Singly-linked<sp/>Tail<sp/>queue<sp/>functions.</highlight></codeline>
+<codeline lineno="150"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal">stailq_concat(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structstailq" kindref="compound">stailq</ref><sp/>*dest,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structstailq" kindref="compound">stailq</ref><sp/>*src)</highlight></codeline>
+<codeline lineno="153"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!stailq_empty(src))<sp/>{</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*dest-&gt;last<sp/>=<sp/>src-&gt;first;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dest-&gt;last<sp/>=<sp/>src-&gt;last;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stailq_create(src);</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="159"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Reverse<sp/>a<sp/>list<sp/>in-place.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal">stailq_reverse(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structstailq" kindref="compound">stailq</ref><sp/>*head)</highlight></codeline>
+<codeline lineno="164"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>*elem<sp/>=<sp/>stailq_first(head),<sp/>*next;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stailq_create(head);</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(elem)<sp/>{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>next<sp/>=<sp/>stailq_next(elem);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stailq_add(head,<sp/>elem);</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>elem<sp/>=<sp/>next;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="172"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal">stailq_cut_tail(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structstailq" kindref="compound">stailq</ref><sp/>*head,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>*last,</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structstailq" kindref="compound">stailq</ref><sp/>*tail)</highlight></codeline>
+<codeline lineno="183"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(last<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tail-&gt;first<sp/>=<sp/>last-&gt;next;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tail-&gt;last<sp/>=<sp/>head-&gt;last;</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>head-&gt;last<sp/>=<sp/>&amp;last-&gt;next;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>last-&gt;next<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tail-&gt;first<sp/>=<sp/>head-&gt;first;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tail-&gt;last<sp/>=<sp/>head-&gt;first<sp/>!=<sp/>NULL<sp/>?<sp/>head-&gt;last<sp/>:<sp/>&amp;tail-&gt;first;</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>head-&gt;first<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>head-&gt;last<sp/>=<sp/>&amp;head-&gt;first;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="195"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>stailq_entry(item,<sp/>type,<sp/>member)<sp/>({<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="198"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>const<sp/>typeof(<sp/>((type<sp/>*)0)-&gt;member<sp/>)<sp/>*__mptr<sp/>=<sp/>(item);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="199"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(type<sp/>*)(<sp/>(char<sp/>*)__mptr<sp/>-<sp/>((size_t)<sp/>&amp;((type<sp/>*)0)-&gt;member)<sp/>);<sp/>})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="preprocessor">#define<sp/>stailq_first_entry(head,<sp/>type,<sp/>member)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="205"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stailq_entry(stailq_first(head),<sp/>type,<sp/>member)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="preprocessor">#define<sp/>stailq_last_entry(head,<sp/>type,<sp/>member)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="211"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stailq_entry(stailq_last(head),<sp/>type,<sp/>member)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="preprocessor">#define<sp/>stailq_next_entry(item,<sp/>member)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="217"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stailq_entry(stailq_next(&amp;(item)-&gt;member),<sp/>typeof(*item),<sp/>member)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>stailq_foreach_entry(item,<sp/>head,<sp/>member)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="220"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>for<sp/>(item<sp/>=<sp/>stailq_first_entry((head),<sp/>typeof(*item),<sp/>member);<sp/><sp/>\</highlight></codeline>
+<codeline lineno="221"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>item<sp/>!=<sp/>stailq_entry(0,<sp/>typeof(*item),<sp/>member);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="222"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>item<sp/>=<sp/>stailq_next_entry(item,<sp/>member))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>stailq_foreach_entry_safe(item,<sp/>next,<sp/>head,<sp/>member)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="225"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>for<sp/>(item<sp/>=<sp/>stailq_first_entry((head),<sp/>typeof(*item),<sp/>member);<sp/><sp/>\</highlight></codeline>
+<codeline lineno="226"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>item<sp/>!=<sp/>stailq_entry(0,<sp/>typeof(*item),<sp/>member)<sp/>&amp;&amp;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="227"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(next<sp/>=<sp/>stailq_next_entry(item,<sp/>member),<sp/>1);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="228"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>item<sp/>=<sp/>next)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="preprocessor">#define<sp/>stailq_shift_entry(head,<sp/>type,<sp/>member)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="235"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stailq_entry(stailq_shift(head),<sp/>type,<sp/>member)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="236"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="240"><highlight class="preprocessor">#define<sp/>stailq_add_entry(head,<sp/>item,<sp/>member)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="241"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stailq_add((head),<sp/>&amp;(item)-&gt;member)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="preprocessor">#define<sp/>stailq_add_tail_entry(head,<sp/>item,<sp/>member)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="247"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stailq_add_tail((head),<sp/>&amp;(item)-&gt;member)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="248"><highlight class="normal"></highlight></codeline>
+<codeline lineno="252"><highlight class="preprocessor">#define<sp/>stailq_insert_entry(head,<sp/>item,<sp/>prev,<sp/>member)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="253"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stailq_insert((head),<sp/>&amp;(item)-&gt;member,<sp/>&amp;(prev)-&gt;member)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="254"><highlight class="normal"></highlight></codeline>
+<codeline lineno="258"><highlight class="preprocessor">#define<sp/>stailq_foreach(item,<sp/>head)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="259"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>for<sp/>(item<sp/>=<sp/>stailq_first(head);<sp/>item;<sp/>item<sp/>=<sp/>item-&gt;next)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="260"><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="264"><highlight class="normal"></highlight></codeline>
+<codeline lineno="265"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_LIB_SALAD_STAILQ_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/salad/stailq.h"/>
+  </compounddef>
+</doxygen>

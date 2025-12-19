@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structgc__consumer" kind="struct" language="C++" prot="public">
+    <compoundname>gc_consumer</compoundname>
+    <includes local="no">gc.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structgc__consumer_1a0aae34a3387e1d02c9711393bd67ceac" prot="public" static="no" mutable="no">
+        <type>gc_node_t</type>
+        <definition>gc_node_t gc_consumer::node</definition>
+        <argsstring></argsstring>
+        <name>node</name>
+        <briefdescription>
+<para>Link in <ref refid="structgc__state_1a33d216bfb80e6b869dd19e23d445477d" kindref="member">gc_state::consumers</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/gc.h" line="90" column="1" bodyfile="/home/tsafin/tarantool/src/box/gc.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structgc__consumer_1add88f2b4cd81e1aed3322692d306096e" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char gc_consumer::name[GC_NAME_MAX]</definition>
+        <argsstring>[GC_NAME_MAX]</argsstring>
+        <name>name</name>
+        <briefdescription>
+<para>Human-readable name. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/gc.h" line="92" column="1" bodyfile="/home/tsafin/tarantool/src/box/gc.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structgc__consumer_1a85596a6cc4625721fc09eac31dfa480e" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvclock" kindref="compound">vclock</ref></type>
+        <definition>struct vclock gc_consumer::vclock</definition>
+        <argsstring></argsstring>
+        <name>vclock</name>
+        <briefdescription>
+<para>The vclock tracked by this consumer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/gc.h" line="92" column="1" bodyfile="/home/tsafin/tarantool/src/box/gc.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structgc__consumer_1a45077efdab10bc3540dde170dc912892" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool gc_consumer::is_inactive</definition>
+        <argsstring></argsstring>
+        <name>is_inactive</name>
+        <briefdescription>
+<para>This flag is set if a WAL needed by this consumer was deleted by the WAL thread on ENOSPC. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/gc.h" line="99" column="1" bodyfile="/home/tsafin/tarantool/src/box/gc.h" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The object of this type is used to prevent garbage collection from removing WALs that are still in use. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3824">
+        <label>gc_consumer</label>
+        <link refid="structgc__consumer"/>
+        <childnode refid="3825" relation="usage">
+          <edgelabel>vclock</edgelabel>
+        </childnode>
+      </node>
+      <node id="3825">
+        <label>vclock</label>
+        <link refid="structvclock"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/gc.h" line="88" column="1" bodyfile="/home/tsafin/tarantool/src/box/gc.h" bodystart="88" bodyend="100"/>
+    <listofallmembers>
+      <member refid="structgc__consumer_1a45077efdab10bc3540dde170dc912892" prot="public" virt="non-virtual"><scope>gc_consumer</scope><name>is_inactive</name></member>
+      <member refid="structgc__consumer_1add88f2b4cd81e1aed3322692d306096e" prot="public" virt="non-virtual"><scope>gc_consumer</scope><name>name</name></member>
+      <member refid="structgc__consumer_1a0aae34a3387e1d02c9711393bd67ceac" prot="public" virt="non-virtual"><scope>gc_consumer</scope><name>node</name></member>
+      <member refid="structgc__consumer_1a85596a6cc4625721fc09eac31dfa480e" prot="public" virt="non-virtual"><scope>gc_consumer</scope><name>vclock</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

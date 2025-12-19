@@ -1,0 +1,188 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="classCreateConstraintID" kind="class" language="C++" prot="public">
+    <compoundname>CreateConstraintID</compoundname>
+    <basecompoundref refid="classAlterSpaceOp" prot="public" virt="non-virtual">AlterSpaceOp</basecompoundref>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classCreateConstraintID_1a1b31eddaf6dbfc506f29d298070f1799" prot="private" static="no" mutable="no">
+        <type>struct <ref refid="structconstraint__id" kindref="compound">constraint_id</ref> *</type>
+        <definition>struct constraint_id* CreateConstraintID::new_id</definition>
+        <argsstring></argsstring>
+        <name>new_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1827" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1827" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classCreateConstraintID_1a7493684793bb118d7a43db0b7da81349" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>CreateConstraintID::CreateConstraintID</definition>
+        <argsstring>(struct alter_space *alter, enum constraint_type type, const char *name)</argsstring>
+        <name>CreateConstraintID</name>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+          <declname>alter</declname>
+        </param>
+        <param>
+          <type>enum constraint_type</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1829" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1829" bodyend="1836"/>
+      </memberdef>
+      <memberdef kind="function" id="classCreateConstraintID_1a6bc5cbe97faf32d358437e57228f8c31" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void CreateConstraintID::prepare</definition>
+        <argsstring>(struct alter_space *alter)</argsstring>
+        <name>prepare</name>
+        <reimplements refid="classAlterSpaceOp_1a5c35fcc6fa0a26b350e2bfd8b73c7d8c">prepare</reimplements>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+        </param>
+        <briefdescription>
+<para>Called after creating a new space. </para>        </briefdescription>
+        <detaileddescription>
+<para>Used for performing long-lasting operations, such as index rebuild or format check. May yield. May throw an exception. Must not modify the old space. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1837" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1845" bodyend="1850"/>
+      </memberdef>
+      <memberdef kind="function" id="classCreateConstraintID_1a9ca3e48b20bd0b9f3b41d2ae80c0b461" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void CreateConstraintID::alter</definition>
+        <argsstring>(struct alter_space *alter)</argsstring>
+        <name>alter</name>
+        <reimplements refid="classAlterSpaceOp_1a378a5a70c9583adc7e8e37039deac0c0">alter</reimplements>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+        </param>
+        <briefdescription>
+<para>Called after all registered operations have completed the preparation phase. </para>        </briefdescription>
+        <detaileddescription>
+<para>Used to propagate the old space state to the new space (e.g. move unchanged indexes). Must not yield or fail. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1838" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1853" bodyend="1858"/>
+      </memberdef>
+      <memberdef kind="function" id="classCreateConstraintID_1a9e136f19f1cff7c5c397d96a9b6b0260" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void CreateConstraintID::rollback</definition>
+        <argsstring>(struct alter_space *alter)</argsstring>
+        <name>rollback</name>
+        <reimplements refid="classAlterSpaceOp_1aa67d5c66e41e7972f5db131c5a3d9775">rollback</reimplements>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+        </param>
+        <briefdescription>
+<para>Called in case a WAL error occurred. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is supposed to undo the effect of <ref refid="classAlterSpaceOp_1a5c35fcc6fa0a26b350e2bfd8b73c7d8c" kindref="member">AlterSpaceOp::prepare</ref> and <ref refid="classAlterSpaceOp_1a378a5a70c9583adc7e8e37039deac0c0" kindref="member">AlterSpaceOp::alter</ref>. Must not fail. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1839" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1861" bodyend="1865"/>
+      </memberdef>
+      <memberdef kind="function" id="classCreateConstraintID_1a992f33142de4996a372d9a32936c7d88" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void CreateConstraintID::commit</definition>
+        <argsstring>(struct alter_space *alter, int64_t signature)</argsstring>
+        <name>commit</name>
+        <reimplements refid="classAlterSpaceOp_1a87e8be9739a71a0f4100d3a67bd75100">commit</reimplements>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+        </param>
+        <param>
+          <type>int64_t</type>
+        </param>
+        <briefdescription>
+<para>Called after the change has been successfully written to WAL. </para>        </briefdescription>
+        <detaileddescription>
+<para>Must not fail. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1840" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1868" bodyend="1877"/>
+      </memberdef>
+      <memberdef kind="function" id="classCreateConstraintID_1aaedb7b5c41396ca4a90c94718a11f8f9" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>CreateConstraintID::~CreateConstraintID</definition>
+        <argsstring>()</argsstring>
+        <name>~CreateConstraintID</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1841" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1879" bodyend="1883"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classCreateConstraintID" kindref="compound">CreateConstraintID</ref> - add a new constraint id to a space. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2224">
+        <label>AlterSpaceOp</label>
+        <link refid="classAlterSpaceOp"/>
+      </node>
+      <node id="2223">
+        <label>CreateConstraintID</label>
+        <link refid="classCreateConstraintID"/>
+        <childnode refid="2224" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2227">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="2227" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="2226">
+        <label>AlterSpaceOp</label>
+        <link refid="classAlterSpaceOp"/>
+        <childnode refid="2227" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="2225">
+        <label>CreateConstraintID</label>
+        <link refid="classCreateConstraintID"/>
+        <childnode refid="2226" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1826" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1825" bodyend="1842"/>
+    <listofallmembers>
+      <member refid="classCreateConstraintID_1a9ca3e48b20bd0b9f3b41d2ae80c0b461" prot="public" virt="virtual"><scope>CreateConstraintID</scope><name>alter</name></member>
+      <member refid="classAlterSpaceOp_1ada87e0e1106f5316848e451f5609b7a4" prot="public" virt="virtual"><scope>CreateConstraintID</scope><name>alter_def</name></member>
+      <member refid="classAlterSpaceOp_1ab74f256d2f9bf750c48d8f9496eb0bc9" prot="public" virt="non-virtual"><scope>CreateConstraintID</scope><name>AlterSpaceOp</name></member>
+      <member refid="classCreateConstraintID_1a992f33142de4996a372d9a32936c7d88" prot="public" virt="virtual"><scope>CreateConstraintID</scope><name>commit</name></member>
+      <member refid="classCreateConstraintID_1a7493684793bb118d7a43db0b7da81349" prot="public" virt="non-virtual"><scope>CreateConstraintID</scope><name>CreateConstraintID</name></member>
+      <member refid="classAlterSpaceOp_1a18479b187ef8611fe72e6ee92904f1be" prot="public" virt="non-virtual"><scope>CreateConstraintID</scope><name>link</name></member>
+      <member refid="classCreateConstraintID_1a1b31eddaf6dbfc506f29d298070f1799" prot="private" virt="non-virtual"><scope>CreateConstraintID</scope><name>new_id</name></member>
+      <member refid="classAlterSpaceOp_1a700d3df81c1d87dc0818191dde139cae" prot="public" virt="non-virtual"><scope>CreateConstraintID</scope><name>operator delete</name></member>
+      <member refid="classAlterSpaceOp_1ad200979e4bf5c00b78bfef43f259ceba" prot="public" virt="non-virtual"><scope>CreateConstraintID</scope><name>operator new</name></member>
+      <member refid="classCreateConstraintID_1a6bc5cbe97faf32d358437e57228f8c31" prot="public" virt="virtual"><scope>CreateConstraintID</scope><name>prepare</name></member>
+      <member refid="classCreateConstraintID_1a9e136f19f1cff7c5c397d96a9b6b0260" prot="public" virt="virtual"><scope>CreateConstraintID</scope><name>rollback</name></member>
+      <member refid="classAlterSpaceOp_1a5549e172b94739b9fa7445b9599f506c" prot="public" virt="virtual"><scope>CreateConstraintID</scope><name>~AlterSpaceOp</name></member>
+      <member refid="classCreateConstraintID_1aaedb7b5c41396ca4a90c94718a11f8f9" prot="public" virt="virtual"><scope>CreateConstraintID</scope><name>~CreateConstraintID</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

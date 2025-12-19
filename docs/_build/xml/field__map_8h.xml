@@ -1,0 +1,371 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="field__map_8h" kind="file" language="C++">
+    <compoundname>field_map.h</compoundname>
+    <includes local="no">assert.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes refid="bit_8h" local="yes">bit/bit.h</includes>
+    <includedby refid="tuple__format_8h" local="yes">/home/tsafin/tarantool/src/box/tuple_format.h</includedby>
+    <includedby refid="field__map_8c" local="yes">/home/tsafin/tarantool/src/box/field_map.c</includedby>
+    <incdepgraph>
+      <node id="193">
+        <label>stdbool.h</label>
+      </node>
+      <node id="189">
+        <label>assert.h</label>
+      </node>
+      <node id="190">
+        <label>stdint.h</label>
+      </node>
+      <node id="191">
+        <label>stddef.h</label>
+      </node>
+      <node id="194">
+        <label>limits.h</label>
+      </node>
+      <node id="192">
+        <label>bit/bit.h</label>
+        <link refid="bit_8h"/>
+        <childnode refid="191" relation="include">
+        </childnode>
+        <childnode refid="190" relation="include">
+        </childnode>
+        <childnode refid="193" relation="include">
+        </childnode>
+        <childnode refid="194" relation="include">
+        </childnode>
+      </node>
+      <node id="188">
+        <label>/home/tsafin/tarantool/src/box/field_map.h</label>
+        <link refid="field__map_8h"/>
+        <childnode refid="189" relation="include">
+        </childnode>
+        <childnode refid="190" relation="include">
+        </childnode>
+        <childnode refid="191" relation="include">
+        </childnode>
+        <childnode refid="192" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structfield__map__builder" prot="public">field_map_builder</innerclass>
+    <innerclass refid="structfield__map__builder__slot__extent" prot="public">field_map_builder_slot_extent</innerclass>
+    <innerclass refid="structfield__map__builder__slot" prot="public">field_map_builder_slot</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="field__map_8h_1ab04a0655cd1e3bcac5e8f48c18df1a57" prot="public" static="no">
+        <name>@9</name>
+        <enumvalue id="field__map_8h_1ab04a0655cd1e3bcac5e8f48c18df1a57aa521801f7fc341936b59dde3e3a83d49" prot="public">
+          <name>MULTIKEY_NONE</name>
+          <initializer>= -1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>A special value of multikey index that means that the key definition is not multikey and no indirection is expected. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/field_map.h" line="45" column="1" bodyfile="/home/tsafin/tarantool/src/box/field_map.h" bodystart="45" bodyend="45"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="field__map_8h_1ace1a1e4c799a684b56228e1cafeef538" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t field_map_get_offset</definition>
+        <argsstring>(const uint32_t *field_map, int32_t offset_slot, int multikey_idx)</argsstring>
+        <name>field_map_get_offset</name>
+        <param>
+          <type>const uint32_t *</type>
+          <declname>field_map</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>offset_slot</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>multikey_idx</declname>
+        </param>
+        <briefdescription>
+<para>Get offset of the field in tuple data MessagePack using tuple&apos;s field_map and required field&apos;s offset_slot. </para>        </briefdescription>
+        <detaileddescription>
+<para>When a field is not in the data tuple, its offset is 0. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/field_map.h" line="152" column="1" bodyfile="/home/tsafin/tarantool/src/box/field_map.h" bodystart="152" bodyend="173"/>
+      </memberdef>
+      <memberdef kind="function" id="field__map_8h_1a42e9d83b870c49d5e96da88a7347ca8f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int field_map_builder_create</definition>
+        <argsstring>(struct field_map_builder *builder, uint32_t minimal_field_map_size, struct region *region)</argsstring>
+        <name>field_map_builder_create</name>
+        <param>
+          <type>struct <ref refid="structfield__map__builder" kindref="compound">field_map_builder</ref> *</type>
+          <declname>builder</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>minimal_field_map_size</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structregion" kindref="compound">region</ref> *</type>
+          <declname>region</declname>
+        </param>
+        <briefdescription>
+<para>Initialize <ref refid="structfield__map__builder" kindref="compound">field_map_builder</ref>. </para>        </briefdescription>
+        <detaileddescription>
+<para>The field_map_size argument is a size of the minimal field_map allocation where each indexed field has own offset slot.</para><para>Routine uses region to perform memory allocation for internal structures.</para><para>Returns 0 on success. In case of memory allocation error sets diag message and returns -1. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/field_map.h" line="188" column="1" bodyfile="/home/tsafin/tarantool/src/box/field_map.c" bodystart="36" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="field__map_8h_1a53b9fafbad686c9c6ded45f5e129b91d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structfield__map__builder__slot__extent" kindref="compound">field_map_builder_slot_extent</ref> *</type>
+        <definition>struct field_map_builder_slot_extent* field_map_builder_slot_extent_new</definition>
+        <argsstring>(struct field_map_builder *builder, int32_t offset_slot, uint32_t multikey_count, struct region *region)</argsstring>
+        <name>field_map_builder_slot_extent_new</name>
+        <param>
+          <type>struct <ref refid="structfield__map__builder" kindref="compound">field_map_builder</ref> *</type>
+          <declname>builder</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>offset_slot</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>multikey_count</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structregion" kindref="compound">region</ref> *</type>
+          <declname>region</declname>
+        </param>
+        <briefdescription>
+<para>Internal function to allocate field map extent by offset_slot and count of multikey keys. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/field_map.h" line="197" column="1" bodyfile="/home/tsafin/tarantool/src/box/field_map.c" bodystart="60" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="field__map_8h_1a6ea6b0a95d752fa2ea741abe51aaae12" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int field_map_builder_set_slot</definition>
+        <argsstring>(struct field_map_builder *builder, int32_t offset_slot, uint32_t offset, int32_t multikey_idx, uint32_t multikey_count, struct region *region)</argsstring>
+        <name>field_map_builder_set_slot</name>
+        <param>
+          <type>struct <ref refid="structfield__map__builder" kindref="compound">field_map_builder</ref> *</type>
+          <declname>builder</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>offset_slot</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>multikey_idx</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>multikey_count</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structregion" kindref="compound">region</ref> *</type>
+          <declname>region</declname>
+        </param>
+        <briefdescription>
+<para>Set data offset for a field identified by unique offset_slot. </para>        </briefdescription>
+        <detaileddescription>
+<para>When multikey_idx != MULTIKEY_NONE this routine initializes corresponding <ref refid="structfield__map__builder__slot__extent" kindref="compound">field_map_builder_slot_extent</ref> identified by multikey_idx and multikey_count. Performs allocation on region when required.</para><para>The offset_slot argument must be negative and offset must be positive (by definition). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/field_map.h" line="213" column="1" bodyfile="/home/tsafin/tarantool/src/box/field_map.h" bodystart="213" bodyend="240"/>
+      </memberdef>
+      <memberdef kind="function" id="field__map_8h_1a0d03af851a60f7431da347eceea08ed5" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t field_map_build_size</definition>
+        <argsstring>(struct field_map_builder *builder)</argsstring>
+        <name>field_map_build_size</name>
+        <param>
+          <type>struct <ref refid="structfield__map__builder" kindref="compound">field_map_builder</ref> *</type>
+          <declname>builder</declname>
+        </param>
+        <briefdescription>
+<para>Calculate the size of tuple field_map to be built. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/field_map.h" line="246" column="1" bodyfile="/home/tsafin/tarantool/src/box/field_map.h" bodystart="246" bodyend="250"/>
+      </memberdef>
+      <memberdef kind="function" id="field__map_8h_1a1175df9d06d3c27ea834305316b9b26e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void field_map_build</definition>
+        <argsstring>(struct field_map_builder *builder, char *buffer)</argsstring>
+        <name>field_map_build</name>
+        <param>
+          <type>struct <ref refid="structfield__map__builder" kindref="compound">field_map_builder</ref> *</type>
+          <declname>builder</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>buffer</declname>
+        </param>
+        <briefdescription>
+<para>Write constructed field_map to the destination buffer field_map. </para>        </briefdescription>
+        <detaileddescription>
+<para>The buffer must have at least field_map_build_size(builder) bytes. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/field_map.h" line="258" column="1" bodyfile="/home/tsafin/tarantool/src/box/field_map.c" bodystart="83" bodyend="125"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_BOX_FIELD_MAP_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_BOX_FIELD_MAP_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2019,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;assert.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="bit_8h" kindref="compound">bit/bit.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structregion" kindref="compound">region</ref>;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfield__map__builder__slot" kindref="compound">field_map_builder_slot</ref>;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{<sp/>MULTIKEY_NONE<sp/>=<sp/>-1<sp/>};</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83" refid="structfield__map__builder" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfield__map__builder" kindref="compound">field_map_builder</ref><sp/>{</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfield__map__builder__slot" kindref="compound">field_map_builder_slot</ref><sp/>*<ref refid="structfield__map__builder_1a129f283afdb106eb62aff223989600d8" kindref="member">slots</ref>;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structfield__map__builder_1a788d34ddf1c311c5d63d91310b3c3bdf" kindref="member">slot_count</ref>;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structfield__map__builder_1a0a3c6b803c0b76d9a371765c5426b7b6" kindref="member">extents_size</ref>;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106" refid="structfield__map__builder__slot__extent" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfield__map__builder__slot__extent" kindref="compound">field_map_builder_slot_extent</ref><sp/>{</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>size;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>offset[0];</highlight></codeline>
+<codeline lineno="114"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131" refid="structfield__map__builder__slot" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfield__map__builder__slot" kindref="compound">field_map_builder_slot</ref><sp/>{</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>has_extent;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>offset;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfield__map__builder__slot__extent" kindref="compound">field_map_builder_slot_extent</ref><sp/>*extent;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="143"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t</highlight></codeline>
+<codeline lineno="152"><highlight class="normal">field_map_get_offset(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/>*field_map,<sp/>int32_t<sp/>offset_slot,</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>multikey_idx)</highlight></codeline>
+<codeline lineno="154"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="156"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Can<sp/>not<sp/>access<sp/>field_map<sp/>as<sp/>a<sp/>normal<sp/>uint32<sp/>array</highlight></codeline>
+<codeline lineno="157"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>because<sp/>its<sp/>alignment<sp/>may<sp/>be<sp/>&lt;<sp/>4<sp/>bytes.<sp/>Need<sp/>to<sp/>use</highlight></codeline>
+<codeline lineno="158"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>unaligned<sp/>store-load<sp/>operations<sp/>explicitly.</highlight></codeline>
+<codeline lineno="159"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structfield__map__builder__slot__extent_1af5ae031a94fd8bf3dec18c31830a57ca" kindref="member">offset</ref><sp/>=<sp/><ref refid="bit_8h_1a4c77a94283f26397322379b1c9862f1b" kindref="member">load_u32</ref>(&amp;field_map[offset_slot]);</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(multikey_idx<sp/>!=<sp/>MULTIKEY_NONE<sp/>&amp;&amp;<sp/>(int32_t)offset<sp/>&lt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/>*extent<sp/>=<sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/>*)</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*)field_map<sp/>+<sp/>(int32_t)offset);</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((uint32_t)multikey_idx<sp/>&gt;=<sp/><ref refid="bit_8h_1a4c77a94283f26397322379b1c9862f1b" kindref="member">load_u32</ref>(&amp;extent[0]))</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>offset<sp/>=<sp/><ref refid="bit_8h_1a4c77a94283f26397322379b1c9862f1b" kindref="member">load_u32</ref>(&amp;extent[multikey_idx<sp/>+<sp/>1]);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="structfield__map__builder__slot__extent_1af5ae031a94fd8bf3dec18c31830a57ca" kindref="member">offset</ref>;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal">field_map_builder_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfield__map__builder" kindref="compound">field_map_builder</ref><sp/>*builder,</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>minimal_field_map_size,</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structregion" kindref="compound">region</ref><sp/>*<ref refid="structregion" kindref="compound">region</ref>);</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfield__map__builder__slot__extent" kindref="compound">field_map_builder_slot_extent</ref><sp/>*</highlight></codeline>
+<codeline lineno="197"><highlight class="normal">field_map_builder_slot_extent_new(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfield__map__builder" kindref="compound">field_map_builder</ref><sp/>*builder,</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>offset_slot,<sp/>uint32_t<sp/>multikey_count,</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>region<sp/>*region);</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal">field_map_builder_set_slot(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfield__map__builder" kindref="compound">field_map_builder</ref><sp/>*builder,</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>offset_slot,<sp/>uint32_t<sp/><ref refid="structfield__map__builder__slot__extent_1af5ae031a94fd8bf3dec18c31830a57ca" kindref="member">offset</ref>,</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>multikey_idx,<sp/>uint32_t<sp/>multikey_count,</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>region<sp/>*region)</highlight></codeline>
+<codeline lineno="217"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(offset_slot<sp/>&lt;<sp/>0);</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert((uint32_t)-offset_slot<sp/>&lt;=<sp/>builder-&gt;<ref refid="structfield__map__builder_1a788d34ddf1c311c5d63d91310b3c3bdf" kindref="member">slot_count</ref>);</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(<ref refid="structfield__map__builder__slot__extent_1af5ae031a94fd8bf3dec18c31830a57ca" kindref="member">offset</ref><sp/>&gt;<sp/>0);</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(multikey_idx<sp/>==<sp/>MULTIKEY_NONE)<sp/>{</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>builder-&gt;<ref refid="structfield__map__builder_1a129f283afdb106eb62aff223989600d8" kindref="member">slots</ref>[offset_slot].<ref refid="structfield__map__builder__slot_1a1975d758452bda81ccbd36d2099981d9" kindref="member">offset</ref><sp/>=<sp/><ref refid="structfield__map__builder__slot__extent_1af5ae031a94fd8bf3dec18c31830a57ca" kindref="member">offset</ref>;</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(multikey_idx<sp/>&gt;=<sp/>0);</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(multikey_idx<sp/>&lt;<sp/>(int32_t)multikey_count);</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfield__map__builder__slot__extent" kindref="compound">field_map_builder_slot_extent</ref><sp/>*extent;</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(builder-&gt;<ref refid="structfield__map__builder_1a129f283afdb106eb62aff223989600d8" kindref="member">slots</ref>[offset_slot].<ref refid="structfield__map__builder__slot_1afd5d05a50d60fdecddd26687e34c276a" kindref="member">has_extent</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>extent<sp/>=<sp/>builder-&gt;<ref refid="structfield__map__builder_1a129f283afdb106eb62aff223989600d8" kindref="member">slots</ref>[offset_slot].<ref refid="structfield__map__builder__slot_1a76b0d1074270faededccbd9f2e0c5004" kindref="member">extent</ref>;</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(extent<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(extent-&gt;<ref refid="structfield__map__builder__slot__extent_1ae54b13887120ffc99b4d74fc09cd5290" kindref="member">size</ref><sp/>==<sp/>multikey_count);</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>extent<sp/>=<sp/>field_map_builder_slot_extent_new(builder,</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>offset_slot,<sp/>multikey_count,<sp/>region);</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(extent<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>extent-&gt;<ref refid="structfield__map__builder__slot__extent_1af5ae031a94fd8bf3dec18c31830a57ca" kindref="member">offset</ref>[multikey_idx]<sp/>=<sp/><ref refid="structfield__map__builder__slot__extent_1af5ae031a94fd8bf3dec18c31830a57ca" kindref="member">offset</ref>;</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="240"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t</highlight></codeline>
+<codeline lineno="246"><highlight class="normal">field_map_build_size(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfield__map__builder" kindref="compound">field_map_builder</ref><sp/>*builder)</highlight></codeline>
+<codeline lineno="247"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>builder-&gt;<ref refid="structfield__map__builder_1a788d34ddf1c311c5d63d91310b3c3bdf" kindref="member">slot_count</ref><sp/>*<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(uint32_t)<sp/>+</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>builder-&gt;<ref refid="structfield__map__builder_1a0a3c6b803c0b76d9a371765c5426b7b6" kindref="member">extents_size</ref>;</highlight></codeline>
+<codeline lineno="250"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"></highlight></codeline>
+<codeline lineno="257"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="258"><highlight class="normal">field_map_build(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfield__map__builder" kindref="compound">field_map_builder</ref><sp/>*builder,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*buffer);</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"></highlight></codeline>
+<codeline lineno="260"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_BOX_FIELD_MAP_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/field_map.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="md__home_tsafin_tarantool_src_lib_msgpuck_README" kind="page">
+    <compoundname>md__home_tsafin_tarantool_src_lib_msgpuck_README</compoundname>
+    <title>MsgPuck</title>
+    <detaileddescription>
+<para><ulink url="https://travis-ci.org/rtsisyk/msgpuck"></ulink> [<image type="html" name="License-BSD--2-lightgray.svg?style=flat"></image>
+][license-url] <ulink url="https://packagecloud.io/tarantool/1\_7?filter=rpms"></ulink> <ulink url="https://packagecloud.io/tarantool/1\_7?filter=debs"></ulink> <ulink url="http://telegram.me/tarantool"></ulink> <ulink url="https://groups.google.com/forum/#!forum/tarantool"></ulink></para><para>MsgPuck is a compact and efficient <ulink url="https://msgpack.org/">MessagePack</ulink> serialization library:</para><para><itemizedlist>
+<listitem><para>Zero-cost abstractions and zero overhead</para></listitem><listitem><para>Clean and readable C code ready to use</para></listitem><listitem><para>Easy to incorporate into your project</para></listitem><listitem><para>Fully documented and covered by unit tests</para></listitem><listitem><para>Liberal license (BSD-2)</para></listitem></itemizedlist>
+</para><para><heading level="2">Status </heading>
+</para><para>MsgPuck is stable, which means it have been used in production without serious bugs for quite a while now. The library is fully documented and covered by unit tests.</para><para>Please feel free to file a ticket if your have a problem or a question.</para><para><heading level="2">Examples </heading>
+</para><para><bold>Encoding:</bold> <verbatim>char buf[1024];
+
+char *w = buf;
+w = mp_encode_array(w, 4);
+w = mp_encode_uint(w, 10);
+w = mp_encode_str(w, &quot;hello world&quot;, strlen(&quot;hello world&quot;));
+w = mp_encode_bool(w, true);
+w = mp_encode_double(w, 3.1415);
+</verbatim></para><para><bold>Validating:</bold> <verbatim>const char *end = buf + xx;
+const char *b = buf;
+int rc = mp_check(&amp;b, end);
+assert(rc == 0);
+assert(b == end);
+</verbatim></para><para><bold>Decoding:</bold> <verbatim>uint32_t size;
+uint64_t ival;
+const char *sval;
+uint32_t sval_len;
+bool bval;
+double dval;
+
+const char *r = buf;
+size = mp_decode_array(&amp;r);
+/* size is 4 */
+
+ival = mp_decode_uint(&amp;r);
+/* ival is 10; */
+
+sval = mp_decode_str(&amp;r, &amp;sval_len);
+/* sval is &quot;hello world&quot;, sval_len is strlen(&quot;hello world&quot;) */
+
+bval = mp_decode_bool(&amp;r);
+/* bval is true */
+
+dval = mp_decode_double(&amp;r);
+/* dval is 3.1415 */
+
+assert(r == w);
+</verbatim></para><para><heading level="2">Usage </heading>
+</para><para>You need a C89+ or C++03+ compatible compiler to use msgpuck. Add this project as a submodule or just use libmsgpuck-dev package.</para><para>MsgPuck is designed to be fully embedded to your application by a C/C++ compiler. However, some functions require auxiliary static tables which should be expanded somewhere in a compilation unit (<computeroutput>*.c</computeroutput> or <computeroutput>*.cc</computeroutput> file). Please link libmsgpuck.a to your binary to avoid problems with unresolved symbols.</para><para><heading level="2">See Also </heading>
+</para><para><itemizedlist>
+<listitem><para><ulink url="http://rtsisyk.github.io/msgpuck/">API Documentation</ulink></para></listitem><listitem><para>https://github.com/msgpack/msgpack/blob/master/spec.md &quot;Specification&quot;</para></listitem><listitem><para>[Tests](test)</para></listitem><listitem><para><ulink url="https://tarantool.org/download.html">Packages</ulink></para></listitem><listitem><para><ulink url="https://groups.google.com/forum/#!forum/tarantool">Maillist</ulink></para></listitem><listitem><para><ulink url="http://facebook.com/TarantoolDatabase/">Facebook</ulink></para></listitem><listitem><para><ulink url="http://telegram.me/tarantool">Telegram Chat</ulink></para></listitem><listitem><para><ulink url="https://groups.google.com/forum/#!forum/tarantool">Maillist</ulink></para></listitem></itemizedlist>
+</para><para>API documentation can be also generated using <computeroutput>make doc</computeroutput> (Doxygen is required).</para><para>MsgPuck was written to use within <ulink url="http://tarantool.org">Tarantool</ulink> - the world&apos;s first full-featured MsgPack-based database. </para>    </detaileddescription>
+  </compounddef>
+</doxygen>

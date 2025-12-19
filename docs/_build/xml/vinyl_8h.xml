@@ -1,0 +1,313 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="vinyl_8h" kind="file" language="C++">
+    <compoundname>vinyl.h</compoundname>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includedby refid="box_8cc" local="yes">/home/tsafin/tarantool/src/box/box.cc</includedby>
+    <includedby refid="box_2lua_2info_8c" local="yes">/home/tsafin/tarantool/src/box/lua/info.c</includedby>
+    <includedby refid="stat_8c" local="yes">/home/tsafin/tarantool/src/box/lua/stat.c</includedby>
+    <includedby refid="vinyl_8c" local="yes">/home/tsafin/tarantool/src/box/vinyl.c</includedby>
+    <incdepgraph>
+      <node id="1251">
+        <label>stdbool.h</label>
+      </node>
+      <node id="1252">
+        <label>stddef.h</label>
+      </node>
+      <node id="1250">
+        <label>/home/tsafin/tarantool/src/box/vinyl.h</label>
+        <link refid="vinyl_8h"/>
+        <childnode refid="1251" relation="include">
+        </childnode>
+        <childnode refid="1252" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="vinyl_8h_1aa35f346ca8e7a7efed47f0a96a26eebd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+        <definition>struct engine* vinyl_engine_new</definition>
+        <argsstring>(const char *dir, size_t memory, int read_threads, int write_threads, bool force_recovery)</argsstring>
+        <name>vinyl_engine_new</name>
+        <param>
+          <type>const char *</type>
+          <declname>dir</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>memory</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>read_threads</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>write_threads</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>force_recovery</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vinyl.h" line="45" column="1" bodyfile="/home/tsafin/tarantool/src/box/vinyl.c" bodystart="2662" bodyend="2673"/>
+      </memberdef>
+      <memberdef kind="function" id="vinyl_8h_1a15103fb56ad4c593249e00fa723e6279" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vinyl_engine_stat</definition>
+        <argsstring>(struct engine *engine, struct info_handler *handler)</argsstring>
+        <name>vinyl_engine_stat</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structinfo__handler" kindref="compound">info_handler</ref> *</type>
+          <declname>handler</declname>
+        </param>
+        <briefdescription>
+<para>Vinyl engine statistics (box.stat.vinyl()). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vinyl.h" line="52" column="1" bodyfile="/home/tsafin/tarantool/src/box/vinyl.c" bodystart="314" bodyend="325"/>
+      </memberdef>
+      <memberdef kind="function" id="vinyl_8h_1afc3a8532b7310b6632bfbd11c674783c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vinyl_engine_set_cache</definition>
+        <argsstring>(struct engine *engine, size_t quota)</argsstring>
+        <name>vinyl_engine_set_cache</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>quota</declname>
+        </param>
+        <briefdescription>
+<para>Update vinyl cache size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vinyl.h" line="58" column="1" bodyfile="/home/tsafin/tarantool/src/box/vinyl.c" bodystart="2683" bodyend="2687"/>
+      </memberdef>
+      <memberdef kind="function" id="vinyl_8h_1a3cb6c22fd1667dcd3262e6286f183137" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int vinyl_engine_set_memory</definition>
+        <argsstring>(struct engine *engine, size_t size)</argsstring>
+        <name>vinyl_engine_set_memory</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Update vinyl memory size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vinyl.h" line="64" column="1" bodyfile="/home/tsafin/tarantool/src/box/vinyl.c" bodystart="2690" bodyend="2700"/>
+      </memberdef>
+      <memberdef kind="function" id="vinyl_8h_1ae53fc1eaa47f5d728f34cc1d3318c4fa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vinyl_engine_set_max_tuple_size</definition>
+        <argsstring>(struct engine *engine, size_t max_size)</argsstring>
+        <name>vinyl_engine_set_max_tuple_size</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>max_size</declname>
+        </param>
+        <briefdescription>
+<para>Update max tuple size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vinyl.h" line="70" column="1" bodyfile="/home/tsafin/tarantool/src/box/vinyl.c" bodystart="2703" bodyend="2707"/>
+      </memberdef>
+      <memberdef kind="function" id="vinyl_8h_1af08728611ff950e07a515c9e537ce77b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vinyl_engine_set_timeout</definition>
+        <argsstring>(struct engine *engine, double timeout)</argsstring>
+        <name>vinyl_engine_set_timeout</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>timeout</declname>
+        </param>
+        <briefdescription>
+<para>Update query timeout. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vinyl.h" line="76" column="1" bodyfile="/home/tsafin/tarantool/src/box/vinyl.c" bodystart="2710" bodyend="2714"/>
+      </memberdef>
+      <memberdef kind="function" id="vinyl_8h_1a5dc6b73a28cd620c40d416a1b53f40a9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vinyl_engine_set_too_long_threshold</definition>
+        <argsstring>(struct engine *engine, double too_long_threshold)</argsstring>
+        <name>vinyl_engine_set_too_long_threshold</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>too_long_threshold</declname>
+        </param>
+        <briefdescription>
+<para>Update too_long_threshold. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vinyl.h" line="82" column="1" bodyfile="/home/tsafin/tarantool/src/box/vinyl.c" bodystart="2717" bodyend="2723"/>
+      </memberdef>
+      <memberdef kind="function" id="vinyl_8h_1a20b5f5dda2ec0c4b104a08d8a3fdcb81" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vinyl_engine_set_snap_io_rate_limit</definition>
+        <argsstring>(struct engine *engine, double limit)</argsstring>
+        <name>vinyl_engine_set_snap_io_rate_limit</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>limit</declname>
+        </param>
+        <briefdescription>
+<para>Update snap_io_rate_limit. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vinyl.h" line="89" column="1" bodyfile="/home/tsafin/tarantool/src/box/vinyl.c" bodystart="2726" bodyend="2732"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>INCLUDES_TARANTOOL_BOX_VINYL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INCLUDES_TARANTOOL_BOX_VINYL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structinfo__handler" kindref="compound">info_handler</ref>;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structengine" kindref="compound">engine</ref>;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structengine" kindref="compound">engine</ref><sp/>*</highlight></codeline>
+<codeline lineno="45"><highlight class="normal">vinyl_engine_new(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*dir,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>memory,</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>read_threads,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>write_threads,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>force_recovery);</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal">vinyl_engine_stat(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structengine" kindref="compound">engine</ref><sp/>*<ref refid="structengine" kindref="compound">engine</ref>,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structinfo__handler" kindref="compound">info_handler</ref><sp/>*handler);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal">vinyl_engine_set_cache(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structengine" kindref="compound">engine</ref><sp/>*<ref refid="structengine" kindref="compound">engine</ref>,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structquota" kindref="compound">quota</ref>);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal">vinyl_engine_set_memory(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structengine" kindref="compound">engine</ref><sp/>*<ref refid="structengine" kindref="compound">engine</ref>,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal">vinyl_engine_set_max_tuple_size(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structengine" kindref="compound">engine</ref><sp/>*<ref refid="structengine" kindref="compound">engine</ref>,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>max_size);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal">vinyl_engine_set_timeout(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structengine" kindref="compound">engine</ref><sp/>*<ref refid="structengine" kindref="compound">engine</ref>,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>timeout);</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal">vinyl_engine_set_too_long_threshold(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structengine" kindref="compound">engine</ref><sp/>*<ref refid="structengine" kindref="compound">engine</ref>,</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>too_long_threshold);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal">vinyl_engine_set_snap_io_rate_limit(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structengine" kindref="compound">engine</ref><sp/>*<ref refid="structengine" kindref="compound">engine</ref>,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>limit);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;diag.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structengine" kindref="compound">engine</ref><sp/>*</highlight></codeline>
+<codeline lineno="97"><highlight class="normal">vinyl_engine_new_xc(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*dir,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>memory,</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>read_threads,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>write_threads,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>force_recovery)</highlight></codeline>
+<codeline lineno="99"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structengine" kindref="compound">engine</ref><sp/>*vinyl;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vinyl<sp/>=<sp/>vinyl_engine_new(dir,<sp/>memory,<sp/>read_threads,</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>write_threads,<sp/>force_recovery);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(vinyl<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_raise();</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>vinyl;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal">vinyl_engine_set_memory_xc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structengine" kindref="compound">engine</ref><sp/>*<ref refid="structengine" kindref="compound">engine</ref>,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="110"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(vinyl_engine_set_memory(engine,<sp/>size)<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_raise();</highlight></codeline>
+<codeline lineno="113"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__plusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>INCLUDES_TARANTOOL_BOX_VINYL_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/vinyl.h"/>
+  </compounddef>
+</doxygen>

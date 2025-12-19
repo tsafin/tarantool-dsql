@@ -1,0 +1,381 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="iterator_8h" kind="file" language="C++">
+    <compoundname>iterator.h</compoundname>
+    <includes refid="bitset_8h" local="yes">bitset/bitset.h</includes>
+    <includes refid="expr_8h" local="yes">bitset/expr.h</includes>
+    <includedby refid="lib_2bitset_2index_8h" local="yes">/home/tsafin/tarantool/src/lib/bitset/index.h</includedby>
+    <includedby refid="iterator_8c" local="yes">/home/tsafin/tarantool/src/lib/bitset/iterator.c</includedby>
+    <incdepgraph>
+      <node id="1717">
+        <label>stdbool.h</label>
+      </node>
+      <node id="1716">
+        <label>stdint.h</label>
+      </node>
+      <node id="1715">
+        <label>stddef.h</label>
+      </node>
+      <node id="1718">
+        <label>limits.h</label>
+      </node>
+      <node id="1714">
+        <label>bit/bit.h</label>
+        <link refid="bit_8h"/>
+        <childnode refid="1715" relation="include">
+        </childnode>
+        <childnode refid="1716" relation="include">
+        </childnode>
+        <childnode refid="1717" relation="include">
+        </childnode>
+        <childnode refid="1718" relation="include">
+        </childnode>
+      </node>
+      <node id="1719">
+        <label>sys/types.h</label>
+      </node>
+      <node id="1713">
+        <label>bitset/bitset.h</label>
+        <link refid="bitset_8h"/>
+        <childnode refid="1714" relation="include">
+        </childnode>
+        <childnode refid="1715" relation="include">
+        </childnode>
+        <childnode refid="1716" relation="include">
+        </childnode>
+        <childnode refid="1717" relation="include">
+        </childnode>
+        <childnode refid="1718" relation="include">
+        </childnode>
+        <childnode refid="1719" relation="include">
+        </childnode>
+      </node>
+      <node id="1720">
+        <label>bitset/expr.h</label>
+        <link refid="expr_8h"/>
+        <childnode refid="1713" relation="include">
+        </childnode>
+      </node>
+      <node id="1712">
+        <label>/home/tsafin/tarantool/src/lib/bitset/iterator.h</label>
+        <link refid="iterator_8h"/>
+        <childnode refid="1713" relation="include">
+        </childnode>
+        <childnode refid="1720" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1721">
+        <label>/home/tsafin/tarantool/src/lib/bitset/iterator.h</label>
+        <link refid="iterator_8h"/>
+        <childnode refid="1722" relation="include">
+        </childnode>
+      </node>
+      <node id="1722">
+        <label>/home/tsafin/tarantool/src/lib/bitset/index.h</label>
+        <link refid="lib_2bitset_2index_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structtt__bitset__iterator" prot="public">tt_bitset_iterator</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="iterator_8h_1ab217087339a233fcd77940846cb418d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tt_bitset_iterator_create</definition>
+        <argsstring>(struct tt_bitset_iterator *it, void *(*realloc)(void *ptr, size_t size))</argsstring>
+        <name>tt_bitset_iterator_create</name>
+        <param>
+          <type>struct <ref refid="structtt__bitset__iterator" kindref="compound">tt_bitset_iterator</ref> *</type>
+          <declname>it</declname>
+        </param>
+        <param>
+          <type>void *(*)(void *ptr, size_t size)</type>
+          <declname>realloc</declname>
+        </param>
+        <briefdescription>
+<para>Construct <emphasis>it</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>The created iterator must be initialized by <ref refid="" kindref="compound">bitset_iterator_init</ref> method before first usage. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>it</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitset iterator </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>realloc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>memory allocator to use</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+Construct <emphasis>it</emphasis>.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>it</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>iterator </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>realloc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>memory allocator to use </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/iterator.h" line="86" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/iterator.c" bodystart="56" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="iterator_8h_1a2a5dd3202d31616c9bd125d19018a037" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tt_bitset_iterator_destroy</definition>
+        <argsstring>(struct tt_bitset_iterator *it)</argsstring>
+        <name>tt_bitset_iterator_destroy</name>
+        <param>
+          <type>struct <ref refid="structtt__bitset__iterator" kindref="compound">tt_bitset_iterator</ref> *</type>
+          <declname>it</declname>
+        </param>
+        <briefdescription>
+<para>Destruct <emphasis>it</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>it</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitset iterator</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+Destruct <emphasis>it</emphasis>.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>it</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>object </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para>bitset_iterator_new </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/iterator.h" line="94" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/iterator.c" bodystart="69" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="function" id="iterator_8h_1af45135d7a2ab6a6825f2283c5e19a4d7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tt_bitset_iterator_init</definition>
+        <argsstring>(struct tt_bitset_iterator *it, struct tt_bitset_expr *expr, struct tt_bitset **bitsets, size_t bitsets_size)</argsstring>
+        <name>tt_bitset_iterator_init</name>
+        <param>
+          <type>struct <ref refid="structtt__bitset__iterator" kindref="compound">tt_bitset_iterator</ref> *</type>
+          <declname>it</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtt__bitset__expr" kindref="compound">tt_bitset_expr</ref> *</type>
+          <declname>expr</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtt__bitset" kindref="compound">tt_bitset</ref> **</type>
+          <declname>bitsets</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>bitsets_size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the <emphasis>it</emphasis> using <emphasis>expr</emphasis> and <emphasis>bitsets</emphasis> and rewind the iterator to the start position. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="note"><para>It is safe to reinitialize an iterator with a new expression and new bitsets. All internal buffers are safely reused in this case with minimal number of new allocations.</para></simplesect>
+<simplesect kind="note"><para><emphasis>expr</emphasis> object is only used during initialization time and can be safetly reused or destroyed just after this call.</para></simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>it</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitset iterator </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>expr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitset expression </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bitsets</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array of pointers to bitsets that should be used to bind the expression parameters. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>of <emphasis>bitsets</emphasis> array </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on success </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on memory error </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ref refid="expr_8h" kindref="compound">expr.h</ref> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/iterator.h" line="117" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/iterator.c" bodystart="178" bodyend="235"/>
+      </memberdef>
+      <memberdef kind="function" id="iterator_8h_1ae233f176c9e9c42fde0a79d75fef5990" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tt_bitset_iterator_rewind</definition>
+        <argsstring>(struct tt_bitset_iterator *it)</argsstring>
+        <name>tt_bitset_iterator_rewind</name>
+        <param>
+          <type>struct <ref refid="structtt__bitset__iterator" kindref="compound">tt_bitset_iterator</ref> *</type>
+          <declname>it</declname>
+        </param>
+        <briefdescription>
+<para>Rewind the <emphasis>it</emphasis> to the start position. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>it</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitset iterator </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ref refid="" kindref="compound">bitset_iterator_init</ref> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/iterator.h" line="127" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/iterator.c" bodystart="410" bodyend="416"/>
+      </memberdef>
+      <memberdef kind="function" id="iterator_8h_1a3dbe247e5b605c8271cb75c68a547ba3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t tt_bitset_iterator_next</definition>
+        <argsstring>(struct tt_bitset_iterator *it)</argsstring>
+        <name>tt_bitset_iterator_next</name>
+        <param>
+          <type>struct <ref refid="structtt__bitset__iterator" kindref="compound">tt_bitset_iterator</ref> *</type>
+          <declname>it</declname>
+        </param>
+        <briefdescription>
+<para>Move <emphasis>it</emphasis> to a next position. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>it</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitset iterator </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the next offset where the expression evaluates to true or SIZE_MAX if there is no more bits in the result set. </para></simplesect>
+<simplesect kind="see"><para><ref refid="" kindref="compound">bitset_iterator_init</ref> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/iterator.h" line="137" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/iterator.c" bodystart="419" bodyend="434"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Iterator for <ref refid="" kindref="compound">bitset</ref> objects with expression support. </para>    </briefdescription>
+    <detaileddescription>
+<para><ref refid="" kindref="compound">bitset_iterator</ref> is used to iterate over a result of the evaluation a <ref refid="" kindref="compound">logical expression </ref> on a set of bitsets. The iterator evaluates its expression on the fly, without producing temporary bitsets. Each iteration (<ref refid="" kindref="compound">bitset_iterator_next</ref>) returns the next position where a given expression evaluates to true on a given set of bitsets.</para><para><simplesect kind="see"><para><ref refid="expr_8h" kindref="compound">expr.h</ref> </para></simplesect>
+</para>    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LIB_BITSET_ITERATOR_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LIB_BITSET_ITERATOR_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="preprocessor">#include<sp/>&quot;<ref refid="bitset_8h" kindref="compound">bitset/bitset.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="expr_8h" kindref="compound">bitset/expr.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtt__bitset__iterator__conj" kindref="compound">tt_bitset_iterator_conj</ref>;</highlight></codeline>
+<codeline lineno="65" refid="structtt__bitset__iterator" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtt__bitset__iterator" kindref="compound">tt_bitset_iterator</ref><sp/>{</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>capacity;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtt__bitset__iterator__conj" kindref="compound">tt_bitset_iterator_conj</ref><sp/>*conjs;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">tt_bitset_page<sp/>*page;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">tt_bitset_page<sp/>*page_tmp;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*(*realloc)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ptr,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structbit__iterator" kindref="compound">bit_iterator</ref><sp/>page_it;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><ref refid="iterator_8h_1ab217087339a233fcd77940846cb418d1" kindref="member">tt_bitset_iterator_create</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__iterator" kindref="compound">tt_bitset_iterator</ref><sp/>*it,</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*(*realloc)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ptr,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size));</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><ref refid="iterator_8h_1a2a5dd3202d31616c9bd125d19018a037" kindref="member">tt_bitset_iterator_destroy</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__iterator" kindref="compound">tt_bitset_iterator</ref><sp/>*it);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><ref refid="iterator_8h_1af45135d7a2ab6a6825f2283c5e19a4d7" kindref="member">tt_bitset_iterator_init</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__iterator" kindref="compound">tt_bitset_iterator</ref><sp/>*it,</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__expr" kindref="compound">tt_bitset_expr</ref><sp/>*expr,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset" kindref="compound">tt_bitset</ref><sp/>**bitsets,</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>bitsets_size);</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><ref refid="iterator_8h_1ae233f176c9e9c42fde0a79d75fef5990" kindref="member">tt_bitset_iterator_rewind</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__iterator" kindref="compound">tt_bitset_iterator</ref><sp/>*it);</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><ref refid="iterator_8h_1a3dbe247e5b605c8271cb75c68a547ba3" kindref="member">tt_bitset_iterator_next</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__iterator" kindref="compound">tt_bitset_iterator</ref><sp/>*it);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_LIB_BITSET_ITERATOR_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/bitset/iterator.h"/>
+  </compounddef>
+</doxygen>

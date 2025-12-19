@@ -1,0 +1,1090 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="json_8h" kind="file" language="C++">
+    <compoundname>json.h</compoundname>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes refid="util_8h" local="yes">trivia/util.h</includes>
+    <includedby refid="tuple__format_8h" local="yes">/home/tsafin/tarantool/src/box/tuple_format.h</includedby>
+    <includedby refid="index__def_8c" local="yes">/home/tsafin/tarantool/src/box/index_def.c</includedby>
+    <includedby refid="key__def_8c" local="yes">/home/tsafin/tarantool/src/box/key_def.c</includedby>
+    <includedby refid="lua_2tuple_8c" local="yes">/home/tsafin/tarantool/src/box/lua/tuple.c</includedby>
+    <includedby refid="tuple__format_8c" local="yes">/home/tsafin/tarantool/src/box/tuple_format.c</includedby>
+    <includedby refid="xrow__update__field_8h" local="yes">/home/tsafin/tarantool/src/box/xrow_update_field.h</includedby>
+    <includedby refid="json_8c" local="yes">/home/tsafin/tarantool/src/lib/json/json.c</includedby>
+    <incdepgraph>
+      <node id="2128">
+        <label>stdbool.h</label>
+      </node>
+      <node id="2130">
+        <label>stdint.h</label>
+      </node>
+      <node id="2129">
+        <label>stddef.h</label>
+      </node>
+      <node id="2127">
+        <label>/home/tsafin/tarantool/src/lib/json/json.h</label>
+        <link refid="json_8h"/>
+        <childnode refid="2128" relation="include">
+        </childnode>
+        <childnode refid="2129" relation="include">
+        </childnode>
+        <childnode refid="2130" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structjson__lexer" prot="public">json_lexer</innerclass>
+    <innerclass refid="structjson__token" prot="public">json_token</innerclass>
+    <innerclass refid="structjson__tree" prot="public">json_tree</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="json_8h_1a1119e6ec77bb1767207342f9748fd6cf" prot="public" static="no">
+        <name>typeof</name>
+        <initializer>__typeof__</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="43" column="9" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="json_8h_1ad62d66fe4ba34961f0d8811a545383ba" prot="public" static="no">
+        <name>json_tree_foreach_preorder</name>
+        <param><defname>pos</defname></param>
+        <param><defname>root</defname></param>
+        <initializer>for ((pos) = json_tree_preorder_next((root), (root));		     \
+	     (pos) != NULL;						     \
+	     (pos) = json_tree_preorder_next((root), (pos)))</initializer>
+        <briefdescription>
+<para>Perform pre-order JSON tree traversal. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note, this function does not visit the root node. See also json_tree_preorder_next(). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="452" column="9" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="452" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="json_8h_1a625db127bacbe21bcf24f73a7a9ad276" prot="public" static="no">
+        <name>json_tree_foreach_postorder</name>
+        <param><defname>pos</defname></param>
+        <param><defname>root</defname></param>
+        <initializer>for ((pos) = json_tree_postorder_next((root), NULL);		     \
+	     (pos) != (root);						     \
+	     (pos) = json_tree_postorder_next((root), (pos)))</initializer>
+        <briefdescription>
+<para>Perform post-order JSON tree traversal. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note, this function does not visit the root node. See also json_tree_postorder_next(). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="462" column="9" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="462" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="json_8h_1a09b8240d1870329b92c538198873e6dd" prot="public" static="no">
+        <name>json_tree_foreach_safe</name>
+        <param><defname>pos</defname></param>
+        <param><defname>root</defname></param>
+        <param><defname>tmp</defname></param>
+        <initializer>for ((pos) = json_tree_postorder_next((root), NULL);		     \
+	     (pos) != (root) &amp;&amp;						     \
+	     ((tmp) = json_tree_postorder_next((root), (pos))) != NULL;	     \
+	     (pos) = (tmp))</initializer>
+        <briefdescription>
+<para>Perform post-order JSON tree traversal safe against node removal. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note, this function does not visit the root node. See also json_tree_postorder_next(). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="472" column="9" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="472" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="json_8h_1a8c533815885e8681362398e37cdebcd0" prot="public" static="no">
+        <name>json_tree_entry</name>
+        <param><defname>token</defname></param>
+        <param><defname>type</defname></param>
+        <param><defname>member</defname></param>
+        <initializer>container_of((token), type, member)</initializer>
+        <briefdescription>
+<para>Return a container of a json_tree_token. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="481" column="9" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="481" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="json_8h_1a7af569505bc1453f5a366d9099983e4b" prot="public" static="no">
+        <name>json_tree_entry_safe</name>
+        <param><defname>token</defname></param>
+        <param><defname>type</defname></param>
+        <param><defname>member</defname></param>
+        <initializer>((token) != NULL ? json_tree_entry((token), type, member) : NULL)    \</initializer>
+        <briefdescription>
+<para>Return a container of a json_tree_token or NULL if  is NULL. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="487" column="9" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="487" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="json_8h_1a91eeaadc2a765b248889b5ebc60c5cb4" prot="public" static="no">
+        <name>json_tree_lookup_entry</name>
+        <param><defname>tree</defname></param>
+        <param><defname>parent</defname></param>
+        <param><defname>token</defname></param>
+        <param><defname>type</defname></param>
+        <param><defname>member</defname></param>
+        <initializer>({	     \
+	struct <ref refid="structjson__token" kindref="compound">json_token</ref> *ret = json_tree_lookup((tree), (parent), (token));\
+	json_tree_entry_safe(ret, type, member);			     \
+})</initializer>
+        <briefdescription>
+<para>Container-aware wrapper around json_tree_lookup(). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="493" column="9" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="493" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="json_8h_1a6b27ffbcdf54d4cbd21418679d8469e9" prot="public" static="no">
+        <name>json_tree_lookup_path_entry</name>
+        <param><defname>tree</defname></param>
+        <param><defname>root</defname></param>
+        <param><defname>path</defname></param>
+        <param><defname>path_len</defname></param>
+        <param><defname>index_base</defname></param>
+        <param><defname>type</defname></param>
+        <param><defname>member</defname></param>
+        <initializer>({			     \
+	struct <ref refid="structjson__token" kindref="compound">json_token</ref> *ret = json_tree_lookup_path((tree), (root),	     \
+					(path), (path_len), (index_base));   \
+	json_tree_entry_safe(ret, type, member);			     \
+})</initializer>
+        <briefdescription>
+<para>Container-aware wrapper around json_tree_lookup_path(). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="502" column="9" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="501" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="json_8h_1a9fdceb50df086b7a693a750affabd31f" prot="public" static="no">
+        <name>json_tree_preorder_next_entry</name>
+        <param><defname>root</defname></param>
+        <param><defname>pos</defname></param>
+        <param><defname>type</defname></param>
+        <param><defname>member</defname></param>
+        <initializer>({	     \
+	struct <ref refid="structjson__token" kindref="compound">json_token</ref> *next = json_tree_preorder_next((root), (pos));    \
+	json_tree_entry_safe(next, type, member);			     \
+})</initializer>
+        <briefdescription>
+<para>Container-aware wrapper around json_tree_preorder_next(). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="511" column="9" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="511" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="json_8h_1a8c2c4924b613ca404f135dbd787dc253" prot="public" static="no">
+        <name>json_tree_postorder_next_entry</name>
+        <param><defname>root</defname></param>
+        <param><defname>pos</defname></param>
+        <param><defname>type</defname></param>
+        <param><defname>member</defname></param>
+        <initializer>({	     \
+	struct <ref refid="structjson__token" kindref="compound">json_token</ref> *next = json_tree_postorder_next((root), (pos));   \
+	json_tree_entry_safe(next, type, member);			     \
+})</initializer>
+        <briefdescription>
+<para>Container-aware wrapper around json_tree_postorder_next(). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="519" column="9" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="519" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="json_8h_1ab35e7318803a2763cbdf3295215a9f78" prot="public" static="no">
+        <name>json_tree_foreach_entry_preorder</name>
+        <param><defname>pos</defname></param>
+        <param><defname>root</defname></param>
+        <param><defname>type</defname></param>
+        <param><defname>member</defname></param>
+        <initializer>for ((pos) = json_tree_preorder_next_entry((root), (root),	     \
+						   type, member);	     \
+	     (pos) != NULL;						     \
+	     (pos) = json_tree_preorder_next_entry((root), &amp;(pos)-&gt;member,   \
+						   type, member))</initializer>
+        <briefdescription>
+<para>Container-aware version of json_tree_foreach_preorder(). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="527" column="9" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="527" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="json_8h_1a513436f84aa21a90dc5dff7a056a6de3" prot="public" static="no">
+        <name>json_tree_foreach_entry_postorder</name>
+        <param><defname>pos</defname></param>
+        <param><defname>root</defname></param>
+        <param><defname>type</defname></param>
+        <param><defname>member</defname></param>
+        <initializer>for ((pos) = json_tree_postorder_next_entry((root), NULL,	     \
+						    type, member);	     \
+	     &amp;(pos)-&gt;member != (root);					     \
+	     (pos) = json_tree_postorder_next_entry((root), &amp;(pos)-&gt;member,  \
+						     type, member))</initializer>
+        <briefdescription>
+<para>Container-aware version of json_tree_foreach_postorder(). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="537" column="9" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="537" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="json_8h_1ad0b3d524762e448d3a2d0c60773dc163" prot="public" static="no">
+        <name>json_tree_foreach_entry_safe</name>
+        <param><defname>pos</defname></param>
+        <param><defname>root</defname></param>
+        <param><defname>type</defname></param>
+        <param><defname>member</defname></param>
+        <param><defname>tmp</defname></param>
+        <initializer>for ((pos) = json_tree_postorder_next_entry((root), NULL,	     \
+						    type, member);	     \
+	     &amp;(pos)-&gt;member != (root) &amp;&amp;				     \
+	     ((tmp) = json_tree_postorder_next_entry((root), &amp;(pos)-&gt;member, \
+						     type, member)) != NULL; \
+	     (pos) = (tmp))</initializer>
+        <briefdescription>
+<para>Container-aware version of json_tree_foreach_safe(). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="547" column="9" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="547" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="json_8h_1a9678393796b5592bf17447a06707b388" prot="public" static="no">
+        <name>json_token_type</name>
+        <enumvalue id="json_8h_1a9678393796b5592bf17447a06707b388a1efadab98b0d890b676cc6767bbceca5" prot="public">
+          <name>JSON_TOKEN_NUM</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="json_8h_1a9678393796b5592bf17447a06707b388a1c23db8ae241df946f4d20b518936126" prot="public">
+          <name>JSON_TOKEN_STR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="json_8h_1a9678393796b5592bf17447a06707b388aabecb81fb5f1efced0083ff3ad21f2aa" prot="public">
+          <name>JSON_TOKEN_ANY</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="json_8h_1a9678393796b5592bf17447a06707b388a5f4d512f6371d0eb1d4643aa6a664d93" prot="public">
+          <name>JSON_TOKEN_END</name>
+          <briefdescription>
+<para>Lexer reached end of path. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="66" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="66" bodyend="72"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="json_8h_1a2c80eab6d9944b9ea9a338915656bbc6" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void json_lexer_create</definition>
+        <argsstring>(struct json_lexer *lexer, const char *src, int src_len, int index_base)</argsstring>
+        <name>json_lexer_create</name>
+        <param>
+          <type>struct <ref refid="structjson__lexer" kindref="compound">json_lexer</ref> *</type>
+          <declname>lexer</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>src_len</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>index_base</declname>
+        </param>
+        <briefdescription>
+<para>Create <emphasis>lexer</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="out">lexer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Lexer to create. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source string. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of <emphasis>src</emphasis>. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>index_base</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Base field offset for emitted JSON_TOKEN_NUM tokens e.g. 0 for C and 1 for Lua. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="222" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="222" bodyend="230"/>
+      </memberdef>
+      <memberdef kind="function" id="json_8h_1a7f7b60f008ec65648759d6934952abe8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int json_lexer_next_token</definition>
+        <argsstring>(struct json_lexer *lexer, struct json_token *token)</argsstring>
+        <name>json_lexer_next_token</name>
+        <param>
+          <type>struct <ref refid="structjson__lexer" kindref="compound">json_lexer</ref> *</type>
+          <declname>lexer</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+          <declname>token</declname>
+        </param>
+        <briefdescription>
+<para>Get a next path token. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lexer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Lexer. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">token</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="structToken" kindref="compound">Token</ref> to store parsed result. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Success. For result see <emphasis>token.str</emphasis>, token.len, token.num. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>&gt;</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>0 Position of a syntax error. A position is 1-based and starts from a beginning of a source string. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="242" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.c" bodystart="212" bodyend="259"/>
+      </memberdef>
+      <memberdef kind="function" id="json_8h_1abc31932cd07c809ddfa46bdceb44bf63" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool json_lexer_is_eof</definition>
+        <argsstring>(const struct json_lexer *lexer)</argsstring>
+        <name>json_lexer_is_eof</name>
+        <param>
+          <type>const struct <ref refid="structjson__lexer" kindref="compound">json_lexer</ref> *</type>
+          <declname>lexer</declname>
+        </param>
+        <briefdescription>
+<para>Check if <emphasis>lexer</emphasis> has finished parsing. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="246" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="246" bodyend="249"/>
+      </memberdef>
+      <memberdef kind="function" id="json_8h_1a76b18bbb66e0a7c0aa85c3f692ee2e9f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int json_path_cmp</definition>
+        <argsstring>(const char *a, int a_len, const char *b, int b_len, int index_base)</argsstring>
+        <name>json_path_cmp</name>
+        <param>
+          <type>const char *</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>a_len</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>b_len</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>index_base</declname>
+        </param>
+        <briefdescription>
+<para>Compare two JSON paths using Lexer class. </para>        </briefdescription>
+        <detaileddescription>
+<para><itemizedlist>
+<listitem><para>in case of paths that have same token-sequence prefix, the path having more tokens is assumed to be greater</para></listitem><listitem><para>both paths must be valid (may be tested with json_path_validate). </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="259" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.c" bodystart="274" bodyend="301"/>
+      </memberdef>
+      <memberdef kind="function" id="json_8h_1ae72c5b492758f6d2a7ace12d2ad997bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int json_path_validate</definition>
+        <argsstring>(const char *path, int path_len, int index_base)</argsstring>
+        <name>json_path_validate</name>
+        <param>
+          <type>const char *</type>
+          <declname>path</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>path_len</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>index_base</declname>
+        </param>
+        <briefdescription>
+<para>Check if the passed JSON path is valid. </para>        </briefdescription>
+        <detaileddescription>
+<para>Return 0 for valid path and error position for invalid. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="267" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.c" bodystart="304" bodyend="313"/>
+      </memberdef>
+      <memberdef kind="function" id="json_8h_1a2a4f8f84f1c06373a4686ad552e8d7d0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int json_path_multikey_offset</definition>
+        <argsstring>(const char *path, int path_len, int index_base)</argsstring>
+        <name>json_path_multikey_offset</name>
+        <param>
+          <type>const char *</type>
+          <declname>path</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>path_len</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>index_base</declname>
+        </param>
+        <briefdescription>
+<para>Scan the JSON path string and return the offset of the first character [*] (the array index placeholder). </para>        </briefdescription>
+        <detaileddescription>
+<para><itemizedlist>
+<listitem><para>if [*] is not found, path_len is returned.</para></listitem><listitem><para>specified JSON path must be valid (may be tested with json_path_validate). </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="277" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.c" bodystart="316" bodyend="331"/>
+      </memberdef>
+      <memberdef kind="function" id="json_8h_1aa4bc7ed23ffd35375025413c8240b185" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool json_token_is_leaf</definition>
+        <argsstring>(struct json_token *token)</argsstring>
+        <name>json_token_is_leaf</name>
+        <param>
+          <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+          <declname>token</declname>
+        </param>
+        <briefdescription>
+<para>Test if a given JSON token is a JSON tree leaf, i.e. </para>        </briefdescription>
+        <detaileddescription>
+<para>has no child nodes. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="284" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="284" bodyend="287"/>
+      </memberdef>
+      <memberdef kind="function" id="json_8h_1a7bb5f05a317510c48c39d74fcaadc91f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int json_token_cmp</definition>
+        <argsstring>(const struct json_token *l, const struct json_token *r)</argsstring>
+        <name>json_token_cmp</name>
+        <param>
+          <type>const struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+          <declname>l</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Compare two JSON tokens, not taking into account their tree attributes. </para>        </briefdescription>
+        <detaileddescription>
+<para>Only the token values are compared. That might be used to compare two JSON paths. String comparison of the paths may not work because the same token can be present in different forms: [&apos;a&apos;] == .a, for example. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="297" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="297" bodyend="311"/>
+      </memberdef>
+      <memberdef kind="function" id="json_8h_1aa399dff2cc21805eccb29a2c548cb48e" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool json_token_is_multikey</definition>
+        <argsstring>(struct json_token *token)</argsstring>
+        <name>json_token_is_multikey</name>
+        <param>
+          <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+          <declname>token</declname>
+        </param>
+        <briefdescription>
+<para>Test if a given JSON token is multikey. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="317" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="317" bodyend="321"/>
+      </memberdef>
+      <memberdef kind="function" id="json_8h_1a13458d3ccfdbe689aad45293c948c516" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int json_tree_snprint_path</definition>
+        <argsstring>(char *buf, int size, const struct json_token *token, int index_base)</argsstring>
+        <name>json_tree_snprint_path</name>
+        <param>
+          <type>char *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+          <declname>token</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>index_base</declname>
+        </param>
+        <briefdescription>
+<para>An snprint-style function to print the path to a token in a JSON tree. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="328" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.c" bodystart="358" bodyend="406"/>
+      </memberdef>
+      <memberdef kind="function" id="json_8h_1aa1cf31518999d4ff863c494b92290010" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int json_tree_create</definition>
+        <argsstring>(struct json_tree *tree)</argsstring>
+        <name>json_tree_create</name>
+        <param>
+          <type>struct <ref refid="structjson__tree" kindref="compound">json_tree</ref> *</type>
+          <declname>tree</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a new empty JSON tree. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns 0 on success, -1 on memory allocation error. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="337" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.c" bodystart="450" bodyend="459"/>
+      </memberdef>
+      <memberdef kind="function" id="json_8h_1ab8156d6c2b616f860023c735c16a9d6b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void json_tree_destroy</definition>
+        <argsstring>(struct json_tree *tree)</argsstring>
+        <name>json_tree_destroy</name>
+        <param>
+          <type>struct <ref refid="structjson__tree" kindref="compound">json_tree</ref> *</type>
+          <declname>tree</declname>
+        </param>
+        <briefdescription>
+<para>Destroy a JSON tree. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note, this routine expects the tree to be empty - the caller is supposed to use json_tree_foreach_safe() and json_tree_del() to dismantle the tree before calling this function. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="347" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.c" bodystart="471" bodyend="475"/>
+      </memberdef>
+      <memberdef kind="function" id="json_8h_1a020adc719abb177aa2f0e499022726df" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+        <definition>struct json_token* json_tree_lookup_slowpath</definition>
+        <argsstring>(struct json_tree *tree, struct json_token *parent, const struct json_token *token)</argsstring>
+        <name>json_tree_lookup_slowpath</name>
+        <param>
+          <type>struct <ref refid="structjson__tree" kindref="compound">json_tree</ref> *</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+          <declname>parent</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+          <declname>token</declname>
+        </param>
+        <briefdescription>
+<para>Internal function, use json_tree_lookup() instead. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="353" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.c" bodystart="478" bodyend="494"/>
+      </memberdef>
+      <memberdef kind="function" id="json_8h_1ade10081199241aea6eab90be257a3317" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+        <definition>static struct json_token* json_tree_lookup</definition>
+        <argsstring>(struct json_tree *tree, struct json_token *parent, const struct json_token *token)</argsstring>
+        <name>json_tree_lookup</name>
+        <param>
+          <type>struct <ref refid="structjson__tree" kindref="compound">json_tree</ref> *</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+          <declname>parent</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+          <declname>token</declname>
+        </param>
+        <briefdescription>
+<para>Look up a token in a JSON tree given a parent token and a key. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns NULL if not found. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="362" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="362" bodyend="386"/>
+      </memberdef>
+      <memberdef kind="function" id="json_8h_1aa7ad5b47ce326f3a70977b3e096a3e20" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int json_tree_add</definition>
+        <argsstring>(struct json_tree *tree, struct json_token *parent, struct json_token *token)</argsstring>
+        <name>json_tree_add</name>
+        <param>
+          <type>struct <ref refid="structjson__tree" kindref="compound">json_tree</ref> *</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+          <declname>parent</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+          <declname>token</declname>
+        </param>
+        <briefdescription>
+<para>Insert a token into a JSON tree at a given position. </para>        </briefdescription>
+        <detaileddescription>
+<para>The token key (json_token::type and num/str,len) must be set, e.g. by json_lexer_next_token(). The caller must ensure that no token with the same key is linked to the same parent, e.g. with json_tree_lookup().</para><para>Returns 0 on success, -1 on memory allocation error. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="399" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.c" bodystart="497" bodyend="545"/>
+      </memberdef>
+      <memberdef kind="function" id="json_8h_1add5c35539ef71be57345aa60d0530183" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void json_tree_del</definition>
+        <argsstring>(struct json_tree *tree, struct json_token *token)</argsstring>
+        <name>json_tree_del</name>
+        <param>
+          <type>struct <ref refid="structjson__tree" kindref="compound">json_tree</ref> *</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+          <declname>token</declname>
+        </param>
+        <briefdescription>
+<para>Delete a token from a JSON tree. </para>        </briefdescription>
+        <detaileddescription>
+<para>The token must be linked to the tree (see json_tree_add()) and must not have any children. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="409" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.c" bodystart="548" bodyend="574"/>
+      </memberdef>
+      <memberdef kind="function" id="json_8h_1aeef2688d6ce7ac1bc4bc2b995c75cf5d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+        <definition>struct json_token* json_tree_lookup_path</definition>
+        <argsstring>(struct json_tree *tree, struct json_token *root, const char *path, int path_len, int index_base)</argsstring>
+        <name>json_tree_lookup_path</name>
+        <param>
+          <type>struct <ref refid="structjson__tree" kindref="compound">json_tree</ref> *</type>
+          <declname>tree</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+          <declname>root</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>path</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>path_len</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>index_base</declname>
+        </param>
+        <briefdescription>
+<para>Look up a token in a JSON tree by path. </para>        </briefdescription>
+        <detaileddescription>
+<para>The path is relative to the given root token. In order to look up a token by absolute path, pass <ref refid="structjson__tree_1a6023c2bf7ea4008a9cc7e61f9080c0f8" kindref="member">json_tree::root</ref>. The index_base is passed to <ref refid="structjson__lexer" kindref="compound">json_lexer</ref> used for tokenizing the path, see json_lexer_create() for more details.</para><para>Returns NULL if no token is found or the path is invalid. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="422" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.c" bodystart="577" bodyend="603"/>
+      </memberdef>
+      <memberdef kind="function" id="json_8h_1a769f4d1b1078475edad1c2ea0ae961bf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+        <definition>struct json_token* json_tree_preorder_next</definition>
+        <argsstring>(struct json_token *root, struct json_token *pos)</argsstring>
+        <name>json_tree_preorder_next</name>
+        <param>
+          <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+          <declname>root</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+          <declname>pos</declname>
+        </param>
+        <briefdescription>
+<para>Perform pre-order traversal in a JSON subtree rooted at a given node. </para>        </briefdescription>
+        <detaileddescription>
+<para>To start a new traversal, pass NULL for . Returns  at the first iteration. Returns NULL when traversal is over. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="434" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.c" bodystart="639" bodyend="651"/>
+      </memberdef>
+      <memberdef kind="function" id="json_8h_1a19b974c4815acee7613cea891efe8ef3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+        <definition>struct json_token* json_tree_postorder_next</definition>
+        <argsstring>(struct json_token *root, struct json_token *pos)</argsstring>
+        <name>json_tree_postorder_next</name>
+        <param>
+          <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+          <declname>root</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+          <declname>pos</declname>
+        </param>
+        <briefdescription>
+<para>Perform post-order traversal in a JSON subtree rooted at a given node. </para>        </briefdescription>
+        <detaileddescription>
+<para>To start a new traversal, pass NULL for . Returns  at the last iteration. Returns NULL when traversal is over. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="445" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.c" bodystart="654" bodyend="665"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LIB_JSON_JSON_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LIB_JSON_JSON_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2018<sp/>Tarantool<sp/>AUTHORS:<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trivia/util.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>typeof</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>typeof<sp/>__typeof__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50" refid="structjson__lexer" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjson__lexer" kindref="compound">json_lexer</ref><sp/>{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structjson__lexer_1a96cfe0b9483de95a9a6b550bc45ce575" kindref="member">src</ref>;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structjson__lexer_1ab5c78510c65af690e2d31fd379e28522" kindref="member">src_len</ref>;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structjson__lexer_1a8f771b199b100d551112e4027a7136a5" kindref="member">offset</ref>;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structjson__lexer_1a3a7d9a39573f1b2267c71512eb29851d" kindref="member">symbol_count</ref>;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structjson__lexer_1ac573797bad860672ec4e3813c0550bf9" kindref="member">index_base</ref>;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>json_token_type<sp/>{</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>JSON_TOKEN_NUM,</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>JSON_TOKEN_STR,</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>JSON_TOKEN_ANY,</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>JSON_TOKEN_END,</highlight></codeline>
+<codeline lineno="72"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83" refid="structjson__token" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>{</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>json_token_type<sp/>type;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*str;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>len;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>num;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*<ref refid="structjson__token_1afd6c04813b839b2c6ce2a89e12d83098" kindref="member">parent</ref>;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>**<ref refid="structjson__token_1a43ba43314cf1454fcf50db5f7b6697de" kindref="member">children</ref>;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structjson__token_1a040b29a3ce1b7824348f40ec3f795de2" kindref="member">children_capacity</ref>;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structjson__token_1aeeab6e48780a1467533de923f2b2ca04" kindref="member">max_child_idx</ref>;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structjson__token_1a540ee2b5384cd181412ab96e3e88ab8a" kindref="member">sibling_idx</ref>;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structjson__token_1aeec0c5a0d162f7e61b3e127478ed3f1a" kindref="member">hash</ref>;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">mh_json_t;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175" refid="structjson__tree" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjson__tree" kindref="compound">json_tree</ref><sp/>{</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>root;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">mh_json_t<sp/>*hash;</highlight></codeline>
+<codeline lineno="211"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="222"><highlight class="normal">json_lexer_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__lexer" kindref="compound">json_lexer</ref><sp/>*lexer,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structjson__lexer_1a96cfe0b9483de95a9a6b550bc45ce575" kindref="member">src</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structjson__lexer_1ab5c78510c65af690e2d31fd379e28522" kindref="member">src_len</ref>,</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structjson__lexer_1ac573797bad860672ec4e3813c0550bf9" kindref="member">index_base</ref>)</highlight></codeline>
+<codeline lineno="224"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lexer-&gt;<ref refid="structjson__lexer_1a96cfe0b9483de95a9a6b550bc45ce575" kindref="member">src</ref><sp/>=<sp/><ref refid="structjson__lexer_1a96cfe0b9483de95a9a6b550bc45ce575" kindref="member">src</ref>;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lexer-&gt;<ref refid="structjson__lexer_1ab5c78510c65af690e2d31fd379e28522" kindref="member">src_len</ref><sp/>=<sp/><ref refid="structjson__lexer_1ab5c78510c65af690e2d31fd379e28522" kindref="member">src_len</ref>;</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lexer-&gt;<ref refid="structjson__lexer_1a8f771b199b100d551112e4027a7136a5" kindref="member">offset</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lexer-&gt;<ref refid="structjson__lexer_1a3a7d9a39573f1b2267c71512eb29851d" kindref="member">symbol_count</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lexer-&gt;<ref refid="structjson__lexer_1ac573797bad860672ec4e3813c0550bf9" kindref="member">index_base</ref><sp/>=<sp/><ref refid="structjson__lexer_1ac573797bad860672ec4e3813c0550bf9" kindref="member">index_base</ref>;</highlight></codeline>
+<codeline lineno="230"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal">json_lexer_next_token(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__lexer" kindref="compound">json_lexer</ref><sp/>*lexer,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*token);</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="normal">json_lexer_is_eof(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__lexer" kindref="compound">json_lexer</ref><sp/>*lexer)</highlight></codeline>
+<codeline lineno="247"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>lexer-&gt;<ref refid="structjson__lexer_1a8f771b199b100d551112e4027a7136a5" kindref="member">offset</ref><sp/>==<sp/>lexer-&gt;<ref refid="structjson__lexer_1ab5c78510c65af690e2d31fd379e28522" kindref="member">src_len</ref>;</highlight></codeline>
+<codeline lineno="249"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"></highlight></codeline>
+<codeline lineno="258"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="259"><highlight class="normal">json_path_cmp(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*a,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>a_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*b,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>b_len,</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index_base);</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="267"><highlight class="normal">json_path_validate(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*path,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>path_len,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index_base);</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="277"><highlight class="normal">json_path_multikey_offset(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*path,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>path_len,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index_base);</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"></highlight></codeline>
+<codeline lineno="283"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="284"><highlight class="normal">json_token_is_leaf(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*token)</highlight></codeline>
+<codeline lineno="285"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>token-&gt;<ref refid="structjson__token_1aeeab6e48780a1467533de923f2b2ca04" kindref="member">max_child_idx</ref><sp/>&lt;<sp/>0;</highlight></codeline>
+<codeline lineno="287"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"></highlight></codeline>
+<codeline lineno="296"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="297"><highlight class="normal">json_token_cmp(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*l,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*r)</highlight></codeline>
+<codeline lineno="298"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(l-&gt;type<sp/>!=<sp/>r-&gt;type)</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>l-&gt;type<sp/>-<sp/>r-&gt;type;</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal">(l-&gt;type)<sp/>{</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>JSON_TOKEN_NUM:</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>l-&gt;<ref refid="structjson__token_1a08cfd5e94e703ddf272a5af24087f847" kindref="member">num</ref><sp/>-<sp/>r-&gt;<ref refid="structjson__token_1a08cfd5e94e703ddf272a5af24087f847" kindref="member">num</ref>;</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>JSON_TOKEN_STR:</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(l-&gt;<ref refid="structjson__token_1a62f334c0585bbc7b030dc0c2131dd127" kindref="member">len</ref><sp/>!=<sp/>r-&gt;<ref refid="structjson__token_1a62f334c0585bbc7b030dc0c2131dd127" kindref="member">len</ref>)</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>l-&gt;<ref refid="structjson__token_1a62f334c0585bbc7b030dc0c2131dd127" kindref="member">len</ref><sp/>-<sp/>r-&gt;<ref refid="structjson__token_1a62f334c0585bbc7b030dc0c2131dd127" kindref="member">len</ref>;</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>memcmp(l-&gt;<ref refid="structjson__token_1acda9730cd0b93ca4a2c4da1127cc5344" kindref="member">str</ref>,<sp/>r-&gt;<ref refid="structjson__token_1acda9730cd0b93ca4a2c4da1127cc5344" kindref="member">str</ref>,<sp/>l-&gt;<ref refid="structjson__token_1a62f334c0585bbc7b030dc0c2131dd127" kindref="member">len</ref>);</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="311"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"></highlight></codeline>
+<codeline lineno="316"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="317"><highlight class="normal">json_token_is_multikey(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*token)</highlight></codeline>
+<codeline lineno="318"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>token-&gt;<ref refid="structjson__token_1aeeab6e48780a1467533de923f2b2ca04" kindref="member">max_child_idx</ref><sp/>==<sp/>0<sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>token-&gt;<ref refid="structjson__token_1a43ba43314cf1454fcf50db5f7b6697de" kindref="member">children</ref>[0]-&gt;type<sp/>==<sp/>JSON_TOKEN_ANY;</highlight></codeline>
+<codeline lineno="321"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"></highlight></codeline>
+<codeline lineno="327"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="328"><highlight class="normal">json_tree_snprint_path(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>size,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*token,</highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index_base);</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"></highlight></codeline>
+<codeline lineno="336"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="337"><highlight class="normal">json_tree_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__tree" kindref="compound">json_tree</ref><sp/>*tree);</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"></highlight></codeline>
+<codeline lineno="346"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="347"><highlight class="normal">json_tree_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__tree" kindref="compound">json_tree</ref><sp/>*tree);</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"></highlight></codeline>
+<codeline lineno="352"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*</highlight></codeline>
+<codeline lineno="353"><highlight class="normal">json_tree_lookup_slowpath(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__tree" kindref="compound">json_tree</ref><sp/>*tree,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*<ref refid="structjson__token_1afd6c04813b839b2c6ce2a89e12d83098" kindref="member">parent</ref>,</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*token);</highlight></codeline>
+<codeline lineno="355"><highlight class="normal"></highlight></codeline>
+<codeline lineno="361"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*</highlight></codeline>
+<codeline lineno="362"><highlight class="normal">json_tree_lookup(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__tree" kindref="compound">json_tree</ref><sp/>*tree,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*parent,</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*token)</highlight></codeline>
+<codeline lineno="364"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="365"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*ret<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="366"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(unlikely(json_token_is_multikey(parent)))<sp/>{</highlight></codeline>
+<codeline lineno="367"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(parent-&gt;<ref refid="structjson__token_1aeeab6e48780a1467533de923f2b2ca04" kindref="member">max_child_idx</ref><sp/>==<sp/>0);</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>parent-&gt;<ref refid="structjson__token_1a43ba43314cf1454fcf50db5f7b6697de" kindref="member">children</ref>[0];</highlight></codeline>
+<codeline lineno="369"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="370"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(token-&gt;type)<sp/>{</highlight></codeline>
+<codeline lineno="371"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>JSON_TOKEN_NUM:</highlight></codeline>
+<codeline lineno="372"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(likely(token-&gt;<ref refid="structjson__token_1a08cfd5e94e703ddf272a5af24087f847" kindref="member">num</ref><sp/>&lt;=<sp/>parent-&gt;<ref refid="structjson__token_1aeeab6e48780a1467533de923f2b2ca04" kindref="member">max_child_idx</ref>))</highlight></codeline>
+<codeline lineno="373"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ret<sp/>=<sp/>parent-&gt;<ref refid="structjson__token_1a43ba43314cf1454fcf50db5f7b6697de" kindref="member">children</ref>[token-&gt;<ref refid="structjson__token_1a08cfd5e94e703ddf272a5af24087f847" kindref="member">num</ref>];</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>JSON_TOKEN_ANY:</highlight></codeline>
+<codeline lineno="376"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(likely(parent-&gt;<ref refid="structjson__token_1aeeab6e48780a1467533de923f2b2ca04" kindref="member">max_child_idx</ref><sp/>&gt;=<sp/>0))</highlight></codeline>
+<codeline lineno="377"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ret<sp/>=<sp/>parent-&gt;<ref refid="structjson__token_1a43ba43314cf1454fcf50db5f7b6697de" kindref="member">children</ref>[parent-&gt;<ref refid="structjson__token_1aeeab6e48780a1467533de923f2b2ca04" kindref="member">max_child_idx</ref>];</highlight></codeline>
+<codeline lineno="378"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="379"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>JSON_TOKEN_STR:</highlight></codeline>
+<codeline lineno="380"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ret<sp/>=<sp/>json_tree_lookup_slowpath(tree,<sp/>parent,<sp/>token);</highlight></codeline>
+<codeline lineno="381"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="382"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="383"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>unreachable();</highlight></codeline>
+<codeline lineno="384"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="385"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ret;</highlight></codeline>
+<codeline lineno="386"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="387"><highlight class="normal"></highlight></codeline>
+<codeline lineno="398"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="399"><highlight class="normal">json_tree_add(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__tree" kindref="compound">json_tree</ref><sp/>*tree,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*parent,</highlight></codeline>
+<codeline lineno="400"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*token);</highlight></codeline>
+<codeline lineno="401"><highlight class="normal"></highlight></codeline>
+<codeline lineno="408"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="409"><highlight class="normal">json_tree_del(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__tree" kindref="compound">json_tree</ref><sp/>*tree,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*token);</highlight></codeline>
+<codeline lineno="410"><highlight class="normal"></highlight></codeline>
+<codeline lineno="421"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*</highlight></codeline>
+<codeline lineno="422"><highlight class="normal">json_tree_lookup_path(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__tree" kindref="compound">json_tree</ref><sp/>*tree,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*root,</highlight></codeline>
+<codeline lineno="423"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*path,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>path_len,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index_base);</highlight></codeline>
+<codeline lineno="424"><highlight class="normal"></highlight></codeline>
+<codeline lineno="433"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*</highlight></codeline>
+<codeline lineno="434"><highlight class="normal">json_tree_preorder_next(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*root,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*pos);</highlight></codeline>
+<codeline lineno="435"><highlight class="normal"></highlight></codeline>
+<codeline lineno="444"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*</highlight></codeline>
+<codeline lineno="445"><highlight class="normal">json_tree_postorder_next(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*root,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*pos);</highlight></codeline>
+<codeline lineno="446"><highlight class="normal"></highlight></codeline>
+<codeline lineno="452"><highlight class="preprocessor">#define<sp/>json_tree_foreach_preorder(pos,<sp/>root)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="453"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>for<sp/>((pos)<sp/>=<sp/>json_tree_preorder_next((root),<sp/>(root));<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="454"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(pos)<sp/>!=<sp/>NULL;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="455"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(pos)<sp/>=<sp/>json_tree_preorder_next((root),<sp/>(pos)))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="456"><highlight class="normal"></highlight></codeline>
+<codeline lineno="462"><highlight class="preprocessor">#define<sp/>json_tree_foreach_postorder(pos,<sp/>root)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="463"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>for<sp/>((pos)<sp/>=<sp/>json_tree_postorder_next((root),<sp/>NULL);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="464"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(pos)<sp/>!=<sp/>(root);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="465"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(pos)<sp/>=<sp/>json_tree_postorder_next((root),<sp/>(pos)))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="466"><highlight class="normal"></highlight></codeline>
+<codeline lineno="472"><highlight class="preprocessor">#define<sp/>json_tree_foreach_safe(pos,<sp/>root,<sp/>tmp)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="473"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>for<sp/>((pos)<sp/>=<sp/>json_tree_postorder_next((root),<sp/>NULL);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="474"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(pos)<sp/>!=<sp/>(root)<sp/>&amp;&amp;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="475"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((tmp)<sp/>=<sp/>json_tree_postorder_next((root),<sp/>(pos)))<sp/>!=<sp/>NULL;<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="476"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(pos)<sp/>=<sp/>(tmp))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="477"><highlight class="normal"></highlight></codeline>
+<codeline lineno="481"><highlight class="preprocessor">#define<sp/>json_tree_entry(token,<sp/>type,<sp/>member)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="482"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>container_of((token),<sp/>type,<sp/>member)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="483"><highlight class="normal"></highlight></codeline>
+<codeline lineno="487"><highlight class="preprocessor">#define<sp/>json_tree_entry_safe(token,<sp/>type,<sp/>member)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="488"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((token)<sp/>!=<sp/>NULL<sp/>?<sp/>json_tree_entry((token),<sp/>type,<sp/>member)<sp/>:<sp/>NULL)<sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="489"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="490"><highlight class="normal"></highlight></codeline>
+<codeline lineno="493"><highlight class="preprocessor">#define<sp/>json_tree_lookup_entry(tree,<sp/>parent,<sp/>token,<sp/>type,<sp/>member)<sp/>({<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="494"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>struct<sp/>json_token<sp/>*ret<sp/>=<sp/>json_tree_lookup((tree),<sp/>(parent),<sp/>(token));\</highlight></codeline>
+<codeline lineno="495"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>json_tree_entry_safe(ret,<sp/>type,<sp/>member);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="496"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="497"><highlight class="normal"></highlight></codeline>
+<codeline lineno="501"><highlight class="preprocessor">#define<sp/>json_tree_lookup_path_entry(tree,<sp/>root,<sp/>path,<sp/>path_len,<sp/>index_base,<sp/><sp/>\</highlight></codeline>
+<codeline lineno="502"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>type,<sp/>member)<sp/>({<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="503"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>struct<sp/>json_token<sp/>*ret<sp/>=<sp/>json_tree_lookup_path((tree),<sp/>(root),<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="504"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(path),<sp/>(path_len),<sp/>(index_base));<sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="505"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>json_tree_entry_safe(ret,<sp/>type,<sp/>member);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="506"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="507"><highlight class="normal"></highlight></codeline>
+<codeline lineno="511"><highlight class="preprocessor">#define<sp/>json_tree_preorder_next_entry(root,<sp/>pos,<sp/>type,<sp/>member)<sp/>({<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="512"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>struct<sp/>json_token<sp/>*next<sp/>=<sp/>json_tree_preorder_next((root),<sp/>(pos));<sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="513"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>json_tree_entry_safe(next,<sp/>type,<sp/>member);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="514"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="515"><highlight class="normal"></highlight></codeline>
+<codeline lineno="519"><highlight class="preprocessor">#define<sp/>json_tree_postorder_next_entry(root,<sp/>pos,<sp/>type,<sp/>member)<sp/>({<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="520"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>struct<sp/>json_token<sp/>*next<sp/>=<sp/>json_tree_postorder_next((root),<sp/>(pos));<sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="521"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>json_tree_entry_safe(next,<sp/>type,<sp/>member);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="522"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="523"><highlight class="normal"></highlight></codeline>
+<codeline lineno="527"><highlight class="preprocessor">#define<sp/>json_tree_foreach_entry_preorder(pos,<sp/>root,<sp/>type,<sp/>member)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="528"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>for<sp/>((pos)<sp/>=<sp/>json_tree_preorder_next_entry((root),<sp/>(root),<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="529"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>type,<sp/>member);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="530"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(pos)<sp/>!=<sp/>NULL;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="531"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(pos)<sp/>=<sp/>json_tree_preorder_next_entry((root),<sp/>&amp;(pos)-&gt;member,<sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="532"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>type,<sp/>member))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="533"><highlight class="normal"></highlight></codeline>
+<codeline lineno="537"><highlight class="preprocessor">#define<sp/>json_tree_foreach_entry_postorder(pos,<sp/>root,<sp/>type,<sp/>member)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="538"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>for<sp/>((pos)<sp/>=<sp/>json_tree_postorder_next_entry((root),<sp/>NULL,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="539"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>type,<sp/>member);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="540"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;(pos)-&gt;member<sp/>!=<sp/>(root);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="541"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(pos)<sp/>=<sp/>json_tree_postorder_next_entry((root),<sp/>&amp;(pos)-&gt;member,<sp/><sp/>\</highlight></codeline>
+<codeline lineno="542"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>type,<sp/>member))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="543"><highlight class="normal"></highlight></codeline>
+<codeline lineno="547"><highlight class="preprocessor">#define<sp/>json_tree_foreach_entry_safe(pos,<sp/>root,<sp/>type,<sp/>member,<sp/>tmp)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="548"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>for<sp/>((pos)<sp/>=<sp/>json_tree_postorder_next_entry((root),<sp/>NULL,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="549"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>type,<sp/>member);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="550"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;(pos)-&gt;member<sp/>!=<sp/>(root)<sp/>&amp;&amp;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="551"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((tmp)<sp/>=<sp/>json_tree_postorder_next_entry((root),<sp/>&amp;(pos)-&gt;member,<sp/>\</highlight></codeline>
+<codeline lineno="552"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>type,<sp/>member))<sp/>!=<sp/>NULL;<sp/>\</highlight></codeline>
+<codeline lineno="553"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(pos)<sp/>=<sp/>(tmp))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="554"><highlight class="normal"></highlight></codeline>
+<codeline lineno="555"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="556"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="557"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="558"><highlight class="normal"></highlight></codeline>
+<codeline lineno="559"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_JSON_JSON_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/json/json.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,150 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvy__history" kind="struct" language="C++" prot="public">
+    <compoundname>vy_history</compoundname>
+    <includes local="no">vy_history.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvy__history_1ae22074272596c5157d64ca6fa2e59353" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist vy_history::stmts</definition>
+        <argsstring></argsstring>
+        <name>stmts</name>
+        <briefdescription>
+<para>List of statements sorted by LSN in descending order. </para>        </briefdescription>
+        <detaileddescription>
+<para>Linked by <ref refid="structvy__history__node_1a65aac9de407b74577b5744fd8cef1c9c" kindref="member">vy_history_node::link</ref>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_history.h" line="154" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_history.h" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__history_1aa151ae819e107617a0e7f8604ddc9392" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmempool" kindref="compound">mempool</ref> *</type>
+        <definition>struct mempool* vy_history::pool</definition>
+        <argsstring></argsstring>
+        <name>pool</name>
+        <briefdescription>
+<para>Memory pool for <ref refid="structvy__history__node" kindref="compound">vy_history_node</ref> allocations. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_history.h" line="55" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_history.h" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Key history. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="13116">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="13111">
+        <label>mempool</label>
+        <link refid="structmempool"/>
+        <childnode refid="13112" relation="usage">
+          <edgelabel>spare</edgelabel>
+          <edgelabel>first_hot_slab</edgelabel>
+        </childnode>
+        <childnode refid="13115" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="13117" relation="usage">
+          <edgelabel>link</edgelabel>
+          <edgelabel>delayed</edgelabel>
+        </childnode>
+        <childnode refid="13113" relation="usage">
+          <edgelabel>cold_slabs</edgelabel>
+        </childnode>
+        <childnode refid="13118" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="13113">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="13113" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="13115">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="13116" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="13113" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="13120">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="13112">
+        <label>mslab</label>
+        <link refid="structmslab"/>
+        <childnode refid="13113" relation="usage">
+          <edgelabel>next_in_cold</edgelabel>
+        </childnode>
+        <childnode refid="13114" relation="usage">
+          <edgelabel>slab</edgelabel>
+        </childnode>
+      </node>
+      <node id="13121">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="13119">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="13120" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="13121" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="13118">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="13115" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="13119" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="13117">
+        <label>lifo</label>
+        <link refid="structlifo"/>
+      </node>
+      <node id="13110">
+        <label>vy_history</label>
+        <link refid="structvy__history"/>
+        <childnode refid="13111" relation="usage">
+          <edgelabel>pool</edgelabel>
+        </childnode>
+        <childnode refid="13113" relation="usage">
+          <edgelabel>stmts</edgelabel>
+        </childnode>
+      </node>
+      <node id="13114">
+        <label>slab</label>
+        <link refid="structslab"/>
+        <childnode refid="13113" relation="usage">
+          <edgelabel>next_in_cache</edgelabel>
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/vy_history.h" line="48" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_history.h" bodystart="48" bodyend="56"/>
+    <listofallmembers>
+      <member refid="structvy__history_1aa151ae819e107617a0e7f8604ddc9392" prot="public" virt="non-virtual"><scope>vy_history</scope><name>pool</name></member>
+      <member refid="structvy__history_1ae22074272596c5157d64ca6fa2e59353" prot="public" virt="non-virtual"><scope>vy_history</scope><name>stmts</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

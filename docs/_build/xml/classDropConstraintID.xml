@@ -1,0 +1,167 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="classDropConstraintID" kind="class" language="C++" prot="public">
+    <compoundname>DropConstraintID</compoundname>
+    <basecompoundref refid="classAlterSpaceOp" prot="public" virt="non-virtual">AlterSpaceOp</basecompoundref>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classDropConstraintID_1a12d9b73f2588b1dfe44ab2abba53180b" prot="private" static="no" mutable="no">
+        <type>struct <ref refid="structconstraint__id" kindref="compound">constraint_id</ref> *</type>
+        <definition>struct constraint_id* DropConstraintID::old_id</definition>
+        <argsstring></argsstring>
+        <name>old_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1888" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1888" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classDropConstraintID_1a779118faed7b82f63988516dc3cb25a4" prot="private" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* DropConstraintID::name</definition>
+        <argsstring></argsstring>
+        <name>name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1889" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1889" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classDropConstraintID_1a3b85fea9b98a698ba85d39adb81b8236" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>DropConstraintID::DropConstraintID</definition>
+        <argsstring>(struct alter_space *alter, const char *name)</argsstring>
+        <name>DropConstraintID</name>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+          <declname>alter</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1891" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1891" bodyend="1893"/>
+      </memberdef>
+      <memberdef kind="function" id="classDropConstraintID_1abdb85ee4cb4d9809bdd38a171bee2ebc" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void DropConstraintID::alter</definition>
+        <argsstring>(struct alter_space *alter)</argsstring>
+        <name>alter</name>
+        <reimplements refid="classAlterSpaceOp_1a378a5a70c9583adc7e8e37039deac0c0">alter</reimplements>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+        </param>
+        <briefdescription>
+<para>Called after all registered operations have completed the preparation phase. </para>        </briefdescription>
+        <detaileddescription>
+<para>Used to propagate the old space state to the new space (e.g. move unchanged indexes). Must not yield or fail. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1894" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1900" bodyend="1903"/>
+      </memberdef>
+      <memberdef kind="function" id="classDropConstraintID_1a079cb16caab2b11fca5b7d6a1484abea" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void DropConstraintID::commit</definition>
+        <argsstring>(struct alter_space *alter, int64_t signature)</argsstring>
+        <name>commit</name>
+        <reimplements refid="classAlterSpaceOp_1a87e8be9739a71a0f4100d3a67bd75100">commit</reimplements>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+        </param>
+        <param>
+          <type>int64_t</type>
+        </param>
+        <briefdescription>
+<para>Called after the change has been successfully written to WAL. </para>        </briefdescription>
+        <detaileddescription>
+<para>Must not fail. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1895" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1906" bodyend="1911"/>
+      </memberdef>
+      <memberdef kind="function" id="classDropConstraintID_1a595c6756cdc2aca5696ccd702d7eee8e" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void DropConstraintID::rollback</definition>
+        <argsstring>(struct alter_space *alter)</argsstring>
+        <name>rollback</name>
+        <reimplements refid="classAlterSpaceOp_1aa67d5c66e41e7972f5db131c5a3d9775">rollback</reimplements>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+        </param>
+        <briefdescription>
+<para>Called in case a WAL error occurred. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is supposed to undo the effect of <ref refid="classAlterSpaceOp_1a5c35fcc6fa0a26b350e2bfd8b73c7d8c" kindref="member">AlterSpaceOp::prepare</ref> and <ref refid="classAlterSpaceOp_1a378a5a70c9583adc7e8e37039deac0c0" kindref="member">AlterSpaceOp::alter</ref>. Must not fail. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1896" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1914" bodyend="1920"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="classDropConstraintID" kindref="compound">DropConstraintID</ref> - drop a constraint id from the space. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2644">
+        <label>DropConstraintID</label>
+        <link refid="classDropConstraintID"/>
+        <childnode refid="2645" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2645">
+        <label>AlterSpaceOp</label>
+        <link refid="classAlterSpaceOp"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2648">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="2648" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="2646">
+        <label>DropConstraintID</label>
+        <link refid="classDropConstraintID"/>
+        <childnode refid="2647" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2647">
+        <label>AlterSpaceOp</label>
+        <link refid="classAlterSpaceOp"/>
+        <childnode refid="2648" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1887" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1886" bodyend="1897"/>
+    <listofallmembers>
+      <member refid="classDropConstraintID_1abdb85ee4cb4d9809bdd38a171bee2ebc" prot="public" virt="virtual"><scope>DropConstraintID</scope><name>alter</name></member>
+      <member refid="classAlterSpaceOp_1ada87e0e1106f5316848e451f5609b7a4" prot="public" virt="virtual"><scope>DropConstraintID</scope><name>alter_def</name></member>
+      <member refid="classAlterSpaceOp_1ab74f256d2f9bf750c48d8f9496eb0bc9" prot="public" virt="non-virtual"><scope>DropConstraintID</scope><name>AlterSpaceOp</name></member>
+      <member refid="classDropConstraintID_1a079cb16caab2b11fca5b7d6a1484abea" prot="public" virt="virtual"><scope>DropConstraintID</scope><name>commit</name></member>
+      <member refid="classDropConstraintID_1a3b85fea9b98a698ba85d39adb81b8236" prot="public" virt="non-virtual"><scope>DropConstraintID</scope><name>DropConstraintID</name></member>
+      <member refid="classAlterSpaceOp_1a18479b187ef8611fe72e6ee92904f1be" prot="public" virt="non-virtual"><scope>DropConstraintID</scope><name>link</name></member>
+      <member refid="classDropConstraintID_1a779118faed7b82f63988516dc3cb25a4" prot="private" virt="non-virtual"><scope>DropConstraintID</scope><name>name</name></member>
+      <member refid="classDropConstraintID_1a12d9b73f2588b1dfe44ab2abba53180b" prot="private" virt="non-virtual"><scope>DropConstraintID</scope><name>old_id</name></member>
+      <member refid="classAlterSpaceOp_1a700d3df81c1d87dc0818191dde139cae" prot="public" virt="non-virtual"><scope>DropConstraintID</scope><name>operator delete</name></member>
+      <member refid="classAlterSpaceOp_1ad200979e4bf5c00b78bfef43f259ceba" prot="public" virt="non-virtual"><scope>DropConstraintID</scope><name>operator new</name></member>
+      <member refid="classAlterSpaceOp_1a5c35fcc6fa0a26b350e2bfd8b73c7d8c" prot="public" virt="virtual"><scope>DropConstraintID</scope><name>prepare</name></member>
+      <member refid="classDropConstraintID_1a595c6756cdc2aca5696ccd702d7eee8e" prot="public" virt="virtual"><scope>DropConstraintID</scope><name>rollback</name></member>
+      <member refid="classAlterSpaceOp_1a5549e172b94739b9fa7445b9599f506c" prot="public" virt="virtual"><scope>DropConstraintID</scope><name>~AlterSpaceOp</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

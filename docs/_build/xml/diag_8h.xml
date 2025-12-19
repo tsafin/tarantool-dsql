@@ -1,0 +1,1282 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="diag_8h" kind="file" language="C++">
+    <compoundname>diag.h</compoundname>
+    <includes refid="util_8h" local="no">trivia/util.h</includes>
+    <includes local="no">stdarg.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">assert.h</includes>
+    <includes refid="say_8h" local="yes">say.h</includes>
+    <includedby refid="engine_8h" local="yes">/home/tsafin/tarantool/src/box/engine.h</includedby>
+    <includedby refid="key__def_8h" local="yes">/home/tsafin/tarantool/src/box/key_def.h</includedby>
+    <includedby refid="space_8h" local="yes">/home/tsafin/tarantool/src/box/space.h</includedby>
+    <includedby refid="tuple_8h" local="yes">/home/tsafin/tarantool/src/box/tuple.h</includedby>
+    <includedby refid="xrow_8h" local="yes">/home/tsafin/tarantool/src/box/xrow.h</includedby>
+    <includedby refid="sequence_8h" local="yes">/home/tsafin/tarantool/src/box/sequence.h</includedby>
+    <includedby refid="blackhole_8c" local="yes">/home/tsafin/tarantool/src/box/blackhole.c</includedby>
+    <includedby refid="xstream_8h" local="yes">/home/tsafin/tarantool/src/box/xstream.h</includedby>
+    <includedby refid="coll__id_8c" local="yes">/home/tsafin/tarantool/src/box/coll_id.c</includedby>
+    <includedby refid="coll__id__cache_8c" local="yes">/home/tsafin/tarantool/src/box/coll_id_cache.c</includedby>
+    <includedby refid="constraint__id_8c" local="yes">/home/tsafin/tarantool/src/box/constraint_id.c</includedby>
+    <includedby refid="execute_8c" local="yes">/home/tsafin/tarantool/src/box/execute.c</includedby>
+    <includedby refid="field__map_8c" local="yes">/home/tsafin/tarantool/src/box/field_map.c</includedby>
+    <includedby refid="func_8c" local="yes">/home/tsafin/tarantool/src/box/func.c</includedby>
+    <includedby refid="func__def_8c" local="yes">/home/tsafin/tarantool/src/box/func_def.c</includedby>
+    <includedby refid="gc_8c" local="yes">/home/tsafin/tarantool/src/box/gc.c</includedby>
+    <includedby refid="box_2ibuf_8c" local="yes">/home/tsafin/tarantool/src/box/ibuf.c</includedby>
+    <includedby refid="identifier_8c" local="yes">/home/tsafin/tarantool/src/box/identifier.c</includedby>
+    <includedby refid="journal_8c" local="no">/home/tsafin/tarantool/src/box/journal.c</includedby>
+    <includedby refid="key__list_8c" local="yes">/home/tsafin/tarantool/src/box/key_list.c</includedby>
+    <includedby refid="lua_2key__def_8c" local="yes">/home/tsafin/tarantool/src/box/lua/key_def.c</includedby>
+    <includedby refid="lua_2merger_8c" local="yes">/home/tsafin/tarantool/src/box/lua/merger.c</includedby>
+    <includedby refid="lua_2sequence_8c" local="yes">/home/tsafin/tarantool/src/box/lua/sequence.c</includedby>
+    <includedby refid="lua_2tuple_8c" local="yes">/home/tsafin/tarantool/src/box/lua/tuple.c</includedby>
+    <includedby refid="lua_2xlog_8c" local="no">/home/tsafin/tarantool/src/box/lua/xlog.c</includedby>
+    <includedby refid="merger_8c" local="yes">/home/tsafin/tarantool/src/box/merger.c</includedby>
+    <includedby refid="opt__def_8c" local="yes">/home/tsafin/tarantool/src/box/opt_def.c</includedby>
+    <includedby refid="sequence_8c" local="yes">/home/tsafin/tarantool/src/box/sequence.c</includedby>
+    <includedby refid="space__def_8c" local="yes">/home/tsafin/tarantool/src/box/space_def.c</includedby>
+    <includedby refid="sql__stmt__cache_8c" local="yes">/home/tsafin/tarantool/src/box/sql_stmt_cache.c</includedby>
+    <includedby refid="sysview_8c" local="yes">/home/tsafin/tarantool/src/box/sysview.c</includedby>
+    <includedby refid="tuple__bloom_8c" local="yes">/home/tsafin/tarantool/src/box/tuple_bloom.c</includedby>
+    <includedby refid="tuple__dictionary_8c" local="yes">/home/tsafin/tarantool/src/box/tuple_dictionary.c</includedby>
+    <includedby refid="vclock_8c" local="yes">/home/tsafin/tarantool/src/box/vclock.c</includedby>
+    <includedby refid="vy__scheduler_8h" local="yes">/home/tsafin/tarantool/src/box/vy_scheduler.h</includedby>
+    <includedby refid="vy__cache_8c" local="yes">/home/tsafin/tarantool/src/box/vy_cache.c</includedby>
+    <includedby refid="vy__history_8c" local="yes">/home/tsafin/tarantool/src/box/vy_history.c</includedby>
+    <includedby refid="vy__log_8c" local="yes">/home/tsafin/tarantool/src/box/vy_log.c</includedby>
+    <includedby refid="vy__lsm_8c" local="yes">/home/tsafin/tarantool/src/box/vy_lsm.c</includedby>
+    <includedby refid="vy__mem_8c" local="yes">/home/tsafin/tarantool/src/box/vy_mem.c</includedby>
+    <includedby refid="vy__quota_8c" local="yes">/home/tsafin/tarantool/src/box/vy_quota.c</includedby>
+    <includedby refid="vy__range_8c" local="yes">/home/tsafin/tarantool/src/box/vy_range.c</includedby>
+    <includedby refid="vy__scheduler_8c" local="yes">/home/tsafin/tarantool/src/box/vy_scheduler.c</includedby>
+    <includedby refid="vy__stmt_8c" local="yes">/home/tsafin/tarantool/src/box/vy_stmt.c</includedby>
+    <includedby refid="vy__tx_8c" local="yes">/home/tsafin/tarantool/src/box/vy_tx.c</includedby>
+    <includedby refid="xrow__update_8c" local="yes">/home/tsafin/tarantool/src/box/xrow_update.c</includedby>
+    <includedby refid="curl_8h" local="yes">/home/tsafin/tarantool/src/curl.h</includedby>
+    <includedby refid="httpc_8h" local="yes">/home/tsafin/tarantool/src/httpc.h</includedby>
+    <includedby refid="coll_8c" local="yes">/home/tsafin/tarantool/src/lib/coll/coll.c</includedby>
+    <includedby refid="lib_2core_2fiber_8h" local="yes">/home/tsafin/tarantool/src/lib/core/fiber.h</includedby>
+    <includedby refid="coio__task_8h" local="yes">/home/tsafin/tarantool/src/lib/core/coio_task.h</includedby>
+    <includedby refid="diag_8c" local="yes">/home/tsafin/tarantool/src/lib/core/diag.c</includedby>
+    <includedby refid="exception_8h" local="yes">/home/tsafin/tarantool/src/lib/core/exception.h</includedby>
+    <includedby refid="crypto_8c" local="yes">/home/tsafin/tarantool/src/lib/crypto/crypto.c</includedby>
+    <includedby refid="mpstream_8h" local="yes">/home/tsafin/tarantool/src/lib/mpstream/mpstream.h</includedby>
+    <includedby refid="swim__proto_8c" local="yes">/home/tsafin/tarantool/src/lib/swim/swim_proto.c</includedby>
+    <includedby refid="swim__transport__udp_8c" local="yes">/home/tsafin/tarantool/src/lib/swim/swim_transport_udp.c</includedby>
+    <includedby refid="error_8c" local="no">/home/tsafin/tarantool/src/lua/error.c</includedby>
+    <includedby refid="lua_2popen_8c" local="yes">/home/tsafin/tarantool/src/lua/popen.c</includedby>
+    <includedby refid="lua_2swim_8c" local="yes">/home/tsafin/tarantool/src/lua/swim.c</includedby>
+    <includedby refid="lua_2trigger_8c" local="no">/home/tsafin/tarantool/src/lua/trigger.c</includedby>
+    <includedby refid="utf8_8c" local="yes">/home/tsafin/tarantool/src/lua/utf8.c</includedby>
+    <includedby refid="utils_8c" local="no">/home/tsafin/tarantool/src/lua/utils.c</includedby>
+    <includedby refid="path__lock_8c" local="yes">/home/tsafin/tarantool/src/path_lock.c</includedby>
+    <incdepgraph>
+      <node id="1857">
+        <label>stdbool.h</label>
+      </node>
+      <node id="1854">
+        <label>stdarg.h</label>
+      </node>
+      <node id="1858">
+        <label>assert.h</label>
+      </node>
+      <node id="1856">
+        <label>stdint.h</label>
+      </node>
+      <node id="1855">
+        <label>stddef.h</label>
+      </node>
+      <node id="1853">
+        <label>/home/tsafin/tarantool/src/lib/core/diag.h</label>
+        <link refid="diag_8h"/>
+        <childnode refid="1854" relation="include">
+        </childnode>
+        <childnode refid="1855" relation="include">
+        </childnode>
+        <childnode refid="1856" relation="include">
+        </childnode>
+        <childnode refid="1857" relation="include">
+        </childnode>
+        <childnode refid="1858" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structerror" prot="public">error</innerclass>
+    <innerclass refid="structdiag" prot="public">diag</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="diag_8h_1a42217006446774de014589a36f2b47e3" prot="public" static="no">
+        <name>diag_set</name>
+        <param><defname>class</defname></param>
+        <param><defname>...</defname></param>
+        <initializer>do {					\
+	/* Preserve the original errno. */                              \
+	int save_errno = errno;                                         \
+	say_debug(&quot;%s at %s:%i&quot;, #class, __FILE__, __LINE__);		\
+	struct <ref refid="structerror" kindref="compound">error</ref> *e;						\
+	e = Build##class(__FILE__, __LINE__, ##__VA_ARGS__);		\
+	diag_set_error(diag_get(), e);					\
+	/* Restore the errno which might have been reset.  */           \
+	errno = save_errno;                                             \
+} while (0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="348" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="348" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="diag_8h_1af320ed989407408c24160422c07cef7c" prot="public" static="no">
+        <name>diag_add</name>
+        <param><defname>class</defname></param>
+        <param><defname>...</defname></param>
+        <initializer>do {					\
+	int save_errno = errno;						\
+	say_debug(&quot;%s at %s:%i&quot;, #class, __FILE__, __LINE__);		\
+	struct <ref refid="structerror" kindref="compound">error</ref> *e;						\
+	e = Build##class(__FILE__, __LINE__, ##__VA_ARGS__);		\
+	diag_add_error(diag_get(), e);					\
+	errno = save_errno;						\
+} while (0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="359" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="359" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="diag_8h_1a223be06596dd9ff740bf0a09c8632294" prot="public" static="no">
+        <name>@191</name>
+        <enumvalue id="diag_8h_1a223be06596dd9ff740bf0a09c8632294a8c2a41adf71ec856e4a434901288a389" prot="public">
+          <name>DIAG_ERRMSG_MAX</name>
+          <initializer>= 512</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="diag_8h_1a223be06596dd9ff740bf0a09c8632294a44937694c268304f0c78b1b221c4c0e8" prot="public">
+          <name>DIAG_FILENAME_MAX</name>
+          <initializer>= 256</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="45" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="45" bodyend="48"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="diag_8h_1a7f5f51758f0ceac5a6cf173434cf2141" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* error_f) (struct error *e)</definition>
+        <argsstring>)(struct error *e)</argsstring>
+        <name>error_f</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="53" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="diag_8h_1a33779523ab41176efc18ed4599ac9cd9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void error_ref</definition>
+        <argsstring>(struct error *e)</argsstring>
+        <name>error_ref</name>
+        <param>
+          <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="116" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.c" bodystart="35" bodyend="41"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a6d6b371f4f346830d1776176582e2922" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void error_unref</definition>
+        <argsstring>(struct error *e)</argsstring>
+        <name>error_unref</name>
+        <param>
+          <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="119" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.c" bodystart="44" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a4eb5efa381300266c1467bdcfaf57a34" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void error_unlink_effect</definition>
+        <argsstring>(struct error *e)</argsstring>
+        <name>error_unlink_effect</name>
+        <param>
+          <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para>Unlink error from its effect. </para>        </briefdescription>
+        <detaileddescription>
+<para>For instance: e1 -&gt; e2 -&gt; e3 -&gt; e4 (e1:set_prev(e2); e2:set_prev(e3) ...) unlink(e3): e1 -&gt; e2 -&gt; NULL; e3 -&gt; e4 -&gt; NULL </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="127" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="127" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a3fc6279ab5a1e5d82092e4bd5ba08215" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int error_set_prev</definition>
+        <argsstring>(struct error *e, struct error *prev)</argsstring>
+        <name>error_set_prev</name>
+        <param>
+          <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+          <declname>prev</declname>
+        </param>
+        <briefdescription>
+<para>Set previous error: cut <emphasis>prev</emphasis> from its previous &apos;tail&apos; of causes and link to the one <emphasis>e</emphasis> belongs to. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note that all previous errors starting from <emphasis>prev-&gt;cause</emphasis> are transferred with it as well (i.e. causes for given error are not erased). For instance: e1 -&gt; e2 -&gt; NULL; e3 -&gt; e4 -&gt; NULL; e2:set_effect(e3): e1 -&gt; e2 -&gt; e3 -&gt; e4 -&gt; NULL</para><para><emphasis>effect</emphasis> can be NULL. To be used as ffi method in lua/error.lua.</para><para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>in case adding <emphasis>effect</emphasis> results in list cycles; 0 otherwise. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="153" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.c" bodystart="64" bodyend="106"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1ae7246b13764cc7591d2a2137ec265d83" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>NORETURN void</type>
+        <definition>static NORETURN void error_raise</definition>
+        <argsstring>(struct error *e)</argsstring>
+        <name>error_raise</name>
+        <param>
+          <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="156" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="156" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1ac136ae401ab7bbc4db69737e508fc038" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void error_log</definition>
+        <argsstring>(struct error *e)</argsstring>
+        <name>error_log</name>
+        <param>
+          <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="163" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="163" bodyend="166"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a36841411cbcf5c54f1884d2b0c3d75ec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void error_create</definition>
+        <argsstring>(struct error *e, error_f create, error_f raise, error_f log, const struct type_info *type, const char *file, unsigned line)</argsstring>
+        <name>error_create</name>
+        <param>
+          <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>error_f</type>
+          <declname>create</declname>
+        </param>
+        <param>
+          <type>error_f</type>
+          <declname>raise</declname>
+        </param>
+        <param>
+          <type>error_f</type>
+          <declname>log</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structtype__info" kindref="compound">type_info</ref> *</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>file</declname>
+        </param>
+        <param>
+          <type>unsigned</type>
+          <declname>line</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="169" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.c" bodystart="109" bodyend="129"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1afe85075be59020f5a0949540a5aba600" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void error_format_msg</definition>
+        <argsstring>(struct error *e, const char *format,...)</argsstring>
+        <name>error_format_msg</name>
+        <param>
+          <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>...</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="175" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.c" bodystart="138" bodyend="144"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a1c38c078b1ce6e6665cde0a6a152aa3f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void error_vformat_msg</definition>
+        <argsstring>(struct error *e, const char *format, va_list ap)</argsstring>
+        <name>error_vformat_msg</name>
+        <param>
+          <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+          <declname>e</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>va_list</type>
+          <declname>ap</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="178" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.c" bodystart="147" bodyend="150"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a162a6cab7ebd7d15eafe9902ee62048b" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void diag_create</definition>
+        <argsstring>(struct diag *diag)</argsstring>
+        <name>diag_create</name>
+        <param>
+          <type>struct <ref refid="structdiag" kindref="compound">diag</ref> *</type>
+          <declname>diag</declname>
+        </param>
+        <briefdescription>
+<para>Create a new diagnostics area. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>diag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>diagnostics area to initialize </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="194" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="194" bodyend="197"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a332cbb5702e492fcb788882d6732b728" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool diag_is_empty</definition>
+        <argsstring>(struct diag *diag)</argsstring>
+        <name>diag_is_empty</name>
+        <param>
+          <type>struct <ref refid="structdiag" kindref="compound">diag</ref> *</type>
+          <declname>diag</declname>
+        </param>
+        <briefdescription>
+<para>Return true if diagnostics area is empty. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>diag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>diagnostics area to initialize </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="203" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="203" bodyend="206"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1abe5b7452070e5dbd58172618d3bb4483" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void diag_clear</definition>
+        <argsstring>(struct diag *diag)</argsstring>
+        <name>diag_clear</name>
+        <param>
+          <type>struct <ref refid="structdiag" kindref="compound">diag</ref> *</type>
+          <declname>diag</declname>
+        </param>
+        <briefdescription>
+<para>Remove all errors from the diagnostics area. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>diag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>diagnostics area </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="213" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="213" bodyend="219"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a2976dff15a93058f0416fe75ad885b43" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void diag_set_error</definition>
+        <argsstring>(struct diag *diag, struct error *e)</argsstring>
+        <name>diag_set_error</name>
+        <param>
+          <type>struct <ref refid="structdiag" kindref="compound">diag</ref> *</type>
+          <declname>diag</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para>Set a new error to the diagnostics area, replacing existent. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>diag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>diagnostics area </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>e</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>error to add </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="227" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="227" bodyend="234"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a0dc81d973b60fae53b190ce420126a62" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void diag_add_error</definition>
+        <argsstring>(struct diag *diag, struct error *e)</argsstring>
+        <name>diag_add_error</name>
+        <param>
+          <type>struct <ref refid="structdiag" kindref="compound">diag</ref> *</type>
+          <declname>diag</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+<para>Add a new error to the diagnostics area. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is added to the tail, so that list forms stack. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>diag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Diagnostics area. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>e</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error to be added. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="243" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="243" bodyend="258"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a9319c41c71f922bc9515e13d162c7dc0" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void diag_move</definition>
+        <argsstring>(struct diag *from, struct diag *to)</argsstring>
+        <name>diag_move</name>
+        <param>
+          <type>struct <ref refid="structdiag" kindref="compound">diag</ref> *</type>
+          <declname>from</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structdiag" kindref="compound">diag</ref> *</type>
+          <declname>to</declname>
+        </param>
+        <briefdescription>
+<para>Move all errors from <emphasis>from</emphasis> to <emphasis>to</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>from</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>source </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>to</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>destination </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="post"><para>diag_is_empty(from) </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="267" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="267" bodyend="274"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a4505f96d472da781222e37619c919564" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void diag_destroy</definition>
+        <argsstring>(struct diag *diag)</argsstring>
+        <name>diag_destroy</name>
+        <param>
+          <type>struct <ref refid="structdiag" kindref="compound">diag</ref> *</type>
+          <declname>diag</declname>
+        </param>
+        <briefdescription>
+<para>Destroy diagnostics area. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>diag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>diagnostics area to clean </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="281" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="281" bodyend="284"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a5d193a8b25b399abcd5ce3cf2a8b5ac5" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+        <definition>static struct error* diag_last_error</definition>
+        <argsstring>(struct diag *diag)</argsstring>
+        <name>diag_last_error</name>
+        <param>
+          <type>struct <ref refid="structdiag" kindref="compound">diag</ref> *</type>
+          <declname>diag</declname>
+        </param>
+        <briefdescription>
+<para>Return last error. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>last error </para></simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>diag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>diagnostics area </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="292" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="292" bodyend="295"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a6ca0b8ff39a5953a0cedb449490e1acf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structdiag" kindref="compound">diag</ref> *</type>
+        <definition>struct diag* diag_get</definition>
+        <argsstring>(void)</argsstring>
+        <name>diag_get</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="298" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.c" bodystart="132" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a0b1307535da8f2274a08ec95b03f5e6d" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>NORETURN void</type>
+        <definition>static NORETURN void diag_raise</definition>
+        <argsstring>(void)</argsstring>
+        <name>diag_raise</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="301" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="301" bodyend="306"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a6691b22583cfac2f1dedd6fd921816d9" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void diag_log</definition>
+        <argsstring>(void)</argsstring>
+        <name>diag_log</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="309" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="309" bodyend="314"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a12569793c2d4d6078ca490c7bf0f685e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+        <definition>struct error* BuildOutOfMemory</definition>
+        <argsstring>(const char *file, unsigned line, size_t amount, const char *allocator, const char *object)</argsstring>
+        <name>BuildOutOfMemory</name>
+        <param>
+          <type>const char *</type>
+          <declname>file</declname>
+        </param>
+        <param>
+          <type>unsigned</type>
+          <declname>line</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>amount</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>allocator</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>object</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="317" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/exception.cc" bodystart="297" bodyend="304"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1aefa8a0bf8e4e8e7afb6639c554cf4929" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+        <definition>struct error* BuildFiberIsCancelled</definition>
+        <argsstring>(const char *file, unsigned line)</argsstring>
+        <name>BuildFiberIsCancelled</name>
+        <param>
+          <type>const char *</type>
+          <declname>file</declname>
+        </param>
+        <param>
+          <type>unsigned</type>
+          <declname>line</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="321" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/exception.cc" bodystart="321" bodyend="325"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a7aff88933620007ed20d53f81d856907" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+        <definition>struct error* BuildTimedOut</definition>
+        <argsstring>(const char *file, unsigned line)</argsstring>
+        <name>BuildTimedOut</name>
+        <param>
+          <type>const char *</type>
+          <declname>file</declname>
+        </param>
+        <param>
+          <type>unsigned</type>
+          <declname>line</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="323" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/exception.cc" bodystart="307" bodyend="311"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a9a21d760f6a0fd572193794303ac2570" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+        <definition>struct error* BuildChannelIsClosed</definition>
+        <argsstring>(const char *file, unsigned line)</argsstring>
+        <name>BuildChannelIsClosed</name>
+        <param>
+          <type>const char *</type>
+          <declname>file</declname>
+        </param>
+        <param>
+          <type>unsigned</type>
+          <declname>line</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="325" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/exception.cc" bodystart="314" bodyend="318"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a7330850d6a5fabc770c1939a86e63d4f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+        <definition>struct error* BuildLuajitError</definition>
+        <argsstring>(const char *file, unsigned line, const char *msg)</argsstring>
+        <name>BuildLuajitError</name>
+        <param>
+          <type>const char *</type>
+          <declname>file</declname>
+        </param>
+        <param>
+          <type>unsigned</type>
+          <declname>line</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>msg</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="327" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/exception.cc" bodystart="328" bodyend="332"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a22785cf423ac4e8a8cf3cbc04cd26619" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+        <definition>struct error* BuildIllegalParams</definition>
+        <argsstring>(const char *file, unsigned line, const char *format,...)</argsstring>
+        <name>BuildIllegalParams</name>
+        <param>
+          <type>const char *</type>
+          <declname>file</declname>
+        </param>
+        <param>
+          <type>unsigned</type>
+          <declname>line</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>...</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="329" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/exception.cc" bodystart="335" bodyend="344"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a7fa26ea96f756815f66e10f5361e6afc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+        <definition>struct error* BuildSystemError</definition>
+        <argsstring>(const char *file, unsigned line, const char *format,...)</argsstring>
+        <name>BuildSystemError</name>
+        <param>
+          <type>const char *</type>
+          <declname>file</declname>
+        </param>
+        <param>
+          <type>unsigned</type>
+          <declname>line</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>...</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="331" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/exception.cc" bodystart="347" bodyend="356"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1aa2c8e966339d487e3325fb01dd9b530e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+        <definition>struct error* BuildCollationError</definition>
+        <argsstring>(const char *file, unsigned line, const char *format,...)</argsstring>
+        <name>BuildCollationError</name>
+        <param>
+          <type>const char *</type>
+          <declname>file</declname>
+        </param>
+        <param>
+          <type>unsigned</type>
+          <declname>line</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>...</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="333" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/exception.cc" bodystart="359" bodyend="368"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a8e20541d0df9d2bef914cbe3ac8a72b0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+        <definition>struct error* BuildSwimError</definition>
+        <argsstring>(const char *file, unsigned line, const char *format,...)</argsstring>
+        <name>BuildSwimError</name>
+        <param>
+          <type>const char *</type>
+          <declname>file</declname>
+        </param>
+        <param>
+          <type>unsigned</type>
+          <declname>line</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>...</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="335" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/exception.cc" bodystart="371" bodyend="380"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1acf7a7809394752752b4cf696c4ba16a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+        <definition>struct error* BuildCryptoError</definition>
+        <argsstring>(const char *file, unsigned line, const char *format,...)</argsstring>
+        <name>BuildCryptoError</name>
+        <param>
+          <type>const char *</type>
+          <declname>file</declname>
+        </param>
+        <param>
+          <type>unsigned</type>
+          <declname>line</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>...</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="337" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/exception.cc" bodystart="383" bodyend="392"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1acea55d66c7d20debb1b8c5a481d60bfb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+        <definition>struct error* BuildUnsupportedIndexFeature</definition>
+        <argsstring>(const char *file, unsigned line, struct index_def *index_def, const char *what)</argsstring>
+        <name>BuildUnsupportedIndexFeature</name>
+        <param>
+          <type>const char *</type>
+          <declname>file</declname>
+        </param>
+        <param>
+          <type>unsigned</type>
+          <declname>line</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structindex__def" kindref="compound">index_def</ref> *</type>
+          <declname>index_def</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>what</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="342" column="1" bodyfile="/home/tsafin/tarantool/src/box/index.cc" bodystart="56" bodyend="64"/>
+      </memberdef>
+      <memberdef kind="function" id="diag_8h_1a681c510ccc6061d96ebeb1cbed7817c5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+        <definition>struct error* BuildSocketError</definition>
+        <argsstring>(const char *file, unsigned line, const char *socketname, const char *format,...)</argsstring>
+        <name>BuildSocketError</name>
+        <param>
+          <type>const char *</type>
+          <declname>file</declname>
+        </param>
+        <param>
+          <type>unsigned</type>
+          <declname>line</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>socketname</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>...</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="345" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/exception.cc" bodystart="395" bodyend="410"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LIB_CORE_DIAG_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LIB_CORE_DIAG_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;trivia/util.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdarg.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;assert.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;say.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>DIAG_ERRMSG_MAX<sp/>=<sp/>512,</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>DIAG_FILENAME_MAX<sp/>=<sp/>256</highlight></codeline>
+<codeline lineno="48"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtype__info" kindref="compound">type_info</ref>;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerror" kindref="compound">error</ref>;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*error_f)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerror" kindref="compound">error</ref><sp/>*e);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69" refid="structerror" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerror" kindref="compound">error</ref><sp/>{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>error_f<sp/>destroy;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>error_f<sp/></highlight><highlight class="keyword">raise</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>error_f<sp/><ref refid="structlog" kindref="compound">log</ref>;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtype__info" kindref="compound">type_info</ref><sp/>*type;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structerror_1a319af5bba5317dc3e56b9f461c2d7310" kindref="member">refs</ref>;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structerror_1a17ae8a6c5dee9a7aa850f2a5812f8f04" kindref="member">saved_errno</ref>;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/><ref refid="structerror_1a7807cfe98b57d74e45e71fea9f0b35e0" kindref="member">line</ref>;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Source<sp/>file<sp/>name.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>file[DIAG_FILENAME_MAX];</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Error<sp/>description.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>errmsg[DIAG_ERRMSG_MAX];</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerror" kindref="compound">error</ref><sp/>*<ref refid="structerror_1a309e0f9558c08b1371d33cc1b6804cc0" kindref="member">cause</ref>;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerror" kindref="compound">error</ref><sp/>*effect;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal">error_ref(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structerror" kindref="compound">error</ref><sp/>*e);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal">error_unref(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structerror" kindref="compound">error</ref><sp/>*e);</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal">error_unlink_effect(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structerror" kindref="compound">error</ref><sp/>*e)</highlight></codeline>
+<codeline lineno="128"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(e-&gt;effect<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(e-&gt;<ref refid="structerror_1a319af5bba5317dc3e56b9f461c2d7310" kindref="member">refs</ref><sp/>&gt;<sp/>1);</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>error_unref(e);</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;effect-&gt;<ref refid="structerror_1a309e0f9558c08b1371d33cc1b6804cc0" kindref="member">cause</ref><sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;effect<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal">error_set_prev(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structerror" kindref="compound">error</ref><sp/>*e,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structerror" kindref="compound">error</ref><sp/>*prev);</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal">NORETURN<sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal">error_raise(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structerror" kindref="compound">error</ref><sp/>*e)</highlight></codeline>
+<codeline lineno="157"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;raise(e);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>unreachable();</highlight></codeline>
+<codeline lineno="160"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal">error_log(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structerror" kindref="compound">error</ref><sp/>*e)</highlight></codeline>
+<codeline lineno="164"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;log(e);</highlight></codeline>
+<codeline lineno="166"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal">error_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structerror" kindref="compound">error</ref><sp/>*e,</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>error_f<sp/>create,<sp/>error_f<sp/></highlight><highlight class="keyword">raise</highlight><highlight class="normal">,<sp/>error_f<sp/><ref refid="structlog" kindref="compound">log</ref>,</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtype__info" kindref="compound">type_info</ref><sp/>*type,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*file,</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/><ref refid="structerror_1a7807cfe98b57d74e45e71fea9f0b35e0" kindref="member">line</ref>);</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal">error_format_msg(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structerror" kindref="compound">error</ref><sp/>*e,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*format,<sp/>...);</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal">error_vformat_msg(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structerror" kindref="compound">error</ref><sp/>*e,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*format,<sp/>va_list<sp/>ap);</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183" refid="structdiag" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structdiag" kindref="compound">diag</ref><sp/>{</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>\cond<sp/>private<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerror" kindref="compound">error</ref><sp/>*last;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>\endcond<sp/>private<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="194"><highlight class="normal">diag_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structdiag" kindref="compound">diag</ref><sp/>*<ref refid="structdiag" kindref="compound">diag</ref>)</highlight></codeline>
+<codeline lineno="195"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag-&gt;last<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="197"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="202"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal">diag_is_empty(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>diag<sp/>*diag)</highlight></codeline>
+<codeline lineno="204"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>diag-&gt;last<sp/>==<sp/>NULL;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal">diag_clear(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>diag<sp/>*diag)</highlight></codeline>
+<codeline lineno="214"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(diag-&gt;last<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>error_unref(diag-&gt;last);</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag-&gt;last<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="219"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal">diag_set_error(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>diag<sp/>*diag,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structerror" kindref="compound">error</ref><sp/>*e)</highlight></codeline>
+<codeline lineno="228"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(e<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>error_ref(e);</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_clear(diag);</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>error_unlink_effect(e);</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag-&gt;last<sp/>=<sp/>e;</highlight></codeline>
+<codeline lineno="234"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="normal">diag_add_error(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>diag<sp/>*diag,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structerror" kindref="compound">error</ref><sp/>*e)</highlight></codeline>
+<codeline lineno="244"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(e<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>diag_set_error()<sp/>should<sp/>be<sp/>called<sp/>before.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(diag-&gt;last<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="249"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>e<sp/>should<sp/>be<sp/>the<sp/>bottom<sp/>of<sp/>its<sp/>own<sp/>stack.</highlight></codeline>
+<codeline lineno="250"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Otherwise<sp/>some<sp/>errors<sp/>may<sp/>be<sp/>lost.</highlight></codeline>
+<codeline lineno="251"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(e-&gt;effect<sp/>==<sp/>NULL);</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(diag-&gt;last-&gt;effect<sp/>==<sp/>NULL);</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>error_ref(e);</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structerror_1a309e0f9558c08b1371d33cc1b6804cc0" kindref="member">cause</ref><sp/>=<sp/>diag-&gt;last;</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag-&gt;last-&gt;effect<sp/>=<sp/>e;</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag-&gt;last<sp/>=<sp/>e;</highlight></codeline>
+<codeline lineno="258"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="267"><highlight class="normal">diag_move(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>diag<sp/>*from,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>diag<sp/>*to)</highlight></codeline>
+<codeline lineno="268"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_clear(to);</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(from-&gt;last<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>to-&gt;last<sp/>=<sp/>from-&gt;last;</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>from-&gt;last<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="274"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"></highlight></codeline>
+<codeline lineno="280"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="281"><highlight class="normal">diag_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>diag<sp/>*diag)</highlight></codeline>
+<codeline lineno="282"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_clear(diag);</highlight></codeline>
+<codeline lineno="284"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"></highlight></codeline>
+<codeline lineno="291"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerror" kindref="compound">error</ref><sp/>*</highlight></codeline>
+<codeline lineno="292"><highlight class="normal">diag_last_error(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>diag<sp/>*diag)</highlight></codeline>
+<codeline lineno="293"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>diag-&gt;last;</highlight></codeline>
+<codeline lineno="295"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"></highlight></codeline>
+<codeline lineno="297"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">diag<sp/>*</highlight></codeline>
+<codeline lineno="298"><highlight class="normal">diag_get(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal">NORETURN<sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="301"><highlight class="normal">diag_raise(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="302"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerror" kindref="compound">error</ref><sp/>*e<sp/>=<sp/>diag_last_error(diag_get());</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(e<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>error_raise(e);</highlight></codeline>
+<codeline lineno="306"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"></highlight></codeline>
+<codeline lineno="308"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="309"><highlight class="normal">diag_log(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="310"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerror" kindref="compound">error</ref><sp/>*e<sp/>=<sp/>diag_last_error(diag_get());</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(e<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>error_log(e);</highlight></codeline>
+<codeline lineno="314"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"></highlight></codeline>
+<codeline lineno="316"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerror" kindref="compound">error</ref><sp/>*</highlight></codeline>
+<codeline lineno="317"><highlight class="normal">BuildOutOfMemory(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*file,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>line,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>amount,</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*allocator,</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight><highlight class="keywordtype">object</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerror" kindref="compound">error</ref><sp/>*</highlight></codeline>
+<codeline lineno="321"><highlight class="normal">BuildFiberIsCancelled(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*file,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>line);</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerror" kindref="compound">error</ref><sp/>*</highlight></codeline>
+<codeline lineno="323"><highlight class="normal">BuildTimedOut(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*file,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>line);</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerror" kindref="compound">error</ref><sp/>*</highlight></codeline>
+<codeline lineno="325"><highlight class="normal">BuildChannelIsClosed(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*file,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>line);</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerror" kindref="compound">error</ref><sp/>*</highlight></codeline>
+<codeline lineno="327"><highlight class="normal">BuildLuajitError(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*file,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>line,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*msg);</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerror" kindref="compound">error</ref><sp/>*</highlight></codeline>
+<codeline lineno="329"><highlight class="normal">BuildIllegalParams(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*file,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>line,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*format,<sp/>...);</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerror" kindref="compound">error</ref><sp/>*</highlight></codeline>
+<codeline lineno="331"><highlight class="normal">BuildSystemError(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*file,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>line,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*format,<sp/>...);</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerror" kindref="compound">error</ref><sp/>*</highlight></codeline>
+<codeline lineno="333"><highlight class="normal">BuildCollationError(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*file,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>line,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*format,<sp/>...);</highlight></codeline>
+<codeline lineno="334"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerror" kindref="compound">error</ref><sp/>*</highlight></codeline>
+<codeline lineno="335"><highlight class="normal">BuildSwimError(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*file,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>line,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*format,<sp/>...);</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerror" kindref="compound">error</ref><sp/>*</highlight></codeline>
+<codeline lineno="337"><highlight class="normal">BuildCryptoError(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*file,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>line,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*format,<sp/>...);</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"></highlight></codeline>
+<codeline lineno="339"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structindex__def" kindref="compound">index_def</ref>;</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"></highlight></codeline>
+<codeline lineno="341"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerror" kindref="compound">error</ref><sp/>*</highlight></codeline>
+<codeline lineno="342"><highlight class="normal">BuildUnsupportedIndexFeature(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*file,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>line,</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structindex__def" kindref="compound">index_def</ref><sp/>*<ref refid="structindex__def" kindref="compound">index_def</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*what);</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structerror" kindref="compound">error</ref><sp/>*</highlight></codeline>
+<codeline lineno="345"><highlight class="normal">BuildSocketError(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*file,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>line,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*socketname,</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*format,<sp/>...);</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"></highlight></codeline>
+<codeline lineno="348"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>diag_set(class,<sp/>...)<sp/>do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="349"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Preserve<sp/>the<sp/>original<sp/>errno.<sp/>*/</highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="350"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>save_errno<sp/>=<sp/>errno;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="351"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>say_debug(&quot;%s<sp/>at<sp/>%s:%i&quot;,<sp/>#class,<sp/>__FILE__,<sp/>__LINE__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="352"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>struct<sp/>error<sp/>*e;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="353"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e<sp/>=<sp/>Build##class(__FILE__,<sp/>__LINE__,<sp/>##__VA_ARGS__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="354"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set_error(diag_get(),<sp/>e);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="355"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Restore<sp/>the<sp/>errno<sp/>which<sp/>might<sp/>have<sp/>been<sp/>reset.<sp/><sp/>*/</highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="356"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>errno<sp/>=<sp/>save_errno;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="357"><highlight class="preprocessor">}<sp/>while<sp/>(0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="358"><highlight class="normal"></highlight></codeline>
+<codeline lineno="359"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>diag_add(class,<sp/>...)<sp/>do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="360"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>save_errno<sp/>=<sp/>errno;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="361"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>say_debug(&quot;%s<sp/>at<sp/>%s:%i&quot;,<sp/>#class,<sp/>__FILE__,<sp/>__LINE__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="362"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>struct<sp/>error<sp/>*e;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="363"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e<sp/>=<sp/>Build##class(__FILE__,<sp/>__LINE__,<sp/>##__VA_ARGS__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="364"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_add_error(diag_get(),<sp/>e);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="365"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>errno<sp/>=<sp/>save_errno;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="366"><highlight class="preprocessor">}<sp/>while<sp/>(0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="367"><highlight class="normal"></highlight></codeline>
+<codeline lineno="368"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="369"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="370"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="371"><highlight class="normal"></highlight></codeline>
+<codeline lineno="372"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_LIB_CORE_DIAG_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/core/diag.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,173 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structcbus__endpoint" kind="struct" language="C++" prot="public">
+    <compoundname>cbus_endpoint</compoundname>
+    <includes local="no">cbus.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structcbus__endpoint_1a18707a66493f1b39f00b3af6cf389abc" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char cbus_endpoint::name[FIBER_NAME_MAX]</definition>
+        <argsstring>[FIBER_NAME_MAX]</argsstring>
+        <name>name</name>
+        <briefdescription>
+<para>Endpoint name, used to identify the endpoint when establishing a route. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="255" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="255" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcbus__endpoint_1ad79167e75215c52fab89a5a8230a62e4" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist cbus_endpoint::in_cbus</definition>
+        <argsstring></argsstring>
+        <name>in_cbus</name>
+        <briefdescription>
+<para>Member of cbus-&gt;endpoints. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="255" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="257" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcbus__endpoint_1ac64cb9f722306369761724e9a2d2f4ef" prot="public" static="no" mutable="no">
+        <type>pthread_mutex_t</type>
+        <definition>pthread_mutex_t cbus_endpoint::mutex</definition>
+        <argsstring></argsstring>
+        <name>mutex</name>
+        <briefdescription>
+<para>The lock around the pipe. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="259" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="259" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcbus__endpoint_1a24c68a4be9cc96a1ac3af02cfd394267" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structstailq" kindref="compound">stailq</ref></type>
+        <definition>struct stailq cbus_endpoint::output</definition>
+        <argsstring></argsstring>
+        <name>output</name>
+        <briefdescription>
+<para>A queue with incoming messages. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="259" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="261" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcbus__endpoint_1a94561e7b3ffc9427788ded07f2746bba" prot="public" static="no" mutable="no">
+        <type>ev_loop *</type>
+        <definition>ev_loop* cbus_endpoint::consumer</definition>
+        <argsstring></argsstring>
+        <name>consumer</name>
+        <briefdescription>
+<para>Consumer cord loop. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="263" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="263" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcbus__endpoint_1abe2a788c59ed0f84162c03edc32ddefc" prot="public" static="no" mutable="no">
+        <type>ev_async</type>
+        <definition>ev_async cbus_endpoint::async</definition>
+        <argsstring></argsstring>
+        <name>async</name>
+        <briefdescription>
+<para>Async to notify the consumer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="265" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="265" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcbus__endpoint_1a31a66d9f5d46c7d057b97f9402796d50" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t cbus_endpoint::n_pipes</definition>
+        <argsstring></argsstring>
+        <name>n_pipes</name>
+        <briefdescription>
+<para>Count of connected pipes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="267" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="267" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcbus__endpoint_1af753e2c031c13e9e6c6198e2afcb8a10" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfiber__cond" kindref="compound">fiber_cond</ref></type>
+        <definition>struct fiber_cond cbus_endpoint::cond</definition>
+        <argsstring></argsstring>
+        <name>cond</name>
+        <briefdescription>
+<para>Condition for endpoint destroy. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="267" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="269" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>cbus endpoint </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1072">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="1072" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="1071">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="1072" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="1070">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="1070" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="1069">
+        <label>fiber_cond</label>
+        <link refid="structfiber__cond"/>
+        <childnode refid="1070" relation="usage">
+          <edgelabel>waiters</edgelabel>
+        </childnode>
+      </node>
+      <node id="1068">
+        <label>cbus_endpoint</label>
+        <link refid="structcbus__endpoint"/>
+        <childnode refid="1069" relation="usage">
+          <edgelabel>cond</edgelabel>
+        </childnode>
+        <childnode refid="1070" relation="usage">
+          <edgelabel>in_cbus</edgelabel>
+        </childnode>
+        <childnode refid="1071" relation="usage">
+          <edgelabel>output</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="250" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="250" bodyend="270"/>
+    <listofallmembers>
+      <member refid="structcbus__endpoint_1abe2a788c59ed0f84162c03edc32ddefc" prot="public" virt="non-virtual"><scope>cbus_endpoint</scope><name>async</name></member>
+      <member refid="structcbus__endpoint_1af753e2c031c13e9e6c6198e2afcb8a10" prot="public" virt="non-virtual"><scope>cbus_endpoint</scope><name>cond</name></member>
+      <member refid="structcbus__endpoint_1a94561e7b3ffc9427788ded07f2746bba" prot="public" virt="non-virtual"><scope>cbus_endpoint</scope><name>consumer</name></member>
+      <member refid="structcbus__endpoint_1ad79167e75215c52fab89a5a8230a62e4" prot="public" virt="non-virtual"><scope>cbus_endpoint</scope><name>in_cbus</name></member>
+      <member refid="structcbus__endpoint_1ac64cb9f722306369761724e9a2d2f4ef" prot="public" virt="non-virtual"><scope>cbus_endpoint</scope><name>mutex</name></member>
+      <member refid="structcbus__endpoint_1a31a66d9f5d46c7d057b97f9402796d50" prot="public" virt="non-virtual"><scope>cbus_endpoint</scope><name>n_pipes</name></member>
+      <member refid="structcbus__endpoint_1a18707a66493f1b39f00b3af6cf389abc" prot="public" virt="non-virtual"><scope>cbus_endpoint</scope><name>name</name></member>
+      <member refid="structcbus__endpoint_1a24c68a4be9cc96a1ac3af02cfd394267" prot="public" virt="non-virtual"><scope>cbus_endpoint</scope><name>output</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

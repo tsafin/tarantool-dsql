@@ -1,0 +1,41 @@
+#***************************************************************************
+#                                  _   _ ____  _
+#  Project                     ___| | | |  _ \| |
+#                             / __| | | | |_) | |
+#                            | (__| |_| |  _ <| |___
+#                             \___|\___/|_| \_\_____|
+#
+# Copyright (C) Daniel Stenberg, <daniel@haxx.se>, et al.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution. The terms
+# are also available at https://curl.se/docs/copyright.html.
+#
+# You may opt to use, copy, modify, merge, publish, distribute and/or sell
+# copies of the Software, and permit persons to whom the Software is
+# furnished to do so, under the terms of the COPYING file.
+#
+# This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
+# KIND, either express or implied.
+#
+# SPDX-License-Identifier: curl
+#
+###########################################################################
+
+# This should most probably benefit from getting a "Requires:" field added
+# dynamically by configure.
+#
+prefix=/home/tsafin/tarantool/build_test/build/curl/dest
+exec_prefix=${prefix}
+libdir=/home/tsafin/tarantool/build_test/build/curl/dest/lib
+includedir=${prefix}/include
+supported_protocols="HTTP HTTPS SMTP SMTPS"
+supported_features="SSL IPv6 UnixSockets libz AsynchDNS Largefile HSTS TLS-SRP HTTP2 HTTPS-proxy threadsafe"
+
+Name: libcurl
+URL: https://curl.se/
+Description: Library to transfer files with ftp, http, etc.
+Version: 8.5.0-DEV
+Libs: -L${libdir} -lcurl  -lgcc -lgcc_s -lc -lgcc -lgcc_s /home/tsafin/tarantool/build_test/build/ares/dest/lib/libcares.a /home/linuxbrew/.linuxbrew/Cellar/openssl@1.1/1.1.1h/lib/libssl.so /home/linuxbrew/.linuxbrew/Cellar/openssl@1.1/1.1.1h/lib/libcrypto.so /usr/lib/x86_64-linux-gnu/libz.so /home/tsafin/tarantool/build_test/build/nghttp2/dest/lib/libnghttp2.a
+Libs.private:  -lgcc -lgcc_s -lc -lgcc -lgcc_s /home/tsafin/tarantool/build_test/build/ares/dest/lib/libcares.a /home/linuxbrew/.linuxbrew/Cellar/openssl@1.1/1.1.1h/lib/libssl.so /home/linuxbrew/.linuxbrew/Cellar/openssl@1.1/1.1.1h/lib/libcrypto.so /usr/lib/x86_64-linux-gnu/libz.so /home/tsafin/tarantool/build_test/build/nghttp2/dest/lib/libnghttp2.a
+Cflags: -I${includedir} -DCURL_STATICLIB

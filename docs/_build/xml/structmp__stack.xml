@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structmp__stack" kind="struct" language="C++" prot="public">
+    <compoundname>mp_stack</compoundname>
+    <includes local="no">msgpuck.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structmp__stack_1ab6b8b41ddc20ebcecb4b4c57a1996d69" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int mp_stack::size</definition>
+        <argsstring></argsstring>
+        <name>size</name>
+        <briefdescription>
+<para>The maximum stack depth. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/msgpuck/msgpuck.h" line="1388" column="1" bodyfile="/home/tsafin/tarantool/src/lib/msgpuck/msgpuck.h" bodystart="1388" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmp__stack_1ab4145ada38907718b1f939ac60bda7b6" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int mp_stack::used</definition>
+        <argsstring></argsstring>
+        <name>used</name>
+        <briefdescription>
+<para>Count of used stack frames. </para>        </briefdescription>
+        <detaileddescription>
+<para>Corresponds to the index in the array to perform the push operation. Must be less or equal to <ref refid="structmp__stack_1ab6b8b41ddc20ebcecb4b4c57a1996d69" kindref="member">mp_stack::size</ref> member. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/msgpuck/msgpuck.h" line="1394" column="1" bodyfile="/home/tsafin/tarantool/src/lib/msgpuck/msgpuck.h" bodystart="1394" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmp__stack_1ae1dc87706b53007a0283df0a3b320644" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmp__frame" kindref="compound">mp_frame</ref> *</type>
+        <definition>struct mp_frame* mp_stack::frames</definition>
+        <argsstring></argsstring>
+        <name>frames</name>
+        <briefdescription>
+<para>Array of size <ref refid="structmp__stack_1ab6b8b41ddc20ebcecb4b4c57a1996d69" kindref="member">mp_stack::size</ref> of mp_frames. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/msgpuck/msgpuck.h" line="1398" column="1" bodyfile="/home/tsafin/tarantool/src/lib/msgpuck/msgpuck.h" bodystart="1398" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Stack of map/array descriptors <ref refid="structmp__frame" kindref="compound">mp_frame</ref> to preserve traversal state when parsing nested array/map in a msgpack stream. </para>    </briefdescription>
+    <detaileddescription>
+<para>Makes it possible to parse nested MP_ARRAY and MP_MAP msgpack containers without recursion and easily determine that the container under the parsing cursor is complete. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="6151">
+        <label>mp_stack</label>
+        <link refid="structmp__stack"/>
+        <childnode refid="6152" relation="usage">
+          <edgelabel>frames</edgelabel>
+        </childnode>
+      </node>
+      <node id="6152">
+        <label>mp_frame</label>
+        <link refid="structmp__frame"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/msgpuck/msgpuck.h" line="1384" column="1" bodyfile="/home/tsafin/tarantool/src/lib/msgpuck/msgpuck.h" bodystart="1384" bodyend="1399"/>
+    <listofallmembers>
+      <member refid="structmp__stack_1ae1dc87706b53007a0283df0a3b320644" prot="public" virt="non-virtual"><scope>mp_stack</scope><name>frames</name></member>
+      <member refid="structmp__stack_1ab6b8b41ddc20ebcecb4b4c57a1996d69" prot="public" virt="non-virtual"><scope>mp_stack</scope><name>size</name></member>
+      <member refid="structmp__stack_1ab4145ada38907718b1f939ac60bda7b6" prot="public" virt="non-virtual"><scope>mp_stack</scope><name>used</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

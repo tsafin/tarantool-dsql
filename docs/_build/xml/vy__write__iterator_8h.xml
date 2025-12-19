@@ -1,0 +1,307 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="vy__write__iterator_8h" kind="file" language="C++">
+    <compoundname>vy_write_iterator.h</compoundname>
+    <includes refid="util_8h" local="yes">trivia/util.h</includes>
+    <includes refid="vy__stmt__stream_8h" local="yes">vy_stmt_stream.h</includes>
+    <includes refid="vy__read__view_8h" local="yes">vy_read_view.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">pthread.h</includes>
+    <includedby refid="vinyl_8c" local="yes">/home/tsafin/tarantool/src/box/vinyl.c</includedby>
+    <includedby refid="vy__scheduler_8c" local="yes">/home/tsafin/tarantool/src/box/vy_scheduler.c</includedby>
+    <includedby refid="vy__write__iterator_8c" local="yes">/home/tsafin/tarantool/src/box/vy_write_iterator.c</includedby>
+    <incdepgraph>
+      <node id="1467">
+        <label>stdbool.h</label>
+      </node>
+      <node id="1468">
+        <label>pthread.h</label>
+      </node>
+      <node id="1466">
+        <label>/home/tsafin/tarantool/src/box/vy_write_iterator.h</label>
+        <link refid="vy__write__iterator_8h"/>
+        <childnode refid="1467" relation="include">
+        </childnode>
+        <childnode refid="1468" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structvy__deferred__delete__handler__iface" prot="public">vy_deferred_delete_handler_iface</innerclass>
+    <innerclass refid="structvy__deferred__delete__handler" prot="public">vy_deferred_delete_handler</innerclass>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="vy__write__iterator_8h_1a3dac6744dd3c273fb55c2671712b4d58" prot="public" static="no">
+        <type>int(*</type>
+        <definition>typedef int(* vy_deferred_delete_process_f) (struct vy_deferred_delete_handler *handler, struct tuple *old_stmt, struct tuple *new_stmt)</definition>
+        <argsstring>)(struct vy_deferred_delete_handler *handler, struct tuple *old_stmt, struct tuple *new_stmt)</argsstring>
+        <name>vy_deferred_delete_process_f</name>
+        <briefdescription>
+<para>Callback invoked by the write iterator for tuples that were overwritten or deleted in the primary index without generating a DELETE statement for secondary indexes. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is supposed to produce a DELETE statement and insert it into secondary indexes.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>handler</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Deferred DELETE handler. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>old_stmt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Overwritten tuple. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>new_stmt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Statement that overwrote .</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Success. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para>VY_STMT_DEFERRED_DELETE. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.h" line="218" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.h" bodystart="219" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="vy__write__iterator_8h_1a0a67f2fb99b406ae22c438c56907d970" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* vy_deferred_delete_destroy_f) (struct vy_deferred_delete_handler *handler)</definition>
+        <argsstring>)(struct vy_deferred_delete_handler *handler)</argsstring>
+        <name>vy_deferred_delete_destroy_f</name>
+        <briefdescription>
+<para>Callack invoked by the write iterator to destroy a deferred DELETE handler when the iteration is stopped. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.h" line="226" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.h" bodystart="227" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="vy__write__iterator_8h_1a983ba990cb19255d200d46ad7430a0bd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structvy__stmt__stream" kindref="compound">vy_stmt_stream</ref> *</type>
+        <definition>struct vy_stmt_stream* vy_write_iterator_new</definition>
+        <argsstring>(struct key_def *cmp_def, bool is_primary, bool is_last_level, struct rlist *read_views, struct vy_deferred_delete_handler *handler)</argsstring>
+        <name>vy_write_iterator_new</name>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>cmp_def</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>is_primary</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>is_last_level</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structrlist" kindref="compound">rlist</ref> *</type>
+          <declname>read_views</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__deferred__delete__handler" kindref="compound">vy_deferred_delete_handler</ref> *</type>
+          <declname>handler</declname>
+        </param>
+        <briefdescription>
+<para>Open an empty write iterator. </para>        </briefdescription>
+        <detaileddescription>
+<para>To add sources to the iterator use vy_write_iterator_add_* functions. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cmp_def</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- key definition for tuple compare. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>LSM</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>tree is_primary - set if this iterator is for a primary index. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>is_last_level</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- there is no older level than the one we&apos;re writing to. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>read_views</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- Opened read views. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>handler</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- Deferred DELETE handler or NULL if no deferred DELETEs is expected. Only relevant to primary index compaction. For secondary indexes this argument must be set to NULL. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the iterator or NULL on error (diag is set).</para></simplesect>
+To add sources to the iterator use vy_write_iterator_add_* functions. <simplesect kind="return"><para>the iterator or NULL on error (diag is set). </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.h" line="251" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="346" bodyend="395"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__write__iterator_8h_1a4e4ab5cd37bfa1621040268819433e55" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>NODISCARD int</type>
+        <definition>NODISCARD int vy_write_iterator_new_mem</definition>
+        <argsstring>(struct vy_stmt_stream *stream, struct vy_mem *mem)</argsstring>
+        <name>vy_write_iterator_new_mem</name>
+        <param>
+          <type>struct <ref refid="structvy__stmt__stream" kindref="compound">vy_stmt_stream</ref> *</type>
+          <declname>stream</declname>
+          <defname>vstream</defname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__mem" kindref="compound">vy_mem</ref> *</type>
+          <declname>mem</declname>
+        </param>
+        <briefdescription>
+<para>Add a mem as a source to the iterator. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>0 on success, -1 on error (diag is set).</para></simplesect>
+Add a mem as a source to the iterator.</para><para><simplesect kind="return"><para>0 on success or -1 on error (diag is set). </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.h" line="260" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="477" bodyend="485"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__write__iterator_8h_1acea277dc357174b6af3cf87324273d43" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>NODISCARD int</type>
+        <definition>NODISCARD int vy_write_iterator_new_slice</definition>
+        <argsstring>(struct vy_stmt_stream *stream, struct vy_slice *slice, struct tuple_format *disk_format)</argsstring>
+        <name>vy_write_iterator_new_slice</name>
+        <param>
+          <type>struct <ref refid="structvy__stmt__stream" kindref="compound">vy_stmt_stream</ref> *</type>
+          <declname>stream</declname>
+          <defname>vstream</defname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__slice" kindref="compound">vy_slice</ref> *</type>
+          <declname>slice</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtuple__format" kindref="compound">tuple_format</ref> *</type>
+          <declname>disk_format</declname>
+        </param>
+        <briefdescription>
+<para>Add a run slice as a source to the iterator. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>0 on success, -1 on error (diag is set).</para></simplesect>
+Add a run slice as a source to the iterator.</para><para><simplesect kind="return"><para>0 on success or -1 on error (diag is set). </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.h" line="267" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="492" bodyend="503"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>INCLUDES_TARANTOOL_BOX_VY_WRITE_STREAM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INCLUDES_TARANTOOL_BOX_VY_WRITE_STREAM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2017,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>AUTHORS<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>AUTHORS<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trivia/util.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;vy_stmt_stream.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;vy_read_view.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;pthread.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__write__iterator" kindref="compound">vy_write_iterator</ref>;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__deferred__delete__handler" kindref="compound">vy_deferred_delete_handler</ref>;</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structkey__def" kindref="compound">key_def</ref>;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__format" kindref="compound">tuple_format</ref>;</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple" kindref="compound">tuple</ref>;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__mem" kindref="compound">vy_mem</ref>;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__slice" kindref="compound">vy_slice</ref>;</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>int</highlight></codeline>
+<codeline lineno="219"><highlight class="normal">(*vy_deferred_delete_process_f)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__deferred__delete__handler" kindref="compound">vy_deferred_delete_handler</ref><sp/>*handler,</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple" kindref="compound">tuple</ref><sp/>*old_stmt,<sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple" kindref="compound">tuple</ref><sp/>*new_stmt);</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void</highlight></codeline>
+<codeline lineno="227"><highlight class="normal">(*vy_deferred_delete_destroy_f)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__deferred__delete__handler" kindref="compound">vy_deferred_delete_handler</ref><sp/>*handler);</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight></codeline>
+<codeline lineno="229" refid="structvy__deferred__delete__handler__iface" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__deferred__delete__handler__iface" kindref="compound">vy_deferred_delete_handler_iface</ref><sp/>{</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_deferred_delete_process_f<sp/>process;</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_deferred_delete_destroy_f<sp/>destroy;</highlight></codeline>
+<codeline lineno="232"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight></codeline>
+<codeline lineno="234" refid="structvy__deferred__delete__handler" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__deferred__delete__handler" kindref="compound">vy_deferred_delete_handler</ref><sp/>{</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__deferred__delete__handler__iface" kindref="compound">vy_deferred_delete_handler_iface</ref><sp/>*iface;</highlight></codeline>
+<codeline lineno="236"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="250"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__stmt__stream" kindref="compound">vy_stmt_stream</ref><sp/>*</highlight></codeline>
+<codeline lineno="251"><highlight class="normal">vy_write_iterator_new(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structkey__def" kindref="compound">key_def</ref><sp/>*cmp_def,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_primary,</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_last_level,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrlist" kindref="compound">rlist</ref><sp/>*read_views,</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__deferred__delete__handler" kindref="compound">vy_deferred_delete_handler</ref><sp/>*handler);</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"></highlight></codeline>
+<codeline lineno="259"><highlight class="normal">NODISCARD<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="260"><highlight class="normal">vy_write_iterator_new_mem(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__stmt__stream" kindref="compound">vy_stmt_stream</ref><sp/>*stream,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__mem" kindref="compound">vy_mem</ref><sp/>*mem);</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="normal">NODISCARD<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="267"><highlight class="normal">vy_write_iterator_new_slice(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__stmt__stream" kindref="compound">vy_stmt_stream</ref><sp/>*stream,</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__slice" kindref="compound">vy_slice</ref><sp/>*slice,</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>*disk_format);</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>INCLUDES_TARANTOOL_BOX_VY_WRITE_STREAM_H<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,763 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="slab__cache_8h" kind="file" language="C++">
+    <compoundname>slab_cache.h</compoundname>
+    <includes local="no">inttypes.h</includes>
+    <includes local="no">limits.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">assert.h</includes>
+    <includes refid="rlist_8h" local="yes">rlist.h</includes>
+    <includes refid="slab__arena_8h" local="yes">slab_arena.h</includes>
+    <includes local="no">pthread.h</includes>
+    <includedby refid="box_2port_8c" local="no">/home/tsafin/tarantool/src/box/port.c</includedby>
+    <includedby refid="lib_2small_2small_2ibuf_8c" local="yes">/home/tsafin/tarantool/src/lib/small/small/ibuf.c</includedby>
+    <includedby refid="lsregion_8h" local="yes">/home/tsafin/tarantool/src/lib/small/small/lsregion.h</includedby>
+    <includedby refid="mempool_8h" local="yes">/home/tsafin/tarantool/src/lib/small/small/mempool.h</includedby>
+    <includedby refid="small_2mempool_8c" local="yes">/home/tsafin/tarantool/src/lib/small/small/mempool.c</includedby>
+    <includedby refid="small_2obuf_8c" local="yes">/home/tsafin/tarantool/src/lib/small/small/obuf.c</includedby>
+    <includedby refid="region_8h" local="yes">/home/tsafin/tarantool/src/lib/small/small/region.h</includedby>
+    <includedby refid="small_2slab__cache_8c" local="yes">/home/tsafin/tarantool/src/lib/small/small/slab_cache.c</includedby>
+    <includedby refid="lib_2small_2test_2ibuf_8c" local="no">/home/tsafin/tarantool/src/lib/small/test/ibuf.c</includedby>
+    <includedby refid="test_2obuf_8c" local="no">/home/tsafin/tarantool/src/lib/small/test/obuf.c</includedby>
+    <includedby refid="test_2slab__cache_8c" local="no">/home/tsafin/tarantool/src/lib/small/test/slab_cache.c</includedby>
+    <incdepgraph>
+      <node id="2404">
+        <label>assert.h</label>
+      </node>
+      <node id="2403">
+        <label>stddef.h</label>
+      </node>
+      <node id="2402">
+        <label>limits.h</label>
+      </node>
+      <node id="2405">
+        <label>pthread.h</label>
+      </node>
+      <node id="2400">
+        <label>/home/tsafin/tarantool/src/lib/small/small/slab_cache.h</label>
+        <link refid="slab__cache_8h"/>
+        <childnode refid="2401" relation="include">
+        </childnode>
+        <childnode refid="2402" relation="include">
+        </childnode>
+        <childnode refid="2403" relation="include">
+        </childnode>
+        <childnode refid="2404" relation="include">
+        </childnode>
+        <childnode refid="2405" relation="include">
+        </childnode>
+      </node>
+      <node id="2401">
+        <label>inttypes.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structslab" prot="public">slab</innerclass>
+    <innerclass refid="structsmall__stats" prot="public">small_stats</innerclass>
+    <innerclass refid="structslab__list" prot="public">slab_list</innerclass>
+    <innerclass refid="structslab__cache" prot="public">slab_cache</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="slab__cache_8h_1a2317285fa767f39cf63c5538314651c0" prot="public" static="no">
+        <name>slab_list_add</name>
+        <param><defname>list</defname></param>
+        <param><defname>slab</defname></param>
+        <param><defname>member</defname></param>
+        <initializer>do {							\
+	rlist_add_entry(&amp;(list)-&gt;slabs, (<ref refid="structslab" kindref="compound">slab</ref>), member);\
+	(list)-&gt;stats.total += (<ref refid="structslab" kindref="compound">slab</ref>)-&gt;size;		\
+} while (0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="103" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="slab__cache_8h_1a3cb2b8098261aa555c951c8f5188a716" prot="public" static="no">
+        <name>slab_list_del</name>
+        <param><defname>list</defname></param>
+        <param><defname>slab</defname></param>
+        <param><defname>member</defname></param>
+        <initializer>do {							\
+	rlist_del_entry((<ref refid="structslab" kindref="compound">slab</ref>), member);                \
+	(list)-&gt;stats.total -= (<ref refid="structslab" kindref="compound">slab</ref>)-&gt;size;		\
+} while (0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="109" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="slab__cache_8h_1a15b8f0a0cc23d28aafa1b827c46a5305" prot="public" static="no">
+        <name>@240</name>
+        <enumvalue id="slab__cache_8h_1a15b8f0a0cc23d28aafa1b827c46a5305a1f6f7e175b04cb597d5e90dc404b1ec4" prot="public">
+          <name>ORDER_MAX</name>
+          <initializer>= 16</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="126" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="126" bodyend="126"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="slab__cache_8h_1a435b49cccbf98639d677a7c068657514" prot="public" static="no" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t slab_magic</definition>
+        <argsstring></argsstring>
+        <name>slab_magic</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="45" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.c" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="slab__cache_8h_1a56562a46130d8d31452e36273bb1f8b5" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void small_stats_reset</definition>
+        <argsstring>(struct small_stats *stats)</argsstring>
+        <name>small_stats_reset</name>
+        <param>
+          <type>struct <ref refid="structsmall__stats" kindref="compound">small_stats</ref> *</type>
+          <declname>stats</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="86" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="86" bodyend="89"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__cache_8h_1aaa508b016d94dce8cda08a958f7700d4" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void slab_list_create</definition>
+        <argsstring>(struct slab_list *list)</argsstring>
+        <name>slab_list_create</name>
+        <param>
+          <type>struct <ref refid="structslab__list" kindref="compound">slab_list</ref> *</type>
+          <declname>list</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="116" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="116" bodyend="120"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__cache_8h_1a774a33fbe7c43a26b1f4977d3cf2ced8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void slab_cache_create</definition>
+        <argsstring>(struct slab_cache *cache, struct slab_arena *arena)</argsstring>
+        <name>slab_cache_create</name>
+        <param>
+          <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref> *</type>
+          <declname>cache</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structslab__arena" kindref="compound">slab_arena</ref> *</type>
+          <declname>arena</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="173" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.c" bodystart="161" bodyend="186"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__cache_8h_1a7185d25d0f6414621583daab160a2b31" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void slab_cache_destroy</definition>
+        <argsstring>(struct slab_cache *cache)</argsstring>
+        <name>slab_cache_destroy</name>
+        <param>
+          <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref> *</type>
+          <declname>cache</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="176" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.c" bodystart="189" bodyend="211"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__cache_8h_1a3654da4b4c153c40f129c2c95ffe79b2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structslab" kindref="compound">slab</ref> *</type>
+        <definition>struct slab* slab_get_with_order</definition>
+        <argsstring>(struct slab_cache *cache, uint8_t order)</argsstring>
+        <name>slab_get_with_order</name>
+        <param>
+          <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref> *</type>
+          <declname>cache</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>order</declname>
+        </param>
+        <briefdescription>
+<para>Allocate ordered slab. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="see"><para>slab_order() </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="183" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.c" bodystart="214" bodyend="260"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__cache_8h_1ae0eb7e92cdd16013fc995b40170c691b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void slab_put_with_order</definition>
+        <argsstring>(struct slab_cache *cache, struct slab *slab)</argsstring>
+        <name>slab_put_with_order</name>
+        <param>
+          <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref> *</type>
+          <declname>cache</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structslab" kindref="compound">slab</ref> *</type>
+          <declname>slab</declname>
+        </param>
+        <briefdescription>
+<para>Deallocate ordered slab. </para>        </briefdescription>
+        <detaileddescription>
+<para>Deallocate ordered slab. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="189" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.c" bodystart="319" bodyend="365"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__cache_8h_1a4fa78cebb068f190071e657a40b91a1b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structslab" kindref="compound">slab</ref> *</type>
+        <definition>struct slab* slab_get_large</definition>
+        <argsstring>(struct slab_cache *slab, size_t size)</argsstring>
+        <name>slab_get_large</name>
+        <param>
+          <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref> *</type>
+          <declname>slab</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Allocate large slab. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="pre"><para>size &gt; slab_order_size(cache-&gt;arena-&gt;slab_size) </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="196" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.c" bodystart="263" bodyend="280"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__cache_8h_1ac8b2ca0ee945e9613f0c6665f8a5aace" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void slab_put_large</definition>
+        <argsstring>(struct slab_cache *cache, struct slab *slab)</argsstring>
+        <name>slab_put_large</name>
+        <param>
+          <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref> *</type>
+          <declname>cache</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structslab" kindref="compound">slab</ref> *</type>
+          <declname>slab</declname>
+        </param>
+        <briefdescription>
+<para>Deallocate large slab. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="pre"><para>slab was allocated with slab_get_large() </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="203" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.c" bodystart="283" bodyend="299"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__cache_8h_1a1a35d00180348bbb7192bdf6adc3ab8f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structslab" kindref="compound">slab</ref> *</type>
+        <definition>struct slab* slab_get</definition>
+        <argsstring>(struct slab_cache *cache, size_t size)</argsstring>
+        <name>slab_get</name>
+        <param>
+          <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref> *</type>
+          <declname>cache</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>A shortcut for slab_get_with_order()/slab_get_large() </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="see"><para>slab_get_with_order() </para></simplesect>
+<simplesect kind="see"><para>slab_get_large()</para></simplesect>
+A shortcut for slab_get_with_order()/slab_get_large()</para><para>On failure, mmap() a new region, optionally split it into a series of half. Returns a next-power-of-two(size) aligned address for all sizes below SLAB_SIZE_MAX. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="211" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.c" bodystart="309" bodyend="315"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__cache_8h_1a79a330eece65be0a1db269286b95989a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void slab_put</definition>
+        <argsstring>(struct slab_cache *cache, struct slab *slab)</argsstring>
+        <name>slab_put</name>
+        <param>
+          <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref> *</type>
+          <declname>cache</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structslab" kindref="compound">slab</ref> *</type>
+          <declname>slab</declname>
+        </param>
+        <briefdescription>
+<para>Shortcut for slab_put_with_order()/slab_put_large() </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="see"><para>slab_get_with_order() </para></simplesect>
+<simplesect kind="see"><para>slab_get_large() </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="219" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.c" bodystart="368" bodyend="373"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__cache_8h_1ad0dc2cfb4f89920f7e4318a9489c9ba5" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t slab_cache_used</definition>
+        <argsstring>(struct slab_cache *slabc)</argsstring>
+        <name>slab_cache_used</name>
+        <param>
+          <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref> *</type>
+          <declname>slabc</declname>
+        </param>
+        <briefdescription>
+<para>Return the number of bytes used by this slab cache. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="remark"><para>This function is thread-safe. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="226" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="226" bodyend="229"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__cache_8h_1a017f2db8ea8365c8ae3ef061503c24f9" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structslab" kindref="compound">slab</ref> *</type>
+        <definition>static struct slab* slab_from_ptr</definition>
+        <argsstring>(void *ptr, intptr_t slab_mask)</argsstring>
+        <name>slab_from_ptr</name>
+        <param>
+          <type>void *</type>
+          <declname>ptr</declname>
+        </param>
+        <param>
+          <type>intptr_t</type>
+          <declname>slab_mask</declname>
+        </param>
+        <briefdescription>
+<para>Given a pointer allocated in a slab, get the handle of the slab itself. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="236" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="236" bodyend="243"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__cache_8h_1ac40a7637adec3f4584faa5ab12187912" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t slab_sizeof</definition>
+        <argsstring>()</argsstring>
+        <name>slab_sizeof</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="247" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="247" bodyend="250"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__cache_8h_1aba0103b7f77223e0c71c5bf484436f68" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t slab_capacity</definition>
+        <argsstring>(struct slab *slab)</argsstring>
+        <name>slab_capacity</name>
+        <param>
+          <type>struct <ref refid="structslab" kindref="compound">slab</ref> *</type>
+          <declname>slab</declname>
+        </param>
+        <briefdescription>
+<para>Useful size of a slab. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="254" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="254" bodyend="257"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__cache_8h_1a4f26c09eda3fb4344ed778d3e2e21567" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void *</type>
+        <definition>static void* slab_data</definition>
+        <argsstring>(struct slab *slab)</argsstring>
+        <name>slab_data</name>
+        <param>
+          <type>struct <ref refid="structslab" kindref="compound">slab</ref> *</type>
+          <declname>slab</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="260" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="260" bodyend="263"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__cache_8h_1aad2d18568c97304bf4c22ae7cd5516a3" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structslab" kindref="compound">slab</ref> *</type>
+        <definition>static struct slab* slab_from_data</definition>
+        <argsstring>(void *data)</argsstring>
+        <name>slab_from_data</name>
+        <param>
+          <type>void *</type>
+          <declname>data</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="266" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="266" bodyend="269"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__cache_8h_1ae007bc7f297391c9807e9091bc8f07e9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void slab_cache_check</definition>
+        <argsstring>(struct slab_cache *cache)</argsstring>
+        <name>slab_cache_check</name>
+        <param>
+          <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref> *</type>
+          <declname>cache</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="272" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.c" bodystart="376" bodyend="464"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__cache_8h_1a99f496c8c0a31550cb4aae3e5f8daf73" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>static uint8_t slab_order</definition>
+        <argsstring>(struct slab_cache *cache, size_t size)</argsstring>
+        <name>slab_order</name>
+        <param>
+          <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref> *</type>
+          <declname>cache</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Find the nearest power of 2 size capable of containing a chunk of the given size. </para>        </briefdescription>
+        <detaileddescription>
+<para>Adjust for cache-&gt;order0_size and arena-&gt;slab_size. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="280" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="280" bodyend="291"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__cache_8h_1a42266a24a886caafcd7cae91cef231d0" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>intptr_t</type>
+        <definition>static intptr_t slab_order_size</definition>
+        <argsstring>(struct slab_cache *cache, uint8_t order)</argsstring>
+        <name>slab_order_size</name>
+        <param>
+          <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref> *</type>
+          <declname>cache</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>order</declname>
+        </param>
+        <briefdescription>
+<para>Convert slab order to the mmap()ed size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="295" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="295" bodyend="300"/>
+      </memberdef>
+      <memberdef kind="function" id="slab__cache_8h_1a306ddb2bff2d11028aaa73ffe16dc4d3" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void slab_cache_set_thread</definition>
+        <argsstring>(struct slab_cache *cache)</argsstring>
+        <name>slab_cache_set_thread</name>
+        <param>
+          <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref> *</type>
+          <declname>cache</declname>
+        </param>
+        <briefdescription>
+<para>Debug only: track that all allocations are made from a single thread. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" line="307" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h" bodystart="307" bodyend="313"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>INCLUDES_TARANTOOL_SMALL_SLAB_CACHE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INCLUDES_TARANTOOL_SMALL_SLAB_CACHE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;inttypes.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;limits.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;assert.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;rlist.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;slab_arena.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;pthread.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/>slab_magic;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47" refid="structslab" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structslab" kindref="compound">slab</ref><sp/>{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="49"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Next<sp/>slab<sp/>in<sp/>the<sp/>list<sp/>of<sp/>allocated<sp/>slabs.<sp/>Unused<sp/>if</highlight></codeline>
+<codeline lineno="50"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>this<sp/>slab<sp/>has<sp/>a<sp/>buddy.<sp/>Sic:<sp/>if<sp/>a<sp/>slab<sp/>is<sp/>not<sp/>allocated</highlight></codeline>
+<codeline lineno="51"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>but<sp/>is<sp/>made<sp/>by<sp/>a<sp/>split<sp/>of<sp/>a<sp/>larger<sp/>(allocated)<sp/>slab,</highlight></codeline>
+<codeline lineno="52"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>this<sp/>member<sp/>got<sp/>to<sp/>be<sp/>left<sp/>intact,<sp/>to<sp/>not<sp/>corrupt</highlight></codeline>
+<codeline lineno="53"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>cache-&gt;allocated<sp/>list.</highlight></codeline>
+<codeline lineno="54"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>next_in_cache;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>next_in_list;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structslab_1ae3a69594772182a1a2ba5b255361383d" kindref="member">size</ref>;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structslab_1ad2a3a1f5191079923c627f05a70135ce" kindref="member">magic</ref>;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structslab_1aa5a8861326307f46c5ecf490ce624df9" kindref="member">order</ref>;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structslab_1af36d6a10e2f02234563d890fe8fddbf5" kindref="member">in_use</ref>;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80" refid="structsmall__stats" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsmall__stats" kindref="compound">small_stats</ref><sp/>{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>used;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>total;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal">small_stats_reset(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsmall__stats" kindref="compound">small_stats</ref><sp/>*<ref refid="structstats" kindref="compound">stats</ref>)</highlight></codeline>
+<codeline lineno="87"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stats-&gt;used<sp/>=<sp/>stats-&gt;total<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97" refid="structslab__list" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structslab__list" kindref="compound">slab_list</ref><sp/>{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>slabs;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsmall__stats" kindref="compound">small_stats</ref><sp/>stats;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>slab_list_add(list,<sp/>slab,<sp/>member)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="104"><highlight class="preprocessor">do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="105"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_add_entry(&amp;(list)-&gt;slabs,<sp/>(slab),<sp/>member);\</highlight></codeline>
+<codeline lineno="106"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(list)-&gt;stats.total<sp/>+=<sp/>(slab)-&gt;size;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="107"><highlight class="preprocessor">}<sp/>while<sp/>(0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>slab_list_del(list,<sp/>slab,<sp/>member)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="110"><highlight class="preprocessor">do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="111"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_del_entry((slab),<sp/>member);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="112"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(list)-&gt;stats.total<sp/>-=<sp/>(slab)-&gt;size;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="113"><highlight class="preprocessor">}<sp/>while<sp/>(0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal">slab_list_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__list" kindref="compound">slab_list</ref><sp/>*list)</highlight></codeline>
+<codeline lineno="117"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_create(&amp;list-&gt;slabs);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>small_stats_reset(&amp;list-&gt;<ref refid="structslab__list_1ac501108982f9025d0bddc5cf72a8324c" kindref="member">stats</ref>);</highlight></codeline>
+<codeline lineno="120"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="123"><highlight class="comment"><sp/>*<sp/>A<sp/>binary<sp/>logarithmic<sp/>distance<sp/>between<sp/>the<sp/>smallest<sp/>and</highlight></codeline>
+<codeline lineno="124"><highlight class="comment"><sp/>*<sp/>the<sp/>largest<sp/>slab<sp/>in<sp/>the<sp/>cache<sp/>can&apos;t<sp/>be<sp/>that<sp/>big,<sp/>really.</highlight></codeline>
+<codeline lineno="125"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{<sp/>ORDER_MAX<sp/>=<sp/>16<sp/>};</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128" refid="structslab__cache" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>{</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>The<sp/>source<sp/>of<sp/>allocations<sp/>for<sp/>this<sp/>cache.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structslab__arena" kindref="compound">slab_arena</ref><sp/>*<ref refid="structslab__arena_1a5ebc1c2aea7cd242c492896189ec39b2" kindref="member">arena</ref>;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="132"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Min<sp/>size<sp/>of<sp/>the<sp/>slab<sp/>in<sp/>the<sp/>cache<sp/>maintained</highlight></codeline>
+<codeline lineno="133"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>using<sp/>the<sp/>buddy<sp/>system.<sp/>The<sp/>logarithmic<sp/>distance</highlight></codeline>
+<codeline lineno="134"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>between<sp/>order0_size<sp/>and<sp/>arena-&gt;slab_max_size</highlight></codeline>
+<codeline lineno="135"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>defines<sp/>the<sp/>number<sp/>of<sp/>&quot;orders&quot;<sp/>of<sp/>slab<sp/>cache.</highlight></codeline>
+<codeline lineno="136"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>This<sp/>distance<sp/>can&apos;t<sp/>be<sp/>more<sp/>than<sp/>ORDER_MAX.</highlight></codeline>
+<codeline lineno="137"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>order0_size;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="140"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Binary<sp/>logarithm<sp/>of<sp/>order0_size,<sp/>useful<sp/>in<sp/>pointer</highlight></codeline>
+<codeline lineno="141"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>arithmetics.</highlight></codeline>
+<codeline lineno="142"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>order0_size_lb;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="145"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Slabs<sp/>of<sp/>order<sp/>in<sp/>range<sp/>[0,<sp/>order_max)<sp/>have<sp/>size</highlight></codeline>
+<codeline lineno="146"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>which<sp/>is<sp/>a<sp/>power<sp/>of<sp/>2.<sp/>Slabs<sp/>in<sp/>the<sp/>next<sp/>order<sp/>are</highlight></codeline>
+<codeline lineno="147"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>double<sp/>the<sp/>size<sp/>of<sp/>the<sp/>previous<sp/>order.<sp/><sp/>Slabs<sp/>of<sp/>the</highlight></codeline>
+<codeline lineno="148"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>previous<sp/>order<sp/>are<sp/>obtained<sp/>by<sp/>splitting<sp/>a<sp/>slab<sp/>of<sp/>the</highlight></codeline>
+<codeline lineno="149"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>next<sp/>order,<sp/>and<sp/>so<sp/>on<sp/>until<sp/>order<sp/>is<sp/>order_max</highlight></codeline>
+<codeline lineno="150"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Slabs<sp/>of<sp/>order<sp/>order_max<sp/>are<sp/>obtained<sp/>directly</highlight></codeline>
+<codeline lineno="151"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>from<sp/>slab_arena.<sp/>This<sp/>system<sp/>is<sp/>also<sp/>known<sp/>as<sp/>buddy</highlight></codeline>
+<codeline lineno="152"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>system.</highlight></codeline>
+<codeline lineno="153"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>order_max;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structslab__list" kindref="compound">slab_list</ref><sp/>allocated;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structslab__list" kindref="compound">slab_list</ref><sp/>orders[ORDER_MAX+1];</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>_NDEBUG</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pthread_t<sp/>thread_id;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal">slab_cache_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>*cache,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__arena" kindref="compound">slab_arena</ref><sp/>*arena);</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal">slab_cache_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>*cache);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structslab" kindref="compound">slab</ref><sp/>*</highlight></codeline>
+<codeline lineno="183"><highlight class="normal">slab_get_with_order(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>*cache,<sp/>uint8_t<sp/><ref refid="structslab_1aa5a8861326307f46c5ecf490ce624df9" kindref="member">order</ref>);</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal">slab_put_with_order(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>*cache,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab" kindref="compound">slab</ref><sp/>*<ref refid="structslab" kindref="compound">slab</ref>);</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="keyword">struct<sp/></highlight><highlight class="normal">slab<sp/>*</highlight></codeline>
+<codeline lineno="196"><highlight class="normal">slab_get_large(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>*slab,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structslab_1ae3a69594772182a1a2ba5b255361383d" kindref="member">size</ref>);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal">slab_put_large(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>*cache,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>slab<sp/>*slab);</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="keyword">struct<sp/></highlight><highlight class="normal">slab<sp/>*</highlight></codeline>
+<codeline lineno="211"><highlight class="normal">slab_get(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>*cache,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal">slab_put(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>*cache,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>slab<sp/>*slab);</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal">slab_cache_used(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>*slabc)</highlight></codeline>
+<codeline lineno="227"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>slabc-&gt;<ref refid="structslab__cache_1a505ba66f5adfc393b02f9b7b24c64be9" kindref="member">allocated</ref>.<ref refid="structslab__list_1ac501108982f9025d0bddc5cf72a8324c" kindref="member">stats</ref>.used;</highlight></codeline>
+<codeline lineno="229"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight></codeline>
+<codeline lineno="235"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">slab<sp/>*</highlight></codeline>
+<codeline lineno="236"><highlight class="normal">slab_from_ptr(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ptr,<sp/>intptr_t<sp/>slab_mask)</highlight></codeline>
+<codeline lineno="237"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>intptr_t<sp/>addr<sp/>=<sp/>(intptr_t)<sp/>ptr;</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">slab<sp/>*slab<sp/>=<sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">slab<sp/>*)(addr<sp/>&amp;<sp/>slab_mask);</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(slab-&gt;<ref refid="structslab_1ad2a3a1f5191079923c627f05a70135ce" kindref="member">magic</ref><sp/>==<sp/>slab_magic);</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>slab;</highlight></codeline>
+<codeline lineno="243"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Aligned<sp/>size<sp/>of<sp/>slab<sp/>meta.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t</highlight></codeline>
+<codeline lineno="247"><highlight class="normal">slab_sizeof()</highlight></codeline>
+<codeline lineno="248"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>small_align(</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>slab),<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(intptr_t));</highlight></codeline>
+<codeline lineno="250"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"></highlight></codeline>
+<codeline lineno="253"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t</highlight></codeline>
+<codeline lineno="254"><highlight class="normal">slab_capacity(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>slab<sp/>*slab)</highlight></codeline>
+<codeline lineno="255"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>slab-&gt;<ref refid="structslab_1ae3a69594772182a1a2ba5b255361383d" kindref="member">size</ref><sp/>-<sp/>slab_sizeof();</highlight></codeline>
+<codeline lineno="257"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"></highlight></codeline>
+<codeline lineno="259"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="260"><highlight class="normal">slab_data(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>slab<sp/>*slab)</highlight></codeline>
+<codeline lineno="261"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*)<sp/>slab<sp/>+<sp/>slab_sizeof();</highlight></codeline>
+<codeline lineno="263"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"></highlight></codeline>
+<codeline lineno="265"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">slab<sp/>*</highlight></codeline>
+<codeline lineno="266"><highlight class="normal">slab_from_data(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data)</highlight></codeline>
+<codeline lineno="267"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>slab<sp/>*)<sp/>((</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*)<sp/>data<sp/>-<sp/>slab_sizeof());</highlight></codeline>
+<codeline lineno="269"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal">slab_cache_check(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>*cache);</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight></codeline>
+<codeline lineno="279"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint8_t</highlight></codeline>
+<codeline lineno="280"><highlight class="normal">slab_order(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>*cache,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="281"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(size<sp/>&lt;=<sp/>UINT32_MAX);</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(size<sp/>&lt;=<sp/>cache-&gt;order0_size)</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(size<sp/>&gt;<sp/>cache-&gt;arena-&gt;slab_size)</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>cache-&gt;order_max<sp/>+<sp/>1;</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"></highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint8_t)<sp/>(CHAR_BIT<sp/>*<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(unsigned)<sp/>-</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>__builtin_clz((</highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal">)<sp/>size<sp/>-<sp/>1)<sp/>-</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cache-&gt;order0_size_lb);</highlight></codeline>
+<codeline lineno="291"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"></highlight></codeline>
+<codeline lineno="294"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>intptr_t</highlight></codeline>
+<codeline lineno="295"><highlight class="normal">slab_order_size(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>*cache,<sp/>uint8_t<sp/>order)</highlight></codeline>
+<codeline lineno="296"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(order<sp/>&lt;=<sp/>cache-&gt;order_max);</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>intptr_t<sp/>size<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>size<sp/>&lt;&lt;<sp/>(order<sp/>+<sp/>cache-&gt;order0_size_lb);</highlight></codeline>
+<codeline lineno="300"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"></highlight></codeline>
+<codeline lineno="306"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="307"><highlight class="normal">slab_cache_set_thread(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>*cache)</highlight></codeline>
+<codeline lineno="308"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<sp/>cache;</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>_NDEBUG</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cache-&gt;thread_id<sp/>=<sp/>pthread_self();</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="313"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"></highlight></codeline>
+<codeline lineno="315"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="316"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="317"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="318"><highlight class="normal"></highlight></codeline>
+<codeline lineno="319"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>INCLUDES_TARANTOOL_SMALL_SLAB_CACHE_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/small/small/slab_cache.h"/>
+  </compounddef>
+</doxygen>

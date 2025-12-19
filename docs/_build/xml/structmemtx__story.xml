@@ -1,0 +1,943 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structmemtx__story" kind="struct" language="C++" prot="public">
+    <compoundname>memtx_story</compoundname>
+    <includes local="no">memtx_tx.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structmemtx__story_1a78457185853ce5e00e1de22fc4668ec0" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+        <definition>struct tuple* memtx_story::tuple</definition>
+        <argsstring></argsstring>
+        <name>tuple</name>
+        <briefdescription>
+<para>The story is about this tuple. </para>        </briefdescription>
+        <detaileddescription>
+<para>The tuple is referenced. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="116" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.h" bodystart="116" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__story_1a08c5c5cac0e192dfec69542ffaeaee3a" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref> *</type>
+        <definition>struct txn_stmt* memtx_story::add_stmt</definition>
+        <argsstring></argsstring>
+        <name>add_stmt</name>
+        <briefdescription>
+<para>Statement that told this story. </para>        </briefdescription>
+        <detaileddescription>
+<para>Is set to NULL when the statement&apos;s transaction becomes committed. Can also be NULL if we don&apos;t know who introduced that story, the tuple was added by a transaction that was completed and destroyed some time ago. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="123" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__story_1ac0098ffa4d114b73516e5133a13f40b9" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t memtx_story::add_psn</definition>
+        <argsstring></argsstring>
+        <name>add_psn</name>
+        <briefdescription>
+<para>Prepare sequence number of add_stmt&apos;s transaction. </para>        </briefdescription>
+        <detaileddescription>
+<para>Is set when the transaction is prepared. Can be 0 if the transaction is in progress or we don&apos;t know who introduced that story. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="129" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.h" bodystart="129" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__story_1a55bc4d94c191facbdf786fb00bba2543" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref> *</type>
+        <definition>struct txn_stmt* memtx_story::del_stmt</definition>
+        <argsstring></argsstring>
+        <name>del_stmt</name>
+        <briefdescription>
+<para>Statement that ended this story. </para>        </briefdescription>
+        <detaileddescription>
+<para>Is set to NULL when the statement&apos;s transaction becomes committed. Can also be NULL if the tuple has not been deleted yet. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="135" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.h" bodystart="135" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__story_1ae2b291b043f96fe9d6f2b1de282eb527" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t memtx_story::del_psn</definition>
+        <argsstring></argsstring>
+        <name>del_psn</name>
+        <briefdescription>
+<para>Prepare sequence number of del_stmt&apos;s transaction. </para>        </briefdescription>
+        <detaileddescription>
+<para>Is set when the transaction is prepared. Can be 0 if the transaction is in progress or if nobody has deleted the tuple. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="141" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.h" bodystart="141" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__story_1a7c471c20a70abd681417d16a2896369c" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist memtx_story::reader_list</definition>
+        <argsstring></argsstring>
+        <name>reader_list</name>
+        <briefdescription>
+<para>List of trackers - transactions that has read this tuple. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="141" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.h" bodystart="145" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__story_1ab5c5ec508c0fef58d39b2e9cf165182c" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist memtx_story::in_all_stories</definition>
+        <argsstring></argsstring>
+        <name>in_all_stories</name>
+        <briefdescription>
+<para>Link in <ref refid="structtx__manager_1ae976a1607c698a0e244f24c6eac79ee8" kindref="member">tx_manager::all_stories</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="141" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.h" bodystart="149" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__story_1a21d168f933e3aa01e15c911e87cb3ff2" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist memtx_story::in_space_stories</definition>
+        <argsstring></argsstring>
+        <name>in_space_stories</name>
+        <briefdescription>
+<para>Link in space::memtx_tx_stories. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="141" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.h" bodystart="153" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__story_1af2ed556a900c331776268cad3fb0ae3d" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structspace" kindref="compound">space</ref> *</type>
+        <definition>struct space* memtx_story::space</definition>
+        <argsstring></argsstring>
+        <name>space</name>
+        <briefdescription>
+<para>The space where the tuple is supposed to be. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="157" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.h" bodystart="157" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__story_1a5fe10921f87396e9493728de4034b246" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t memtx_story::index_count</definition>
+        <argsstring></argsstring>
+        <name>index_count</name>
+        <briefdescription>
+<para>Number of indexes in this space - and the count of link[]. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="161" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.h" bodystart="161" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmemtx__story_1a7d9a4b5311662382451e57ab7e705f17" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmemtx__story__link" kindref="compound">memtx_story_link</ref></type>
+        <definition>struct memtx_story_link memtx_story::link[]</definition>
+        <argsstring>[]</argsstring>
+        <name>link</name>
+        <briefdescription>
+<para>Link with older and newer stories (and just tuples) for each index respectively. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="161" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.h" bodystart="166" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A part of a history of a value in space. </para>    </briefdescription>
+    <detaileddescription>
+<para>It&apos;s a story about a tuple, from the point it was added to space to the point when it was deleted from a space. All stories are linked into a list of stories of the same key of each index. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="5417">
+        <label>serializer_opts</label>
+        <link refid="structserializer__opts"/>
+      </node>
+      <node id="5403">
+        <label>memtx_story_or_tuple</label>
+        <link refid="structmemtx__story__or__tuple"/>
+        <childnode refid="5382" relation="usage">
+          <edgelabel>tuple</edgelabel>
+        </childnode>
+        <childnode refid="5352" relation="usage">
+          <edgelabel>story</edgelabel>
+        </childnode>
+      </node>
+      <node id="5409">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="5397">
+        <label>json_tree</label>
+        <link refid="structjson__tree"/>
+        <childnode refid="5398" relation="usage">
+          <edgelabel>root</edgelabel>
+        </childnode>
+      </node>
+      <node id="5368">
+        <label>ExprList</label>
+        <link refid="structExprList"/>
+        <childnode refid="5369" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="5379">
+        <label>index_stat</label>
+        <link refid="structindex__stat"/>
+        <childnode refid="5380" relation="usage">
+          <edgelabel>samples</edgelabel>
+        </childnode>
+      </node>
+      <node id="5394">
+        <label>iterator</label>
+        <link refid="structiterator"/>
+        <childnode refid="5391" relation="usage">
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="5405">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="5405" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="5407">
+        <label>region</label>
+        <link refid="structregion"/>
+        <childnode refid="5408" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="5410" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="5402">
+        <label>memtx_story_link</label>
+        <link refid="structmemtx__story__link"/>
+        <childnode refid="5403" relation="usage">
+          <edgelabel>older</edgelabel>
+        </childnode>
+        <childnode refid="5352" relation="usage">
+          <edgelabel>newer_story</edgelabel>
+        </childnode>
+      </node>
+      <node id="5383">
+        <label>key_part</label>
+        <link refid="structkey__part"/>
+        <childnode refid="5384" relation="usage">
+          <edgelabel>coll</edgelabel>
+        </childnode>
+      </node>
+      <node id="5380">
+        <label>index_sample</label>
+        <link refid="structindex__sample"/>
+      </node>
+      <node id="5418">
+        <label>session_vtab</label>
+        <link refid="structsession__vtab"/>
+      </node>
+      <node id="5389">
+        <label>TriggerStep</label>
+        <link refid="structTriggerStep"/>
+        <childnode refid="5389" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pLast</edgelabel>
+        </childnode>
+        <childnode refid="5357" relation="usage">
+          <edgelabel>pWhere</edgelabel>
+        </childnode>
+        <childnode refid="5375" relation="usage">
+          <edgelabel>pIdList</edgelabel>
+        </childnode>
+        <childnode refid="5370" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="5368" relation="usage">
+          <edgelabel>pExprList</edgelabel>
+        </childnode>
+      </node>
+      <node id="5420">
+        <label>diag</label>
+        <link refid="structdiag"/>
+      </node>
+      <node id="5398">
+        <label>json_token</label>
+        <link refid="structjson__token"/>
+        <childnode refid="5398" relation="usage">
+          <edgelabel>parent</edgelabel>
+          <edgelabel>children</edgelabel>
+        </childnode>
+      </node>
+      <node id="5424">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="5405" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="5362">
+        <label>access</label>
+        <link refid="structaccess"/>
+      </node>
+      <node id="5374">
+        <label>SrcList::SrcList_item</label>
+        <link refid="structSrcList_1_1SrcList__item"/>
+        <childnode refid="5353" relation="usage">
+          <edgelabel>space</edgelabel>
+        </childnode>
+        <childnode refid="5357" relation="usage">
+          <edgelabel>pOn</edgelabel>
+        </childnode>
+        <childnode refid="5375" relation="usage">
+          <edgelabel>pUsing</edgelabel>
+        </childnode>
+        <childnode refid="5377" relation="usage">
+          <edgelabel>pIBIndex</edgelabel>
+        </childnode>
+        <childnode refid="5370" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="5368" relation="usage">
+          <edgelabel>pFuncArg</edgelabel>
+        </childnode>
+      </node>
+      <node id="5372">
+        <label>With::Cte</label>
+        <link refid="structWith_1_1Cte"/>
+        <childnode refid="5370" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="5368" relation="usage">
+          <edgelabel>pCols</edgelabel>
+        </childnode>
+      </node>
+      <node id="5370">
+        <label>Select</label>
+        <link refid="structSelect"/>
+        <childnode refid="5357" relation="usage">
+          <edgelabel>pOffset</edgelabel>
+          <edgelabel>pHaving</edgelabel>
+          <edgelabel>pWhere</edgelabel>
+          <edgelabel>pLimit</edgelabel>
+        </childnode>
+        <childnode refid="5371" relation="usage">
+          <edgelabel>pWith</edgelabel>
+        </childnode>
+        <childnode refid="5370" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pPrior</edgelabel>
+        </childnode>
+        <childnode refid="5373" relation="usage">
+          <edgelabel>pSrc</edgelabel>
+        </childnode>
+        <childnode refid="5368" relation="usage">
+          <edgelabel>pEList</edgelabel>
+          <edgelabel>pOrderBy</edgelabel>
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="5366">
+        <label>credentials</label>
+        <link refid="structcredentials"/>
+        <childnode refid="5367" relation="usage">
+          <edgelabel>in_user</edgelabel>
+        </childnode>
+      </node>
+      <node id="5387">
+        <label>engine_vtab</label>
+        <link refid="structengine__vtab"/>
+        <childnode refid="5353" relation="usage">
+          <edgelabel>create_space</edgelabel>
+        </childnode>
+      </node>
+      <node id="5353">
+        <label>space</label>
+        <link refid="structspace"/>
+        <childnode refid="5354" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="5386" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="5388" relation="usage">
+          <edgelabel>sql_triggers</edgelabel>
+        </childnode>
+        <childnode refid="5362" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="5390" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="5395" relation="usage">
+          <edgelabel>format</edgelabel>
+        </childnode>
+        <childnode refid="5399" relation="usage">
+          <edgelabel>ck_constraint_trigger</edgelabel>
+        </childnode>
+        <childnode refid="5367" relation="usage">
+          <edgelabel>before_replace</edgelabel>
+          <edgelabel>on_replace</edgelabel>
+          <edgelabel>child_fk_constraint</edgelabel>
+          <edgelabel>memtx_stories</edgelabel>
+          <edgelabel>parent_fk_constraint</edgelabel>
+          <edgelabel>ck_constraint</edgelabel>
+        </childnode>
+        <childnode refid="5400" relation="usage">
+          <edgelabel>sequence</edgelabel>
+        </childnode>
+        <childnode refid="5391" relation="usage">
+          <edgelabel>index_map</edgelabel>
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="5419">
+        <label>clock_stat</label>
+        <link refid="structclock__stat"/>
+      </node>
+      <node id="5359">
+        <label>AggInfo::AggInfo_col</label>
+        <link refid="structAggInfo_1_1AggInfo__col"/>
+        <childnode refid="5354" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="5357" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="5392">
+        <label>index_vtab</label>
+        <link refid="structindex__vtab"/>
+        <childnode refid="5393" relation="usage">
+          <edgelabel>create_snapshot_iterator</edgelabel>
+        </childnode>
+        <childnode refid="5394" relation="usage">
+          <edgelabel>create_iterator</edgelabel>
+        </childnode>
+      </node>
+      <node id="5355">
+        <label>tuple_dictionary</label>
+        <link refid="structtuple__dictionary"/>
+      </node>
+      <node id="5357">
+        <label>Expr</label>
+        <link refid="structExpr"/>
+        <childnode refid="5354" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="5358" relation="usage">
+          <edgelabel>pAggInfo</edgelabel>
+        </childnode>
+        <childnode refid="5357" relation="usage">
+          <edgelabel>pRight</edgelabel>
+          <edgelabel>pLeft</edgelabel>
+        </childnode>
+        <childnode refid="5370" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="5368" relation="usage">
+          <edgelabel>pList</edgelabel>
+        </childnode>
+      </node>
+      <node id="5406">
+        <label>txn</label>
+        <link refid="structtxn"/>
+        <childnode refid="5386" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="5405" relation="usage">
+          <edgelabel>in_txn_cache</edgelabel>
+          <edgelabel>sub_stmt_begin</edgelabel>
+        </childnode>
+        <childnode refid="5407" relation="usage">
+          <edgelabel>region</edgelabel>
+        </childnode>
+        <childnode refid="5414" relation="usage">
+          <edgelabel>fiber</edgelabel>
+        </childnode>
+        <childnode refid="5399" relation="usage">
+          <edgelabel>fiber_on_stop</edgelabel>
+          <edgelabel>fiber_on_yield</edgelabel>
+        </childnode>
+        <childnode refid="5367" relation="usage">
+          <edgelabel>on_wal_write</edgelabel>
+          <edgelabel>read_set</edgelabel>
+          <edgelabel>conflict_list</edgelabel>
+          <edgelabel>in_read_view_txs</edgelabel>
+          <edgelabel>savepoints</edgelabel>
+          <edgelabel>conflicted_by_list</edgelabel>
+        </childnode>
+        <childnode refid="5424" relation="usage">
+          <edgelabel>stmts</edgelabel>
+        </childnode>
+      </node>
+      <node id="5358">
+        <label>AggInfo</label>
+        <link refid="structAggInfo"/>
+        <childnode refid="5359" relation="usage">
+          <edgelabel>aCol</edgelabel>
+        </childnode>
+        <childnode refid="5360" relation="usage">
+          <edgelabel>aFunc</edgelabel>
+        </childnode>
+        <childnode refid="5368" relation="usage">
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="5367">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="5367" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="5393">
+        <label>snapshot_iterator</label>
+        <link refid="structsnapshot__iterator"/>
+      </node>
+      <node id="5408">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="5409" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="5367" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="5373">
+        <label>SrcList</label>
+        <link refid="structSrcList"/>
+        <childnode refid="5374" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="5423">
+        <label>ipc_msg</label>
+        <link refid="structipc__msg"/>
+      </node>
+      <node id="5404">
+        <label>txn_stmt</label>
+        <link refid="structtxn__stmt"/>
+        <childnode refid="5353" relation="usage">
+          <edgelabel>space</edgelabel>
+        </childnode>
+        <childnode refid="5382" relation="usage">
+          <edgelabel>new_tuple</edgelabel>
+          <edgelabel>old_tuple</edgelabel>
+        </childnode>
+        <childnode refid="5405" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="5406" relation="usage">
+          <edgelabel>txn</edgelabel>
+        </childnode>
+        <childnode refid="5352" relation="usage">
+          <edgelabel>add_story</edgelabel>
+          <edgelabel>del_story</edgelabel>
+        </childnode>
+        <childnode refid="5367" relation="usage">
+          <edgelabel>on_commit</edgelabel>
+          <edgelabel>on_rollback</edgelabel>
+        </childnode>
+        <childnode refid="5404" relation="usage">
+          <edgelabel>next_in_del_list</edgelabel>
+        </childnode>
+        <childnode refid="5425" relation="usage">
+          <edgelabel>row</edgelabel>
+        </childnode>
+      </node>
+      <node id="5401">
+        <label>sequence_def</label>
+        <link refid="structsequence__def"/>
+      </node>
+      <node id="5375">
+        <label>IdList</label>
+        <link refid="structIdList"/>
+        <childnode refid="5376" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="5391">
+        <label>index</label>
+        <link refid="structindex"/>
+        <childnode refid="5386" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="5392" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="5377" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="5400">
+        <label>sequence</label>
+        <link refid="structsequence"/>
+        <childnode refid="5362" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="5401" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="5356">
+        <label>field_def</label>
+        <link refid="structfield__def"/>
+        <childnode refid="5357" relation="usage">
+          <edgelabel>default_value_expr</edgelabel>
+        </childnode>
+      </node>
+      <node id="5381">
+        <label>key_def</label>
+        <link refid="structkey__def"/>
+        <childnode refid="5382" relation="usage">
+          <edgelabel>tuple_hash</edgelabel>
+          <edgelabel>tuple_compare_with_key</edgelabel>
+          <edgelabel>tuple_compare</edgelabel>
+          <edgelabel>tuple_hint</edgelabel>
+          <edgelabel>tuple_extract_key</edgelabel>
+        </childnode>
+        <childnode refid="5381" relation="usage">
+          <edgelabel>key_hash</edgelabel>
+          <edgelabel>tuple_extract_key_raw</edgelabel>
+          <edgelabel>key_hint</edgelabel>
+        </childnode>
+        <childnode refid="5361" relation="usage">
+          <edgelabel>func_index_func</edgelabel>
+        </childnode>
+        <childnode refid="5383" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="5425">
+        <label>xrow_header</label>
+        <link refid="structxrow__header"/>
+      </node>
+      <node id="5399">
+        <label>trigger</label>
+        <link refid="structtrigger"/>
+        <childnode refid="5399" relation="usage">
+          <edgelabel>run</edgelabel>
+          <edgelabel>destroy</edgelabel>
+        </childnode>
+        <childnode refid="5367" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="5382">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="5412">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="5377">
+        <label>index_def</label>
+        <link refid="structindex__def"/>
+        <childnode refid="5378" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+        <childnode refid="5381" relation="usage">
+          <edgelabel>key_def</edgelabel>
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="5367" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="5385">
+        <label>space_opts</label>
+        <link refid="structspace__opts"/>
+      </node>
+      <node id="5361">
+        <label>func</label>
+        <link refid="structfunc"/>
+        <childnode refid="5362" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="5363" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="5364" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="5366" relation="usage">
+          <edgelabel>owner_credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="5363">
+        <label>func_vtab</label>
+        <link refid="structfunc__vtab"/>
+      </node>
+      <node id="5388">
+        <label>sql_trigger</label>
+        <link refid="structsql__trigger"/>
+        <childnode refid="5389" relation="usage">
+          <edgelabel>step_list</edgelabel>
+        </childnode>
+        <childnode refid="5357" relation="usage">
+          <edgelabel>pWhen</edgelabel>
+        </childnode>
+        <childnode refid="5388" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="5375" relation="usage">
+          <edgelabel>pColumns</edgelabel>
+        </childnode>
+      </node>
+      <node id="5413">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="5411">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="5412" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="5413" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="5365">
+        <label>func_opts</label>
+        <link refid="structfunc__opts"/>
+      </node>
+      <node id="5410">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="5408" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="5411" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="5396">
+        <label>tuple_format_vtab</label>
+        <link refid="structtuple__format__vtab"/>
+        <childnode refid="5382" relation="usage">
+          <edgelabel>tuple_new</edgelabel>
+        </childnode>
+      </node>
+      <node id="5395">
+        <label>tuple_format</label>
+        <link refid="structtuple__format"/>
+        <childnode refid="5355" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="5396" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="5397" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+      </node>
+      <node id="5352">
+        <label>memtx_story</label>
+        <link refid="structmemtx__story"/>
+        <childnode refid="5353" relation="usage">
+          <edgelabel>space</edgelabel>
+        </childnode>
+        <childnode refid="5382" relation="usage">
+          <edgelabel>tuple</edgelabel>
+        </childnode>
+        <childnode refid="5402" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+        <childnode refid="5367" relation="usage">
+          <edgelabel>in_space_stories</edgelabel>
+          <edgelabel>in_all_stories</edgelabel>
+          <edgelabel>reader_list</edgelabel>
+        </childnode>
+        <childnode refid="5404" relation="usage">
+          <edgelabel>del_stmt</edgelabel>
+          <edgelabel>add_stmt</edgelabel>
+        </childnode>
+      </node>
+      <node id="5364">
+        <label>func_def</label>
+        <link refid="structfunc__def"/>
+        <childnode refid="5365" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="5371">
+        <label>With</label>
+        <link refid="structWith"/>
+        <childnode refid="5372" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+        <childnode refid="5371" relation="usage">
+          <edgelabel>pOuter</edgelabel>
+        </childnode>
+      </node>
+      <node id="5354">
+        <label>space_def</label>
+        <link refid="structspace__def"/>
+        <childnode refid="5355" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="5356" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+        <childnode refid="5385" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="5386">
+        <label>engine</label>
+        <link refid="structengine"/>
+        <childnode refid="5387" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="5367" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="5376">
+        <label>IdList::IdList_item</label>
+        <link refid="structIdList_1_1IdList__item"/>
+      </node>
+      <node id="5422">
+        <label>ipc_wait_pad</label>
+        <link refid="structipc__wait__pad"/>
+        <childnode refid="5423" relation="usage">
+          <edgelabel>msg</edgelabel>
+        </childnode>
+      </node>
+      <node id="5414">
+        <label>fiber</label>
+        <link refid="structfiber"/>
+        <childnode refid="5406" relation="usage">
+          <edgelabel>txn</edgelabel>
+        </childnode>
+        <childnode refid="5407" relation="usage">
+          <edgelabel>gc</edgelabel>
+        </childnode>
+        <childnode refid="5414" relation="usage">
+          <edgelabel>caller</edgelabel>
+        </childnode>
+        <childnode refid="5366" relation="usage">
+          <edgelabel>credentials</edgelabel>
+        </childnode>
+        <childnode refid="5415" relation="usage">
+          <edgelabel>session</edgelabel>
+        </childnode>
+        <childnode refid="5419" relation="usage">
+          <edgelabel>clock_stat</edgelabel>
+        </childnode>
+        <childnode refid="5367" relation="usage">
+          <edgelabel>wake</edgelabel>
+          <edgelabel>on_stop</edgelabel>
+          <edgelabel>on_yield</edgelabel>
+          <edgelabel>link</edgelabel>
+          <edgelabel>state</edgelabel>
+        </childnode>
+        <childnode refid="5420" relation="usage">
+          <edgelabel>diag</edgelabel>
+        </childnode>
+        <childnode refid="5421" relation="usage">
+          <edgelabel>stack_slab</edgelabel>
+        </childnode>
+        <childnode refid="5422" relation="usage">
+          <edgelabel>wait_pad</edgelabel>
+        </childnode>
+      </node>
+      <node id="5384">
+        <label>coll</label>
+        <link refid="structcoll"/>
+        <childnode refid="5384" relation="usage">
+          <edgelabel>cmp</edgelabel>
+          <edgelabel>hint</edgelabel>
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+      <node id="5421">
+        <label>slab</label>
+        <link refid="structslab"/>
+        <childnode refid="5367" relation="usage">
+          <edgelabel>next_in_cache</edgelabel>
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+      <node id="5416">
+        <label>session_meta</label>
+        <link refid="structsession__meta"/>
+        <childnode refid="5417" relation="usage">
+          <edgelabel>serializer_opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="5378">
+        <label>index_opts</label>
+        <link refid="structindex__opts"/>
+        <childnode refid="5379" relation="usage">
+          <edgelabel>stat</edgelabel>
+        </childnode>
+      </node>
+      <node id="5415">
+        <label>session</label>
+        <link refid="structsession"/>
+        <childnode refid="5416" relation="usage">
+          <edgelabel>meta</edgelabel>
+        </childnode>
+        <childnode refid="5418" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="5399" relation="usage">
+          <edgelabel>fiber_on_stop</edgelabel>
+        </childnode>
+        <childnode refid="5366" relation="usage">
+          <edgelabel>credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="5369">
+        <label>ExprList::ExprList_item</label>
+        <link refid="structExprList_1_1ExprList__item"/>
+        <childnode refid="5357" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="5360">
+        <label>AggInfo::AggInfo_func</label>
+        <link refid="structAggInfo_1_1AggInfo__func"/>
+        <childnode refid="5357" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+        <childnode refid="5361" relation="usage">
+          <edgelabel>func</edgelabel>
+        </childnode>
+      </node>
+      <node id="5390">
+        <label>space_vtab</label>
+        <link refid="structspace__vtab"/>
+        <childnode refid="5391" relation="usage">
+          <edgelabel>create_index</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="113" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.h" bodystart="113" bodyend="167"/>
+    <listofallmembers>
+      <member refid="structmemtx__story_1ac0098ffa4d114b73516e5133a13f40b9" prot="public" virt="non-virtual"><scope>memtx_story</scope><name>add_psn</name></member>
+      <member refid="structmemtx__story_1a08c5c5cac0e192dfec69542ffaeaee3a" prot="public" virt="non-virtual"><scope>memtx_story</scope><name>add_stmt</name></member>
+      <member refid="structmemtx__story_1ae2b291b043f96fe9d6f2b1de282eb527" prot="public" virt="non-virtual"><scope>memtx_story</scope><name>del_psn</name></member>
+      <member refid="structmemtx__story_1a55bc4d94c191facbdf786fb00bba2543" prot="public" virt="non-virtual"><scope>memtx_story</scope><name>del_stmt</name></member>
+      <member refid="structmemtx__story_1ab5c5ec508c0fef58d39b2e9cf165182c" prot="public" virt="non-virtual"><scope>memtx_story</scope><name>in_all_stories</name></member>
+      <member refid="structmemtx__story_1a21d168f933e3aa01e15c911e87cb3ff2" prot="public" virt="non-virtual"><scope>memtx_story</scope><name>in_space_stories</name></member>
+      <member refid="structmemtx__story_1a5fe10921f87396e9493728de4034b246" prot="public" virt="non-virtual"><scope>memtx_story</scope><name>index_count</name></member>
+      <member refid="structmemtx__story_1a7d9a4b5311662382451e57ab7e705f17" prot="public" virt="non-virtual"><scope>memtx_story</scope><name>link</name></member>
+      <member refid="structmemtx__story_1a7c471c20a70abd681417d16a2896369c" prot="public" virt="non-virtual"><scope>memtx_story</scope><name>reader_list</name></member>
+      <member refid="structmemtx__story_1af2ed556a900c331776268cad3fb0ae3d" prot="public" virt="non-virtual"><scope>memtx_story</scope><name>space</name></member>
+      <member refid="structmemtx__story_1a78457185853ce5e00e1de22fc4668ec0" prot="public" virt="non-virtual"><scope>memtx_story</scope><name>tuple</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>
