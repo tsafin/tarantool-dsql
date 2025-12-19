@@ -111,6 +111,15 @@ int vdbe_op_openspace_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* OpenSpace */
 int vdbe_op_sequence_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Sequence */
 int vdbe_op_sequencetest_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* SequenceTest */
 int vdbe_op_fetch_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Fetch */
+/* Medium complexity inline opcode handlers - Phase 5.6h */
+int vdbe_op_shiftleft_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* ShiftLeft */
+int vdbe_op_shiftright_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* ShiftRight */
+int vdbe_op_string8_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* String8 */
+int vdbe_op_array_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Array */
+int vdbe_op_map_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Map */
+int vdbe_op_getitem_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Getitem */
+int vdbe_op_openpseudo_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* OpenPseudo */
+int vdbe_op_count_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Count */
 /* Control flow opcodes - reserved for dispatcher refactoring
  * See vdbe_ops_control.c for extraction plan.
  * These remain in vdbe.c for now due to PC manipulation complexity. */

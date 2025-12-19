@@ -1,13 +1,13 @@
 # Phase 5.6 - Quick Reference Guide
 
-**Last Updated**: 2025-12-20 (Post Phase 5.6g)
+**Last Updated**: 2025-12-20 (Post Phase 5.6h)
 
 ## Current Status Dashboard
 
 ### Coverage Metrics
 ```
-Total Dispatcher:    97/176 opcodes  (55%)  📈 Growing
-Inline Handlers:     34/63 opcodes   (54%)  📈 Growing
+Total Dispatcher:    105/176 opcodes (60%)  📈 Growing
+Inline Handlers:     42/63 opcodes   (67%)  📈 Growing
 Helper Functions:    2 available            ✓ Reusable
 Build Status:        ✅ Passing all checks
 Test Status:         ⏳ Ready for validation (Phase 5.8)
@@ -21,8 +21,9 @@ Phase 5.6c (Medium 2):  4 opcodes  ✅ DONE - 2025-12-20
 Phase 5.6d (Medium 3):  6 opcodes  ✅ DONE - 2025-12-20
 Phase 5.6e (Medium 4):  6 opcodes  ✅ DONE - 2025-12-20
 Phase 5.6f (Medium 5):  5 opcodes  ✅ DONE - 2025-12-20
-Phase 5.6g (Medium 6):  5 opcodes  ✅ DONE - 2025-12-20 ← Current
-Phase 5.6h (Medium 7):  4-6 opcodes 🔄 READY FOR START
+Phase 5.6g (Medium 6):  5 opcodes  ✅ DONE - 2025-12-20
+Phase 5.6h (Medium 7):  8 opcodes  ✅ DONE - 2025-12-20 ← Current
+Phase 5.6i (Medium 8):  4-6 opcodes 🔄 READY FOR START
 ```
 
 ## Key Files & Locations
@@ -33,13 +34,14 @@ Phase 5.6h (Medium 7):  4-6 opcodes 🔄 READY FOR START
 - **[VDBE_REFACTOR_MASTER_PLAN.md](VDBE_REFACTOR_MASTER_PLAN.md)** - Architecture
 
 ### Implementation Plans
-- **[PHASE_5_6g_PLAN.md](PHASE_5_6g_PLAN.md)** - Next phase (ready to start)
-- **[PHASE_5_6f_PLAN.md](PHASE_5_6f_PLAN.md)** - Previous phase (reference)
-- **[PHASE_5_6e_PLAN.md](PHASE_5_6e_PLAN.md)** - Reference phase
+- **[PHASE_5_6h_PLAN.md](PHASE_5_6h_PLAN.md)** - Current phase (complete)
+- **[PHASE_5_6g_PLAN.md](PHASE_5_6g_PLAN.md)** - Previous phase (reference)
+- **[PHASE_5_6f_PLAN.md](PHASE_5_6f_PLAN.md)** - Reference phase
 - **[PHASE_5_6_INLINE_CODE_STRATEGY.md](PHASE_5_6_INLINE_CODE_STRATEGY.md)** - Overall strategy
 
 ### Session Summaries
-- **[PHASE_5_6f_SESSION_SUMMARY.md](PHASE_5_6f_SESSION_SUMMARY.md)** - Latest completion (type/value, space, sorting)
+- **[PHASE_5_6h_SESSION_SUMMARY.md](PHASE_5_6h_SESSION_SUMMARY.md)** - Latest completion (bitwise, arrays, cursors)
+- **[PHASE_5_6f_SESSION_SUMMARY.md](PHASE_5_6f_SESSION_SUMMARY.md)** - Type/value, space, sorting
 - **[PHASE_5_6e_SESSION_SUMMARY.md](PHASE_5_6e_SESSION_SUMMARY.md)** - Control flow opcodes
 - **[PHASE_5_6d_SESSION_SUMMARY.md](PHASE_5_6d_SESSION_SUMMARY.md)** - Constraint/transaction ops
 - **[PHASE_5_6c_SESSION_SUMMARY.md](PHASE_5_6c_SESSION_SUMMARY.md)** - Helper extraction
@@ -55,7 +57,8 @@ src/box/sql/
 ├── vdbe_ops_inline_medium_3.c        (6 opcodes)
 ├── vdbe_ops_inline_medium_4.c        (6 opcodes)
 ├── vdbe_ops_inline_medium_5.c        (5 opcodes)
-├── vdbe_ops_inline_medium_6.c        (5 opcodes) ← Latest
+├── vdbe_ops_inline_medium_6.c        (5 opcodes)
+├── vdbe_ops_inline_medium_7.c        (8 opcodes) ← Latest
 ├── vdbe_ops.h                         (prototypes)
 ├── vdbe_dispatch_wrapper.c            (dispatcher cases)
 ├── vdbe_helpers.h                     (2 reusable helpers)
@@ -113,6 +116,48 @@ src/box/sql/
 
 ### Key Achievement
 **Zero new helper functions required** for batch 6, validating sustained efficiency of helper infrastructure (0/5 helpers for 5 opcodes, continuing pattern from batches 3-5). Total pattern: 2 helpers / 29 opcodes = 7% helper:opcode ratio.
+
+## Phase 5.6h Results
+
+### Opcodes Implemented (8)
+1. **OP_ShiftLeft** (249 chars)
+   - Bitwise left shift operation
+   - Handler: `vdbe_op_shiftleft_inline()`
+
+2. **OP_ShiftRight** (250 chars)
+   - Bitwise right shift operation
+   - Handler: `vdbe_op_shiftright_inline()`
+
+3. **OP_String8** (278 chars)
+   - Load C string constant with auto-length calculation
+   - Handler: `vdbe_op_string8_inline()`
+   - Self-modifying opcode (converts to OP_String)
+
+4. **OP_Array** (288 chars)
+   - Create msgpack array from register range
+   - Handler: `vdbe_op_array_inline()`
+   - Uses fiber GC region for encoding
+
+5. **OP_Map** (284 chars)
+   - Create msgpack map from register pairs
+   - Handler: `vdbe_op_map_inline()`
+   - Parallel to OP_Array with key-value pairs
+
+6. **OP_Getitem** (216 chars)
+   - Extract element from array or map by index
+   - Handler: `vdbe_op_getitem_inline()`
+
+7. **OP_OpenPseudo** (231 chars)
+   - Create pseudo-cursor for memory-resident data
+   - Handler: `vdbe_op_openpseudo_inline()`
+
+8. **OP_Count** (224 chars)
+   - Get record count from cursor
+   - Handler: `vdbe_op_count_inline()`
+   - Implements COUNT(*) aggregation
+
+### Key Achievement
+**Zero new helper functions required** for batch 7, continuing sustained efficiency of helper infrastructure (0/8 helpers for 8 opcodes, continuing pattern from batches 3-6). Total pattern: 2 helpers / 37 opcodes = 5% helper:opcode ratio. Helper infrastructure is now proven to be comprehensive and scalable.
 
 ## Phase 5.6e Results (Reference)
 
@@ -397,8 +442,8 @@ Phase 5.6d and 5.6e combined (12 opcodes) required zero new helpers - infrastruc
 
 ---
 
-**Status**: ✅ Phase 5.6g Complete - Phase 5.6h Ready
+**Status**: ✅ Phase 5.6h Complete - Phase 5.6i Ready
 
-**Next**: Proceed with medium batch 7 implementation (18 opcodes remaining)
+**Next**: Proceed with medium batch 8 implementation (~10 opcodes remaining)
 
-**Latest commit**: (Phase 5.6g - 5 value, cursor, and data retrieval opcodes)
+**Latest commit**: (Phase 5.6h - 8 bitwise, value loading, and cursor operation opcodes)
