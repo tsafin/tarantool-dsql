@@ -4,8 +4,8 @@ This file tracks progress for the `src/box/sql/vdbe.c` refactor.
 
 **Quick Links**:
 - **[VDBE_REFACTOR_MASTER_PLAN.md](VDBE_REFACTOR_MASTER_PLAN.md)** - Complete project overview and architecture
-- **[PHASE_5_6d_PLAN.md](PHASE_5_6d_PLAN.md)** - Next phase (Medium Batch 3)
-- **[PHASE_5_6c_SESSION_SUMMARY.md](PHASE_5_6c_SESSION_SUMMARY.md)** - Current phase completion details
+- **[PHASE_5_6e_PLAN.md](PHASE_5_6e_PLAN.md)** - Next phase (Medium Batch 4)
+- **[PHASE_5_6d_SESSION_SUMMARY.md](PHASE_5_6d_SESSION_SUMMARY.md)** - Current phase completion details
 - **[PHASE_5_6_INLINE_CODE_STRATEGY.md](PHASE_5_6_INLINE_CODE_STRATEGY.md)** - Overall strategy and approach
 
 - [x] Analyze `vdbe.c`
@@ -226,11 +226,12 @@ Immediate next actions:
      - Zero new helpers needed - all use existing infrastructure
      - Total inline handlers: 18 opcodes (29% of 63 inline opcodes)
      - Dispatcher coverage: 81/176 opcodes (46%)
-   - Next: Phase 5.6e - Implement remaining medium opcode batches (4-6)
+   - ⏳ Phase 5.6e: Implement medium batch 4 (READY FOR IMPLEMENTATION)
      - Continue with 4-6 medium opcodes per batch using established pattern
-     - Identify and extract additional helpers as needed
-     - Target: 10-15+ additional medium opcodes in next phases
-   - See: PHASE_5_6d_SESSION_SUMMARY.md, PHASE_5_6c_SESSION_SUMMARY.md, PHASE_5_6_INLINE_CODE_STRATEGY.md for details
+     - Identify and extract additional helpers as needed (expect 0-2)
+     - Target: 4-6 opcodes this phase, 10-15+ in remaining batches
+     - Expected outcome: 22-24 total inline handlers (35-38% coverage)
+   - See: PHASE_5_6e_PLAN.md, PHASE_5_6d_SESSION_SUMMARY.md, PHASE_5_6_INLINE_CODE_STRATEGY.md for details
 
 4. **Phase 5.7**: Run full test suite validation
    - Run test suite with generated dispatcher as default
