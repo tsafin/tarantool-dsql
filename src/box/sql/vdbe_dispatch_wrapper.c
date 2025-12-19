@@ -554,6 +554,56 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		pc++; continue;
 	}
 
+	/* Phase 5.6h - Medium Batch 7: Bitwise, Value Loading, and Cursor Operations */
+	case OP_ShiftLeft: {
+		/* Bitwise left shift operation */
+		int handler_rc = vdbe_op_shiftleft_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_ShiftRight: {
+		/* Bitwise right shift operation */
+		int handler_rc = vdbe_op_shiftright_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_String8: {
+		/* Load C string constant with auto-length calculation */
+		int handler_rc = vdbe_op_string8_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_Array: {
+		/* Create msgpack array from register range */
+		int handler_rc = vdbe_op_array_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_Map: {
+		/* Create msgpack map from register pairs */
+		int handler_rc = vdbe_op_map_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_Getitem: {
+		/* Extract element from array or map by index */
+		int handler_rc = vdbe_op_getitem_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_OpenPseudo: {
+		/* Create pseudo-cursor for memory-resident data */
+		int handler_rc = vdbe_op_openpseudo_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_Count: {
+		/* Get record count from cursor */
+		int handler_rc = vdbe_op_count_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
 	/* Noop for unassigned opcodes */
 		default: {
 			pc++;
