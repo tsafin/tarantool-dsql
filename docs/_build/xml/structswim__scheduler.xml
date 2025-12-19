@@ -1,0 +1,134 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structswim__scheduler" kind="struct" language="C++" prot="public">
+    <compoundname>swim_scheduler</compoundname>
+    <includes local="no">swim_io.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structswim__scheduler_1a16ef3b9de5ea4f0b9236bb3a61e40d3e" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structswim__transport" kindref="compound">swim_transport</ref></type>
+        <definition>struct swim_transport swim_scheduler::transport</definition>
+        <argsstring></argsstring>
+        <name>transport</name>
+        <briefdescription>
+<para>Transport to send/receive packets. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="107" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="162" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__scheduler_1a09d69f4efb664ea15bb0e6ce2de07a47" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcrypto__codec" kindref="compound">crypto_codec</ref> *</type>
+        <definition>struct crypto_codec* swim_scheduler::codec</definition>
+        <argsstring></argsstring>
+        <name>codec</name>
+        <briefdescription>
+<para>Codec to encode messages before sending, and decode before lifting up to the SWIM core logic. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="167" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="167" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__scheduler_1a21a06684a3def0b2d7df8864cb813d83" prot="public" static="no" mutable="no">
+        <type>swim_scheduler_on_input_f</type>
+        <definition>swim_scheduler_on_input_f swim_scheduler::on_input</definition>
+        <argsstring></argsstring>
+        <name>on_input</name>
+        <briefdescription>
+<para>Function called when a packet is received. </para>        </briefdescription>
+        <detaileddescription>
+<para>It takes packet body, while meta is handled by transport level completely. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="173" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="173" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__scheduler_1a58adeb187d2bb0923b4cd3574343fbd4" prot="public" static="no" mutable="no">
+        <type>struct ev_io</type>
+        <definition>struct ev_io swim_scheduler::input</definition>
+        <argsstring></argsstring>
+        <name>input</name>
+        <briefdescription>
+<para>Event dispatcher of incomming messages. </para>        </briefdescription>
+        <detaileddescription>
+<para>Takes them from the network. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="173" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="178" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__scheduler_1ac5c43823fbdf7fbcfc7149be002e33ed" prot="public" static="no" mutable="no">
+        <type>struct ev_io</type>
+        <definition>struct ev_io swim_scheduler::output</definition>
+        <argsstring></argsstring>
+        <name>output</name>
+        <briefdescription>
+<para>Event dispatcher of outcomming messages. </para>        </briefdescription>
+        <detaileddescription>
+<para>Takes tasks from queue_output. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="173" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="183" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim__scheduler_1ac0c4836a84907754ac1a5d6479713b68" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist swim_scheduler::queue_output</definition>
+        <argsstring></argsstring>
+        <name>queue_output</name>
+        <briefdescription>
+<para>Queue of output tasks ready to write now. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="173" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="185" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Planner and executor of input and output operations. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="10477">
+        <label>swim_transport</label>
+        <link refid="structswim__transport"/>
+      </node>
+      <node id="10474">
+        <label>swim_scheduler</label>
+        <link refid="structswim__scheduler"/>
+        <childnode refid="10475" relation="usage">
+          <edgelabel>codec</edgelabel>
+        </childnode>
+        <childnode refid="10476" relation="usage">
+          <edgelabel>queue_output</edgelabel>
+        </childnode>
+        <childnode refid="10474" relation="usage">
+          <edgelabel>on_input</edgelabel>
+        </childnode>
+        <childnode refid="10477" relation="usage">
+          <edgelabel>transport</edgelabel>
+        </childnode>
+      </node>
+      <node id="10475">
+        <label>crypto_codec</label>
+        <link refid="structcrypto__codec"/>
+      </node>
+      <node id="10476">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="10476" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="160" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="160" bodyend="186"/>
+    <listofallmembers>
+      <member refid="structswim__scheduler_1a09d69f4efb664ea15bb0e6ce2de07a47" prot="public" virt="non-virtual"><scope>swim_scheduler</scope><name>codec</name></member>
+      <member refid="structswim__scheduler_1a58adeb187d2bb0923b4cd3574343fbd4" prot="public" virt="non-virtual"><scope>swim_scheduler</scope><name>input</name></member>
+      <member refid="structswim__scheduler_1a21a06684a3def0b2d7df8864cb813d83" prot="public" virt="non-virtual"><scope>swim_scheduler</scope><name>on_input</name></member>
+      <member refid="structswim__scheduler_1ac5c43823fbdf7fbcfc7149be002e33ed" prot="public" virt="non-virtual"><scope>swim_scheduler</scope><name>output</name></member>
+      <member refid="structswim__scheduler_1ac0c4836a84907754ac1a5d6479713b68" prot="public" virt="non-virtual"><scope>swim_scheduler</scope><name>queue_output</name></member>
+      <member refid="structswim__scheduler_1a16ef3b9de5ea4f0b9236bb3a61e40d3e" prot="public" virt="non-virtual"><scope>swim_scheduler</scope><name>transport</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

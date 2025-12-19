@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvy__slice__recovery__info" kind="struct" language="C++" prot="public">
+    <compoundname>vy_slice_recovery_info</compoundname>
+    <includes local="no">vy_log.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvy__slice__recovery__info_1abe500504057a8e18b94c647caae2a557" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist vy_slice_recovery_info::in_range</definition>
+        <argsstring></argsstring>
+        <name>in_range</name>
+        <briefdescription>
+<para>Link in <ref refid="structvy__range__recovery__info_1a2bcd9546ecb07b07d033aab2dcb8f901" kindref="member">vy_range_recovery_info::slices</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="421" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="427" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__slice__recovery__info_1a7c694beb701e24377d2ce2c3df9536df" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t vy_slice_recovery_info::id</definition>
+        <argsstring></argsstring>
+        <name>id</name>
+        <briefdescription>
+<para>ID of the slice. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="429" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="429" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__slice__recovery__info_1ad449c676b823264c155137ce9779e48c" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__run__recovery__info" kindref="compound">vy_run_recovery_info</ref> *</type>
+        <definition>struct vy_run_recovery_info* vy_slice_recovery_info::run</definition>
+        <argsstring></argsstring>
+        <name>run</name>
+        <briefdescription>
+<para>Run this slice was created for. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="431" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="431" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__slice__recovery__info_1a71d0af81c1aebdbbf7ffa0168e28ee84" prot="public" static="no" mutable="no">
+        <type>char *</type>
+        <definition>char* vy_slice_recovery_info::begin</definition>
+        <argsstring></argsstring>
+        <name>begin</name>
+        <briefdescription>
+<para>Start of the slice, stored in MsgPack array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="433" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="433" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__slice__recovery__info_1a93d2cafd0a41c5101c0c36d49937a9c2" prot="public" static="no" mutable="no">
+        <type>char *</type>
+        <definition>char* vy_slice_recovery_info::end</definition>
+        <argsstring></argsstring>
+        <name>end</name>
+        <briefdescription>
+<para>End of the slice, stored in MsgPack array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="435" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="435" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Slice info stored in a recovery context. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="14776">
+        <label>vy_slice_recovery_info</label>
+        <link refid="structvy__slice__recovery__info"/>
+        <childnode refid="14777" relation="usage">
+          <edgelabel>run</edgelabel>
+        </childnode>
+        <childnode refid="14778" relation="usage">
+          <edgelabel>in_range</edgelabel>
+        </childnode>
+      </node>
+      <node id="14778">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="14778" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="14777">
+        <label>vy_run_recovery_info</label>
+        <link refid="structvy__run__recovery__info"/>
+        <childnode refid="14778" relation="usage">
+          <edgelabel>in_lsm</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="425" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="425" bodyend="436"/>
+    <listofallmembers>
+      <member refid="structvy__slice__recovery__info_1a71d0af81c1aebdbbf7ffa0168e28ee84" prot="public" virt="non-virtual"><scope>vy_slice_recovery_info</scope><name>begin</name></member>
+      <member refid="structvy__slice__recovery__info_1a93d2cafd0a41c5101c0c36d49937a9c2" prot="public" virt="non-virtual"><scope>vy_slice_recovery_info</scope><name>end</name></member>
+      <member refid="structvy__slice__recovery__info_1a7c694beb701e24377d2ce2c3df9536df" prot="public" virt="non-virtual"><scope>vy_slice_recovery_info</scope><name>id</name></member>
+      <member refid="structvy__slice__recovery__info_1abe500504057a8e18b94c647caae2a557" prot="public" virt="non-virtual"><scope>vy_slice_recovery_info</scope><name>in_range</name></member>
+      <member refid="structvy__slice__recovery__info_1ad449c676b823264c155137ce9779e48c" prot="public" virt="non-virtual"><scope>vy_slice_recovery_info</scope><name>run</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,726 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="swim__io_8h" kind="file" language="C++">
+    <compoundname>swim_io.h</compoundname>
+    <includes refid="tt__static_8h" local="yes">tt_static.h</includes>
+    <includes refid="rlist_8h" local="yes">small/rlist.h</includes>
+    <includes refid="stailq_8h" local="yes">salad/stailq.h</includes>
+    <includes refid="crypto_8h" local="yes">crypto/crypto.h</includes>
+    <includes refid="swim__transport_8h" local="yes">swim_transport.h</includes>
+    <includes local="yes">tarantool_ev.h</includes>
+    <includes refid="tt__uuid_8h" local="yes">uuid/tt_uuid.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">arpa/inet.h</includes>
+    <includes local="no">netinet/in.h</includes>
+    <includedby refid="lib_2swim_2swim_8c" local="yes">/home/tsafin/tarantool/src/lib/swim/swim.c</includedby>
+    <includedby refid="swim__io_8c" local="yes">/home/tsafin/tarantool/src/lib/swim/swim_io.c</includedby>
+    <incdepgraph>
+      <node id="2532">
+        <label>stdbool.h</label>
+      </node>
+      <node id="2534">
+        <label>netinet/in.h</label>
+      </node>
+      <node id="2533">
+        <label>arpa/inet.h</label>
+      </node>
+      <node id="2530">
+        <label>/home/tsafin/tarantool/src/lib/swim/swim_io.h</label>
+        <link refid="swim__io_8h"/>
+        <childnode refid="2531" relation="include">
+        </childnode>
+        <childnode refid="2532" relation="include">
+        </childnode>
+        <childnode refid="2533" relation="include">
+        </childnode>
+        <childnode refid="2534" relation="include">
+        </childnode>
+      </node>
+      <node id="2531">
+        <label>tarantool_ev.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structswim__packet" prot="public">swim_packet</innerclass>
+    <innerclass refid="structswim__scheduler" prot="public">swim_scheduler</innerclass>
+    <innerclass refid="structswim__task" prot="public">swim_task</innerclass>
+    <innerclass refid="structswim__bcast__task" prot="public">swim_bcast_task</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="swim__io_8h_1a5ebea2f4f6d4457d66de7733a8ea7bd3" prot="public" static="no">
+        <name>@252</name>
+        <enumvalue id="swim__io_8h_1a5ebea2f4f6d4457d66de7733a8ea7bd3abccd106b3a1698ef991ff2c6b7053915" prot="public">
+          <name>UDP_PACKET_SIZE</name>
+          <initializer>= 1472</initializer>
+          <briefdescription>
+<para>Default MTU is 1500. </para>          </briefdescription>
+          <detaileddescription>
+<para>MTU (when IPv4 is used) consists of IPv4 header, UDP header, Data. IPv4 has 20 bytes header, UDP - 8 bytes. So Data = 1500 - 20 - 8 = 1472. TODO: adapt to other MTUs which can be reduced in some networks by their admins. Or allow to specify MTU in configuration. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="swim__io_8h_1a5ebea2f4f6d4457d66de7733a8ea7bd3aa1afa29e0084390809dc38acacdb0617" prot="public">
+          <name>MAX_PACKET_SIZE</name>
+          <initializer>= UDP_PACKET_SIZE - CRYPTO_MAX_BLOCK_SIZE -
+			  CRYPTO_MAX_IV_SIZE</initializer>
+          <briefdescription>
+<para>Data can be encrypted, which usually makes it slightly bigger in size. </para>          </briefdescription>
+          <detaileddescription>
+<para>Also, to decode data the receiver needs two keys: private key and public initial vector. Public initial vector is generated randomly for each packet and prepends the data. This is why maximal data size is reduced by one block and IV sizes. </para>          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="52" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="52" bodyend="73"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="swim__io_8h_1abd60cdf838c2e2b7a333125e608d6606" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* swim_scheduler_on_input_f) (struct swim_scheduler *scheduler, const char *buf, const char *end, const struct sockaddr_in *src, const struct sockaddr_in *proxy)</definition>
+        <argsstring>)(struct swim_scheduler *scheduler, const char *buf, const char *end, const struct sockaddr_in *src, const struct sockaddr_in *proxy)</argsstring>
+        <name>swim_scheduler_on_input_f</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="154" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="154" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="swim__io_8h_1a056ba1ee311b119d0666087592b549e0" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* swim_task_f) (struct swim_task *, struct swim_scheduler *scheduler, int rc)</definition>
+        <argsstring>)(struct swim_task *, struct swim_scheduler *scheduler, int rc)</argsstring>
+        <name>swim_task_f</name>
+        <briefdescription>
+<para>Each SWIM component in a common case independently may want to push some data into the network. </para>        </briefdescription>
+        <detaileddescription>
+<para>Dissemination sends events, failure detection sends pings, acks. Anti-entropy sends member tables. The intention to send a data is called IO task and is stored in a queue that is dispatched when output is possible. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="222" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="222" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="swim__io_8h_1a2bb45da71afb0c38b9f1a39ecab8b35f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>char *</type>
+        <definition>static char* swim_packet_reserve</definition>
+        <argsstring>(struct swim_packet *packet, int size)</argsstring>
+        <name>swim_packet_reserve</name>
+        <param>
+          <type>struct <ref refid="structswim__packet" kindref="compound">swim_packet</ref> *</type>
+          <declname>packet</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Ensure that the packet can fit <emphasis>size</emphasis> bytes more. </para>        </briefdescription>
+        <detaileddescription>
+<para>Multiple reserves of the same size will return the same pointer until advance is called. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="116" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="116" bodyend="119"/>
+      </memberdef>
+      <memberdef kind="function" id="swim__io_8h_1adebd01a631653ee2430a02bdbf69826b" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void swim_packet_advance</definition>
+        <argsstring>(struct swim_packet *packet, int size)</argsstring>
+        <name>swim_packet_advance</name>
+        <param>
+          <type>struct <ref refid="structswim__packet" kindref="compound">swim_packet</ref> *</type>
+          <declname>packet</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Propagate body end pointer. </para>        </briefdescription>
+        <detaileddescription>
+<para>This declares next <emphasis>size</emphasis> bytes as occupied. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="126" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="126" bodyend="130"/>
+      </memberdef>
+      <memberdef kind="function" id="swim__io_8h_1ae1b3e9cb6fad4a682928f17b0c4afbf8" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>char *</type>
+        <definition>static char* swim_packet_alloc</definition>
+        <argsstring>(struct swim_packet *packet, int size)</argsstring>
+        <name>swim_packet_alloc</name>
+        <param>
+          <type>struct <ref refid="structswim__packet" kindref="compound">swim_packet</ref> *</type>
+          <declname>packet</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Reserve + advance. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="134" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="134" bodyend="141"/>
+      </memberdef>
+      <memberdef kind="function" id="swim__io_8h_1a0e30cc8b27db2823b0447fd2b1f501c6" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int swim_packet_body_size</definition>
+        <argsstring>(const struct swim_packet *packet)</argsstring>
+        <name>swim_packet_body_size</name>
+        <param>
+          <type>const struct <ref refid="structswim__packet" kindref="compound">swim_packet</ref> *</type>
+          <declname>packet</declname>
+        </param>
+        <briefdescription>
+<para>Size of the packet body. </para>        </briefdescription>
+        <detaileddescription>
+<para>Meta is not counted. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="145" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="145" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="swim__io_8h_1a719482d25e2904b29ed343afdcc89044" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void swim_packet_create</definition>
+        <argsstring>(struct swim_packet *packet)</argsstring>
+        <name>swim_packet_create</name>
+        <param>
+          <type>struct <ref refid="structswim__packet" kindref="compound">swim_packet</ref> *</type>
+          <declname>packet</declname>
+        </param>
+        <briefdescription>
+<para>Initialize <emphasis>packet</emphasis>, reserve some space for meta. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="152" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.c" bodystart="106" bodyend="111"/>
+      </memberdef>
+      <memberdef kind="function" id="swim__io_8h_1a225a2e1fe8cf95c04e5ad7320e49a005" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void swim_scheduler_create</definition>
+        <argsstring>(struct swim_scheduler *scheduler, swim_scheduler_on_input_f on_input)</argsstring>
+        <name>swim_scheduler_create</name>
+        <param>
+          <type>struct <ref refid="structswim__scheduler" kindref="compound">swim_scheduler</ref> *</type>
+          <declname>scheduler</declname>
+        </param>
+        <param>
+          <type>swim_scheduler_on_input_f</type>
+          <declname>on_input</declname>
+        </param>
+        <briefdescription>
+<para>Initialize scheduler. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="190" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.c" bodystart="347" bodyend="362"/>
+      </memberdef>
+      <memberdef kind="function" id="swim__io_8h_1a0226be5bd4374bd6f0fb144a58516b39" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int swim_scheduler_bind</definition>
+        <argsstring>(struct swim_scheduler *scheduler, const struct sockaddr_in *addr)</argsstring>
+        <name>swim_scheduler_bind</name>
+        <param>
+          <type>struct <ref refid="structswim__scheduler" kindref="compound">swim_scheduler</ref> *</type>
+          <declname>scheduler</declname>
+        </param>
+        <param>
+          <type>const struct sockaddr_in *</type>
+          <declname>addr</declname>
+        </param>
+        <briefdescription>
+<para>Bind or rebind the scheduler to an address. </para>        </briefdescription>
+        <detaileddescription>
+<para>In case of rebind the old socket is closed. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="198" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.c" bodystart="365" bodyend="381"/>
+      </memberdef>
+      <memberdef kind="function" id="swim__io_8h_1ac1cba0dfc7175d619b7b442e34da062b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int swim_scheduler_set_codec</definition>
+        <argsstring>(struct swim_scheduler *scheduler, enum crypto_algo algo, enum crypto_mode mode, const char *key, int key_size)</argsstring>
+        <name>swim_scheduler_set_codec</name>
+        <param>
+          <type>struct <ref refid="structswim__scheduler" kindref="compound">swim_scheduler</ref> *</type>
+          <declname>scheduler</declname>
+        </param>
+        <param>
+          <type>enum crypto_algo</type>
+          <declname>algo</declname>
+        </param>
+        <param>
+          <type>enum crypto_mode</type>
+          <declname>mode</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>key_size</declname>
+        </param>
+        <briefdescription>
+<para>Set a new codec to encrypt/decrypt messages. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="203" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.c" bodystart="689" bodyend="711"/>
+      </memberdef>
+      <memberdef kind="function" id="swim__io_8h_1ae6a4c7ee1d9b65981afdb4037cce5c6e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void swim_scheduler_stop_input</definition>
+        <argsstring>(struct swim_scheduler *scheduler)</argsstring>
+        <name>swim_scheduler_stop_input</name>
+        <param>
+          <type>struct <ref refid="structswim__scheduler" kindref="compound">swim_scheduler</ref> *</type>
+          <declname>scheduler</declname>
+        </param>
+        <briefdescription>
+<para>Stop accepting new packets from the network. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="209" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.c" bodystart="384" bodyend="387"/>
+      </memberdef>
+      <memberdef kind="function" id="swim__io_8h_1a3d653575d6eae288875b43f437dbbf24" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void swim_scheduler_destroy</definition>
+        <argsstring>(struct swim_scheduler *scheduler)</argsstring>
+        <name>swim_scheduler_destroy</name>
+        <param>
+          <type>struct <ref refid="structswim__scheduler" kindref="compound">swim_scheduler</ref> *</type>
+          <declname>scheduler</declname>
+        </param>
+        <briefdescription>
+<para>Destroy scheduler, its queues, close the socket. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="213" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.c" bodystart="390" bodyend="410"/>
+      </memberdef>
+      <memberdef kind="function" id="swim__io_8h_1a7cc487f04ce7a6f7767f51473c87afbf" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool swim_task_is_scheduled</definition>
+        <argsstring>(struct swim_task *task)</argsstring>
+        <name>swim_task_is_scheduled</name>
+        <param>
+          <type>struct <ref refid="structswim__task" kindref="compound">swim_task</ref> *</type>
+          <declname>task</declname>
+        </param>
+        <briefdescription>
+<para>Check if <emphasis>task</emphasis> is already scheduled. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="271" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="271" bodyend="274"/>
+      </memberdef>
+      <memberdef kind="function" id="swim__io_8h_1ae13eb5ab4d828ffe0735af4e42419f5c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void swim_task_set_proxy</definition>
+        <argsstring>(struct swim_task *task, const struct sockaddr_in *proxy)</argsstring>
+        <name>swim_task_set_proxy</name>
+        <param>
+          <type>struct <ref refid="structswim__task" kindref="compound">swim_task</ref> *</type>
+          <declname>task</declname>
+        </param>
+        <param>
+          <type>const struct sockaddr_in *</type>
+          <declname>proxy</declname>
+        </param>
+        <briefdescription>
+<para>Set the proxy for the task. </para>        </briefdescription>
+        <detaileddescription>
+<para>Before sending this proxy is dumped into metadata section. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="281" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.c" bodystart="151" bodyend="163"/>
+      </memberdef>
+      <memberdef kind="function" id="swim__io_8h_1afb8a68826317745d158b5d191e52196d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void swim_task_send</definition>
+        <argsstring>(struct swim_task *task, const struct sockaddr_in *dst, struct swim_scheduler *scheduler)</argsstring>
+        <name>swim_task_send</name>
+        <param>
+          <type>struct <ref refid="structswim__task" kindref="compound">swim_task</ref> *</type>
+          <declname>task</declname>
+        </param>
+        <param>
+          <type>const struct sockaddr_in *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structswim__scheduler" kindref="compound">swim_scheduler</ref> *</type>
+          <declname>scheduler</declname>
+        </param>
+        <briefdescription>
+<para>Put the task into a queue of tasks. </para>        </briefdescription>
+        <detaileddescription>
+<para>Eventually it will be sent. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="287" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.c" bodystart="229" bodyend="234"/>
+      </memberdef>
+      <memberdef kind="function" id="swim__io_8h_1a8c990c8467fe148d8c3e6e23e49961aa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void swim_task_create</definition>
+        <argsstring>(struct swim_task *task, swim_task_f complete, swim_task_f cancel, const char *desc)</argsstring>
+        <name>swim_task_create</name>
+        <param>
+          <type>struct <ref refid="structswim__task" kindref="compound">swim_task</ref> *</type>
+          <declname>task</declname>
+        </param>
+        <param>
+          <type>swim_task_f</type>
+          <declname>complete</declname>
+        </param>
+        <param>
+          <type>swim_task_f</type>
+          <declname>cancel</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>desc</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the task, without scheduling. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="292" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.c" bodystart="166" bodyend="176"/>
+      </memberdef>
+      <memberdef kind="function" id="swim__io_8h_1a0cf4bad91b990d8bd9af4611ccb1a8f7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structswim__task" kindref="compound">swim_task</ref> *</type>
+        <definition>struct swim_task* swim_task_new</definition>
+        <argsstring>(swim_task_f complete, swim_task_f cancel, const char *desc)</argsstring>
+        <name>swim_task_new</name>
+        <param>
+          <type>swim_task_f</type>
+          <declname>complete</declname>
+        </param>
+        <param>
+          <type>swim_task_f</type>
+          <declname>cancel</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>desc</declname>
+        </param>
+        <briefdescription>
+<para>Allocate and create a new task. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="297" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.c" bodystart="179" bodyend="196"/>
+      </memberdef>
+      <memberdef kind="function" id="swim__io_8h_1a6c674727c04ca1c32c4341753b5a110f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void swim_task_delete</definition>
+        <argsstring>(struct swim_task *task)</argsstring>
+        <name>swim_task_delete</name>
+        <param>
+          <type>struct <ref refid="structswim__task" kindref="compound">swim_task</ref> *</type>
+          <declname>task</declname>
+        </param>
+        <briefdescription>
+<para>Destroy a task, free its memory. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="301" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.c" bodystart="199" bodyend="208"/>
+      </memberdef>
+      <memberdef kind="function" id="swim__io_8h_1a633379371e23307e7420ddf39c125bce" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void swim_task_delete_cb</definition>
+        <argsstring>(struct swim_task *task, struct swim_scheduler *scheduler, int rc)</argsstring>
+        <name>swim_task_delete_cb</name>
+        <param>
+          <type>struct <ref refid="structswim__task" kindref="compound">swim_task</ref> *</type>
+          <declname>task</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structswim__scheduler" kindref="compound">swim_scheduler</ref> *</type>
+          <declname>scheduler</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>rc</declname>
+        </param>
+        <briefdescription>
+<para>Callback to delete a task after its completion. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="305" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.c" bodystart="211" bodyend="217"/>
+      </memberdef>
+      <memberdef kind="function" id="swim__io_8h_1aecaee7e6b6d9945707f73bb7fc50a9f7" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void swim_task_destroy</definition>
+        <argsstring>(struct swim_task *task)</argsstring>
+        <name>swim_task_destroy</name>
+        <param>
+          <type>struct <ref refid="structswim__task" kindref="compound">swim_task</ref> *</type>
+          <declname>task</declname>
+        </param>
+        <briefdescription>
+<para>Destroy the task, pop from the queue. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="310" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.h" bodystart="310" bodyend="313"/>
+      </memberdef>
+      <memberdef kind="function" id="swim__io_8h_1a1e6e6afc4f8e1666f0cfefe031d3a586" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structswim__bcast__task" kindref="compound">swim_bcast_task</ref> *</type>
+        <definition>struct swim_bcast_task* swim_bcast_task_new</definition>
+        <argsstring>(int port, const char *desc)</argsstring>
+        <name>swim_bcast_task_new</name>
+        <param>
+          <type>int</type>
+          <declname>port</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>desc</declname>
+        </param>
+        <briefdescription>
+<para>Create a new broadcast task with a specified port. </para>        </briefdescription>
+        <detaileddescription>
+<para>The port is expected to have host byte order. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="345" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.c" bodystart="309" bodyend="334"/>
+      </memberdef>
+      <memberdef kind="function" id="swim__io_8h_1ad8a94a55d0bc458feac8257129e5a992" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char* swim_inaddr_str</definition>
+        <argsstring>(const struct sockaddr_in *addr)</argsstring>
+        <name>swim_inaddr_str</name>
+        <param>
+          <type>const struct sockaddr_in *</type>
+          <declname>addr</declname>
+        </param>
+        <briefdescription>
+<para>A wrapper around sio_strfaddr() so as to do not clog SWIM code with huge casts to &apos;struct sockaddr *&apos; and passes of sizeof(struct sockaddr_in). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h" line="353" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_io.c" bodystart="714" bodyend="717"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_SWIM_IO_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_SWIM_IO_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2019,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tt_static.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;small/rlist.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;salad/stailq.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;crypto/crypto.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;swim_transport.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tarantool_ev.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;uuid/tt_uuid.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;arpa/inet.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;netinet/in.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structswim__task" kindref="compound">swim_task</ref>;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structswim__member" kindref="compound">swim_member</ref>;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structswim__scheduler" kindref="compound">swim_scheduler</ref>;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>UDP_PACKET_SIZE<sp/>=<sp/>1472,</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>MAX_PACKET_SIZE<sp/>=<sp/>UDP_PACKET_SIZE<sp/>-<sp/>CRYPTO_MAX_BLOCK_SIZE<sp/>-</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_MAX_IV_SIZE,</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87" refid="structswim__packet" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structswim__packet" kindref="compound">swim_packet</ref><sp/>{</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structswim__packet_1a72d031a9c2e6d5f6764cd7809ba00eac" kindref="member">pos</ref>;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structswim__packet_1ab9827f4ea8a575753a27b5c35f68046c" kindref="member">body</ref>;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="structswim__packet_1a896196b1861fa0341f57bc7bb435ec73" kindref="member">meta</ref>[0];</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="structswim__packet_1a3fe2bdcb5cb25bc71737031e2bc8e6d5" kindref="member">buf</ref>[MAX_PACKET_SIZE];</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="structswim__packet_1a23189165e03d8229626305e11c9cb434" kindref="member">end</ref>[0];</highlight></codeline>
+<codeline lineno="108"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="116"><highlight class="normal">swim_packet_reserve(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structswim__packet" kindref="compound">swim_packet</ref><sp/>*packet,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="117"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>packet-&gt;<ref refid="structswim__packet_1a72d031a9c2e6d5f6764cd7809ba00eac" kindref="member">pos</ref><sp/>+<sp/>size<sp/>&gt;<sp/>packet-&gt;<ref refid="structswim__packet_1a23189165e03d8229626305e11c9cb434" kindref="member">end</ref><sp/>?<sp/>NULL<sp/>:<sp/>packet-&gt;<ref refid="structswim__packet_1a72d031a9c2e6d5f6764cd7809ba00eac" kindref="member">pos</ref>;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal">swim_packet_advance(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structswim__packet" kindref="compound">swim_packet</ref><sp/>*packet,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="127"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(packet-&gt;<ref refid="structswim__packet_1a72d031a9c2e6d5f6764cd7809ba00eac" kindref="member">pos</ref><sp/>+<sp/>size<sp/>&lt;=<sp/>packet-&gt;<ref refid="structswim__packet_1a23189165e03d8229626305e11c9cb434" kindref="member">end</ref>);</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>packet-&gt;<ref refid="structswim__packet_1a72d031a9c2e6d5f6764cd7809ba00eac" kindref="member">pos</ref><sp/>+=<sp/>size;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="134"><highlight class="normal">swim_packet_alloc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structswim__packet" kindref="compound">swim_packet</ref><sp/>*packet,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="135"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*res<sp/>=<sp/>swim_packet_reserve(packet,<sp/>size);</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>swim_packet_advance(packet,<sp/>size);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>res;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal">swim_packet_body_size(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structswim__packet" kindref="compound">swim_packet</ref><sp/>*packet)</highlight></codeline>
+<codeline lineno="146"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>packet-&gt;<ref refid="structswim__packet_1a72d031a9c2e6d5f6764cd7809ba00eac" kindref="member">pos</ref><sp/>-<sp/>packet-&gt;<ref refid="structswim__packet_1ab9827f4ea8a575753a27b5c35f68046c" kindref="member">body</ref>;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal">swim_packet_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structswim__packet" kindref="compound">swim_packet</ref><sp/>*packet);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*swim_scheduler_on_input_f)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structswim__scheduler" kindref="compound">swim_scheduler</ref><sp/>*scheduler,</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structswim__packet_1a3fe2bdcb5cb25bc71737031e2bc8e6d5" kindref="member">buf</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structswim__packet_1a23189165e03d8229626305e11c9cb434" kindref="member">end</ref>,</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">sockaddr_in<sp/>*src,</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">sockaddr_in<sp/>*proxy);</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160" refid="structswim__scheduler" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structswim__scheduler" kindref="compound">swim_scheduler</ref><sp/>{</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structswim__transport" kindref="compound">swim_transport</ref><sp/>transport;</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcrypto__codec" kindref="compound">crypto_codec</ref><sp/>*codec;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>swim_scheduler_on_input_f<sp/>on_input;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">ev_io<sp/>input;</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">ev_io<sp/>output;</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>queue_output;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal">swim_scheduler_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structswim__scheduler" kindref="compound">swim_scheduler</ref><sp/>*scheduler,</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>swim_scheduler_on_input_f<sp/>on_input);</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="197"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal">swim_scheduler_bind(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structswim__scheduler" kindref="compound">swim_scheduler</ref><sp/>*scheduler,</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sockaddr_in<sp/>*addr);</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal">swim_scheduler_set_codec(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structswim__scheduler" kindref="compound">swim_scheduler</ref><sp/>*scheduler,</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>crypto_algo<sp/>algo,<sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>crypto_mode<sp/>mode,</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*key,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>key_size);</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal">swim_scheduler_stop_input(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structswim__scheduler" kindref="compound">swim_scheduler</ref><sp/>*scheduler);</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal">swim_scheduler_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structswim__scheduler" kindref="compound">swim_scheduler</ref><sp/>*scheduler);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="222"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*swim_task_f)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structswim__task" kindref="compound">swim_task</ref><sp/>*,</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structswim__scheduler" kindref="compound">swim_scheduler</ref><sp/>*scheduler,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>rc);</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight></codeline>
+<codeline lineno="225" refid="structswim__task" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structswim__task" kindref="compound">swim_task</ref><sp/>{</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>swim_task_f<sp/>complete;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>swim_task_f<sp/>cancel;</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">sockaddr_in<sp/>dst;</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">sockaddr_in<sp/>proxy;</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>in_queue_output;</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*desc;</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>uuid;</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structswim__member" kindref="compound">swim_member</ref><sp/>*member;</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>in_pool;</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structswim__packet" kindref="compound">swim_packet</ref><sp/>packet;</highlight></codeline>
+<codeline lineno="267"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"></highlight></codeline>
+<codeline lineno="270"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="normal">swim_task_is_scheduled(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structswim__task" kindref="compound">swim_task</ref><sp/>*task)</highlight></codeline>
+<codeline lineno="272"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>!<sp/>rlist_empty(&amp;task-&gt;<ref refid="structswim__task_1a0cabaf76d6a0abb95345320d6d358ea6" kindref="member">in_queue_output</ref>);</highlight></codeline>
+<codeline lineno="274"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"></highlight></codeline>
+<codeline lineno="280"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="281"><highlight class="normal">swim_task_set_proxy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structswim__task" kindref="compound">swim_task</ref><sp/>*task,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sockaddr_in<sp/>*proxy);</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="287"><highlight class="normal">swim_task_send(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structswim__task" kindref="compound">swim_task</ref><sp/>*task,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sockaddr_in<sp/>*dst,</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structswim__scheduler" kindref="compound">swim_scheduler</ref><sp/>*scheduler);</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"></highlight></codeline>
+<codeline lineno="291"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="292"><highlight class="normal">swim_task_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structswim__task" kindref="compound">swim_task</ref><sp/>*task,<sp/>swim_task_f<sp/>complete,</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>swim_task_f<sp/>cancel,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*desc);</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"></highlight></codeline>
+<codeline lineno="296"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structswim__task" kindref="compound">swim_task</ref><sp/>*</highlight></codeline>
+<codeline lineno="297"><highlight class="normal">swim_task_new(swim_task_f<sp/><ref refid="structswim__task_1a87c44a114f5d150b9240cabed21f2164" kindref="member">complete</ref>,<sp/>swim_task_f<sp/><ref refid="structswim__task_1a8ca629fe4205bf44c30b141df1088eb7" kindref="member">cancel</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structswim__task_1a9a7c8972bf980112c0a2f6ae76526bff" kindref="member">desc</ref>);</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="301"><highlight class="normal">swim_task_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structswim__task" kindref="compound">swim_task</ref><sp/>*task);</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"></highlight></codeline>
+<codeline lineno="304"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="305"><highlight class="normal">swim_task_delete_cb(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structswim__task" kindref="compound">swim_task</ref><sp/>*task,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structswim__scheduler" kindref="compound">swim_scheduler</ref><sp/>*scheduler,</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>rc);</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"></highlight></codeline>
+<codeline lineno="309"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="310"><highlight class="normal">swim_task_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structswim__task" kindref="compound">swim_task</ref><sp/>*task)</highlight></codeline>
+<codeline lineno="311"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_del_entry(task,<sp/><ref refid="structswim__task_1a0cabaf76d6a0abb95345320d6d358ea6" kindref="member">in_queue_output</ref>);</highlight></codeline>
+<codeline lineno="313"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"></highlight></codeline>
+<codeline lineno="329" refid="structswim__bcast__task" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structswim__bcast__task" kindref="compound">swim_bcast_task</ref><sp/>{</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structswim__task" kindref="compound">swim_task</ref><sp/>base;</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structport" kindref="compound">port</ref>;</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">ifaddrs<sp/>*addrs;</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">ifaddrs<sp/>*i;</highlight></codeline>
+<codeline lineno="338"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"></highlight></codeline>
+<codeline lineno="344"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structswim__bcast__task" kindref="compound">swim_bcast_task</ref><sp/>*</highlight></codeline>
+<codeline lineno="345"><highlight class="normal">swim_bcast_task_new(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structport" kindref="compound">port</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*desc);</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"></highlight></codeline>
+<codeline lineno="352"><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="353"><highlight class="normal">swim_inaddr_str(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sockaddr_in<sp/>*addr);</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"></highlight></codeline>
+<codeline lineno="355"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_SWIM_IO_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/swim/swim_io.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,346 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="coll_8h" kind="file" language="C++">
+    <compoundname>coll.h</compoundname>
+    <includes refid="coll__def_8h" local="yes">coll_def.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="coll__id_8c" local="yes">/home/tsafin/tarantool/src/box/coll_id.c</includedby>
+    <includedby refid="key__def_8c" local="yes">/home/tsafin/tarantool/src/box/key_def.c</includedby>
+    <includedby refid="box_2sql_2expr_8c" local="yes">/home/tsafin/tarantool/src/box/sql/expr.c</includedby>
+    <includedby refid="sql_2fk__constraint_8c" local="yes">/home/tsafin/tarantool/src/box/sql/fk_constraint.c</includedby>
+    <includedby refid="sql_2func_8c" local="yes">/home/tsafin/tarantool/src/box/sql/func.c</includedby>
+    <includedby refid="select_8c" local="yes">/home/tsafin/tarantool/src/box/sql/select.c</includedby>
+    <includedby refid="box_2sql_2util_8c" local="yes">/home/tsafin/tarantool/src/box/sql/util.c</includedby>
+    <includedby refid="vdbeaux_8c" local="yes">/home/tsafin/tarantool/src/box/sql/vdbeaux.c</includedby>
+    <includedby refid="where_8c" local="yes">/home/tsafin/tarantool/src/box/sql/where.c</includedby>
+    <includedby refid="whereexpr_8c" local="yes">/home/tsafin/tarantool/src/box/sql/whereexpr.c</includedby>
+    <includedby refid="tuple__compare_8cc" local="yes">/home/tsafin/tarantool/src/box/tuple_compare.cc</includedby>
+    <includedby refid="tuple__hash_8cc" local="yes">/home/tsafin/tarantool/src/box/tuple_hash.cc</includedby>
+    <includedby refid="coll_8c" local="yes">/home/tsafin/tarantool/src/lib/coll/coll.c</includedby>
+    <includedby refid="utf8_8c" local="yes">/home/tsafin/tarantool/src/lua/utf8.c</includedby>
+    <includedby refid="main_8cc" local="yes">/home/tsafin/tarantool/src/main.cc</includedby>
+    <incdepgraph>
+      <node id="1755">
+        <label>stdbool.h</label>
+      </node>
+      <node id="1754">
+        <label>stdint.h</label>
+      </node>
+      <node id="1753">
+        <label>stddef.h</label>
+      </node>
+      <node id="1752">
+        <label>/home/tsafin/tarantool/src/lib/coll/coll.h</label>
+        <link refid="coll_8h"/>
+        <childnode refid="1753" relation="include">
+        </childnode>
+        <childnode refid="1754" relation="include">
+        </childnode>
+        <childnode refid="1755" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structcoll" prot="public">coll</innerclass>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="coll_8h_1a4713876ffc5d0401ed22439f1859153c" prot="public" static="no">
+        <type>int(*</type>
+        <definition>typedef int(* coll_cmp_f) (const char *s, size_t s_len, const char *t, size_t t_len, const struct coll *coll)</definition>
+        <argsstring>)(const char *s, size_t s_len, const char *t, size_t t_len, const struct coll *coll)</argsstring>
+        <name>coll_cmp_f</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/coll/coll.h" line="45" column="1" bodyfile="/home/tsafin/tarantool/src/lib/coll/coll.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="coll_8h_1afd1b0c83e5187d20bc7cc0a2f49ef344" prot="public" static="no">
+        <type>uint32_t(*</type>
+        <definition>typedef uint32_t(* coll_hash_f) (const char *s, size_t s_len, uint32_t *ph, uint32_t *pcarry, struct coll *coll)</definition>
+        <argsstring>)(const char *s, size_t s_len, uint32_t *ph, uint32_t *pcarry, struct coll *coll)</argsstring>
+        <name>coll_hash_f</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/coll/coll.h" line="48" column="1" bodyfile="/home/tsafin/tarantool/src/lib/coll/coll.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="coll_8h_1ac5eb8dde879911323b4fba31396f3740" prot="public" static="no">
+        <type>size_t(*</type>
+        <definition>typedef size_t(* coll_hint_f) (const char *s, size_t s_len, char *buf, size_t buf_len, struct coll *coll)</definition>
+        <argsstring>)(const char *s, size_t s_len, char *buf, size_t buf_len, struct coll *coll)</argsstring>
+        <name>coll_hint_f</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/coll/coll.h" line="51" column="1" bodyfile="/home/tsafin/tarantool/src/lib/coll/coll.h" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="coll_8h_1a1e803cedc59381643dbea9956fe31c2a" prot="public" static="no" mutable="no">
+        <type>struct UCaseMap *</type>
+        <definition>struct UCaseMap* icu_ucase_default_map</definition>
+        <argsstring></argsstring>
+        <name>icu_ucase_default_map</name>
+        <briefdescription>
+<para>Default universal casemap for case transformations. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/coll/coll.h" line="57" column="1" bodyfile="/home/tsafin/tarantool/src/lib/coll/coll.c" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="coll_8h_1aa8c2aec3b4cbb6739aaf3240dbae1609" prot="public" static="no" mutable="no">
+        <type>struct UConverter *</type>
+        <definition>struct UConverter* icu_utf8_conv</definition>
+        <argsstring></argsstring>
+        <name>icu_utf8_conv</name>
+        <briefdescription>
+<para>Default universal utf8 converter. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/coll/coll.h" line="59" column="1" bodyfile="/home/tsafin/tarantool/src/lib/coll/coll.c" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="coll_8h_1a8c70c23c082c90d094360cb39ab761e8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool coll_can_merge</definition>
+        <argsstring>(const struct coll *first, const struct coll *second)</argsstring>
+        <name>coll_can_merge</name>
+        <param>
+          <type>const struct <ref refid="structcoll" kindref="compound">coll</ref> *</type>
+          <declname>first</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structcoll" kindref="compound">coll</ref> *</type>
+          <declname>second</declname>
+        </param>
+        <briefdescription>
+<para>Return true if a key part using the second collation can be merged into a key def using the first collation for the same field. </para>        </briefdescription>
+        <detaileddescription>
+<para>Using the two collations together for the same field in the same key def only makes sense if the second collation may impose a strict order on keys equal in terms of the first collation. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/coll/coll.h" line="100" column="1" bodyfile="/home/tsafin/tarantool/src/lib/coll/coll.c" bodystart="329" bodyend="350"/>
+      </memberdef>
+      <memberdef kind="function" id="coll_8h_1a27ad2fe802aafaaebc90699913016328" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structcoll" kindref="compound">coll</ref> *</type>
+        <definition>struct coll* coll_new</definition>
+        <argsstring>(const struct coll_def *def)</argsstring>
+        <name>coll_new</name>
+        <param>
+          <type>const struct <ref refid="structcoll__def" kindref="compound">coll_def</ref> *</type>
+          <declname>def</declname>
+        </param>
+        <briefdescription>
+<para>Create a collation by definition. </para>        </briefdescription>
+        <detaileddescription>
+<para>Can return an existing collation object, if a one with the same fingerprint was created before. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>def</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Collation definition. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Collation or memory error. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>not</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NULL Collation. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/coll/coll.h" line="111" column="1" bodyfile="/home/tsafin/tarantool/src/lib/coll/coll.c" bodystart="353" bodyend="402"/>
+      </memberdef>
+      <memberdef kind="function" id="coll_8h_1a87bcd6a69c993ae0b3a073ac170ec107" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void coll_ref</definition>
+        <argsstring>(struct coll *coll)</argsstring>
+        <name>coll_ref</name>
+        <param>
+          <type>struct <ref refid="structcoll" kindref="compound">coll</ref> *</type>
+          <declname>coll</declname>
+        </param>
+        <briefdescription>
+<para>Increment reference counter. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/coll/coll.h" line="115" column="1" bodyfile="/home/tsafin/tarantool/src/lib/coll/coll.h" bodystart="115" bodyend="118"/>
+      </memberdef>
+      <memberdef kind="function" id="coll_8h_1af59e99fa0a147133f08ca0cdedf2e56a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void coll_unref</definition>
+        <argsstring>(struct coll *coll)</argsstring>
+        <name>coll_unref</name>
+        <param>
+          <type>struct <ref refid="structcoll" kindref="compound">coll</ref> *</type>
+          <declname>coll</declname>
+        </param>
+        <briefdescription>
+<para>Decrement reference counter. </para>        </briefdescription>
+        <detaileddescription>
+<para>Delete when 0. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/coll/coll.h" line="122" column="1" bodyfile="/home/tsafin/tarantool/src/lib/coll/coll.c" bodystart="405" bodyend="417"/>
+      </memberdef>
+      <memberdef kind="function" id="coll_8h_1abf7ac5ae72d5d18f95843a364bcb5e58" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void coll_init</definition>
+        <argsstring>(void)</argsstring>
+        <name>coll_init</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize collations subsystem. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/coll/coll.h" line="126" column="1" bodyfile="/home/tsafin/tarantool/src/lib/coll/coll.c" bodystart="420" bodyend="429"/>
+      </memberdef>
+      <memberdef kind="function" id="coll_8h_1afc48c2da56a6fe6dfae950a84b4e6844" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void coll_free</definition>
+        <argsstring>(void)</argsstring>
+        <name>coll_free</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destroy collations subsystem. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/coll/coll.h" line="130" column="1" bodyfile="/home/tsafin/tarantool/src/lib/coll/coll.c" bodystart="432" bodyend="437"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LIB_COLL_COLL_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LIB_COLL_COLL_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2018,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>AUTHORS<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>AUTHORS<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;coll_def.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcoll" kindref="compound">coll</ref>;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>int<sp/>(*coll_cmp_f)(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*s,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>s_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*t,</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>t_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcoll" kindref="compound">coll</ref><sp/>*<ref refid="structcoll" kindref="compound">coll</ref>);</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>uint32_t<sp/>(*coll_hash_f)(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*s,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>s_len,<sp/>uint32_t<sp/>*ph,</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>*pcarry,<sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcoll" kindref="compound">coll</ref><sp/>*<ref refid="structcoll" kindref="compound">coll</ref>);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>size_t<sp/>(*coll_hint_f)(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*s,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>s_len,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*buf,</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>buf_len,<sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcoll" kindref="compound">coll</ref><sp/>*<ref refid="structcoll" kindref="compound">coll</ref>);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">UCollator;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">UCaseMap<sp/>*icu_ucase_default_map;</highlight></codeline>
+<codeline lineno="59"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">UConverter<sp/>*icu_utf8_conv;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="structcoll" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcoll" kindref="compound">coll</ref><sp/>{</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>coll_type<sp/><ref refid="structcoll_1a6ca34b04c8123c76be0aab359b733eb0" kindref="member">type</ref>;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">UCollator<sp/>*<ref refid="structcoll_1abd0b55921d2a45c23df617bc508af565" kindref="member">collator</ref>;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>coll_cmp_f<sp/><ref refid="structcoll_1add4a890785f6efb7a5b480c54273cc87" kindref="member">cmp</ref>;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>coll_hash_f<sp/><ref refid="structcoll_1af71ba35a11a549cbaccc956a50ce1ab1" kindref="member">hash</ref>;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>coll_hint_f<sp/><ref refid="structcoll_1aaa1c80c9dd1db61cea78334befabd502" kindref="member">hint</ref>;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structcoll_1a8a76dd3d1059e325075046ee144d6a53" kindref="member">refs</ref>;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="structcoll_1a6867e6bd7dbcbd61ad5f80eee8ee105c" kindref="member">fingerprint</ref>[0];</highlight></codeline>
+<codeline lineno="89"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal">coll_can_merge(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcoll" kindref="compound">coll</ref><sp/>*first,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcoll" kindref="compound">coll</ref><sp/>*second);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcoll" kindref="compound">coll</ref><sp/>*</highlight></codeline>
+<codeline lineno="111"><highlight class="normal">coll_new(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcoll__def" kindref="compound">coll_def</ref><sp/>*def);</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal">coll_ref(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcoll" kindref="compound">coll</ref><sp/>*<ref refid="structcoll" kindref="compound">coll</ref>)</highlight></codeline>
+<codeline lineno="116"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>++coll-&gt;<ref refid="structcoll_1a8a76dd3d1059e325075046ee144d6a53" kindref="member">refs</ref>;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal">coll_unref(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>coll<sp/>*coll);</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal">coll_init(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal">coll_free(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_LIB_COLL_COLL_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/coll/coll.h"/>
+  </compounddef>
+</doxygen>

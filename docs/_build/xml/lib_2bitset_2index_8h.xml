@@ -1,0 +1,856 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="lib_2bitset_2index_8h" kind="file" language="C++">
+    <compoundname>index.h</compoundname>
+    <includes refid="bitset_8h" local="yes">bitset/bitset.h</includes>
+    <includes refid="iterator_8h" local="yes">bitset/iterator.h</includes>
+    <includedby refid="memtx__bitset_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_bitset.c</includedby>
+    <includedby refid="lib_2bitset_2index_8c" local="yes">/home/tsafin/tarantool/src/lib/bitset/index.c</includedby>
+    <incdepgraph>
+      <node id="290">
+        <label>stdbool.h</label>
+      </node>
+      <node id="289">
+        <label>stdint.h</label>
+      </node>
+      <node id="288">
+        <label>stddef.h</label>
+      </node>
+      <node id="291">
+        <label>limits.h</label>
+      </node>
+      <node id="287">
+        <label>bit/bit.h</label>
+        <link refid="bit_8h"/>
+        <childnode refid="288" relation="include">
+        </childnode>
+        <childnode refid="289" relation="include">
+        </childnode>
+        <childnode refid="290" relation="include">
+        </childnode>
+        <childnode refid="291" relation="include">
+        </childnode>
+      </node>
+      <node id="292">
+        <label>sys/types.h</label>
+      </node>
+      <node id="286">
+        <label>bitset/bitset.h</label>
+        <link refid="bitset_8h"/>
+        <childnode refid="287" relation="include">
+        </childnode>
+        <childnode refid="288" relation="include">
+        </childnode>
+        <childnode refid="289" relation="include">
+        </childnode>
+        <childnode refid="290" relation="include">
+        </childnode>
+        <childnode refid="291" relation="include">
+        </childnode>
+        <childnode refid="292" relation="include">
+        </childnode>
+      </node>
+      <node id="294">
+        <label>bitset/expr.h</label>
+        <link refid="expr_8h"/>
+        <childnode refid="286" relation="include">
+        </childnode>
+      </node>
+      <node id="293">
+        <label>bitset/iterator.h</label>
+        <link refid="iterator_8h"/>
+        <childnode refid="286" relation="include">
+        </childnode>
+        <childnode refid="294" relation="include">
+        </childnode>
+      </node>
+      <node id="285">
+        <label>/home/tsafin/tarantool/src/lib/bitset/index.h</label>
+        <link refid="lib_2bitset_2index_8h"/>
+        <childnode refid="286" relation="include">
+        </childnode>
+        <childnode refid="293" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structtt__bitset__index" prot="public">tt_bitset_index</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="lib_2bitset_2index_8h_1a1377149c5ed84775a882d814ebe21fa4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tt_bitset_index_create</definition>
+        <argsstring>(struct tt_bitset_index *index, void *(*realloc)(void *ptr, size_t size))</argsstring>
+        <name>tt_bitset_index_create</name>
+        <param>
+          <type>struct <ref refid="structtt__bitset__index" kindref="compound">tt_bitset_index</ref> *</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>void *(*)(void *ptr, size_t size)</type>
+          <declname>realloc</declname>
+        </param>
+        <briefdescription>
+<para>Construct <emphasis>index</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitset index </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>realloc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>memory allocator to use </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/index.h" line="145" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/index.c" bodystart="42" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2bitset_2index_8h_1a2047700d5043226de015f1d6f018fca6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tt_bitset_index_destroy</definition>
+        <argsstring>(struct tt_bitset_index *index)</argsstring>
+        <name>tt_bitset_index_destroy</name>
+        <param>
+          <type>struct <ref refid="structtt__bitset__index" kindref="compound">tt_bitset_index</ref> *</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Destruct <emphasis>index</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitset index </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/index.h" line="153" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/index.c" bodystart="51" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2bitset_2index_8h_1a46b65f013987fb9ac13e74c25e6e5e62" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tt_bitset_index_insert</definition>
+        <argsstring>(struct tt_bitset_index *index, const void *key, size_t key_size, size_t value)</argsstring>
+        <name>tt_bitset_index_insert</name>
+        <param>
+          <type>struct <ref refid="structtt__bitset__index" kindref="compound">tt_bitset_index</ref> *</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>key_size</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>Insert (<emphasis>key</emphasis>, <emphasis>value</emphasis>) pair into <emphasis>index</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><emphasis>value</emphasis> must be unique in the index. This method is atomic, i.e. <emphasis>index</emphasis> will be in a consistent state after a return even in case of error.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>object </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>key </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>size of the key </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>value </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on success </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on memory error </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/index.h" line="169" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/index.c" bodystart="132" bodyend="215"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2bitset_2index_8h_1ab7983d867aabf25aa4c840a53f1b015c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tt_bitset_index_remove_value</definition>
+        <argsstring>(struct tt_bitset_index *index, size_t value)</argsstring>
+        <name>tt_bitset_index_remove_value</name>
+        <param>
+          <type>struct <ref refid="structtt__bitset__index" kindref="compound">tt_bitset_index</ref> *</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>Remove a pair with <emphasis>value</emphasis> (*, <emphasis>value</emphasis>) from <emphasis>index</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitset index </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>value </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/index.h" line="178" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/index.c" bodystart="218" bodyend="233"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2bitset_2index_8h_1ac1073e8f13799e96d1c406037c832972" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tt_bitset_index_expr_all</definition>
+        <argsstring>(struct tt_bitset_expr *expr)</argsstring>
+        <name>tt_bitset_index_expr_all</name>
+        <param>
+          <type>struct <ref refid="structtt__bitset__expr" kindref="compound">tt_bitset_expr</ref> *</type>
+          <declname>expr</declname>
+        </param>
+        <briefdescription>
+<para>Initialize <emphasis>expr</emphasis> to iterate over a bitset index. </para>        </briefdescription>
+        <detaileddescription>
+<para>The <emphasis>expr</emphasis> can be then passed to <ref refid="" kindref="compound">bitset_index_init_iterator</ref>.</para><para>&apos;All&apos; algorithm. Matches all pairs in a index.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>expr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitset expression </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on success </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on memory error </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ref refid="" kindref="compound">bitset_index_init_iterator</ref> </para></simplesect>
+<simplesect kind="see"><para><ref refid="expr_8h" kindref="compound">expr.h</ref> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/index.h" line="193" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/index.c" bodystart="244" bodyend="256"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2bitset_2index_8h_1a1fbbb112c01c6b6100be8843c2935ae7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tt_bitset_index_expr_equals</definition>
+        <argsstring>(struct tt_bitset_expr *expr, const void *key, size_t key_size)</argsstring>
+        <name>tt_bitset_index_expr_equals</name>
+        <param>
+          <type>struct <ref refid="structtt__bitset__expr" kindref="compound">tt_bitset_expr</ref> *</type>
+          <declname>expr</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>key_size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize <emphasis>expr</emphasis> to iterate over a bitset index. </para>        </briefdescription>
+        <detaileddescription>
+<para>The <emphasis>expr</emphasis> can be then passed to <ref refid="" kindref="compound">bitset_index_init_iterator</ref>.</para><para>&apos;Equals&apos; algorithm. Matches all pairs where <emphasis>key</emphasis> exactly equals to pair.key (<emphasis>key</emphasis> == pair.key).</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>expr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitset expression </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>key </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>of <emphasis>key</emphasis> (in char, as sizeof returns) </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on success </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on memory error </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ref refid="" kindref="compound">bitset_index_init_iterator</ref> </para></simplesect>
+<simplesect kind="see"><para><ref refid="expr_8h" kindref="compound">expr.h</ref> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/index.h" line="211" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/index.c" bodystart="259" bodyend="279"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2bitset_2index_8h_1a64b15dcadd63c12e55ba13e03abeed49" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tt_bitset_index_expr_all_set</definition>
+        <argsstring>(struct tt_bitset_expr *expr, const void *key, size_t key_size)</argsstring>
+        <name>tt_bitset_index_expr_all_set</name>
+        <param>
+          <type>struct <ref refid="structtt__bitset__expr" kindref="compound">tt_bitset_expr</ref> *</type>
+          <declname>expr</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>key_size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize <emphasis>expr</emphasis> to iterate over a bitset index. </para>        </briefdescription>
+        <detaileddescription>
+<para>The <emphasis>expr</emphasis> can be then passed to <ref refid="" kindref="compound">bitset_index_init_iterator</ref>.</para><para>&apos;All-Bits-Set&apos; algorithm. Matches all pairs where all bits from <emphasis>key</emphasis> are set in pair.key ((<emphasis>key</emphasis> &amp; pair.key) == <emphasis>key</emphasis>).</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>expr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitset expression </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on success </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on memory error </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ref refid="" kindref="compound">bitset_index_init_iterator</ref> </para></simplesect>
+<simplesect kind="see"><para><ref refid="expr_8h" kindref="compound">expr.h</ref> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/index.h" line="228" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/index.c" bodystart="282" bodyend="303"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2bitset_2index_8h_1a86443cff5657c1c65340997aed97f1a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tt_bitset_index_expr_any_set</definition>
+        <argsstring>(struct tt_bitset_expr *expr, const void *key, size_t key_size)</argsstring>
+        <name>tt_bitset_index_expr_any_set</name>
+        <param>
+          <type>struct <ref refid="structtt__bitset__expr" kindref="compound">tt_bitset_expr</ref> *</type>
+          <declname>expr</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>key_size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize <emphasis>expr</emphasis> to iterate over a bitset index. </para>        </briefdescription>
+        <detaileddescription>
+<para>The <emphasis>expr</emphasis> can then be passed to <ref refid="" kindref="compound">bitset_index_init_iterator</ref>.</para><para>&apos;Any-Bits-Set&apos; algorithm. Matches all pairs where at least one bit from <emphasis>key</emphasis> is set in pair.key ((<emphasis>key</emphasis> &amp; pair.key) != 0).</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>expr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitset expression </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on success </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on memory error </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ref refid="" kindref="compound">bitset_index_init_iterator</ref> </para></simplesect>
+<simplesect kind="see"><para><ref refid="expr_8h" kindref="compound">expr.h</ref> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/index.h" line="245" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/index.c" bodystart="306" bodyend="326"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2bitset_2index_8h_1a122b5c4f26e2897bf98ddde1549fb80f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tt_bitset_index_expr_all_not_set</definition>
+        <argsstring>(struct tt_bitset_expr *expr, const void *key, size_t key_size)</argsstring>
+        <name>tt_bitset_index_expr_all_not_set</name>
+        <param>
+          <type>struct <ref refid="structtt__bitset__expr" kindref="compound">tt_bitset_expr</ref> *</type>
+          <declname>expr</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>key_size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize <emphasis>expr</emphasis> to iterate over a bitset index. </para>        </briefdescription>
+        <detaileddescription>
+<para>The <emphasis>expr</emphasis> can be then passed to <ref refid="" kindref="compound">bitset_index_init_iterator</ref>.</para><para>&apos;All-Bits-Not-Set&apos; algorithm. Matches all pairs in the <emphasis>index</emphasis>, where all bits from the <emphasis>key</emphasis> is not set in pair.key ((<emphasis>key</emphasis> &amp; pair.key) == 0).</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>expr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitset expression </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on success </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on memory error </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ref refid="" kindref="compound">bitset_index_init_iterator</ref> </para></simplesect>
+<simplesect kind="see"><para><ref refid="expr_8h" kindref="compound">expr.h</ref> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/index.h" line="262" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/index.c" bodystart="329" bodyend="352"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2bitset_2index_8h_1aafc92579c001a62ee998cf160a77ec9c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tt_bitset_index_init_iterator</definition>
+        <argsstring>(struct tt_bitset_index *index, struct tt_bitset_iterator *it, struct tt_bitset_expr *expr)</argsstring>
+        <name>tt_bitset_index_init_iterator</name>
+        <param>
+          <type>struct <ref refid="structtt__bitset__index" kindref="compound">tt_bitset_index</ref> *</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtt__bitset__iterator" kindref="compound">tt_bitset_iterator</ref> *</type>
+          <declname>it</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtt__bitset__expr" kindref="compound">tt_bitset_expr</ref> *</type>
+          <declname>expr</declname>
+        </param>
+        <briefdescription>
+<para>Initialize <emphasis>it</emphasis> using <emphasis>expr</emphasis> and bitsets used in <emphasis>index</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitset index </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>it</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitset iterator </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>expr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitset expression </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on success </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on memory error </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/index.h" line="275" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/index.c" bodystart="355" bodyend="378"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2bitset_2index_8h_1afed8cf35c9168902aca1532c3599bd7f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tt_bitset_index_contains_value</definition>
+        <argsstring>(struct tt_bitset_index *index, size_t value)</argsstring>
+        <name>tt_bitset_index_contains_value</name>
+        <param>
+          <type>struct <ref refid="structtt__bitset__index" kindref="compound">tt_bitset_index</ref> *</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>Checks if a (*, <emphasis>value</emphasis>) pair exists in <emphasis>index</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitset index </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>true</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>if <emphasis>index</emphasis> contains pair with the <emphasis>value</emphasis> </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>false</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>otherwise </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/index.h" line="287" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/index.c" bodystart="236" bodyend="241"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2bitset_2index_8h_1a575ae9d37b3989bead824b1846abc87e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t tt_bitset_index_size</definition>
+        <argsstring>(const struct tt_bitset_index *index)</argsstring>
+        <name>tt_bitset_index_size</name>
+        <param>
+          <type>const struct <ref refid="structtt__bitset__index" kindref="compound">tt_bitset_index</ref> *</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Return the number of pairs in <emphasis>index</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitset index </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>number of pairs in <emphasis>index</emphasis> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/index.h" line="295" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/index.h" bodystart="295" bodyend="298"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2bitset_2index_8h_1a807816d57d87a4b2416130aaf2054d8b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t tt_bitset_index_count</definition>
+        <argsstring>(const struct tt_bitset_index *index, size_t bit)</argsstring>
+        <name>tt_bitset_index_count</name>
+        <param>
+          <type>const struct <ref refid="structtt__bitset__index" kindref="compound">tt_bitset_index</ref> *</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>bit</declname>
+        </param>
+        <briefdescription>
+<para>Returns the number of (key, value ) pairs where <emphasis>bit</emphasis> is set in key. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitset index </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bit</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bit </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>the</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of (key, value ) pairs where (<emphasis>bit</emphasis> &amp; key) != 0 </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/index.h" line="307" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/index.h" bodystart="307" bodyend="312"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2bitset_2index_8h_1ac78de00b7fd11f8dcbe1e07c288f3a5a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t tt_bitset_index_bsize</definition>
+        <argsstring>(const struct tt_bitset_index *index)</argsstring>
+        <name>tt_bitset_index_bsize</name>
+        <param>
+          <type>const struct <ref refid="structtt__bitset__index" kindref="compound">tt_bitset_index</ref> *</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Return the number of bytes used by index. </para>        </briefdescription>
+        <detaileddescription>
+<para>Only dynamically allocated data are counted (i.e. sizeof(struct bitset_index) is not counted) <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>bitset index </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>number of bytes used by index. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/index.h" line="321" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/index.c" bodystart="381" bodyend="392"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>bitset_index - a bit index based on <ref refid="" kindref="compound">bitset</ref>. </para>    </briefdescription>
+    <detaileddescription>
+<sect1 id="lib_2bitset_2index_8h_1Purpose">
+<title>Purpose</title>
+<para>bitset_index is an associative container that stores (key, value) pairs in a way that is optimized for searching values matching a logical expressions on bits of the key. The organization structure of bitset_index makes it easy to respond to queries like &apos;return all (key, value) pairs where the key has bit i and bit j set&apos;. The implementation supports evaluation of arbitrary logical expressions represented in Disjunctive Normal Form.</para><para>To search over keys in a bitset_index, a logical expression needs to be constructed. logical expression. The expression can be constructed one time and used for multiple queries. A search for an exact match for a given key is not what bitset_index is designed for <ndash/> a conventional TREE or HASH index suits this task better.</para></sect1>
+<sect1 id="lib_2bitset_2index_8h_1Organization">
+<title>Organization</title>
+<para>bitset_index is a compressed bit matrix with dimensions N+1xK, where N corresponds to the bit count of the longest key present in the index, and K is the maximal value present in the index. Each column in the matrix stands for a single bit of the key and is represented by a single bitset. If there is value k, which corresponding key has bit i set, then bitset i+1 will have bit k set. For example, if a pair with (key, value) is inserted to the index and its key, has 0, 2, 5, 6 bits set then bitsets #1, #3, #6, #7 are set at position = pair.value (<ref refid="" kindref="compound">bitset_test(bitset, pair.value) </ref> is true) and bitsets #2, #4, #7 , ... are unset at the position.</para><para>bitset_index also uses a special bitset #0 that is set to true for each position where a pair with value = position exists in an index. This bitset is mostly needed for evaluation expressions with binary NOTs.</para><para>A consequence of to the above design, is that in a bitset_index one can have multiple pairs with same key, but all values in an index must be unique.</para></sect1>
+<sect1 id="lib_2bitset_2index_8h_1Performance">
+<title>Performance</title>
+<para>For a certain kind of tasks bitset_index is more efficient both speed- and memory- wise than a binary search tree or a hash table.</para><para>The complexity of <ref refid="" kindref="compound">bitset_insert</ref> operation is mostly equivalent to inserting one value into <emphasis>k</emphasis> balanced binary search trees, each of size <emphasis>m</emphasis>, where <emphasis>k</emphasis> is the number of set bits in the key and \ m is the number of pairs in the index divided by bitset page size.</para><para>The complexity of iteration is linear from the number of pairs in which the search expression evaluates to true. The complexity of an iterator expression does not affect iteration performance directly, which is more dependent on the number of matching values.</para><para>The actual performance heavily depends on the distribution of values. If the value space is dense, then internal bitsets are also compact and better optimized for iteration.</para></sect1>
+<sect1 id="lib_2bitset_2index_8h_1Limitations">
+<title>Limitations</title>
+<para>Key size is limited only by the available memory. bitset_index automatically resizes on &apos;insert&apos; if a key contains more bits than in any key inserted thus far.</para><para>Since values are used as a position in bitsets, the actual range of values must be in [0..SIZE_MAX) range.</para><para><simplesect kind="see"><para><ref refid="bitset_8h" kindref="compound">bitset.h</ref> </para></simplesect>
+<simplesect kind="see"><para><ref refid="expr_8h" kindref="compound">expr.h</ref> </para></simplesect>
+<simplesect kind="see"><para><ref refid="iterator_8h" kindref="compound">iterator.h</ref> </para></simplesect>
+</para></sect1>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LIB_BITSET_INDEX_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LIB_BITSET_INDEX_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="preprocessor">#include<sp/>&quot;<ref refid="bitset_8h" kindref="compound">bitset/bitset.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="iterator_8h" kindref="compound">bitset/iterator.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126" refid="structtt__bitset__index" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtt__bitset__index" kindref="compound">tt_bitset_index</ref><sp/>{</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Used<sp/>bitsets<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtt__bitset" kindref="compound">tt_bitset</ref><sp/>**bitsets;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Capacity<sp/>of<sp/>bitsets<sp/>array<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>capacity;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Memory<sp/>allocator<sp/>to<sp/>use<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*(*realloc)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ptr,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>A<sp/>buffer<sp/>used<sp/>for<sp/>rollback<sp/>changes<sp/>in<sp/>bitset_insert<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*rollback_buf;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><ref refid="lib_2bitset_2index_8h_1a1377149c5ed84775a882d814ebe21fa4" kindref="member">tt_bitset_index_create</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__index" kindref="compound">tt_bitset_index</ref><sp/>*<ref refid="structindex" kindref="compound">index</ref>,</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*(*realloc)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ptr,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size));</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><ref refid="lib_2bitset_2index_8h_1a2047700d5043226de015f1d6f018fca6" kindref="member">tt_bitset_index_destroy</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__index" kindref="compound">tt_bitset_index</ref><sp/>*index);</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><ref refid="lib_2bitset_2index_8h_1a46b65f013987fb9ac13e74c25e6e5e62" kindref="member">tt_bitset_index_insert</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__index" kindref="compound">tt_bitset_index</ref><sp/>*index,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*key,</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>key_size,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>value);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><ref refid="lib_2bitset_2index_8h_1ab7983d867aabf25aa4c840a53f1b015c" kindref="member">tt_bitset_index_remove_value</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__index" kindref="compound">tt_bitset_index</ref><sp/>*index,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>value);</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><ref refid="lib_2bitset_2index_8h_1ac1073e8f13799e96d1c406037c832972" kindref="member">tt_bitset_index_expr_all</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__expr" kindref="compound">tt_bitset_expr</ref><sp/>*expr);</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><ref refid="lib_2bitset_2index_8h_1a1fbbb112c01c6b6100be8843c2935ae7" kindref="member">tt_bitset_index_expr_equals</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__expr" kindref="compound">tt_bitset_expr</ref><sp/>*expr,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*key,</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>key_size);</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><ref refid="lib_2bitset_2index_8h_1a64b15dcadd63c12e55ba13e03abeed49" kindref="member">tt_bitset_index_expr_all_set</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__expr" kindref="compound">tt_bitset_expr</ref><sp/>*expr,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*key,</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>key_size);</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight></codeline>
+<codeline lineno="244"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><ref refid="lib_2bitset_2index_8h_1a86443cff5657c1c65340997aed97f1a2" kindref="member">tt_bitset_index_expr_any_set</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__expr" kindref="compound">tt_bitset_expr</ref><sp/>*expr,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*key,</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>key_size);</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><ref refid="lib_2bitset_2index_8h_1a122b5c4f26e2897bf98ddde1549fb80f" kindref="member">tt_bitset_index_expr_all_not_set</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__expr" kindref="compound">tt_bitset_expr</ref><sp/>*expr,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*key,</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>key_size);</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"></highlight></codeline>
+<codeline lineno="274"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><ref refid="lib_2bitset_2index_8h_1aafc92579c001a62ee998cf160a77ec9c" kindref="member">tt_bitset_index_init_iterator</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__index" kindref="compound">tt_bitset_index</ref><sp/>*index,</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__iterator" kindref="compound">tt_bitset_iterator</ref><sp/>*it,</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__expr" kindref="compound">tt_bitset_expr</ref><sp/>*expr);</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><ref refid="lib_2bitset_2index_8h_1afed8cf35c9168902aca1532c3599bd7f" kindref="member">tt_bitset_index_contains_value</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__index" kindref="compound">tt_bitset_index</ref><sp/>*index,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>value);</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"></highlight></codeline>
+<codeline lineno="294"><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><ref refid="lib_2bitset_2index_8h_1a575ae9d37b3989bead824b1846abc87e" kindref="member">tt_bitset_index_size</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__index" kindref="compound">tt_bitset_index</ref><sp/>*index)</highlight></codeline>
+<codeline lineno="296"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="bitset_8h_1ad31575abe114385570d11a6b316e8e92" kindref="member">tt_bitset_cardinality</ref>(index-&gt;bitsets[0]);</highlight></codeline>
+<codeline lineno="298"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight></codeline>
+<codeline lineno="306"><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><ref refid="lib_2bitset_2index_8h_1a807816d57d87a4b2416130aaf2054d8b" kindref="member">tt_bitset_index_count</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__index" kindref="compound">tt_bitset_index</ref><sp/>*index,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>bit)</highlight></codeline>
+<codeline lineno="308"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(bit<sp/>+<sp/>1<sp/>&gt;=<sp/>index-&gt;capacity)</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="bitset_8h_1ad31575abe114385570d11a6b316e8e92" kindref="member">tt_bitset_cardinality</ref>(index-&gt;bitsets[bit<sp/>+<sp/>1]);</highlight></codeline>
+<codeline lineno="312"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"></highlight></codeline>
+<codeline lineno="320"><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><ref refid="lib_2bitset_2index_8h_1ac78de00b7fd11f8dcbe1e07c288f3a5a" kindref="member">tt_bitset_index_bsize</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__index" kindref="compound">tt_bitset_index</ref><sp/>*index);</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"></highlight></codeline>
+<codeline lineno="323"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(DEBUG)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="324"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="325"><highlight class="normal">tt_bitset_index_dump(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtt__bitset__index" kindref="compound">tt_bitset_index</ref><sp/>*index,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>verbose,<sp/>FILE<sp/>*stream);</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(DEBUG)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="327"><highlight class="normal"></highlight></codeline>
+<codeline lineno="328"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="329"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="330"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="331"><highlight class="normal"></highlight></codeline>
+<codeline lineno="332"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_LIB_BITSET_INDEX_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/bitset/index.h"/>
+  </compounddef>
+</doxygen>

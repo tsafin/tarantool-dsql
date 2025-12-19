@@ -1,0 +1,1505 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="sql_8h" kind="file" language="C++">
+    <compoundname>sql.h</compoundname>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="alter_8cc" local="yes">/home/tsafin/tarantool/src/box/alter.cc</includedby>
+    <includedby refid="parse__def_8h" local="yes">/home/tsafin/tarantool/src/box/sql/parse_def.h</includedby>
+    <includedby refid="sqlInt_8h" local="yes">/home/tsafin/tarantool/src/box/sql/sqlInt.h</includedby>
+    <includedby refid="box_8cc" local="yes">/home/tsafin/tarantool/src/box/box.cc</includedby>
+    <includedby refid="ck__constraint_8c" local="yes">/home/tsafin/tarantool/src/box/ck_constraint.c</includedby>
+    <includedby refid="execute_8c" local="yes">/home/tsafin/tarantool/src/box/execute.c</includedby>
+    <includedby refid="fk__constraint_8c" local="yes">/home/tsafin/tarantool/src/box/fk_constraint.c</includedby>
+    <includedby refid="stat_8c" local="yes">/home/tsafin/tarantool/src/box/lua/stat.c</includedby>
+    <includedby refid="session__settings_8c" local="yes">/home/tsafin/tarantool/src/box/session_settings.c</includedby>
+    <includedby refid="space__def_8c" local="yes">/home/tsafin/tarantool/src/box/space_def.c</includedby>
+    <includedby refid="sql_8c" local="yes">/home/tsafin/tarantool/src/box/sql.c</includedby>
+    <incdepgraph>
+      <node id="905">
+        <label>stdbool.h</label>
+      </node>
+      <node id="906">
+        <label>stdint.h</label>
+      </node>
+      <node id="904">
+        <label>/home/tsafin/tarantool/src/box/sql.h</label>
+        <link refid="sql_8h"/>
+        <childnode refid="905" relation="include">
+        </childnode>
+        <childnode refid="906" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structvdbe__field__ref" prot="public">vdbe_field_ref</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="sql_8h_1a039e906e94c15a419abc20cbb15da36b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sql_init</definition>
+        <argsstring>(void)</argsstring>
+        <name>sql_init</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="42" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql.c" bodystart="67" bodyend="79"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1abbb7a8953407e21aec351b2a1866956b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sql_load_schema</definition>
+        <argsstring>(void)</argsstring>
+        <name>sql_load_schema</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize SQL statistic system. </para>        </briefdescription>
+        <detaileddescription>
+<para>Currently unused. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="50" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql.c" bodystart="82" bodyend="97"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1a2c50881b2f8900a9677e6b0a22ac0d57" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structsql" kindref="compound">sql</ref> *</type>
+        <definition>struct sql* sql_get</definition>
+        <argsstring>(void)</argsstring>
+        <name>sql_get</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>struct sql * sql_get(); </para>        </briefdescription>
+        <detaileddescription>
+<para>Currently, this is the only SQL execution interface provided. If not yet initialised, returns NULL. Use the regular sql_* API with this handle, but don&apos;t do anything finicky like sql_close. Behind the scenes, this sql was rigged to use Tarantool as a data source. <parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>SQL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>handle. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="65" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql.c" bodystart="100" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1a3938dfb619c4d56f41c0b648648be63e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structExpr" kindref="compound">Expr</ref> *</type>
+        <definition>struct Expr* sql_expr_compile</definition>
+        <argsstring>(struct sql *db, const char *expr, int expr_len)</argsstring>
+        <name>sql_expr_compile</name>
+        <param>
+          <type>struct <ref refid="structsql" kindref="compound">sql</ref> *</type>
+          <declname>db</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>expr</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>expr_len</declname>
+        </param>
+        <briefdescription>
+<para>Perform parsing of provided expression. </para>        </briefdescription>
+        <detaileddescription>
+<para>This is done by surrounding the expression w/ &apos;SELECT &apos; prefix and perform convetional parsing. Then extract result expression value from stuct <ref refid="structSelect" kindref="compound">Select</ref> and return it. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>db</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SQL context handle. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>expr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expression to parse. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>expr_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of  expr.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on error. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>not</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NULL <ref refid="structExpr" kindref="compound">Expr</ref> AST pointer on success. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="87" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/tokenize.c" bodystart="551" bodyend="582"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1a0fe121b16a3268442047d3b5f0c5b9fc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structSelect" kindref="compound">Select</ref> *</type>
+        <definition>struct Select* sql_view_compile</definition>
+        <argsstring>(struct sql *db, const char *view_stmt)</argsstring>
+        <name>sql_view_compile</name>
+        <param>
+          <type>struct <ref refid="structsql" kindref="compound">sql</ref> *</type>
+          <declname>db</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>view_stmt</declname>
+        </param>
+        <briefdescription>
+<para>This routine executes parser on &apos;CREATE VIEW ...&apos; statement and loads content of SELECT into internal structs as result. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>db</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current SQL context. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>view_stmt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>String containing &apos;CREATE VIEW&apos; statement. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>AST</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>of SELECT statement on success, NULL otherwise. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="98" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/tokenize.c" bodystart="585" bodyend="603"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1aab22eae71b3a0372dc0d82b3c10c5eff" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structsql__trigger" kindref="compound">sql_trigger</ref> *</type>
+        <definition>struct sql_trigger* sql_trigger_compile</definition>
+        <argsstring>(struct sql *db, const char *sql)</argsstring>
+        <name>sql_trigger_compile</name>
+        <param>
+          <type>struct <ref refid="structsql" kindref="compound">sql</ref> *</type>
+          <declname>db</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>sql</declname>
+        </param>
+        <briefdescription>
+<para>Perform parsing of provided SQL request and construct trigger AST. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>db</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SQL context handle. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sql</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>request to parse.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on error </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>not</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NULL <ref refid="structsql__trigger" kindref="compound">sql_trigger</ref> AST pointer on success. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="109" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/tokenize.c" bodystart="606" bodyend="620"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1aee73da04f2f3049289b35b4b50583b40" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sql_trigger_delete</definition>
+        <argsstring>(struct sql *db, struct sql_trigger *trigger)</argsstring>
+        <name>sql_trigger_delete</name>
+        <param>
+          <type>struct <ref refid="structsql" kindref="compound">sql</ref> *</type>
+          <declname>db</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structsql__trigger" kindref="compound">sql_trigger</ref> *</type>
+          <declname>trigger</declname>
+        </param>
+        <briefdescription>
+<para>Free AST pointed by trigger. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>db</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SQL handle. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>trigger</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>AST object. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="117" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/trigger.c" bodystart="358" bodyend="367"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1a33d3589d5e9f2b0d3c8206cb38d8e10c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structsql__trigger" kindref="compound">sql_trigger</ref> *</type>
+        <definition>struct sql_trigger* space_trigger_list</definition>
+        <argsstring>(uint32_t space_id)</argsstring>
+        <name>space_trigger_list</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>space_id</declname>
+        </param>
+        <briefdescription>
+<para>Get server triggers list by space_id. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>space_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>valid Space ID.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>trigger</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>AST list. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="126" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/trigger.c" bodystart="502" bodyend="508"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1a3a4c29b771a6953f01a4868966183a98" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sql_trigger_replace</definition>
+        <argsstring>(const char *name, uint32_t space_id, struct sql_trigger *trigger, struct sql_trigger **old_trigger)</argsstring>
+        <name>sql_trigger_replace</name>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>space_id</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structsql__trigger" kindref="compound">sql_trigger</ref> *</type>
+          <declname>trigger</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structsql__trigger" kindref="compound">sql_trigger</ref> **</type>
+          <declname>old_trigger</declname>
+        </param>
+        <briefdescription>
+<para>Perform replace trigger in SQL internals with new AST object. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a name of the trigger. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>space_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>of the space to insert trigger. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>trigger</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>AST object to insert. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">old_trigger</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Old object if exists.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on success. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="139" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/trigger.c" bodystart="432" bodyend="487"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1a6a9c2569d477ffe7bc8012071c54639c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char* sql_trigger_name</definition>
+        <argsstring>(struct sql_trigger *trigger)</argsstring>
+        <name>sql_trigger_name</name>
+        <param>
+          <type>struct <ref refid="structsql__trigger" kindref="compound">sql_trigger</ref> *</type>
+          <declname>trigger</declname>
+        </param>
+        <briefdescription>
+<para>Get trigger name by trigger AST object. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>trigger</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>AST object. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>trigger name string. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="149" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/trigger.c" bodystart="490" bodyend="493"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1a4805378b2da7089f7b60af5f0d5ffaf7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t sql_trigger_space_id</definition>
+        <argsstring>(struct sql_trigger *trigger)</argsstring>
+        <name>sql_trigger_space_id</name>
+        <param>
+          <type>struct <ref refid="structsql__trigger" kindref="compound">sql_trigger</ref> *</type>
+          <declname>trigger</declname>
+        </param>
+        <briefdescription>
+<para>Get space_id of the space that trigger has been built for. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>trigger</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>AST object. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>space identifier. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="157" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/trigger.c" bodystart="496" bodyend="499"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1a3c548b1485a95d228009ddb7d02dbb7d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sql_expr_extract_select</definition>
+        <argsstring>(struct Parse *parser, struct Select *select)</argsstring>
+        <name>sql_expr_extract_select</name>
+        <param>
+          <type>struct <ref refid="structParse" kindref="compound">Parse</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structSelect" kindref="compound">Select</ref> *</type>
+          <declname>select</declname>
+        </param>
+        <briefdescription>
+<para>Store duplicate of a parsed expression into <emphasis>parser</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parser context. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>select</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="structSelect" kindref="compound">Select</ref> to extract from. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="165" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/select.c" bodystart="6508" bodyend="6521"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1a447c72826b37d01033be6d1a2680ecd1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structExpr" kindref="compound">Expr</ref> *</type>
+        <definition>struct Expr* space_column_default_expr</definition>
+        <argsstring>(uint32_t space_id, uint32_t fieldno)</argsstring>
+        <name>space_column_default_expr</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>space_id</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>fieldno</declname>
+        </param>
+        <briefdescription>
+<para>Given space_id and field number, return default value for the field. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>space_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Space ID. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fieldno</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field index. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>Pointer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>to AST corresponding to default value. Can be NULL if no DEFAULT specified or it is a view. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="176" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql.c" bodystart="1213" bodyend="1224"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1a616b6e8581a54ed35b337d0e8a9b25ad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sql_expr_sizeof</definition>
+        <argsstring>(struct Expr *p, int flags)</argsstring>
+        <name>sql_expr_sizeof</name>
+        <param>
+          <type>struct <ref refid="structExpr" kindref="compound">Expr</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <briefdescription>
+<para>Return the number of bytes required to create a duplicate of the expression passed as the first argument. </para>        </briefdescription>
+        <detaileddescription>
+<para>The second argument is a mask containing EXPRDUP_XXX flags.</para><para>The value returned includes space to create a copy of the <ref refid="structExpr" kindref="compound">Expr</ref> struct itself and the buffer referred to by Expr.u.zToken, if any.</para><para>If the EXPRDUP_REDUCE flag is set, then the return value includes space to duplicate all <ref refid="structExpr" kindref="compound">Expr</ref> nodes in the tree formed by Expr.pLeft and Expr.pRight variables (but not for any structures pointed to or descended from the Expr.x.pList or Expr.x.pSelect variables). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>expr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Root expression of AST. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The only possible flag is REDUCED, 0 otherwise. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>Size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>in bytes needed to duplicate AST and all private strings. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="196" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/expr.c" bodystart="1427" bodyend="1439"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1a75624c776e32a144ceb564aa0ac880a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structExpr" kindref="compound">Expr</ref> *</type>
+        <definition>struct Expr* sql_expr_dup</definition>
+        <argsstring>(struct sql *db, struct Expr *p, int flags, char **buffer)</argsstring>
+        <name>sql_expr_dup</name>
+        <param>
+          <type>struct <ref refid="structsql" kindref="compound">sql</ref> *</type>
+          <declname>db</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structExpr" kindref="compound">Expr</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <param>
+          <type>char **</type>
+          <declname>buffer</declname>
+        </param>
+        <briefdescription>
+<para>This function is similar to sqlExprDup(), except that if pzBuffer is not NULL then *pzBuffer is assumed to point to a buffer large enough to store the copy of expression p, the copies of p-&gt;u.zToken (if applicable), and the copies of the p-&gt;pLeft and p-&gt;pRight expressions, if any. </para>        </briefdescription>
+        <detaileddescription>
+<para>Before returning, *pzBuffer is set to the first byte past the portion of the buffer copied into by this function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>db</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SQL handle. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>p</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Root of expression&apos;s AST. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dupFlags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>EXPRDUP_REDUCE or 0. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pzBuffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>If not NULL, then buffer to store duplicate. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="211" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/expr.c" bodystart="1442" bodyend="1544"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1a1ce7a75c3db6853e2d15ef3d930c04c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sql_expr_delete</definition>
+        <argsstring>(struct sql *db, struct Expr *expr, bool extern_alloc)</argsstring>
+        <name>sql_expr_delete</name>
+        <param>
+          <type>struct <ref refid="structsql" kindref="compound">sql</ref> *</type>
+          <declname>db</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structExpr" kindref="compound">Expr</ref> *</type>
+          <declname>expr</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>extern_alloc</declname>
+        </param>
+        <briefdescription>
+<para>Free AST pointed by expr. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>db</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SQL handle. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>expr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Root pointer of ASR </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>extern_alloc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True if skeleton was allocated externally. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="220" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/expr.c" bodystart="1332" bodyend="1336"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1ae2b28f3e9c45e67b928dcb228f825205" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structspace" kindref="compound">space</ref> *</type>
+        <definition>struct space* sql_ephemeral_space_new</definition>
+        <argsstring>(struct Parse *parser, const char *name)</argsstring>
+        <name>sql_ephemeral_space_new</name>
+        <param>
+          <type>struct <ref refid="structParse" kindref="compound">Parse</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>Create and initialize a new ephemeral space object. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SQL Parser object. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of space to be created. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on memory allocation error, Parser state changed. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>not</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NULL on success. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="230" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql.c" bodystart="1258" bodyend="1275"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1a71bb6681fda1996bf8bf362f623deabd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structExprList" kindref="compound">ExprList</ref> *</type>
+        <definition>struct ExprList* sql_expr_list_dup</definition>
+        <argsstring>(struct sql *db, struct ExprList *p, int flags)</argsstring>
+        <name>sql_expr_list_dup</name>
+        <param>
+          <type>struct <ref refid="structsql" kindref="compound">sql</ref> *</type>
+          <declname>db</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structExprList" kindref="compound">ExprList</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <briefdescription>
+<para>Duplicate <ref refid="structExpr" kindref="compound">Expr</ref> list. </para>        </briefdescription>
+        <detaileddescription>
+<para>The flags parameter contains a combination of the EXPRDUP_XXX flags. If the EXPRDUP_REDUCE flag is set, then the structure returned is a truncated version of the usual <ref refid="structExpr" kindref="compound">Expr</ref> structure that will be stored as part of the in-memory representation of the database schema. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>db</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The database connection. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>p</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The <ref refid="structExprList" kindref="compound">ExprList</ref> to duplicate. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>EXPRDUP_XXX flags. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on memory allocation error. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>not</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NULL on success. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="246" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/expr.c" bodystart="1599" bodyend="1650"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1a48c256950543bca4fddc6fc309ad6429" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sql_expr_list_delete</definition>
+        <argsstring>(struct sql *db, struct ExprList *expr_list)</argsstring>
+        <name>sql_expr_list_delete</name>
+        <param>
+          <type>struct <ref refid="structsql" kindref="compound">sql</ref> *</type>
+          <declname>db</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structExprList" kindref="compound">ExprList</ref> *</type>
+          <declname>expr_list</declname>
+        </param>
+        <briefdescription>
+<para>Free AST pointed by expr list. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>db</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SQL handle. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>expr_list</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Root pointer of <ref refid="structExprList" kindref="compound">ExprList</ref>. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="254" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/expr.c" bodystart="1992" bodyend="1996"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1a03ecdc8873836efde87f6b51b66b3e0b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structExprList" kindref="compound">ExprList</ref> *</type>
+        <definition>struct ExprList* sql_expr_list_append</definition>
+        <argsstring>(struct sql *db, struct ExprList *expr_list, struct Expr *expr)</argsstring>
+        <name>sql_expr_list_append</name>
+        <param>
+          <type>struct <ref refid="structsql" kindref="compound">sql</ref> *</type>
+          <declname>db</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structExprList" kindref="compound">ExprList</ref> *</type>
+          <declname>expr_list</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structExpr" kindref="compound">Expr</ref> *</type>
+          <declname>expr</declname>
+        </param>
+        <briefdescription>
+<para>Add a new element to the end of an expression list. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>db</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SQL handle. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>expr_list</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List to which to append. Might be NULL. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>expr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expression to be appended. Might be NULL. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on memory allocation error. The list is freed. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>not</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NULL on success. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="265" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/expr.c" bodystart="1768" bodyend="1801"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1a54df3e66ea5c09a97cacfed7a7a292c7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sql_resolve_self_reference</definition>
+        <argsstring>(struct Parse *parser, struct space_def *def, int type, struct Expr *expr)</argsstring>
+        <name>sql_resolve_self_reference</name>
+        <param>
+          <type>struct <ref refid="structParse" kindref="compound">Parse</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structspace__def" kindref="compound">space_def</ref> *</type>
+          <declname>def</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structExpr" kindref="compound">Expr</ref> *</type>
+          <declname>expr</declname>
+        </param>
+        <briefdescription>
+<para>Resolve names in expressions that can only reference a single table: </para>        </briefdescription>
+        <detaileddescription>
+<para><itemizedlist>
+<listitem><para>CHECK constraints</para></listitem><listitem><para>WHERE clauses on partial indices The Expr.iTable value for Expr.op==TK_COLUMN nodes of the expression is set to -1 and the Expr.iColumn value is set to the column number. Any errors cause an error message to be set in parser. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parsing context. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>def</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The definition of space being referenced. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NC_IsCheck or NC_IdxExpr. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>expr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expression to resolve. May be NULL. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="283" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/resolve.c" bodystart="1576" bodyend="1598"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1a285360dde6542dce660363d446e2c788" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sql_parser_create</definition>
+        <argsstring>(struct Parse *parser, struct sql *db, uint32_t sql_flags)</argsstring>
+        <name>sql_parser_create</name>
+        <param>
+          <type>struct <ref refid="structParse" kindref="compound">Parse</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structsql" kindref="compound">sql</ref> *</type>
+          <declname>db</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>sql_flags</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a new parser object. </para>        </briefdescription>
+        <detaileddescription>
+<para>A number of service allocations are performed on the region, which is also cleared in the destroy function. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>object to initialize. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>db</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>sql object. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sql_flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>flags to control parser behaviour. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="295" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/prepare.c" bodystart="196" bodyend="204"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1a99332b81ff445834ad3f0358c9b124fd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sql_parser_destroy</definition>
+        <argsstring>(struct Parse *parser)</argsstring>
+        <name>sql_parser_destroy</name>
+        <param>
+          <type>struct <ref refid="structParse" kindref="compound">Parse</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <briefdescription>
+<para>Release the parser object resources. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>object to release. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="302" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/prepare.c" bodystart="207" bodyend="235"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1aad9a7c922480ccc34f825fc8ccc2cd17" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sql_select_delete</definition>
+        <argsstring>(struct sql *db, struct Select *select)</argsstring>
+        <name>sql_select_delete</name>
+        <param>
+          <type>struct <ref refid="structsql" kindref="compound">sql</ref> *</type>
+          <declname>db</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structSelect" kindref="compound">Select</ref> *</type>
+          <declname>select</declname>
+        </param>
+        <briefdescription>
+<para>Release memory allocated for given SELECT and all of its substructures. </para>        </briefdescription>
+        <detaileddescription>
+<para>It accepts NULL pointers.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>db</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Database handler. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>select</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="structSelect" kindref="compound">Select</ref> to be freed. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="312" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/select.c" bodystart="224" bodyend="228"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1a2620fe4c54a3eb0b5602779df4a4c6b0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structSrcList" kindref="compound">SrcList</ref> *</type>
+        <definition>struct SrcList* sql_select_expand_from_tables</definition>
+        <argsstring>(struct Select *select)</argsstring>
+        <name>sql_select_expand_from_tables</name>
+        <param>
+          <type>struct <ref refid="structSelect" kindref="compound">Select</ref> *</type>
+          <declname>select</declname>
+        </param>
+        <briefdescription>
+<para>Collect all table names within given select, including ones from sub-queries, expressions, FROM clause etc. </para>        </briefdescription>
+        <detaileddescription>
+<para>Return those names as a list.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>select</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="structSelect" kindref="compound">Select</ref> to be investigated. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>List</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>containing all involved table names. NULL in case of OOM. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="324" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/select.c" bodystart="317" bodyend="333"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1a5a3c1778c5096678a063aa02c9805298" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool sql_select_constains_cte</definition>
+        <argsstring>(struct Select *select, const char *name)</argsstring>
+        <name>sql_select_constains_cte</name>
+        <param>
+          <type>struct <ref refid="structSelect" kindref="compound">Select</ref> *</type>
+          <declname>select</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>Check if <emphasis>name</emphasis> matches with at least one of CTE names typed in &lt;WITH&gt; clauses within <emphasis>select</emphasis> except &lt;WITH&gt;s that are nested within other &lt;WITH&gt;s. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>select</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="structSelect" kindref="compound">Select</ref> which may contain CTE. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The name of CTE, that may contained. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>true</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Has CTE with <emphasis>name</emphasis>. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>false</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Hasn&apos;t CTE with <emphasis>name</emphasis>. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="337" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/select.c" bodystart="336" bodyend="373"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1ade369fbdd2895be3f5409f29a24c5be3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sql_src_list_entry_count</definition>
+        <argsstring>(const struct SrcList *list)</argsstring>
+        <name>sql_src_list_entry_count</name>
+        <param>
+          <type>const struct <ref refid="structSrcList" kindref="compound">SrcList</ref> *</type>
+          <declname>list</declname>
+        </param>
+        <briefdescription>
+<para>Temporary getter in order to avoid including sqlInt.h in alter.cc. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>list</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List to be examined. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>Count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>of &apos;FROM&apos; tables in given select. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="347" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/select.c" bodystart="231" bodyend="235"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1a00dcc479723d3a20e40a1282a62781e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char* sql_src_list_entry_name</definition>
+        <argsstring>(const struct SrcList *list, int i)</argsstring>
+        <name>sql_src_list_entry_name</name>
+        <param>
+          <type>const struct <ref refid="structSrcList" kindref="compound">SrcList</ref> *</type>
+          <declname>list</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>i</declname>
+        </param>
+        <briefdescription>
+<para>Temporary getter in order to avoid including sqlInt.h in alter.cc. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>list</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>List to be examined. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>i</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ordinal number of entry. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>Name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>of i-th entry. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="358" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/select.c" bodystart="238" bodyend="243"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1a92a19c562ec2d57e34049d68383650a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlSrcListDelete</definition>
+        <argsstring>(struct sql *db, struct SrcList *list)</argsstring>
+        <name>sqlSrcListDelete</name>
+        <param>
+          <type>struct <ref refid="structsql" kindref="compound">sql</ref> *</type>
+          <declname>db</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structSrcList" kindref="compound">SrcList</ref> *</type>
+          <declname>list</declname>
+        </param>
+        <briefdescription>
+<para>Delete an entire <ref refid="structSrcList" kindref="compound">SrcList</ref> including all its substructure. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="362" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/build.c" bodystart="2962" bodyend="2990"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1ac09b64df6ad0620da33e7a5a29976cc4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vdbe_field_ref_prepare_data</definition>
+        <argsstring>(struct vdbe_field_ref *field_ref, const char *data, uint32_t data_sz)</argsstring>
+        <name>vdbe_field_ref_prepare_data</name>
+        <param>
+          <type>struct <ref refid="structvdbe__field__ref" kindref="compound">vdbe_field_ref</ref> *</type>
+          <declname>field_ref</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>data_sz</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a new <ref refid="structvdbe__field__ref" kindref="compound">vdbe_field_ref</ref> instance with given tuple data. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>field_ref</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The <ref refid="structvdbe__field__ref" kindref="compound">vdbe_field_ref</ref> instance to initialize. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The tuple data. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data_sz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The size of tuple data. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="410" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql.c" bodystart="1303" bodyend="1307"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1ab49b0a6df4957e001b483756a322370c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vdbe_field_ref_prepare_tuple</definition>
+        <argsstring>(struct vdbe_field_ref *field_ref, struct tuple *tuple)</argsstring>
+        <name>vdbe_field_ref_prepare_tuple</name>
+        <param>
+          <type>struct <ref refid="structvdbe__field__ref" kindref="compound">vdbe_field_ref</ref> *</type>
+          <declname>field_ref</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+          <declname>tuple</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a new <ref refid="structvdbe__field__ref" kindref="compound">vdbe_field_ref</ref> instance with given tuple data. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>field_ref</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The <ref refid="structvdbe__field__ref" kindref="compound">vdbe_field_ref</ref> instance to initialize. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tuple</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The tuple object pointer. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="420" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql.c" bodystart="1310" bodyend="1315"/>
+      </memberdef>
+      <memberdef kind="function" id="sql_8h_1abd316f2cd495643d09540d06785e18b8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sql_debug_info</definition>
+        <argsstring>(struct info_handler *handler)</argsstring>
+        <name>sql_debug_info</name>
+        <param>
+          <type>struct <ref refid="structinfo__handler" kindref="compound">info_handler</ref> *</type>
+          <declname>handler</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql.h" line="429" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql.c" bodystart="1179" bodyend="1191"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>INCLUDES_BOX_SQL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INCLUDES_BOX_SQL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal">sql_init(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal">sql_load_schema(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsql" kindref="compound">sql</ref><sp/>*</highlight></codeline>
+<codeline lineno="65"><highlight class="normal">sql_get(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structExpr" kindref="compound">Expr</ref>;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structParse" kindref="compound">Parse</ref>;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSelect" kindref="compound">Select</ref>;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">Table;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsql__trigger" kindref="compound">sql_trigger</ref>;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structspace__def" kindref="compound">space_def</ref>;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structExpr" kindref="compound">Expr</ref><sp/>*</highlight></codeline>
+<codeline lineno="87"><highlight class="normal">sql_expr_compile(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsql" kindref="compound">sql</ref><sp/>*db,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*expr,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>expr_len);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSelect" kindref="compound">Select</ref><sp/>*</highlight></codeline>
+<codeline lineno="98"><highlight class="normal">sql_view_compile(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsql" kindref="compound">sql</ref><sp/>*db,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*view_stmt);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsql__trigger" kindref="compound">sql_trigger</ref><sp/>*</highlight></codeline>
+<codeline lineno="109"><highlight class="normal">sql_trigger_compile(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsql" kindref="compound">sql</ref><sp/>*db,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structsql" kindref="compound">sql</ref>);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal">sql_trigger_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsql" kindref="compound">sql</ref><sp/>*db,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsql__trigger" kindref="compound">sql_trigger</ref><sp/>*<ref refid="structtrigger" kindref="compound">trigger</ref>);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsql__trigger" kindref="compound">sql_trigger</ref><sp/>*</highlight></codeline>
+<codeline lineno="126"><highlight class="normal">space_trigger_list(uint32_t<sp/><ref refid="structsql__trigger_1ae6cf61c78bb8b6dd50ad7b702485f182" kindref="member">space_id</ref>);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal">sql_trigger_replace(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,<sp/>uint32_t<sp/><ref refid="structsql__trigger_1ae6cf61c78bb8b6dd50ad7b702485f182" kindref="member">space_id</ref>,</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsql__trigger" kindref="compound">sql_trigger</ref><sp/>*<ref refid="structtrigger" kindref="compound">trigger</ref>,</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsql__trigger" kindref="compound">sql_trigger</ref><sp/>**old_trigger);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="149"><highlight class="normal">sql_trigger_name(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsql__trigger" kindref="compound">sql_trigger</ref><sp/>*<ref refid="structtrigger" kindref="compound">trigger</ref>);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal">uint32_t</highlight></codeline>
+<codeline lineno="157"><highlight class="normal">sql_trigger_space_id(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsql__trigger" kindref="compound">sql_trigger</ref><sp/>*<ref refid="structtrigger" kindref="compound">trigger</ref>);</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal">sql_expr_extract_select(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structParse" kindref="compound">Parse</ref><sp/>*parser,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structSelect" kindref="compound">Select</ref><sp/>*select);</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structExpr" kindref="compound">Expr</ref>*</highlight></codeline>
+<codeline lineno="176"><highlight class="normal">space_column_default_expr(uint32_t<sp/>space_id,<sp/>uint32_t<sp/>fieldno);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal">sql_expr_sizeof(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structExpr" kindref="compound">Expr</ref><sp/>*p,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structExpr" kindref="compound">Expr</ref><sp/>*</highlight></codeline>
+<codeline lineno="211"><highlight class="normal">sql_expr_dup(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsql" kindref="compound">sql</ref><sp/>*db,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structExpr" kindref="compound">Expr</ref><sp/>*p,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**buffer);</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal">sql_expr_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsql" kindref="compound">sql</ref><sp/>*db,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structExpr" kindref="compound">Expr</ref><sp/>*expr,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>extern_alloc);</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structspace" kindref="compound">space</ref><sp/>*</highlight></codeline>
+<codeline lineno="230"><highlight class="normal">sql_ephemeral_space_new(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structParse" kindref="compound">Parse</ref><sp/>*parser,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name);</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structExprList" kindref="compound">ExprList</ref><sp/>*</highlight></codeline>
+<codeline lineno="246"><highlight class="normal">sql_expr_list_dup(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsql" kindref="compound">sql</ref><sp/>*db,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structExprList" kindref="compound">ExprList</ref><sp/>*p,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags);</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"></highlight></codeline>
+<codeline lineno="253"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="254"><highlight class="normal">sql_expr_list_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsql" kindref="compound">sql</ref><sp/>*db,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structExprList" kindref="compound">ExprList</ref><sp/>*expr_list);</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight></codeline>
+<codeline lineno="264"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structExprList" kindref="compound">ExprList</ref><sp/>*</highlight></codeline>
+<codeline lineno="265"><highlight class="normal">sql_expr_list_append(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsql" kindref="compound">sql</ref><sp/>*db,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structExprList" kindref="compound">ExprList</ref><sp/>*expr_list,</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structExpr" kindref="compound">Expr</ref><sp/>*expr);</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"></highlight></codeline>
+<codeline lineno="282"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="283"><highlight class="normal">sql_resolve_self_reference(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structParse" kindref="compound">Parse</ref><sp/>*parser,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structspace__def" kindref="compound">space_def</ref><sp/>*def,</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>type,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structExpr" kindref="compound">Expr</ref><sp/>*expr);</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"></highlight></codeline>
+<codeline lineno="294"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="295"><highlight class="normal">sql_parser_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structParse" kindref="compound">Parse</ref><sp/>*parser,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsql" kindref="compound">sql</ref><sp/>*db,<sp/>uint32_t<sp/>sql_flags);</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"></highlight></codeline>
+<codeline lineno="301"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="302"><highlight class="normal">sql_parser_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structParse" kindref="compound">Parse</ref><sp/>*parser);</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"></highlight></codeline>
+<codeline lineno="311"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="312"><highlight class="normal">sql_select_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsql" kindref="compound">sql</ref><sp/>*db,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structSelect" kindref="compound">Select</ref><sp/>*select);</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"></highlight></codeline>
+<codeline lineno="323"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSrcList" kindref="compound">SrcList</ref><sp/>*</highlight></codeline>
+<codeline lineno="324"><highlight class="normal">sql_select_expand_from_tables(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structSelect" kindref="compound">Select</ref><sp/>*select);</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"></highlight></codeline>
+<codeline lineno="336"><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="337"><highlight class="normal">sql_select_constains_cte(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structSelect" kindref="compound">Select</ref><sp/>*select,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name);</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"></highlight></codeline>
+<codeline lineno="346"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="347"><highlight class="normal">sql_src_list_entry_count(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structSrcList" kindref="compound">SrcList</ref><sp/>*list);</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"></highlight></codeline>
+<codeline lineno="357"><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="358"><highlight class="normal">sql_src_list_entry_name(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structSrcList" kindref="compound">SrcList</ref><sp/>*list,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i);</highlight></codeline>
+<codeline lineno="359"><highlight class="normal"></highlight></codeline>
+<codeline lineno="361"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="362"><highlight class="normal">sqlSrcListDelete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsql" kindref="compound">sql</ref><sp/>*db,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structSrcList" kindref="compound">SrcList</ref><sp/>*list);</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"></highlight></codeline>
+<codeline lineno="378" refid="structvdbe__field__ref" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvdbe__field__ref" kindref="compound">vdbe_field_ref</ref><sp/>{</highlight></codeline>
+<codeline lineno="380"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple" kindref="compound">tuple</ref><sp/>*<ref refid="structvdbe__field__ref_1a7cb504d64ad71bdb4b02234493bc3a43" kindref="member">tuple</ref>;</highlight></codeline>
+<codeline lineno="382"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structvdbe__field__ref_1a0f8386b6bccb8ebd1e51932e90303acf" kindref="member">data</ref>;</highlight></codeline>
+<codeline lineno="384"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvdbe__field__ref_1a1fe38503a356edfb9aab2dacd1645950" kindref="member">data_sz</ref>;</highlight></codeline>
+<codeline lineno="386"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvdbe__field__ref_1ab6ba24cb7c36d82846ead5e2348d7354" kindref="member">field_count</ref>;</highlight></codeline>
+<codeline lineno="394"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/><ref refid="structvdbe__field__ref_1af70f3797dfda534afd2010e0d2a050a1" kindref="member">slot_bitmask</ref>;</highlight></codeline>
+<codeline lineno="399"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvdbe__field__ref_1a0fb3bbfe011eecb9acab3f275e2b4041" kindref="member">slots</ref>[1];</highlight></codeline>
+<codeline lineno="400"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="401"><highlight class="normal"></highlight></codeline>
+<codeline lineno="409"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="410"><highlight class="normal">vdbe_field_ref_prepare_data(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvdbe__field__ref" kindref="compound">vdbe_field_ref</ref><sp/>*field_ref,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structvdbe__field__ref_1a0f8386b6bccb8ebd1e51932e90303acf" kindref="member">data</ref>,</highlight></codeline>
+<codeline lineno="411"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvdbe__field__ref_1a1fe38503a356edfb9aab2dacd1645950" kindref="member">data_sz</ref>);</highlight></codeline>
+<codeline lineno="412"><highlight class="normal"></highlight></codeline>
+<codeline lineno="419"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="420"><highlight class="normal">vdbe_field_ref_prepare_tuple(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvdbe__field__ref" kindref="compound">vdbe_field_ref</ref><sp/>*field_ref,</highlight></codeline>
+<codeline lineno="421"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple" kindref="compound">tuple</ref><sp/>*<ref refid="structtuple" kindref="compound">tuple</ref>);</highlight></codeline>
+<codeline lineno="422"><highlight class="normal"></highlight></codeline>
+<codeline lineno="423"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="424"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>{<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="425"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="426"><highlight class="normal"></highlight></codeline>
+<codeline lineno="427"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structinfo__handler" kindref="compound">info_handler</ref>;</highlight></codeline>
+<codeline lineno="428"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="429"><highlight class="normal">sql_debug_info(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structinfo__handler" kindref="compound">info_handler</ref><sp/>*handler);</highlight></codeline>
+<codeline lineno="430"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/sql.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,109 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structregion" kind="struct" language="C++" prot="public">
+    <compoundname>region</compoundname>
+    <includes local="no">region.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structregion_1afb652b1624d8d36135cf2ecf7e4b3ba5" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref> *</type>
+        <definition>struct slab_cache* region::cache</definition>
+        <argsstring></argsstring>
+        <name>cache</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/region.h" line="83" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/region.h" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structregion_1a8fd2dec4e6059a303a0a340025b1a720" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structslab__list" kindref="compound">slab_list</ref></type>
+        <definition>struct slab_list region::slabs</definition>
+        <argsstring></argsstring>
+        <name>slabs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/region.h" line="83" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/region.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Region allocator. </para>    </briefdescription>
+    <detaileddescription>
+<para>Good for allocating objects of any size, as long as all of them can be freed at once. Keeps a list of order-of-page-size memory blocks, thus has no external fragmentation. Does have a fair bit of internal fragmentation, but only if average allocation size is close to the block size. Therefore is ideal for a ton of small allocations of different sizes.</para><para>Under the hood, the allocator uses a page cache of mmap()-allocated pages. Pages of the page cache are never released back to the operating system.</para><para><heading level="2">Thread-safety </heading>
+</para><para><xrefsect id="todo_1_todo000005"><xreftitle>Todo</xreftitle><xrefdescription><para>, not thread safe ATM</para></xrefdescription></xrefsect></para><para><heading level="2">Errors </heading>
+</para><para>The only type of failure which can occur is a failure to allocate memory. alloc() calls return NULL in this case. A memory region.</para><para>A memory region is a list of memory blocks.</para><para>It&apos;s possible to allocate a chunk of any size from a region. It&apos;s not possible, however, to free a single allocated piece, all memory must be freed at once with region_reset() or region_free(). </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="7879">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="7877">
+        <label>region</label>
+        <link refid="structregion"/>
+        <childnode refid="7878" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="7881" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="7880">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="7880" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="7878">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="7879" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="7880" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="7883">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="7884">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="7882">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="7883" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="7884" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="7881">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="7878" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="7882" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/small/small/region.h" line="82" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/region.h" bodystart="81" bodyend="85"/>
+    <listofallmembers>
+      <member refid="structregion_1afb652b1624d8d36135cf2ecf7e4b3ba5" prot="public" virt="non-virtual"><scope>region</scope><name>cache</name></member>
+      <member refid="structregion_1a8fd2dec4e6059a303a0a340025b1a720" prot="public" virt="non-virtual"><scope>region</scope><name>slabs</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

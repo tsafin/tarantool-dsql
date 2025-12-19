@@ -1,0 +1,1304 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="lib_2core_2fiber_8h" kind="file" language="C++">
+    <compoundname>fiber.h</compoundname>
+    <includes local="yes">trivia/config.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes refid="tt__pthread_8h" local="yes">tt_pthread.h</includes>
+    <includes local="yes">third_party/tarantool_ev.h</includes>
+    <includes refid="diag_8h" local="yes">diag.h</includes>
+    <includes refid="util_8h" local="yes">trivia/util.h</includes>
+    <includes refid="mempool_8h" local="yes">small/mempool.h</includes>
+    <includes refid="region_8h" local="yes">small/region.h</includes>
+    <includes refid="rlist_8h" local="yes">small/rlist.h</includes>
+    <includes refid="stailq_8h" local="yes">salad/stailq.h</includes>
+    <includes local="no">third_party/coro/coro.h</includes>
+    <includedby refid="backtrace_8cc" local="yes">/home/tsafin/tarantool/src/lib/core/backtrace.cc</includedby>
+    <includedby refid="cbus_8h" local="yes">/home/tsafin/tarantool/src/lib/core/cbus.h</includedby>
+    <includedby refid="cbus_8c" local="yes">/home/tsafin/tarantool/src/lib/core/cbus.c</includedby>
+    <includedby refid="coio_8h" local="yes">/home/tsafin/tarantool/src/lib/core/coio.h</includedby>
+    <includedby refid="coio__file_8c" local="yes">/home/tsafin/tarantool/src/lib/core/coio_file.c</includedby>
+    <includedby refid="coio__task_8c" local="yes">/home/tsafin/tarantool/src/lib/core/coio_task.c</includedby>
+    <includedby refid="diag_8c" local="yes">/home/tsafin/tarantool/src/lib/core/diag.c</includedby>
+    <includedby refid="exception_8cc" local="yes">/home/tsafin/tarantool/src/lib/core/exception.cc</includedby>
+    <includedby refid="lib_2core_2fiber_8c" local="yes">/home/tsafin/tarantool/src/lib/core/fiber.c</includedby>
+    <includedby refid="lib_2core_2fiber__channel_8c" local="yes">/home/tsafin/tarantool/src/lib/core/fiber_channel.c</includedby>
+    <includedby refid="lib_2core_2fiber__cond_8c" local="yes">/home/tsafin/tarantool/src/lib/core/fiber_cond.c</includedby>
+    <includedby refid="fiber__pool_8h" local="yes">/home/tsafin/tarantool/src/lib/core/fiber_pool.h</includedby>
+    <includedby refid="latch_8h" local="yes">/home/tsafin/tarantool/src/lib/core/latch.h</includedby>
+    <includedby refid="lib_2core_2popen_8c" local="yes">/home/tsafin/tarantool/src/lib/core/popen.c</includedby>
+    <includedby refid="say_8c" local="yes">/home/tsafin/tarantool/src/lib/core/say.c</includedby>
+    <includedby refid="lua_2httpc_8c" local="yes">/home/tsafin/tarantool/src/lua/httpc.c</includedby>
+    <includedby refid="lua_2popen_8c" local="yes">/home/tsafin/tarantool/src/lua/popen.c</includedby>
+    <incdepgraph>
+      <node id="1902">
+        <label>stdbool.h</label>
+      </node>
+      <node id="1900">
+        <label>/home/tsafin/tarantool/src/lib/core/fiber.h</label>
+        <link refid="lib_2core_2fiber_8h"/>
+        <childnode refid="1901" relation="include">
+        </childnode>
+        <childnode refid="1902" relation="include">
+        </childnode>
+        <childnode refid="1903" relation="include">
+        </childnode>
+        <childnode refid="1904" relation="include">
+        </childnode>
+        <childnode refid="1905" relation="include">
+        </childnode>
+      </node>
+      <node id="1903">
+        <label>stdint.h</label>
+      </node>
+      <node id="1901">
+        <label>trivia/config.h</label>
+      </node>
+      <node id="1905">
+        <label>third_party/coro/coro.h</label>
+      </node>
+      <node id="1904">
+        <label>third_party/tarantool_ev.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structclock__stat" prot="public">clock_stat</innerclass>
+    <innerclass refid="structcpu__stat" prot="public">cpu_stat</innerclass>
+    <innerclass refid="structfiber__attr" prot="public">fiber_attr</innerclass>
+    <innerclass refid="structfiber" prot="public">fiber</innerclass>
+    <innerclass refid="structcord" prot="public">cord</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="lib_2core_2fiber_8h_1ae336ad8f6f13d0fe57e291671b6f0eed" prot="public" static="no">
+        <name>ENABLE_FIBER_TOP</name>
+        <initializer>1</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="55" column="10" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.h" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="lib_2core_2fiber_8h_1a0c4b891ab98fdae217f412174aa9d14f" prot="public" static="no">
+        <name>FIBER_TIME_RES</name>
+        <initializer>1000000000</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="64" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="lib_2core_2fiber_8h_1a99253dffd368fc1e88777e0da200ca32" prot="public" static="no">
+        <name>cord</name>
+        <param></param>
+        <initializer>cord_ptr</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="683" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.h" bodystart="683" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="lib_2core_2fiber_8h_1afd2f1bf67820845f83a86f61d002d5d5" prot="public" static="no">
+        <name>fiber</name>
+        <param></param>
+        <initializer><ref refid="structcord" kindref="compound">cord</ref>()-&gt;<ref refid="structfiber" kindref="compound">fiber</ref></initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="684" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.h" bodystart="684" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="lib_2core_2fiber_8h_1ab05b0da44c6ddb5626bf12a7c474e76d" prot="public" static="no">
+        <name>loop</name>
+        <param></param>
+        <initializer>(<ref refid="structcord" kindref="compound">cord</ref>()-&gt;loop)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="685" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.h" bodystart="685" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="lib_2core_2fiber_8h_1a3143b57146ef21ea3727156d369558f2" prot="public" static="no">
+        <name>@197</name>
+        <enumvalue id="lib_2core_2fiber_8h_1a3143b57146ef21ea3727156d369558f2ae90ca582b1aa844316fa3a40ce615d99" prot="public">
+          <name>FIBER_NAME_INLINE</name>
+          <initializer>= 40</initializer>
+          <briefdescription>
+<para>Both limits include terminating 0. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2fiber_8h_1a3143b57146ef21ea3727156d369558f2a5a8e9850b914ee9deec4e96a5349f5f1" prot="public">
+          <name>FIBER_NAME_MAX</name>
+          <initializer>= 256</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="114" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.h" bodystart="114" bodyend="118"/>
+      </memberdef>
+      <memberdef kind="enum" id="lib_2core_2fiber_8h_1a4414c7c35dd4ea7065ebe04c3cbbd9e9" prot="public" static="no">
+        <name>@198</name>
+        <enumvalue id="lib_2core_2fiber_8h_1a4414c7c35dd4ea7065ebe04c3cbbd9e9a5b72cfa7000852a07a8f4431a2a3706b" prot="public">
+          <name>FIBER_ID_SCHED</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2fiber_8h_1a4414c7c35dd4ea7065ebe04c3cbbd9e9a9a7fb9a44c8175b7f5d8efc265663583" prot="public">
+          <name>FIBER_ID_MAX_RESERVED</name>
+          <initializer>= 100</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Fiber ids [0; 100] are reserved. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="123" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.h" bodystart="123" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="enum" id="lib_2core_2fiber_8h_1a38436632403fcee6aacb5b18c6602643" prot="public" static="no">
+        <name>@199</name>
+        <enumvalue id="lib_2core_2fiber_8h_1a38436632403fcee6aacb5b18c6602643a469290cd6efd6aa62980595eef300395" prot="public">
+          <name>FIBER_IS_CANCELLABLE</name>
+          <initializer>= 1 &lt;&lt; 0</initializer>
+          <briefdescription>
+<para>It&apos;s safe to resume (wakeup) this fiber with a spurious wakeup if it is suspended, e.g. </para>          </briefdescription>
+          <detaileddescription>
+<para>to force it to check that it&apos;s been cancelled. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2fiber_8h_1a38436632403fcee6aacb5b18c6602643a1b42394d9f027941315aa6fa95477921" prot="public">
+          <name>FIBER_IS_CANCELLED</name>
+          <initializer>= 1 &lt;&lt; 1</initializer>
+          <briefdescription>
+<para>Indicates that a fiber has been requested to end prematurely. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2fiber_8h_1a38436632403fcee6aacb5b18c6602643ac6d170fdf15ad69bdc5c9ce04cf82e17" prot="public">
+          <name>FIBER_IS_JOINABLE</name>
+          <initializer>= 1 &lt;&lt; 2</initializer>
+          <briefdescription>
+<para>The fiber will garbage collect automatically when fiber function ends. </para>          </briefdescription>
+          <detaileddescription>
+<para>The alternative is that some other fiber will wait for the end of this fiber and garbage collect it with fiber_join(). </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2fiber_8h_1a38436632403fcee6aacb5b18c6602643a8651eafdfaea04d50782769e4837cafb" prot="public">
+          <name>FIBER_IS_READY</name>
+          <initializer>= 1 &lt;&lt; 3</initializer>
+          <briefdescription>
+<para>The fiber is in cord-&gt;ready list or in a call chain created by fiber_schedule_list(). </para>          </briefdescription>
+          <detaileddescription>
+<para>The flag is set to help fiber_wakeup() avoid double wakeup of an already scheduled fiber. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2fiber_8h_1a38436632403fcee6aacb5b18c6602643abd8664e4fdb5b672438b19d1b8f221f0" prot="public">
+          <name>FIBER_IS_DEAD</name>
+          <initializer>= 1 &lt;&lt; 4</initializer>
+          <briefdescription>
+<para>This flag is set when fiber function ends and before the fiber is recycled. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2fiber_8h_1a38436632403fcee6aacb5b18c6602643a8ead6b863550f31e0eb2bf77dd6f41e0" prot="public">
+          <name>FIBER_CUSTOM_STACK</name>
+          <initializer>= 1 &lt;&lt; 5</initializer>
+          <briefdescription>
+<para>This flag is set when fiber uses custom stack size. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="lib_2core_2fiber_8h_1a38436632403fcee6aacb5b18c6602643a6bad96f318167226bb60d8d4ec6815ab" prot="public">
+          <name>FIBER_DEFAULT_FLAGS</name>
+          <initializer>= FIBER_IS_CANCELLABLE</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="128" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.h" bodystart="128" bodyend="166"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="lib_2core_2fiber_8h_1af8c231e1eb5420c752db01790c1661a8" prot="public" static="no">
+        <type>int(*</type>
+        <definition>typedef int(* fiber_stat_cb) (struct fiber *f, void *ctx)</definition>
+        <argsstring>)(struct fiber *f, void *ctx)</argsstring>
+        <name>fiber_stat_cb</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="810" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.h" bodystart="810" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="lib_2core_2fiber_8h_1ace5479be0ce108831450756e1fb1f541" prot="public" static="no" mutable="no">
+        <type>__thread struct <ref refid="structcord" kindref="compound">cord</ref> *</type>
+        <definition>__thread struct cord* cord_ptr</definition>
+        <argsstring></argsstring>
+        <name>cord_ptr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="681" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="258" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1aa1127e335e6305fb3f7468bb9b7315f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void fiber_attr_create</definition>
+        <argsstring>(struct fiber_attr *fiber_attr)</argsstring>
+        <name>fiber_attr_create</name>
+        <param>
+          <type>struct <ref refid="structfiber__attr" kindref="compound">fiber_attr</ref> *</type>
+          <declname>fiber_attr</declname>
+        </param>
+        <briefdescription>
+<para>Init fiber attr with default values. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="487" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="302" bodyend="305"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1af381c0366a458d52b173f8a90ee818d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void fiber_on_stop</definition>
+        <argsstring>(struct fiber *f)</argsstring>
+        <name>fiber_on_stop</name>
+        <param>
+          <type>struct <ref refid="structfiber" kindref="compound">fiber</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+<para>Invoke on_stop triggers and delete them. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="615" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="351" bodyend="367"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1a4de8a8dbf4b8e79bf6bd069b057d9cb6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cord_create</definition>
+        <argsstring>(struct cord *cord, const char *name)</argsstring>
+        <name>cord_create</name>
+        <param>
+          <type>struct <ref refid="structcord" kindref="compound">cord</ref> *</type>
+          <declname>cord</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="688" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="1402" bodyend="1456"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1a9aae0831cae564cefbd64815adcd4d07" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cord_destroy</definition>
+        <argsstring>(struct cord *cord)</argsstring>
+        <name>cord_destroy</name>
+        <param>
+          <type>struct <ref refid="structcord" kindref="compound">cord</ref> *</type>
+          <declname>cord</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="691" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="1459" bodyend="1474"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1acd5754b0e199b92e2b866970b7987423" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int cord_start</definition>
+        <argsstring>(struct cord *cord, const char *name, void *(*f)(void *), void *arg)</argsstring>
+        <name>cord_start</name>
+        <param>
+          <type>struct <ref refid="structcord" kindref="compound">cord</ref> *</type>
+          <declname>cord</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>void *(*)(void *)</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>arg</declname>
+        </param>
+        <briefdescription>
+<para>Start a cord with the given thread function. </para>        </briefdescription>
+        <detaileddescription>
+<para>The return value of the function can be collected with cord_join(). The function <emphasis>must catch</emphasis> all exceptions and leave them in the diagnostics area, cord_join() moves the exception from the terminated cord to the caller of cord_join(). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="702" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="1525" bodyend="1555"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1a5be122c41730241398511be0d557e4e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int cord_costart</definition>
+        <argsstring>(struct cord *cord, const char *name, fiber_func f, void *arg)</argsstring>
+        <name>cord_costart</name>
+        <param>
+          <type>struct <ref refid="structcord" kindref="compound">cord</ref> *</type>
+          <declname>cord</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>fiber_func</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>arg</declname>
+        </param>
+        <briefdescription>
+<para>Like cord_start(), but starts the event loop and a fiber in the event loop. </para>        </briefdescription>
+        <detaileddescription>
+<para>The event loop ends when the fiber in main fiber dies/returns. The exception of the main fiber is propagated to cord_cojoin(). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="712" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="1716" bodyend="1732"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1acacbee2d8d5028f082af91754702046e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int cord_cojoin</definition>
+        <argsstring>(struct cord *cord)</argsstring>
+        <name>cord_cojoin</name>
+        <param>
+          <type>struct <ref refid="structcord" kindref="compound">cord</ref> *</type>
+          <declname>cord</declname>
+        </param>
+        <briefdescription>
+<para>Yield until <emphasis>cord</emphasis> has terminated. </para>        </briefdescription>
+        <detaileddescription>
+<para>On success:</para><para>If <emphasis>cord</emphasis> has terminated with an uncaught exception the exception is moved to the current fiber&apos;s diagnostics area, otherwise the current fiber&apos;s diagnostics area is cleared. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cord</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>cord </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para>pthread_join()</para></simplesect>
+<simplesect kind="return"><para>0 on success, -1 if pthread_join failed or the thread function terminated with an exception. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="730" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="1612" bodyend="1663"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1a1874b0901f518cda342936e7dc488871" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int cord_join</definition>
+        <argsstring>(struct cord *cord)</argsstring>
+        <name>cord_join</name>
+        <param>
+          <type>struct <ref refid="structcord" kindref="compound">cord</ref> *</type>
+          <declname>cord</declname>
+        </param>
+        <briefdescription>
+<para>Wait for <emphasis>cord</emphasis> to terminate. </para>        </briefdescription>
+        <detaileddescription>
+<para>If <emphasis>cord</emphasis> has already terminated, then returns immediately.</para><para><simplesect kind="post"><para>If the subject cord terminated with an exception, preserves the exception in the caller&apos;s cord.</para></simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cord</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>cord </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>0 on success, -1 if pthread_join failed or the thread function terminated with an exception. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="744" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="1558" bodyend="1575"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1ae84901ab86c0d20f3fbb01d4f8b9cecd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void cord_set_name</definition>
+        <argsstring>(const char *name)</argsstring>
+        <name>cord_set_name</name>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="747" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="1735" bodyend="1742"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1a76b430b891bc460434097bb3aa8ae257" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>const char *</type>
+        <definition>static const char* cord_name</definition>
+        <argsstring>(struct cord *cord)</argsstring>
+        <name>cord_name</name>
+        <param>
+          <type>struct <ref refid="structcord" kindref="compound">cord</ref> *</type>
+          <declname>cord</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="750" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.h" bodystart="750" bodyend="753"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1afba83dafb7c9c1a11bda0af9ac0eddbc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool cord_is_main</definition>
+        <argsstring>(void)</argsstring>
+        <name>cord_is_main</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>True if this cord represents the process main thread. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="757" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="1745" bodyend="1748"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1a55ba175c8846d97b921599ab44426f47" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void fiber_init</definition>
+        <argsstring>(int(*fiber_invoke)(fiber_func f, va_list ap))</argsstring>
+        <name>fiber_init</name>
+        <param>
+          <type>int(*)(fiber_func f, va_list ap)</type>
+          <declname>fiber_invoke</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="760" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="1763" bodyend="1771"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1a0c1de0231122fb7a2aa449cc6be26a9e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void fiber_free</definition>
+        <argsstring>(void)</argsstring>
+        <name>fiber_free</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="763" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="1774" bodyend="1777"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1a1647f789ecbfeabcb9fce0e44a5020d7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void fiber_set_name</definition>
+        <argsstring>(struct fiber *fiber, const char *name)</argsstring>
+        <name>fiber_set_name</name>
+        <param>
+          <type>struct <ref refid="structfiber" kindref="compound">fiber</ref> *</type>
+          <declname>fiber</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>Set fiber name. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fiber</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Fiber to set name for. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A new name of <emphasis>fiber</emphasis>. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="771" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="923" bodyend="946"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1af5384f9d1160c2be7983b433885020bb" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>const char *</type>
+        <definition>static const char* fiber_name</definition>
+        <argsstring>(struct fiber *f)</argsstring>
+        <name>fiber_name</name>
+        <param>
+          <type>struct <ref refid="structfiber" kindref="compound">fiber</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="774" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.h" bodystart="774" bodyend="777"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1a9237831cecd9865a0c70ea2e80efb340" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool fiber_checkstack</definition>
+        <argsstring>(void)</argsstring>
+        <name>fiber_checkstack</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="780" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="441" bodyend="444"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1a89472ff4ba923f6dedba25549fb16181" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool fiber_yield_timeout</definition>
+        <argsstring>(ev_tstamp delay)</argsstring>
+        <name>fiber_yield_timeout</name>
+        <param>
+          <type>ev_tstamp</type>
+          <declname>delay</declname>
+        </param>
+        <briefdescription>
+<para>yield &amp; check for timeout </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if timeout exceeded</para></simplesect>
+yield &amp; check for timeout</para><para><simplesect kind="return"><para>true if timeout exceeded </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="787" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="696" bodyend="706"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1a3e24a48eb49d014de03014ad8d20ddef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void fiber_destroy_all</definition>
+        <argsstring>(struct cord *cord)</argsstring>
+        <name>fiber_destroy_all</name>
+        <param>
+          <type>struct <ref refid="structcord" kindref="compound">cord</ref> *</type>
+          <declname>cord</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="790" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="1280" bodyend="1288"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1a4fe827ba2dccb13dac49c8f6f1583627" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void fiber_gc</definition>
+        <argsstring>(void)</argsstring>
+        <name>fiber_gc</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="793" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="824" bodyend="832"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1abb5e3525e5a62330642dac390920ccc3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void fiber_call</definition>
+        <argsstring>(struct fiber *callee)</argsstring>
+        <name>fiber_call</name>
+        <param>
+          <type>struct <ref refid="structfiber" kindref="compound">fiber</ref> *</type>
+          <declname>callee</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="796" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="411" bodyend="430"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1aabf16996042842d090740206118a0206" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structfiber" kindref="compound">fiber</ref> *</type>
+        <definition>struct fiber* fiber_find</definition>
+        <argsstring>(uint32_t fid)</argsstring>
+        <name>fiber_find</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>fid</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="799" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="793" bodyend="801"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1a88763e0923ade49c46856110db731bc4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void fiber_schedule_cb</definition>
+        <argsstring>(ev_loop *, ev_watcher *watcher, int revents)</argsstring>
+        <name>fiber_schedule_cb</name>
+        <param>
+          <type>ev_loop *</type>
+        </param>
+        <param>
+          <type>ev_watcher *</type>
+          <declname>watcher</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>revents</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="802" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="736" bodyend="743"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1a4401e9ca40f6b3eb77b55b8a4213d662" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool fiber_is_dead</definition>
+        <argsstring>(struct fiber *f)</argsstring>
+        <name>fiber_is_dead</name>
+        <param>
+          <type>struct <ref refid="structfiber" kindref="compound">fiber</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="805" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.h" bodystart="805" bodyend="808"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1aac76ebe008d23315e0bcd44c2fd6d16e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int fiber_stat</definition>
+        <argsstring>(fiber_stat_cb cb, void *cb_ctx)</argsstring>
+        <name>fiber_stat</name>
+        <param>
+          <type>fiber_stat_cb</type>
+          <declname>cb</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>cb_ctx</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="813" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="1779" bodyend="1790"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1a190de52f123770115ee77e903cc0d581" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool fiber_top_is_enabled</definition>
+        <argsstring>(void)</argsstring>
+        <name>fiber_top_is_enabled</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="817" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="1336" bodyend="1339"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1a068cb34c4c7c7d9aeafbb1c6ff95efb2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void fiber_top_enable</definition>
+        <argsstring>(void)</argsstring>
+        <name>fiber_top_enable</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="820" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="1342" bodyend="1358"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1a5ad6c0ef85e087a641e6ed5b46f1922a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void fiber_top_disable</definition>
+        <argsstring>(void)</argsstring>
+        <name>fiber_top_disable</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="823" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.c" bodystart="1361" bodyend="1368"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1a100d758c0f2f0f366912076628dd5294" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int fiber_c_invoke</definition>
+        <argsstring>(fiber_func f, va_list ap)</argsstring>
+        <name>fiber_c_invoke</name>
+        <param>
+          <type>fiber_func</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type>va_list</type>
+          <declname>ap</declname>
+        </param>
+        <briefdescription>
+<para>Useful for C unit tests. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="828" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.h" bodystart="828" bodyend="831"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fiber_8h_1a83cd5b9844a6b2d889cc1a8da6a8f006" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void *</type>
+        <definition>static void* region_aligned_alloc_cb</definition>
+        <argsstring>(void *ctx, size_t size)</argsstring>
+        <name>region_aligned_alloc_cb</name>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber.h" line="879" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber.h" bodystart="879" bodyend="886"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LIB_CORE_FIBER_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LIB_CORE_FIBER_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trivia/config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tt_pthread.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;third_party/tarantool_ev.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;diag.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trivia/util.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;small/mempool.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;small/region.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;small/rlist.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;salad/stailq.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;third_party/coro/coro.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="49"><highlight class="comment"><sp/>*<sp/>Fiber<sp/>top<sp/>doesn&apos;t<sp/>work<sp/>on<sp/>ARM<sp/>processors<sp/>at<sp/>the<sp/>moment,</highlight></codeline>
+<codeline lineno="50"><highlight class="comment"><sp/>*<sp/>because<sp/>we<sp/>haven&apos;t<sp/>chosen<sp/>an<sp/>alternative<sp/>to<sp/>rdtsc.</highlight></codeline>
+<codeline lineno="51"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__CC_ARM</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ENABLE_FIBER_TOP<sp/>0</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ENABLE_FIBER_TOP<sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>ENABLE_FIBER_TOP</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>A<sp/>fiber<sp/>reports<sp/>used<sp/>up<sp/>CPU<sp/>time<sp/>with<sp/>nanosecond<sp/>resolution.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>FIBER_TIME_RES<sp/>1000000000</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70" refid="structclock__stat" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structclock__stat" kindref="compound">clock_stat</ref><sp/>{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/><ref refid="structclock__stat_1aa9b0352fee3225e1445cdd99bed8e24e" kindref="member">acc</ref>;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/><ref refid="structclock__stat_1abba36d6b9e31e97d8fa60d802b568e04" kindref="member">delta</ref>;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/><ref refid="structclock__stat_1af45df5e2bb94040efed07836b5712369" kindref="member">prev_delta</ref>;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/><ref refid="structclock__stat_1a466cb13d33c0e95d97fd1d15df8a568f" kindref="member">cputime</ref>;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97" refid="structcpu__stat" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcpu__stat" kindref="compound">cpu_stat</ref><sp/>{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>prev_clock;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>prev_cputime;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>prev_cpu_id;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>cpu_miss_count;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>prev_cpu_miss_count;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>ENABLE_FIBER_TOP<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FIBER_NAME_INLINE<sp/>=<sp/>40,</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FIBER_NAME_MAX<sp/>=<sp/>256</highlight></codeline>
+<codeline lineno="118"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FIBER_ID_SCHED<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>1,</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FIBER_ID_MAX_RESERVED<sp/><sp/><sp/>=<sp/>100</highlight></codeline>
+<codeline lineno="126"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FIBER_IS_CANCELLABLE<sp/><sp/><sp/><sp/>=<sp/>1<sp/>&lt;&lt;<sp/>0,</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FIBER_IS_CANCELLED<sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>1<sp/>&lt;&lt;<sp/>1,</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FIBER_IS_JOINABLE<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>2,</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FIBER_IS_READY<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>3,</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FIBER_IS_DEAD<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>1<sp/>&lt;&lt;<sp/>4,</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FIBER_CUSTOM_STACK<sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>1<sp/>&lt;&lt;<sp/>5,</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>FIBER_DEFAULT_FLAGS<sp/>=<sp/>FIBER_IS_CANCELLABLE</highlight></codeline>
+<codeline lineno="166"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber__attr" kindref="compound">fiber_attr</ref>;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber__attr" kindref="compound">fiber_attr</ref><sp/>*</highlight></codeline>
+<codeline lineno="182"><highlight class="normal">fiber_attr_new(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal">fiber_attr_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfiber__attr" kindref="compound">fiber_attr</ref><sp/>*<ref refid="structfiber__attr" kindref="compound">fiber_attr</ref>);</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="200"><highlight class="normal">fiber_attr_setstacksize(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>fiber_attr<sp/>*fiber_attr,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structfiber__attr_1af45c08408b805dd08182b17a05a89ca6" kindref="member">stack_size</ref>);</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal">fiber_attr_getstacksize(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>fiber_attr<sp/>*fiber_attr);</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber" kindref="compound">fiber</ref>;</highlight></codeline>
+<codeline lineno="216"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>int<sp/>(*fiber_func)(va_list);</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber" kindref="compound">fiber</ref><sp/>*</highlight></codeline>
+<codeline lineno="222"><highlight class="normal">fiber_self(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight></codeline>
+<codeline lineno="240"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber" kindref="compound">fiber</ref><sp/>*</highlight></codeline>
+<codeline lineno="241"><highlight class="normal">fiber_new(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structfiber_1a662e665c4402eaae91017cebea7e0ef7" kindref="member">name</ref>,<sp/>fiber_func<sp/><ref refid="structfiber_1ac8d1c84f3cc1306dd83d7d271c9df8b1" kindref="member">f</ref>);</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"></highlight></codeline>
+<codeline lineno="259"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber" kindref="compound">fiber</ref><sp/>*</highlight></codeline>
+<codeline lineno="260"><highlight class="normal">fiber_new_ex(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>fiber_attr<sp/>*fiber_attr,<sp/>fiber_func<sp/>f);</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight></codeline>
+<codeline lineno="267"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="normal">fiber_yield(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight></codeline>
+<codeline lineno="278"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="279"><highlight class="normal">fiber_start(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfiber" kindref="compound">fiber</ref><sp/>*callee,<sp/>...);</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="287"><highlight class="normal">fiber_wakeup(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfiber" kindref="compound">fiber</ref><sp/>*f);</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"></highlight></codeline>
+<codeline lineno="299"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal">fiber_cancel(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfiber" kindref="compound">fiber</ref><sp/>*f);</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"></highlight></codeline>
+<codeline lineno="309"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="310"><highlight class="normal">fiber_set_cancellable(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>yesno);</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"></highlight></codeline>
+<codeline lineno="316"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="317"><highlight class="normal">fiber_set_joinable(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfiber" kindref="compound">fiber</ref><sp/>*<ref refid="structfiber" kindref="compound">fiber</ref>,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>yesno);</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"></highlight></codeline>
+<codeline lineno="328"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="329"><highlight class="normal">fiber_join(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>fiber<sp/>*f);</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"></highlight></codeline>
+<codeline lineno="338"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="339"><highlight class="normal">fiber_sleep(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>s);</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"></highlight></codeline>
+<codeline lineno="345"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="346"><highlight class="normal">fiber_is_cancelled(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"></highlight></codeline>
+<codeline lineno="352"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="353"><highlight class="normal">fiber_time(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"></highlight></codeline>
+<codeline lineno="359"><highlight class="normal">API_EXPORT<sp/>uint64_t</highlight></codeline>
+<codeline lineno="360"><highlight class="normal">fiber_time64(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="361"><highlight class="normal"></highlight></codeline>
+<codeline lineno="366"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="367"><highlight class="normal">fiber_clock(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"></highlight></codeline>
+<codeline lineno="373"><highlight class="normal">API_EXPORT<sp/>uint64_t</highlight></codeline>
+<codeline lineno="374"><highlight class="normal">fiber_clock64(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"></highlight></codeline>
+<codeline lineno="379"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="380"><highlight class="normal">fiber_reschedule(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="381"><highlight class="normal"></highlight></codeline>
+<codeline lineno="385"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structslab__cache" kindref="compound">slab_cache</ref>;</highlight></codeline>
+<codeline lineno="386"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>*</highlight></codeline>
+<codeline lineno="387"><highlight class="normal">cord_slab_cache(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="388"><highlight class="normal"></highlight></codeline>
+<codeline lineno="437"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="438"><highlight class="normal">box_region_used(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="439"><highlight class="normal"></highlight></codeline>
+<codeline lineno="451"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="452"><highlight class="normal">box_region_alloc(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="453"><highlight class="normal"></highlight></codeline>
+<codeline lineno="462"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="463"><highlight class="normal">box_region_aligned_alloc(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>alignment);</highlight></codeline>
+<codeline lineno="464"><highlight class="normal"></highlight></codeline>
+<codeline lineno="468"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="469"><highlight class="normal">box_region_truncate(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="470"><highlight class="normal"></highlight></codeline>
+<codeline lineno="476" refid="structfiber__attr" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal">fiber_attr<sp/>{</highlight></codeline>
+<codeline lineno="478"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>stack_size;</highlight></codeline>
+<codeline lineno="480"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>flags;</highlight></codeline>
+<codeline lineno="481"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="482"><highlight class="normal"></highlight></codeline>
+<codeline lineno="486"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="487"><highlight class="normal">fiber_attr_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>fiber_attr<sp/>*fiber_attr);</highlight></codeline>
+<codeline lineno="488"><highlight class="normal"></highlight></codeline>
+<codeline lineno="494"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsession" kindref="compound">session</ref>;</highlight></codeline>
+<codeline lineno="495"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn" kindref="compound">txn</ref>;</highlight></codeline>
+<codeline lineno="496"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcredentials" kindref="compound">credentials</ref>;</highlight></codeline>
+<codeline lineno="497"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">lua_State;</highlight></codeline>
+<codeline lineno="498"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structipc__wait__pad" kindref="compound">ipc_wait_pad</ref>;</highlight></codeline>
+<codeline lineno="499"><highlight class="normal"></highlight></codeline>
+<codeline lineno="500" refid="structfiber" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">fiber<sp/>{</highlight></codeline>
+<codeline lineno="501"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>coro_context<sp/>ctx;</highlight></codeline>
+<codeline lineno="503"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structslab" kindref="compound">slab</ref><sp/>*stack_slab;</highlight></codeline>
+<codeline lineno="505"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*stack;</highlight></codeline>
+<codeline lineno="506"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>HAVE_MADV_DONTNEED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="507"><highlight class="normal"></highlight></codeline>
+<codeline lineno="517"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*stack_watermark;</highlight></codeline>
+<codeline lineno="518"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="519"><highlight class="normal"></highlight></codeline>
+<codeline lineno="520"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>stack_size;</highlight></codeline>
+<codeline lineno="522"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>stack_id;</highlight></codeline>
+<codeline lineno="523"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>A<sp/>garbage-collected<sp/>memory<sp/>pool.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="524"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structregion" kindref="compound">region</ref><sp/>gc;</highlight></codeline>
+<codeline lineno="529"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">fiber<sp/>*<ref refid="structfiber_1ab1558247b6fbfeca70257a33e10ee469" kindref="member">caller</ref>;</highlight></codeline>
+<codeline lineno="531"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structfiber_1a003fda768c2905d993bed8f901143e65" kindref="member">csw</ref>;</highlight></codeline>
+<codeline lineno="533"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structfiber_1aeb8e3e8905d1adf1e0bdccbc47455bf1" kindref="member">fid</ref>;</highlight></codeline>
+<codeline lineno="535"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structfiber_1a4f7e9e90a449c7c2f275ebd460edd2ea" kindref="member">flags</ref>;</highlight></codeline>
+<codeline lineno="536"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>ENABLE_FIBER_TOP</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="537"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structclock__stat" kindref="compound">clock_stat</ref><sp/>clock_stat;</highlight></codeline>
+<codeline lineno="538"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>ENABLE_FIBER_TOP<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="539"><highlight class="normal"></highlight></codeline>
+<codeline lineno="540"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>link;</highlight></codeline>
+<codeline lineno="542"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>state;</highlight></codeline>
+<codeline lineno="543"><highlight class="normal"></highlight></codeline>
+<codeline lineno="545"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>on_yield;</highlight></codeline>
+<codeline lineno="555"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>on_stop;</highlight></codeline>
+<codeline lineno="560"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>wake;</highlight></codeline>
+<codeline lineno="561"><highlight class="normal"></highlight></codeline>
+<codeline lineno="567"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fiber_func<sp/>f;</highlight></codeline>
+<codeline lineno="568"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>va_list<sp/>f_data;</highlight></codeline>
+<codeline lineno="569"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>f_ret;</highlight></codeline>
+<codeline lineno="571"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="577"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsession" kindref="compound">session</ref><sp/>*<ref refid="structsession" kindref="compound">session</ref>;</highlight></codeline>
+<codeline lineno="578"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcredentials" kindref="compound">credentials</ref><sp/>*<ref refid="structcredentials" kindref="compound">credentials</ref>;</highlight></codeline>
+<codeline lineno="579"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn" kindref="compound">txn</ref><sp/>*<ref refid="structtxn" kindref="compound">txn</ref>;</highlight></codeline>
+<codeline lineno="581"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="588"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">lua_State<sp/>*stack;</highlight></codeline>
+<codeline lineno="592"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>ref;</highlight></codeline>
+<codeline lineno="593"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/>lua;</highlight></codeline>
+<codeline lineno="597"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="598"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>sync;</highlight></codeline>
+<codeline lineno="599"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/>net;</highlight></codeline>
+<codeline lineno="600"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/>storage;</highlight></codeline>
+<codeline lineno="602"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structipc__wait__pad" kindref="compound">ipc_wait_pad</ref><sp/>*wait_pad;</highlight></codeline>
+<codeline lineno="604"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structdiag" kindref="compound">diag</ref><sp/>diag;</highlight></codeline>
+<codeline lineno="609"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name;</highlight></codeline>
+<codeline lineno="610"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>inline_name[FIBER_NAME_INLINE];</highlight></codeline>
+<codeline lineno="611"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="612"><highlight class="normal"></highlight></codeline>
+<codeline lineno="614"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="615"><highlight class="normal">fiber_on_stop(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>fiber<sp/>*f);</highlight></codeline>
+<codeline lineno="616"><highlight class="normal"></highlight></codeline>
+<codeline lineno="617"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcord__on__exit" kindref="compound">cord_on_exit</ref>;</highlight></codeline>
+<codeline lineno="618"><highlight class="normal"></highlight></codeline>
+<codeline lineno="624" refid="structcord" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcord" kindref="compound">cord</ref><sp/>{</highlight></codeline>
+<codeline lineno="626"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">fiber<sp/>*fiber;</highlight></codeline>
+<codeline lineno="627"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">ev_loop<sp/>*loop;</highlight></codeline>
+<codeline lineno="632"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>max_fid;</highlight></codeline>
+<codeline lineno="633"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>ENABLE_FIBER_TOP</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="634"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structclock__stat" kindref="compound">clock_stat</ref><sp/>clock_stat;</highlight></codeline>
+<codeline lineno="635"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcpu__stat" kindref="compound">cpu_stat</ref><sp/>cpu_stat;</highlight></codeline>
+<codeline lineno="636"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>ENABLE_FIBER_TOP<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="637"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pthread_t<sp/>id;</highlight></codeline>
+<codeline lineno="638"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcord__on__exit" kindref="compound">cord_on_exit</ref><sp/>*on_exit;</highlight></codeline>
+<codeline lineno="640"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">mh_i32ptr_t<sp/>*fiber_registry;</highlight></codeline>
+<codeline lineno="642"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>alive;</highlight></codeline>
+<codeline lineno="644"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>ready;</highlight></codeline>
+<codeline lineno="646"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>dead;</highlight></codeline>
+<codeline lineno="653"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ev_async<sp/>wakeup_event;</highlight></codeline>
+<codeline lineno="661"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ev_idle<sp/>idle_event;</highlight></codeline>
+<codeline lineno="662"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>ENABLE_FIBER_TOP</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="663"><highlight class="normal"></highlight></codeline>
+<codeline lineno="664"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ev_check<sp/>check_event;</highlight></codeline>
+<codeline lineno="670"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ev_prepare<sp/>prepare_event;</highlight></codeline>
+<codeline lineno="671"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>ENABLE_FIBER_TOP<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="672"><highlight class="normal"></highlight></codeline>
+<codeline lineno="673"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmempool" kindref="compound">mempool</ref><sp/>fiber_mempool;</highlight></codeline>
+<codeline lineno="675"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>slabc;</highlight></codeline>
+<codeline lineno="677"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">fiber<sp/>sched;</highlight></codeline>
+<codeline lineno="678"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>name[FIBER_NAME_INLINE];</highlight></codeline>
+<codeline lineno="679"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="680"><highlight class="normal"></highlight></codeline>
+<codeline lineno="681"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>__thread<sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcord" kindref="compound">cord</ref><sp/>*cord_ptr;</highlight></codeline>
+<codeline lineno="682"><highlight class="normal"></highlight></codeline>
+<codeline lineno="683"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>cord()<sp/>cord_ptr</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="684"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>fiber()<sp/>cord()-&gt;fiber</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="685"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>loop()<sp/>(cord()-&gt;loop)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="686"><highlight class="normal"></highlight></codeline>
+<codeline lineno="687"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="688"><highlight class="normal">cord_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcord" kindref="compound">cord</ref><sp/>*<ref refid="structcord" kindref="compound">cord</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name);</highlight></codeline>
+<codeline lineno="689"><highlight class="normal"></highlight></codeline>
+<codeline lineno="690"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="691"><highlight class="normal">cord_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>cord<sp/>*cord);</highlight></codeline>
+<codeline lineno="692"><highlight class="normal"></highlight></codeline>
+<codeline lineno="701"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="702"><highlight class="normal">cord_start(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>cord<sp/>*cord,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,</highlight></codeline>
+<codeline lineno="703"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*(*f)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*),<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*arg);</highlight></codeline>
+<codeline lineno="704"><highlight class="normal"></highlight></codeline>
+<codeline lineno="711"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="712"><highlight class="normal">cord_costart(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>cord<sp/>*cord,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,<sp/>fiber_func<sp/>f,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*arg);</highlight></codeline>
+<codeline lineno="713"><highlight class="normal"></highlight></codeline>
+<codeline lineno="729"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="730"><highlight class="normal">cord_cojoin(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>cord<sp/>*cord);</highlight></codeline>
+<codeline lineno="731"><highlight class="normal"></highlight></codeline>
+<codeline lineno="743"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="744"><highlight class="normal">cord_join(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>cord<sp/>*cord);</highlight></codeline>
+<codeline lineno="745"><highlight class="normal"></highlight></codeline>
+<codeline lineno="746"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="747"><highlight class="normal">cord_set_name(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name);</highlight></codeline>
+<codeline lineno="748"><highlight class="normal"></highlight></codeline>
+<codeline lineno="749"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="750"><highlight class="normal">cord_name(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>cord<sp/>*cord)</highlight></codeline>
+<codeline lineno="751"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="752"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>cord-&gt;name;</highlight></codeline>
+<codeline lineno="753"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="754"><highlight class="normal"></highlight></codeline>
+<codeline lineno="756"><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="757"><highlight class="normal">cord_is_main(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="758"><highlight class="normal"></highlight></codeline>
+<codeline lineno="759"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="760"><highlight class="normal">fiber_init(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>(*fiber_invoke)(fiber_func<sp/>f,<sp/>va_list<sp/>ap));</highlight></codeline>
+<codeline lineno="761"><highlight class="normal"></highlight></codeline>
+<codeline lineno="762"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="763"><highlight class="normal">fiber_free(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="764"><highlight class="normal"></highlight></codeline>
+<codeline lineno="770"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="771"><highlight class="normal">fiber_set_name(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>fiber<sp/>*fiber,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name);</highlight></codeline>
+<codeline lineno="772"><highlight class="normal"></highlight></codeline>
+<codeline lineno="773"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="774"><highlight class="normal">fiber_name(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>fiber<sp/>*f)</highlight></codeline>
+<codeline lineno="775"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="776"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>f-&gt;<ref refid="structfiber_1a662e665c4402eaae91017cebea7e0ef7" kindref="member">name</ref>;</highlight></codeline>
+<codeline lineno="777"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="778"><highlight class="normal"></highlight></codeline>
+<codeline lineno="779"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="780"><highlight class="normal">fiber_checkstack(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="781"><highlight class="normal"></highlight></codeline>
+<codeline lineno="786"><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="787"><highlight class="normal">fiber_yield_timeout(ev_tstamp<sp/>delay);</highlight></codeline>
+<codeline lineno="788"><highlight class="normal"></highlight></codeline>
+<codeline lineno="789"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="790"><highlight class="normal">fiber_destroy_all(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>cord<sp/>*cord);</highlight></codeline>
+<codeline lineno="791"><highlight class="normal"></highlight></codeline>
+<codeline lineno="792"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="793"><highlight class="normal">fiber_gc(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="794"><highlight class="normal"></highlight></codeline>
+<codeline lineno="795"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="796"><highlight class="normal">fiber_call(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>fiber<sp/>*callee);</highlight></codeline>
+<codeline lineno="797"><highlight class="normal"></highlight></codeline>
+<codeline lineno="798"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">fiber<sp/>*</highlight></codeline>
+<codeline lineno="799"><highlight class="normal">fiber_find(uint32_t<sp/><ref refid="structfiber_1aeb8e3e8905d1adf1e0bdccbc47455bf1" kindref="member">fid</ref>);</highlight></codeline>
+<codeline lineno="800"><highlight class="normal"></highlight></codeline>
+<codeline lineno="801"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="802"><highlight class="normal">fiber_schedule_cb(ev_loop<sp/>*<sp/></highlight><highlight class="comment">/*<sp/>loop<sp/>*/</highlight><highlight class="normal">,<sp/>ev_watcher<sp/>*watcher,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>revents);</highlight></codeline>
+<codeline lineno="803"><highlight class="normal"></highlight></codeline>
+<codeline lineno="804"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="805"><highlight class="normal">fiber_is_dead(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>fiber<sp/>*f)</highlight></codeline>
+<codeline lineno="806"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="807"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>f-&gt;<ref refid="structfiber_1a4f7e9e90a449c7c2f275ebd460edd2ea" kindref="member">flags</ref><sp/>&amp;<sp/>FIBER_IS_DEAD;</highlight></codeline>
+<codeline lineno="808"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="809"><highlight class="normal"></highlight></codeline>
+<codeline lineno="810"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>int<sp/>(*fiber_stat_cb)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">fiber<sp/>*<ref refid="structfiber_1ac8d1c84f3cc1306dd83d7d271c9df8b1" kindref="member">f</ref>,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="811"><highlight class="normal"></highlight></codeline>
+<codeline lineno="812"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="813"><highlight class="normal">fiber_stat(fiber_stat_cb<sp/>cb,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*cb_ctx);</highlight></codeline>
+<codeline lineno="814"><highlight class="normal"></highlight></codeline>
+<codeline lineno="815"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>ENABLE_FIBER_TOP</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="816"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="817"><highlight class="normal">fiber_top_is_enabled(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="818"><highlight class="normal"></highlight></codeline>
+<codeline lineno="819"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="820"><highlight class="normal">fiber_top_enable(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="821"><highlight class="normal"></highlight></codeline>
+<codeline lineno="822"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="823"><highlight class="normal">fiber_top_disable(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="824"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>ENABLE_FIBER_TOP<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="825"><highlight class="normal"></highlight></codeline>
+<codeline lineno="827"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="828"><highlight class="normal">fiber_c_invoke(fiber_func<sp/>f,<sp/>va_list<sp/>ap)</highlight></codeline>
+<codeline lineno="829"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="830"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="structfiber_1ac8d1c84f3cc1306dd83d7d271c9df8b1" kindref="member">f</ref>(ap);</highlight></codeline>
+<codeline lineno="831"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="832"><highlight class="normal"></highlight></codeline>
+<codeline lineno="833"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="834"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="835"><highlight class="normal"></highlight></codeline>
+<codeline lineno="836"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="837"><highlight class="comment"><sp/>*<sp/>Test<sp/>if<sp/>this<sp/>fiber<sp/>is<sp/>in<sp/>a<sp/>cancellable<sp/>state<sp/>and<sp/>was<sp/>indeed</highlight></codeline>
+<codeline lineno="838"><highlight class="comment"><sp/>*<sp/>cancelled,<sp/>and<sp/>raise<sp/>an<sp/>exception<sp/>(FiberIsCancelled)<sp/>if</highlight></codeline>
+<codeline lineno="839"><highlight class="comment"><sp/>*<sp/>that&apos;s<sp/>the<sp/>case.</highlight></codeline>
+<codeline lineno="840"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="841"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="842"><highlight class="normal">fiber_testcancel(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="843"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="844"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="845"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Fiber<sp/>can<sp/>catch<sp/>FiberIsCancelled<sp/>using<sp/>try..catch</highlight></codeline>
+<codeline lineno="846"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>block<sp/>in<sp/>C<sp/>or<sp/>pcall()/xpcall()<sp/>in<sp/>Lua.<sp/>However,</highlight></codeline>
+<codeline lineno="847"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>FIBER_IS_CANCELLED<sp/>flag<sp/>is<sp/>still<sp/>set<sp/>and<sp/>the<sp/>subject</highlight></codeline>
+<codeline lineno="848"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>fiber<sp/>will<sp/>be<sp/>killed<sp/>by<sp/>subsequent<sp/>unprotected<sp/>call<sp/>of</highlight></codeline>
+<codeline lineno="849"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>this<sp/>function.</highlight></codeline>
+<codeline lineno="850"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="851"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(fiber_is_cancelled())</highlight></codeline>
+<codeline lineno="852"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tnt_raise(FiberIsCancelled);</highlight></codeline>
+<codeline lineno="853"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="854"><highlight class="normal"></highlight></codeline>
+<codeline lineno="855"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber" kindref="compound">fiber</ref><sp/>*</highlight></codeline>
+<codeline lineno="856"><highlight class="normal">fiber_new_xc(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structfiber_1a662e665c4402eaae91017cebea7e0ef7" kindref="member">name</ref>,<sp/>fiber_func<sp/><ref refid="structfunc" kindref="compound">func</ref>)</highlight></codeline>
+<codeline lineno="857"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="858"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber" kindref="compound">fiber</ref><sp/>*<ref refid="structfiber_1ac8d1c84f3cc1306dd83d7d271c9df8b1" kindref="member">f</ref><sp/>=<sp/>fiber_new(<ref refid="structfiber_1a662e665c4402eaae91017cebea7e0ef7" kindref="member">name</ref>,<sp/>func);</highlight></codeline>
+<codeline lineno="859"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(f<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="860"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_raise();</highlight></codeline>
+<codeline lineno="861"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>unreachable();</highlight></codeline>
+<codeline lineno="862"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="863"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="structfiber_1ac8d1c84f3cc1306dd83d7d271c9df8b1" kindref="member">f</ref>;</highlight></codeline>
+<codeline lineno="864"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="865"><highlight class="normal"></highlight></codeline>
+<codeline lineno="866"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="867"><highlight class="normal">fiber_cxx_invoke(fiber_func<sp/><ref refid="structfiber_1ac8d1c84f3cc1306dd83d7d271c9df8b1" kindref="member">f</ref>,<sp/>va_list<sp/>ap)</highlight></codeline>
+<codeline lineno="868"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="869"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">try</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="870"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="structfiber_1ac8d1c84f3cc1306dd83d7d271c9df8b1" kindref="member">f</ref>(ap);</highlight></codeline>
+<codeline lineno="871"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">catch</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structerror" kindref="compound">error</ref><sp/>*e)<sp/>{</highlight></codeline>
+<codeline lineno="872"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="873"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="874"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="875"><highlight class="normal"></highlight></codeline>
+<codeline lineno="876"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="877"><highlight class="normal"></highlight></codeline>
+<codeline lineno="878"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="879"><highlight class="normal">region_aligned_alloc_cb(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="880"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="881"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ptr<sp/>=<sp/>region_aligned_alloc((</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structregion" kindref="compound">region</ref><sp/>*)<sp/>ctx,<sp/>size,</highlight></codeline>
+<codeline lineno="882"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">alignof</highlight><highlight class="normal">(uint64_t));</highlight></codeline>
+<codeline lineno="883"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ptr<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="884"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(OutOfMemory,<sp/>size,<sp/></highlight><highlight class="stringliteral">&quot;region&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;new<sp/>slab&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="885"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ptr;</highlight></codeline>
+<codeline lineno="886"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="887"><highlight class="normal"></highlight></codeline>
+<codeline lineno="888"><highlight class="normal"></highlight></codeline>
+<codeline lineno="889"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_LIB_CORE_FIBER_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/core/fiber.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structtuple__format__vtab" kind="struct" language="C++" prot="public">
+    <compoundname>tuple_format_vtab</compoundname>
+    <includes local="no">tuple_format.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structtuple__format__vtab_1a426c8820f002b7a4b42de2fc643fad8b" prot="public" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* tuple_format_vtab::tuple_delete) (struct tuple_format *format, struct tuple *tuple)</definition>
+        <argsstring>)(struct tuple_format *format, struct tuple *tuple)</argsstring>
+        <name>tuple_delete</name>
+        <briefdescription>
+<para>Free allocated tuple using engine-specific memory allocator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="77" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format__vtab_1a293642fbcb298901c389e08e8d2dd35b" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *(*</type>
+        <definition>struct tuple*(* tuple_format_vtab::tuple_new) (struct tuple_format *format, const char *data, const char *end)</definition>
+        <argsstring>)(struct tuple_format *format, const char *data, const char *end)</argsstring>
+        <name>tuple_new</name>
+        <briefdescription>
+<para>Allocates a new tuple on the same allocator and with the same format. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="77" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format__vtab_1a89e3aacc3ff82515f5dc8cb6855374e5" prot="public" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* tuple_format_vtab::tuple_chunk_delete) (struct tuple_format *format, const char *data)</definition>
+        <argsstring>)(struct tuple_format *format, const char *data)</argsstring>
+        <name>tuple_chunk_delete</name>
+        <briefdescription>
+<para>Free a <ref refid="structtuple__chunk" kindref="compound">tuple_chunk</ref> allocated for given tuple and data. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="90" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__format__vtab_1a8242b253b936c6fc7fa7a8214e8117f9" prot="public" static="no" mutable="no">
+        <type>const char *(*</type>
+        <definition>const char*(* tuple_format_vtab::tuple_chunk_new) (struct tuple_format *format, struct tuple *tuple, const char *data, uint32_t data_sz)</definition>
+        <argsstring>)(struct tuple_format *format, struct tuple *tuple, const char *data, uint32_t data_sz)</argsstring>
+        <name>tuple_chunk_new</name>
+        <briefdescription>
+<para>Allocate a new <ref refid="structtuple__chunk" kindref="compound">tuple_chunk</ref> for given tuple and data and return a pointer to it&apos;s data section. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="97" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Engine-specific tuple format methods. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="11030">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="11029">
+        <label>tuple_format_vtab</label>
+        <link refid="structtuple__format__vtab"/>
+        <childnode refid="11030" relation="usage">
+          <edgelabel>tuple_new</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="72" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="72" bodyend="100"/>
+    <listofallmembers>
+      <member refid="structtuple__format__vtab_1a89e3aacc3ff82515f5dc8cb6855374e5" prot="public" virt="non-virtual"><scope>tuple_format_vtab</scope><name>tuple_chunk_delete</name></member>
+      <member refid="structtuple__format__vtab_1a8242b253b936c6fc7fa7a8214e8117f9" prot="public" virt="non-virtual"><scope>tuple_format_vtab</scope><name>tuple_chunk_new</name></member>
+      <member refid="structtuple__format__vtab_1a426c8820f002b7a4b42de2fc643fad8b" prot="public" virt="non-virtual"><scope>tuple_format_vtab</scope><name>tuple_delete</name></member>
+      <member refid="structtuple__format__vtab_1a293642fbcb298901c389e08e8d2dd35b" prot="public" virt="non-virtual"><scope>tuple_format_vtab</scope><name>tuple_new</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

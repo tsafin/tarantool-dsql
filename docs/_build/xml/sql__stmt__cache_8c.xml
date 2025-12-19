@@ -1,0 +1,655 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="sql__stmt__cache_8c" kind="file" language="C++">
+    <compoundname>sql_stmt_cache.c</compoundname>
+    <includes refid="sql__stmt__cache_8h" local="yes">sql_stmt_cache.h</includes>
+    <includes refid="assoc_8h" local="yes">assoc.h</includes>
+    <includes refid="box_2error_8h" local="yes">error.h</includes>
+    <includes refid="execute_8h" local="yes">execute.h</includes>
+    <includes refid="diag_8h" local="yes">diag.h</includes>
+    <includes refid="lib_2info_2info_8h" local="yes">info/info.h</includes>
+    <incdepgraph>
+      <node id="1110">
+        <label>stdint.h</label>
+      </node>
+      <node id="1108">
+        <label>/home/tsafin/tarantool/src/box/sql_stmt_cache.c</label>
+        <link refid="sql__stmt__cache_8c"/>
+        <childnode refid="1109" relation="include">
+        </childnode>
+      </node>
+      <node id="1109">
+        <label>info/info.h</label>
+        <link refid="lib_2info_2info_8h"/>
+        <childnode refid="1110" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="sql__stmt__cache_8c_1a990285e88adb10dd08ba6c22f384aa09" prot="public" static="yes" mutable="no">
+        <type>struct <ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref></type>
+        <definition>struct sql_stmt_cache sql_stmt_cache</definition>
+        <argsstring></argsstring>
+        <name>sql_stmt_cache</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" line="399" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="sql__stmt__cache_8c_1a297ce51ad747475019c6cbcbcb1dcd67" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sql_stmt_cache_init</definition>
+        <argsstring>(void)</argsstring>
+        <name>sql_stmt_cache_init</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize global cache for prepared statements. </para>        </briefdescription>
+        <detaileddescription>
+<para>Called once during database setup (in sql_init()). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" line="42" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="42" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8c_1a87f694b540420fb2adf2290525bdcc80" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sql_stmt_cache_stat</definition>
+        <argsstring>(struct info_handler *h)</argsstring>
+        <name>sql_stmt_cache_stat</name>
+        <param>
+          <type>struct <ref refid="structinfo__handler" kindref="compound">info_handler</ref> *</type>
+          <declname>h</declname>
+        </param>
+        <briefdescription>
+<para>Store statistics concerning cache (current size and number of statements in it) into info handler . </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" line="53" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="53" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8c_1aaafccfac6ef82f68ec47a17c7e77cee9" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t sql_cache_entry_sizeof</definition>
+        <argsstring>(struct sql_stmt *stmt)</argsstring>
+        <name>sql_cache_entry_sizeof</name>
+        <param>
+          <type>struct sql_stmt *</type>
+          <declname>stmt</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" line="68" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="68" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8c_1a3c8eafb9e33d870fe6214adf0886b757" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void sql_cache_entry_delete</definition>
+        <argsstring>(struct stmt_cache_entry *entry)</argsstring>
+        <name>sql_cache_entry_delete</name>
+        <param>
+          <type>struct <ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref> *</type>
+          <declname>entry</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" line="74" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="74" bodyend="81"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8c_1a61ff869d4ef1342f87ba1d27d2060758" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void sql_stmt_cache_delete</definition>
+        <argsstring>(struct stmt_cache_entry *entry)</argsstring>
+        <name>sql_stmt_cache_delete</name>
+        <param>
+          <type>struct <ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref> *</type>
+          <declname>entry</declname>
+        </param>
+        <briefdescription>
+<para>Remove statement entry from cache: remove from LRU list and account cache size changes, then release occupied memory. </para>        </briefdescription>
+        <detaileddescription>
+<para>At the moment of calling this function, entry is already removed from hash. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" line="90" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="90" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8c_1aaad27d8daf6da34a7d321208819855c0" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref> *</type>
+        <definition>static struct stmt_cache_entry* stmt_cache_find_entry</definition>
+        <argsstring>(uint32_t stmt_id)</argsstring>
+        <name>stmt_cache_find_entry</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>stmt_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" line="99" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="99" bodyend="119"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8c_1a41c47e733b1b58b1f4ddb34771526100" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void sql_stmt_cache_gc</definition>
+        <argsstring>(void)</argsstring>
+        <name>sql_stmt_cache_gc</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" line="122" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="122" bodyend="128"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8c_1ab5872bc09253a9728a6d4d1acd13bcc0" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref> *</type>
+        <definition>static struct stmt_cache_entry* sql_cache_entry_new</definition>
+        <argsstring>(struct sql_stmt *stmt)</argsstring>
+        <name>sql_cache_entry_new</name>
+        <param>
+          <type>struct sql_stmt *</type>
+          <declname>stmt</declname>
+        </param>
+        <briefdescription>
+<para>Allocate new cache entry containing given prepared statement. </para>        </briefdescription>
+        <detaileddescription>
+<para>Add it to the LRU cache list. Account cache size enlargement. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" line="135" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="135" bodyend="147"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8c_1ad62490156cc80d28055e5283dcaebe5c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool sql_cache_check_new_entry_size</definition>
+        <argsstring>(size_t size)</argsstring>
+        <name>sql_cache_check_new_entry_size</name>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Return true if used memory (accounting new entry) for SQL prepared statement cache does not exceed the limit. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" line="154" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="154" bodyend="157"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8c_1a76fc2cb0ac2ba5c30463a80b0e3d6107" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void sql_stmt_cache_entry_unref</definition>
+        <argsstring>(struct stmt_cache_entry *entry)</argsstring>
+        <name>sql_stmt_cache_entry_unref</name>
+        <param>
+          <type>struct <ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref> *</type>
+          <declname>entry</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" line="160" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="160" bodyend="181"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8c_1ad9e92dffdbafbaf0c6a2daca02af3408" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sql_session_stmt_hash_erase</definition>
+        <argsstring>(struct mh_i32ptr_t *hash)</argsstring>
+        <name>sql_session_stmt_hash_erase</name>
+        <param>
+          <type>struct mh_i32ptr_t *</type>
+          <declname>hash</declname>
+        </param>
+        <briefdescription>
+<para>Erase session local hash: unref statements belong to this session and deallocate hash itself. </para>        </briefdescription>
+        <detaileddescription>
+<para>is assumed to be member of struct session . </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" line="184" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="184" bodyend="196"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8c_1aa8f00b7b1caaa0d3bfd4087548057aa3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sql_session_stmt_hash_add_id</definition>
+        <argsstring>(struct mh_i32ptr_t *hash, uint32_t stmt_id)</argsstring>
+        <name>sql_session_stmt_hash_add_id</name>
+        <param>
+          <type>struct mh_i32ptr_t *</type>
+          <declname>hash</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>stmt_id</declname>
+        </param>
+        <briefdescription>
+<para>Add entry corresponding to prepared statement with given ID to session-local hash and increase its ref counter. </para>        </briefdescription>
+        <detaileddescription>
+<para>is assumed to be member of struct session . </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" line="199" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="199" bodyend="212"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8c_1ae486436ac5503ea0466d81f16ef0ec79" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t sql_stmt_calculate_id</definition>
+        <argsstring>(const char *sql_str, size_t len)</argsstring>
+        <name>sql_stmt_calculate_id</name>
+        <param>
+          <type>const char *</type>
+          <declname>sql_str</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Prepared statement ID is supposed to be hash value of the original SQL query string. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" line="215" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="215" bodyend="218"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8c_1a07cbefb3346aa80a120fd427b5498d65" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sql_stmt_unref</definition>
+        <argsstring>(uint32_t stmt_id)</argsstring>
+        <name>sql_stmt_unref</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>stmt_id</declname>
+        </param>
+        <briefdescription>
+<para>Unref prepared statement entry in global holder. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" line="221" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="221" bodyend="226"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8c_1a4776990969396595a76f867a2b729460" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sql_stmt_cache_update</definition>
+        <argsstring>(struct sql_stmt *old_stmt, struct sql_stmt *new_stmt)</argsstring>
+        <name>sql_stmt_cache_update</name>
+        <param>
+          <type>struct sql_stmt *</type>
+          <declname>old_stmt</declname>
+        </param>
+        <param>
+          <type>struct sql_stmt *</type>
+          <declname>new_stmt</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" line="229" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="229" bodyend="237"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8c_1aeccfdbe88692d32caddce9c2dfc86221" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sql_stmt_cache_insert</definition>
+        <argsstring>(struct sql_stmt *stmt)</argsstring>
+        <name>sql_stmt_cache_insert</name>
+        <param>
+          <type>struct sql_stmt *</type>
+          <declname>stmt</declname>
+        </param>
+        <briefdescription>
+<para>Save prepared statement to the prepared statement cache. </para>        </briefdescription>
+        <detaileddescription>
+<para>Account cache size change. If the cache is full (i.e. memory quota is exceeded) diag error is raised. In case of success return id of prepared statement via output parameter . </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" line="240" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="240" bodyend="276"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8c_1af29e440c9facd1fe778f05be693f43fc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct sql_stmt *</type>
+        <definition>struct sql_stmt* sql_stmt_cache_find</definition>
+        <argsstring>(uint32_t stmt_id)</argsstring>
+        <name>sql_stmt_cache_find</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>stmt_id</declname>
+        </param>
+        <briefdescription>
+<para>Find entry by SQL string. </para>        </briefdescription>
+        <detaileddescription>
+<para>In case of search fails it returns NULL. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" line="279" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="279" bodyend="285"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8c_1ad86867f2460a750c20c1439c3fd1dfce" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sql_stmt_cache_set_size</definition>
+        <argsstring>(size_t size)</argsstring>
+        <name>sql_stmt_cache_set_size</name>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Set prepared cache size limit. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" line="288" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="288" bodyend="300"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2019,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;sql_stmt_cache.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;assoc.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;error.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;execute.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;diag.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="lib_2info_2info_8h" kindref="compound">info/info.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref><sp/><ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal">sql_stmt_cache_init(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="43"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1a46a2dc0e5810c63273797ec79b756d01" kindref="member">hash</ref><sp/>=<sp/>mh_i32ptr_new();</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1a46a2dc0e5810c63273797ec79b756d01" kindref="member">hash</ref><sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>panic(</highlight><highlight class="stringliteral">&quot;out<sp/>of<sp/>memory&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1a251f6abbec2aaa86523f9c1e1c30e20d" kindref="member">mem_quota</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1a2df892a2af51a6c9ab56aae15c278a83" kindref="member">mem_used</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_create(&amp;<ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1acada0f07c5b3e346495e78e47555266c" kindref="member">gc_queue</ref>);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal">sql_stmt_cache_stat(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structinfo__handler" kindref="compound">info_handler</ref><sp/>*h)</highlight></codeline>
+<codeline lineno="54"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="lib_2info_2info_8h_1a14545255d7a85540ac1106fdd53a24f2" kindref="member">info_begin</ref>(h);</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>info_table_begin(h,<sp/></highlight><highlight class="stringliteral">&quot;cache&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="lib_2info_2info_8h_1a6def7492da4fee158f3d7e8201491e9f" kindref="member">info_append_int</ref>(h,<sp/></highlight><highlight class="stringliteral">&quot;size&quot;</highlight><highlight class="normal">,<sp/><ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1a2df892a2af51a6c9ab56aae15c278a83" kindref="member">mem_used</ref>);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>entry_count<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_int_t<sp/>i;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_foreach(<ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1a46a2dc0e5810c63273797ec79b756d01" kindref="member">hash</ref>,<sp/>i)</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>entry_count++;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="lib_2info_2info_8h_1a6def7492da4fee158f3d7e8201491e9f" kindref="member">info_append_int</ref>(h,<sp/></highlight><highlight class="stringliteral">&quot;stmt_count&quot;</highlight><highlight class="normal">,<sp/>entry_count);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>info_table_end(h);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="lib_2info_2info_8h_1a6001a2a8a628c4d0148c97daab685527" kindref="member">info_end</ref>(h);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal">sql_cache_entry_sizeof(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sql_stmt<sp/>*stmt)</highlight></codeline>
+<codeline lineno="69"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>sql_stmt_est_size(stmt)<sp/>+<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref>);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal">sql_cache_entry_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref><sp/>*entry)</highlight></codeline>
+<codeline lineno="75"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(entry-&gt;<ref refid="structstmt__cache__entry_1a4ab93f91246cf0a86f5078212976a3c7" kindref="member">refs</ref><sp/>==<sp/>0);</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(!<sp/>sql_stmt_busy(entry-&gt;<ref refid="structstmt__cache__entry_1a3530ae73ca76bccbca931325955aa238" kindref="member">stmt</ref>));</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sql_stmt_finalize(entry-&gt;<ref refid="structstmt__cache__entry_1a3530ae73ca76bccbca931325955aa238" kindref="member">stmt</ref>);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TRASH(entry);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>free(entry);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal">sql_stmt_cache_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref><sp/>*entry)</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1a47ae4e10e608b95631a4fc10038b4d3f" kindref="member">last_found</ref><sp/>==<sp/>entry)</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1a47ae4e10e608b95631a4fc10038b4d3f" kindref="member">last_found</ref><sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_del(&amp;entry-&gt;<ref refid="structstmt__cache__entry_1a5cc2f325a96509673fd800b446ab127a" kindref="member">link</ref>);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sql_cache_entry_delete(entry);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref><sp/>*</highlight></codeline>
+<codeline lineno="99"><highlight class="normal">stmt_cache_find_entry(uint32_t<sp/>stmt_id)</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1a47ae4e10e608b95631a4fc10038b4d3f" kindref="member">last_found</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sql_str<sp/>=</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sql_stmt_query_str(<ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1a47ae4e10e608b95631a4fc10038b4d3f" kindref="member">last_found</ref>-&gt;<ref refid="structstmt__cache__entry_1a3530ae73ca76bccbca931325955aa238" kindref="member">stmt</ref>);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>last_stmt_id<sp/>=<sp/>sql_stmt_calculate_id(sql_str,</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>strlen(sql_str));</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(last_stmt_id<sp/>==<sp/>stmt_id)</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1a47ae4e10e608b95631a4fc10038b4d3f" kindref="member">last_found</ref>;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Fallthrough<sp/>to<sp/>slow<sp/>hash<sp/>search.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">mh_i32ptr_t<sp/>*hash<sp/>=<sp/><ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1a46a2dc0e5810c63273797ec79b756d01" kindref="member">hash</ref>;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_int_t<sp/>stmt<sp/>=<sp/>mh_i32ptr_find(hash,<sp/>stmt_id,<sp/>NULL);</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(stmt<sp/>==<sp/>mh_end(hash))</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref><sp/>*entry<sp/>=<sp/>mh_i32ptr_node(hash,<sp/>stmt)-&gt;val;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(entry<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1a47ae4e10e608b95631a4fc10038b4d3f" kindref="member">last_found</ref><sp/>=<sp/>entry;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>entry;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal">sql_stmt_cache_gc(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="123"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref><sp/>*entry,<sp/>*next;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_foreach_entry_safe(entry,<sp/>&amp;<ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1acada0f07c5b3e346495e78e47555266c" kindref="member">gc_queue</ref>,<sp/><ref refid="structstmt__cache__entry_1a5cc2f325a96509673fd800b446ab127a" kindref="member">link</ref>,<sp/>next)</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sql_stmt_cache_delete(entry);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(rlist_empty(&amp;<ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1acada0f07c5b3e346495e78e47555266c" kindref="member">gc_queue</ref>));</highlight></codeline>
+<codeline lineno="128"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref><sp/>*</highlight></codeline>
+<codeline lineno="135"><highlight class="normal">sql_cache_entry_new(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sql_stmt<sp/>*stmt)</highlight></codeline>
+<codeline lineno="136"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref><sp/>*entry<sp/>=<sp/>malloc(</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*entry));</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(entry<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(OutOfMemory,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*entry),<sp/></highlight><highlight class="stringliteral">&quot;malloc&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;struct<sp/>stmt_cache_entry&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>entry-&gt;<ref refid="structstmt__cache__entry_1a3530ae73ca76bccbca931325955aa238" kindref="member">stmt</ref><sp/>=<sp/><ref refid="structstmt__cache__entry_1a3530ae73ca76bccbca931325955aa238" kindref="member">stmt</ref>;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>entry-&gt;<ref refid="structstmt__cache__entry_1a5cc2f325a96509673fd800b446ab127a" kindref="member">link</ref><sp/>=<sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref>)<sp/>{<sp/>NULL,<sp/>NULL<sp/>};</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>entry-&gt;<ref refid="structstmt__cache__entry_1a4ab93f91246cf0a86f5078212976a3c7" kindref="member">refs</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>entry;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal">sql_cache_check_new_entry_size(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="155"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1a2df892a2af51a6c9ab56aae15c278a83" kindref="member">mem_used</ref><sp/>+<sp/>size<sp/>&lt;=<sp/><ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1a251f6abbec2aaa86523f9c1e1c30e20d" kindref="member">mem_quota</ref>);</highlight></codeline>
+<codeline lineno="157"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal">sql_stmt_cache_entry_unref(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref><sp/>*entry)</highlight></codeline>
+<codeline lineno="161"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert((int64_t)entry-&gt;<ref refid="structstmt__cache__entry_1a4ab93f91246cf0a86f5078212976a3c7" kindref="member">refs</ref><sp/>-<sp/>1<sp/>&gt;=<sp/>0);</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(--entry-&gt;<ref refid="structstmt__cache__entry_1a4ab93f91246cf0a86f5078212976a3c7" kindref="member">refs</ref><sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="165"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Remove<sp/>entry<sp/>from<sp/>hash<sp/>and<sp/>add<sp/>it<sp/>to<sp/>gc<sp/>queue.</highlight></codeline>
+<codeline lineno="166"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Resources<sp/>are<sp/>to<sp/>be<sp/>released<sp/>in<sp/>the<sp/>nearest</highlight></codeline>
+<codeline lineno="167"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>GC<sp/>cycle<sp/>(see<sp/>sql_stmt_cache_insert()).</highlight></codeline>
+<codeline lineno="168"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref><sp/>*cache<sp/>=<sp/>&amp;<ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sql_str<sp/>=<sp/>sql_stmt_query_str(entry-&gt;<ref refid="structstmt__cache__entry_1a3530ae73ca76bccbca931325955aa238" kindref="member">stmt</ref>);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>stmt_id<sp/>=<sp/>sql_stmt_calculate_id(sql_str,</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>strlen(sql_str));</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_int_t<sp/>i<sp/>=<sp/>mh_i32ptr_find(cache-&gt;<ref refid="structsql__stmt__cache_1a46a2dc0e5810c63273797ec79b756d01" kindref="member">hash</ref>,<sp/>stmt_id,<sp/>NULL);</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(i<sp/>!=<sp/>mh_end(cache-&gt;<ref refid="structsql__stmt__cache_1a46a2dc0e5810c63273797ec79b756d01" kindref="member">hash</ref>));</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_i32ptr_del(cache-&gt;<ref refid="structsql__stmt__cache_1a46a2dc0e5810c63273797ec79b756d01" kindref="member">hash</ref>,<sp/>i,<sp/>NULL);</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_add(&amp;<ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1acada0f07c5b3e346495e78e47555266c" kindref="member">gc_queue</ref>,<sp/>&amp;entry-&gt;<ref refid="structstmt__cache__entry_1a5cc2f325a96509673fd800b446ab127a" kindref="member">link</ref>);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1a2df892a2af51a6c9ab56aae15c278a83" kindref="member">mem_used</ref><sp/>-=<sp/>sql_cache_entry_sizeof(entry-&gt;<ref refid="structstmt__cache__entry_1a3530ae73ca76bccbca931325955aa238" kindref="member">stmt</ref>);</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1a47ae4e10e608b95631a4fc10038b4d3f" kindref="member">last_found</ref><sp/>==<sp/>entry)</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1a47ae4e10e608b95631a4fc10038b4d3f" kindref="member">last_found</ref><sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="181"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal">sql_session_stmt_hash_erase(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>mh_i32ptr_t<sp/>*hash)</highlight></codeline>
+<codeline lineno="185"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hash<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_int_t<sp/>i;</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref><sp/>*entry;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_foreach(hash,<sp/>i)<sp/>{</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>entry<sp/>=<sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref><sp/>*)</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_i32ptr_node(hash,<sp/>i)-&gt;val;</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sql_stmt_cache_entry_unref(entry);</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_i32ptr_delete(hash);</highlight></codeline>
+<codeline lineno="196"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal">sql_session_stmt_hash_add_id(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>mh_i32ptr_t<sp/>*hash,<sp/>uint32_t<sp/>stmt_id)</highlight></codeline>
+<codeline lineno="200"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref><sp/>*entry<sp/>=<sp/>stmt_cache_find_entry(stmt_id);</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmh__i32ptr__node__t" kindref="compound">mh_i32ptr_node_t</ref><sp/>id_node<sp/>=<sp/>{<sp/>stmt_id,<sp/>entry<sp/>};</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmh__i32ptr__node__t" kindref="compound">mh_i32ptr_node_t</ref><sp/>*old_node<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_int_t<sp/>i<sp/>=<sp/>mh_i32ptr_put(hash,<sp/>&amp;id_node,<sp/>&amp;old_node,<sp/>NULL);</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(i<sp/>==<sp/>mh_end(hash))<sp/>{</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(OutOfMemory,<sp/>0,<sp/></highlight><highlight class="stringliteral">&quot;mh_i32ptr_put&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;mh_i32ptr_node&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(old_node<sp/>==<sp/>NULL);</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>entry-&gt;refs++;</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal">uint32_t</highlight></codeline>
+<codeline lineno="215"><highlight class="normal">sql_stmt_calculate_id(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sql_str,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="216"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>mh_strn_hash(sql_str,<sp/>len);</highlight></codeline>
+<codeline lineno="218"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal">sql_stmt_unref(uint32_t<sp/>stmt_id)</highlight></codeline>
+<codeline lineno="222"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref><sp/>*entry<sp/>=<sp/>stmt_cache_find_entry(stmt_id);</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(entry<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sql_stmt_cache_entry_unref(entry);</highlight></codeline>
+<codeline lineno="226"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal">sql_stmt_cache_update(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sql_stmt<sp/>*old_stmt,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sql_stmt<sp/>*new_stmt)</highlight></codeline>
+<codeline lineno="230"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sql_str<sp/>=<sp/>sql_stmt_query_str(old_stmt);</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>stmt_id<sp/>=<sp/>sql_stmt_calculate_id(sql_str,<sp/>strlen(sql_str));</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref><sp/>*entry<sp/>=<sp/>stmt_cache_find_entry(stmt_id);</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sql_stmt_finalize(entry-&gt;<ref refid="structstmt__cache__entry_1a3530ae73ca76bccbca931325955aa238" kindref="member">stmt</ref>);</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>entry-&gt;<ref refid="structstmt__cache__entry_1a3530ae73ca76bccbca931325955aa238" kindref="member">stmt</ref><sp/>=<sp/>new_stmt;</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="237"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="240"><highlight class="normal">sql_stmt_cache_insert(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sql_stmt<sp/>*stmt)</highlight></codeline>
+<codeline lineno="241"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(stmt<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref><sp/>*cache<sp/>=<sp/>&amp;<ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>;</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>new_entry_size<sp/>=<sp/>sql_cache_entry_sizeof(stmt);</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<sp/>sql_cache_check_new_entry_size(new_entry_size))</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sql_stmt_cache_gc();</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="249"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Test<sp/>memory<sp/>limit<sp/>again.<sp/>Raise<sp/>an<sp/>error<sp/>if<sp/>it<sp/>is</highlight></codeline>
+<codeline lineno="250"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>still<sp/>overcrowded.</highlight></codeline>
+<codeline lineno="251"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<sp/>sql_cache_check_new_entry_size(new_entry_size))<sp/>{</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(ClientError,<sp/>ER_SQL_PREPARE,<sp/></highlight><highlight class="stringliteral">&quot;Memory<sp/>limit<sp/>for<sp/>SQL<sp/>&quot;</highlight><highlight class="normal">\</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;prepared<sp/>statements<sp/>has<sp/>been<sp/>reached.<sp/>Please,<sp/>deallocate<sp/>&quot;</highlight><highlight class="normal">\</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;active<sp/>statements<sp/>or<sp/>increase<sp/>SQL<sp/>cache<sp/>size.&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">mh_i32ptr_t<sp/>*hash<sp/>=<sp/>cache-&gt;<ref refid="structsql__stmt__cache_1a46a2dc0e5810c63273797ec79b756d01" kindref="member">hash</ref>;</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref><sp/>*entry<sp/>=<sp/>sql_cache_entry_new(stmt);</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(entry<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sql_str<sp/>=<sp/>sql_stmt_query_str(stmt);</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>stmt_id<sp/>=<sp/>sql_stmt_calculate_id(sql_str,<sp/>strlen(sql_str));</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(sql_stmt_cache_find(stmt_id)<sp/>==<sp/>NULL);</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmh__i32ptr__node__t" kindref="compound">mh_i32ptr_node_t</ref><sp/>id_node<sp/>=<sp/>{<sp/>stmt_id,<sp/>entry<sp/>};</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmh__i32ptr__node__t" kindref="compound">mh_i32ptr_node_t</ref><sp/>*old_node<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_int_t<sp/>i<sp/>=<sp/>mh_i32ptr_put(hash,<sp/>&amp;id_node,<sp/>&amp;old_node,<sp/>NULL);</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(i<sp/>==<sp/>mh_end(hash))<sp/>{</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sql_cache_entry_delete(entry);</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(OutOfMemory,<sp/>0,<sp/></highlight><highlight class="stringliteral">&quot;mh_i32ptr_put&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;mh_i32ptr_node&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(old_node<sp/>==<sp/>NULL);</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1a2df892a2af51a6c9ab56aae15c278a83" kindref="member">mem_used</ref><sp/>+=<sp/>sql_cache_entry_sizeof(stmt);</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="276"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"></highlight></codeline>
+<codeline lineno="278"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">sql_stmt<sp/>*</highlight></codeline>
+<codeline lineno="279"><highlight class="normal">sql_stmt_cache_find(uint32_t<sp/>stmt_id)</highlight></codeline>
+<codeline lineno="280"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref><sp/>*entry<sp/>=<sp/>stmt_cache_find_entry(stmt_id);</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(entry<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>entry-&gt;<ref refid="structstmt__cache__entry_1a3530ae73ca76bccbca931325955aa238" kindref="member">stmt</ref>;</highlight></codeline>
+<codeline lineno="285"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"></highlight></codeline>
+<codeline lineno="287"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="288"><highlight class="normal">sql_stmt_cache_set_size(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="289"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1a2df892a2af51a6c9ab56aae15c278a83" kindref="member">mem_used</ref><sp/>&gt;<sp/>size)</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sql_stmt_cache_gc();</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1a2df892a2af51a6c9ab56aae15c278a83" kindref="member">mem_used</ref><sp/>&gt;<sp/>size)<sp/>{</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(ClientError,<sp/>ER_SQL_PREPARE,<sp/></highlight><highlight class="stringliteral">&quot;Can&apos;t<sp/>reduce<sp/>memory<sp/>&quot;</highlight><highlight class="normal">\</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;limit<sp/>for<sp/>SQL<sp/>prepared<sp/>statements:<sp/>please,<sp/>deallocate<sp/>&quot;</highlight><highlight class="normal">\</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;active<sp/>statements&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref>.<ref refid="structsql__stmt__cache_1a251f6abbec2aaa86523f9c1e1c30e20d" kindref="member">mem_quota</ref><sp/>=<sp/>size;</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="300"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.c"/>
+  </compounddef>
+</doxygen>

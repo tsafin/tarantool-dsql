@@ -1,0 +1,1073 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="tt__pthread_8h" kind="file" language="C++">
+    <compoundname>tt_pthread.h</compoundname>
+    <includes local="yes">trivia/config.h</includes>
+    <includes refid="util_8h" local="yes">trivia/util.h</includes>
+    <includes local="no">stdio.h</includes>
+    <includes refid="errno_8h" local="no">errno.h</includes>
+    <includes local="no">pthread.h</includes>
+    <includes refid="say_8h" local="yes">say.h</includes>
+    <includedby refid="lib_2core_2fiber_8h" local="yes">/home/tsafin/tarantool/src/lib/core/fiber.h</includedby>
+    <includedby refid="main_8cc" local="yes">/home/tsafin/tarantool/src/main.cc</includedby>
+    <incdepgraph>
+      <node id="2819">
+        <label>pthread.h</label>
+      </node>
+      <node id="2816">
+        <label>/home/tsafin/tarantool/src/tt_pthread.h</label>
+        <link refid="tt__pthread_8h"/>
+        <childnode refid="2817" relation="include">
+        </childnode>
+        <childnode refid="2818" relation="include">
+        </childnode>
+        <childnode refid="2819" relation="include">
+        </childnode>
+      </node>
+      <node id="2817">
+        <label>trivia/config.h</label>
+      </node>
+      <node id="2818">
+        <label>stdio.h</label>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="tt__pthread_8h_1a8e4633b3f8ca49477ec7066ed7f2027a" prot="public" static="no">
+        <name>tt_pthread_error</name>
+        <param><defname>e</defname></param>
+        <initializer>if (e != 0) {				\
+		say_syserror(&quot;%s <ref refid="structerror" kindref="compound">error</ref> %d&quot;, __func__, e);\
+		errno = e;			\
+	}					\
+	assert(e == 0);				\
+	e != 0 ? -1 : 0</initializer>
+        <briefdescription>
+<para>Assert on any pthread* error in debug mode. </para>        </briefdescription>
+        <detaileddescription>
+<para>In release, write into the log file where and what has failed.</para><para>Still give the user an opportunity to manually check for error, by assigning pthread_* function status to errno and returning -1. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="58" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1acd584c1a18d00504c490edd857444534" prot="public" static="no">
+        <name>tt_pthread_mutex_init</name>
+        <param><defname>mutex</defname></param>
+        <param><defname>attr</defname></param>
+        <initializer>({						\
+	pthread_mutexattr_t *p_attr = attr;	\
+	pthread_mutexattr_t errorcheck;	\
+	if (p_attr == NULL) {			\
+		(void) tt_pthread_mutexattr_init(&amp;errorcheck);\
+		(void) pthread_mutexattr_settype(&amp;errorcheck, \
+				 PTHREAD_MUTEX_ERRORCHECK);   \
+		p_attr = &amp;errorcheck;		\
+	}					\
+	int e__ = pthread_mutex_init(mutex, p_attr);\
+	(void) tt_pthread_mutexattr_destroy(&amp;errorcheck); \
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+<para>Debug/logging friendly wrappers around pthread functions. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="71" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a25a82c9eb720a2c96c51e0f3dc69ca38" prot="public" static="no">
+        <name>tt_pthread_mutex_destroy</name>
+        <param><defname>mutex</defname></param>
+        <initializer>({	int e__ = pthread_mutex_destroy(mutex);	\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="93" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1ac05d14549044ea5c552409f45388aef0" prot="public" static="no">
+        <name>tt_pthread_mutex_lock</name>
+        <param><defname>mutex</defname></param>
+        <initializer>({	int e__ = pthread_mutex_lock(mutex);	\
+	say_debug(&quot;%s: locking %s&quot;, __func__, #mutex);\
+	tt_pthread_error(e__);\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="98" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a598820a1cd50a8dbd6a7adae26246184" prot="public" static="no">
+        <name>tt_pthread_mutex_trylock</name>
+        <param><defname>mutex</defname></param>
+        <initializer>({	int e__ = pthread_mutex_trylock(mutex);	\
+	if (e__ != 0 &amp;&amp; e__ != EBUSY)		\
+		say_error(&quot;%s <ref refid="structerror" kindref="compound">error</ref> %d at %s:%d&quot;, __func__, e__, __FILE__, __LINE__);\
+	assert(e__ == 0 || e__ == EBUSY);	\
+	e__;					\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="104" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1ac863b6da9426a4045307ed8e09984227" prot="public" static="no">
+        <name>tt_pthread_mutex_unlock</name>
+        <param><defname>mutex</defname></param>
+        <initializer>({	int e__ = pthread_mutex_unlock(mutex);	\
+	say_debug(&quot;%s: unlocking %s&quot;, __func__, #mutex);\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="112" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a25a82c9eb720a2c96c51e0f3dc69ca38" prot="public" static="no">
+        <name>tt_pthread_mutex_destroy</name>
+        <param><defname>mutex</defname></param>
+        <initializer>({	int e__ = pthread_mutex_destroy(mutex);	\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="118" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a9d84eb4d89b7560cbe81439c1b9fa773" prot="public" static="no">
+        <name>tt_pthread_mutexattr_init</name>
+        <param><defname>attr</defname></param>
+        <initializer>({	int e__ = pthread_mutexattr_init(attr);	\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="123" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a5f904fd8c8b0f69678eb2c7363a984e0" prot="public" static="no">
+        <name>tt_pthread_mutexattr_destroy</name>
+        <param><defname>attr</defname></param>
+        <initializer>({	int e__ = pthread_mutexattr_destroy(attr);\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="128" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="128" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1ab1baed35fe873b7cbd813af98bdb0b33" prot="public" static="no">
+        <name>tt_pthread_mutexattr_gettype</name>
+        <param><defname>attr</defname></param>
+        <param><defname>type</defname></param>
+        <initializer>({	int e__ = pthread_mutexattr_gettype(attr, type);\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="133" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1aac46c0ba22418f1fd5a07f77d9004f0a" prot="public" static="no">
+        <name>tt_pthread_mutexattr_settype</name>
+        <param><defname>attr</defname></param>
+        <param><defname>type</defname></param>
+        <initializer>({	int e__ = pthread_mutexattr_settype(attr, type);\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="138" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="138" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a50f75c8517574b6771b6e828db0b9a8d" prot="public" static="no">
+        <name>tt_pthread_rwlock_init</name>
+        <param><defname>rwlock</defname></param>
+        <param><defname>attr</defname></param>
+        <initializer>({						\
+	int e__ = pthread_rwlock_init(rwlock, attr);\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="143" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="143" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a9ee3f31c01410bdf2602296bfb380f64" prot="public" static="no">
+        <name>tt_pthread_rwlock_destroy</name>
+        <param><defname>rwlock</defname></param>
+        <initializer>({	int e__ = pthread_rwlock_destroy(rwlock);	\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="149" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="188" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a089ef88e99e6eeab10a709a6a40cec75" prot="public" static="no">
+        <name>tt_pthread_rwlock_rdlock</name>
+        <param><defname>rwlock</defname></param>
+        <initializer>({	int e__ = pthread_rwlock_rdlock(rwlock);	\
+	say_debug(&quot;%s: locking %s&quot;, __func__, #rwlock);\
+	tt_pthread_error(e__);\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="154" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="154" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1ab391b226297c033da8ed485caf2d3037" prot="public" static="no">
+        <name>tt_pthread_rwlock_tryrdlock</name>
+        <param><defname>rwlock</defname></param>
+        <initializer>({	int e__ = pthread_rwlock_tryrdlock(rwlock);	\
+	if (e__ != 0 &amp;&amp; e__ != EBUSY)		\
+		say_error(&quot;%s <ref refid="structerror" kindref="compound">error</ref> %d at %s:%d&quot;, __func__, e__, __FILE__, __LINE__);\
+	assert(e__ == 0 || e__ == EBUSY);	\
+	e__;					\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="160" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="160" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1ab2b63845c46dbeaa591f03d6b7fb2f1b" prot="public" static="no">
+        <name>tt_pthread_rwlock_wrlock</name>
+        <param><defname>rwlock</defname></param>
+        <initializer>({	int e__ = pthread_rwlock_wrlock(rwlock);	\
+	say_debug(&quot;%s: locking %s&quot;, __func__, #rwlock);\
+	tt_pthread_error(e__);\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="168" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="168" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a96aefd5a0ff4b838a27e5af06c047116" prot="public" static="no">
+        <name>tt_pthread_rwlock_trywrlock</name>
+        <param><defname>rwlock</defname></param>
+        <initializer>({	int e__ = pthread_rwlock_trywrlock(rwlock);	\
+	if (e__ != 0 &amp;&amp; e__ != EBUSY)		\
+		say_error(&quot;%s <ref refid="structerror" kindref="compound">error</ref> %d at %s:%d&quot;, __func__, e__, __FILE__, __LINE__);\
+	assert(e__ == 0 || e__ == EBUSY);	\
+	e__;					\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="174" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="174" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a8cf558d48824cd33a11c6908bc100c51" prot="public" static="no">
+        <name>tt_pthread_rwlock_unlock</name>
+        <param><defname>rwlock</defname></param>
+        <initializer>({	int e__ = pthread_rwlock_unlock(rwlock);	\
+	say_debug(&quot;%s: unlocking %s&quot;, __func__, #rwlock);\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="182" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="182" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a9ee3f31c01410bdf2602296bfb380f64" prot="public" static="no">
+        <name>tt_pthread_rwlock_destroy</name>
+        <param><defname>rwlock</defname></param>
+        <initializer>({	int e__ = pthread_rwlock_destroy(rwlock);	\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="188" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="188" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a6af6f119b03b2c945257d73403f43f8c" prot="public" static="no">
+        <name>tt_pthread_rwlockattr_init</name>
+        <param><defname>attr</defname></param>
+        <initializer>({	int e__ = pthread_rwlockattr_init(attr);	\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="193" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="193" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a988e22b4d20273f0bb2dd781dc4e9299" prot="public" static="no">
+        <name>tt_pthread_rwlockattr_destroy</name>
+        <param><defname>attr</defname></param>
+        <initializer>({	int e__ = pthread_rwlockattr_destroy(attr);\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="198" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="198" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1aa6c05d03c95b13cf860d1ac2ebf8dad4" prot="public" static="no">
+        <name>tt_pthread_rwlockattr_gettype</name>
+        <param><defname>attr</defname></param>
+        <param><defname>type</defname></param>
+        <initializer>({	int e__ = pthread_rwlockattr_gettype(attr, type);\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="203" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="203" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a744255192aadcbb777d2a9ee30fbbf31" prot="public" static="no">
+        <name>tt_pthread_rwlockattr_settype</name>
+        <param><defname>attr</defname></param>
+        <param><defname>type</defname></param>
+        <initializer>({	int e__ = pthread_rwlockattr_settype(attr, type);\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="208" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="208" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1ad84a47f0c9e163f05e6054132265df78" prot="public" static="no">
+        <name>tt_pthread_condattr_init</name>
+        <param><defname>attr</defname></param>
+        <initializer>({	int e__ = pthread_condattr_init(attr);	\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="213" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="213" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a02b47a89d0859d6beb5364ca123e71d4" prot="public" static="no">
+        <name>tt_pthread_condattr_destroy</name>
+        <param><defname>attr</defname></param>
+        <initializer>({ int e__ = pthread_condattr_destroy(attr);	\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="218" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="218" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a2aa3b9defa0c7696210d3641d050e559" prot="public" static="no">
+        <name>tt_pthread_cond_init</name>
+        <param><defname>cond</defname></param>
+        <param><defname>attr</defname></param>
+        <initializer>({	int e__ = pthread_cond_init(cond, attr);\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="223" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="223" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a2e0d9cb32310e6bc3bdc5e95816d771d" prot="public" static="no">
+        <name>tt_pthread_cond_destroy</name>
+        <param><defname>cond</defname></param>
+        <initializer>({	int e__ = pthread_cond_destroy(cond);	\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="228" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="228" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a49f7b50ccd2d9017f8a30526ef2a1fbd" prot="public" static="no">
+        <name>tt_pthread_cond_signal</name>
+        <param><defname>cond</defname></param>
+        <initializer>({	int e__ = pthread_cond_signal(cond);	\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="233" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="233" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a9dd1f02ccfbe9e980d773f523bc52300" prot="public" static="no">
+        <name>tt_pthread_cond_broadcast</name>
+        <param><defname>cond</defname></param>
+        <initializer>({	int e__ = pthread_cond_broadcast(cond);	\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="238" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="238" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a2ddd4f238d6c2a366fb1c222746ade8c" prot="public" static="no">
+        <name>tt_pthread_cond_wait</name>
+        <param><defname>cond</defname></param>
+        <param><defname>mutex</defname></param>
+        <initializer>({	int e__ = pthread_cond_wait(cond, mutex);\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="244" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="244" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a6ac8c593a3145e074588ed60f636bf81" prot="public" static="no">
+        <name>tt_pthread_cond_timedwait</name>
+        <param><defname>cond</defname></param>
+        <param><defname>mutex</defname></param>
+        <param><defname>timeout</defname></param>
+        <initializer>({	int e__ = pthread_cond_timedwait(cond, mutex, timeout);\
+	if (ETIMEDOUT != e__ &amp;&amp; e__ != 0)		\
+		say_error(&quot;%s <ref refid="structerror" kindref="compound">error</ref> %d&quot;, __func__, e__);\
+	assert(e__ == 0 || e__ == ETIMEDOUT);	\
+	e__;					\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="249" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="249" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a96c5c1aa66b8766d9152f6d799038a61" prot="public" static="no">
+        <name>tt_pthread_once</name>
+        <param><defname>control</defname></param>
+        <param><defname>function</defname></param>
+        <initializer>({	int e__ = pthread_once(control, function);\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="257" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="257" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a8adf22146f115485199fbb3f1472876b" prot="public" static="no">
+        <name>tt_pthread_atfork</name>
+        <param><defname>prepare</defname></param>
+        <param><defname>parent</defname></param>
+        <param><defname>child</defname></param>
+        <initializer>({	int e__ = pthread_atfork(prepare, parent, child);\
+	tt_pthread_error(e__);			\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="262" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="262" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1ac7f2fb4dab3ebde87f6ba10b14a5a61a" prot="public" static="no">
+        <name>tt_pthread_create</name>
+        <param><defname>thread</defname></param>
+        <param><defname>attr</defname></param>
+        <param><defname>run</defname></param>
+        <param><defname>arg</defname></param>
+        <initializer>({	sigset_t set, oldset;				\
+	sigfillset(&amp;set);				\
+	pthread_sigmask(SIG_BLOCK, &amp;set, &amp;oldset);	\
+	int e__ = pthread_create(thread, attr, run, arg);\
+	pthread_sigmask(SIG_SETMASK, &amp;oldset, NULL);	\
+	tt_pthread_error(e__);				\
+})</initializer>
+        <briefdescription>
+<para>Make sure the created thread blocks all signals, they are handled in the main thread. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="270" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="270" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1ab1e8d13939269aaf83c3d4dbda783983" prot="public" static="no">
+        <name>tt_pthread_join</name>
+        <param><defname>thread</defname></param>
+        <param><defname>ret</defname></param>
+        <initializer>({	int e__ = pthread_join(thread, ret);		\
+	tt_pthread_error(e__);				\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="279" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="279" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a0999fdd28d2cadc967600426f867413a" prot="public" static="no">
+        <name>tt_pthread_cancel</name>
+        <param><defname>thread</defname></param>
+        <initializer>({	int e__ = pthread_cancel(thread);		\
+	assert(e__ == 0 || e__ == ESRCH);		\
+	e__;						\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="284" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="284" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a9409f7134fa80327750aa9929993805c" prot="public" static="no">
+        <name>tt_pthread_key_create</name>
+        <param><defname>key</defname></param>
+        <param><defname>dtor</defname></param>
+        <initializer>({	int e__ = pthread_key_create(key, dtor);	\
+	tt_pthread_error(e__);				\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="290" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="290" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1aa9db5ee5f85bc288ff0b29f1288d2821" prot="public" static="no">
+        <name>tt_pthread_key_delete</name>
+        <param><defname>key</defname></param>
+        <initializer>({	int e__ = pthread_key_delete(key);		\
+	tt_pthread_error(e__);				\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="295" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="295" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1a902541ff29a15ca3c88a7683a26a7103" prot="public" static="no">
+        <name>tt_pthread_setspecific</name>
+        <param><defname>key</defname></param>
+        <param><defname>value</defname></param>
+        <initializer>({	int e__ = pthread_setspecific(key, value);	\
+	tt_pthread_error(e__);				\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="300" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="300" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1ae2c852511484747e93971ec349209ff3" prot="public" static="no">
+        <name>tt_pthread_getspecific</name>
+        <param><defname>key</defname></param>
+        <initializer>pthread_getspecific(key)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="305" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="305" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="tt__pthread_8h_1aa98be3e7979788247a0768bb4e7ef5f0" prot="public" static="no">
+        <name>tt_pthread_setcancelstate</name>
+        <param><defname>state</defname></param>
+        <param><defname>oldstate</defname></param>
+        <initializer>({	int e__ = pthread_setcancelstate(state, oldstate);\
+	tt_pthread_error(e__);				\
+})</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="307" column="9" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="307" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="tt__pthread_8h_1a161dc66ae47d4335980205948a444bca" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void tt_pthread_setname</definition>
+        <argsstring>(const char *name)</argsstring>
+        <name>tt_pthread_setname</name>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>Set the current thread&apos;s name. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="315" column="1" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="315" bodyend="331"/>
+      </memberdef>
+      <memberdef kind="function" id="tt__pthread_8h_1aeb2767a720a5a9afe864eb2ba683c534" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void tt_pthread_attr_getstack</definition>
+        <argsstring>(pthread_t thread, void **stackaddr, size_t *stacksize)</argsstring>
+        <name>tt_pthread_attr_getstack</name>
+        <param>
+          <type>pthread_t</type>
+          <declname>thread</declname>
+        </param>
+        <param>
+          <type>void **</type>
+          <declname>stackaddr</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>stacksize</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/tt_pthread.h" line="334" column="1" bodyfile="/home/tsafin/tarantool/src/tt_pthread.h" bodystart="334" bodyend="373"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_PTHREAD_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_PTHREAD_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trivia/config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trivia/util.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdio.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;errno.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;pthread.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>HAVE_PTHREAD_NP_H<sp/>||<sp/>(__OpenBSD__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;pthread_np.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(__OpenBSD__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;signal.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sys/signal.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;say.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="preprocessor">#define<sp/>tt_pthread_error(e)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="59"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(e<sp/>!=<sp/>0)<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="60"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>say_syserror(&quot;%s<sp/>error<sp/>%d&quot;,<sp/>__func__,<sp/>e);\</highlight></codeline>
+<codeline lineno="61"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>errno<sp/>=<sp/>e;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="62"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="63"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(e<sp/>==<sp/>0);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="64"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e<sp/>!=<sp/>0<sp/>?<sp/>-1<sp/>:<sp/>0</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="preprocessor">#ifndef<sp/>NDEBUG</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_mutex_init(mutex,<sp/>attr)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="72"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="73"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pthread_mutexattr_t<sp/>*p_attr<sp/>=<sp/>attr;<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="74"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pthread_mutexattr_t<sp/>errorcheck;<sp/>\</highlight></codeline>
+<codeline lineno="75"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(p_attr<sp/>==<sp/>NULL)<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="76"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<sp/>tt_pthread_mutexattr_init(&amp;errorcheck);\</highlight></codeline>
+<codeline lineno="77"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<sp/>pthread_mutexattr_settype(&amp;errorcheck,<sp/>\</highlight></codeline>
+<codeline lineno="78"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>PTHREAD_MUTEX_ERRORCHECK);<sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="79"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p_attr<sp/>=<sp/>&amp;errorcheck;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="80"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="81"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_mutex_init(mutex,<sp/>p_attr);\</highlight></codeline>
+<codeline lineno="82"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<sp/>tt_pthread_mutexattr_destroy(&amp;errorcheck);<sp/>\</highlight></codeline>
+<codeline lineno="83"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="84"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_mutex_init(mutex,<sp/>attr)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="87"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="88"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_mutex_init(mutex,<sp/>attr);\</highlight></codeline>
+<codeline lineno="89"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="90"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_mutex_destroy(mutex)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="94"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_mutex_destroy(mutex);<sp/>\</highlight></codeline>
+<codeline lineno="95"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="96"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_mutex_lock(mutex)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="99"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_mutex_lock(mutex);<sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="100"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>say_debug(&quot;%s:<sp/>locking<sp/>%s&quot;,<sp/>__func__,<sp/>#mutex);\</highlight></codeline>
+<codeline lineno="101"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);\</highlight></codeline>
+<codeline lineno="102"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_mutex_trylock(mutex)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="105"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_mutex_trylock(mutex);<sp/>\</highlight></codeline>
+<codeline lineno="106"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(e__<sp/>!=<sp/>0<sp/>&amp;&amp;<sp/>e__<sp/>!=<sp/>EBUSY)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="107"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>say_error(&quot;%s<sp/>error<sp/>%d<sp/>at<sp/>%s:%d&quot;,<sp/>__func__,<sp/>e__,<sp/>__FILE__,<sp/>__LINE__);\</highlight></codeline>
+<codeline lineno="108"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(e__<sp/>==<sp/>0<sp/>||<sp/>e__<sp/>==<sp/>EBUSY);<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="109"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e__;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="110"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_mutex_unlock(mutex)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="113"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_mutex_unlock(mutex);<sp/><sp/>\</highlight></codeline>
+<codeline lineno="114"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>say_debug(&quot;%s:<sp/>unlocking<sp/>%s&quot;,<sp/>__func__,<sp/>#mutex);\</highlight></codeline>
+<codeline lineno="115"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="116"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_mutex_destroy(mutex)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="119"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_mutex_destroy(mutex);<sp/>\</highlight></codeline>
+<codeline lineno="120"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="121"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_mutexattr_init(attr)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="124"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_mutexattr_init(attr);<sp/>\</highlight></codeline>
+<codeline lineno="125"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="126"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_mutexattr_destroy(attr)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="129"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_mutexattr_destroy(attr);\</highlight></codeline>
+<codeline lineno="130"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="131"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_mutexattr_gettype(attr,<sp/>type)\</highlight></codeline>
+<codeline lineno="134"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_mutexattr_gettype(attr,<sp/>type);\</highlight></codeline>
+<codeline lineno="135"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="136"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_mutexattr_settype(attr,<sp/>type)\</highlight></codeline>
+<codeline lineno="139"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_mutexattr_settype(attr,<sp/>type);\</highlight></codeline>
+<codeline lineno="140"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="141"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_rwlock_init(rwlock,<sp/>attr)<sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="144"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="145"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_rwlock_init(rwlock,<sp/>attr);\</highlight></codeline>
+<codeline lineno="146"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="147"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_rwlock_destroy(rwlock)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="150"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_rwlock_destroy(rwlock);<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="151"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="152"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_rwlock_rdlock(rwlock)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="155"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_rwlock_rdlock(rwlock);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="156"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>say_debug(&quot;%s:<sp/>locking<sp/>%s&quot;,<sp/>__func__,<sp/>#rwlock);\</highlight></codeline>
+<codeline lineno="157"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);\</highlight></codeline>
+<codeline lineno="158"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_rwlock_tryrdlock(rwlock)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="161"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_rwlock_tryrdlock(rwlock);<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="162"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(e__<sp/>!=<sp/>0<sp/>&amp;&amp;<sp/>e__<sp/>!=<sp/>EBUSY)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="163"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>say_error(&quot;%s<sp/>error<sp/>%d<sp/>at<sp/>%s:%d&quot;,<sp/>__func__,<sp/>e__,<sp/>__FILE__,<sp/>__LINE__);\</highlight></codeline>
+<codeline lineno="164"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(e__<sp/>==<sp/>0<sp/>||<sp/>e__<sp/>==<sp/>EBUSY);<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="165"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e__;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="166"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_rwlock_wrlock(rwlock)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="169"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_rwlock_wrlock(rwlock);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="170"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>say_debug(&quot;%s:<sp/>locking<sp/>%s&quot;,<sp/>__func__,<sp/>#rwlock);\</highlight></codeline>
+<codeline lineno="171"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);\</highlight></codeline>
+<codeline lineno="172"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_rwlock_trywrlock(rwlock)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="175"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_rwlock_trywrlock(rwlock);<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="176"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(e__<sp/>!=<sp/>0<sp/>&amp;&amp;<sp/>e__<sp/>!=<sp/>EBUSY)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="177"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>say_error(&quot;%s<sp/>error<sp/>%d<sp/>at<sp/>%s:%d&quot;,<sp/>__func__,<sp/>e__,<sp/>__FILE__,<sp/>__LINE__);\</highlight></codeline>
+<codeline lineno="178"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(e__<sp/>==<sp/>0<sp/>||<sp/>e__<sp/>==<sp/>EBUSY);<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="179"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e__;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="180"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_rwlock_unlock(rwlock)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="183"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_rwlock_unlock(rwlock);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="184"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>say_debug(&quot;%s:<sp/>unlocking<sp/>%s&quot;,<sp/>__func__,<sp/>#rwlock);\</highlight></codeline>
+<codeline lineno="185"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="186"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_rwlock_destroy(rwlock)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="189"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_rwlock_destroy(rwlock);<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="190"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="191"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_rwlockattr_init(attr)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="194"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_rwlockattr_init(attr);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="195"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="196"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_rwlockattr_destroy(attr)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="199"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_rwlockattr_destroy(attr);\</highlight></codeline>
+<codeline lineno="200"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="201"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_rwlockattr_gettype(attr,<sp/>type)\</highlight></codeline>
+<codeline lineno="204"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_rwlockattr_gettype(attr,<sp/>type);\</highlight></codeline>
+<codeline lineno="205"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="206"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_rwlockattr_settype(attr,<sp/>type)\</highlight></codeline>
+<codeline lineno="209"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_rwlockattr_settype(attr,<sp/>type);\</highlight></codeline>
+<codeline lineno="210"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="211"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_condattr_init(attr)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="214"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_condattr_init(attr);<sp/><sp/>\</highlight></codeline>
+<codeline lineno="215"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="216"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_condattr_destroy(attr)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="219"><highlight class="preprocessor">({<sp/>int<sp/>e__<sp/>=<sp/>pthread_condattr_destroy(attr);<sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="220"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="221"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_cond_init(cond,<sp/>attr)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="224"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_cond_init(cond,<sp/>attr);\</highlight></codeline>
+<codeline lineno="225"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="226"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_cond_destroy(cond)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="229"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_cond_destroy(cond);<sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="230"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="231"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_cond_signal(cond)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="234"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_cond_signal(cond);<sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="235"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="236"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_cond_broadcast(cond)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="239"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_cond_broadcast(cond);<sp/>\</highlight></codeline>
+<codeline lineno="240"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="241"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="normal"></highlight></codeline>
+<codeline lineno="244"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_cond_wait(cond,<sp/>mutex)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="245"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_cond_wait(cond,<sp/>mutex);\</highlight></codeline>
+<codeline lineno="246"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="247"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="248"><highlight class="normal"></highlight></codeline>
+<codeline lineno="249"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_cond_timedwait(cond,<sp/>mutex,<sp/>timeout)<sp/>\</highlight></codeline>
+<codeline lineno="250"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_cond_timedwait(cond,<sp/>mutex,<sp/>timeout);\</highlight></codeline>
+<codeline lineno="251"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(ETIMEDOUT<sp/>!=<sp/>e__<sp/>&amp;&amp;<sp/>e__<sp/>!=<sp/>0)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="252"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>say_error(&quot;%s<sp/>error<sp/>%d&quot;,<sp/>__func__,<sp/>e__);\</highlight></codeline>
+<codeline lineno="253"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(e__<sp/>==<sp/>0<sp/>||<sp/>e__<sp/>==<sp/>ETIMEDOUT);<sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="254"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e__;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="255"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="256"><highlight class="normal"></highlight></codeline>
+<codeline lineno="257"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_once(control,<sp/>function)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="258"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_once(control,<sp/>function);\</highlight></codeline>
+<codeline lineno="259"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="260"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_atfork(prepare,<sp/>parent,<sp/>child)\</highlight></codeline>
+<codeline lineno="263"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_atfork(prepare,<sp/>parent,<sp/>child);\</highlight></codeline>
+<codeline lineno="264"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="265"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="normal"></highlight></codeline>
+<codeline lineno="270"><highlight class="preprocessor">#define<sp/>tt_pthread_create(thread,<sp/>attr,<sp/>run,<sp/>arg)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="271"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>sigset_t<sp/>set,<sp/>oldset;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="272"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sigfillset(&amp;set);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="273"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pthread_sigmask(SIG_BLOCK,<sp/>&amp;set,<sp/>&amp;oldset);<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="274"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_create(thread,<sp/>attr,<sp/>run,<sp/>arg);\</highlight></codeline>
+<codeline lineno="275"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pthread_sigmask(SIG_SETMASK,<sp/>&amp;oldset,<sp/>NULL);<sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="276"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="277"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="278"><highlight class="normal"></highlight></codeline>
+<codeline lineno="279"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_join(thread,<sp/>ret)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="280"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_join(thread,<sp/>ret);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="281"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="282"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="283"><highlight class="normal"></highlight></codeline>
+<codeline lineno="284"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_cancel(thread)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="285"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_cancel(thread);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="286"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(e__<sp/>==<sp/>0<sp/>||<sp/>e__<sp/>==<sp/>ESRCH);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="287"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e__;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="288"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="289"><highlight class="normal"></highlight></codeline>
+<codeline lineno="290"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_key_create(key,<sp/>dtor)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="291"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_key_create(key,<sp/>dtor);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="292"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="293"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="294"><highlight class="normal"></highlight></codeline>
+<codeline lineno="295"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_key_delete(key)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="296"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_key_delete(key);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="297"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="298"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_setspecific(key,<sp/>value)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="301"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_setspecific(key,<sp/>value);<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="302"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="303"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="304"><highlight class="normal"></highlight></codeline>
+<codeline lineno="305"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_getspecific(key)<sp/>pthread_getspecific(key)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="306"><highlight class="normal"></highlight></codeline>
+<codeline lineno="307"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>tt_pthread_setcancelstate(state,<sp/>oldstate)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="308"><highlight class="preprocessor">({<sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>e__<sp/>=<sp/>pthread_setcancelstate(state,<sp/>oldstate);\</highlight></codeline>
+<codeline lineno="309"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_pthread_error(e__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="310"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="311"><highlight class="normal"></highlight></codeline>
+<codeline lineno="314"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="315"><highlight class="normal">tt_pthread_setname(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name)</highlight></codeline>
+<codeline lineno="316"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Setting<sp/>the<sp/>name<sp/>fails<sp/>if<sp/>the<sp/>name<sp/>was<sp/>too<sp/>long.<sp/>Linux<sp/>limits<sp/>a</highlight></codeline>
+<codeline lineno="318"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>name<sp/>to<sp/>16<sp/>bytes<sp/>(including<sp/>the<sp/>trailing<sp/>NUL),<sp/>other<sp/>OS<sp/>don&apos;t</highlight></codeline>
+<codeline lineno="319"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>even<sp/>bother<sp/>to<sp/>document<sp/>the<sp/>limit.</highlight></codeline>
+<codeline lineno="320"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>short_name[16];</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>snprintf(short_name,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(short_name),<sp/></highlight><highlight class="stringliteral">&quot;%s&quot;</highlight><highlight class="normal">,<sp/>name);</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"></highlight></codeline>
+<codeline lineno="324"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>HAVE_PTHREAD_SETNAME_NP</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pthread_setname_np(pthread_self(),<sp/>short_name);</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>HAVE_PTHREAD_SETNAME_NP_1</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pthread_setname_np(short_name);</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>HAVE_PTHREAD_SET_NAME_NP</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pthread_set_name_np(pthread_self(),<sp/>short_name);</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="331"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"></highlight></codeline>
+<codeline lineno="333"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="334"><highlight class="normal">tt_pthread_attr_getstack(pthread_t<sp/>thread,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>**stackaddr,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*stacksize)</highlight></codeline>
+<codeline lineno="335"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>HAVE_PTHREAD_GETATTR_NP</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="338"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>GLIBC</highlight></codeline>
+<codeline lineno="339"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="340"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>From<sp/>glib-2.24/sysdeps/nptl/pthread.h<sp/>pthread_getattr_np():</highlight></codeline>
+<codeline lineno="341"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>It<sp/>shall<sp/>be<sp/>called<sp/>on<sp/>uninitialized<sp/>ATTR<sp/>and<sp/>destroyed<sp/>with</highlight></codeline>
+<codeline lineno="342"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>pthread_attr_destroy<sp/>when<sp/>no<sp/>longer<sp/>needed.</highlight></codeline>
+<codeline lineno="343"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pthread_attr_t<sp/>thread_attr;</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pthread_getattr_np(thread,<sp/>&amp;thread_attr);</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pthread_attr_getstack(&amp;thread_attr,<sp/>stackaddr,<sp/>stacksize);</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pthread_attr_destroy(&amp;thread_attr);</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>HAVE_PTHREAD_ATTR_GET_NP</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="349"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="350"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>xBSD/new<sp/>macOS</highlight></codeline>
+<codeline lineno="351"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="352"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>From<sp/>pthread_attr_get_np(3):</highlight></codeline>
+<codeline lineno="353"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>It<sp/>is<sp/>HIGHLY<sp/>RECOMMENDED<sp/>to<sp/>use<sp/>pthread_attr_init(3)<sp/>function<sp/>to</highlight></codeline>
+<codeline lineno="354"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>allocate<sp/>attribute<sp/>storage.</highlight></codeline>
+<codeline lineno="355"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pthread_attr_t<sp/>thread_attr;</highlight></codeline>
+<codeline lineno="357"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pthread_attr_init(&amp;thread_attr);</highlight></codeline>
+<codeline lineno="358"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pthread_attr_get_np(thread,<sp/>&amp;thread_attr);</highlight></codeline>
+<codeline lineno="359"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pthread_attr_getstack(&amp;thread_attr,<sp/>stackaddr,<sp/>stacksize);</highlight></codeline>
+<codeline lineno="360"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pthread_attr_destroy(&amp;thread_attr);</highlight></codeline>
+<codeline lineno="361"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>(HAVE_PTHREAD_GET_STACKSIZE_NP<sp/>&amp;&amp;<sp/>HAVE_PTHREAD_GET_STACKADDR_NP)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="362"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Old<sp/>macOS<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*stacksize<sp/>=<sp/>pthread_get_stacksize_np(thread);</highlight></codeline>
+<codeline lineno="364"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*stackaddr<sp/>=<sp/>pthread_get_stackaddr_np(thread);</highlight></codeline>
+<codeline lineno="365"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>(__OpenBSD__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="366"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stack_t<sp/>*sinfo<sp/>=<sp/>(stack_t*)malloc(</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(stack_t));</highlight></codeline>
+<codeline lineno="367"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pthread_stackseg_np(thread,<sp/>sinfo);</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*stacksize<sp/>=<sp/>sinfo-&gt;ss_size;</highlight></codeline>
+<codeline lineno="369"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*stackaddr<sp/>=<sp/>sinfo-&gt;ss_sp;</highlight></codeline>
+<codeline lineno="370"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="371"><highlight class="normal"></highlight><highlight class="preprocessor">#error<sp/>Unable<sp/>to<sp/>get<sp/>thread<sp/>stack</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="372"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="373"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"></highlight></codeline>
+<codeline lineno="375"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_PTHREAD_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/tt_pthread.h"/>
+  </compounddef>
+</doxygen>

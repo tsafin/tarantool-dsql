@@ -1,0 +1,336 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="quota__lessor_8h" kind="file" language="C++">
+    <compoundname>quota_lessor.h</compoundname>
+    <includes refid="quota_8h" local="yes">quota.h</includes>
+    <includedby refid="quota__lessor_8c" local="yes">/home/tsafin/tarantool/src/lib/small/test/quota_lessor.c</includedby>
+    <innerclass refid="structquota__lessor" prot="public">quota_lessor</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="quota__lessor_8h_1a4fffee20739ee60f258f3239eab36354" prot="public" static="no">
+        <name>QUOTA_USE_MIN</name>
+        <initializer>(QUOTA_UNIT_SIZE * 1024)</initializer>
+        <briefdescription>
+<para>Min byte count to alloc from original quota. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h" line="80" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="quota__lessor_8h_1a778297a3d78d4057faaf1f9a3451dc92" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t quota_leased</definition>
+        <argsstring>(const struct quota_lessor *lessor)</argsstring>
+        <name>quota_leased</name>
+        <param>
+          <type>const struct <ref refid="structquota__lessor" kindref="compound">quota_lessor</ref> *</type>
+          <declname>lessor</declname>
+        </param>
+        <briefdescription>
+<para>Return the total number of bytes leased. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lessor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="structquota__lessor" kindref="compound">quota_lessor</ref> </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h" line="64" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h" bodystart="64" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="quota__lessor_8h_1a67cfe4637bf34d43a544cb81051f3a27" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t quota_available</definition>
+        <argsstring>(const struct quota_lessor *lessor)</argsstring>
+        <name>quota_available</name>
+        <param>
+          <type>const struct <ref refid="structquota__lessor" kindref="compound">quota_lessor</ref> *</type>
+          <declname>lessor</declname>
+        </param>
+        <briefdescription>
+<para>Return the number of bytes allocated from the source, but not leased yet. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lessor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="structquota__lessor" kindref="compound">quota_lessor</ref> </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h" line="74" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h" bodystart="74" bodyend="77"/>
+      </memberdef>
+      <memberdef kind="function" id="quota__lessor_8h_1a9cf9a0c56f08343bac8456429c58d3a0" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void quota_lessor_create</definition>
+        <argsstring>(struct quota_lessor *lessor, struct quota *source)</argsstring>
+        <name>quota_lessor_create</name>
+        <param>
+          <type>struct <ref refid="structquota__lessor" kindref="compound">quota_lessor</ref> *</type>
+          <declname>lessor</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structquota" kindref="compound">quota</ref> *</type>
+          <declname>source</declname>
+        </param>
+        <briefdescription>
+<para>Create a new quota lessor from <emphasis>source</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lessor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="structquota__lessor" kindref="compound">quota_lessor</ref> </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>source</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>source quota </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h" line="88" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h" bodystart="88" bodyend="94"/>
+      </memberdef>
+      <memberdef kind="function" id="quota__lessor_8h_1a142f8c2337e42151c31b76139c45834d" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void quota_lessor_destroy</definition>
+        <argsstring>(struct quota_lessor *lessor)</argsstring>
+        <name>quota_lessor_destroy</name>
+        <param>
+          <type>struct <ref refid="structquota__lessor" kindref="compound">quota_lessor</ref> *</type>
+          <declname>lessor</declname>
+        </param>
+        <briefdescription>
+<para>Destroy the quota lessor. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lessor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><ref refid="structquota__lessor" kindref="compound">quota_lessor</ref> </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="pre"><para>quota_leased(lessor) == 0 </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h" line="102" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h" bodystart="102" bodyend="110"/>
+      </memberdef>
+      <memberdef kind="function" id="quota__lessor_8h_1a019c404a67f54755a36cc55c9be58882" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>static ssize_t quota_lease</definition>
+        <argsstring>(struct quota_lessor *lessor, ssize_t size)</argsstring>
+        <name>quota_lease</name>
+        <param>
+          <type>struct <ref refid="structquota__lessor" kindref="compound">quota_lessor</ref> *</type>
+          <declname>lessor</declname>
+        </param>
+        <param>
+          <type>ssize_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Lease <emphasis>size</emphasis> bytes. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lessor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>quota lessor </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the number of bytes to lease </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>&gt;=</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>0 Number of leased bytes. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error, not enough quota. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h" line="120" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h" bodystart="120" bodyend="141"/>
+      </memberdef>
+      <memberdef kind="function" id="quota__lessor_8h_1a203664b58fdc1aaf66f21586a5b34919" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>static ssize_t quota_end_lease</definition>
+        <argsstring>(struct quota_lessor *lessor, size_t size)</argsstring>
+        <name>quota_end_lease</name>
+        <param>
+          <type>struct <ref refid="structquota__lessor" kindref="compound">quota_lessor</ref> *</type>
+          <declname>lessor</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h" line="149" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h" bodystart="149" bodyend="164"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>INCLUDES_TARANTOOL_SMALL_QUOTA_LESSOR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INCLUDES_TARANTOOL_SMALL_QUOTA_LESSOR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;quota.h&quot;</highlight></codeline>
+<codeline lineno="50" refid="structquota__lessor" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structquota__lessor" kindref="compound">quota_lessor</ref><sp/>{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structquota" kindref="compound">quota</ref><sp/>*<ref refid="structquota__lessor_1a1695def8d095d7c7ab9d01fd15437a27" kindref="member">source</ref>;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structquota__lessor_1abe4fdfe1a690e17cd14cec407ea0320b" kindref="member">used</ref>;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structquota__lessor_1a330b6cd40731d281204f1f480c0ed703" kindref="member">leased</ref>;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal">quota_leased(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structquota__lessor" kindref="compound">quota_lessor</ref><sp/>*lessor)</highlight></codeline>
+<codeline lineno="65"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>lessor-&gt;<ref refid="structquota__lessor_1a330b6cd40731d281204f1f480c0ed703" kindref="member">leased</ref>;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal">quota_available(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structquota__lessor" kindref="compound">quota_lessor</ref><sp/>*lessor)</highlight></codeline>
+<codeline lineno="75"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>lessor-&gt;<ref refid="structquota__lessor_1abe4fdfe1a690e17cd14cec407ea0320b" kindref="member">used</ref><sp/>-<sp/>lessor-&gt;<ref refid="structquota__lessor_1a330b6cd40731d281204f1f480c0ed703" kindref="member">leased</ref>;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="preprocessor">#define<sp/>QUOTA_USE_MIN<sp/>(QUOTA_UNIT_SIZE<sp/>*<sp/>1024)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal">quota_lessor_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structquota__lessor" kindref="compound">quota_lessor</ref><sp/>*lessor,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structquota" kindref="compound">quota</ref><sp/>*<ref refid="structquota__lessor_1a1695def8d095d7c7ab9d01fd15437a27" kindref="member">source</ref>)</highlight></codeline>
+<codeline lineno="89"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lessor-&gt;<ref refid="structquota__lessor_1a1695def8d095d7c7ab9d01fd15437a27" kindref="member">source</ref><sp/>=<sp/><ref refid="structquota__lessor_1a1695def8d095d7c7ab9d01fd15437a27" kindref="member">source</ref>;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lessor-&gt;<ref refid="structquota__lessor_1abe4fdfe1a690e17cd14cec407ea0320b" kindref="member">used</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lessor-&gt;<ref refid="structquota__lessor_1a330b6cd40731d281204f1f480c0ed703" kindref="member">leased</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(quota_total(source)<sp/>&gt;=<sp/>QUOTA_USE_MIN);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal">quota_lessor_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structquota__lessor" kindref="compound">quota_lessor</ref><sp/>*lessor)</highlight></codeline>
+<codeline lineno="103"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(lessor-&gt;<ref refid="structquota__lessor_1a330b6cd40731d281204f1f480c0ed703" kindref="member">leased</ref><sp/>==<sp/>0);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(lessor-&gt;<ref refid="structquota__lessor_1abe4fdfe1a690e17cd14cec407ea0320b" kindref="member">used</ref><sp/>==<sp/>0)</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(lessor-&gt;<ref refid="structquota__lessor_1abe4fdfe1a690e17cd14cec407ea0320b" kindref="member">used</ref><sp/>%<sp/>QUOTA_UNIT_SIZE<sp/>==<sp/>0);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>quota_release(lessor-&gt;<ref refid="structquota__lessor_1a1695def8d095d7c7ab9d01fd15437a27" kindref="member">source</ref>,<sp/>lessor-&gt;<ref refid="structquota__lessor_1abe4fdfe1a690e17cd14cec407ea0320b" kindref="member">used</ref>);</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lessor-&gt;<ref refid="structquota__lessor_1abe4fdfe1a690e17cd14cec407ea0320b" kindref="member">used</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>ssize_t</highlight></codeline>
+<codeline lineno="120"><highlight class="normal">quota_lease(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structquota__lessor" kindref="compound">quota_lessor</ref><sp/>*lessor,<sp/>ssize_t<sp/>size)</highlight></codeline>
+<codeline lineno="121"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Fast<sp/>way,<sp/>there<sp/>is<sp/>enough<sp/>unused<sp/>quota.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(lessor-&gt;<ref refid="structquota__lessor_1a330b6cd40731d281204f1f480c0ed703" kindref="member">leased</ref><sp/>+<sp/>size<sp/>&lt;=<sp/>lessor-&gt;<ref refid="structquota__lessor_1abe4fdfe1a690e17cd14cec407ea0320b" kindref="member">used</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lessor-&gt;<ref refid="structquota__lessor_1a330b6cd40731d281204f1f480c0ed703" kindref="member">leased</ref><sp/>+=<sp/>size;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>size;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Need<sp/>to<sp/>use<sp/>the<sp/>original<sp/>quota.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>required<sp/>=<sp/>size<sp/>+<sp/>lessor-&gt;<ref refid="structquota__lessor_1a330b6cd40731d281204f1f480c0ed703" kindref="member">leased</ref><sp/>-<sp/>lessor-&gt;<ref refid="structquota__lessor_1abe4fdfe1a690e17cd14cec407ea0320b" kindref="member">used</ref>;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>use<sp/>=<sp/>required<sp/>&gt;<sp/>QUOTA_USE_MIN<sp/>?<sp/>required<sp/>:<sp/>QUOTA_USE_MIN;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(;<sp/>use<sp/>&gt;=<sp/>required;<sp/>use<sp/>=<sp/>use/2)<sp/>{</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ssize_t<sp/>used<sp/>=<sp/>quota_use(lessor-&gt;<ref refid="structquota__lessor_1a1695def8d095d7c7ab9d01fd15437a27" kindref="member">source</ref>,<sp/>use);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(used<sp/>&gt;=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lessor-&gt;<ref refid="structquota__lessor_1abe4fdfe1a690e17cd14cec407ea0320b" kindref="member">used</ref><sp/>+=<sp/><ref refid="structquota__lessor_1abe4fdfe1a690e17cd14cec407ea0320b" kindref="member">used</ref>;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lessor-&gt;<ref refid="structquota__lessor_1a330b6cd40731d281204f1f480c0ed703" kindref="member">leased</ref><sp/>+=<sp/>size;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>size;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="144"><highlight class="comment"><sp/>*<sp/>End<sp/>the<sp/>lease<sp/>of<sp/>@a<sp/>size<sp/>bytes</highlight></codeline>
+<codeline lineno="145"><highlight class="comment"><sp/>*<sp/>@param<sp/>lessor<sp/>quota_lessor</highlight></codeline>
+<codeline lineno="146"><highlight class="comment"><sp/>*<sp/>@param<sp/>size<sp/>the<sp/>number<sp/>of<sp/>bytes<sp/>to<sp/>return</highlight></codeline>
+<codeline lineno="147"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>ssize_t</highlight></codeline>
+<codeline lineno="149"><highlight class="normal">quota_end_lease(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structquota__lessor" kindref="compound">quota_lessor</ref><sp/>*lessor,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="150"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(lessor-&gt;<ref refid="structquota__lessor_1a330b6cd40731d281204f1f480c0ed703" kindref="member">leased</ref><sp/>&gt;=<sp/>size);</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lessor-&gt;<ref refid="structquota__lessor_1a330b6cd40731d281204f1f480c0ed703" kindref="member">leased</ref><sp/>-=<sp/>size;</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>available<sp/>=<sp/>lessor-&gt;<ref refid="structquota__lessor_1abe4fdfe1a690e17cd14cec407ea0320b" kindref="member">used</ref><sp/>-<sp/>lessor-&gt;<ref refid="structquota__lessor_1a330b6cd40731d281204f1f480c0ed703" kindref="member">leased</ref>;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="155"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Release<sp/>the<sp/>original<sp/>quota<sp/>when<sp/>enough<sp/>bytes</highlight></codeline>
+<codeline lineno="156"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>accumulated<sp/>to<sp/>avoid<sp/>frequent<sp/>quota_release()<sp/>calls.</highlight></codeline>
+<codeline lineno="157"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(available<sp/>&gt;=<sp/>2<sp/>*<sp/>QUOTA_USE_MIN)<sp/>{</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Do<sp/>not<sp/>release<sp/>too<sp/>much<sp/>to<sp/>avoid<sp/>oscillation.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>release<sp/>=<sp/>available<sp/>-<sp/>QUOTA_USE_MIN<sp/>-<sp/>QUOTA_UNIT_SIZE;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lessor-&gt;<ref refid="structquota__lessor_1abe4fdfe1a690e17cd14cec407ea0320b" kindref="member">used</ref><sp/>-=<sp/>quota_release(lessor-&gt;<ref refid="structquota__lessor_1a1695def8d095d7c7ab9d01fd15437a27" kindref="member">source</ref>,<sp/>release);</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>size;</highlight></codeline>
+<codeline lineno="164"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>INCLUDES_TARANTOOL_SMALL_QUOTA_LESSOR_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h"/>
+  </compounddef>
+</doxygen>

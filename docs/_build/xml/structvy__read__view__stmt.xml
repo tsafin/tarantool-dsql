@@ -1,0 +1,90 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvy__read__view__stmt" kind="struct" language="C++" prot="public">
+    <compoundname>vy_read_view_stmt</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvy__read__view__stmt_1ab4af70397e71b30d97816ba25116724d" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t vy_read_view_stmt::vlsn</definition>
+        <argsstring></argsstring>
+        <name>vlsn</name>
+        <briefdescription>
+<para>Read view LSN. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.c" line="137" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="137" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__read__view__stmt_1adddf0eb808350588db3740effb9973c4" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+        <definition>struct vy_entry vy_read_view_stmt::entry</definition>
+        <argsstring></argsstring>
+        <name>entry</name>
+        <briefdescription>
+<para>Result key version, visible to this . </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.c" line="137" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="139" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__read__view__stmt_1abfa45dfe4644c85fa7e65773375a390d" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__write__history" kindref="compound">vy_write_history</ref> *</type>
+        <definition>struct vy_write_history* vy_read_view_stmt::history</definition>
+        <argsstring></argsstring>
+        <name>history</name>
+        <briefdescription>
+<para>A history of changes building up to this read view. </para>        </briefdescription>
+        <detaileddescription>
+<para>Once built, it is merged into a single . </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.c" line="145" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="145" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Read view of a key. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="14080">
+        <label>vy_read_view_stmt</label>
+        <link refid="structvy__read__view__stmt"/>
+        <childnode refid="14081" relation="usage">
+          <edgelabel>entry</edgelabel>
+        </childnode>
+        <childnode refid="14083" relation="usage">
+          <edgelabel>history</edgelabel>
+        </childnode>
+      </node>
+      <node id="14081">
+        <label>vy_entry</label>
+        <link refid="structvy__entry"/>
+        <childnode refid="14082" relation="usage">
+          <edgelabel>stmt</edgelabel>
+        </childnode>
+      </node>
+      <node id="14082">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="14083">
+        <label>vy_write_history</label>
+        <link refid="structvy__write__history"/>
+        <childnode refid="14081" relation="usage">
+          <edgelabel>entry</edgelabel>
+        </childnode>
+        <childnode refid="14083" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.c" line="135" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="135" bodyend="146"/>
+    <listofallmembers>
+      <member refid="structvy__read__view__stmt_1adddf0eb808350588db3740effb9973c4" prot="public" virt="non-virtual"><scope>vy_read_view_stmt</scope><name>entry</name></member>
+      <member refid="structvy__read__view__stmt_1abfa45dfe4644c85fa7e65773375a390d" prot="public" virt="non-virtual"><scope>vy_read_view_stmt</scope><name>history</name></member>
+      <member refid="structvy__read__view__stmt_1ab4af70397e71b30d97816ba25116724d" prot="public" virt="non-virtual"><scope>vy_read_view_stmt</scope><name>vlsn</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

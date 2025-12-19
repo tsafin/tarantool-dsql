@@ -1,0 +1,577 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="opt__def_8h" kind="file" language="C++">
+    <compoundname>opt_def.h</compoundname>
+    <includes refid="util_8h" local="yes">trivia/util.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="field__def_8h" local="yes">/home/tsafin/tarantool/src/box/field_def.h</includedby>
+    <includedby refid="index__def_8h" local="yes">/home/tsafin/tarantool/src/box/index_def.h</includedby>
+    <includedby refid="func__def_8h" local="yes">/home/tsafin/tarantool/src/box/func_def.h</includedby>
+    <includedby refid="coll__id__def_8h" local="yes">/home/tsafin/tarantool/src/box/coll_id_def.h</includedby>
+    <includedby refid="func__def_8c" local="yes">/home/tsafin/tarantool/src/box/func_def.c</includedby>
+    <includedby refid="opt__def_8c" local="yes">/home/tsafin/tarantool/src/box/opt_def.c</includedby>
+    <incdepgraph>
+      <node id="756">
+        <label>stdbool.h</label>
+      </node>
+      <node id="754">
+        <label>/home/tsafin/tarantool/src/box/opt_def.h</label>
+        <link refid="opt__def_8h"/>
+        <childnode refid="755" relation="include">
+        </childnode>
+        <childnode refid="756" relation="include">
+        </childnode>
+      </node>
+      <node id="755">
+        <label>stddef.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structopt__def" prot="public">opt_def</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="opt__def_8h_1a315bea050ac792dff9cb138889fb15b3" prot="public" static="no">
+        <name>OPT_DEF</name>
+        <param><defname>key</defname></param>
+        <param><defname>type</defname></param>
+        <param><defname>opts</defname></param>
+        <param><defname>field</defname></param>
+        <initializer>{ key, type, offsetof(opts, field), sizeof(((opts *)0)-&gt;field), \
+	  NULL, 0, NULL, 0, {NULL} }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/opt_def.h" line="97" column="9" bodyfile="/home/tsafin/tarantool/src/box/opt_def.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="opt__def_8h_1a1c2c7a926ee866ee60831e7f08075607" prot="public" static="no">
+        <name>OPT_DEF_ENUM</name>
+        <param><defname>key</defname></param>
+        <param><defname>enum_name</defname></param>
+        <param><defname>opts</defname></param>
+        <param><defname>field</defname></param>
+        <param><defname>to_enum</defname></param>
+        <initializer>{ key, OPT_ENUM, offsetof(opts, field), sizeof(int), #enum_name, \
+	  sizeof(enum enum_name), enum_name##_strs, enum_name##_MAX, \
+	  {(void *)to_enum} }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/opt_def.h" line="101" column="9" bodyfile="/home/tsafin/tarantool/src/box/opt_def.h" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="opt__def_8h_1adbfc5aae4c21fef3a6f70cad6c14220d" prot="public" static="no">
+        <name>OPT_DEF_ARRAY</name>
+        <param><defname>key</defname></param>
+        <param><defname>opts</defname></param>
+        <param><defname>field</defname></param>
+        <param><defname>to_array</defname></param>
+        <initializer>{ key, OPT_ARRAY, offsetof(opts, field), sizeof(((opts *)0)-&gt;field), \
+	   NULL, 0, NULL, 0, {(void *)to_array} }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/opt_def.h" line="106" column="9" bodyfile="/home/tsafin/tarantool/src/box/opt_def.h" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="opt__def_8h_1a2745d209802770a310f4a7b5c1f0bd61" prot="public" static="no">
+        <name>OPT_DEF_LEGACY</name>
+        <param><defname>key</defname></param>
+        <initializer>{ key, OPT_LEGACY, 0, 0, NULL, 0, NULL, 0, {NULL} }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/opt_def.h" line="110" column="9" bodyfile="/home/tsafin/tarantool/src/box/opt_def.h" bodystart="110" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="opt__def_8h_1a8a11aee55c2d12e02c4c33ba3f94d313" prot="public" static="no">
+        <name>OPT_END</name>
+        <initializer>{NULL, opt_type_MAX, 0, 0, NULL, 0, NULL, 0, {NULL}}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/opt_def.h" line="113" column="9" bodyfile="/home/tsafin/tarantool/src/box/opt_def.h" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="opt__def_8h_1afc34653a1d082c0850915ceb32405fd7" prot="public" static="no">
+        <name>opt_type</name>
+        <enumvalue id="opt__def_8h_1afc34653a1d082c0850915ceb32405fd7a773b4ddf8aceffb51ad9d12d4fe06124" prot="public">
+          <name>OPT_BOOL</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="opt__def_8h_1afc34653a1d082c0850915ceb32405fd7ae8d32fc7ba0eaac6d07017c2b86c848e" prot="public">
+          <name>OPT_UINT32</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="opt__def_8h_1afc34653a1d082c0850915ceb32405fd7a1a54093642a5509e5931a2635cdfdcb5" prot="public">
+          <name>OPT_INT64</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="opt__def_8h_1afc34653a1d082c0850915ceb32405fd7a2947dab1b9fa812d4ff14fc8adda3d70" prot="public">
+          <name>OPT_FLOAT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="opt__def_8h_1afc34653a1d082c0850915ceb32405fd7a91e7b05156fd80c0d07df2eb55b98e3d" prot="public">
+          <name>OPT_STR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="opt__def_8h_1afc34653a1d082c0850915ceb32405fd7a13f8361dba582c8b7325e0ceb627d3c7" prot="public">
+          <name>OPT_STRPTR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="opt__def_8h_1afc34653a1d082c0850915ceb32405fd7a5d83d48f3ef71ea80614c09ac759ef4f" prot="public">
+          <name>OPT_ENUM</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="opt__def_8h_1afc34653a1d082c0850915ceb32405fd7aa84b20ee7f21175f105f7cb566d3e000" prot="public">
+          <name>OPT_ARRAY</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="opt__def_8h_1afc34653a1d082c0850915ceb32405fd7ab481c5c8a0946892db0320e20f25a63b" prot="public">
+          <name>OPT_LEGACY</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="opt__def_8h_1afc34653a1d082c0850915ceb32405fd7aa7599953e8b45c19095f59bf753f5999" prot="public">
+          <name>opt_type_MAX</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/opt_def.h" line="42" column="1" bodyfile="/home/tsafin/tarantool/src/box/opt_def.h" bodystart="42" bodyend="53"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="opt__def_8h_1aab61370983d19016f6bfe120de70a1c7" prot="public" static="no">
+        <type>int64_t(*</type>
+        <definition>typedef int64_t(* opt_def_to_enum_cb) (const char *str, uint32_t len)</definition>
+        <argsstring>)(const char *str, uint32_t len)</argsstring>
+        <name>opt_def_to_enum_cb</name>
+        <briefdescription>
+<para>Decode enum stored in MsgPack. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>str</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>encoded data pointer (next to MsgPack ENUM header). </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>str length. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>string</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>index or hmax if the string is not found. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/opt_def.h" line="63" column="1" bodyfile="/home/tsafin/tarantool/src/box/opt_def.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="opt__def_8h_1a5f5b41cdad39b042bf7ac1b34f9bc6ca" prot="public" static="no">
+        <type>int(*</type>
+        <definition>typedef int(* opt_def_to_array_cb) (const char **str, uint32_t len, char *opt, uint32_t errcode, uint32_t field_no)</definition>
+        <argsstring>)(const char **str, uint32_t len, char *opt, uint32_t errcode, uint32_t field_no)</argsstring>
+        <name>opt_def_to_array_cb</name>
+        <briefdescription>
+<para>Decode MsgPack array callback. </para>        </briefdescription>
+        <detaileddescription>
+<para>All memory allocations returned by opt_def_to_array_cb with opt [out] argument should be managed manually. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>str</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>encoded data pointer (next to MsgPack ARRAY header). </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>array length (items count). </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">opt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to store resulting value. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>errcode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Code of error to set if something is wrong. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>field_no</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field number of an option in a parent element. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on success. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/opt_def.h" line="77" column="1" bodyfile="/home/tsafin/tarantool/src/box/opt_def.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="opt__def_8h_1abf91208433c328bbbec93a48bd3f06b7" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* opt_type_strs[]</definition>
+        <argsstring>[]</argsstring>
+        <name>opt_type_strs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/opt_def.h" line="55" column="1" bodyfile="/home/tsafin/tarantool/src/box/opt_def.c" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="opt__def_8h_1a1f48bf3c073051312e6299466481be46" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int opts_decode</definition>
+        <argsstring>(void *opts, const struct opt_def *reg, const char **map, uint32_t errcode, uint32_t field_no, struct region *region)</argsstring>
+        <name>opts_decode</name>
+        <param>
+          <type>void *</type>
+          <declname>opts</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structopt__def" kindref="compound">opt_def</ref> *</type>
+          <declname>reg</declname>
+        </param>
+        <param>
+          <type>const char **</type>
+          <declname>map</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>errcode</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>field_no</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structregion" kindref="compound">region</ref> *</type>
+          <declname>region</declname>
+        </param>
+        <briefdescription>
+<para>Populate key options from their msgpack-encoded representation (msgpack map). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/opt_def.h" line="122" column="1" bodyfile="/home/tsafin/tarantool/src/box/opt_def.c" bodystart="194" bodyend="217"/>
+      </memberdef>
+      <memberdef kind="function" id="opt__def_8h_1a16f6a5fdbe3010c274bfb9fdc67ad27e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int opts_parse_key</definition>
+        <argsstring>(void *opts, const struct opt_def *reg, const char *key, uint32_t key_len, const char **data, uint32_t errcode, uint32_t field_no, struct region *region, bool skip_unknown_options)</argsstring>
+        <name>opts_parse_key</name>
+        <param>
+          <type>void *</type>
+          <declname>opts</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structopt__def" kindref="compound">opt_def</ref> *</type>
+          <declname>reg</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>key_len</declname>
+        </param>
+        <param>
+          <type>const char **</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>errcode</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>field_no</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structregion" kindref="compound">region</ref> *</type>
+          <declname>region</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>skip_unknown_options</declname>
+        </param>
+        <briefdescription>
+<para>Decode one option and store it into <emphasis>opts</emphasis> struct as a field. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>opts[out]</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Options to decode to. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>reg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Options definition. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Name of an option. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of <emphasis>key</emphasis>. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Option value. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>errcode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Code of error to set if something is wrong. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>field_no</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field number of an option in a parent element. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>region</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Region to allocate OPT_STRPTR option. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>skip_unknown_options</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>If true, do not set error, if an option is unknown. Useful, when it is neccessary to allow to store custom fields in options. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/opt_def.h" line="140" column="1" bodyfile="/home/tsafin/tarantool/src/box/opt_def.c" bodystart="166" bodyend="187"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_BOX_OPT_DEF_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_BOX_OPT_DEF_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trivia/util.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>opt_type<sp/>{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>OPT_BOOL,<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>bool<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>OPT_UINT32,<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>uint32_t<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>OPT_INT64,<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>int64_t<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>OPT_FLOAT,<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>double<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>OPT_STR,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>char[]<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>OPT_STRPTR,<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>char*<sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>OPT_ENUM,<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>enum<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>OPT_ARRAY,<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>array<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>OPT_LEGACY,<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>any<sp/>type,<sp/>skipped<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>opt_type_MAX,</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*opt_type_strs[];</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>int64_t<sp/>(*opt_def_to_enum_cb)(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*str,<sp/>uint32_t<sp/>len);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>int<sp/>(*opt_def_to_array_cb)(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**str,<sp/>uint32_t<sp/>len,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*opt,</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>errcode,<sp/>uint32_t<sp/>field_no);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80" refid="structopt__def" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structopt__def" kindref="compound">opt_def</ref><sp/>{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>opt_type<sp/>type;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>offset;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>len;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*enum_name;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>enum_size;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**enum_strs;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>enum_max;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>opt_def_to_enum_cb<sp/>to_enum;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>opt_def_to_array_cb<sp/>to_array;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="95"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>OPT_DEF(key,<sp/>type,<sp/>opts,<sp/>field)<sp/>\</highlight></codeline>
+<codeline lineno="98"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>key,<sp/>type,<sp/>offsetof(opts,<sp/>field),<sp/>sizeof(((opts<sp/>*)0)-&gt;field),<sp/>\</highlight></codeline>
+<codeline lineno="99"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>NULL,<sp/>0,<sp/>NULL,<sp/>0,<sp/>{NULL}<sp/>}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>OPT_DEF_ENUM(key,<sp/>enum_name,<sp/>opts,<sp/>field,<sp/>to_enum)<sp/>\</highlight></codeline>
+<codeline lineno="102"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>key,<sp/>OPT_ENUM,<sp/>offsetof(opts,<sp/>field),<sp/>sizeof(int),<sp/>#enum_name,<sp/>\</highlight></codeline>
+<codeline lineno="103"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sizeof(enum<sp/>enum_name),<sp/>enum_name##_strs,<sp/>enum_name##_MAX,<sp/>\</highlight></codeline>
+<codeline lineno="104"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{(void<sp/>*)to_enum}<sp/>}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>OPT_DEF_ARRAY(key,<sp/>opts,<sp/>field,<sp/>to_array)<sp/>\</highlight></codeline>
+<codeline lineno="107"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>key,<sp/>OPT_ARRAY,<sp/>offsetof(opts,<sp/>field),<sp/>sizeof(((opts<sp/>*)0)-&gt;field),<sp/>\</highlight></codeline>
+<codeline lineno="108"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>NULL,<sp/>0,<sp/>NULL,<sp/>0,<sp/>{(void<sp/>*)to_array}<sp/>}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>OPT_DEF_LEGACY(key)<sp/>\</highlight></codeline>
+<codeline lineno="111"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/>key,<sp/>OPT_LEGACY,<sp/>0,<sp/>0,<sp/>NULL,<sp/>0,<sp/>NULL,<sp/>0,<sp/>{NULL}<sp/>}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>OPT_END<sp/>{NULL,<sp/>opt_type_MAX,<sp/>0,<sp/>0,<sp/>NULL,<sp/>0,<sp/>NULL,<sp/>0,<sp/>{NULL}}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structregion" kindref="compound">region</ref>;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal">opts_decode(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*opts,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structopt__def" kindref="compound">opt_def</ref><sp/>*reg,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**map,</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>errcode,<sp/>uint32_t<sp/>field_no,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structregion" kindref="compound">region</ref><sp/>*<ref refid="structregion" kindref="compound">region</ref>);</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal">opts_parse_key(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*opts,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structopt__def" kindref="compound">opt_def</ref><sp/>*reg,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*key,</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>key_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**data,<sp/>uint32_t<sp/>errcode,</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>field_no,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>region<sp/>*region,</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>skip_unknown_options);</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_BOX_OPT_DEF_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/opt_def.h"/>
+  </compounddef>
+</doxygen>

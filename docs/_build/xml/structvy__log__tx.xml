@@ -1,0 +1,148 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvy__log__tx" kind="struct" language="C++" prot="public">
+    <compoundname>vy_log_tx</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvy__log__tx_1a43f52cfd6141aaf3da5ea30c274ba76c" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structstailq__entry" kindref="compound">stailq_entry</ref></type>
+        <definition>struct stailq_entry vy_log_tx::in_pending</definition>
+        <argsstring></argsstring>
+        <name>in_pending</name>
+        <briefdescription>
+<para>Link in <ref refid="structvy__log_1ad4fcc67295ea2256c217422a496f3525" kindref="member">vy_log::pending_tx</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.c" line="2575" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.c" bodystart="137" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__log__tx_1a5988de1503f2edc15a4b543e40452c02" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structregion" kindref="compound">region</ref></type>
+        <definition>struct region vy_log_tx::region</definition>
+        <argsstring></argsstring>
+        <name>region</name>
+        <briefdescription>
+<para>Region used for allocating records. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.c" line="2575" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.c" bodystart="139" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__log__tx_1a5c311f58f956b6e4e7ab0a1b45a54cc8" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structstailq" kindref="compound">stailq</ref></type>
+        <definition>struct stailq vy_log_tx::records</definition>
+        <argsstring></argsstring>
+        <name>records</name>
+        <briefdescription>
+<para>List of records, linked by <ref refid="structvy__log__record_1a2cc826c0912f730c88cec682b776150b" kindref="member">vy_log_record::in_tx</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.c" line="2575" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.c" bodystart="141" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Batch of vylog records that must be written in one go. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="13236">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="13233">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="13233" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="13234">
+        <label>region</label>
+        <link refid="structregion"/>
+        <childnode refid="13235" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="13238" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="13242">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="13233" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="13232">
+        <label>vy_log_tx</label>
+        <link refid="structvy__log__tx"/>
+        <childnode refid="13233" relation="usage">
+          <edgelabel>in_pending</edgelabel>
+        </childnode>
+        <childnode refid="13234" relation="usage">
+          <edgelabel>region</edgelabel>
+        </childnode>
+        <childnode refid="13242" relation="usage">
+          <edgelabel>records</edgelabel>
+        </childnode>
+      </node>
+      <node id="13237">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="13237" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="13235">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="13236" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="13237" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="13240">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="13241">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="13239">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="13240" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="13241" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="13238">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="13235" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="13239" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/vy_log.c" line="135" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.c" bodystart="135" bodyend="142"/>
+    <listofallmembers>
+      <member refid="structvy__log__tx_1a43f52cfd6141aaf3da5ea30c274ba76c" prot="public" virt="non-virtual"><scope>vy_log_tx</scope><name>in_pending</name></member>
+      <member refid="structvy__log__tx_1a5c311f58f956b6e4e7ab0a1b45a54cc8" prot="public" virt="non-virtual"><scope>vy_log_tx</scope><name>records</name></member>
+      <member refid="structvy__log__tx_1a5988de1503f2edc15a4b543e40452c02" prot="public" virt="non-virtual"><scope>vy_log_tx</scope><name>region</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

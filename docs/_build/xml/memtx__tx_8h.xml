@@ -1,0 +1,713 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="memtx__tx_8h" kind="file" language="C++">
+    <compoundname>memtx_tx.h</compoundname>
+    <includes refid="rlist_8h" local="yes">small/rlist.h</includes>
+    <includes refid="box_2index_8h" local="yes">index.h</includes>
+    <includes refid="tuple_8h" local="yes">tuple.h</includes>
+    <includedby refid="memtx__bitset_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_bitset.c</includedby>
+    <includedby refid="memtx__engine_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_engine.c</includedby>
+    <includedby refid="memtx__hash_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_hash.c</includedby>
+    <includedby refid="memtx__rtree_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_rtree.c</includedby>
+    <includedby refid="memtx__space_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_space.c</includedby>
+    <includedby refid="memtx__tree_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_tree.c</includedby>
+    <includedby refid="memtx__tx_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_tx.c</includedby>
+    <includedby refid="space_8c" local="yes">/home/tsafin/tarantool/src/box/space.c</includedby>
+    <includedby refid="txn_8c" local="yes">/home/tsafin/tarantool/src/box/txn.c</includedby>
+    <includedby refid="main_8cc" local="yes">/home/tsafin/tarantool/src/main.cc</includedby>
+    <innerclass refid="structtx__conflict__tracker" prot="public">tx_conflict_tracker</innerclass>
+    <innerclass refid="structtx__read__tracker" prot="public">tx_read_tracker</innerclass>
+    <innerclass refid="structmemtx__story__or__tuple" prot="public">memtx_story_or_tuple</innerclass>
+    <innerclass refid="structmemtx__story__link" prot="public">memtx_story_link</innerclass>
+    <innerclass refid="structmemtx__story" prot="public">memtx_story</innerclass>
+    <innerclass refid="structmemtx__tx__snapshot__cleaner" prot="public">memtx_tx_snapshot_cleaner</innerclass>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="memtx__tx_8h_1a6dd5e8e117d68a59a0057bce65c371e7" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool memtx_tx_manager_use_mvcc_engine</definition>
+        <argsstring></argsstring>
+        <name>memtx_tx_manager_use_mvcc_engine</name>
+        <briefdescription>
+<para>Global flag that enables mvcc engine. </para>        </briefdescription>
+        <detaileddescription>
+<para>If set, memtx starts to apply statements through txm history mechanism and tx manager itself transaction reads in order to detect conflicts.</para><para>Global flag that enables mvcc engine. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="48" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.c" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="memtx__tx_8h_1a2ae433e306c2ba08fdac66cfc712f1ab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void memtx_tx_manager_init</definition>
+        <argsstring>()</argsstring>
+        <name>memtx_tx_manager_init</name>
+        <briefdescription>
+<para>Initialize memtx transaction manager. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="182" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.c" bodystart="96" bodyend="108"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__tx_8h_1aebcc6eb6d35031b23254ad10effd014d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void memtx_tx_manager_free</definition>
+        <argsstring>()</argsstring>
+        <name>memtx_tx_manager_free</name>
+        <briefdescription>
+<para>Free resources of memtx transaction manager. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="188" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.c" bodystart="111" bodyend="113"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__tx_8h_1aae389528df23fdc66a89055529c0afbe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int memtx_tx_cause_conflict</definition>
+        <argsstring>(struct txn *breaker, struct txn *victim)</argsstring>
+        <name>memtx_tx_cause_conflict</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>breaker</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>victim</declname>
+        </param>
+        <briefdescription>
+<para>Notify TX manager that if transaction <emphasis>breaker</emphasis> is committed then the transaction <emphasis>victim</emphasis> must be aborted due to conflict. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is achieved by adding corresponding entry (of <ref refid="structtx__conflict__tracker" kindref="compound">tx_conflict_tracker</ref> type) to <emphasis>breaker</emphasis> conflict list. In case there&apos;s already such entry, then move it to the head of the list in order to optimize next invocations of this function. For example: there&apos;s two rw transaction in progress, one have read some value while the second is about to overwrite it. If the second is committed first, the first must be aborted. <simplesect kind="return"><para>0 on success, -1 on memory error. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="202" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.c" bodystart="116" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__tx_8h_1aafaa2907de6295bc751bb0fe0c8c6530" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void memtx_tx_handle_conflict</definition>
+        <argsstring>(struct txn *breaker, struct txn *victim)</argsstring>
+        <name>memtx_tx_handle_conflict</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>breaker</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>victim</declname>
+        </param>
+        <briefdescription>
+<para>Handle conflict when <emphasis>breaker</emphasis> transaction is prepared. </para>        </briefdescription>
+        <detaileddescription>
+<para>The conflict is happened if <emphasis>victim</emphasis> have read something that <emphasis>breaker</emphasis> overwrites. If <emphasis>victim</emphasis> is read-only or hasn&apos;t made any changes, it should be sent to read view, in which is will not see <emphasis>breaker</emphasis>. Otherwise <emphasis>victim</emphasis> must be marked as conflicted and aborted on occasion. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="213" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.c" bodystart="163" bodyend="179"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__tx_8h_1aa353c0cee0e557804d5b9fa45be0f9f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int memtx_tx_history_add_stmt</definition>
+        <argsstring>(struct txn_stmt *stmt, struct tuple *old_tuple, struct tuple *new_tuple, enum dup_replace_mode mode, struct tuple **result)</argsstring>
+        <name>memtx_tx_history_add_stmt</name>
+        <param>
+          <type>struct <ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref> *</type>
+          <declname>stmt</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+          <declname>old_tuple</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+          <declname>new_tuple</declname>
+        </param>
+        <param>
+          <type>enum dup_replace_mode</type>
+          <declname>mode</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> **</type>
+          <declname>result</declname>
+        </param>
+        <briefdescription>
+<para>Add a statement to transaction manager&apos;s history. </para>        </briefdescription>
+        <detaileddescription>
+<para>Until unlinking or releasing the space could internally contain wrong tuples and must be cleaned through memtx_tx_tuple_clarify call. <ref refid="structWith" kindref="compound">With</ref> that clarifying the statement will be visible to current transaction, but invisible to all others. Follows signature of <simplesect kind="see"><para>memtx_space_replace_all_keys .</para></simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stmt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>current statement. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>old_tuple</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the tuple that should be removed (can be NULL). </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>new_tuple</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the tuple that should be inserted (can be NULL). </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>dup_replace_mode, used only if new_tuple is not NULL and old_tuple is NULL, and only for the primary key. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>result</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- old or replaced tuple. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>0 on success, -1 on error (diag is set). </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="233" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.c" bodystart="613" bodyend="767"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__tx_8h_1ac3e09076b49e99c769155561b59a5d90" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void memtx_tx_history_rollback_stmt</definition>
+        <argsstring>(struct txn_stmt *stmt)</argsstring>
+        <name>memtx_tx_history_rollback_stmt</name>
+        <param>
+          <type>struct <ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref> *</type>
+          <declname>stmt</declname>
+        </param>
+        <briefdescription>
+<para>Rollback (undo) a statement from transaction manager&apos;s history. </para>        </briefdescription>
+        <detaileddescription>
+<para>It&apos;s just make the statement invisible to all. Prepared statements could be also removed, but for consistency all latter prepared statement must be also rolled back.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stmt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>current statement. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="246" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.c" bodystart="770" bodyend="822"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__tx_8h_1a3e9041d38faf3ea41aa29619a834aeb9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void memtx_tx_history_prepare_stmt</definition>
+        <argsstring>(struct txn_stmt *stmt)</argsstring>
+        <name>memtx_tx_history_prepare_stmt</name>
+        <param>
+          <type>struct <ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref> *</type>
+          <declname>stmt</declname>
+        </param>
+        <briefdescription>
+<para>Prepare statement in history for further commit. </para>        </briefdescription>
+        <detaileddescription>
+<para>Prepared statements are still invisible for read-only transactions but are visible to all read-write transactions. Prepared and in-progress transactions use the same links for creating chains of stories in history. The difference is that the order of prepared transactions is fixed while in-progress transactions are added to the end of list in any order. Thus to switch to prepared we have to reorder story in such a way that current story will be between earlier prepared stories and in-progress stories. That&apos;s what this function does.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stmt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>current statement. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="263" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.c" bodystart="825" bodyend="963"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__tx_8h_1a4bf4a3467e2f0377359427f52a77255a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t memtx_tx_history_commit_stmt</definition>
+        <argsstring>(struct txn_stmt *stmt)</argsstring>
+        <name>memtx_tx_history_commit_stmt</name>
+        <param>
+          <type>struct <ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref> *</type>
+          <declname>stmt</declname>
+        </param>
+        <briefdescription>
+<para>Commit statement in history. </para>        </briefdescription>
+        <detaileddescription>
+<para>Make the statement&apos;s changes permanent. It becomes visible to all.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stmt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>current statement. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the change in space bsize. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="273" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.c" bodystart="966" bodyend="984"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__tx_8h_1a1de75e14b4d58b367e47dfb6ea448b79" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+        <definition>struct tuple* memtx_tx_tuple_clarify_slow</definition>
+        <argsstring>(struct txn *txn, struct space *space, struct tuple *tuple, uint32_t index, uint32_t mk_index, bool is_prepared_ok)</argsstring>
+        <name>memtx_tx_tuple_clarify_slow</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structspace" kindref="compound">space</ref> *</type>
+          <declname>space</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+          <declname>tuple</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>mk_index</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>is_prepared_ok</declname>
+        </param>
+        <briefdescription>
+<para>Helper of memtx_tx_tuple_clarify. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="277" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.c" bodystart="987" bodyend="1015"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__tx_8h_1a283fd440ea62f133e875f1c298353d37" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int memtx_tx_track_read</definition>
+        <argsstring>(struct txn *txn, struct space *space, struct tuple *tuple)</argsstring>
+        <name>memtx_tx_track_read</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structspace" kindref="compound">space</ref> *</type>
+          <declname>space</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+          <declname>tuple</declname>
+        </param>
+        <briefdescription>
+<para>Record in TX manager that a transaction  have read a  in . </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>0 on success, -1 on memory error. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="286" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.c" bodystart="1063" bodyend="1130"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__tx_8h_1a204cb9fea5b13777134bd2813bc15aaa" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+        <definition>static struct tuple* memtx_tx_tuple_clarify</definition>
+        <argsstring>(struct txn *txn, struct space *space, struct tuple *tuple, uint32_t index, uint32_t mk_index, bool is_prepared_ok)</argsstring>
+        <name>memtx_tx_tuple_clarify</name>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structspace" kindref="compound">space</ref> *</type>
+          <declname>space</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+          <declname>tuple</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>mk_index</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>is_prepared_ok</declname>
+        </param>
+        <briefdescription>
+<para>Clean a tuple if it&apos;s dirty - finds a visible tuple in history. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>txn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- current transactions. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>space</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- space in which the tuple was found. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tuple</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- tuple to clean. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- index number. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mk_index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- multikey index (iа the index is multikey). </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>is_prepared_ok</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- allow to return prepared tuples. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>clean tuple (can be NULL). </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="299" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.h" bodystart="299" bodyend="311"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__tx_8h_1a498c51ef1a750ff8b1e4fbd7e372fb45" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void memtx_tx_on_space_delete</definition>
+        <argsstring>(struct space *space)</argsstring>
+        <name>memtx_tx_on_space_delete</name>
+        <param>
+          <type>struct <ref refid="structspace" kindref="compound">space</ref> *</type>
+          <declname>space</declname>
+        </param>
+        <briefdescription>
+<para>Notify manager the a space is deleted. </para>        </briefdescription>
+        <detaileddescription>
+<para>It&apos;s necessary because there is a chance that garbage collector hasn&apos;t deleted all stories of that space and in that case some actions of story&apos;s destructor are not applicable. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="320" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.c" bodystart="1018" bodyend="1029"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__tx_8h_1a845042a854e12125f8770b1ff4d36730" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int memtx_tx_snapshot_cleaner_create</definition>
+        <argsstring>(struct memtx_tx_snapshot_cleaner *cleaner, struct space *space, const char *index_name)</argsstring>
+        <name>memtx_tx_snapshot_cleaner_create</name>
+        <param>
+          <type>struct <ref refid="structmemtx__tx__snapshot__cleaner" kindref="compound">memtx_tx_snapshot_cleaner</ref> *</type>
+          <declname>cleaner</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structspace" kindref="compound">space</ref> *</type>
+          <declname>space</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>index_name</declname>
+        </param>
+        <briefdescription>
+<para>Create a snapshot cleaner. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cleaner</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- cleaner to create. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>space</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- space for which the cleaner must be created. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>index_name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- name of index for diag in case of memory error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>0 on success, -1 on memory erorr. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="330" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.c" bodystart="1160" bodyend="1197"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__tx_8h_1adcf341a0bbf185dfebbb8c697d2753f9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+        <definition>struct tuple* memtx_tx_snapshot_clarify_slow</definition>
+        <argsstring>(struct memtx_tx_snapshot_cleaner *cleaner, struct tuple *tuple)</argsstring>
+        <name>memtx_tx_snapshot_clarify_slow</name>
+        <param>
+          <type>struct <ref refid="structmemtx__tx__snapshot__cleaner" kindref="compound">memtx_tx_snapshot_cleaner</ref> *</type>
+          <declname>cleaner</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+          <declname>tuple</declname>
+        </param>
+        <briefdescription>
+<para>Helper of txm_snapshot_clafify. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="335" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.c" bodystart="1200" bodyend="1217"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__tx_8h_1a4d80e9f69b1f93e54535cbff05f80ce7" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+        <definition>static struct tuple* memtx_tx_snapshot_clarify</definition>
+        <argsstring>(struct memtx_tx_snapshot_cleaner *cleaner, struct tuple *tuple)</argsstring>
+        <name>memtx_tx_snapshot_clarify</name>
+        <param>
+          <type>struct <ref refid="structmemtx__tx__snapshot__cleaner" kindref="compound">memtx_tx_snapshot_cleaner</ref> *</type>
+          <declname>cleaner</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+          <declname>tuple</declname>
+        </param>
+        <briefdescription>
+<para>Like a common clarify that function returns proper tuple if original tuple in index is dirty. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cleaner</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- pre-created snapshot cleaner. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tuple</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- tuple to clean. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>cleaned tuple, can be NULL. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="346" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.h" bodystart="346" bodyend="352"/>
+      </memberdef>
+      <memberdef kind="function" id="memtx__tx_8h_1a5db988b351d9d7962a9cb2ffa93ff170" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void memtx_tx_snapshot_cleaner_destroy</definition>
+        <argsstring>(struct memtx_tx_snapshot_cleaner *cleaner)</argsstring>
+        <name>memtx_tx_snapshot_cleaner_destroy</name>
+        <param>
+          <type>struct <ref refid="structmemtx__tx__snapshot__cleaner" kindref="compound">memtx_tx_snapshot_cleaner</ref> *</type>
+          <declname>cleaner</declname>
+        </param>
+        <briefdescription>
+<para>Free resources.in shapshot . </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.h" line="358" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.c" bodystart="1221" bodyend="1225"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#pragma<sp/>once</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2020,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;small/rlist.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="box_2index_8h" kindref="compound">index.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tuple.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;small/rlist.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>memtx_tx_manager_use_mvcc_engine;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="structtx__conflict__tracker" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtx__conflict__tracker" kindref="compound">tx_conflict_tracker</ref><sp/>{</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn" kindref="compound">txn</ref><sp/>*<ref refid="structtx__conflict__tracker_1afd1d189e63cc32294d3648dabc3700fc" kindref="member">breaker</ref>;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn" kindref="compound">txn</ref><sp/>*<ref refid="structtx__conflict__tracker_1ac4c3ecae9168c9f773abfd0b92bc72e1" kindref="member">victim</ref>;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>in_conflict_list;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>in_conflicted_by_list;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68" refid="structtx__read__tracker" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtx__read__tracker" kindref="compound">tx_read_tracker</ref><sp/>{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn" kindref="compound">txn</ref><sp/>*reader;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmemtx__story" kindref="compound">memtx_story</ref><sp/>*story;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>in_reader_list;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>in_read_set;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82" refid="structmemtx__story__or__tuple" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmemtx__story__or__tuple" kindref="compound">memtx_story_or_tuple</ref><sp/>{</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_story;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmemtx__story" kindref="compound">memtx_story</ref><sp/>*story;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple" kindref="compound">tuple</ref><sp/>*<ref refid="structtuple" kindref="compound">tuple</ref>;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97" refid="structmemtx__story__link" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmemtx__story__link" kindref="compound">memtx_story_link</ref><sp/>{</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmemtx__story" kindref="compound">memtx_story</ref><sp/>*newer_story;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmemtx__story__or__tuple" kindref="compound">memtx_story_or_tuple</ref><sp/>older;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113" refid="structmemtx__story" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmemtx__story" kindref="compound">memtx_story</ref><sp/>{</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple" kindref="compound">tuple</ref><sp/>*<ref refid="structtuple" kindref="compound">tuple</ref>;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref><sp/>*add_stmt;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>add_psn;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref><sp/>*del_stmt;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>del_psn;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>reader_list;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>in_all_stories;</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>in_space_stories;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structspace" kindref="compound">space</ref><sp/>*<ref refid="structspace" kindref="compound">space</ref>;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structspace_1a09e3661386fc7810c06ceaea05576e82" kindref="member">index_count</ref>;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmemtx__story__link" kindref="compound">memtx_story_link</ref><sp/>link[];</highlight></codeline>
+<codeline lineno="167"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174" refid="structmemtx__tx__snapshot__cleaner" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmemtx__tx__snapshot__cleaner" kindref="compound">memtx_tx_snapshot_cleaner</ref><sp/>{</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">mh_snapshot_cleaner_t<sp/>*ht;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal">memtx_tx_manager_init();</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal">memtx_tx_manager_free();</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal">memtx_tx_cause_conflict(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn" kindref="compound">txn</ref><sp/>*<ref refid="structtx__conflict__tracker_1afd1d189e63cc32294d3648dabc3700fc" kindref="member">breaker</ref>,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn" kindref="compound">txn</ref><sp/>*<ref refid="structtx__conflict__tracker_1ac4c3ecae9168c9f773abfd0b92bc72e1" kindref="member">victim</ref>);</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal">memtx_tx_handle_conflict(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn" kindref="compound">txn</ref><sp/>*breaker,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn" kindref="compound">txn</ref><sp/>*victim);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="232"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="233"><highlight class="normal">memtx_tx_history_add_stmt(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref><sp/>*stmt,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple" kindref="compound">tuple</ref><sp/>*old_tuple,</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple" kindref="compound">tuple</ref><sp/>*new_tuple,<sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>dup_replace_mode<sp/>mode,</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple" kindref="compound">tuple</ref><sp/>**result);</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="normal">memtx_tx_history_rollback_stmt(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref><sp/>*stmt);</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="263"><highlight class="normal">memtx_tx_history_prepare_stmt(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref><sp/>*stmt);</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal">ssize_t</highlight></codeline>
+<codeline lineno="273"><highlight class="normal">memtx_tx_history_commit_stmt(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref><sp/>*stmt);</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple" kindref="compound">tuple</ref><sp/>*</highlight></codeline>
+<codeline lineno="277"><highlight class="normal">memtx_tx_tuple_clarify_slow(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn" kindref="compound">txn</ref><sp/>*<ref refid="structtxn" kindref="compound">txn</ref>,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structspace" kindref="compound">space</ref><sp/>*<ref refid="structspace" kindref="compound">space</ref>,</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple" kindref="compound">tuple</ref><sp/>*<ref refid="structtuple" kindref="compound">tuple</ref>,<sp/>uint32_t<sp/><ref refid="structindex" kindref="compound">index</ref>,</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>mk_index,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_prepared_ok);</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"></highlight></codeline>
+<codeline lineno="285"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="normal">memtx_tx_track_read(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>space<sp/>*space,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tuple<sp/>*tuple);</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"></highlight></codeline>
+<codeline lineno="298"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">tuple<sp/>*</highlight></codeline>
+<codeline lineno="299"><highlight class="normal">memtx_tx_tuple_clarify(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>txn<sp/>*txn,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>space<sp/>*space,</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tuple<sp/>*tuple,<sp/>uint32_t<sp/>index,</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>mk_index,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_prepared_ok)</highlight></codeline>
+<codeline lineno="302"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!memtx_tx_manager_use_mvcc_engine)</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>tuple;</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!tuple-&gt;<ref refid="structtuple_1afd19a224f23e9949ea5060d5cd57d7a3" kindref="member">is_dirty</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memtx_tx_track_read(txn,<sp/>space,<sp/>tuple);</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>tuple;</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>memtx_tx_tuple_clarify_slow(txn,<sp/>space,<sp/>tuple,<sp/>index,<sp/>mk_index,</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is_prepared_ok);</highlight></codeline>
+<codeline lineno="311"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"></highlight></codeline>
+<codeline lineno="319"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="320"><highlight class="normal">memtx_tx_on_space_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>space<sp/>*space);</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"></highlight></codeline>
+<codeline lineno="329"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="330"><highlight class="normal">memtx_tx_snapshot_cleaner_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmemtx__tx__snapshot__cleaner" kindref="compound">memtx_tx_snapshot_cleaner</ref><sp/>*cleaner,</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>space<sp/>*space,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*index_name);</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"></highlight></codeline>
+<codeline lineno="334"><highlight class="keyword">struct<sp/></highlight><highlight class="normal">tuple<sp/>*</highlight></codeline>
+<codeline lineno="335"><highlight class="normal">memtx_tx_snapshot_clarify_slow(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmemtx__tx__snapshot__cleaner" kindref="compound">memtx_tx_snapshot_cleaner</ref><sp/>*cleaner,</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tuple<sp/>*tuple);</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"></highlight></codeline>
+<codeline lineno="345"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">tuple<sp/>*</highlight></codeline>
+<codeline lineno="346"><highlight class="normal">memtx_tx_snapshot_clarify(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmemtx__tx__snapshot__cleaner" kindref="compound">memtx_tx_snapshot_cleaner</ref><sp/>*cleaner,</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tuple<sp/>*tuple)</highlight></codeline>
+<codeline lineno="348"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="349"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cleaner-&gt;ht<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="350"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>tuple;</highlight></codeline>
+<codeline lineno="351"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>memtx_tx_snapshot_clarify_slow(cleaner,<sp/>tuple);</highlight></codeline>
+<codeline lineno="352"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="353"><highlight class="normal"></highlight></codeline>
+<codeline lineno="357"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="358"><highlight class="normal">memtx_tx_snapshot_cleaner_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmemtx__tx__snapshot__cleaner" kindref="compound">memtx_tx_snapshot_cleaner</ref><sp/>*cleaner);</highlight></codeline>
+<codeline lineno="359"><highlight class="normal"></highlight></codeline>
+<codeline lineno="360"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="361"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="362"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/memtx_tx.h"/>
+  </compounddef>
+</doxygen>

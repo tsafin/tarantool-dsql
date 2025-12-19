@@ -1,0 +1,1176 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="httpc_8h" kind="file" language="C++">
+    <compoundname>httpc.h</compoundname>
+    <includes refid="lib_2small_2small_2ibuf_8h" local="no">small/ibuf.h</includes>
+    <includes refid="region_8h" local="no">small/region.h</includes>
+    <includes refid="mempool_8h" local="no">small/mempool.h</includes>
+    <includes local="no">tarantool_ev.h</includes>
+    <includes refid="diag_8h" local="yes">diag.h</includes>
+    <includes refid="curl_8h" local="yes">curl.h</includes>
+    <includedby refid="httpc_8c" local="yes">/home/tsafin/tarantool/src/httpc.c</includedby>
+    <includedby refid="lua_2httpc_8c" local="yes">/home/tsafin/tarantool/src/lua/httpc.c</includedby>
+    <incdepgraph>
+      <node id="1630">
+        <label>tarantool_ev.h</label>
+      </node>
+      <node id="1629">
+        <label>/home/tsafin/tarantool/src/httpc.h</label>
+        <link refid="httpc_8h"/>
+        <childnode refid="1630" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structhttpc__stat" prot="public">httpc_stat</innerclass>
+    <innerclass refid="structhttpc__env" prot="public">httpc_env</innerclass>
+    <innerclass refid="structhttpc__request" prot="public">httpc_request</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="httpc_8h_1a455b598fcf9455e50ecb08546ff5ec7b" prot="public" static="no">
+        <name>TARANTOOL_HTTPC_H_INCLUDED</name>
+        <initializer>1</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="2" column="9" bodyfile="/home/tsafin/tarantool/src/httpc.h" bodystart="2" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="httpc_8h_1a5ad3a82c3de54ee92ce4ddb052d18036" prot="public" static="no">
+        <type>void</type>
+        <definition>typedef void CURLM</definition>
+        <argsstring></argsstring>
+        <name>CURLM</name>
+        <briefdescription>
+<para>{{{ Environment </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="44" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="httpc_8h_1ace655e3633b6533591283994d6b5cdda" prot="public" static="no">
+        <type>void</type>
+        <definition>typedef void CURL</definition>
+        <argsstring></argsstring>
+        <name>CURL</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="45" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="httpc_8h_1af1d5ac12aa5b56b7d2af4c654459fc5e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int httpc_env_create</definition>
+        <argsstring>(struct httpc_env *ctx, int max_conns, int max_total_conns)</argsstring>
+        <name>httpc_env_create</name>
+        <param>
+          <type>struct <ref refid="structhttpc__env" kindref="compound">httpc_env</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>max_conns</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>max_total_conns</declname>
+        </param>
+        <briefdescription>
+<para>Creates new HTTP client environment. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>env</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to a structure to initialize </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_conn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The maximum number of entries in connection cache </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on success </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on error, check diag </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="79" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="88" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1a3df6e7d9223a7d0e6b65a4fe1acb63b1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void httpc_env_destroy</definition>
+        <argsstring>(struct httpc_env *env)</argsstring>
+        <name>httpc_env_destroy</name>
+        <param>
+          <type>struct <ref refid="structhttpc__env" kindref="compound">httpc_env</ref> *</type>
+          <declname>env</declname>
+        </param>
+        <briefdescription>
+<para>Destroy HTTP client environment. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>env</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to a structure to destroy </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="86" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="98" bodyend="105"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1a9536dbd01e43ea2c88132ae3ca6f5990" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+        <definition>struct httpc_request* httpc_request_new</definition>
+        <argsstring>(struct httpc_env *env, const char *method, const char *url)</argsstring>
+        <name>httpc_request_new</name>
+        <param>
+          <type>struct <ref refid="structhttpc__env" kindref="compound">httpc_env</ref> *</type>
+          <declname>env</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>method</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>url</declname>
+        </param>
+        <briefdescription>
+<para>Create a new HTTP request. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- reference to context </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>a new HTTP request object </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="141" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="108" bodyend="164"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1a057e809d568d7bf8684f3d6a5b47da88" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void httpc_request_delete</definition>
+        <argsstring>(struct httpc_request *req)</argsstring>
+        <name>httpc_request_delete</name>
+        <param>
+          <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <briefdescription>
+<para>Delete HTTP request. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>request</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- reference to object</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+Should be called even if error in execute appeared </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="150" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="167" bodyend="179"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1afce1375796be1ba3de141c2ba3bda224" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int httpc_set_header</definition>
+        <argsstring>(struct httpc_request *req, const char *fmt,...)</argsstring>
+        <name>httpc_set_header</name>
+        <param>
+          <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>fmt</declname>
+        </param>
+        <param>
+          <type>...</type>
+        </param>
+        <briefdescription>
+<para>Set HTTP header. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>req</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>request </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fmt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>format string </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>...</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>format arguments </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="159" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="182" bodyend="215"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1ae8b0a3cbddcfe773398e0b2aad6e7cdc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int httpc_set_body</definition>
+        <argsstring>(struct httpc_request *req, const char *body, size_t size)</argsstring>
+        <name>httpc_set_body</name>
+        <param>
+          <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>body</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Sets body of request. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>req</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>request </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>body</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>body </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>sizeof body </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="168" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="218" bodyend="235"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1aff4a2256b6928a8d8bb6ce9232ed9ecb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void httpc_set_keepalive</definition>
+        <argsstring>(struct httpc_request *req, long idle, long interval)</argsstring>
+        <name>httpc_set_keepalive</name>
+        <param>
+          <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>long</type>
+          <declname>idle</declname>
+        </param>
+        <param>
+          <type>long</type>
+          <declname>interval</declname>
+        </param>
+        <briefdescription>
+<para>Set TCP keep-alive probing. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>req</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>request </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>idle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>delay, in seconds, that the operating system will wait while the connection is idle before sending keepalive probes </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>interval</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the interval, in seconds, that the operating system will wait between sending keepalive probes</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+Does nothing on libcurl &lt; 7.25.0 <simplesect kind="see"><para><ulink url="https://curl.haxx.se/libcurl/c/CURLOPT_TCP_KEEPALIVE.html">https://curl.haxx.se/libcurl/c/CURLOPT_TCP_KEEPALIVE.html</ulink> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="181" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="238" bodyend="253"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1a7aae59a2f78e0e126b845851856407a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void httpc_set_low_speed_time</definition>
+        <argsstring>(struct httpc_request *req, long low_speed_time)</argsstring>
+        <name>httpc_set_low_speed_time</name>
+        <param>
+          <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>long</type>
+          <declname>low_speed_time</declname>
+        </param>
+        <briefdescription>
+<para>Set the &quot;low speed time&quot; - the time that the transfer speed should be below the &quot;low speed limit&quot; for the library to consider it too slow and abort. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>req</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>request </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>low_speed_time</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>low speed time</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+If the download receives less than &quot;low speed limit&quot; bytes/second during &quot;low speed time&quot; seconds, the operations is aborted. You could i.e if you have a pretty high speed Connection, abort if it is less than 2000 bytes/sec during 20 seconds; <simplesect kind="see"><para>httpc_set_low_speed_limit() </para></simplesect>
+<simplesect kind="see"><para><ulink url="https://curl.haxx.se/libcurl/c/CURLOPT_LOW_SPEED_TIME.html">https://curl.haxx.se/libcurl/c/CURLOPT_LOW_SPEED_TIME.html</ulink> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="197" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="256" bodyend="259"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1a83766698cfd36763b38742cf7032aa83" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void httpc_set_low_speed_limit</definition>
+        <argsstring>(struct httpc_request *req, long low_speed_limit)</argsstring>
+        <name>httpc_set_low_speed_limit</name>
+        <param>
+          <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>long</type>
+          <declname>low_speed_limit</declname>
+        </param>
+        <briefdescription>
+<para>Set the &quot;low speed limit&quot; - the average transfer speed in bytes per second that the transfer should be below during &quot;low speed time&quot; seconds for the library to consider it to be too slow and abort. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>req</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>request </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>low_speed_limit</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>low speed limit</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+If the download receives less than &quot;low speed limit&quot; bytes/second during &quot;low speed time&quot; seconds, the operations is aborted. You could i.e if you have a pretty high speed Connection, abort if it is less than 2000 bytes/sec during 20 seconds. <simplesect kind="see"><para>httpc_set_low_speed_time() </para></simplesect>
+<simplesect kind="see"><para><ulink url="https://curl.haxx.se/libcurl/c/CURLOPT_LOW_SPEED_LIMIT.html">https://curl.haxx.se/libcurl/c/CURLOPT_LOW_SPEED_LIMIT.html</ulink> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="213" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="262" bodyend="265"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1ad948c29952a8170dfd7d3ddf0a3d36af" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void httpc_set_verbose</definition>
+        <argsstring>(struct httpc_request *req, bool verbose)</argsstring>
+        <name>httpc_set_verbose</name>
+        <param>
+          <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>verbose</declname>
+        </param>
+        <briefdescription>
+<para>Enables/Disables libcurl verbose mode. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>req</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>request </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>verbose</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>flag </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="221" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="268" bodyend="272"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1a60d28c1fde8a368603103f5e70911646" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void httpc_set_ca_path</definition>
+        <argsstring>(struct httpc_request *req, const char *ca_path)</argsstring>
+        <name>httpc_set_ca_path</name>
+        <param>
+          <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>ca_path</declname>
+        </param>
+        <briefdescription>
+<para>Specify directory holding CA certificates. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>req</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>request </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ca_path</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>path to directory holding one or more certificates to verify the peer with. The application does not have to keep the string around after setting this option. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="231" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="275" bodyend="278"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1ac176b90283a9254991912965affd2c20" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void httpc_set_ca_file</definition>
+        <argsstring>(struct httpc_request *req, const char *ca_file)</argsstring>
+        <name>httpc_set_ca_file</name>
+        <param>
+          <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>ca_file</declname>
+        </param>
+        <briefdescription>
+<para>Specify path to Certificate Authority (CA) bundle. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>req</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>request </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ca_file</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- File holding one or more certificates to verify the peer with. The application does not have to keep the string around after setting this option. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ulink url="https://curl.haxx.se/libcurl/c/CURLOPT_CAINFO.html">https://curl.haxx.se/libcurl/c/CURLOPT_CAINFO.html</ulink> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="242" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="281" bodyend="284"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1a661863a479224aba01a97fe3602f8fcf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int httpc_set_unix_socket</definition>
+        <argsstring>(struct httpc_request *req, const char *unix_socket)</argsstring>
+        <name>httpc_set_unix_socket</name>
+        <param>
+          <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>unix_socket</declname>
+        </param>
+        <briefdescription>
+<para>Specify path to Unix domain socket. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>req</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>request </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>unix_socket</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>path to Unix domain socket used as connection endpoint instead of TCP. The application does not have to keep the string around after setting this option. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ulink url="https://curl.haxx.se/libcurl/c/CURLOPT_UNIX_SOCKET_PATH.html">https://curl.haxx.se/libcurl/c/CURLOPT_UNIX_SOCKET_PATH.html</ulink> </para></simplesect>
+<simplesect kind="return"><para>0 on success </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="254" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="287" bodyend="301"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1ad25e929184c34353630c4f7930f65bf2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void httpc_set_verify_host</definition>
+        <argsstring>(struct httpc_request *req, long verify)</argsstring>
+        <name>httpc_set_verify_host</name>
+        <param>
+          <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>long</type>
+          <declname>verify</declname>
+        </param>
+        <briefdescription>
+<para>Enables/disables verification of the certificate&apos;s name (CN) against host. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>req</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>request </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>verify</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>flag </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ulink url="https://curl.haxx.se/libcurl/c/CURLOPT_SSL_VERIFYHOST.html">https://curl.haxx.se/libcurl/c/CURLOPT_SSL_VERIFYHOST.html</ulink> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="263" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="304" bodyend="307"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1aa38e432f5a34d2d24cddf03244a18f7b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void httpc_set_verify_peer</definition>
+        <argsstring>(struct httpc_request *req, long verify)</argsstring>
+        <name>httpc_set_verify_peer</name>
+        <param>
+          <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>long</type>
+          <declname>verify</declname>
+        </param>
+        <briefdescription>
+<para>Enables/disables verification of the peer&apos;s SSL certificate. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>req</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>request </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>verify</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>flag </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ulink url="https://curl.haxx.se/libcurl/c/CURLOPT_SSL_VERIFYPEER.html">https://curl.haxx.se/libcurl/c/CURLOPT_SSL_VERIFYPEER.html</ulink> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="272" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="310" bodyend="313"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1aa0cd63732e00c0884e65a7d73345d81c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void httpc_set_ssl_key</definition>
+        <argsstring>(struct httpc_request *req, const char *ssl_key)</argsstring>
+        <name>httpc_set_ssl_key</name>
+        <param>
+          <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>ssl_key</declname>
+        </param>
+        <briefdescription>
+<para>Specify path to private key for TLS ans SSL client certificate. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>req</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>request </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ssl_key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- path to the private key. The application does not have to keep the string around after setting this option. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ulink url="https://curl.haxx.se/libcurl/c/CURLOPT_SSLKEY.html">https://curl.haxx.se/libcurl/c/CURLOPT_SSLKEY.html</ulink> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="282" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="316" bodyend="319"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1a51e331c81920fd648c9d4023fd620667" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void httpc_set_ssl_cert</definition>
+        <argsstring>(struct httpc_request *req, const char *ssl_cert)</argsstring>
+        <name>httpc_set_ssl_cert</name>
+        <param>
+          <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>ssl_cert</declname>
+        </param>
+        <briefdescription>
+<para>Specify path to SSL client certificate. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>req</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>request </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ssl_cert</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- path to the client certificate. The application does not have to keep the string around after setting this option. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ulink url="https://curl.haxx.se/libcurl/c/CURLOPT_SSLCERT.html">https://curl.haxx.se/libcurl/c/CURLOPT_SSLCERT.html</ulink> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="292" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="322" bodyend="325"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1a720364a9e70589eb7f0570fdca392a7c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void httpc_set_proxy</definition>
+        <argsstring>(struct httpc_request *req, const char *proxy)</argsstring>
+        <name>httpc_set_proxy</name>
+        <param>
+          <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>proxy</declname>
+        </param>
+        <briefdescription>
+<para>Specify a proxy to use (optionally may be prefixed with a scheme - e.g. </para>        </briefdescription>
+        <detaileddescription>
+<para><ulink url="http://">http://</ulink> or <ulink url="https://">https://</ulink>).</para><para>If this option is not set a value from the corresponding environment variable will be used. Environment variable names are: &apos;http_proxy&apos;, &apos;https_proxy&apos;, &apos;ftp_proxy&apos; etc. &apos;all_proxy&apos; variable is used if no protocol specific proxy was set.</para><para>Setting this option to an empty string will explicitly disable the use of a proxy, even if there is an environment variable set for it.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>req</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>request </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>proxy</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- a host name or an IP address. The application does not have to keep the string around after setting this option. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ulink url="https://curl.haxx.se/libcurl/c/CURLOPT_PROXY.html">https://curl.haxx.se/libcurl/c/CURLOPT_PROXY.html</ulink> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="312" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="328" bodyend="331"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1aa3aca4067a65358aad08b8d441b3e31e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void httpc_set_proxy_port</definition>
+        <argsstring>(struct httpc_request *req, long port)</argsstring>
+        <name>httpc_set_proxy_port</name>
+        <param>
+          <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>long</type>
+          <declname>port</declname>
+        </param>
+        <briefdescription>
+<para>Specify a port number the proxy listens on. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>req</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>request </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>port</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- a port number the proxy listens on </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ulink url="https://curl.haxx.se/libcurl/c/CURLOPT_PROXYPORT.html">https://curl.haxx.se/libcurl/c/CURLOPT_PROXYPORT.html</ulink> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="321" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="334" bodyend="337"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1a8055df6520951db36562d5328004e3a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void httpc_set_proxy_user_pwd</definition>
+        <argsstring>(struct httpc_request *req, const char *user_pwd)</argsstring>
+        <name>httpc_set_proxy_user_pwd</name>
+        <param>
+          <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>user_pwd</declname>
+        </param>
+        <briefdescription>
+<para>Specify a user name and a password to use in authentication. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>req</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>request </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>user_pwd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- a login details string for the connection. The format is: [user name]:[password]. The application does not have to keep the string around after setting this option. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ulink url="https://curl.haxx.se/libcurl/c/CURLOPT_USERPWD.html">https://curl.haxx.se/libcurl/c/CURLOPT_USERPWD.html</ulink> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="332" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="340" bodyend="343"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1a807d80435a32e5cd0cf15d912a19e169" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void httpc_set_no_proxy</definition>
+        <argsstring>(struct httpc_request *req, const char *no_proxy)</argsstring>
+        <name>httpc_set_no_proxy</name>
+        <param>
+          <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>no_proxy</declname>
+        </param>
+        <briefdescription>
+<para>Specify a comma separated list of host names that do not require a proxy to get reached, even if one is specified by &apos;proxy&apos; option. </para>        </briefdescription>
+        <detaileddescription>
+<para>The only wildcard available is a single * character, which matches all hosts, and effectively disables the proxy.</para><para>&apos;no_proxy&apos; environment variable will be used if this option is not set.</para><para>Setting this option to an empty string will explicitly enable the proxy for all host names, even if there is an environment variable set for it.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>req</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>request </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>no_proxy</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- a comma separated list of host names. The application does not have to keep the string around after setting this option. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ulink url="https://curl.haxx.se/libcurl/c/CURLOPT_NOPROXY.html">https://curl.haxx.se/libcurl/c/CURLOPT_NOPROXY.html</ulink> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="352" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="346" bodyend="349"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1a03b04f3ad2f8d3b8c1eabd5640a5efd2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void httpc_set_interface</definition>
+        <argsstring>(struct httpc_request *req, const char *interface)</argsstring>
+        <name>httpc_set_interface</name>
+        <param>
+          <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>interface</declname>
+        </param>
+        <briefdescription>
+<para>Specify source interface for outgoing traffic. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>req</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>request </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>interface</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- interface name to use as outgoing network interface. The name can be an interface name, an IP address, or a host name. The application does not have to keep the string around after setting this option. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ulink url="https://curl.haxx.se/libcurl/c/CURLOPT_INTERFACE.html">https://curl.haxx.se/libcurl/c/CURLOPT_INTERFACE.html</ulink> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="363" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="352" bodyend="355"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1a59a377f6958fc2eb6e7a7bef1054e35b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void httpc_set_follow_location</definition>
+        <argsstring>(struct httpc_request *req, long follow)</argsstring>
+        <name>httpc_set_follow_location</name>
+        <param>
+          <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>long</type>
+          <declname>follow</declname>
+        </param>
+        <briefdescription>
+<para>Specify whether the client will follow &apos;Location&apos; header that a server sends as part of an 3xx response. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>req</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>request </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>follow</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>flag </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para><ulink url="https://curl.haxx.se/libcurl/c/CURLOPT_FOLLOWLOCATION.html">https://curl.haxx.se/libcurl/c/CURLOPT_FOLLOWLOCATION.html</ulink> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="373" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="358" bodyend="362"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1a847ab2425c5e593e17eb8a6485714bb9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void httpc_set_accept_encoding</definition>
+        <argsstring>(struct httpc_request *req, const char *encoding)</argsstring>
+        <name>httpc_set_accept_encoding</name>
+        <param>
+          <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>encoding</declname>
+        </param>
+        <briefdescription>
+<para>Enable automatic decompression of HTTP responses: set the contents of the Accept-Encoding header sent in a HTTP request and enable decoding of a response when a Content-Encoding header is received. </para>        </briefdescription>
+        <detaileddescription>
+<para>This is a request, not an order; the server may or may not do it. Servers might respond with Content-Encoding even without getting an Accept-Encoding in the request. Servers might respond with a different Content-Encoding than what was asked for in the request.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>req</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>request </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>encoding</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- specify what encoding you&apos;d like. This param can be an empty string which means Accept-Encoding header will contain all built-in supported encodings. This param can be comma-separated list of accepted encodings, like: &quot;br, gzip, deflate&quot;.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+Bundled libcurl supports &quot;identity&quot;, meaning non-compressed, &quot;deflate&quot; which requests the server to compress its response using the zlib algorithm and &quot;gzip&quot; which requests the gzip algorithm. System libcurl also possibly supports &quot;br&quot; which is brotli.</para><para><simplesect kind="see"><para><ulink url="https://curl.haxx.se/libcurl/c/CURLOPT_ACCEPT_ENCODING.html">https://curl.haxx.se/libcurl/c/CURLOPT_ACCEPT_ENCODING.html</ulink> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="403" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="365" bodyend="378"/>
+      </memberdef>
+      <memberdef kind="function" id="httpc_8h_1a2ec5eb4710a490c150612daa65ec5db2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int httpc_execute</definition>
+        <argsstring>(struct httpc_request *req, double timeout)</argsstring>
+        <name>httpc_execute</name>
+        <param>
+          <type>struct <ref refid="structhttpc__request" kindref="compound">httpc_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>timeout</declname>
+        </param>
+        <briefdescription>
+<para>This function does async HTTP request. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>request</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- reference to request object with filled fields </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeout</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- timeout of waiting for libcurl api </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>0 for success or NULL </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/httpc.h" line="412" column="1" bodyfile="/home/tsafin/tarantool/src/httpc.c" bodystart="381" bodyend="469"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARNATOOL_HTTPC_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_HTTPC_H_INCLUDED<sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2017,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>AUTHORS<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>AUTHORS<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;small/ibuf.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;small/region.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;small/mempool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;tarantool_ev.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;diag.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;curl.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>CURLM;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>CURL;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">curl_slist;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51" refid="structhttpc__stat" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structhttpc__stat" kindref="compound">httpc_stat</ref><sp/>{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>total_requests;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>http_200_responses;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>http_other_responses;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>failed_requests;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>active_requests;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="structhttpc__env" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structhttpc__env" kindref="compound">httpc_env</ref><sp/>{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcurl__env" kindref="compound">curl_env</ref><sp/>curl_env;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmempool" kindref="compound">mempool</ref><sp/>req_pool;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structhttpc__stat" kindref="compound">httpc_stat</ref><sp/>stat;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal">httpc_env_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__env" kindref="compound">httpc_env</ref><sp/>*ctx,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>max_conns,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>max_total_conns);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal">httpc_env_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__env" kindref="compound">httpc_env</ref><sp/>*env);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95" refid="structhttpc__request" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>{</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structhttpc__env" kindref="compound">httpc_env</ref><sp/>*env;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">curl_slist<sp/>*headers;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structibuf" kindref="compound">ibuf</ref><sp/>body;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcurl__request" kindref="compound">curl_request</ref><sp/>curl_request;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>status;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*reason;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structregion" kindref="compound">region</ref><sp/>resp_headers;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structregion" kindref="compound">region</ref><sp/>resp_body;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/>keep_alive_timeout;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>set_connection_header;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>set_accept_header;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>set_keep_alive_header;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*</highlight></codeline>
+<codeline lineno="141"><highlight class="normal">httpc_request_new(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__env" kindref="compound">httpc_env</ref><sp/>*env,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*method,</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*url);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal">httpc_request_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*req);</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal">httpc_set_header(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*req,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*fmt,<sp/>...);</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal">httpc_set_body(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*req,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structhttpc__request_1a54a067d829c1603724a21bccb581a596" kindref="member">body</ref>,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal">httpc_set_keepalive(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*req,<sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/>idle,<sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/>interval);</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="197"><highlight class="normal">httpc_set_low_speed_time(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*req,<sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/>low_speed_time);</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal">httpc_set_low_speed_limit(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*req,<sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/>low_speed_limit);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal">httpc_set_verbose(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*req,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>verbose);</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal">httpc_set_ca_path(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*req,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*ca_path);</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal">httpc_set_ca_file(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*req,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*ca_file);</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"></highlight></codeline>
+<codeline lineno="253"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="254"><highlight class="normal">httpc_set_unix_socket(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*req,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*unix_socket);</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="263"><highlight class="normal">httpc_set_verify_host(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*req,<sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/>verify);</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal">httpc_set_verify_peer(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*req,<sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/>verify);</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight></codeline>
+<codeline lineno="281"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="282"><highlight class="normal">httpc_set_ssl_key(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*req,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*ssl_key);</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"></highlight></codeline>
+<codeline lineno="291"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="292"><highlight class="normal">httpc_set_ssl_cert(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*req,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*ssl_cert);</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"></highlight></codeline>
+<codeline lineno="311"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="312"><highlight class="normal">httpc_set_proxy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*req,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*proxy);</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"></highlight></codeline>
+<codeline lineno="320"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="321"><highlight class="normal">httpc_set_proxy_port(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*req,<sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/><ref refid="structport" kindref="compound">port</ref>);</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"></highlight></codeline>
+<codeline lineno="331"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="332"><highlight class="normal">httpc_set_proxy_user_pwd(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*req,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*user_pwd);</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"></highlight></codeline>
+<codeline lineno="351"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="352"><highlight class="normal">httpc_set_no_proxy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*req,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*no_proxy);</highlight></codeline>
+<codeline lineno="353"><highlight class="normal"></highlight></codeline>
+<codeline lineno="362"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="363"><highlight class="normal">httpc_set_interface(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*req,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*interface);</highlight></codeline>
+<codeline lineno="364"><highlight class="normal"></highlight></codeline>
+<codeline lineno="372"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="373"><highlight class="normal">httpc_set_follow_location(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*req,<sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/>follow);</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"></highlight></codeline>
+<codeline lineno="402"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="403"><highlight class="normal">httpc_set_accept_encoding(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*req,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*encoding);</highlight></codeline>
+<codeline lineno="404"><highlight class="normal"></highlight></codeline>
+<codeline lineno="411"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="412"><highlight class="normal">httpc_execute(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhttpc__request" kindref="compound">httpc_request</ref><sp/>*req,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>timeout);</highlight></codeline>
+<codeline lineno="413"><highlight class="normal"></highlight></codeline>
+<codeline lineno="416"><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_HTTPC_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/httpc.h"/>
+  </compounddef>
+</doxygen>

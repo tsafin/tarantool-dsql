@@ -1,0 +1,514 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="page_8h" kind="file" language="C++">
+    <compoundname>page.h</compoundname>
+    <includes refid="bitset_8h" local="yes">bitset/bitset.h</includes>
+    <includes local="no">stdlib.h</includes>
+    <includes refid="string_8h" local="no">string.h</includes>
+    <includes local="no">limits.h</includes>
+    <includes local="no">assert.h</includes>
+    <includedby refid="bitset_8c" local="yes">/home/tsafin/tarantool/src/lib/bitset/bitset.c</includedby>
+    <includedby refid="iterator_8c" local="yes">/home/tsafin/tarantool/src/lib/bitset/iterator.c</includedby>
+    <includedby refid="page_8c" local="yes">/home/tsafin/tarantool/src/lib/bitset/page.c</includedby>
+    <incdepgraph>
+      <node id="1740">
+        <label>stdbool.h</label>
+      </node>
+      <node id="1744">
+        <label>assert.h</label>
+      </node>
+      <node id="1739">
+        <label>stdint.h</label>
+      </node>
+      <node id="1743">
+        <label>stdlib.h</label>
+      </node>
+      <node id="1738">
+        <label>stddef.h</label>
+      </node>
+      <node id="1741">
+        <label>limits.h</label>
+      </node>
+      <node id="1737">
+        <label>bit/bit.h</label>
+        <link refid="bit_8h"/>
+        <childnode refid="1738" relation="include">
+        </childnode>
+        <childnode refid="1739" relation="include">
+        </childnode>
+        <childnode refid="1740" relation="include">
+        </childnode>
+        <childnode refid="1741" relation="include">
+        </childnode>
+      </node>
+      <node id="1742">
+        <label>sys/types.h</label>
+      </node>
+      <node id="1736">
+        <label>bitset/bitset.h</label>
+        <link refid="bitset_8h"/>
+        <childnode refid="1737" relation="include">
+        </childnode>
+        <childnode refid="1738" relation="include">
+        </childnode>
+        <childnode refid="1739" relation="include">
+        </childnode>
+        <childnode refid="1740" relation="include">
+        </childnode>
+        <childnode refid="1741" relation="include">
+        </childnode>
+        <childnode refid="1742" relation="include">
+        </childnode>
+      </node>
+      <node id="1735">
+        <label>/home/tsafin/tarantool/src/lib/bitset/page.h</label>
+        <link refid="page_8h"/>
+        <childnode refid="1736" relation="include">
+        </childnode>
+        <childnode refid="1743" relation="include">
+        </childnode>
+        <childnode refid="1741" relation="include">
+        </childnode>
+        <childnode refid="1744" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="page_8h_1a5059cb96fbb6ec1f459d524d0e0c066a" prot="public" static="no">
+        <name>BITSET_PAGE_DATA_ALIGNMENT</name>
+        <initializer>1</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/page.h" line="71" column="10" bodyfile="/home/tsafin/tarantool/src/lib/bitset/page.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="page_8h_1a05897f13370acbdecbf31034f8bec0d5" prot="public" static="no">
+        <name>MALLOC_ALIGNMENT</name>
+        <initializer>8</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/page.h" line="88" column="10" bodyfile="/home/tsafin/tarantool/src/lib/bitset/page.h" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="page_8h_1ade4ace78b27f5ceccade6e2e29404c48" prot="public" static="no">
+        <name>@170</name>
+        <enumvalue id="page_8h_1ade4ace78b27f5ceccade6e2e29404c48ad8af3e996f7b0fb9a16fb8bef04d914a" prot="public">
+          <name>BITSET_PAGE_DATA_SIZE</name>
+          <initializer>= 160</initializer>
+          <briefdescription>
+<para>How many bytes to store in one page. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/page.h" line="56" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/page.h" bodystart="56" bodyend="59"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="page_8h_1a5c56314fd8480db41f65112054a2d251" prot="public" static="no">
+        <type>uint32_t</type>
+        <definition>typedef uint32_t tt_bitset_word_t</definition>
+        <argsstring></argsstring>
+        <name>tt_bitset_word_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/page.h" line="72" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/page.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="page_8h_1a385df88d4d390fec9181fa12134c9ed1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t tt_bitset_page_alloc_size</definition>
+        <argsstring>(void *(*realloc_arg)(void *ptr, size_t size))</argsstring>
+        <name>tt_bitset_page_alloc_size</name>
+        <param>
+          <type>void *(*)(void *ptr, size_t size)</type>
+          <declname>realloc_arg</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/page.h" line="92" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/page.h" bodystart="92" bodyend="106"/>
+      </memberdef>
+      <memberdef kind="function" id="page_8h_1af8a636bdd335b6324b05c5b9f788bfdf" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void *</type>
+        <definition>void* tt_bitset_page_data</definition>
+        <argsstring>(struct tt_bitset_page *page)</argsstring>
+        <name>tt_bitset_page_data</name>
+        <param>
+          <type>struct tt_bitset_page *</type>
+          <declname>page</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/page.h" line="111" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/page.h" bodystart="111" bodyend="115"/>
+      </memberdef>
+      <memberdef kind="function" id="page_8h_1a1fbf52f6a0bd49ecf5e6f11cb304455f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tt_bitset_page_create</definition>
+        <argsstring>(struct tt_bitset_page *page)</argsstring>
+        <name>tt_bitset_page_create</name>
+        <param>
+          <type>struct tt_bitset_page *</type>
+          <declname>page</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/page.h" line="118" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/page.h" bodystart="118" bodyend="123"/>
+      </memberdef>
+      <memberdef kind="function" id="page_8h_1ab0329afb25aa7972f34fdb67c4b6a05b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tt_bitset_page_destroy</definition>
+        <argsstring>(struct tt_bitset_page *page)</argsstring>
+        <name>tt_bitset_page_destroy</name>
+        <param>
+          <type>struct tt_bitset_page *</type>
+          <declname>page</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/page.h" line="126" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/page.h" bodystart="126" bodyend="130"/>
+      </memberdef>
+      <memberdef kind="function" id="page_8h_1ae682afd4a0043d31fc105794b8df384b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t tt_bitset_page_first_pos</definition>
+        <argsstring>(size_t pos)</argsstring>
+        <name>tt_bitset_page_first_pos</name>
+        <param>
+          <type>size_t</type>
+          <declname>pos</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/page.h" line="133" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/page.h" bodystart="133" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="page_8h_1a042df36d6d7cfe393c7cefaa498ee160" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tt_bitset_page_set_zeros</definition>
+        <argsstring>(struct tt_bitset_page *page)</argsstring>
+        <name>tt_bitset_page_set_zeros</name>
+        <param>
+          <type>struct tt_bitset_page *</type>
+          <declname>page</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/page.h" line="138" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/page.h" bodystart="138" bodyend="142"/>
+      </memberdef>
+      <memberdef kind="function" id="page_8h_1a176534498073846059bb212508e4e23b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tt_bitset_page_set_ones</definition>
+        <argsstring>(struct tt_bitset_page *page)</argsstring>
+        <name>tt_bitset_page_set_ones</name>
+        <param>
+          <type>struct tt_bitset_page *</type>
+          <declname>page</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/page.h" line="145" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/page.h" bodystart="145" bodyend="149"/>
+      </memberdef>
+      <memberdef kind="function" id="page_8h_1aaefec19c4c5a016ee3ef2c460da7e472" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tt_bitset_page_and</definition>
+        <argsstring>(struct tt_bitset_page *dst, struct tt_bitset_page *src)</argsstring>
+        <name>tt_bitset_page_and</name>
+        <param>
+          <type>struct tt_bitset_page *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>struct tt_bitset_page *</type>
+          <declname>src</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/page.h" line="152" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/page.h" bodystart="152" bodyend="162"/>
+      </memberdef>
+      <memberdef kind="function" id="page_8h_1a862b2786333d823941ecc0093c8841fe" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tt_bitset_page_nand</definition>
+        <argsstring>(struct tt_bitset_page *dst, struct tt_bitset_page *src)</argsstring>
+        <name>tt_bitset_page_nand</name>
+        <param>
+          <type>struct tt_bitset_page *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>struct tt_bitset_page *</type>
+          <declname>src</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/page.h" line="165" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/page.h" bodystart="165" bodyend="175"/>
+      </memberdef>
+      <memberdef kind="function" id="page_8h_1a753427c639fa678061e759e1e0899991" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void tt_bitset_page_or</definition>
+        <argsstring>(struct tt_bitset_page *dst, struct tt_bitset_page *src)</argsstring>
+        <name>tt_bitset_page_or</name>
+        <param>
+          <type>struct tt_bitset_page *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>struct tt_bitset_page *</type>
+          <declname>src</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/bitset/page.h" line="178" column="1" bodyfile="/home/tsafin/tarantool/src/lib/bitset/page.h" bodystart="178" bodyend="188"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Bitset page. </para>    </briefdescription>
+    <detaileddescription>
+<para>Private header file, please don&apos;t use directly. </para>    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LIB_BITSET_PAGE_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LIB_BITSET_PAGE_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="preprocessor">#include<sp/>&quot;<ref refid="bitset_8h" kindref="compound">bitset/bitset.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdlib.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(DEBUG)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdio.h&gt;</highlight><highlight class="normal"><sp/></highlight><highlight class="comment">/*<sp/>for<sp/>dumping<sp/>tt_bitset_page<sp/>to<sp/>file<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(DEBUG)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;limits.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;assert.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="page_8h_1ade4ace78b27f5ceccade6e2e29404c48ad8af3e996f7b0fb9a16fb8bef04d914a" kindref="member">BITSET_PAGE_DATA_SIZE</ref><sp/>=<sp/>160</highlight></codeline>
+<codeline lineno="59"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(ENABLE_AVX)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>__m256i<sp/>tt_bitset_word_t;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BITSET_PAGE_DATA_ALIGNMENT<sp/>32</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(ENABLE_SSE2)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>__m128i<sp/>tt_bitset_word_t;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BITSET_PAGE_DATA_ALIGNMENT<sp/>16</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="preprocessor">#elif<sp/>defined(__x86_64__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>uint64_t<sp/>tt_bitset_word_t;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BITSET_PAGE_DATA_ALIGNMENT<sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>BITSET_PAGE_DATA_ALIGNMENT<sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>uint32_t<sp/>tt_bitset_word_t;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(defined(__GLIBC__)<sp/>&amp;&amp;<sp/>(__WORDSIZE<sp/>==<sp/>64)<sp/>&amp;&amp;<sp/>\</highlight></codeline>
+<codeline lineno="76"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/>((__GLIBC__<sp/>&gt;<sp/>2)<sp/>||<sp/>(__GLIBC__<sp/>==<sp/>2<sp/>&amp;&amp;<sp/>__GLIBC_MINOR__<sp/>&gt;=<sp/>8)))<sp/>||<sp/>\</highlight></codeline>
+<codeline lineno="77"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>(defined(__FreeBSD__)<sp/>&amp;&amp;<sp/>!defined(__arm__)<sp/>&amp;&amp;<sp/>!defined(__mips__))<sp/>||<sp/>\</highlight></codeline>
+<codeline lineno="78"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>(defined(__APPLE__))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="preprocessor">#define<sp/>MALLOC_ALIGNMENT<sp/>16</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>MALLOC_ALIGNMENT<sp/>8</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>aligned<sp/>malloc<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal">tt_bitset_page_alloc_size(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*(*realloc_arg)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ptr,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size))</highlight></codeline>
+<codeline lineno="93"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(BITSET_PAGE_DATA_ALIGNMENT<sp/>&lt;=<sp/>1<sp/>||<sp/>(</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(MALLOC_ALIGNMENT<sp/>%<sp/>BITSET_PAGE_DATA_ALIGNMENT<sp/>==<sp/>0)<sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tt_bitset_page)<sp/>%</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>BITSET_PAGE_DATA_ALIGNMENT<sp/>==<sp/>0)<sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(realloc_arg<sp/>==<sp/>realloc)))<sp/>{</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Alignment<sp/>is<sp/>not<sp/>needed<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">tt_bitset_page)<sp/>+<sp/><ref refid="page_8h_1ade4ace78b27f5ceccade6e2e29404c48ad8af3e996f7b0fb9a16fb8bef04d914a" kindref="member">BITSET_PAGE_DATA_SIZE</ref>;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">tt_bitset_page)<sp/>+<sp/><ref refid="page_8h_1ade4ace78b27f5ceccade6e2e29404c48ad8af3e996f7b0fb9a16fb8bef04d914a" kindref="member">BITSET_PAGE_DATA_SIZE</ref><sp/>+</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>BITSET_PAGE_DATA_ALIGNMENT;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>MALLOC_ALIGNMENT</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="111"><highlight class="normal">tt_bitset_page_data(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tt_bitset_page<sp/>*page)</highlight></codeline>
+<codeline lineno="112"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uintptr_t<sp/>r<sp/>=<sp/>(uintptr_t)<sp/>(page-&gt;data<sp/>+<sp/>BITSET_PAGE_DATA_ALIGNMENT<sp/>-<sp/>1);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*)<sp/>(r<sp/>&amp;<sp/>~((uintptr_t)<sp/>BITSET_PAGE_DATA_ALIGNMENT<sp/>-<sp/>1));</highlight></codeline>
+<codeline lineno="115"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal">tt_bitset_page_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tt_bitset_page<sp/>*page)</highlight></codeline>
+<codeline lineno="119"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size<sp/>=<sp/>((</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*)<sp/>tt_bitset_page_data(page)<sp/>-<sp/>(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*)<sp/>page)</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>+<sp/><ref refid="page_8h_1ade4ace78b27f5ceccade6e2e29404c48ad8af3e996f7b0fb9a16fb8bef04d914a" kindref="member">BITSET_PAGE_DATA_SIZE</ref>;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memset(page,<sp/>0,<sp/>size);</highlight></codeline>
+<codeline lineno="123"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal">tt_bitset_page_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tt_bitset_page<sp/>*page)</highlight></codeline>
+<codeline lineno="127"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<sp/>page;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>nothing<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal">tt_bitset_page_first_pos(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pos)<sp/>{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>pos<sp/>-<sp/>(pos<sp/>%<sp/>(<ref refid="page_8h_1ade4ace78b27f5ceccade6e2e29404c48ad8af3e996f7b0fb9a16fb8bef04d914a" kindref="member">BITSET_PAGE_DATA_SIZE</ref><sp/>*<sp/>CHAR_BIT));</highlight></codeline>
+<codeline lineno="135"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal">tt_bitset_page_set_zeros(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tt_bitset_page<sp/>*page)</highlight></codeline>
+<codeline lineno="139"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data<sp/>=<sp/>tt_bitset_page_data(page);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memset(data,<sp/>0,<sp/><ref refid="page_8h_1ade4ace78b27f5ceccade6e2e29404c48ad8af3e996f7b0fb9a16fb8bef04d914a" kindref="member">BITSET_PAGE_DATA_SIZE</ref>);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal">tt_bitset_page_set_ones(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tt_bitset_page<sp/>*page)</highlight></codeline>
+<codeline lineno="146"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data<sp/>=<sp/>tt_bitset_page_data(page);</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memset(data,<sp/>-1,<sp/><ref refid="page_8h_1ade4ace78b27f5ceccade6e2e29404c48ad8af3e996f7b0fb9a16fb8bef04d914a" kindref="member">BITSET_PAGE_DATA_SIZE</ref>);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal">tt_bitset_page_and(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tt_bitset_page<sp/>*dst,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tt_bitset_page<sp/>*src)</highlight></codeline>
+<codeline lineno="153"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_bitset_word_t<sp/>*d<sp/>=<sp/>(tt_bitset_word_t<sp/>*)<sp/>tt_bitset_page_data(dst);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_bitset_word_t<sp/>*s<sp/>=<sp/>(tt_bitset_word_t<sp/>*)<sp/>tt_bitset_page_data(src);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(<ref refid="page_8h_1ade4ace78b27f5ceccade6e2e29404c48ad8af3e996f7b0fb9a16fb8bef04d914a" kindref="member">BITSET_PAGE_DATA_SIZE</ref><sp/>%<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(tt_bitset_word_t)<sp/>==<sp/>0);</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cnt<sp/>=<sp/><ref refid="page_8h_1ade4ace78b27f5ceccade6e2e29404c48ad8af3e996f7b0fb9a16fb8bef04d914a" kindref="member">BITSET_PAGE_DATA_SIZE</ref><sp/>/<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(tt_bitset_word_t);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>cnt;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*d++<sp/>&amp;=<sp/>*s++;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="162"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal">tt_bitset_page_nand(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tt_bitset_page<sp/>*dst,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tt_bitset_page<sp/>*src)</highlight></codeline>
+<codeline lineno="166"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_bitset_word_t<sp/>*d<sp/>=<sp/>(tt_bitset_word_t<sp/>*)<sp/>tt_bitset_page_data(dst);</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_bitset_word_t<sp/>*s<sp/>=<sp/>(tt_bitset_word_t<sp/>*)<sp/>tt_bitset_page_data(src);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(<ref refid="page_8h_1ade4ace78b27f5ceccade6e2e29404c48ad8af3e996f7b0fb9a16fb8bef04d914a" kindref="member">BITSET_PAGE_DATA_SIZE</ref><sp/>%<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(tt_bitset_word_t)<sp/>==<sp/>0);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cnt<sp/>=<sp/><ref refid="page_8h_1ade4ace78b27f5ceccade6e2e29404c48ad8af3e996f7b0fb9a16fb8bef04d914a" kindref="member">BITSET_PAGE_DATA_SIZE</ref><sp/>/<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(tt_bitset_word_t);</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>cnt;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*d++<sp/>&amp;=<sp/>~*s++;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="175"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal">tt_bitset_page_or(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tt_bitset_page<sp/>*dst,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tt_bitset_page<sp/>*src)</highlight></codeline>
+<codeline lineno="179"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_bitset_word_t<sp/>*d<sp/>=<sp/>(tt_bitset_word_t<sp/>*)<sp/>tt_bitset_page_data(dst);</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_bitset_word_t<sp/>*s<sp/>=<sp/>(tt_bitset_word_t<sp/>*)<sp/>tt_bitset_page_data(src);</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(<ref refid="page_8h_1ade4ace78b27f5ceccade6e2e29404c48ad8af3e996f7b0fb9a16fb8bef04d914a" kindref="member">BITSET_PAGE_DATA_SIZE</ref><sp/>%<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(tt_bitset_word_t)<sp/>==<sp/>0);</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cnt<sp/>=<sp/><ref refid="page_8h_1ade4ace78b27f5ceccade6e2e29404c48ad8af3e996f7b0fb9a16fb8bef04d914a" kindref="member">BITSET_PAGE_DATA_SIZE</ref><sp/>/<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(tt_bitset_word_t);</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>cnt;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*d++<sp/>|=<sp/>*s++;</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="188"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(DEBUG)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal">tt_bitset_page_dump(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tt_bitset_page<sp/>*page,<sp/>FILE<sp/>*stream);</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(DEBUG)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal">rb_proto(,<sp/>tt_bitset_pages_,<sp/>tt_bitset_pages_t,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tt_bitset_page)</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_LIB_BITSET_PAGE_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/bitset/page.h"/>
+  </compounddef>
+</doxygen>

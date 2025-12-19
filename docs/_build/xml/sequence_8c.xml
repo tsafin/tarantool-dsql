@@ -1,0 +1,972 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="sequence_8c" kind="file" language="C++">
+    <compoundname>sequence.c</compoundname>
+    <includes refid="sequence_8h" local="yes">sequence.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdlib.h</includes>
+    <includes refid="mempool_8h" local="no">small/mempool.h</includes>
+    <includes refid="msgpuck_8h" local="no">msgpuck/msgpuck.h</includes>
+    <includes refid="txn_8h" local="yes">txn.h</includes>
+    <includes refid="diag_8h" local="yes">diag.h</includes>
+    <includes refid="box_2error_8h" local="yes">error.h</includes>
+    <includes refid="errcode_8h" local="yes">errcode.h</includes>
+    <includes local="yes">fiber.h</includes>
+    <includes refid="box_2index_8h" local="yes">index.h</includes>
+    <includes refid="schema_8h" local="yes">schema.h</includes>
+    <includes refid="session_8h" local="yes">session.h</includes>
+    <includes refid="util_8h" local="yes">trivia/util.h</includes>
+    <includes local="yes">third_party/PMurHash.h</includes>
+    <includes refid="light_8h" local="yes">salad/light.h</includes>
+    <incdepgraph>
+      <node id="517">
+        <label>stdbool.h</label>
+      </node>
+      <node id="523">
+        <label>stdarg.h</label>
+      </node>
+      <node id="522">
+        <label>assert.h</label>
+      </node>
+      <node id="519">
+        <label>stdint.h</label>
+      </node>
+      <node id="520">
+        <label>stdlib.h</label>
+      </node>
+      <node id="518">
+        <label>stddef.h</label>
+      </node>
+      <node id="526">
+        <label>third_party/PMurHash.h</label>
+      </node>
+      <node id="521">
+        <label>msgpuck/msgpuck.h</label>
+        <link refid="msgpuck_8h"/>
+        <childnode refid="520" relation="include">
+        </childnode>
+        <childnode refid="519" relation="include">
+        </childnode>
+        <childnode refid="518" relation="include">
+        </childnode>
+        <childnode refid="517" relation="include">
+        </childnode>
+        <childnode refid="522" relation="include">
+        </childnode>
+        <childnode refid="523" relation="include">
+        </childnode>
+        <childnode refid="524" relation="include">
+        </childnode>
+      </node>
+      <node id="525">
+        <label>fiber.h</label>
+      </node>
+      <node id="516">
+        <label>/home/tsafin/tarantool/src/box/sequence.c</label>
+        <link refid="sequence_8c"/>
+        <childnode refid="517" relation="include">
+        </childnode>
+        <childnode refid="518" relation="include">
+        </childnode>
+        <childnode refid="519" relation="include">
+        </childnode>
+        <childnode refid="520" relation="include">
+        </childnode>
+        <childnode refid="521" relation="include">
+        </childnode>
+        <childnode refid="525" relation="include">
+        </childnode>
+        <childnode refid="526" relation="include">
+        </childnode>
+      </node>
+      <node id="524">
+        <label>stdio.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structsequence__data" prot="public">sequence_data</innerclass>
+    <innerclass refid="structsequence__data__iterator" prot="public">sequence_data_iterator</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="sequence_8c_1ad84e693a37f12618885a50f95bcc2368" prot="public" static="no">
+        <name>LIGHT_NAME</name>
+        <initializer>_sequence</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="78" column="9" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sequence_8c_1a6787a172af5bad35838592440fbcb1b6" prot="public" static="no">
+        <name>LIGHT_DATA_TYPE</name>
+        <initializer>struct <ref refid="structsequence__data" kindref="compound">sequence_data</ref></initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="79" column="9" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sequence_8c_1a451b4806229a3afd03841966ef97f293" prot="public" static="no">
+        <name>LIGHT_KEY_TYPE</name>
+        <initializer>uint32_t</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="80" column="9" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sequence_8c_1a7bb0d54b98035a84cd0e1a54c633029b" prot="public" static="no">
+        <name>LIGHT_CMP_ARG_TYPE</name>
+        <initializer>int</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="81" column="9" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sequence_8c_1a42f535479f5d1f4c8f26bded6dd02e74" prot="public" static="no">
+        <name>LIGHT_EQUAL</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <param><defname>c</defname></param>
+        <initializer>sequence_data_equal(a, b)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="82" column="9" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sequence_8c_1a58307f9ccdd2ccf826f6dc34d459fc44" prot="public" static="no">
+        <name>LIGHT_EQUAL_KEY</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <param><defname>c</defname></param>
+        <initializer>sequence_data_equal_key(a, b)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="83" column="9" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="sequence_8c_1aa4ee95685c8f79b6bb3a0a68abded1f2" prot="public" static="no">
+        <name>SEQUENCE_TUPLE_BUF_SIZE</name>
+        <initializer>(<ref refid="msgpuck_8h_1afadf7192c21429176abc44277f229fd8" kindref="member">mp_sizeof_array</ref>(2) + \
+					 2 * <ref refid="msgpuck_8h_1ae454f11cdf792bb76ef77fb08bbbdb71" kindref="member">mp_sizeof_uint</ref>(UINT64_MAX))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="311" column="9" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="311" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="sequence_8c_1a68c01102755fc7d1c810bb0b0635fa90" prot="public" static="no">
+        <name>@72</name>
+        <enumvalue id="sequence_8c_1a68c01102755fc7d1c810bb0b0635fa90a0cebd15f4611a2f81b4f0e91dadb5700" prot="public">
+          <name>SEQUENCE_HASH_SEED</name>
+          <initializer>= 13U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="sequence_8c_1a68c01102755fc7d1c810bb0b0635fa90a31fa8273e344e105337b514cc4325098" prot="public">
+          <name>SEQUENCE_DATA_EXTENT_SIZE</name>
+          <initializer>= 512</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="53" column="1" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="53" bodyend="56"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="sequence_8c_1a7c0974225e00441bbaa7cf37ff331d7f" prot="public" static="yes" mutable="no">
+        <type>struct light_sequence_core</type>
+        <definition>struct light_sequence_core sequence_data_index</definition>
+        <argsstring></argsstring>
+        <name>sequence_data_index</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="73" column="1" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="sequence_8c_1a7ad420991afa162a9ac4dd2b7b9198c4" prot="public" static="yes" mutable="no">
+        <type>struct <ref refid="structmempool" kindref="compound">mempool</ref></type>
+        <definition>struct mempool sequence_data_extent_pool</definition>
+        <argsstring></argsstring>
+        <name>sequence_data_extent_pool</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="73" column="1" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="sequence_8c_1a854ff278d70d3dd59c07287d2fcb2537" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool sequence_data_equal</definition>
+        <argsstring>(struct sequence_data data1, struct sequence_data data2)</argsstring>
+        <name>sequence_data_equal</name>
+        <param>
+          <type>struct <ref refid="structsequence__data" kindref="compound">sequence_data</ref></type>
+          <declname>data1</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structsequence__data" kindref="compound">sequence_data</ref></type>
+          <declname>data2</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="67" column="1" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="67" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="sequence_8c_1ad5135625c49327aba792bbc2fab1e2b4" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool sequence_data_equal_key</definition>
+        <argsstring>(struct sequence_data data, uint32_t id)</argsstring>
+        <name>sequence_data_equal_key</name>
+        <param>
+          <type>struct <ref refid="structsequence__data" kindref="compound">sequence_data</ref></type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="73" column="1" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="73" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="sequence_8c_1a1e0fa162268ffbdc19ef7d9dace1e95d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>static void* sequence_data_extent_alloc</definition>
+        <argsstring>(void *ctx)</argsstring>
+        <name>sequence_data_extent_alloc</name>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="90" column="1" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="90" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="function" id="sequence_8c_1a75b00638d53c2a9175f98e57422a2626" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void sequence_data_extent_free</definition>
+        <argsstring>(void *ctx, void *extent)</argsstring>
+        <name>sequence_data_extent_free</name>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>extent</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="101" column="1" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="101" bodyend="105"/>
+      </memberdef>
+      <memberdef kind="function" id="sequence_8c_1a04f9ea1bfab675f49b6aca4d5d28e8ed" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t sequence_hash</definition>
+        <argsstring>(uint32_t id)</argsstring>
+        <name>sequence_hash</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="108" column="1" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="108" bodyend="111"/>
+      </memberdef>
+      <memberdef kind="function" id="sequence_8c_1abebb926fca313f8904a415f1134c0c3c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sequence_init</definition>
+        <argsstring>(void)</argsstring>
+        <name>sequence_init</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Init sequence subsystem. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="114" column="1" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="114" bodyend="121"/>
+      </memberdef>
+      <memberdef kind="function" id="sequence_8c_1a41f04ebbdfb3e05dc4297b598ae985a6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sequence_free</definition>
+        <argsstring>(void)</argsstring>
+        <name>sequence_free</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destroy sequence subsystem. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="124" column="1" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="124" bodyend="128"/>
+      </memberdef>
+      <memberdef kind="function" id="sequence_8c_1a0a172b8ad179f75ce78bd5d23ffc0a5e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structsequence" kindref="compound">sequence</ref> *</type>
+        <definition>struct sequence* sequence_new</definition>
+        <argsstring>(struct sequence_def *def)</argsstring>
+        <name>sequence_new</name>
+        <param>
+          <type>struct <ref refid="structsequence__def" kindref="compound">sequence_def</ref> *</type>
+          <declname>def</declname>
+        </param>
+        <briefdescription>
+<para>Create a new sequence object with the given definition. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note, on success the sequence definition is assigned to the new sequence and will be freed automatically when the sequence is destroyed so it must be allocated with malloc(). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="131" column="1" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="131" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="sequence_8c_1a5b976dd74199257ccc23214fb59dd25f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sequence_delete</definition>
+        <argsstring>(struct sequence *seq)</argsstring>
+        <name>sequence_delete</name>
+        <param>
+          <type>struct <ref refid="structsequence" kindref="compound">sequence</ref> *</type>
+          <declname>seq</declname>
+        </param>
+        <briefdescription>
+<para>Destroy a sequence and its definition. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="143" column="1" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="143" bodyend="149"/>
+      </memberdef>
+      <memberdef kind="function" id="sequence_8c_1aee14207824e0360882ac1262d5ad7ed0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sequence_reset</definition>
+        <argsstring>(struct sequence *seq)</argsstring>
+        <name>sequence_reset</name>
+        <param>
+          <type>struct <ref refid="structsequence" kindref="compound">sequence</ref> *</type>
+          <declname>seq</declname>
+        </param>
+        <briefdescription>
+<para>Reset a sequence. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="152" column="1" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="152" bodyend="159"/>
+      </memberdef>
+      <memberdef kind="function" id="sequence_8c_1af688dddf28bec3ed4993a0ee00eacf13" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sequence_set</definition>
+        <argsstring>(struct sequence *seq, int64_t value)</argsstring>
+        <name>sequence_set</name>
+        <param>
+          <type>struct <ref refid="structsequence" kindref="compound">sequence</ref> *</type>
+          <declname>seq</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>Set a sequence value. </para>        </briefdescription>
+        <detaileddescription>
+<para>Return 0 on success, -1 on memory allocation failure. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="162" column="1" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="162" bodyend="176"/>
+      </memberdef>
+      <memberdef kind="function" id="sequence_8c_1ae584d7027c7fef3195ac915e96a304ad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sequence_update</definition>
+        <argsstring>(struct sequence *seq, int64_t value)</argsstring>
+        <name>sequence_update</name>
+        <param>
+          <type>struct <ref refid="structsequence" kindref="compound">sequence</ref> *</type>
+          <declname>seq</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>Update the sequence if the given value is newer than the last generated value. </para>        </briefdescription>
+        <detaileddescription>
+<para>Return 0 on success, -1 on memory allocation failure. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="179" column="1" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="179" bodyend="201"/>
+      </memberdef>
+      <memberdef kind="function" id="sequence_8c_1af2cd0c8f9f1a7d6ee1a78f2c9b1f18f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sequence_next</definition>
+        <argsstring>(struct sequence *seq, int64_t *result)</argsstring>
+        <name>sequence_next</name>
+        <param>
+          <type>struct <ref refid="structsequence" kindref="compound">sequence</ref> *</type>
+          <declname>seq</declname>
+        </param>
+        <param>
+          <type>int64_t *</type>
+          <declname>result</declname>
+        </param>
+        <briefdescription>
+<para>Advance a sequence. </para>        </briefdescription>
+        <detaileddescription>
+<para>On success, return 0 and assign the next sequence to <simplesect kind="return"><para>, otherwise return -1 and set diag.</para></simplesect>
+The function may fail for two reasons:<itemizedlist>
+<listitem><para>sequence isn&apos;t cyclic and has reached its limit</para></listitem><listitem><para>memory allocation failure </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="204" column="1" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="204" bodyend="261"/>
+      </memberdef>
+      <memberdef kind="function" id="sequence_8c_1a7f2ce0577ac7cfc11279f860770dd88c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int access_check_sequence</definition>
+        <argsstring>(struct sequence *seq)</argsstring>
+        <name>access_check_sequence</name>
+        <param>
+          <type>struct <ref refid="structsequence" kindref="compound">sequence</ref> *</type>
+          <declname>seq</declname>
+        </param>
+        <briefdescription>
+<para>Check whether or not the current user can be granted access to the sequence. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="264" column="1" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="264" bodyend="301"/>
+      </memberdef>
+      <memberdef kind="function" id="sequence_8c_1aa956cbc179c03d2611a21ae9b74006af" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int sequence_data_iterator_next</definition>
+        <argsstring>(struct snapshot_iterator *base, const char **data, uint32_t *size)</argsstring>
+        <name>sequence_data_iterator_next</name>
+        <param>
+          <type>struct <ref refid="structsnapshot__iterator" kindref="compound">snapshot_iterator</ref> *</type>
+          <declname>base</declname>
+        </param>
+        <param>
+          <type>const char **</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="315" column="1" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="315" bodyend="339"/>
+      </memberdef>
+      <memberdef kind="function" id="sequence_8c_1add0dc54cf9e93227ac73d9eb4f236bf5" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void sequence_data_iterator_free</definition>
+        <argsstring>(struct snapshot_iterator *base)</argsstring>
+        <name>sequence_data_iterator_free</name>
+        <param>
+          <type>struct <ref refid="structsnapshot__iterator" kindref="compound">snapshot_iterator</ref> *</type>
+          <declname>base</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="342" column="1" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="342" bodyend="349"/>
+      </memberdef>
+      <memberdef kind="function" id="sequence_8c_1a7d72468e907ac01229997c42aa602b6c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structsnapshot__iterator" kindref="compound">snapshot_iterator</ref> *</type>
+        <definition>struct snapshot_iterator* sequence_data_iterator_create</definition>
+        <argsstring>(void)</argsstring>
+        <name>sequence_data_iterator_create</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Create an iterator over sequence data. </para>        </briefdescription>
+        <detaileddescription>
+<para>The iterator creates a snapshot of sequence data and walks over it, i.e. updates done after the iterator was open are invisible. Used to make a snapshot of _sequence_data space. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="352" column="1" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="352" bodyend="368"/>
+      </memberdef>
+      <memberdef kind="function" id="sequence_8c_1a0149db585a35c9e80d40a71df3799706" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sequence_get_value</definition>
+        <argsstring>(struct sequence *seq, int64_t *result)</argsstring>
+        <name>sequence_get_value</name>
+        <param>
+          <type>struct <ref refid="structsequence" kindref="compound">sequence</ref> *</type>
+          <declname>seq</declname>
+        </param>
+        <param>
+          <type>int64_t *</type>
+          <declname>result</declname>
+        </param>
+        <briefdescription>
+<para>Get last element of given sequence. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>seq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>sequence to get value from. On success, return 0 and assign the current value of the sequence to </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>, otherwise return -1 and set diag. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sequence.c" line="371" column="1" bodyfile="/home/tsafin/tarantool/src/box/sequence.c" bodystart="371" bodyend="384"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2017,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;sequence.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdlib.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;small/mempool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="msgpuck_8h" kindref="compound">msgpuck/msgpuck.h</ref>&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;txn.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;diag.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;error.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;errcode.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;fiber.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="box_2index_8h" kindref="compound">index.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;schema.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;session.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trivia/util.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;third_party/PMurHash.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SEQUENCE_HASH_SEED<sp/>=<sp/>13U,</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SEQUENCE_DATA_EXTENT_SIZE<sp/>=<sp/>512,</highlight></codeline>
+<codeline lineno="56"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59" refid="structsequence__data" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsequence__data" kindref="compound">sequence_data</ref><sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structsequence__data_1af24b666bc455fb03a3453a77084fb0e9" kindref="member">id</ref>;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structsequence__data_1a32d8398a9d15e2159e0b486814b6bd2c" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal">sequence_data_equal(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsequence__data" kindref="compound">sequence_data</ref><sp/>data1,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsequence__data" kindref="compound">sequence_data</ref><sp/>data2)</highlight></codeline>
+<codeline lineno="68"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>data1.<ref refid="structsequence__data_1af24b666bc455fb03a3453a77084fb0e9" kindref="member">id</ref><sp/>==<sp/>data2.<ref refid="structsequence__data_1af24b666bc455fb03a3453a77084fb0e9" kindref="member">id</ref>;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal">sequence_data_equal_key(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsequence__data" kindref="compound">sequence_data</ref><sp/>data,<sp/>uint32_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="74"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>data.<ref refid="structsequence__data_1af24b666bc455fb03a3453a77084fb0e9" kindref="member">id</ref><sp/>==<sp/><ref refid="structsequence__data_1af24b666bc455fb03a3453a77084fb0e9" kindref="member">id</ref>;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LIGHT_NAME<sp/>_sequence</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LIGHT_DATA_TYPE<sp/>struct<sp/>sequence_data</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LIGHT_KEY_TYPE<sp/>uint32_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LIGHT_CMP_ARG_TYPE<sp/>int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LIGHT_EQUAL(a,<sp/>b,<sp/>c)<sp/>sequence_data_equal(a,<sp/>b)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LIGHT_EQUAL_KEY(a,<sp/>b,<sp/>c)<sp/>sequence_data_equal_key(a,<sp/>b)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;salad/light.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">light_sequence_core<sp/>sequence_data_index;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmempool" kindref="compound">mempool</ref><sp/>sequence_data_extent_pool;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="90"><highlight class="normal">sequence_data_extent_alloc(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)ctx;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ret<sp/>=<sp/>mempool_alloc(&amp;sequence_data_extent_pool);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ret<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(OutOfMemory,<sp/>SEQUENCE_DATA_EXTENT_SIZE,</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;mempool&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;sequence_data_extent&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ret;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal">sequence_data_extent_free(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*extent)</highlight></codeline>
+<codeline lineno="102"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)ctx;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mempool_free(&amp;sequence_data_extent_pool,<sp/>extent);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t</highlight></codeline>
+<codeline lineno="108"><highlight class="normal">sequence_hash(uint32_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="109"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>PMurHash32(SEQUENCE_HASH_SEED,<sp/>&amp;</highlight><highlight class="keywordtype">id</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">id</highlight><highlight class="normal">));</highlight></codeline>
+<codeline lineno="111"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal">sequence_init(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="115"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mempool_create(&amp;sequence_data_extent_pool,<sp/>&amp;<ref refid="structcord" kindref="compound">cord</ref>()-&gt;slabc,</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SEQUENCE_DATA_EXTENT_SIZE);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>light_sequence_create(&amp;sequence_data_index,<sp/>SEQUENCE_DATA_EXTENT_SIZE,</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sequence_data_extent_alloc,</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sequence_data_extent_free,<sp/>NULL,<sp/>0);</highlight></codeline>
+<codeline lineno="121"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal">sequence_free(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="125"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>light_sequence_destroy(&amp;sequence_data_index);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mempool_destroy(&amp;sequence_data_extent_pool);</highlight></codeline>
+<codeline lineno="128"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsequence" kindref="compound">sequence</ref><sp/>*</highlight></codeline>
+<codeline lineno="131"><highlight class="normal">sequence_new(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsequence__def" kindref="compound">sequence_def</ref><sp/>*<ref refid="structsequence_1af48244e3af69efee8ced8e5e7b89565c" kindref="member">def</ref>)</highlight></codeline>
+<codeline lineno="132"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsequence" kindref="compound">sequence</ref><sp/>*seq<sp/>=<sp/>calloc(1,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*seq));</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(seq<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(OutOfMemory,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*seq),<sp/></highlight><highlight class="stringliteral">&quot;malloc&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;sequence&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>seq-&gt;<ref refid="structsequence_1af48244e3af69efee8ced8e5e7b89565c" kindref="member">def</ref><sp/>=<sp/><ref refid="structsequence_1af48244e3af69efee8ced8e5e7b89565c" kindref="member">def</ref>;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>seq;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal">sequence_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsequence" kindref="compound">sequence</ref><sp/>*seq)</highlight></codeline>
+<codeline lineno="144"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Delete<sp/>sequence<sp/>data.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sequence_reset(seq);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>free(seq-&gt;<ref refid="structsequence_1af48244e3af69efee8ced8e5e7b89565c" kindref="member">def</ref>);</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>free(seq);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal">sequence_reset(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsequence" kindref="compound">sequence</ref><sp/>*seq)</highlight></codeline>
+<codeline lineno="153"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>key<sp/>=<sp/>seq-&gt;<ref refid="structsequence_1af48244e3af69efee8ced8e5e7b89565c" kindref="member">def</ref>-&gt;<ref refid="structsequence__def_1aa9c785f32d798284599f1ac37ab87085" kindref="member">id</ref>;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>hash<sp/>=<sp/>sequence_hash(key);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>pos<sp/>=<sp/>light_sequence_find_key(&amp;sequence_data_index,<sp/>hash,<sp/>key);</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pos<sp/>!=<sp/>light_sequence_end)</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>light_sequence_delete(&amp;sequence_data_index,<sp/>pos);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal">sequence_set(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsequence" kindref="compound">sequence</ref><sp/>*seq,<sp/>int64_t<sp/><ref refid="structsequence__data_1a32d8398a9d15e2159e0b486814b6bd2c" kindref="member">value</ref>)</highlight></codeline>
+<codeline lineno="163"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>key<sp/>=<sp/>seq-&gt;<ref refid="structsequence_1af48244e3af69efee8ced8e5e7b89565c" kindref="member">def</ref>-&gt;<ref refid="structsequence__def_1aa9c785f32d798284599f1ac37ab87085" kindref="member">id</ref>;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>hash<sp/>=<sp/>sequence_hash(key);</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsequence__data" kindref="compound">sequence_data</ref><sp/>new_data,<sp/>old_data;</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>new_data.<ref refid="structsequence__data_1af24b666bc455fb03a3453a77084fb0e9" kindref="member">id</ref><sp/>=<sp/>key;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>new_data.<ref refid="structsequence__data_1a32d8398a9d15e2159e0b486814b6bd2c" kindref="member">value</ref><sp/>=<sp/><ref refid="structsequence__data_1a32d8398a9d15e2159e0b486814b6bd2c" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(light_sequence_replace(&amp;sequence_data_index,<sp/>hash,</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>new_data,<sp/>&amp;old_data)<sp/>!=<sp/>light_sequence_end)</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(light_sequence_insert(&amp;sequence_data_index,<sp/>hash,</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>new_data)<sp/>!=<sp/>light_sequence_end)</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal">sequence_update(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsequence" kindref="compound">sequence</ref><sp/>*seq,<sp/>int64_t<sp/><ref refid="structsequence__data_1a32d8398a9d15e2159e0b486814b6bd2c" kindref="member">value</ref>)</highlight></codeline>
+<codeline lineno="180"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>key<sp/>=<sp/>seq-&gt;<ref refid="structsequence_1af48244e3af69efee8ced8e5e7b89565c" kindref="member">def</ref>-&gt;<ref refid="structsequence__def_1aa9c785f32d798284599f1ac37ab87085" kindref="member">id</ref>;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>hash<sp/>=<sp/>sequence_hash(key);</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>pos<sp/>=<sp/>light_sequence_find_key(&amp;sequence_data_index,<sp/>hash,<sp/>key);</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsequence__data" kindref="compound">sequence_data</ref><sp/>new_data,<sp/>data;</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>new_data.<ref refid="structsequence__data_1af24b666bc455fb03a3453a77084fb0e9" kindref="member">id</ref><sp/>=<sp/>key;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>new_data.<ref refid="structsequence__data_1a32d8398a9d15e2159e0b486814b6bd2c" kindref="member">value</ref><sp/>=<sp/><ref refid="structsequence__data_1a32d8398a9d15e2159e0b486814b6bd2c" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pos<sp/>!=<sp/>light_sequence_end)<sp/>{</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>data<sp/>=<sp/>light_sequence_get(&amp;sequence_data_index,<sp/>pos);</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((seq-&gt;<ref refid="structsequence_1af48244e3af69efee8ced8e5e7b89565c" kindref="member">def</ref>-&gt;<ref refid="structsequence__def_1a127829fa010f002ec0192b2160842f63" kindref="member">step</ref><sp/>&gt;<sp/>0<sp/>&amp;&amp;<sp/>value<sp/>&gt;<sp/>data.<ref refid="structsequence__data_1a32d8398a9d15e2159e0b486814b6bd2c" kindref="member">value</ref>)<sp/>||</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(seq-&gt;<ref refid="structsequence_1af48244e3af69efee8ced8e5e7b89565c" kindref="member">def</ref>-&gt;<ref refid="structsequence__def_1a127829fa010f002ec0192b2160842f63" kindref="member">step</ref><sp/>&lt;<sp/>0<sp/>&amp;&amp;<sp/>value<sp/>&lt;<sp/>data.<ref refid="structsequence__data_1a32d8398a9d15e2159e0b486814b6bd2c" kindref="member">value</ref>))<sp/>{</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(light_sequence_replace(&amp;sequence_data_index,<sp/>hash,</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>new_data,<sp/>&amp;data)<sp/>==<sp/>light_sequence_end)</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>unreachable();</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(light_sequence_insert(&amp;sequence_data_index,<sp/>hash,</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>new_data)<sp/>==<sp/>light_sequence_end)</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal">sequence_next(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsequence" kindref="compound">sequence</ref><sp/>*seq,<sp/>int64_t<sp/>*result)</highlight></codeline>
+<codeline lineno="205"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structsequence__data_1a32d8398a9d15e2159e0b486814b6bd2c" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsequence__def" kindref="compound">sequence_def</ref><sp/>*def<sp/>=<sp/>seq-&gt;<ref refid="structsequence_1af48244e3af69efee8ced8e5e7b89565c" kindref="member">def</ref>;</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsequence__data" kindref="compound">sequence_data</ref><sp/>new_data,<sp/>old_data;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>key<sp/>=<sp/>seq-&gt;<ref refid="structsequence_1af48244e3af69efee8ced8e5e7b89565c" kindref="member">def</ref>-&gt;<ref refid="structsequence__def_1aa9c785f32d798284599f1ac37ab87085" kindref="member">id</ref>;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>hash<sp/>=<sp/>sequence_hash(key);</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>pos<sp/>=<sp/>light_sequence_find_key(&amp;sequence_data_index,<sp/>hash,<sp/>key);</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pos<sp/>==<sp/>light_sequence_end)<sp/>{</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>new_data.<ref refid="structsequence__data_1af24b666bc455fb03a3453a77084fb0e9" kindref="member">id</ref><sp/>=<sp/>key;</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>new_data.<ref refid="structsequence__data_1a32d8398a9d15e2159e0b486814b6bd2c" kindref="member">value</ref><sp/>=<sp/>def-&gt;<ref refid="structsequence__def_1a360a667818a26d6a7d7926b4c8b592f4" kindref="member">start</ref>;</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(light_sequence_insert(&amp;sequence_data_index,<sp/>hash,</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>new_data)<sp/>==<sp/>light_sequence_end)</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*result<sp/>=<sp/>def-&gt;<ref refid="structsequence__def_1a360a667818a26d6a7d7926b4c8b592f4" kindref="member">start</ref>;</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>old_data<sp/>=<sp/>light_sequence_get(&amp;sequence_data_index,<sp/>pos);</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>value<sp/>=<sp/>old_data.<ref refid="structsequence__data_1a32d8398a9d15e2159e0b486814b6bd2c" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(def-&gt;<ref refid="structsequence__def_1a127829fa010f002ec0192b2160842f63" kindref="member">step</ref><sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(value<sp/>&lt;<sp/>def-&gt;min)<sp/>{</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>value<sp/>=<sp/>def-&gt;<ref refid="structsequence__def_1a627cff88d97d8f77c3df406efefe9a1c" kindref="member">min</ref>;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>done;</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(value<sp/>&gt;=<sp/>0<sp/>&amp;&amp;<sp/>def-&gt;<ref refid="structsequence__def_1a127829fa010f002ec0192b2160842f63" kindref="member">step</ref><sp/>&gt;<sp/>INT64_MAX<sp/>-<sp/>value)</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>overflow;</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>value<sp/>+=<sp/>def-&gt;<ref refid="structsequence__def_1a127829fa010f002ec0192b2160842f63" kindref="member">step</ref>;</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(value<sp/>&gt;<sp/>def-&gt;<ref refid="structsequence__def_1a2653117e50278c6b5ba0de60dc27b6b9" kindref="member">max</ref>)</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>overflow;</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(def-&gt;<ref refid="structsequence__def_1a127829fa010f002ec0192b2160842f63" kindref="member">step</ref><sp/>&lt;<sp/>0);</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(value<sp/>&gt;<sp/>def-&gt;<ref refid="structsequence__def_1a2653117e50278c6b5ba0de60dc27b6b9" kindref="member">max</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>value<sp/>=<sp/>def-&gt;<ref refid="structsequence__def_1a2653117e50278c6b5ba0de60dc27b6b9" kindref="member">max</ref>;</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>done;</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(value<sp/>&lt;<sp/>0<sp/>&amp;&amp;<sp/>def-&gt;step<sp/>&lt;<sp/>INT64_MIN<sp/>-<sp/>value)</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>overflow;</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>value<sp/>+=<sp/>def-&gt;<ref refid="structsequence__def_1a127829fa010f002ec0192b2160842f63" kindref="member">step</ref>;</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(value<sp/>&lt;<sp/>def-&gt;min)</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>overflow;</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="245"><highlight class="normal">done:</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(value<sp/>&gt;=<sp/>def-&gt;<ref refid="structsequence__def_1a627cff88d97d8f77c3df406efefe9a1c" kindref="member">min</ref><sp/>&amp;&amp;<sp/>value<sp/>&lt;=<sp/>def-&gt;max);</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>new_data.<ref refid="structsequence__data_1af24b666bc455fb03a3453a77084fb0e9" kindref="member">id</ref><sp/>=<sp/>key;</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>new_data.<ref refid="structsequence__data_1a32d8398a9d15e2159e0b486814b6bd2c" kindref="member">value</ref><sp/>=<sp/><ref refid="structsequence__data_1a32d8398a9d15e2159e0b486814b6bd2c" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(light_sequence_replace(&amp;sequence_data_index,<sp/>hash,</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>new_data,<sp/>&amp;old_data)<sp/>==<sp/>light_sequence_end)</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>unreachable();</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*result<sp/>=<sp/><ref refid="structsequence__data_1a32d8398a9d15e2159e0b486814b6bd2c" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="254"><highlight class="normal">overflow:</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!def-&gt;<ref refid="structsequence__def_1ad59e1b33687427b07b6e07d9bb14c1fa" kindref="member">cycle</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(ClientError,<sp/>ER_SEQUENCE_OVERFLOW,<sp/>def-&gt;<ref refid="structsequence__def_1acdebaadb2ec25a5d989d2db303bdbe5b" kindref="member">name</ref>);</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>value<sp/>=<sp/>def-&gt;<ref refid="structsequence__def_1a127829fa010f002ec0192b2160842f63" kindref="member">step</ref><sp/>&gt;<sp/>0<sp/>?<sp/>def-&gt;<ref refid="structsequence__def_1a627cff88d97d8f77c3df406efefe9a1c" kindref="member">min</ref><sp/>:<sp/>def-&gt;<ref refid="structsequence__def_1a2653117e50278c6b5ba0de60dc27b6b9" kindref="member">max</ref>;</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>done;</highlight></codeline>
+<codeline lineno="261"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"></highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="264"><highlight class="normal">access_check_sequence(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsequence" kindref="compound">sequence</ref><sp/>*seq)</highlight></codeline>
+<codeline lineno="265"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcredentials" kindref="compound">credentials</ref><sp/>*cr<sp/>=<sp/>effective_user();</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="268"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>If<sp/>the<sp/>user<sp/>has<sp/>universal<sp/>access,<sp/>don&apos;t<sp/>bother<sp/>with<sp/>checks.</highlight></codeline>
+<codeline lineno="269"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>No<sp/>special<sp/>check<sp/>for<sp/>ADMIN<sp/>user<sp/>is<sp/>necessary<sp/>since<sp/>ADMIN<sp/>has</highlight></codeline>
+<codeline lineno="270"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>universal<sp/>access.</highlight></codeline>
+<codeline lineno="271"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal"></highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>user_access_t<sp/><ref refid="structaccess" kindref="compound">access</ref><sp/>=<sp/>PRIV_U<sp/>|<sp/>PRIV_W;</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>user_access_t<sp/>sequence_access<sp/>=<sp/>access<sp/>&amp;<sp/>~cr-&gt;<ref refid="structcredentials_1af0512d9725df8084f684874a0fc0e6a2" kindref="member">universal_access</ref>;</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sequence_access<sp/>&amp;=<sp/>~entity_access_get(SC_SEQUENCE)[cr-&gt;<ref refid="structcredentials_1a657ce3055da5e49720d967383de2c47b" kindref="member">auth_token</ref>].effective;</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(sequence_access<sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Check<sp/>for<sp/>missing<sp/>Usage<sp/>access,<sp/>ignore<sp/>owner<sp/>rights.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(sequence_access<sp/>&amp;<sp/>PRIV_U<sp/>||</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Check<sp/>for<sp/>missing<sp/>specific<sp/>access,<sp/>respect<sp/>owner<sp/>rights.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(seq-&gt;<ref refid="structsequence_1af48244e3af69efee8ced8e5e7b89565c" kindref="member">def</ref>-&gt;<ref refid="structsequence__def_1a0995dceab4a92f52422c8e6de7d5e235" kindref="member">uid</ref><sp/>!=<sp/>cr-&gt;<ref refid="structcredentials_1a04956116c84fc51c5e11d85b7b465fb0" kindref="member">uid</ref><sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sequence_access<sp/>&amp;<sp/>~seq-&gt;<ref refid="structsequence_1a71fe93fea3ad6cd647dbfd8376b2723b" kindref="member">access</ref>[cr-&gt;<ref refid="structcredentials_1a657ce3055da5e49720d967383de2c47b" kindref="member">auth_token</ref>].<ref refid="structaccess_1a216bbeecbfc449af36abbf940beed976" kindref="member">effective</ref>)))<sp/>{</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"></highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Access<sp/>violation,<sp/>report<sp/>error.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structuser" kindref="compound">user</ref><sp/>*<ref refid="structuser" kindref="compound">user</ref><sp/>=<sp/>user_find(cr-&gt;<ref refid="structcredentials_1a04956116c84fc51c5e11d85b7b465fb0" kindref="member">uid</ref>);</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(user<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!(cr-&gt;<ref refid="structcredentials_1af0512d9725df8084f684874a0fc0e6a2" kindref="member">universal_access</ref><sp/>&amp;<sp/>PRIV_U))<sp/>{</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(AccessDeniedError,</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>priv_name(PRIV_U),</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>schema_object_name(SC_UNIVERSE),<sp/></highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>user-&gt;def-&gt;<ref refid="structuser__def_1a3ee337371d7356b439d7dfc62275d66e" kindref="member">name</ref>);</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(AccessDeniedError,</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>priv_name(access),</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>schema_object_name(SC_SEQUENCE),</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>seq-&gt;<ref refid="structsequence_1af48244e3af69efee8ced8e5e7b89565c" kindref="member">def</ref>-&gt;<ref refid="structsequence__def_1acdebaadb2ec25a5d989d2db303bdbe5b" kindref="member">name</ref>,<sp/>user-&gt;def-&gt;<ref refid="structuser__def_1a3ee337371d7356b439d7dfc62275d66e" kindref="member">name</ref>);</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="301"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"></highlight></codeline>
+<codeline lineno="303" refid="structsequence__data__iterator" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsequence__data__iterator" kindref="compound">sequence_data_iterator</ref><sp/>{</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsnapshot__iterator" kindref="compound">snapshot_iterator</ref><sp/>base;</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">light_sequence_iterator<sp/>iter;</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="structtuple" kindref="compound">tuple</ref>[0];</highlight></codeline>
+<codeline lineno="309"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"></highlight></codeline>
+<codeline lineno="311"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SEQUENCE_TUPLE_BUF_SIZE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(mp_sizeof_array(2)<sp/>+<sp/>\</highlight></codeline>
+<codeline lineno="312"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>2<sp/>*<sp/>mp_sizeof_uint(UINT64_MAX))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="313"><highlight class="normal"></highlight></codeline>
+<codeline lineno="314"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="315"><highlight class="normal">sequence_data_iterator_next(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsnapshot__iterator" kindref="compound">snapshot_iterator</ref><sp/>*base,</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**data,<sp/>uint32_t<sp/>*size)</highlight></codeline>
+<codeline lineno="317"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsequence__data__iterator" kindref="compound">sequence_data_iterator</ref><sp/>*<ref refid="structsequence__data__iterator_1a318dd557bb0a50fe855ff91dddb635b6" kindref="member">iter</ref><sp/>=</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsequence__data__iterator" kindref="compound">sequence_data_iterator</ref><sp/>*)base;</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"></highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsequence__data" kindref="compound">sequence_data</ref><sp/>*sd<sp/>=</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>light_sequence_iterator_get_and_next(&amp;sequence_data_index,</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;iter-&gt;<ref refid="structsequence__data__iterator_1a318dd557bb0a50fe855ff91dddb635b6" kindref="member">iter</ref>);</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(sd<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*data<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"></highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*buf_end<sp/>=<sp/>iter-&gt;<ref refid="structsequence__data__iterator_1a163ad1d626435209d2d25383790291c7" kindref="member">tuple</ref>;</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>buf_end<sp/>=<sp/><ref refid="msgpuck_8h_1a4f720b3c30f61ab7b7b8439e71aed2ae" kindref="member">mp_encode_array</ref>(buf_end,<sp/>2);</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>buf_end<sp/>=<sp/><ref refid="msgpuck_8h_1acafe6f0a21fde50140f03e1ac7bb5ee0" kindref="member">mp_encode_uint</ref>(buf_end,<sp/>sd-&gt;<ref refid="structsequence__data_1af24b666bc455fb03a3453a77084fb0e9" kindref="member">id</ref>);</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>buf_end<sp/>=<sp/>(sd-&gt;<ref refid="structsequence__data_1a32d8398a9d15e2159e0b486814b6bd2c" kindref="member">value</ref><sp/>&gt;=<sp/>0<sp/>?</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="msgpuck_8h_1acafe6f0a21fde50140f03e1ac7bb5ee0" kindref="member">mp_encode_uint</ref>(buf_end,<sp/>sd-&gt;<ref refid="structsequence__data_1a32d8398a9d15e2159e0b486814b6bd2c" kindref="member">value</ref>)<sp/>:</highlight></codeline>
+<codeline lineno="334"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="msgpuck_8h_1a7f74dbe165a1400097f721f8e5035979" kindref="member">mp_encode_int</ref>(buf_end,<sp/>sd-&gt;<ref refid="structsequence__data_1a32d8398a9d15e2159e0b486814b6bd2c" kindref="member">value</ref>));</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(buf_end<sp/>&lt;=<sp/>iter-&gt;<ref refid="structtuple" kindref="compound">tuple</ref><sp/>+<sp/>SEQUENCE_TUPLE_BUF_SIZE);</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*data<sp/>=<sp/>iter-&gt;<ref refid="structsequence__data__iterator_1a163ad1d626435209d2d25383790291c7" kindref="member">tuple</ref>;</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*size<sp/>=<sp/>buf_end<sp/>-<sp/>iter-&gt;<ref refid="structsequence__data__iterator_1a163ad1d626435209d2d25383790291c7" kindref="member">tuple</ref>;</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="339"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"></highlight></codeline>
+<codeline lineno="341"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="342"><highlight class="normal">sequence_data_iterator_free(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsnapshot__iterator" kindref="compound">snapshot_iterator</ref><sp/>*base)</highlight></codeline>
+<codeline lineno="343"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsequence__data__iterator" kindref="compound">sequence_data_iterator</ref><sp/>*<ref refid="structsequence__data__iterator_1a318dd557bb0a50fe855ff91dddb635b6" kindref="member">iter</ref><sp/>=</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsequence__data__iterator" kindref="compound">sequence_data_iterator</ref><sp/>*)base;</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>light_sequence_iterator_destroy(&amp;sequence_data_index,<sp/>&amp;iter-&gt;<ref refid="structsequence__data__iterator_1a318dd557bb0a50fe855ff91dddb635b6" kindref="member">iter</ref>);</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TRASH(iter);</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>free(iter);</highlight></codeline>
+<codeline lineno="349"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="350"><highlight class="normal"></highlight></codeline>
+<codeline lineno="351"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsnapshot__iterator" kindref="compound">snapshot_iterator</ref><sp/>*</highlight></codeline>
+<codeline lineno="352"><highlight class="normal">sequence_data_iterator_create(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="353"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsequence__data__iterator" kindref="compound">sequence_data_iterator</ref><sp/>*<ref refid="structsequence__data__iterator_1a318dd557bb0a50fe855ff91dddb635b6" kindref="member">iter</ref><sp/>=<sp/>calloc(1,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*iter)<sp/>+</highlight></codeline>
+<codeline lineno="355"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SEQUENCE_TUPLE_BUF_SIZE);</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(iter<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="357"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(OutOfMemory,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*iter)<sp/>+<sp/>SEQUENCE_TUPLE_BUF_SIZE,</highlight></codeline>
+<codeline lineno="358"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;malloc&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;sequence_data_iterator&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="359"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="360"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="361"><highlight class="normal"></highlight></codeline>
+<codeline lineno="362"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>iter-&gt;base.<ref refid="structsnapshot__iterator_1ad1986fb8fe62c5fd6a429d08b502f83c" kindref="member">free</ref><sp/>=<sp/>sequence_data_iterator_free;</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>iter-&gt;base.<ref refid="structsnapshot__iterator_1ac11123042a893cc9ee0a7a2b0bd1f5f3" kindref="member">next</ref><sp/>=<sp/>sequence_data_iterator_next;</highlight></codeline>
+<codeline lineno="364"><highlight class="normal"></highlight></codeline>
+<codeline lineno="365"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>light_sequence_iterator_begin(&amp;sequence_data_index,<sp/>&amp;iter-&gt;<ref refid="structsequence__data__iterator_1a318dd557bb0a50fe855ff91dddb635b6" kindref="member">iter</ref>);</highlight></codeline>
+<codeline lineno="366"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>light_sequence_iterator_freeze(&amp;sequence_data_index,<sp/>&amp;iter-&gt;<ref refid="structsequence__data__iterator_1a318dd557bb0a50fe855ff91dddb635b6" kindref="member">iter</ref>);</highlight></codeline>
+<codeline lineno="367"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>&amp;iter-&gt;base;</highlight></codeline>
+<codeline lineno="368"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="369"><highlight class="normal"></highlight></codeline>
+<codeline lineno="370"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="371"><highlight class="normal">sequence_get_value(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsequence" kindref="compound">sequence</ref><sp/>*seq,<sp/>int64_t<sp/>*result)</highlight></codeline>
+<codeline lineno="372"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="373"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>key<sp/>=<sp/>seq-&gt;<ref refid="structsequence_1af48244e3af69efee8ced8e5e7b89565c" kindref="member">def</ref>-&gt;<ref refid="structsequence__def_1aa9c785f32d798284599f1ac37ab87085" kindref="member">id</ref>;</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>hash<sp/>=<sp/>sequence_hash(key);</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>pos<sp/>=<sp/>light_sequence_find_key(&amp;sequence_data_index,<sp/>hash,<sp/>key);</highlight></codeline>
+<codeline lineno="376"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pos<sp/>==<sp/>light_sequence_end)<sp/>{</highlight></codeline>
+<codeline lineno="377"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(ClientError,<sp/>ER_SEQUENCE_NOT_STARTED,<sp/>seq-&gt;<ref refid="structsequence_1af48244e3af69efee8ced8e5e7b89565c" kindref="member">def</ref>-&gt;<ref refid="structsequence__def_1acdebaadb2ec25a5d989d2db303bdbe5b" kindref="member">name</ref>);</highlight></codeline>
+<codeline lineno="378"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="379"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="380"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsequence__data" kindref="compound">sequence_data</ref><sp/>data<sp/>=<sp/>light_sequence_get(&amp;sequence_data_index,</highlight></codeline>
+<codeline lineno="381"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pos);</highlight></codeline>
+<codeline lineno="382"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*result<sp/>=<sp/>data.<ref refid="structsequence__data_1a32d8398a9d15e2159e0b486814b6bd2c" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="383"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="384"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/sequence.c"/>
+  </compounddef>
+</doxygen>

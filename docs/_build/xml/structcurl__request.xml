@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structcurl__request" kind="struct" language="C++" prot="public">
+    <compoundname>curl_request</compoundname>
+    <includes local="no">curl.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structcurl__request_1a9dd936c5ef46f90128e4f01779ee4fe2" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int curl_request::code</definition>
+        <argsstring></argsstring>
+        <name>code</name>
+        <briefdescription>
+<para>Internal libcurl status code. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/curl.h" line="70" column="1" bodyfile="/home/tsafin/tarantool/src/curl.h" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcurl__request_1a258ccb3afbe2e8b3196e892039c4108f" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool curl_request::in_progress</definition>
+        <argsstring></argsstring>
+        <name>in_progress</name>
+        <briefdescription>
+<para>States that request is running. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/curl.h" line="72" column="1" bodyfile="/home/tsafin/tarantool/src/curl.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcurl__request_1ae05d01f5dde855c20e10163911c07ce4" prot="public" static="no" mutable="no">
+        <type>CURL *</type>
+        <definition>CURL* curl_request::easy</definition>
+        <argsstring></argsstring>
+        <name>easy</name>
+        <briefdescription>
+<para>Information associated with a specific easy handle. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/curl.h" line="74" column="1" bodyfile="/home/tsafin/tarantool/src/curl.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcurl__request_1a8f22dc525e6307f130263e16e37ed03d" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfiber__cond" kindref="compound">fiber_cond</ref></type>
+        <definition>struct fiber_cond curl_request::cond</definition>
+        <argsstring></argsstring>
+        <name>cond</name>
+        <briefdescription>
+<para>When request is given to curl-driver, client waits on this variable until the handler (callback function) gives a signal within variable. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/curl.h" line="74" column="1" bodyfile="/home/tsafin/tarantool/src/curl.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>CURL Request. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2312">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="2312" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="2311">
+        <label>fiber_cond</label>
+        <link refid="structfiber__cond"/>
+        <childnode refid="2312" relation="usage">
+          <edgelabel>waiters</edgelabel>
+        </childnode>
+      </node>
+      <node id="2310">
+        <label>curl_request</label>
+        <link refid="structcurl__request"/>
+        <childnode refid="2311" relation="usage">
+          <edgelabel>cond</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/curl.h" line="68" column="1" bodyfile="/home/tsafin/tarantool/src/curl.h" bodystart="68" bodyend="80"/>
+    <listofallmembers>
+      <member refid="structcurl__request_1a9dd936c5ef46f90128e4f01779ee4fe2" prot="public" virt="non-virtual"><scope>curl_request</scope><name>code</name></member>
+      <member refid="structcurl__request_1a8f22dc525e6307f130263e16e37ed03d" prot="public" virt="non-virtual"><scope>curl_request</scope><name>cond</name></member>
+      <member refid="structcurl__request_1ae05d01f5dde855c20e10163911c07ce4" prot="public" virt="non-virtual"><scope>curl_request</scope><name>easy</name></member>
+      <member refid="structcurl__request_1a258ccb3afbe2e8b3196e892039c4108f" prot="public" virt="non-virtual"><scope>curl_request</scope><name>in_progress</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

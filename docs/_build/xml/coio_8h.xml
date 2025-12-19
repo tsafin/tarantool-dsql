@@ -1,0 +1,1163 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="coio_8h" kind="file" language="C++">
+    <compoundname>coio.h</compoundname>
+    <includes refid="lib_2core_2fiber_8h" local="yes">fiber.h</includes>
+    <includes refid="util_8h" local="yes">trivia/util.h</includes>
+    <includes refid="evio_8h" local="yes">evio.h</includes>
+    <includedby refid="applier_8cc" local="yes">/home/tsafin/tarantool/src/box/applier.cc</includedby>
+    <includedby refid="box_8cc" local="yes">/home/tsafin/tarantool/src/box/box.cc</includedby>
+    <includedby refid="iproto_8cc" local="yes">/home/tsafin/tarantool/src/box/iproto.cc</includedby>
+    <includedby refid="console_8c" local="yes">/home/tsafin/tarantool/src/box/lua/console.c</includedby>
+    <includedby refid="net__box_8c" local="yes">/home/tsafin/tarantool/src/box/lua/net_box.c</includedby>
+    <includedby refid="relay_8cc" local="yes">/home/tsafin/tarantool/src/box/relay.cc</includedby>
+    <includedby refid="xrow__io_8cc" local="yes">/home/tsafin/tarantool/src/box/xrow_io.cc</includedby>
+    <includedby refid="coio_8cc" local="yes">/home/tsafin/tarantool/src/lib/core/coio.cc</includedby>
+    <includedby refid="coio__buf_8h" local="yes">/home/tsafin/tarantool/src/lib/core/coio_buf.h</includedby>
+    <includedby refid="lib_2core_2popen_8c" local="yes">/home/tsafin/tarantool/src/lib/core/popen.c</includedby>
+    <includedby refid="lua_2init_8c" local="yes">/home/tsafin/tarantool/src/lua/init.c</includedby>
+    <includedby refid="socket_8c" local="no">/home/tsafin/tarantool/src/lua/socket.c</includedby>
+    <innerclass refid="structcoio__service" prot="public">coio_service</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="coio_8h_1a61199a473f45224652f54edb524057d7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int coio_connect_timeout</definition>
+        <argsstring>(struct ev_io *coio, struct uri *uri, struct sockaddr *addr, socklen_t *addr_len, ev_tstamp timeout)</argsstring>
+        <name>coio_connect_timeout</name>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>coio</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structuri" kindref="compound">uri</ref> *</type>
+          <declname>uri</declname>
+        </param>
+        <param>
+          <type>struct sockaddr *</type>
+          <declname>addr</declname>
+        </param>
+        <param>
+          <type>socklen_t *</type>
+          <declname>addr_len</declname>
+        </param>
+        <param>
+          <type>ev_tstamp</type>
+          <declname>timeout</declname>
+        </param>
+        <briefdescription>
+<para>Resolve hostname:service from <emphasis>uri</emphasis> and connect to the first available address with a specified timeout. </para>        </briefdescription>
+        <detaileddescription>
+<para>If <emphasis>addr</emphasis> is not NULL the function provides resolved address on success. In this case, <emphasis>addr_len</emphasis> is a value-result argument. It should be initialized to the size of the buffer associated with <emphasis>addr</emphasis>. Upon return, <emphasis>addr_len</emphasis> is updated to contain the actual size of the source address. The returned address is truncated if the buffer provided is too small; in this case, addrlen will return a value greater than was supplied to the call.</para><para>This function also supports UNIX domain sockets if uri-&gt;path is not NULL and uri-&gt;service is NULL.</para><para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>timeout </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>connected </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="59" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.cc" bodystart="159" bodyend="239"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1afccbaee2e76e54cf6d866cca3ce10989" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int coio_connect</definition>
+        <argsstring>(struct ev_io *coio, struct uri *uri, struct sockaddr *addr, socklen_t *addr_len)</argsstring>
+        <name>coio_connect</name>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>coio</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structuri" kindref="compound">uri</ref> *</type>
+          <declname>uri</declname>
+        </param>
+        <param>
+          <type>struct sockaddr *</type>
+          <declname>addr</declname>
+        </param>
+        <param>
+          <type>socklen_t *</type>
+          <declname>addr_len</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="63" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.h" bodystart="63" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1a479741da30cf72c295ffb612b4247f6e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void coio_bind</definition>
+        <argsstring>(struct ev_io *coio, struct sockaddr *addr, socklen_t addrlen)</argsstring>
+        <name>coio_bind</name>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>coio</declname>
+        </param>
+        <param>
+          <type>struct sockaddr *</type>
+          <declname>addr</declname>
+        </param>
+        <param>
+          <type>socklen_t</type>
+          <declname>addrlen</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="70" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1aed8235270aaf08e394d8bc3bc42c2f7f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int coio_accept</definition>
+        <argsstring>(struct ev_io *coio, struct sockaddr *addr, socklen_t addrlen, ev_tstamp timeout)</argsstring>
+        <name>coio_accept</name>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>coio</declname>
+        </param>
+        <param>
+          <type>struct sockaddr *</type>
+          <declname>addr</declname>
+        </param>
+        <param>
+          <type>socklen_t</type>
+          <declname>addrlen</declname>
+        </param>
+        <param>
+          <type>ev_tstamp</type>
+          <declname>timeout</declname>
+        </param>
+        <briefdescription>
+<para>Wait a client connection on a server socket until timedout. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="74" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.cc" bodystart="246" bodyend="283"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1a8dfecc344f77d9c1714083f5f8b7d278" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void coio_create</definition>
+        <argsstring>(struct ev_io *coio, int fd)</argsstring>
+        <name>coio_create</name>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>coio</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <briefdescription>
+<para>Note: this function does not throw. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="78" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.cc" bodystart="54" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1a33020f0fa6e5e5f60cadac4d51ae9da1" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void coio_close_io</definition>
+        <argsstring>(ev_loop *loop, struct ev_io *coio)</argsstring>
+        <name>coio_close_io</name>
+        <param>
+          <type>ev_loop *</type>
+          <declname>loop</declname>
+        </param>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>coio</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="85" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.h" bodystart="85" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1a787e6d72fc754e522ec1797b5e6c4266" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t coio_read_ahead_timeout</definition>
+        <argsstring>(struct ev_io *coio, void *buf, size_t sz, size_t bufsiz, ev_tstamp timeout)</argsstring>
+        <name>coio_read_ahead_timeout</name>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>coio</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>sz</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>bufsiz</declname>
+        </param>
+        <param>
+          <type>ev_tstamp</type>
+          <declname>timeout</declname>
+        </param>
+        <briefdescription>
+<para>Read at least sz bytes from socket with readahead. </para>        </briefdescription>
+        <detaileddescription>
+<para>In case of EOF returns the amount read until eof (possibly 0), and sets errno to 0. Can read up to bufsiz bytes.</para><para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>the</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes read. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="91" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.cc" bodystart="295" bodyend="343"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1a6e2794c9d4a6151ab441110062bd4eb4" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void coio_timeout_init</definition>
+        <argsstring>(ev_tstamp *start, ev_tstamp *delay, ev_tstamp timeout)</argsstring>
+        <name>coio_timeout_init</name>
+        <param>
+          <type>ev_tstamp *</type>
+          <declname>start</declname>
+        </param>
+        <param>
+          <type>ev_tstamp *</type>
+          <declname>delay</declname>
+        </param>
+        <param>
+          <type>ev_tstamp</type>
+          <declname>timeout</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="95" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.h" bodystart="95" bodyend="99"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1a7b266e03b77a6d456f78864a40dbd0e9" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void coio_timeout_update</definition>
+        <argsstring>(ev_tstamp *start, ev_tstamp *delay)</argsstring>
+        <name>coio_timeout_update</name>
+        <param>
+          <type>ev_tstamp *</type>
+          <declname>start</declname>
+        </param>
+        <param>
+          <type>ev_tstamp *</type>
+          <declname>delay</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="102" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.h" bodystart="102" bodyend="105"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1a8e8d3e367521a4f9867fb06c3e3abf0f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>static ssize_t coio_read_ahead</definition>
+        <argsstring>(struct ev_io *coio, void *buf, size_t sz, size_t bufsiz)</argsstring>
+        <name>coio_read_ahead</name>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>coio</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>sz</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>bufsiz</declname>
+        </param>
+        <briefdescription>
+<para>Reat at least sz bytes, with readahead. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns 0 in case of EOF. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="113" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.h" bodystart="113" bodyend="116"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1a1f429733a6ef5176641f1c24e2901926" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t coio_readn_ahead</definition>
+        <argsstring>(struct ev_io *coio, void *buf, size_t sz, size_t bufsiz)</argsstring>
+        <name>coio_readn_ahead</name>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>coio</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>sz</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>bufsiz</declname>
+        </param>
+        <briefdescription>
+<para>Read at least sz bytes, with readahead. </para>        </briefdescription>
+        <detaileddescription>
+<para>Treats EOF as an error, and throws an exception.</para><para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>the</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes read, &gt; 0. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="119" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.cc" bodystart="353" bodyend="362"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1a62ed03926d591079f108105fd155aee0" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>static ssize_t coio_read</definition>
+        <argsstring>(struct ev_io *coio, void *buf, size_t sz)</argsstring>
+        <name>coio_read</name>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>coio</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>sz</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="122" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.h" bodystart="122" bodyend="125"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1ad3a137a728f7dfbe91a72cebdcdc5d9c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>static ssize_t coio_read_timeout</definition>
+        <argsstring>(struct ev_io *coio, void *buf, size_t sz, ev_tstamp timeout)</argsstring>
+        <name>coio_read_timeout</name>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>coio</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>sz</declname>
+        </param>
+        <param>
+          <type>ev_tstamp</type>
+          <declname>timeout</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="128" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.h" bodystart="128" bodyend="131"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1a4072dc6856849a31f5767a50f2b14ff5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t coio_read_ahead_timeout_noxc</definition>
+        <argsstring>(struct ev_io *coio, void *buf, size_t sz, size_t bufsiz, ev_tstamp timeout)</argsstring>
+        <name>coio_read_ahead_timeout_noxc</name>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>coio</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>sz</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>bufsiz</declname>
+        </param>
+        <param>
+          <type>ev_tstamp</type>
+          <declname>timeout</declname>
+        </param>
+        <briefdescription>
+<para>Read data with timeout. </para>        </briefdescription>
+        <detaileddescription>
+<para>Yield until some data will be available for read.</para><para>Returns amount of read bytes at success, otherwise returns -1 and set a diag.</para><para>Zero return value means EOF.</para><para>Note: Less then <emphasis>count</emphasis> bytes may be available for read at a moment, so a return value less then <emphasis>count</emphasis> does not mean EOF.</para><para>Possible errors:</para><para><itemizedlist>
+<listitem><para>SocketError: an IO error occurs at read().</para></listitem><listitem><para>TimedOut: <emphasis>timeout</emphasis> quota is exceeded.</para></listitem><listitem><para>FiberIsCancelled: cancelled by an outside code. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="153" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.cc" bodystart="389" bodyend="401"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1aa836d26a19d11fc3b5d358fdc5490569" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>static ssize_t coio_readn</definition>
+        <argsstring>(struct ev_io *coio, void *buf, size_t sz)</argsstring>
+        <name>coio_readn</name>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>coio</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>sz</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="157" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.h" bodystart="157" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1a1f69c64d290dbbe0800a6ca61086158f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t coio_readn_ahead_timeout</definition>
+        <argsstring>(struct ev_io *coio, void *buf, size_t sz, size_t bufsiz, ev_tstamp timeout)</argsstring>
+        <name>coio_readn_ahead_timeout</name>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>coio</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>sz</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>bufsiz</declname>
+        </param>
+        <param>
+          <type>ev_tstamp</type>
+          <declname>timeout</declname>
+        </param>
+        <briefdescription>
+<para>Read at least sz bytes, with readahead and timeout. </para>        </briefdescription>
+        <detaileddescription>
+<para>Treats EOF as an error, and throws an exception.</para><para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>the</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes read, &gt; 0. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="163" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.cc" bodystart="372" bodyend="382"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1aafffc39b7e481d18a43f200c4f18bd58" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t coio_write_timeout</definition>
+        <argsstring>(struct ev_io *coio, const void *buf, size_t sz, ev_tstamp timeout)</argsstring>
+        <name>coio_write_timeout</name>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>coio</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>sz</declname>
+        </param>
+        <param>
+          <type>ev_tstamp</type>
+          <declname>timeout</declname>
+        </param>
+        <briefdescription>
+<para>Write sz bytes to socket. </para>        </briefdescription>
+        <detaileddescription>
+<para>Throws SocketError in case of write error. If the socket is not ready, yields the current fiber until the socket becomes ready, until all data is written.</para><para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>the</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes written. Always equal to <emphasis>sz</emphasis>. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="167" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.cc" bodystart="415" bodyend="458"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1a3456179a1a42c4766215774f0a5eb95d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t coio_write_timeout_noxc</definition>
+        <argsstring>(struct ev_io *coio, const void *buf, size_t sz, ev_tstamp timeout)</argsstring>
+        <name>coio_write_timeout_noxc</name>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>coio</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>sz</declname>
+        </param>
+        <param>
+          <type>ev_tstamp</type>
+          <declname>timeout</declname>
+        </param>
+        <briefdescription>
+<para>Write <emphasis>count</emphasis> bytes with timeout. </para>        </briefdescription>
+        <detaileddescription>
+<para>Yield until all <emphasis>count</emphasis> bytes will be written.</para><para>Returns <emphasis>count</emphasis> at success, otherwise returns -1 and set a diag.</para><para>Possible errors:</para><para><itemizedlist>
+<listitem><para>SocketError: an IO error occurs at write().</para></listitem><listitem><para>TimedOut: <emphasis>timeout</emphasis> quota is exceeded.</para></listitem><listitem><para>FiberIsCancelled: cancelled by an outside code. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="185" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.cc" bodystart="465" bodyend="477"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1a0b4674dba8606f0b6f246fcadc17daff" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void coio_write</definition>
+        <argsstring>(struct ev_io *coio, const void *buf, size_t sz)</argsstring>
+        <name>coio_write</name>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>coio</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>sz</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="189" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.h" bodystart="189" bodyend="192"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1a116fab3dd068327ec12f70c4728280f7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t coio_writev_timeout</definition>
+        <argsstring>(struct ev_io *coio, struct iovec *iov, int iovcnt, size_t size, ev_tstamp timeout)</argsstring>
+        <name>coio_writev_timeout</name>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>coio</declname>
+        </param>
+        <param>
+          <type>struct iovec *</type>
+          <declname>iov</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>iovcnt</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>ev_tstamp</type>
+          <declname>timeout</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="195" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.cc" bodystart="495" bodyend="544"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1a7b214b556604cdb31f5e568a3b0d84b0" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>static ssize_t coio_writev</definition>
+        <argsstring>(struct ev_io *coio, struct iovec *iov, int iovcnt, size_t size)</argsstring>
+        <name>coio_writev</name>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>coio</declname>
+        </param>
+        <param>
+          <type>struct iovec *</type>
+          <declname>iov</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>iovcnt</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="199" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.h" bodystart="199" bodyend="202"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1a21da182e53017fa57762b2b9dfc570a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t coio_sendto_timeout</definition>
+        <argsstring>(struct ev_io *coio, const void *buf, size_t sz, int flags, const struct sockaddr *dest_addr, socklen_t addrlen, ev_tstamp timeout)</argsstring>
+        <name>coio_sendto_timeout</name>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>coio</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>sz</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <param>
+          <type>const struct sockaddr *</type>
+          <declname>dest_addr</declname>
+        </param>
+        <param>
+          <type>socklen_t</type>
+          <declname>addrlen</declname>
+        </param>
+        <param>
+          <type>ev_tstamp</type>
+          <declname>timeout</declname>
+        </param>
+        <briefdescription>
+<para>Send up to sz bytes to a UDP socket. </para>        </briefdescription>
+        <detaileddescription>
+<para>Return the number of bytes sent.</para><para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the number of bytes written </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="205" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.cc" bodystart="553" bodyend="589"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1a0aa4f545478b269268a40a505f8a6e9b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t coio_recvfrom_timeout</definition>
+        <argsstring>(struct ev_io *coio, void *buf, size_t sz, int flags, struct sockaddr *src_addr, socklen_t addrlen, ev_tstamp timeout)</argsstring>
+        <name>coio_recvfrom_timeout</name>
+        <param>
+          <type>struct ev_io *</type>
+          <declname>coio</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>sz</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <param>
+          <type>struct sockaddr *</type>
+          <declname>src_addr</declname>
+        </param>
+        <param>
+          <type>socklen_t</type>
+          <declname>addrlen</declname>
+        </param>
+        <param>
+          <type>ev_tstamp</type>
+          <declname>timeout</declname>
+        </param>
+        <briefdescription>
+<para>Read a datagram up to sz bytes from a socket, with a timeout. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+<parametername>errno</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>= 0 eof  n number of bytes read </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="210" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.cc" bodystart="598" bodyend="634"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1a053fba11a0e788ceda671df23eaf519d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void coio_service_init</definition>
+        <argsstring>(struct coio_service *service, const char *name, fiber_func handler, void *handler_param)</argsstring>
+        <name>coio_service_init</name>
+        <param>
+          <type>struct <ref refid="structcoio__service" kindref="compound">coio_service</ref> *</type>
+          <declname>service</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>fiber_func</type>
+          <declname>handler</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>handler_param</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="215" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.cc" bodystart="671" bodyend="678"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1ab54d0a0b5513d84f8323de43ccaab962" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void coio_service_start</definition>
+        <argsstring>(struct evio_service *service, const char *uri)</argsstring>
+        <name>coio_service_start</name>
+        <param>
+          <type>struct <ref refid="structevio__service" kindref="compound">evio_service</ref> *</type>
+          <declname>service</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>uri</declname>
+        </param>
+        <briefdescription>
+<para>Wait until the service binds to the port. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="220" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.cc" bodystart="681" bodyend="686"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1afb7e4da478ab19c3fc80919a6a4b7ccc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void coio_stat_init</definition>
+        <argsstring>(ev_stat *stat, const char *path)</argsstring>
+        <name>coio_stat_init</name>
+        <param>
+          <type>ev_stat *</type>
+          <declname>stat</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>path</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="223" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.cc" bodystart="689" bodyend="692"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1afc12e9cc1e4a982fd273fd35e3f98638" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void coio_stat_stat_timeout</definition>
+        <argsstring>(ev_stat *stat, ev_tstamp delay)</argsstring>
+        <name>coio_stat_stat_timeout</name>
+        <param>
+          <type>ev_stat *</type>
+          <declname>stat</declname>
+        </param>
+        <param>
+          <type>ev_tstamp</type>
+          <declname>delay</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="226" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.cc" bodystart="695" bodyend="704"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1ad9eb2bef7824f77203495ba3fc367ca3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int coio_waitpid</definition>
+        <argsstring>(pid_t pid)</argsstring>
+        <name>coio_waitpid</name>
+        <param>
+          <type>pid_t</type>
+          <declname>pid</declname>
+        </param>
+        <briefdescription>
+<para>Wait for a child to end. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="note"><para>this is a cancellation point (can throw FiberIsCancelled).</para></simplesect>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>exit</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>status of the child.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+This call only works in the main thread.</para><para>Wait for a child to end.</para><para><simplesect kind="return"><para>process return status </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="238" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.cc" bodystart="713" bodyend="733"/>
+      </memberdef>
+      <memberdef kind="function" id="coio_8h_1aa052dce6b6b173b86faebba43974020b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int coio_write_fd_timeout</definition>
+        <argsstring>(int fd, const void *data, size_t size, ev_tstamp timeout)</argsstring>
+        <name>coio_write_fd_timeout</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>ev_tstamp</type>
+          <declname>timeout</declname>
+        </param>
+        <briefdescription>
+<para>public </para>        </briefdescription>
+        <detaileddescription>
+<para>Write to a socket in at most <emphasis>timeout</emphasis> seconds. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Socket descriptor. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data to write. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of <emphasis>data</emphasis>. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeout</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Timeout on the operation.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Success. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Timeout or socket error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/coio.h" line="282" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/coio.cc" bodystart="784" bodyend="809"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LIB_CORE_COIO_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LIB_CORE_COIO_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;fiber.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trivia/util.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;evio.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">sockaddr;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structuri" kindref="compound">uri</ref>;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49" refid="structcoio__service" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcoio__service" kindref="compound">coio_service</ref></highlight></codeline>
+<codeline lineno="50"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structevio__service" kindref="compound">evio_service</ref><sp/>evio_service;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Fiber<sp/>function.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fiber_func<sp/>handler;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structcoio__service_1a50cedd93e48ad88c750a8d1526d8f75a" kindref="member">handler_param</ref>;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal">coio_connect_timeout(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*coio,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structuri" kindref="compound">uri</ref><sp/>*<ref refid="structuri" kindref="compound">uri</ref>,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sockaddr<sp/>*addr,</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>socklen_t<sp/>*addr_len,<sp/>ev_tstamp<sp/>timeout);</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal">coio_connect(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*coio,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>uri<sp/>*uri,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sockaddr<sp/>*addr,</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>socklen_t<sp/>*addr_len)</highlight></codeline>
+<codeline lineno="65"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>coio_connect_timeout(coio,<sp/>uri,<sp/>addr,<sp/>addr_len,<sp/>TIMEOUT_INFINITY);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal">coio_bind(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*coio,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sockaddr<sp/>*addr,</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>socklen_t<sp/>addrlen);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal">coio_accept(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*coio,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sockaddr<sp/>*addr,<sp/>socklen_t<sp/>addrlen,</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ev_tstamp<sp/>timeout);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal">coio_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*coio,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="81"><highlight class="comment"><sp/>*<sp/>Due<sp/>to<sp/>name<sp/>conflict<sp/>with<sp/>coio_close<sp/>in<sp/>API_EXPORT</highlight></codeline>
+<codeline lineno="82"><highlight class="comment"><sp/>*<sp/>we<sp/>have<sp/>to<sp/>use<sp/>coio_close_io()<sp/>instead<sp/>of<sp/>plain<sp/>coio_close().</highlight></codeline>
+<codeline lineno="83"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal">coio_close_io(ev_loop<sp/>*loop,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*coio)</highlight></codeline>
+<codeline lineno="86"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>evio_close(loop,<sp/>coio);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal">ssize_t</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">coio_read_ahead_timeout(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*coio,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sz,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>bufsiz,</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ev_tstamp<sp/>timeout);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal">coio_timeout_init(ev_tstamp<sp/>*start,<sp/>ev_tstamp<sp/>*delay,</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ev_tstamp<sp/>timeout)</highlight></codeline>
+<codeline lineno="97"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>evio_timeout_init(loop(),<sp/>start,<sp/>delay,<sp/>timeout);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal">coio_timeout_update(ev_tstamp<sp/>*start,<sp/>ev_tstamp<sp/>*delay)</highlight></codeline>
+<codeline lineno="103"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>evio_timeout_update(loop(),<sp/>start,<sp/>delay);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>ssize_t</highlight></codeline>
+<codeline lineno="113"><highlight class="normal">coio_read_ahead(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*coio,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sz,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>bufsiz)</highlight></codeline>
+<codeline lineno="114"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>coio_read_ahead_timeout(coio,<sp/>buf,<sp/>sz,<sp/>bufsiz,<sp/>TIMEOUT_INFINITY);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal">ssize_t</highlight></codeline>
+<codeline lineno="119"><highlight class="normal">coio_readn_ahead(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*coio,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sz,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>bufsiz);</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>ssize_t</highlight></codeline>
+<codeline lineno="122"><highlight class="normal">coio_read(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*coio,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sz)</highlight></codeline>
+<codeline lineno="123"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>coio_read_ahead(coio,<sp/>buf,<sp/>sz,<sp/>sz);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>ssize_t</highlight></codeline>
+<codeline lineno="128"><highlight class="normal">coio_read_timeout(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*coio,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sz,<sp/>ev_tstamp<sp/>timeout)</highlight></codeline>
+<codeline lineno="129"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>coio_read_ahead_timeout(coio,<sp/>buf,<sp/>sz,<sp/>sz,<sp/>timeout);</highlight></codeline>
+<codeline lineno="131"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal">ssize_t</highlight></codeline>
+<codeline lineno="153"><highlight class="normal">coio_read_ahead_timeout_noxc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*coio,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sz,</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>bufsiz,<sp/>ev_tstamp<sp/>timeout);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>ssize_t</highlight></codeline>
+<codeline lineno="157"><highlight class="normal">coio_readn(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*coio,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sz)</highlight></codeline>
+<codeline lineno="158"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>coio_readn_ahead(coio,<sp/>buf,<sp/>sz,<sp/>sz);</highlight></codeline>
+<codeline lineno="160"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal">ssize_t</highlight></codeline>
+<codeline lineno="163"><highlight class="normal">coio_readn_ahead_timeout(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*coio,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sz,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>bufsiz,</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ev_tstamp<sp/>timeout);</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal">ssize_t</highlight></codeline>
+<codeline lineno="167"><highlight class="normal">coio_write_timeout(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*coio,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sz,</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ev_tstamp<sp/>timeout);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal">ssize_t</highlight></codeline>
+<codeline lineno="185"><highlight class="normal">coio_write_timeout_noxc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*coio,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sz,</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ev_tstamp<sp/>timeout);</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal">coio_write(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*coio,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sz)</highlight></codeline>
+<codeline lineno="190"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>coio_write_timeout(coio,<sp/>buf,<sp/>sz,<sp/>TIMEOUT_INFINITY);</highlight></codeline>
+<codeline lineno="192"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight></codeline>
+<codeline lineno="194"><highlight class="normal">ssize_t</highlight></codeline>
+<codeline lineno="195"><highlight class="normal">coio_writev_timeout(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*coio,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>iovec<sp/>*iov,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>iovcnt,</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size,<sp/>ev_tstamp<sp/>timeout);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>ssize_t</highlight></codeline>
+<codeline lineno="199"><highlight class="normal">coio_writev(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*coio,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>iovec<sp/>*iov,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>iovcnt,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="200"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>coio_writev_timeout(coio,<sp/>iov,<sp/>iovcnt,<sp/>size,<sp/>TIMEOUT_INFINITY);</highlight></codeline>
+<codeline lineno="202"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal">ssize_t</highlight></codeline>
+<codeline lineno="205"><highlight class="normal">coio_sendto_timeout(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*coio,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sz,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags,</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sockaddr<sp/>*dest_addr,<sp/>socklen_t<sp/>addrlen,</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ev_tstamp<sp/>timeout);</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal">ssize_t</highlight></codeline>
+<codeline lineno="210"><highlight class="normal">coio_recvfrom_timeout(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_io<sp/>*coio,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sz,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags,</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sockaddr<sp/>*src_addr,<sp/>socklen_t<sp/>addrlen,</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ev_tstamp<sp/>timeout);</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal">coio_service_init(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcoio__service" kindref="compound">coio_service</ref><sp/>*service,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structevio__service_1a548d17c6d79772d7fe360e652a56fb1e" kindref="member">name</ref>,</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fiber_func<sp/>handler,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structcoio__service_1a50cedd93e48ad88c750a8d1526d8f75a" kindref="member">handler_param</ref>);</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal">coio_service_start(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structevio__service" kindref="compound">evio_service</ref><sp/>*service,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*uri);</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal">coio_stat_init(ev_stat<sp/>*stat,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*path);</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal">coio_stat_stat_timeout(ev_stat<sp/>*stat,<sp/>ev_tstamp<sp/>delay);</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal">coio_waitpid(pid_t<sp/>pid);</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>COIO_READ<sp/><sp/>=<sp/>0x1,</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>COIO_WRITE<sp/>=<sp/>0x2,</highlight></codeline>
+<codeline lineno="247"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"></highlight></codeline>
+<codeline lineno="259"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="260"><highlight class="normal">coio_wait(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>event,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>timeout);</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="normal">API_EXPORT<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="267"><highlight class="normal">coio_close(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd);</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"></highlight></codeline>
+<codeline lineno="281"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="282"><highlight class="normal">coio_write_fd_timeout(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size,<sp/>ev_tstamp<sp/>timeout);</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"></highlight></codeline>
+<codeline lineno="284"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="285"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="287"><highlight class="normal"></highlight></codeline>
+<codeline lineno="288"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_LIB_CORE_COIO_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/core/coio.h"/>
+  </compounddef>
+</doxygen>

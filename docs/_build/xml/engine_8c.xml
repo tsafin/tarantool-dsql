@@ -1,0 +1,1271 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="engine_8c" kind="file" language="C++">
+    <compoundname>engine.c</compoundname>
+    <includes refid="engine_8h" local="yes">engine.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes refid="string_8h" local="no">string.h</includes>
+    <includes refid="rlist_8h" local="no">small/rlist.h</includes>
+    <incdepgraph>
+      <node id="125">
+        <label>/home/tsafin/tarantool/src/box/engine.c</label>
+        <link refid="engine_8c"/>
+        <childnode refid="126" relation="include">
+        </childnode>
+      </node>
+      <node id="126">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="engine_8c_1a726ca809ffd3d67ab4b8476646f26635" prot="public" static="no">
+        <name>@6</name>
+        <enumvalue id="engine_8c_1a726ca809ffd3d67ab4b8476646f26635aa2c527d2bcfd2e0b12723e0a5c8ef0ca" prot="public">
+          <name>MAX_ENGINE_COUNT</name>
+          <initializer>= 10</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>For simplicity, assume that the engine count can&apos;t exceed the value of this constant. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="43" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="43" bodyend="43"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="engine_8c_1ab1c0d58e88e5dbfa7e8026728964fc5b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>RLIST_HEAD</definition>
+        <argsstring>(engines)</argsstring>
+        <name>RLIST_HEAD</name>
+        <param>
+          <type>engines</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="37" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1abdbdbb00e341ddd4f0e0378339b12a94" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void engine_register</definition>
+        <argsstring>(struct engine *engine)</argsstring>
+        <name>engine_register</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <briefdescription>
+<para>Register engine instance. </para>        </briefdescription>
+        <detaileddescription>
+<para>Register engine engine instance.</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="46" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="46" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1acdc3355acafd087e2b4c5e54d605f75e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+        <definition>struct engine* engine_by_name</definition>
+        <argsstring>(const char *name)</argsstring>
+        <name>engine_by_name</name>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>Find engine by name. </para>        </briefdescription>
+        <detaileddescription>
+<para>Find engine engine by name.</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="55" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="55" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a604dfa7cde4ae5ebe599229369d8431a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void engine_shutdown</definition>
+        <argsstring>(void)</argsstring>
+        <name>engine_shutdown</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Shutdown all engine factories. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="66" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="66" bodyend="72"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a7277d962fbd2ea92e7f288849847d3cd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void engine_switch_to_ro</definition>
+        <argsstring>(void)</argsstring>
+        <name>engine_switch_to_ro</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Called before switching the instance to read-only mode. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="75" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="75" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a333f624da5f3c102374572d1c1ec7a6f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int engine_bootstrap</definition>
+        <argsstring>(void)</argsstring>
+        <name>engine_bootstrap</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize an empty data directory. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="83" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="83" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1ab8bc8d5addd5e3de90043ddf05d5e95d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int engine_begin_initial_recovery</definition>
+        <argsstring>(const struct vclock *recovery_vclock)</argsstring>
+        <name>engine_begin_initial_recovery</name>
+        <param>
+          <type>const struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>recovery_vclock</declname>
+        </param>
+        <briefdescription>
+<para>Called at the start of recovery. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="94" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="94" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a2821a7433f2692f72316c0ca74bf7727" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int engine_begin_final_recovery</definition>
+        <argsstring>(void)</argsstring>
+        <name>engine_begin_final_recovery</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Called in the middle of JOIN stage, when xlog catch-up process is started. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="106" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="106" bodyend="114"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1acb94fb8f26dd37be4b4d89f008ee36e0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int engine_end_recovery</definition>
+        <argsstring>(void)</argsstring>
+        <name>engine_end_recovery</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Called at the end of recovery. </para>        </briefdescription>
+        <detaileddescription>
+<para>Build secondary keys in all spaces. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="117" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="117" bodyend="129"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1ab501c1636331928acc5715b42dd53593" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int engine_begin_checkpoint</definition>
+        <argsstring>(bool is_scheduled)</argsstring>
+        <name>engine_begin_checkpoint</name>
+        <param>
+          <type>bool</type>
+          <declname>is_scheduled</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="132" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="132" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a467a15a4f11d7b8611afe0baccb6338a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int engine_commit_checkpoint</definition>
+        <argsstring>(const struct vclock *vclock)</argsstring>
+        <name>engine_commit_checkpoint</name>
+        <param>
+          <type>const struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <briefdescription>
+<para>Create a checkpoint. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="143" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="143" bodyend="154"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a19ae0d7a291f565ccfbb5a3e0e915b07" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void engine_abort_checkpoint</definition>
+        <argsstring>(void)</argsstring>
+        <name>engine_abort_checkpoint</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="157" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="157" bodyend="162"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a5912e5c41372601e34554e6a2cb1342d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void engine_collect_garbage</definition>
+        <argsstring>(const struct vclock *vclock)</argsstring>
+        <name>engine_collect_garbage</name>
+        <param>
+          <type>const struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="165" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="165" bodyend="170"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a04834e0566864309931f700f232ed013" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int engine_backup</definition>
+        <argsstring>(const struct vclock *vclock, engine_backup_cb cb, void *cb_arg)</argsstring>
+        <name>engine_backup</name>
+        <param>
+          <type>const struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <param>
+          <type>engine_backup_cb</type>
+          <declname>cb</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>cb_arg</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="173" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="173" bodyend="181"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1afa41d91d046812a28e9a0e858a16a750" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int engine_prepare_join</definition>
+        <argsstring>(struct engine_join_ctx *ctx)</argsstring>
+        <name>engine_prepare_join</name>
+        <param>
+          <type>struct <ref refid="structengine__join__ctx" kindref="compound">engine_join_ctx</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="184" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="184" bodyend="204"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a081efaeb8b654d55932c7d91608ad265" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int engine_join</definition>
+        <argsstring>(struct engine_join_ctx *ctx, struct xstream *stream)</argsstring>
+        <name>engine_join</name>
+        <param>
+          <type>struct <ref refid="structengine__join__ctx" kindref="compound">engine_join_ctx</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structxstream" kindref="compound">xstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="207" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="207" bodyend="217"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1ab6bb2a3cf62af7841f0fb10e0efc1f07" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void engine_complete_join</definition>
+        <argsstring>(struct engine_join_ctx *ctx)</argsstring>
+        <name>engine_complete_join</name>
+        <param>
+          <type>struct <ref refid="structengine__join__ctx" kindref="compound">engine_join_ctx</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="220" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="220" bodyend="230"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1afda846efb2890cd89e4cc29ef4548877" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void engine_memory_stat</definition>
+        <argsstring>(struct engine_memory_stat *stat)</argsstring>
+        <name>engine_memory_stat</name>
+        <param>
+          <type>struct <ref refid="structengine__memory__stat" kindref="compound">engine_memory_stat</ref> *</type>
+          <declname>stat</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="233" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="233" bodyend="239"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1ac0a74c25688d524ec1ebddde986c70c5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void engine_reset_stat</definition>
+        <argsstring>(void)</argsstring>
+        <name>engine_reset_stat</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="242" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="242" bodyend="247"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1ae9d1a739859a5135299f89b2d200c23c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int generic_engine_prepare_join</definition>
+        <argsstring>(struct engine *engine, void **ctx)</argsstring>
+        <name>generic_engine_prepare_join</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>void **</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="252" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="252" bodyend="257"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a1c964467f9f7fed386e2094b73433988" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int generic_engine_join</definition>
+        <argsstring>(struct engine *engine, void *ctx, struct xstream *stream)</argsstring>
+        <name>generic_engine_join</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structxstream" kindref="compound">xstream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="260" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="260" bodyend="266"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a8679de609e89fbddefb207c8ec8136f2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void generic_engine_complete_join</definition>
+        <argsstring>(struct engine *engine, void *ctx)</argsstring>
+        <name>generic_engine_complete_join</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="269" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="269" bodyend="273"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1ab4b8cd967bf65ae53d3084e5922f9542" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int generic_engine_begin</definition>
+        <argsstring>(struct engine *engine, struct txn *txn)</argsstring>
+        <name>generic_engine_begin</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="276" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="276" bodyend="281"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a861b081998836d9ecd1010ee82d26866" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int generic_engine_begin_statement</definition>
+        <argsstring>(struct engine *engine, struct txn *txn)</argsstring>
+        <name>generic_engine_begin_statement</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="284" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="284" bodyend="289"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a8e8dba7fc935956330e773895c0a8225" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int generic_engine_prepare</definition>
+        <argsstring>(struct engine *engine, struct txn *txn)</argsstring>
+        <name>generic_engine_prepare</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="292" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="292" bodyend="297"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a0f0e174bc7fa8535359061bc458cef99" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void generic_engine_commit</definition>
+        <argsstring>(struct engine *engine, struct txn *txn)</argsstring>
+        <name>generic_engine_commit</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="300" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="300" bodyend="304"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1adfea5c5c1b60721c295a7b62013ffe20" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void generic_engine_rollback_statement</definition>
+        <argsstring>(struct engine *engine, struct txn *txn, struct txn_stmt *stmt)</argsstring>
+        <name>generic_engine_rollback_statement</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref> *</type>
+          <declname>stmt</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="307" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="307" bodyend="313"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a14e83eb1a1b8264db611254c36705ea0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void generic_engine_rollback</definition>
+        <argsstring>(struct engine *engine, struct txn *txn)</argsstring>
+        <name>generic_engine_rollback</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtxn" kindref="compound">txn</ref> *</type>
+          <declname>txn</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="316" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="316" bodyend="320"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a7c9702752831ee86800f764b06081e8d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void generic_engine_switch_to_ro</definition>
+        <argsstring>(struct engine *engine)</argsstring>
+        <name>generic_engine_switch_to_ro</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="323" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="323" bodyend="326"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a96cd1e6ce80fb64e5b473aa42d20d3aa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int generic_engine_bootstrap</definition>
+        <argsstring>(struct engine *engine)</argsstring>
+        <name>generic_engine_bootstrap</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="329" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="329" bodyend="333"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a8ff3cd7350338eccf9ee3cd46823f97b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int generic_engine_begin_initial_recovery</definition>
+        <argsstring>(struct engine *engine, const struct vclock *vclock)</argsstring>
+        <name>generic_engine_begin_initial_recovery</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="336" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="336" bodyend="342"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1ac430ae76faac854593176bd929bdf41f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int generic_engine_begin_final_recovery</definition>
+        <argsstring>(struct engine *engine)</argsstring>
+        <name>generic_engine_begin_final_recovery</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="345" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="345" bodyend="349"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1aef9848dbfafef96888118209f34c0d4a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int generic_engine_end_recovery</definition>
+        <argsstring>(struct engine *engine)</argsstring>
+        <name>generic_engine_end_recovery</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="352" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="352" bodyend="356"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a059780712b54f83023b2c2bee3e01ae3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int generic_engine_begin_checkpoint</definition>
+        <argsstring>(struct engine *engine, bool is_scheduled)</argsstring>
+        <name>generic_engine_begin_checkpoint</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>is_scheduled</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="359" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="359" bodyend="364"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1abf9985ec5459705eeb682307890ed251" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int generic_engine_wait_checkpoint</definition>
+        <argsstring>(struct engine *engine, const struct vclock *vclock)</argsstring>
+        <name>generic_engine_wait_checkpoint</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="367" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="367" bodyend="373"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a88dc87ae132ec15c21bc44efe00aee7e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void generic_engine_commit_checkpoint</definition>
+        <argsstring>(struct engine *engine, const struct vclock *vclock)</argsstring>
+        <name>generic_engine_commit_checkpoint</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="376" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="376" bodyend="381"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a1b79da7f4648de0a350972c4e4aec999" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void generic_engine_abort_checkpoint</definition>
+        <argsstring>(struct engine *engine)</argsstring>
+        <name>generic_engine_abort_checkpoint</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="384" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="384" bodyend="387"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a9f495127f48ca2abbf636178d0bd442e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void generic_engine_collect_garbage</definition>
+        <argsstring>(struct engine *engine, const struct vclock *vclock)</argsstring>
+        <name>generic_engine_collect_garbage</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="390" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="390" bodyend="395"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1af2ea41b93dbeed322395e997b6d382eb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int generic_engine_backup</definition>
+        <argsstring>(struct engine *engine, const struct vclock *vclock, engine_backup_cb cb, void *cb_arg)</argsstring>
+        <name>generic_engine_backup</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <param>
+          <type>engine_backup_cb</type>
+          <declname>cb</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>cb_arg</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="398" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="398" bodyend="406"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a821139e85fc50e396e7fe89892390f08" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void generic_engine_memory_stat</definition>
+        <argsstring>(struct engine *engine, struct engine_memory_stat *stat)</argsstring>
+        <name>generic_engine_memory_stat</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structengine__memory__stat" kindref="compound">engine_memory_stat</ref> *</type>
+          <declname>stat</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="409" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="409" bodyend="414"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a8e05aa3d8a3531ff9d6f83a8e194fe09" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void generic_engine_reset_stat</definition>
+        <argsstring>(struct engine *engine)</argsstring>
+        <name>generic_engine_reset_stat</name>
+        <param>
+          <type>struct <ref refid="structengine" kindref="compound">engine</ref> *</type>
+          <declname>engine</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="417" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="417" bodyend="420"/>
+      </memberdef>
+      <memberdef kind="function" id="engine_8c_1a37271bd00cb0780d52dd451afe825fcc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int generic_engine_check_space_def</definition>
+        <argsstring>(struct space_def *def)</argsstring>
+        <name>generic_engine_check_space_def</name>
+        <param>
+          <type>struct <ref refid="structspace__def" kindref="compound">space_def</ref> *</type>
+          <declname>def</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.c" line="423" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.c" bodystart="423" bodyend="427"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;engine.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;small/rlist.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal">RLIST_HEAD(engines);</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{<sp/>MAX_ENGINE_COUNT<sp/>=<sp/>10<sp/>};</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>engine_register(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structengine" kindref="compound">engine</ref><sp/>*<ref refid="structengine" kindref="compound">engine</ref>)</highlight></codeline>
+<codeline lineno="47"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n_engines;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_add_tail_entry(&amp;engines,<sp/>engine,<sp/>link);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine-&gt;<ref refid="structengine_1a719a171492c519b1b77ec6e6362fbaa4" kindref="member">id</ref><sp/>=<sp/>n_engines++;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structengine" kindref="compound">engine</ref><sp/>*</highlight></codeline>
+<codeline lineno="55"><highlight class="normal">engine_by_name(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structengine_1ad2e1d36550b6be40f0276da34a77c42c" kindref="member">name</ref>)</highlight></codeline>
+<codeline lineno="56"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structengine" kindref="compound">engine</ref><sp/>*e;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine_foreach(e)<sp/>{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(strcmp(e-&gt;<ref refid="structengine_1ad2e1d36550b6be40f0276da34a77c42c" kindref="member">name</ref>,<sp/>name)<sp/>==<sp/>0)</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>e;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal">engine_shutdown(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="67"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structengine" kindref="compound">engine</ref><sp/>*<ref refid="structengine" kindref="compound">engine</ref>,<sp/>*tmp;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_foreach_entry_safe(engine,<sp/>&amp;engines,<sp/><ref refid="structengine_1ae3bb733d1c3ed11adf8495031491a42d" kindref="member">link</ref>,<sp/>tmp)<sp/>{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine-&gt;<ref refid="structengine_1add272976ce924e6067cbb8de1a5e0f9d" kindref="member">vtab</ref>-&gt;<ref refid="structengine__vtab_1ae535d92d5dd63f7ae113c49618a1c288" kindref="member">shutdown</ref>(engine);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="72"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal">engine_switch_to_ro(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="76"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">engine<sp/>*engine;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine_foreach(engine)</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine-&gt;<ref refid="structengine_1add272976ce924e6067cbb8de1a5e0f9d" kindref="member">vtab</ref>-&gt;<ref refid="structengine__vtab_1a70d2909c23cd0c62087a4e25a23a7b38" kindref="member">switch_to_ro</ref>(engine);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal">engine_bootstrap(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="84"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">engine<sp/>*engine;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine_foreach(engine)<sp/>{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(engine-&gt;<ref refid="structengine_1add272976ce924e6067cbb8de1a5e0f9d" kindref="member">vtab</ref>-&gt;<ref refid="structengine__vtab_1a6ed65e81857bee788c14ec597d53ab7a" kindref="member">bootstrap</ref>(engine)<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal">engine_begin_initial_recovery(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvclock" kindref="compound">vclock</ref><sp/>*recovery_vclock)</highlight></codeline>
+<codeline lineno="95"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">engine<sp/>*engine;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine_foreach(engine)<sp/>{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(engine-&gt;<ref refid="structengine_1add272976ce924e6067cbb8de1a5e0f9d" kindref="member">vtab</ref>-&gt;<ref refid="structengine__vtab_1a0603b6f903c541764a2c67df98c82375" kindref="member">begin_initial_recovery</ref>(engine,</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>recovery_vclock)<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal">engine_begin_final_recovery(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="107"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">engine<sp/>*engine;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine_foreach(engine)<sp/>{</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(engine-&gt;<ref refid="structengine_1add272976ce924e6067cbb8de1a5e0f9d" kindref="member">vtab</ref>-&gt;<ref refid="structengine__vtab_1a99bd21b51e719f51cfc8aaeeaee53de6" kindref="member">begin_final_recovery</ref>(engine)<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal">engine_end_recovery(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="118"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="120"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>For<sp/>all<sp/>new<sp/>spaces<sp/>created<sp/>after<sp/>recovery<sp/>is<sp/>complete,</highlight></codeline>
+<codeline lineno="121"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>when<sp/>the<sp/>primary<sp/>key<sp/>is<sp/>added,<sp/>enable<sp/>all<sp/>keys.</highlight></codeline>
+<codeline lineno="122"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">engine<sp/>*engine;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine_foreach(engine)<sp/>{</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(engine-&gt;<ref refid="structengine_1add272976ce924e6067cbb8de1a5e0f9d" kindref="member">vtab</ref>-&gt;<ref refid="structengine__vtab_1a948a266ce13934988cd9600dce95d690" kindref="member">end_recovery</ref>(engine)<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal">engine_begin_checkpoint(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_scheduled)</highlight></codeline>
+<codeline lineno="133"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">engine<sp/>*engine;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine_foreach(engine)<sp/>{</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(engine-&gt;<ref refid="structengine_1add272976ce924e6067cbb8de1a5e0f9d" kindref="member">vtab</ref>-&gt;<ref refid="structengine__vtab_1ae366293d089624ea28976d2cba86c001" kindref="member">begin_checkpoint</ref>(engine,<sp/>is_scheduled)<sp/>&lt;<sp/>0)</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal">engine_commit_checkpoint(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvclock" kindref="compound">vclock</ref><sp/>*<ref refid="structvclock" kindref="compound">vclock</ref>)</highlight></codeline>
+<codeline lineno="144"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">engine<sp/>*engine;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine_foreach(engine)<sp/>{</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(engine-&gt;<ref refid="structengine_1add272976ce924e6067cbb8de1a5e0f9d" kindref="member">vtab</ref>-&gt;<ref refid="structengine__vtab_1a32e5ef2049e0369a4fce996752720dc2" kindref="member">wait_checkpoint</ref>(engine,<sp/>vclock)<sp/>&lt;<sp/>0)</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine_foreach(engine)<sp/>{</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine-&gt;<ref refid="structengine_1add272976ce924e6067cbb8de1a5e0f9d" kindref="member">vtab</ref>-&gt;<ref refid="structengine__vtab_1a512eac80291dd0dfdea78796a5b63c0f" kindref="member">commit_checkpoint</ref>(engine,<sp/>vclock);</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal">engine_abort_checkpoint(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="158"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">engine<sp/>*engine;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine_foreach(engine)</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine-&gt;<ref refid="structengine_1add272976ce924e6067cbb8de1a5e0f9d" kindref="member">vtab</ref>-&gt;<ref refid="structengine__vtab_1aab042166eceee10b2512c14ca2d2256b" kindref="member">abort_checkpoint</ref>(engine);</highlight></codeline>
+<codeline lineno="162"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal">engine_collect_garbage(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vclock<sp/>*vclock)</highlight></codeline>
+<codeline lineno="166"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">engine<sp/>*engine;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine_foreach(engine)</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine-&gt;<ref refid="structengine_1add272976ce924e6067cbb8de1a5e0f9d" kindref="member">vtab</ref>-&gt;<ref refid="structengine__vtab_1a5a5ce9c6ab7dbcb382043b3438d57c00" kindref="member">collect_garbage</ref>(engine,<sp/>vclock);</highlight></codeline>
+<codeline lineno="170"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal">engine_backup(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vclock<sp/>*vclock,<sp/>engine_backup_cb<sp/>cb,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*cb_arg)</highlight></codeline>
+<codeline lineno="174"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">engine<sp/>*engine;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine_foreach(engine)<sp/>{</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(engine-&gt;<ref refid="structengine_1add272976ce924e6067cbb8de1a5e0f9d" kindref="member">vtab</ref>-&gt;<ref refid="structengine__vtab_1a2abd4d3740631642e21d76d27c9cc573" kindref="member">backup</ref>(engine,<sp/>vclock,<sp/>cb,<sp/>cb_arg)<sp/>&lt;<sp/>0)</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal">engine_prepare_join(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structengine__join__ctx" kindref="compound">engine_join_ctx</ref><sp/>*ctx)</highlight></codeline>
+<codeline lineno="185"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structengine__join__ctx_1ab5b5281c308d6cce10779faaa208d172" kindref="member">array</ref><sp/>=<sp/>calloc(MAX_ENGINE_COUNT,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*));</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ctx-&gt;<ref refid="structengine__join__ctx_1ab5b5281c308d6cce10779faaa208d172" kindref="member">array</ref><sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(OutOfMemory,<sp/>MAX_ENGINE_COUNT<sp/>*<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*),</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;malloc&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;engine<sp/>join<sp/>context&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">engine<sp/>*engine;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine_foreach(engine)<sp/>{</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(i<sp/>&lt;<sp/>MAX_ENGINE_COUNT);</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(engine-&gt;<ref refid="structengine_1add272976ce924e6067cbb8de1a5e0f9d" kindref="member">vtab</ref>-&gt;<ref refid="structengine__vtab_1ae1eb1a9c83aad2c58dfd68f66cfff6b8" kindref="member">prepare_join</ref>(engine,<sp/>&amp;ctx-&gt;<ref refid="structengine__join__ctx_1ab5b5281c308d6cce10779faaa208d172" kindref="member">array</ref>[i])<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>fail;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>i++;</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal">fail:</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine_complete_join(ctx);</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal">engine_join(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structengine__join__ctx" kindref="compound">engine_join_ctx</ref><sp/>*ctx,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxstream" kindref="compound">xstream</ref><sp/>*stream)</highlight></codeline>
+<codeline lineno="208"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">engine<sp/>*engine;</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine_foreach(engine)<sp/>{</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(engine-&gt;<ref refid="structengine_1add272976ce924e6067cbb8de1a5e0f9d" kindref="member">vtab</ref>-&gt;<ref refid="structengine__vtab_1a03e63c8da8cdc6378b2d8cf45449fab7" kindref="member">join</ref>(engine,<sp/>ctx-&gt;<ref refid="structengine__join__ctx_1ab5b5281c308d6cce10779faaa208d172" kindref="member">array</ref>[i],<sp/>stream)<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>i++;</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="217"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal">engine_complete_join(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structengine__join__ctx" kindref="compound">engine_join_ctx</ref><sp/>*ctx)</highlight></codeline>
+<codeline lineno="221"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">engine<sp/>*engine;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine_foreach(engine)<sp/>{</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ctx-&gt;<ref refid="structengine__join__ctx_1ab5b5281c308d6cce10779faaa208d172" kindref="member">array</ref>[i]<sp/>!=<sp/>NULL)</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine-&gt;<ref refid="structengine_1add272976ce924e6067cbb8de1a5e0f9d" kindref="member">vtab</ref>-&gt;<ref refid="structengine__vtab_1a924c1d2bbc02da22371955421cc337d1" kindref="member">complete_join</ref>(engine,<sp/>ctx-&gt;<ref refid="structengine__join__ctx_1ab5b5281c308d6cce10779faaa208d172" kindref="member">array</ref>[i]);</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>i++;</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>free(ctx-&gt;<ref refid="structengine__join__ctx_1ab5b5281c308d6cce10779faaa208d172" kindref="member">array</ref>);</highlight></codeline>
+<codeline lineno="230"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><ref refid="structengine__memory__stat" kindref="compound">engine_memory_stat</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structengine__memory__stat" kindref="compound">engine_memory_stat</ref><sp/>*stat)</highlight></codeline>
+<codeline lineno="234"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memset(stat,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*stat));</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">engine<sp/>*engine;</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine_foreach(engine)</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine-&gt;<ref refid="structengine_1add272976ce924e6067cbb8de1a5e0f9d" kindref="member">vtab</ref>-&gt;<ref refid="structengine__vtab_1a35425fd7a2b6314d1b978c062bdf67f3" kindref="member">memory_stat</ref>(engine,<sp/>stat);</highlight></codeline>
+<codeline lineno="239"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal">engine_reset_stat(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="243"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">engine<sp/>*engine;</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine_foreach(engine)</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine-&gt;<ref refid="structengine_1add272976ce924e6067cbb8de1a5e0f9d" kindref="member">vtab</ref>-&gt;<ref refid="structengine__vtab_1a2786e30ee5c790a3aff10376c03535f7" kindref="member">reset_stat</ref>(engine);</highlight></codeline>
+<codeline lineno="247"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"></highlight></codeline>
+<codeline lineno="249"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>{{{<sp/>Virtual<sp/>method<sp/>stubs<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="250"><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="252"><highlight class="normal">generic_engine_prepare_join(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>engine<sp/>*engine,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>**ctx)</highlight></codeline>
+<codeline lineno="253"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)engine;</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*ctx<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="257"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"></highlight></codeline>
+<codeline lineno="259"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="260"><highlight class="normal">generic_engine_join(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>engine<sp/>*engine,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxstream" kindref="compound">xstream</ref><sp/>*stream)</highlight></codeline>
+<codeline lineno="261"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)engine;</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)ctx;</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)stream;</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="266"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="269"><highlight class="normal">generic_engine_complete_join(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>engine<sp/>*engine,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="270"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)engine;</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)ctx;</highlight></codeline>
+<codeline lineno="273"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"></highlight></codeline>
+<codeline lineno="275"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="normal">generic_engine_begin(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>engine<sp/>*engine,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn" kindref="compound">txn</ref><sp/>*<ref refid="structtxn" kindref="compound">txn</ref>)</highlight></codeline>
+<codeline lineno="277"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)engine;</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)txn;</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="281"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"></highlight></codeline>
+<codeline lineno="283"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="284"><highlight class="normal">generic_engine_begin_statement(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>engine<sp/>*engine,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn" kindref="compound">txn</ref><sp/>*<ref refid="structtxn" kindref="compound">txn</ref>)</highlight></codeline>
+<codeline lineno="285"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)engine;</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)txn;</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="289"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"></highlight></codeline>
+<codeline lineno="291"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="292"><highlight class="normal">generic_engine_prepare(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>engine<sp/>*engine,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn" kindref="compound">txn</ref><sp/>*<ref refid="structtxn" kindref="compound">txn</ref>)</highlight></codeline>
+<codeline lineno="293"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)engine;</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)txn;</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="297"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"></highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal">generic_engine_commit(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>engine<sp/>*engine,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn" kindref="compound">txn</ref><sp/>*<ref refid="structtxn" kindref="compound">txn</ref>)</highlight></codeline>
+<codeline lineno="301"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)engine;</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)txn;</highlight></codeline>
+<codeline lineno="304"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"></highlight></codeline>
+<codeline lineno="306"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="307"><highlight class="normal">generic_engine_rollback_statement(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>engine<sp/>*engine,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn" kindref="compound">txn</ref><sp/>*<ref refid="structtxn" kindref="compound">txn</ref>,</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn__stmt" kindref="compound">txn_stmt</ref><sp/>*stmt)</highlight></codeline>
+<codeline lineno="309"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)engine;</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)txn;</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)stmt;</highlight></codeline>
+<codeline lineno="313"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"></highlight></codeline>
+<codeline lineno="315"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="316"><highlight class="normal">generic_engine_rollback(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>engine<sp/>*engine,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtxn" kindref="compound">txn</ref><sp/>*<ref refid="structtxn" kindref="compound">txn</ref>)</highlight></codeline>
+<codeline lineno="317"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)engine;</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)txn;</highlight></codeline>
+<codeline lineno="320"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"></highlight></codeline>
+<codeline lineno="322"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="323"><highlight class="normal">generic_engine_switch_to_ro(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>engine<sp/>*engine)</highlight></codeline>
+<codeline lineno="324"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)engine;</highlight></codeline>
+<codeline lineno="326"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"></highlight></codeline>
+<codeline lineno="328"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="329"><highlight class="normal">generic_engine_bootstrap(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>engine<sp/>*engine)</highlight></codeline>
+<codeline lineno="330"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)engine;</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="333"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="334"><highlight class="normal"></highlight></codeline>
+<codeline lineno="335"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="336"><highlight class="normal">generic_engine_begin_initial_recovery(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>engine<sp/>*engine,</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vclock<sp/>*vclock)</highlight></codeline>
+<codeline lineno="338"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)engine;</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)vclock;</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="342"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"></highlight></codeline>
+<codeline lineno="344"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="345"><highlight class="normal">generic_engine_begin_final_recovery(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>engine<sp/>*engine)</highlight></codeline>
+<codeline lineno="346"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)engine;</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="349"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="350"><highlight class="normal"></highlight></codeline>
+<codeline lineno="351"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="352"><highlight class="normal">generic_engine_end_recovery(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>engine<sp/>*engine)</highlight></codeline>
+<codeline lineno="353"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)engine;</highlight></codeline>
+<codeline lineno="355"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="356"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="357"><highlight class="normal"></highlight></codeline>
+<codeline lineno="358"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="359"><highlight class="normal">generic_engine_begin_checkpoint(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>engine<sp/>*engine,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_scheduled)</highlight></codeline>
+<codeline lineno="360"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="361"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)engine;</highlight></codeline>
+<codeline lineno="362"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)is_scheduled;</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="364"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="365"><highlight class="normal"></highlight></codeline>
+<codeline lineno="366"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="367"><highlight class="normal">generic_engine_wait_checkpoint(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>engine<sp/>*engine,</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vclock<sp/>*vclock)</highlight></codeline>
+<codeline lineno="369"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="370"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)engine;</highlight></codeline>
+<codeline lineno="371"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)vclock;</highlight></codeline>
+<codeline lineno="372"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="373"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"></highlight></codeline>
+<codeline lineno="375"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="376"><highlight class="normal">generic_engine_commit_checkpoint(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>engine<sp/>*engine,</highlight></codeline>
+<codeline lineno="377"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vclock<sp/>*vclock)</highlight></codeline>
+<codeline lineno="378"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="379"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)engine;</highlight></codeline>
+<codeline lineno="380"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)vclock;</highlight></codeline>
+<codeline lineno="381"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="382"><highlight class="normal"></highlight></codeline>
+<codeline lineno="383"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="384"><highlight class="normal">generic_engine_abort_checkpoint(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>engine<sp/>*engine)</highlight></codeline>
+<codeline lineno="385"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="386"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)engine;</highlight></codeline>
+<codeline lineno="387"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="388"><highlight class="normal"></highlight></codeline>
+<codeline lineno="389"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="390"><highlight class="normal">generic_engine_collect_garbage(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>engine<sp/>*engine,</highlight></codeline>
+<codeline lineno="391"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vclock<sp/>*vclock)</highlight></codeline>
+<codeline lineno="392"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="393"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)engine;</highlight></codeline>
+<codeline lineno="394"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)vclock;</highlight></codeline>
+<codeline lineno="395"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="396"><highlight class="normal"></highlight></codeline>
+<codeline lineno="397"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="398"><highlight class="normal">generic_engine_backup(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>engine<sp/>*engine,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vclock<sp/>*vclock,</highlight></codeline>
+<codeline lineno="399"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>engine_backup_cb<sp/>cb,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*cb_arg)</highlight></codeline>
+<codeline lineno="400"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="401"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)engine;</highlight></codeline>
+<codeline lineno="402"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)vclock;</highlight></codeline>
+<codeline lineno="403"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)cb;</highlight></codeline>
+<codeline lineno="404"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)cb_arg;</highlight></codeline>
+<codeline lineno="405"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="406"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="407"><highlight class="normal"></highlight></codeline>
+<codeline lineno="408"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="409"><highlight class="normal">generic_engine_memory_stat(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>engine<sp/>*engine,</highlight></codeline>
+<codeline lineno="410"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structengine__memory__stat" kindref="compound">engine_memory_stat</ref><sp/>*stat)</highlight></codeline>
+<codeline lineno="411"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="412"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)engine;</highlight></codeline>
+<codeline lineno="413"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)stat;</highlight></codeline>
+<codeline lineno="414"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="415"><highlight class="normal"></highlight></codeline>
+<codeline lineno="416"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="417"><highlight class="normal">generic_engine_reset_stat(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>engine<sp/>*engine)</highlight></codeline>
+<codeline lineno="418"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="419"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)engine;</highlight></codeline>
+<codeline lineno="420"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="421"><highlight class="normal"></highlight></codeline>
+<codeline lineno="422"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="423"><highlight class="normal">generic_engine_check_space_def(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structspace__def" kindref="compound">space_def</ref><sp/>*def)</highlight></codeline>
+<codeline lineno="424"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="425"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)def;</highlight></codeline>
+<codeline lineno="426"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="427"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="428"><highlight class="normal"></highlight></codeline>
+<codeline lineno="429"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>}}}<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/engine.c"/>
+  </compounddef>
+</doxygen>

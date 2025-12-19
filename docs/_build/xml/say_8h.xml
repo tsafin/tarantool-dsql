@@ -1,0 +1,1651 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="say_8h" kind="file" language="C++">
+    <compoundname>say.h</compoundname>
+    <includes refid="util_8h" local="no">trivia/util.h</includes>
+    <includes local="no">stdlib.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stdarg.h</includes>
+    <includes refid="errno_8h" local="no">errno.h</includes>
+    <includes local="no">sys/types.h</includes>
+    <includes local="no">tarantool_ev.h</includes>
+    <includes refid="rlist_8h" local="yes">small/rlist.h</includes>
+    <includes refid="lib_2core_2fiber__cond_8h" local="yes">fiber_cond.h</includes>
+    <includes refid="ratelimit_8h" local="yes">ratelimit.h</includes>
+    <includedby refid="tuple_8h" local="yes">/home/tsafin/tarantool/src/box/tuple.h</includedby>
+    <includedby refid="box_8cc" local="no">/home/tsafin/tarantool/src/box/box.cc</includedby>
+    <includedby refid="gc_8c" local="yes">/home/tsafin/tarantool/src/box/gc.c</includedby>
+    <includedby refid="identifier_8c" local="yes">/home/tsafin/tarantool/src/box/identifier.c</includedby>
+    <includedby refid="index_8cc" local="yes">/home/tsafin/tarantool/src/box/index.cc</includedby>
+    <includedby refid="iproto_8cc" local="yes">/home/tsafin/tarantool/src/box/iproto.cc</includedby>
+    <includedby refid="box_2lua_2init_8c" local="yes">/home/tsafin/tarantool/src/box/lua/init.c</includedby>
+    <includedby refid="serialize__lua_8c" local="yes">/home/tsafin/tarantool/src/box/lua/serialize_lua.c</includedby>
+    <includedby refid="lua_2xlog_8c" local="no">/home/tsafin/tarantool/src/box/lua/xlog.c</includedby>
+    <includedby refid="memtx__hash_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_hash.c</includedby>
+    <includedby refid="relay_8cc" local="yes">/home/tsafin/tarantool/src/box/relay.cc</includedby>
+    <includedby refid="tokenize_8c" local="yes">/home/tsafin/tarantool/src/box/sql/tokenize.c</includedby>
+    <includedby refid="vy__log_8c" local="yes">/home/tsafin/tarantool/src/box/vy_log.c</includedby>
+    <includedby refid="vy__lsm_8c" local="yes">/home/tsafin/tarantool/src/box/vy_lsm.c</includedby>
+    <includedby refid="vy__quota_8c" local="yes">/home/tsafin/tarantool/src/box/vy_quota.c</includedby>
+    <includedby refid="vy__regulator_8c" local="yes">/home/tsafin/tarantool/src/box/vy_regulator.c</includedby>
+    <includedby refid="vy__scheduler_8c" local="yes">/home/tsafin/tarantool/src/box/vy_scheduler.c</includedby>
+    <includedby refid="xrow__update_8c" local="yes">/home/tsafin/tarantool/src/box/xrow_update.c</includedby>
+    <includedby refid="cfg_8c" local="yes">/home/tsafin/tarantool/src/cfg.c</includedby>
+    <includedby refid="backtrace_8cc" local="yes">/home/tsafin/tarantool/src/lib/core/backtrace.cc</includedby>
+    <includedby refid="diag_8h" local="yes">/home/tsafin/tarantool/src/lib/core/diag.h</includedby>
+    <includedby refid="coio__file_8c" local="yes">/home/tsafin/tarantool/src/lib/core/coio_file.c</includedby>
+    <includedby refid="errinj_8c" local="yes">/home/tsafin/tarantool/src/lib/core/errinj.c</includedby>
+    <includedby refid="lib_2core_2fio_8c" local="no">/home/tsafin/tarantool/src/lib/core/fio.c</includedby>
+    <includedby refid="lib_2core_2popen_8c" local="yes">/home/tsafin/tarantool/src/lib/core/popen.c</includedby>
+    <includedby refid="lib_2core_2random_8c" local="yes">/home/tsafin/tarantool/src/lib/core/random.c</includedby>
+    <includedby refid="say_8c" local="yes">/home/tsafin/tarantool/src/lib/core/say.c</includedby>
+    <includedby refid="sio_8c" local="yes">/home/tsafin/tarantool/src/lib/core/sio.c</includedby>
+    <includedby refid="lib_2core_2util_8c" local="yes">/home/tsafin/tarantool/src/lib/core/util.c</includedby>
+    <includedby refid="swim__proto_8c" local="yes">/home/tsafin/tarantool/src/lib/swim/swim_proto.c</includedby>
+    <includedby refid="errno_8c" local="no">/home/tsafin/tarantool/src/lua/errno.c</includedby>
+    <includedby refid="lua_2httpc_8c" local="yes">/home/tsafin/tarantool/src/lua/httpc.c</includedby>
+    <includedby refid="main_8cc" local="no">/home/tsafin/tarantool/src/main.cc</includedby>
+    <includedby refid="tt__pthread_8h" local="yes">/home/tsafin/tarantool/src/tt_pthread.h</includedby>
+    <incdepgraph>
+      <node id="2058">
+        <label>stdbool.h</label>
+      </node>
+      <node id="2059">
+        <label>stdarg.h</label>
+      </node>
+      <node id="2057">
+        <label>stdlib.h</label>
+      </node>
+      <node id="2061">
+        <label>tarantool_ev.h</label>
+      </node>
+      <node id="2060">
+        <label>sys/types.h</label>
+      </node>
+      <node id="2056">
+        <label>/home/tsafin/tarantool/src/lib/core/say.h</label>
+        <link refid="say_8h"/>
+        <childnode refid="2057" relation="include">
+        </childnode>
+        <childnode refid="2058" relation="include">
+        </childnode>
+        <childnode refid="2059" relation="include">
+        </childnode>
+        <childnode refid="2060" relation="include">
+        </childnode>
+        <childnode refid="2061" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structlog" prot="public">log</innerclass>
+    <innerclass refid="structsay__syslog__opts" prot="public">say_syslog_opts</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="say_8h_1afcfa0d6579c1c662d894ddee2eeb29bd" prot="public" static="no">
+        <name>panic_status</name>
+        <param><defname>status</defname></param>
+        <param><defname>...</defname></param>
+        <initializer>({ say(S_FATAL, NULL, __VA_ARGS__); exit(status); })</initializer>
+        <briefdescription>
+<para>public </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="349" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/say.h" bodystart="349" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="say_8h_1a1445e207e36c97ff84c54b47288cea19" prot="public" static="no">
+        <name>panic</name>
+        <param><defname>...</defname></param>
+        <initializer>panic_status(EXIT_FAILURE, __VA_ARGS__)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="350" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/say.h" bodystart="350" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="say_8h_1a9bc68c8bf6816f49204bff95af9d3e24" prot="public" static="no">
+        <name>panic_syserror</name>
+        <param><defname>...</defname></param>
+        <initializer>({ say(S_FATAL, strerror(errno), __VA_ARGS__); exit(EXIT_FAILURE); })</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="351" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/say.h" bodystart="351" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="say_8h_1a5027ffe5fc4e456f49579175be671c49" prot="public" static="no">
+        <name>say_ratelimit_check</name>
+        <param><defname>rl</defname></param>
+        <initializer>({					\
+	int suppressed = 0;						\
+	bool ret = ratelimit_check((rl), ev_monotonic_now(loop()),	\
+				   &amp;suppressed);			\
+	if (suppressed &gt; 0)						\
+		say_warn(&quot;%d messages suppressed&quot;, suppressed);		\
+	ret;								\
+})</initializer>
+        <briefdescription>
+<para>Wrapper around ratelimit_check() that prints a warning if some messages are suppressed. </para>        </briefdescription>
+        <detaileddescription>
+<para>It uses ev_monotonic_now() as a time source. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="364" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/say.h" bodystart="364" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="say_8h_1af4ca7e72265e36e190006906cdf17b8c" prot="public" static="no">
+        <name>say_ratelimited</name>
+        <param><defname>level</defname></param>
+        <param><defname>error</defname></param>
+        <param><defname>format</defname></param>
+        <param><defname>...</defname></param>
+        <initializer>({			\
+	static struct <ref refid="structratelimit" kindref="compound">ratelimit</ref> rl =					\
+		RATELIMIT_INITIALIZER(SAY_RATELIMIT_INTERVAL,		\
+				      SAY_RATELIMIT_BURST);		\
+	if (say_ratelimit_check(&amp;rl))					\
+		say(level, <ref refid="structerror" kindref="compound">error</ref>, format, ##__VA_ARGS__);		\
+})</initializer>
+        <briefdescription>
+<para>Same as say(), but rate limited. </para>        </briefdescription>
+        <detaileddescription>
+<para>If this function is called more often than SAY_RATELIMIT_BURST times per SAY_RATELIMIT_INTERVAL seconds, extra messages are suppressed and a warning is printed to the log. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="379" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/say.h" bodystart="379" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="say_8h_1a635093daf5cf4d7c5ae0b591226387f9" prot="public" static="no">
+        <name>say_warn_ratelimited</name>
+        <param><defname>format</defname></param>
+        <param><defname>...</defname></param>
+        <initializer>say_ratelimited(S_WARN, NULL, format, ##__VA_ARGS__)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="387" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/say.h" bodystart="387" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="say_8h_1a4f8c49203462292f317e701a2d225e3f" prot="public" static="no">
+        <name>log_say_level</name>
+        <param><defname>log</defname></param>
+        <param><defname>_level</defname></param>
+        <param><defname>format</defname></param>
+        <param><defname>...</defname></param>
+        <initializer>({ 	\
+	if (_level &lt;= <ref refid="structlog" kindref="compound">log</ref>-&gt;level) 			\
+		log_say(<ref refid="structlog" kindref="compound">log</ref>, _level, __FILE__, __LINE__,\
+		format, ##__VA_ARGS__); })</initializer>
+        <briefdescription>
+<para>Format and print a message to Tarantool log file. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>log</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>(struct log *) - logger object </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>level</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>(int) - log level (see enum <ref refid="" kindref="compound">say_level</ref>) </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>format</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>(const char * ) - printf()-like format string </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>...</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- format arguments </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para>printf() </para></simplesect>
+<simplesect kind="see"><para>enum say_level </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="400" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/say.h" bodystart="400" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="say_8h_1aa8d243acd6fe03ab0138e9467881ce9c" prot="public" static="no">
+        <name>log_say_error</name>
+        <param><defname>log</defname></param>
+        <param><defname>format</defname></param>
+        <param><defname>...</defname></param>
+        <initializer>log_say_level(<ref refid="structlog" kindref="compound">log</ref>, S_ERROR, NULL, format, ##__VA_ARGS__)</initializer>
+        <briefdescription>
+<para>Format and print a message to specified logger. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>log</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>(struct log *) - logger object </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>format</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>(const char * ) - printf()-like format string </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>...</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- format arguments </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para>printf() </para></simplesect>
+<simplesect kind="see"><para>enum say_level Example: <programlisting><codeline><highlight class="normal">log_say_info(&quot;Some<sp/>useful<sp/>information:<sp/>%s&quot;,<sp/>status);</highlight></codeline>
+</programlisting> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="419" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/say.h" bodystart="419" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="say_8h_1a779ab8597a7b8844e45fe055861c9026" prot="public" static="no">
+        <name>log_say_crit</name>
+        <param><defname>log</defname></param>
+        <param><defname>format</defname></param>
+        <param><defname>...</defname></param>
+        <initializer>log_say_level(<ref refid="structlog" kindref="compound">log</ref>, S_CRIT, NULL, format, ##__VA_ARGS__)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="423" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/say.h" bodystart="423" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="say_8h_1a03c2cd11b88e9b7e24a079366f553905" prot="public" static="no">
+        <name>log_say_warn</name>
+        <param><defname>log</defname></param>
+        <param><defname>format</defname></param>
+        <param><defname>...</defname></param>
+        <initializer>log_say_level(<ref refid="structlog" kindref="compound">log</ref>, S_WARN, NULL, format, ##__VA_ARGS__)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="427" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/say.h" bodystart="427" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="say_8h_1a1fa811e3a48a50a30506ec645f4708f2" prot="public" static="no">
+        <name>log_say_info</name>
+        <param><defname>log</defname></param>
+        <param><defname>format</defname></param>
+        <param><defname>...</defname></param>
+        <initializer>log_say_level(<ref refid="structlog" kindref="compound">log</ref>, S_INFO, NULL, format, ##__VA_ARGS__)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="431" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/say.h" bodystart="431" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="say_8h_1a2c7c3520d95847131359cb0e6cd48706" prot="public" static="no">
+        <name>log_say_verbose</name>
+        <param><defname>log</defname></param>
+        <param><defname>format</defname></param>
+        <param><defname>...</defname></param>
+        <initializer>log_say_level(<ref refid="structlog" kindref="compound">log</ref>, S_VERBOSE, NULL, format, ##__VA_ARGS__)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="435" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/say.h" bodystart="435" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="say_8h_1a7892d8873a40c4933abb01821d40b9b0" prot="public" static="no">
+        <name>log_say_debug</name>
+        <param><defname>log</defname></param>
+        <param><defname>format</defname></param>
+        <param><defname>...</defname></param>
+        <initializer>log_say_level(<ref refid="structlog" kindref="compound">log</ref>, S_DEBUG, NULL, format, ##__VA_ARGS__)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="439" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/say.h" bodystart="439" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="say_8h_1a68c8c5cfc670a42e2a8eec14bbf53e33" prot="public" static="no">
+        <name>log_say_syserror</name>
+        <param><defname>log</defname></param>
+        <param><defname>format</defname></param>
+        <param><defname>...</defname></param>
+        <initializer>log_say_level(<ref refid="structlog" kindref="compound">log</ref>, S_SYSERROR, strerror(errno), format, ##__VA_ARGS__)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="443" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/say.h" bodystart="443" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="say_8h_1a4f26c87bd7a3f2c556c3c76b3132d4fe" prot="public" static="no">
+        <name>say_syslog_server_type</name>
+        <enumvalue id="say_8h_1a4f26c87bd7a3f2c556c3c76b3132d4fea459563328380eb07aa9f765f0a58342f" prot="public">
+          <name>SAY_SYSLOG_DEFAULT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a4f26c87bd7a3f2c556c3c76b3132d4feae92675ae735988970e1194d4cac0f327" prot="public">
+          <name>SAY_SYSLOG_UNIX</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a4f26c87bd7a3f2c556c3c76b3132d4fea5ed2111e8535399ab0c38734224660c1" prot="public">
+          <name>SAY_SYSLOG_REMOTE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="83" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.h" bodystart="83" bodyend="87"/>
+      </memberdef>
+      <memberdef kind="enum" id="say_8h_1a0b84f5f20e15b5e916cd4771ec170431" prot="public" static="no">
+        <name>say_logger_type</name>
+        <enumvalue id="say_8h_1a0b84f5f20e15b5e916cd4771ec170431a7a113027dcbfc0bb80016ab5ee4ab0f0" prot="public">
+          <name>SAY_LOGGER_BOOT</name>
+          <briefdescription>
+<para>Before the app server core is initialized, we do not decorate output and simply print every message to stdout intact. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a0b84f5f20e15b5e916cd4771ec170431a5b7e49eddcd0badc2f653389d791f837" prot="public">
+          <name>SAY_LOGGER_STDERR</name>
+          <briefdescription>
+<para>The core has initialized and we can decorate output with pid, thread/fiber id, time, etc. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a0b84f5f20e15b5e916cd4771ec170431a38fbb0ce46d5ab9067c8790234fe2bb7" prot="public">
+          <name>SAY_LOGGER_FILE</name>
+          <briefdescription>
+<para>box.cfg option to log to file. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a0b84f5f20e15b5e916cd4771ec170431a60aecf5a4ad8597196ce61a323408422" prot="public">
+          <name>SAY_LOGGER_PIPE</name>
+          <briefdescription>
+<para>box.cfg option to log to another process via a pipe </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a0b84f5f20e15b5e916cd4771ec170431a6a81d912a2f36e3fb780769184c4ae31" prot="public">
+          <name>SAY_LOGGER_SYSLOG</name>
+          <briefdescription>
+<para>box.cfg option to log to syslog. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="89" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.h" bodystart="89" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="enum" id="say_8h_1a350f0be5f165ef533c8b292a769ddc36" prot="public" static="no">
+        <name>syslog_facility</name>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36a6ef3796f15a06ff2ce21f852dc9aa871" prot="public">
+          <name>SYSLOG_KERN</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36ac6091cf774c10dd7b6b5192c982c7efd" prot="public">
+          <name>SYSLOG_USER</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36a68bca45a3d300b2d2974d39d567aecbe" prot="public">
+          <name>SYSLOG_MAIL</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36aa2897049db6f69561f0a80e307077364" prot="public">
+          <name>SYSLOG_DAEMON</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36a71eac712b31183d4ffb30746e84e9da3" prot="public">
+          <name>SYSLOG_AUTH</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36ac8092678840fff4d594951683735750b" prot="public">
+          <name>SYSLOG_INTERN</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36a8cfbd165134caacc5cbc0f31c969ed48" prot="public">
+          <name>SYSLOG_LPR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36a201ce4fa339c354421590f3102d6d45e" prot="public">
+          <name>SYSLOG_NEWS</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36a9bde4bffe74b78eb4dbcf29e8f6b9e17" prot="public">
+          <name>SYSLOG_UUCP</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36ac6e05babc3f8b28b13c0e6ca1696209a" prot="public">
+          <name>SYSLOG_CLOCK</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36af7683bdde4e604309e3d0c1bc881116e" prot="public">
+          <name>SYSLOG_AUTHPRIV</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36abfe36996f64ca004fd7095a22ed62bf1" prot="public">
+          <name>SYSLOG_FTP</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36ac380dd761b8559d2d75b407ecacc98aa" prot="public">
+          <name>SYSLOG_NTP</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36a7f9dff851ebadc540a10b8956ee80875" prot="public">
+          <name>SYSLOG_AUDIT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36a758c606007487334d0e41d3cfafe09fb" prot="public">
+          <name>SYSLOG_ALERT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36a88d479cf34f20de4101df619d874bc9a" prot="public">
+          <name>SYSLOG_CRON</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36a2c6ade8420d5a03a88ac60ab20bc46f3" prot="public">
+          <name>SYSLOG_LOCAL0</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36a95d669e57529b3a6244fa85c79905021" prot="public">
+          <name>SYSLOG_LOCAL1</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36a47b6be3b17bb8bf593735ebe311d23ea" prot="public">
+          <name>SYSLOG_LOCAL2</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36a80eece4ad601b6eb2906d9b5f829fa63" prot="public">
+          <name>SYSLOG_LOCAL3</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36ad76546c169c7cbd710be46d7049f74db" prot="public">
+          <name>SYSLOG_LOCAL4</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36ac1301b1ee6ec8ad9ce62798e44deb1a4" prot="public">
+          <name>SYSLOG_LOCAL5</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36ade94e0814c0265521903e2900ee05d4c" prot="public">
+          <name>SYSLOG_LOCAL6</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36a5dfb8e7e56fa7205d1dadd1d35093f92" prot="public">
+          <name>SYSLOG_LOCAL7</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a350f0be5f165ef533c8b292a769ddc36a30970c35b07328fbe72e5b4f4964e4f6" prot="public">
+          <name>syslog_facility_MAX</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="109" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.h" bodystart="109" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="enum" id="say_8h_1a91d74b317405fff79ca4459da11f98e3" prot="public" static="no">
+        <name>@216</name>
+        <enumvalue id="say_8h_1a91d74b317405fff79ca4459da11f98e3abd61acb965ad83e1a02db73db729cadf" prot="public">
+          <name>SAY_RATELIMIT_INTERVAL</name>
+          <initializer>= 5</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="say_8h_1a91d74b317405fff79ca4459da11f98e3a643b66538cad77be9318ab7aed8fec8d" prot="public">
+          <name>SAY_RATELIMIT_BURST</name>
+          <initializer>= 10</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="353" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.h" bodystart="353" bodyend="357"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="say_8h_1a202545cbb8054474dd17b1b122c74450" prot="public" static="no">
+        <type>int(*</type>
+        <definition>typedef int(* log_format_func_t) (struct log *log, char *buf, int len, int level, const char *filename, int line, const char *error, const char *format, va_list ap)</definition>
+        <argsstring>)(struct log *log, char *buf, int len, int level, const char *filename, int line, const char *error, const char *format, va_list ap)</argsstring>
+        <name>log_format_func_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="139" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.h" bodystart="139" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="say_8h_1a76a456eb480f18ec2d97cc21dd6759e6" prot="public" static="no" mutable="no">
+        <type>pid_t</type>
+        <definition>pid_t log_pid</definition>
+        <argsstring></argsstring>
+        <name>log_pid</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="48" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.c" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="say_8h_1aea953062fa0700d397d6b5fdbb6840ea" prot="public" static="no" mutable="no">
+        <type>enum say_format</type>
+        <definition>enum say_format log_format</definition>
+        <argsstring></argsstring>
+        <name>log_format</name>
+        <briefdescription>
+<para>public </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="48" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.c" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="say_8h_1ac6d75ed6f16c5ff80ca103fb1ad629fd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int log_create</definition>
+        <argsstring>(struct log *log, const char *init_str, int nonblock)</argsstring>
+        <name>log_create</name>
+        <param>
+          <type>struct <ref refid="structlog" kindref="compound">log</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>init_str</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>nonblock</declname>
+        </param>
+        <briefdescription>
+<para>Create a new log object. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>log</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>log to initialize </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>init_str</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>box.cfg log option </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>nonblock</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>box.cfg non-block option </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>0 on success, -1 on system error, the error is saved in the diagnostics area</para></simplesect>
+Create a new log object. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="189" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.c" bodystart="634" bodyend="686"/>
+      </memberdef>
+      <memberdef kind="function" id="say_8h_1af86eba8201822a615a5dec955eec7aef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void log_destroy</definition>
+        <argsstring>(struct log *log)</argsstring>
+        <name>log_destroy</name>
+        <param>
+          <type>struct <ref refid="structlog" kindref="compound">log</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="192" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.c" bodystart="1217" bodyend="1231"/>
+      </memberdef>
+      <memberdef kind="function" id="say_8h_1ae0034a4171946ccba7ca9e44e331c361" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int log_say</definition>
+        <argsstring>(struct log *log, int level, const char *filename, int line, const char *error, const char *format,...)</argsstring>
+        <name>log_say</name>
+        <param>
+          <type>struct <ref refid="structlog" kindref="compound">log</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>level</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>filename</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>line</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>error</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>...</type>
+        </param>
+        <briefdescription>
+<para>Perform log write. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="196" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.c" bodystart="1268" bodyend="1276"/>
+      </memberdef>
+      <memberdef kind="function" id="say_8h_1a9f84161551a1fbc6ab6e0096f5d22df3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>enum say_logger_type</type>
+        <definition>enum say_logger_type log_type</definition>
+        <argsstring>(void)</argsstring>
+        <name>log_type</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Default logger type info. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>say_logger_type.</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="196" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.c" bodystart="166" bodyend="169"/>
+      </memberdef>
+      <memberdef kind="function" id="say_8h_1a6bf0d3162cb5eac2e152388688b6df7f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int log_get_fd</definition>
+        <argsstring>(void)</argsstring>
+        <name>log_get_fd</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Accessors for default logger file descriptor. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is needed for decoupling of a logger file descriptor from stderr in the popen implementation.</para><para>Those functions break logger incapsulation, so use them with caution. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="216" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.c" bodystart="172" bodyend="175"/>
+      </memberdef>
+      <memberdef kind="function" id="say_8h_1a48a4b5d4d2ebd32ba37d135360c59acb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void log_set_fd</definition>
+        <argsstring>(int new_fd)</argsstring>
+        <name>log_set_fd</name>
+        <param>
+          <type>int</type>
+          <declname>new_fd</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="218" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.c" bodystart="178" bodyend="181"/>
+      </memberdef>
+      <memberdef kind="function" id="say_8h_1ac2c8850332d0cc5cca6f06f48091d248" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void log_set_level</definition>
+        <argsstring>(struct log *log, enum say_level level)</argsstring>
+        <name>log_set_level</name>
+        <param>
+          <type>struct <ref refid="structlog" kindref="compound">log</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <param>
+          <type>enum say_level</type>
+          <declname>level</declname>
+        </param>
+        <briefdescription>
+<para>Set log level. </para>        </briefdescription>
+        <detaileddescription>
+<para>Can be used dynamically.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>log</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>log object </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>level</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>level to set </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="227" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.c" bodystart="184" bodyend="187"/>
+      </memberdef>
+      <memberdef kind="function" id="say_8h_1a53eda98feb5da9331e0a3defc9498a5f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void log_set_format</definition>
+        <argsstring>(struct log *log, log_format_func_t format_func)</argsstring>
+        <name>log_set_format</name>
+        <param>
+          <type>struct <ref refid="structlog" kindref="compound">log</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <param>
+          <type>log_format_func_t</type>
+          <declname>format_func</declname>
+        </param>
+        <briefdescription>
+<para>Set log format. </para>        </briefdescription>
+        <detaileddescription>
+<para>Can be used dynamically.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>log</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>log object </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>format_func</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>function to format log messages </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="236" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.c" bodystart="190" bodyend="195"/>
+      </memberdef>
+      <memberdef kind="function" id="say_8h_1acbf49473d671979901c5e5545c022576" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void say_set_log_level</definition>
+        <argsstring>(int new_level)</argsstring>
+        <name>say_set_log_level</name>
+        <param>
+          <type>int</type>
+          <declname>new_level</declname>
+        </param>
+        <briefdescription>
+<para>Set log level for the default logger. </para>        </briefdescription>
+        <detaileddescription>
+<para>Can be used dynamically. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>format</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>constant level </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="243" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.c" bodystart="198" bodyend="202"/>
+      </memberdef>
+      <memberdef kind="function" id="say_8h_1a3a91cdc3d465ff4e81318c4362f333d3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void say_set_log_format</definition>
+        <argsstring>(enum say_format format)</argsstring>
+        <name>say_set_log_format</name>
+        <param>
+          <type>enum say_format</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+<para>Set log format for default logger. </para>        </briefdescription>
+        <detaileddescription>
+<para>Can be used dynamically.</para><para>Can&apos;t be applied in case syslog or boot (will be ignored) <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>say</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>format </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="252" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.c" bodystart="205" bodyend="230"/>
+      </memberdef>
+      <memberdef kind="function" id="say_8h_1a320c2230b5cc2413b559bd0ab04f8bc2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>enum say_format</type>
+        <definition>enum say_format say_format_by_name</definition>
+        <argsstring>(const char *format)</argsstring>
+        <name>say_format_by_name</name>
+        <param>
+          <type>const char *</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+<para>Return say format by name. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>format_name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>format name. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>say_format_MAX</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on error </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>say_format</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>otherwise </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="252" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.c" bodystart="239" bodyend="242"/>
+      </memberdef>
+      <memberdef kind="function" id="say_8h_1ae46472e5db9e1fe22cde7ba7dad7e5a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void say_logrotate</definition>
+        <argsstring>(struct ev_loop *, struct ev_signal *, int)</argsstring>
+        <name>say_logrotate</name>
+        <param>
+          <type>struct ev_loop *</type>
+        </param>
+        <param>
+          <type>struct ev_signal *</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="268" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.c" bodystart="339" bodyend="363"/>
+      </memberdef>
+      <memberdef kind="function" id="say_8h_1ad2db1d02bd970d0988d64fc0d95ad0a6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void say_logger_init</definition>
+        <argsstring>(const char *init_str, int log_level, int nonblock, const char *log_format, int background)</argsstring>
+        <name>say_logger_init</name>
+        <param>
+          <type>const char *</type>
+          <declname>init_str</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>log_level</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>nonblock</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>log_format</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>background</declname>
+        </param>
+        <briefdescription>
+<para>Init default logger. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="272" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.c" bodystart="695" bodyend="748"/>
+      </memberdef>
+      <memberdef kind="function" id="say_8h_1ad83e42c31e8c7e74df90f0378888ae44" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool say_logger_initialized</definition>
+        <argsstring>(void)</argsstring>
+        <name>say_logger_initialized</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Test if logger is initialized. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="279" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.c" bodystart="689" bodyend="692"/>
+      </memberdef>
+      <memberdef kind="function" id="say_8h_1aee6a772d1f87ecc39f540ae851c98752" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void say_logger_free</definition>
+        <argsstring>(void)</argsstring>
+        <name>say_logger_free</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Free default logger. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="283" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.c" bodystart="751" bodyend="755"/>
+      </memberdef>
+      <memberdef kind="function" id="say_8h_1a95612b7f4d0cd0284924f404a59d7151" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int say_parse_logger_type</definition>
+        <argsstring>(const char **str, enum say_logger_type *type)</argsstring>
+        <name>say_parse_logger_type</name>
+        <param>
+          <type>const char **</type>
+          <declname>str</declname>
+        </param>
+        <param>
+          <type>enum say_logger_type *</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Determine logger type and strip type prefix from init_str. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>-1 on error, 0 on success </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="454" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.c" bodystart="1096" bodyend="1113"/>
+      </memberdef>
+      <memberdef kind="function" id="say_8h_1a8ead541dc4cd741676aa2918b2fee1e7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int say_parse_syslog_opts</definition>
+        <argsstring>(const char *init_str, struct say_syslog_opts *opts)</argsstring>
+        <name>say_parse_syslog_opts</name>
+        <param>
+          <type>const char *</type>
+          <declname>init_str</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structsay__syslog__opts" kindref="compound">say_syslog_opts</ref> *</type>
+          <declname>opts</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="structParse" kindref="compound">Parse</ref> syslog logger init string (without the prefix) </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>error, message is in diag </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>success </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="472" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.c" bodystart="1150" bodyend="1207"/>
+      </memberdef>
+      <memberdef kind="function" id="say_8h_1a36e5fc8b1cf266ebe53a4756201795fc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void say_free_syslog_opts</definition>
+        <argsstring>(struct say_syslog_opts *opts)</argsstring>
+        <name>say_free_syslog_opts</name>
+        <param>
+          <type>struct <ref refid="structsay__syslog__opts" kindref="compound">say_syslog_opts</ref> *</type>
+          <declname>opts</declname>
+        </param>
+        <briefdescription>
+<para>Release memory allocated by the option parser. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="477" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.c" bodystart="1210" bodyend="1214"/>
+      </memberdef>
+      <memberdef kind="function" id="say_8h_1af6b8bb8cb015d5e527cb9491f441257e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int say_format_json</definition>
+        <argsstring>(struct log *log, char *buf, int len, int level, const char *filename, int line, const char *error, const char *format, va_list ap)</argsstring>
+        <name>say_format_json</name>
+        <param>
+          <type>struct <ref refid="structlog" kindref="compound">log</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>level</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>filename</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>line</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>error</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>va_list</type>
+          <declname>ap</declname>
+        </param>
+        <briefdescription>
+<para>Format functions. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>log</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>logger structure </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer where the formatted message should be written to </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>size of buffer </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>level</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>log level of message </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>filename</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>name of file where log was called </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>line</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>name of file where log was called </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>error in case of system errors </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>format</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>format of message </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ap</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>message parameters </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>number of bytes written to buf</para></simplesect>
+Format functions. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="493" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.c" bodystart="859" bodyend="937"/>
+      </memberdef>
+      <memberdef kind="function" id="say_8h_1a7f1faefdcc3bbd1c828864fd8f4d560c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int say_format_plain</definition>
+        <argsstring>(struct log *log, char *buf, int len, int level, const char *filename, int line, const char *error, const char *format, va_list ap)</argsstring>
+        <name>say_format_plain</name>
+        <param>
+          <type>struct <ref refid="structlog" kindref="compound">log</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>level</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>filename</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>line</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>error</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>va_list</type>
+          <declname>ap</declname>
+        </param>
+        <briefdescription>
+<para>Format the log message in Tarantool format: YYYY-MM-DD hh:mm:ss.ms [PID]: CORD/FID/FIBERNAME LEVEL&gt; MSG. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/say.h" line="497" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/say.c" bodystart="826" bodyend="850"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LIB_CORE_SAY_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LIB_CORE_SAY_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;trivia/util.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdlib.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdarg.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;errno.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sys/types.h&gt;</highlight><highlight class="normal"><sp/></highlight><highlight class="comment">/*<sp/>pid_t<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;tarantool_ev.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;small/rlist.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;fiber_cond.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;ratelimit.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>pid_t<sp/>log_pid;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>say_level<sp/>{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>S_FATAL,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>do<sp/>not<sp/>use<sp/>this<sp/>value<sp/>directly<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>S_SYSERROR,</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>S_ERROR,</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>S_CRIT,</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>S_WARN,</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>S_INFO,</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>S_VERBOSE,</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>S_DEBUG</highlight></codeline>
+<codeline lineno="62"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>say_format<sp/>{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SF_PLAIN,</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SF_JSON,</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>say_format_MAX</highlight></codeline>
+<codeline lineno="69"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>log_level;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal">say_log_level_is_enabled(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>level)</highlight></codeline>
+<codeline lineno="75"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>level<sp/>&lt;=<sp/>log_level;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>say_format<sp/>log_format;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>say_syslog_server_type<sp/>{</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SAY_SYSLOG_DEFAULT,</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SAY_SYSLOG_UNIX,</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SAY_SYSLOG_REMOTE</highlight></codeline>
+<codeline lineno="87"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>say_logger_type<sp/>{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SAY_LOGGER_BOOT,</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SAY_LOGGER_STDERR,</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SAY_LOGGER_FILE,</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SAY_LOGGER_PIPE,</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SAY_LOGGER_SYSLOG</highlight></codeline>
+<codeline lineno="107"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>syslog_facility<sp/>{</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_KERN<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_USER,</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_MAIL,</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_DAEMON,</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_AUTH,</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_INTERN,</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_LPR,</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_NEWS,</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_UUCP,</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_CLOCK,</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_AUTHPRIV,</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_FTP,</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_NTP,</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_AUDIT,</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_ALERT,</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_CRON,</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_LOCAL0,</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_LOCAL1,</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_LOCAL2,</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_LOCAL3,</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_LOCAL4,</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_LOCAL5,</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_LOCAL6,</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYSLOG_LOCAL7,</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>syslog_facility_MAX,</highlight></codeline>
+<codeline lineno="135"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structlog" kindref="compound">log</ref>;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>int<sp/>(*log_format_func_t)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structlog" kindref="compound">log</ref><sp/>*<ref refid="structlog" kindref="compound">log</ref>,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>len,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structlog_1a95bbf8e896f248202a8e7072f23636cd" kindref="member">level</ref>,</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*filename,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>line,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structerror" kindref="compound">error</ref>,</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*format,<sp/>va_list<sp/>ap);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146" refid="structlog" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal">log<sp/>{</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structlog_1aac6e90068f890c8b97924668e0f6d48f" kindref="member">fd</ref>;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structlog_1a95bbf8e896f248202a8e7072f23636cd" kindref="member">level</ref>;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>say_logger_type<sp/>type;</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Type<sp/>of<sp/>syslog<sp/>destination.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>say_syslog_server_type<sp/>syslog_server_type;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structlog_1a48c428db4e5ddb4941c3e16886ca6619" kindref="member">path</ref>;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>nonblock;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>log_format_func_t<sp/>format_func;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pid_t<sp/><ref refid="structlog_1a3e030178f589c838389df6ceeb9783ea" kindref="member">pid</ref>;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Application<sp/>identifier<sp/>used<sp/>to<sp/>group<sp/>syslog<sp/>messages.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*syslog_ident;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ev_async<sp/><ref refid="structlog_1a1929d17cad755be3f78acf161e3732fa" kindref="member">log_async</ref>;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber__cond" kindref="compound">fiber_cond</ref><sp/>rotate_cond;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structlog_1ab93b664345aab7cf16cec358d7396d14" kindref="member">rotating_threads</ref>;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>syslog_facility<sp/>syslog_facility;</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>in_log_list;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal">log_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>log<sp/>*log,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*init_str,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>nonblock);</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal">log_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>log<sp/>*log);</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal">log_say(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>log<sp/>*log,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>level,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*filename,</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>line,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*error,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*format,<sp/>...);</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>say_logger_type</highlight></codeline>
+<codeline lineno="204"><highlight class="normal">log_type(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal">log_get_fd(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal">log_set_fd(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>new_fd);</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal">log_set_level(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>log<sp/>*log,<sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>say_level<sp/>level);</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight></codeline>
+<codeline lineno="235"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal">log_set_format(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>log<sp/>*log,<sp/>log_format_func_t<sp/>format_func);</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="normal">say_set_log_level(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>new_level);</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="252"><highlight class="normal">say_set_log_format(</highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>say_format<sp/>format);</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>say_format</highlight></codeline>
+<codeline lineno="262"><highlight class="normal">say_format_by_name(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*format);</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight></codeline>
+<codeline lineno="264"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">ev_loop;</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">ev_signal;</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"></highlight></codeline>
+<codeline lineno="267"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="normal">say_logrotate(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_loop<sp/>*,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>ev_signal<sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/></highlight><highlight class="comment">/*<sp/>revents<sp/>*/</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal">say_logger_init(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*init_str,</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>log_level,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>nonblock,</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*log_format,</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>background);</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"></highlight></codeline>
+<codeline lineno="278"><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="279"><highlight class="normal">say_logger_initialized(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"></highlight></codeline>
+<codeline lineno="282"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="283"><highlight class="normal">say_logger_free(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*sayfunc_t)(int,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*,<sp/>int,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*,</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*,<sp/>...);</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"></highlight></codeline>
+<codeline lineno="290"><highlight class="normal">CFORMAT(printf,<sp/>5,<sp/>0)<sp/></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/>sayfunc_t<sp/>_say;</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"></highlight></codeline>
+<codeline lineno="304"><highlight class="preprocessor">#define<sp/>say_file_line(level,<sp/>file,<sp/>line,<sp/>error,<sp/>format,<sp/>...)<sp/>({<sp/>\</highlight></codeline>
+<codeline lineno="305"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(say_log_level_is_enabled(level))<sp/>\</highlight></codeline>
+<codeline lineno="306"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_say(level,<sp/>file,<sp/>line,<sp/>error,<sp/>format,<sp/>##__VA_ARGS__);<sp/>})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="307"><highlight class="normal"></highlight></codeline>
+<codeline lineno="318"><highlight class="preprocessor">#define<sp/>say(level,<sp/>error,<sp/>format,<sp/>...)<sp/>({<sp/>\</highlight></codeline>
+<codeline lineno="319"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>say_file_line(level,<sp/>__FILE__,<sp/>__LINE__,<sp/>error,<sp/>format,<sp/>##__VA_ARGS__);<sp/>})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="320"><highlight class="normal"></highlight></codeline>
+<codeline lineno="333"><highlight class="preprocessor">#define<sp/>say_error(format,<sp/>...)<sp/>say(S_ERROR,<sp/>NULL,<sp/>format,<sp/>##__VA_ARGS__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="334"><highlight class="normal"></highlight></codeline>
+<codeline lineno="335"><highlight class="preprocessor">#define<sp/>say_crit(format,<sp/>...)<sp/>say(S_CRIT,<sp/>NULL,<sp/>format,<sp/>##__VA_ARGS__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="336"><highlight class="normal"></highlight></codeline>
+<codeline lineno="337"><highlight class="preprocessor">#define<sp/>say_warn(format,<sp/>...)<sp/>say(S_WARN,<sp/>NULL,<sp/>format,<sp/>##__VA_ARGS__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="338"><highlight class="normal"></highlight></codeline>
+<codeline lineno="339"><highlight class="preprocessor">#define<sp/>say_info(format,<sp/>...)<sp/>say(S_INFO,<sp/>NULL,<sp/>format,<sp/>##__VA_ARGS__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="340"><highlight class="normal"></highlight></codeline>
+<codeline lineno="341"><highlight class="preprocessor">#define<sp/>say_verbose(format,<sp/>...)<sp/>say(S_VERBOSE,<sp/>NULL,<sp/>format,<sp/>##__VA_ARGS__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="342"><highlight class="normal"></highlight></codeline>
+<codeline lineno="343"><highlight class="preprocessor">#define<sp/>say_debug(format,<sp/>...)<sp/>say(S_DEBUG,<sp/>NULL,<sp/>format,<sp/>##__VA_ARGS__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="344"><highlight class="normal"></highlight></codeline>
+<codeline lineno="345"><highlight class="preprocessor">#define<sp/>say_syserror(format,<sp/>...)<sp/>say(S_SYSERROR,<sp/>strerror(errno),<sp/>format,<sp/>\</highlight></codeline>
+<codeline lineno="346"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>##__VA_ARGS__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="347"><highlight class="normal"></highlight></codeline>
+<codeline lineno="349"><highlight class="preprocessor">#define<sp/>panic_status(status,<sp/>...)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>({<sp/>say(S_FATAL,<sp/>NULL,<sp/>__VA_ARGS__);<sp/>exit(status);<sp/>})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="350"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>panic(...)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>panic_status(EXIT_FAILURE,<sp/>__VA_ARGS__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="351"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>panic_syserror(...)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>({<sp/>say(S_FATAL,<sp/>strerror(errno),<sp/>__VA_ARGS__);<sp/>exit(EXIT_FAILURE);<sp/>})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="352"><highlight class="normal"></highlight></codeline>
+<codeline lineno="353"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>10<sp/>messages<sp/>per<sp/>5<sp/>seconds.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="355"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SAY_RATELIMIT_INTERVAL<sp/>=<sp/>5,</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SAY_RATELIMIT_BURST<sp/>=<sp/>10,</highlight></codeline>
+<codeline lineno="357"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="358"><highlight class="normal"></highlight></codeline>
+<codeline lineno="364"><highlight class="preprocessor">#define<sp/>say_ratelimit_check(rl)<sp/>({<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="365"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>suppressed<sp/>=<sp/>0;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="366"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bool<sp/>ret<sp/>=<sp/>ratelimit_check((rl),<sp/>ev_monotonic_now(loop()),<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="367"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;suppressed);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="368"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(suppressed<sp/>&gt;<sp/>0)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="369"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>say_warn(&quot;%d<sp/>messages<sp/>suppressed&quot;,<sp/>suppressed);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="370"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ret;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="371"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="372"><highlight class="normal"></highlight></codeline>
+<codeline lineno="379"><highlight class="preprocessor">#define<sp/>say_ratelimited(level,<sp/>error,<sp/>format,<sp/>...)<sp/>({<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="380"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>static<sp/>struct<sp/>ratelimit<sp/>rl<sp/>=<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="381"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>RATELIMIT_INITIALIZER(SAY_RATELIMIT_INTERVAL,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="382"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SAY_RATELIMIT_BURST);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="383"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(say_ratelimit_check(&amp;rl))<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="384"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>say(level,<sp/>error,<sp/>format,<sp/>##__VA_ARGS__);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="385"><highlight class="preprocessor">})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="386"><highlight class="normal"></highlight></codeline>
+<codeline lineno="387"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>say_warn_ratelimited(format,<sp/>...)<sp/>\</highlight></codeline>
+<codeline lineno="388"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>say_ratelimited(S_WARN,<sp/>NULL,<sp/>format,<sp/>##__VA_ARGS__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="389"><highlight class="normal"></highlight></codeline>
+<codeline lineno="400"><highlight class="preprocessor">#define<sp/>log_say_level(log,<sp/>_level,<sp/>format,<sp/>...)<sp/>({<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="401"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(_level<sp/>&lt;=<sp/>log-&gt;level)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="402"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>log_say(log,<sp/>_level,<sp/>__FILE__,<sp/>__LINE__,\</highlight></codeline>
+<codeline lineno="403"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>format,<sp/>##__VA_ARGS__);<sp/>})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="404"><highlight class="normal"></highlight></codeline>
+<codeline lineno="405"><highlight class="normal"></highlight></codeline>
+<codeline lineno="419"><highlight class="preprocessor">#define<sp/>log_say_error(log,<sp/>format,<sp/>...)<sp/>\</highlight></codeline>
+<codeline lineno="420"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>log_say_level(log,<sp/>S_ERROR,<sp/>NULL,<sp/>format,<sp/>##__VA_ARGS__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="421"><highlight class="normal"></highlight></codeline>
+<codeline lineno="423"><highlight class="preprocessor">#define<sp/>log_say_crit(log,<sp/>format,<sp/>...)<sp/>\</highlight></codeline>
+<codeline lineno="424"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>log_say_level(log,<sp/>S_CRIT,<sp/>NULL,<sp/>format,<sp/>##__VA_ARGS__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="425"><highlight class="normal"></highlight></codeline>
+<codeline lineno="427"><highlight class="preprocessor">#define<sp/>log_say_warn(log,<sp/>format,<sp/>...)<sp/>\</highlight></codeline>
+<codeline lineno="428"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>log_say_level(log,<sp/>S_WARN,<sp/>NULL,<sp/>format,<sp/>##__VA_ARGS__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="429"><highlight class="normal"></highlight></codeline>
+<codeline lineno="431"><highlight class="preprocessor">#define<sp/>log_say_info(log,<sp/>format,<sp/>...)<sp/>\</highlight></codeline>
+<codeline lineno="432"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>log_say_level(log,<sp/>S_INFO,<sp/>NULL,<sp/>format,<sp/>##__VA_ARGS__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="433"><highlight class="normal"></highlight></codeline>
+<codeline lineno="435"><highlight class="preprocessor">#define<sp/>log_say_verbose(log,<sp/>format,<sp/>...)<sp/>\</highlight></codeline>
+<codeline lineno="436"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>log_say_level(log,<sp/>S_VERBOSE,<sp/>NULL,<sp/>format,<sp/>##__VA_ARGS__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="437"><highlight class="normal"></highlight></codeline>
+<codeline lineno="439"><highlight class="preprocessor">#define<sp/>log_say_debug(log,<sp/>format,<sp/>...)<sp/>\</highlight></codeline>
+<codeline lineno="440"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>log_say_level(log,<sp/>S_DEBUG,<sp/>NULL,<sp/>format,<sp/>##__VA_ARGS__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="441"><highlight class="normal"></highlight></codeline>
+<codeline lineno="443"><highlight class="preprocessor">#define<sp/>log_say_syserror(log,<sp/>format,<sp/>...)<sp/>\</highlight></codeline>
+<codeline lineno="444"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>log_say_level(log,<sp/>S_SYSERROR,<sp/>strerror(errno),<sp/>format,<sp/>##__VA_ARGS__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="445"><highlight class="normal"></highlight></codeline>
+<codeline lineno="446"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>internals,<sp/>for<sp/>unit<sp/>testing<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="447"><highlight class="normal"></highlight></codeline>
+<codeline lineno="453"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="454"><highlight class="normal">say_parse_logger_type(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**str,<sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>say_logger_type<sp/>*type);</highlight></codeline>
+<codeline lineno="455"><highlight class="normal"></highlight></codeline>
+<codeline lineno="457" refid="structsay__syslog__opts" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsay__syslog__opts" kindref="compound">say_syslog_opts</ref><sp/>{</highlight></codeline>
+<codeline lineno="458"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>say_syslog_server_type<sp/>server_type;</highlight></codeline>
+<codeline lineno="459"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*server_path;</highlight></codeline>
+<codeline lineno="460"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*identity;</highlight></codeline>
+<codeline lineno="461"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>syslog_facility<sp/>facility;</highlight></codeline>
+<codeline lineno="462"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Input<sp/>copy<sp/>(content<sp/>unspecified).<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="463"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*copy;</highlight></codeline>
+<codeline lineno="464"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="465"><highlight class="normal"></highlight></codeline>
+<codeline lineno="471"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="472"><highlight class="normal">say_parse_syslog_opts(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*init_str,</highlight></codeline>
+<codeline lineno="473"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsay__syslog__opts" kindref="compound">say_syslog_opts</ref><sp/>*opts);</highlight></codeline>
+<codeline lineno="474"><highlight class="normal"></highlight></codeline>
+<codeline lineno="476"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="477"><highlight class="normal">say_free_syslog_opts(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsay__syslog__opts" kindref="compound">say_syslog_opts</ref><sp/>*opts);</highlight></codeline>
+<codeline lineno="478"><highlight class="normal"></highlight></codeline>
+<codeline lineno="492"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="493"><highlight class="normal">say_format_json(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>log<sp/>*log,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>len,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>level,</highlight></codeline>
+<codeline lineno="494"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*filename,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>line,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*error,</highlight></codeline>
+<codeline lineno="495"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*format,<sp/>va_list<sp/>ap);</highlight></codeline>
+<codeline lineno="496"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="497"><highlight class="normal">say_format_plain(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>log<sp/>*log,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>len,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>level,</highlight></codeline>
+<codeline lineno="498"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*filename,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>line,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*error,</highlight></codeline>
+<codeline lineno="499"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*format,<sp/>va_list<sp/>ap);</highlight></codeline>
+<codeline lineno="500"><highlight class="normal"></highlight></codeline>
+<codeline lineno="501"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="502"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="503"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="504"><highlight class="normal"></highlight></codeline>
+<codeline lineno="505"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_LIB_CORE_SAY_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/core/say.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,117 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structiproto__wpos" kind="struct" language="C++" prot="public">
+    <compoundname>iproto_wpos</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structiproto__wpos_1ab08cb731b0e0214852a89e24de880309" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structobuf" kindref="compound">obuf</ref> *</type>
+        <definition>struct obuf* iproto_wpos::obuf</definition>
+        <argsstring></argsstring>
+        <name>obuf</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="79" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structiproto__wpos_1a67df383489f4add8e9e31d684056f5a9" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structobuf__svp" kindref="compound">obuf_svp</ref></type>
+        <definition>struct obuf_svp iproto_wpos::svp</definition>
+        <argsstring></argsstring>
+        <name>svp</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="79" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A position in connection output buffer. </para>    </briefdescription>
+    <detaileddescription>
+<para>Since we use rotating buffers to recycle memory, it includes not only a position in obuf, but also a pointer to obuf the position is for. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="4604">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="4601">
+        <label>obuf</label>
+        <link refid="structobuf"/>
+        <childnode refid="4602" relation="usage">
+          <edgelabel>slabc</edgelabel>
+        </childnode>
+      </node>
+      <node id="4600">
+        <label>iproto_wpos</label>
+        <link refid="structiproto__wpos"/>
+        <childnode refid="4601" relation="usage">
+          <edgelabel>obuf</edgelabel>
+        </childnode>
+        <childnode refid="4609" relation="usage">
+          <edgelabel>svp</edgelabel>
+        </childnode>
+      </node>
+      <node id="4605">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="4605" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="4603">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="4604" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="4605" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="4607">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="4608">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="4606">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="4607" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="4608" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="4602">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="4603" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="4606" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="4609">
+        <label>obuf_svp</label>
+        <link refid="structobuf__svp"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="78" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="78" bodyend="81"/>
+    <listofallmembers>
+      <member refid="structiproto__wpos_1ab08cb731b0e0214852a89e24de880309" prot="public" virt="non-virtual"><scope>iproto_wpos</scope><name>obuf</name></member>
+      <member refid="structiproto__wpos_1a67df383489f4add8e9e31d684056f5a9" prot="public" virt="non-virtual"><scope>iproto_wpos</scope><name>svp</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

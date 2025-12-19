@@ -1,0 +1,2039 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="vdbe_8h" kind="file" language="C++">
+    <compoundname>vdbe.h</compoundname>
+    <includes local="no">stdio.h</includes>
+    <includes local="yes">opcodes.h</includes>
+    <includedby refid="sqlInt_8h" local="yes">/home/tsafin/tarantool/src/box/sql/sqlInt.h</includedby>
+    <includedby refid="bind_8c" local="yes">/home/tsafin/tarantool/src/box/bind.c</includedby>
+    <includedby refid="execute_8c" local="yes">/home/tsafin/tarantool/src/box/execute.c</includedby>
+    <incdepgraph>
+      <node id="1074">
+        <label>opcodes.h</label>
+      </node>
+      <node id="1072">
+        <label>/home/tsafin/tarantool/src/box/sql/vdbe.h</label>
+        <link refid="vdbe_8h"/>
+        <childnode refid="1073" relation="include">
+        </childnode>
+        <childnode refid="1074" relation="include">
+        </childnode>
+      </node>
+      <node id="1073">
+        <label>stdio.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structVdbeOp" prot="public">VdbeOp</innerclass>
+    <innerclass refid="unionVdbeOp_1_1p4union" prot="public">VdbeOp::p4union</innerclass>
+    <innerclass refid="structSubProgram" prot="public">SubProgram</innerclass>
+      <sectiondef kind="user-defined">
+      <header>must be a pointer to a nul terminated string.</header>
+      <description><para>Set the name of the idx&apos;th column to be returned by the SQL statement.</para><para>This call must be made after a call to sqlVdbeSetNumCols(). </para></description>
+      <memberdef kind="define" id="vdbe_8h_1aacb89fdebce8fad2d65af6c1159f8742" prot="public" static="no">
+        <name>VdbeComment</name>
+        <param><defname>X</defname></param>
+        <initializer>(void) 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="308" column="10" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="308" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1a1ef23f5036be887c65fce869e385ac6f" prot="public" static="no">
+        <name>VdbeNoopComment</name>
+        <param><defname>X</defname></param>
+        <initializer>(void) 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="309" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="309" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1a5fbeda929ff6f7611dbe328fe8be55bd" prot="public" static="no">
+        <name>VdbeModuleComment</name>
+        <param><defname>X</defname></param>
+        <initializer>(void) 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="310" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="310" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1a1ba6dbfbe413f42b2dd38d69f29dab5d" prot="public" static="no">
+        <name>VdbeCoverage</name>
+        <param><defname>v</defname></param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="343" column="10" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="343" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1ac0580d66375ea73e3fac45f26ae61896" prot="public" static="no">
+        <name>VdbeCoverageIf</name>
+        <param><defname>v</defname></param>
+        <param><defname>x</defname></param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="344" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="344" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1a10af4f7fb5d582b8927e3bca146a0f6e" prot="public" static="no">
+        <name>VdbeCoverageAlwaysTaken</name>
+        <param><defname>v</defname></param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="345" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="345" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1a70c2f0c4e6d66ac8b4f9419ef9095fba" prot="public" static="no">
+        <name>VdbeCoverageNeverTaken</name>
+        <param><defname>v</defname></param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="346" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="346" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1ab85add1f69369419d72703bd7af8ec6c" prot="public" static="no">
+        <name>VDBE_OFFSET_LINENO</name>
+        <param><defname>x</defname></param>
+        <initializer>0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="347" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="347" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1aec112c694cc0a330f3c1396e4511b1bb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int vdbe_metadata_set_col_name</definition>
+        <argsstring>(struct Vdbe *v, int col_idx, const char *name)</argsstring>
+        <name>vdbe_metadata_set_col_name</name>
+        <param>
+          <type>struct <ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>col_idx</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="246" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="1836" bodyend="1847"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a2eba29f8a701e7d9a6f62cfb96c5be9d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int vdbe_metadata_set_col_type</definition>
+        <argsstring>(struct Vdbe *v, int col_idx, const char *type)</argsstring>
+        <name>vdbe_metadata_set_col_type</name>
+        <param>
+          <type>struct <ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>col_idx</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="249" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="1850" bodyend="1861"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a0a425871ce5ae3dab12477da445986fd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int vdbe_metadata_set_col_collation</definition>
+        <argsstring>(struct Vdbe *p, int idx, const char *coll, size_t coll_len)</argsstring>
+        <name>vdbe_metadata_set_col_collation</name>
+        <param>
+          <type>struct <ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>idx</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>coll</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>coll_len</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="252" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="1864" bodyend="1876"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a083881141ab54d2984ce507d3e3c95c7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vdbe_metadata_set_col_nullability</definition>
+        <argsstring>(struct Vdbe *p, int idx, int nullable)</argsstring>
+        <name>vdbe_metadata_set_col_nullability</name>
+        <param>
+          <type>struct <ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>idx</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>nullable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="256" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="1879" bodyend="1883"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a98ca25e2887dcfac700f389b98714a0a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vdbe_metadata_set_col_autoincrement</definition>
+        <argsstring>(struct Vdbe *p, int idx)</argsstring>
+        <name>vdbe_metadata_set_col_autoincrement</name>
+        <param>
+          <type>struct <ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>idx</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="259" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="1886" bodyend="1890"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a36818105fbac654a8ff095452928d718" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int vdbe_metadata_set_col_span</definition>
+        <argsstring>(struct Vdbe *p, int idx, const char *span)</argsstring>
+        <name>vdbe_metadata_set_col_span</name>
+        <param>
+          <type>struct <ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+          <declname>p</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>idx</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>span</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="262" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="1893" bodyend="1908"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a51682b5bcf12532520a1e594acaaa4f8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeCountChanges</definition>
+        <argsstring>(Vdbe *)</argsstring>
+        <name>sqlVdbeCountChanges</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="264" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="2957" bodyend="2960"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1aa0153cd2f11aabace9f162b90d436080" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structsql" kindref="compound">sql</ref> *</type>
+        <definition>sql* sqlVdbeDb</definition>
+        <argsstring>(Vdbe *)</argsstring>
+        <name>sqlVdbeDb</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="265" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="2985" bodyend="2988"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a4fa9cef0d131ff3e9b84bf5cc6feda1c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeSetSql</definition>
+        <argsstring>(Vdbe *, const char *z, int n)</argsstring>
+        <name>sqlVdbeSetSql</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="266" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="93" bodyend="99"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1abb8381536cf1b0cc6728d6a529f35c20" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeSwap</definition>
+        <argsstring>(Vdbe *, Vdbe *)</argsstring>
+        <name>sqlVdbeSwap</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="267" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="105" bodyend="122"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a77ab7cecbd4066a00dffd8f84f37af73" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structVdbeOp" kindref="compound">VdbeOp</ref> *</type>
+        <definition>VdbeOp* sqlVdbeTakeOpArray</definition>
+        <argsstring>(Vdbe *, int *, int *)</argsstring>
+        <name>sqlVdbeTakeOpArray</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>int *</type>
+        </param>
+        <param>
+          <type>int *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="268" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="533" bodyend="542"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a3464726573f1ac175b658ea7d6376181" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structMem" kindref="compound">sql_value</ref> *</type>
+        <definition>sql_value* sqlVdbeGetBoundValue</definition>
+        <argsstring>(Vdbe *, int, u8)</argsstring>
+        <name>sqlVdbeGetBoundValue</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <param>
+          <type>u8</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="269" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="2998" bodyend="3013"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a741e25ec52afc1796383ff5bcd8adf33" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>char *</type>
+        <definition>char* sqlVdbeExpandSql</definition>
+        <argsstring>(Vdbe *, const char *)</argsstring>
+        <name>sqlVdbeExpandSql</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>const char *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="270" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbetrace.c" bodystart="90" bodyend="181"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a130f22677e73a784101298da977ca464" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sqlMemCompare</definition>
+        <argsstring>(const Mem *, const Mem *, const struct coll *)</argsstring>
+        <name>sqlMemCompare</name>
+        <param>
+          <type>const <ref refid="structMem" kindref="compound">Mem</ref> *</type>
+        </param>
+        <param>
+          <type>const <ref refid="structMem" kindref="compound">Mem</ref> *</type>
+        </param>
+        <param>
+          <type>const struct <ref refid="structcoll" kindref="compound">coll</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="271" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="2824" bodyend="2940"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1ade627d0f3cfdd9cb1291f8f69a847c1d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeRecordUnpackMsgpack</definition>
+        <argsstring>(struct key_def *key_def, const void *msgpack, struct UnpackedRecord *dest)</argsstring>
+        <name>sqlVdbeRecordUnpackMsgpack</name>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>key_def</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>msgpack</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structUnpackedRecord" kindref="compound">UnpackedRecord</ref> *</type>
+          <declname>dest</declname>
+        </param>
+        <briefdescription>
+<para>Perform unpacking of provided message pack. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="structkey__def" kindref="compound">key_def</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Information about the record format </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The binary record </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dest</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Populate this structure before returning. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="280" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="3262" bodyend="3289"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a7f582d86351144528e3a46e588f09c64" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sqlVdbeRecordCompare</definition>
+        <argsstring>(struct sql *db, int key_count, const void *key1, UnpackedRecord *key2)</argsstring>
+        <name>sqlVdbeRecordCompare</name>
+        <param>
+          <type>struct <ref refid="structsql" kindref="compound">sql</ref> *</type>
+          <declname>db</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>key_count</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>key1</declname>
+        </param>
+        <param>
+          <type><ref refid="structUnpackedRecord" kindref="compound">UnpackedRecord</ref> *</type>
+          <declname>key2</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="284" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a252978f6c16932d236fbe9be43a2fbb6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structUnpackedRecord" kindref="compound">UnpackedRecord</ref> *</type>
+        <definition>UnpackedRecord* sqlVdbeAllocUnpackedRecord</definition>
+        <argsstring>(struct sql *, struct key_def *)</argsstring>
+        <name>sqlVdbeAllocUnpackedRecord</name>
+        <param>
+          <type>struct <ref refid="structsql" kindref="compound">sql</ref> *</type>
+        </param>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="286" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="2728" bodyend="2742"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1acbf61c07bf7c387e5da448265419c91c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeLinkSubProgram</definition>
+        <argsstring>(Vdbe *, SubProgram *)</argsstring>
+        <name>sqlVdbeLinkSubProgram</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type><ref refid="structSubProgram" kindref="compound">SubProgram</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="288" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="653" bodyend="657"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="vdbe_8h_1a627448337c6537dadef6d5bb387b05c9" prot="public" static="no">
+        <name>P4_NOTUSED</name>
+        <initializer>0		/* The P4 parameter is not used */</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="125" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1ae0cac143cf868ae8ec55be2ea9b13e7c" prot="public" static="no">
+        <name>P4_DYNAMIC</name>
+        <initializer>(-1)	/* Pointer to a string obtained from sqlMalloc() */</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="126" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1a016db195c237884a5c6a593a36956297" prot="public" static="no">
+        <name>P4_STATIC</name>
+        <initializer>(-2)	/* Pointer to a static string */</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="127" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="127" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1a75b33b0e5ede33c0da0a513e3ff9cdb8" prot="public" static="no">
+        <name>P4_COLLSEQ</name>
+        <initializer>(-3)	/* P4 is a pointer to a CollSeq structure */</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="128" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="128" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1a7f9d6df0a0d5fa98f59209fc1728509e" prot="public" static="no">
+        <name>P4_FUNC</name>
+        <initializer>(-4)</initializer>
+        <briefdescription>
+<para>P4 is a pointer to a func structure. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="130" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="130" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1af6c6e3475005335f2646434d48af6ffa" prot="public" static="no">
+        <name>P4_MEM</name>
+        <initializer>(-7)	/* P4 is a pointer to a <ref refid="structMem" kindref="compound">Mem</ref>*    structure */</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="131" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="131" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1a5e360de220b97f513abd01d96fa9671a" prot="public" static="no">
+        <name>P4_TRANSIENT</name>
+        <initializer>0		/* P4 is a pointer to a transient string */</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="132" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1a35e19eb3d788cc392377fa786c53023f" prot="public" static="no">
+        <name>P4_REAL</name>
+        <initializer>(-9)	/* P4 is a 64-bit floating point value */</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="133" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1a212d17b0057bde2ae22873cf61b24bd9" prot="public" static="no">
+        <name>P4_INT64</name>
+        <initializer>(-10)	/* P4 is a 64-bit signed integer */</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="134" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="134" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1a13ac8dc1b843a1dbbdbe2915ada18c04" prot="public" static="no">
+        <name>P4_UINT64</name>
+        <initializer>(-8)	/* P4 is a 64-bit signed integer */</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="135" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="135" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1a985d1d22c0d0a5ceb7546b09e60d31ef" prot="public" static="no">
+        <name>P4_INT32</name>
+        <initializer>(-11)	/* P4 is a 32-bit signed integer */</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="136" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="136" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1a6049b6360b78fd6f690f090640e9544b" prot="public" static="no">
+        <name>P4_INTARRAY</name>
+        <initializer>(-12)	/* P4 is a vector of 32-bit integers */</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="137" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="137" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1ae42ac3fc50d92f5078feb28af77ed65b" prot="public" static="no">
+        <name>P4_SUBPROGRAM</name>
+        <initializer>(-13)	/* P4 is a pointer to a <ref refid="structSubProgram" kindref="compound">SubProgram</ref> structure */</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="138" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="138" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1ad9e0f451cdfc6736c28e978dff9a9e00" prot="public" static="no">
+        <name>P4_ADVANCE</name>
+        <initializer>(-14)	/* P4 is a pointer to BtreeNext() or BtreePrev() */</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="139" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="139" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1a33209173a14e64aa51a5413cc08ee666" prot="public" static="no">
+        <name>P4_FUNCCTX</name>
+        <initializer>(-16)	/* P4 is a pointer to an <ref refid="structsql__context" kindref="compound">sql_context</ref> object */</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="140" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="140" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1a688dd6d5ea3f1824278b9093ddbfc6b4" prot="public" static="no">
+        <name>P4_BOOL</name>
+        <initializer>(-17)	/* P4 is a bool value */</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="141" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="141" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1a4dee2fa356f31681d899587130f86139" prot="public" static="no">
+        <name>P4_PTR</name>
+        <initializer>(-18)	/* P4 is a generic pointer */</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="142" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="142" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1a296c71657317854839363a5e63a3c623" prot="public" static="no">
+        <name>P4_KEYINFO</name>
+        <initializer>(-19)       /* P4 is a pointer to <ref refid="structsql__key__info" kindref="compound">sql_key_info</ref> structure. */</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="143" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="143" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1abf53c9ac68fa80874645747e914511d4" prot="public" static="no">
+        <name>P4_SPACEPTR</name>
+        <initializer>(-20)       /* P4 is a <ref refid="structspace" kindref="compound">space</ref> pointer */</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="144" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="144" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1aae01d33163a00e4c7bc83efc9e3eb5c3" prot="public" static="no">
+        <name>P5_ConstraintNotNull</name>
+        <initializer>1</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="147" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="147" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1af75f89da0b746aaa6a7f5297771065ee" prot="public" static="no">
+        <name>P5_ConstraintUnique</name>
+        <initializer>2</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="148" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="148" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1a95e2c06a87e25ca3b1c99e92f7726d6b" prot="public" static="no">
+        <name>P5_ConstraintFK</name>
+        <initializer>4</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="149" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="149" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="vdbe_8h_1a5ce4347ce4f7fb635d839077f4633194" prot="public" static="no">
+        <name>ADDR</name>
+        <param><defname>X</defname></param>
+        <initializer>(-1-(X))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="155" column="9" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="155" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="vdbe_8h_1aa2e7a63aae55a650a0107d9105e24242" prot="public" static="no">
+        <type>struct <ref refid="structVdbe" kindref="compound">Vdbe</ref></type>
+        <definition>typedef struct Vdbe Vdbe</definition>
+        <argsstring></argsstring>
+        <name>Vdbe</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="920" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="vdbe_8h_1a999a2420c71753fd0c94272a9ffad4a2" prot="public" static="no">
+        <type>struct <ref refid="structMem" kindref="compound">Mem</ref></type>
+        <definition>typedef struct Mem Mem</definition>
+        <argsstring></argsstring>
+        <name>Mem</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="920" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="vdbe_8h_1a3ce82d8c65a24e2ea8c51929aa543b7f" prot="public" static="no">
+        <type>struct <ref refid="structSubProgram" kindref="compound">SubProgram</ref></type>
+        <definition>typedef struct SubProgram SubProgram</definition>
+        <argsstring></argsstring>
+        <name>SubProgram</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="920" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="vdbe_8h_1adb0730cfaa5e6bf9d8935f89d8bcc07a" prot="public" static="no">
+        <type>struct <ref refid="structVdbeOp" kindref="compound">VdbeOp</ref></type>
+        <definition>typedef struct VdbeOp VdbeOp</definition>
+        <argsstring></argsstring>
+        <name>VdbeOp</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="920" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.h" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="vdbe_8h_1a3f0c685f9748ce4b24666106fcd00c2d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        <definition>Vdbe* sqlVdbeCreate</definition>
+        <argsstring>(Parse *)</argsstring>
+        <name>sqlVdbeCreate</name>
+        <param>
+          <type><ref refid="structParse" kindref="compound">Parse</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="167" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="52" bodyend="78"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a17b70ebef6eaf70482ced0604a00b4e9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sql_vdbe_prepare</definition>
+        <argsstring>(struct Vdbe *vdbe)</argsstring>
+        <name>sql_vdbe_prepare</name>
+        <param>
+          <type>struct <ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+          <declname>vdbe</declname>
+        </param>
+        <briefdescription>
+<para>Prepare given VDBE to execution: initialize structs connected with transaction routine: autocommit mode, deferred foreign keys counter, struct representing SQL savepoint. </para>        </briefdescription>
+        <detaileddescription>
+<para>If execution context is already within active transaction, just transfer transaction data to VDBE.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>vdbe</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>VDBE to be prepared. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on out of memory, 0 otherwise. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="180" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="81" bodyend="87"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a75be0bf64d9b2f920d0fa011c7d90b7c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structstailq" kindref="compound">stailq</ref> *</type>
+        <definition>struct stailq* vdbe_autoinc_id_list</definition>
+        <argsstring>(struct Vdbe *vdbe)</argsstring>
+        <name>vdbe_autoinc_id_list</name>
+        <param>
+          <type>struct <ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+          <declname>vdbe</declname>
+        </param>
+        <briefdescription>
+<para>Return pointer to list of generated ids. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>vdbe</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>VDBE to get list of generated ids from. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>List</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>of generated ids. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="189" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbe.c" bodystart="709" bodyend="712"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1af730be560afd45734ac87ad7782678e8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sqlVdbeAddOp0</definition>
+        <argsstring>(Vdbe *, int)</argsstring>
+        <name>sqlVdbeAddOp0</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="191" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="246" bodyend="249"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1ab582d0812f2a094fd921b0ae20392270" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sqlVdbeAddOp1</definition>
+        <argsstring>(Vdbe *, int, int)</argsstring>
+        <name>sqlVdbeAddOp1</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="192" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="252" bodyend="255"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1af1de4b1081593d99202b87daacc2e784" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sqlVdbeAddOp2</definition>
+        <argsstring>(Vdbe *, int, int, int)</argsstring>
+        <name>sqlVdbeAddOp2</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="193" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="258" bodyend="261"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a36ca3616498c8b641da512539cb34db1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sqlVdbeGoto</definition>
+        <argsstring>(Vdbe *, int)</argsstring>
+        <name>sqlVdbeGoto</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="194" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="266" bodyend="269"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a26dda5d372a5ac9f5d87d665a91b0cc3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sqlVdbeLoadString</definition>
+        <argsstring>(Vdbe *, int, const char *)</argsstring>
+        <name>sqlVdbeLoadString</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <param>
+          <type>const char *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="195" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="275" bodyend="278"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a43ac3b1a8c93fb62c763635e5162eda8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeMultiLoad</definition>
+        <argsstring>(Vdbe *, int, const char *,...)</argsstring>
+        <name>sqlVdbeMultiLoad</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <param>
+          <type>const char *</type>
+        </param>
+        <param>
+          <type>...</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="196" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="289" bodyend="307"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a8fcf7a97c05017eb3e50e27fa8179c41" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sqlVdbeAddOp3</definition>
+        <argsstring>(Vdbe *, int, int, int, int)</argsstring>
+        <name>sqlVdbeAddOp3</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="197" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="207" bodyend="243"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a82b1eb495a684572a4e1c19a741e8c33" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sqlVdbeAddOp4</definition>
+        <argsstring>(Vdbe *, int, int, int, int, const char *zP4, int)</argsstring>
+        <name>sqlVdbeAddOp4</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>zP4</declname>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="198" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="313" bodyend="325"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1ad7f8d10db667cd8b469bd425ee18da1e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sqlVdbeAddOp4Dup8</definition>
+        <argsstring>(Vdbe *, int, int, int, int, const u8 *, int)</argsstring>
+        <name>sqlVdbeAddOp4Dup8</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <param>
+          <type>const u8 *</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="199" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="332" bodyend="345"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a2dd99aab30348682c9c55d0cf3cd5119" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sqlVdbeAddOp4Int</definition>
+        <argsstring>(Vdbe *, int, int, int, int, int)</argsstring>
+        <name>sqlVdbeAddOp4Int</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="200" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="351" bodyend="365"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1acd50620e8096a38f8268389dd95a790c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeEndCoroutine</definition>
+        <argsstring>(Vdbe *, int)</argsstring>
+        <name>sqlVdbeEndCoroutine</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="201" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="370" bodyend="382"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a3eb801fdf08f2dec01c888be2f90296e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeChangeOpcode</definition>
+        <argsstring>(Vdbe *, u32 addr, u8)</argsstring>
+        <name>sqlVdbeChangeOpcode</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>u32</type>
+          <declname>addr</declname>
+        </param>
+        <param>
+          <type>u8</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="202" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="549" bodyend="552"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a972984aa6fa34478c9c5bb20bce523a7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeChangeP1</definition>
+        <argsstring>(Vdbe *, u32 addr, int P1)</argsstring>
+        <name>sqlVdbeChangeP1</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>u32</type>
+          <declname>addr</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>P1</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="203" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="555" bodyend="558"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1afc13b3730ede829210f8b4b1091fd600" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeChangeP2</definition>
+        <argsstring>(Vdbe *, u32 addr, int P2)</argsstring>
+        <name>sqlVdbeChangeP2</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>u32</type>
+          <declname>addr</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>P2</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="204" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="561" bodyend="564"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a28739d6e5769d33c300ee329e69b714e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeChangeP3</definition>
+        <argsstring>(Vdbe *, u32 addr, int P3)</argsstring>
+        <name>sqlVdbeChangeP3</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>u32</type>
+          <declname>addr</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>P3</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="205" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="567" bodyend="570"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1af209c53bd338c987c9484620c3aedd7f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeChangeP5</definition>
+        <argsstring>(Vdbe *, int P5)</argsstring>
+        <name>sqlVdbeChangeP5</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>P5</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="206" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="573" bodyend="578"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a1207366372cb22f5b0d748e764803d7c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeJumpHere</definition>
+        <argsstring>(Vdbe *, int addr)</argsstring>
+        <name>sqlVdbeJumpHere</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>addr</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="207" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="585" bodyend="588"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a868cb4d0c504bbd0fe877122869309e8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sqlVdbeChangeToNoop</definition>
+        <argsstring>(Vdbe *, int addr)</argsstring>
+        <name>sqlVdbeChangeToNoop</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>addr</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="208" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="663" bodyend="675"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1ac95e8f78aa4617a674580952afbc941a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sqlVdbeDeletePriorOpcode</definition>
+        <argsstring>(Vdbe *, u8 op)</argsstring>
+        <name>sqlVdbeDeletePriorOpcode</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>u8</type>
+          <declname>op</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="209" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="682" bodyend="689"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1adb48bf5987db4458ae65fe77f08693e9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeChangeP4</definition>
+        <argsstring>(Vdbe *, int addr, const char *zP4, int N)</argsstring>
+        <name>sqlVdbeChangeP4</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>addr</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>zP4</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>N</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="210" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="724" bodyend="760"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a37b76eb01d266aa125278067332da7cd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeAppendP4</definition>
+        <argsstring>(Vdbe *, void *pP4, int p4type)</argsstring>
+        <name>sqlVdbeAppendP4</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>pP4</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>p4type</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="211" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="772" bodyend="787"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1acab116c4e9128d4fcbd707190483c20f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sql_vdbe_set_p4_key_def</definition>
+        <argsstring>(struct Parse *parse, struct key_def *key_def)</argsstring>
+        <name>sql_vdbe_set_p4_key_def</name>
+        <param>
+          <type>struct <ref refid="structParse" kindref="compound">Parse</ref> *</type>
+          <declname>parse</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>key_def</declname>
+        </param>
+        <briefdescription>
+<para>Set the P4 on the most recently added opcode to the <ref refid="structkey__def" kindref="compound">key_def</ref> for the index given. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="structParse" kindref="compound">Parse</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>context, for error reporting. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername><ref refid="structkey__def" kindref="compound">key_def</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Definition of a key to set. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="220" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="790" bodyend="799"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a3bfcc4368f75082f359cd719fa99f389" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structVdbeOp" kindref="compound">VdbeOp</ref> *</type>
+        <definition>VdbeOp* sqlVdbeGetOp</definition>
+        <argsstring>(Vdbe *, int)</argsstring>
+        <name>sqlVdbeGetOp</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="222" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="871" bodyend="887"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1aa221c7f70ed8f36fdecbb88201b58f5a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sqlVdbeMakeLabel</definition>
+        <argsstring>(Vdbe *)</argsstring>
+        <name>sqlVdbeMakeLabel</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="223" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="399" bodyend="413"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1aee918639c60fd1df7fb473662fb8fd32" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeRunOnlyOnce</definition>
+        <argsstring>(Vdbe *)</argsstring>
+        <name>sqlVdbeRunOnlyOnce</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="224" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="437" bodyend="440"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a7cc1305ce0e38dc92edabec0f58fe32b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vdbe_metadata_delete</definition>
+        <argsstring>(struct Vdbe *v)</argsstring>
+        <name>vdbe_metadata_delete</name>
+        <param>
+          <type>struct <ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="227" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="1798" bodyend="1809"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1ae1040959b364914f83289986212c6f92" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeDelete</definition>
+        <argsstring>(Vdbe *)</argsstring>
+        <name>sqlVdbeDelete</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="229" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="2277" bodyend="2304"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a01cde480c7acb1254042330f352d2e4b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeClearObject</definition>
+        <argsstring>(sql *, Vdbe *)</argsstring>
+        <name>sqlVdbeClearObject</name>
+        <param>
+          <type><ref refid="structsql" kindref="compound">sql</ref> *</type>
+        </param>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="230" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="2254" bodyend="2271"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1aea1f058d55437d84c547a2f02b25a696" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeMakeReady</definition>
+        <argsstring>(Vdbe *, Parse *)</argsstring>
+        <name>sqlVdbeMakeReady</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type><ref refid="structParse" kindref="compound">Parse</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="231" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="1578" bodyend="1667"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a8e3cb4021815b3736154945d17018bec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sqlVdbeFinalize</definition>
+        <argsstring>(Vdbe *)</argsstring>
+        <name>sqlVdbeFinalize</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="232" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="2236" bodyend="2243"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1ac7872a4a0ca610cb1bb80941bc21bfae" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeResolveLabel</definition>
+        <argsstring>(Vdbe *, int)</argsstring>
+        <name>sqlVdbeResolveLabel</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="233" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="421" bodyend="431"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a424378f06fd22fa8bc90504a6f1eb924" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sqlVdbeCurrentAddr</definition>
+        <argsstring>(Vdbe *)</argsstring>
+        <name>sqlVdbeCurrentAddr</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="234" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="515" bodyend="519"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a60287e713a181b07494dd37b0c765074" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeResetStepResult</definition>
+        <argsstring>(Vdbe *)</argsstring>
+        <name>sqlVdbeResetStepResult</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="235" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="2138" bodyend="2141"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1ab4ef667cd579a2020923c8045a617ecb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeRewind</definition>
+        <argsstring>(Vdbe *)</argsstring>
+        <name>sqlVdbeRewind</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="236" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="1523" bodyend="1557"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a851fb2e6001f4ef5595d0533d77b54c5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sqlVdbeReset</definition>
+        <argsstring>(Vdbe *)</argsstring>
+        <name>sqlVdbeReset</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="237" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="2155" bodyend="2229"/>
+      </memberdef>
+      <memberdef kind="function" id="vdbe_8h_1a31da6a5bb95684b7599e00fd09dfb97c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sqlVdbeSetNumCols</definition>
+        <argsstring>(Vdbe *, int)</argsstring>
+        <name>sqlVdbeSetNumCols</name>
+        <param>
+          <type><ref refid="structVdbe" kindref="compound">Vdbe</ref> *</type>
+        </param>
+        <param>
+          <type>int</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h" line="238" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/vdbeaux.c" bodystart="1818" bodyend="1833"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2017,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/>*<sp/>Header<sp/>file<sp/>for<sp/>the<sp/>Virtual<sp/>DataBase<sp/>Engine<sp/>(VDBE)</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*<sp/>This<sp/>header<sp/>defines<sp/>the<sp/>interface<sp/>to<sp/>the<sp/>virtual<sp/>database<sp/>engine</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*<sp/>or<sp/>VDBE.<sp/><sp/>The<sp/>VDBE<sp/>implements<sp/>an<sp/>abstract<sp/>machine<sp/>that<sp/>runs<sp/>a</highlight></codeline>
+<codeline lineno="37"><highlight class="comment"><sp/>*<sp/>simple<sp/>program<sp/>to<sp/>access<sp/>and<sp/>modify<sp/>the<sp/>underlying<sp/>database.</highlight></codeline>
+<codeline lineno="38"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SQL_VDBE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SQL_VDBE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdio.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="44"><highlight class="comment"><sp/>*<sp/>A<sp/>single<sp/>VDBE<sp/>is<sp/>an<sp/>opaque<sp/>structure<sp/>named<sp/>&quot;Vdbe&quot;.<sp/><sp/>Only<sp/>routines</highlight></codeline>
+<codeline lineno="45"><highlight class="comment"><sp/>*<sp/>in<sp/>the<sp/>source<sp/>file<sp/>sqlVdbe.c<sp/>are<sp/>allowed<sp/>to<sp/>see<sp/>the<sp/>insides</highlight></codeline>
+<codeline lineno="46"><highlight class="comment"><sp/>*<sp/>of<sp/>this<sp/>structure.</highlight></codeline>
+<codeline lineno="47"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/><ref refid="structVdbe" kindref="compound">Vdbe</ref>;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="51"><highlight class="comment"><sp/>*<sp/>The<sp/>names<sp/>of<sp/>the<sp/>following<sp/>types<sp/>declared<sp/>in<sp/>vdbeInt.h<sp/>are<sp/>required</highlight></codeline>
+<codeline lineno="52"><highlight class="comment"><sp/>*<sp/>for<sp/>the<sp/>VdbeOp<sp/>definition.</highlight></codeline>
+<codeline lineno="53"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structMem" kindref="compound">Mem</ref><sp/><ref refid="structMem" kindref="compound">Mem</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSubProgram" kindref="compound">SubProgram</ref><sp/><ref refid="structSubProgram" kindref="compound">SubProgram</ref>;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="58"><highlight class="comment"><sp/>*<sp/>A<sp/>single<sp/>instruction<sp/>of<sp/>the<sp/>virtual<sp/>machine<sp/>has<sp/>an<sp/>opcode</highlight></codeline>
+<codeline lineno="59"><highlight class="comment"><sp/>*<sp/>and<sp/>as<sp/>many<sp/>as<sp/>three<sp/>operands.<sp/><sp/>The<sp/>instruction<sp/>is<sp/>recorded</highlight></codeline>
+<codeline lineno="60"><highlight class="comment"><sp/>*<sp/>as<sp/>an<sp/>instance<sp/>of<sp/>the<sp/>following<sp/>structure:</highlight></codeline>
+<codeline lineno="61"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="structVdbeOp" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structVdbeOp" kindref="compound">VdbeOp</ref><sp/>{</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>u8<sp/>opcode;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>What<sp/>operation<sp/>to<sp/>perform<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">signed</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>p4type;<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>One<sp/>of<sp/>the<sp/>P4_xxx<sp/>constants<sp/>for<sp/>p4<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>u16<sp/>p5;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Fifth<sp/>parameter<sp/>is<sp/>an<sp/>unsigned<sp/>character<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>p1;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>First<sp/>operand<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>p2;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Second<sp/>parameter<sp/>(often<sp/>the<sp/>jump<sp/>destination)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>p3;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>The<sp/>third<sp/>parameter<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69" refid="unionVdbeOp_1_1p4union" refkind="compound"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal"><ref refid="unionVdbeOp_1_1p4union" kindref="compound">p4union</ref><sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>fourth<sp/>parameter<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Integer<sp/>value<sp/>if<sp/>p4type==P4_INT32<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*p;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Generic<sp/>pointer<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*z;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Pointer<sp/>to<sp/>data<sp/>for<sp/>string<sp/>(char<sp/>array)<sp/>types<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>i64<sp/>*pI64;<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Used<sp/>when<sp/>p4type<sp/>is<sp/>P4_INT64/UINT64<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>*pReal;<sp/><sp/></highlight><highlight class="comment">/*<sp/>Used<sp/>when<sp/>p4type<sp/>is<sp/>P4_REAL<sp/>*/</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfunc" kindref="compound">func</ref><sp/>*<ref refid="unionVdbeOp_1_1p4union_1a3b389e436d9530b781dd52b687a4f410" kindref="member">func</ref>;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structsql__context" kindref="compound">sql_context</ref><sp/>*pCtx;<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Used<sp/>when<sp/>p4type<sp/>is<sp/>P4_FUNCCTX<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcoll" kindref="compound">coll</ref><sp/>*pColl;<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Used<sp/>when<sp/>p4type<sp/>is<sp/>P4_COLLSEQ<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structMem" kindref="compound">Mem</ref><sp/>*pMem;<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Used<sp/>when<sp/>p4type<sp/>is<sp/>P4_MEM<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>b;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Used<sp/>when<sp/>p4type<sp/>is<sp/>P4_BOOL<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>*ai;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Used<sp/>when<sp/>p4type<sp/>is<sp/>P4_INTARRAY<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSubProgram" kindref="compound">SubProgram</ref><sp/>*pProgram;<sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Used<sp/>when<sp/>p4type<sp/>is<sp/>P4_SUBPROGRAM<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>(*xAdvance)<sp/>(<ref refid="structBtCursor" kindref="compound">BtCursor</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>*);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsql__key__info" kindref="compound">sql_key_info</ref><sp/>*<ref refid="unionVdbeOp_1_1p4union_1a47b4c372d4e6034eeca7222bb977c15e" kindref="member">key_info</ref>;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structspace" kindref="compound">space</ref><sp/>*<ref refid="unionVdbeOp_1_1p4union_1a27770727e897438e8f4f0c0517cae652" kindref="member">space</ref>;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>field_type<sp/>*<ref refid="unionVdbeOp_1_1p4union_1aba26b68ea864d3ce968fc23878cd02f3" kindref="member">types</ref>;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/>p4;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>SQL_ENABLE_EXPLAIN_COMMENTS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*zComment;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Comment<sp/>to<sp/>improve<sp/>readability<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>VDBE_PROFILE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>u32<sp/>cnt;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Number<sp/>of<sp/>times<sp/>this<sp/>instruction<sp/>was<sp/>executed<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>u64<sp/>cycles;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Total<sp/>time<sp/>spent<sp/>executing<sp/>this<sp/>instruction<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>SQL_VDBE_COVERAGE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>iSrcLine;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Source-code<sp/>line<sp/>that<sp/>generated<sp/>this<sp/>opcode<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structVdbeOp" kindref="compound">VdbeOp</ref><sp/>VdbeOp;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="111"><highlight class="comment"><sp/>*<sp/>A<sp/>sub-routine<sp/>used<sp/>to<sp/>implement<sp/>a<sp/>trigger<sp/>program.</highlight></codeline>
+<codeline lineno="112"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113" refid="structSubProgram" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSubProgram" kindref="compound">SubProgram</ref><sp/>{</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VdbeOp<sp/>*aOp;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Array<sp/>of<sp/>opcodes<sp/>for<sp/>sub-program<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>nOp;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Elements<sp/>in<sp/>aOp[]<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>nMem;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Number<sp/>of<sp/>memory<sp/>cells<sp/>required<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>nCsr;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Number<sp/>of<sp/>cursors<sp/>required<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*token;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>id<sp/>that<sp/>may<sp/>be<sp/>used<sp/>to<sp/>recursive<sp/>triggers<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSubProgram" kindref="compound">SubProgram</ref><sp/>*pNext;<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Next<sp/>sub-program<sp/>already<sp/>visited<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="123"><highlight class="comment"><sp/>*<sp/>Allowed<sp/>values<sp/>of<sp/>VdbeOp.p4type</highlight></codeline>
+<codeline lineno="124"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>P4_NOTUSED<sp/><sp/><sp/><sp/>0<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>The<sp/>P4<sp/>parameter<sp/>is<sp/>not<sp/>used<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>P4_DYNAMIC<sp/><sp/>(-1)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Pointer<sp/>to<sp/>a<sp/>string<sp/>obtained<sp/>from<sp/>sqlMalloc()<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>P4_STATIC<sp/><sp/><sp/>(-2)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Pointer<sp/>to<sp/>a<sp/>static<sp/>string<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>P4_COLLSEQ<sp/><sp/>(-3)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>P4<sp/>is<sp/>a<sp/>pointer<sp/>to<sp/>a<sp/>CollSeq<sp/>structure<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="preprocessor">#define<sp/>P4_FUNC<sp/><sp/><sp/><sp/><sp/>(-4)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>P4_MEM<sp/><sp/><sp/><sp/><sp/><sp/>(-7)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>P4<sp/>is<sp/>a<sp/>pointer<sp/>to<sp/>a<sp/>Mem*<sp/><sp/><sp/><sp/>structure<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>P4_TRANSIENT<sp/><sp/>0<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>P4<sp/>is<sp/>a<sp/>pointer<sp/>to<sp/>a<sp/>transient<sp/>string<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>P4_REAL<sp/><sp/><sp/><sp/><sp/>(-9)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>P4<sp/>is<sp/>a<sp/>64-bit<sp/>floating<sp/>point<sp/>value<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>P4_INT64<sp/><sp/><sp/><sp/>(-10)<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>P4<sp/>is<sp/>a<sp/>64-bit<sp/>signed<sp/>integer<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>P4_UINT64<sp/><sp/><sp/>(-8)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>P4<sp/>is<sp/>a<sp/>64-bit<sp/>signed<sp/>integer<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>P4_INT32<sp/><sp/><sp/><sp/>(-11)<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>P4<sp/>is<sp/>a<sp/>32-bit<sp/>signed<sp/>integer<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>P4_INTARRAY<sp/>(-12)<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>P4<sp/>is<sp/>a<sp/>vector<sp/>of<sp/>32-bit<sp/>integers<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>P4_SUBPROGRAM<sp/><sp/>(-13)<sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>P4<sp/>is<sp/>a<sp/>pointer<sp/>to<sp/>a<sp/>SubProgram<sp/>structure<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>P4_ADVANCE<sp/><sp/>(-14)<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>P4<sp/>is<sp/>a<sp/>pointer<sp/>to<sp/>BtreeNext()<sp/>or<sp/>BtreePrev()<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>P4_FUNCCTX<sp/><sp/>(-16)<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>P4<sp/>is<sp/>a<sp/>pointer<sp/>to<sp/>an<sp/>sql_context<sp/>object<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>P4_BOOL<sp/><sp/><sp/><sp/><sp/>(-17)<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>P4<sp/>is<sp/>a<sp/>bool<sp/>value<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>P4_PTR<sp/><sp/><sp/><sp/><sp/><sp/>(-18)<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>P4<sp/>is<sp/>a<sp/>generic<sp/>pointer<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>P4_KEYINFO<sp/><sp/>(-19)<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>P4<sp/>is<sp/>a<sp/>pointer<sp/>to<sp/>sql_key_info<sp/>structure.<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>P4_SPACEPTR<sp/>(-20)<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>P4<sp/>is<sp/>a<sp/>space<sp/>pointer<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Error<sp/>message<sp/>codes<sp/>for<sp/>OP_Halt<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>P5_ConstraintNotNull<sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>P5_ConstraintUnique<sp/><sp/>2</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>P5_ConstraintFK<sp/><sp/><sp/><sp/><sp/><sp/>4</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="152"><highlight class="comment"><sp/>*<sp/>The<sp/>following<sp/>macro<sp/>converts<sp/>a<sp/>relative<sp/>address<sp/>in<sp/>the<sp/>p2<sp/>field</highlight></codeline>
+<codeline lineno="153"><highlight class="comment"><sp/>*<sp/>of<sp/>a<sp/>VdbeOp<sp/>structure<sp/>into<sp/>a<sp/>negative<sp/>number.</highlight></codeline>
+<codeline lineno="154"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ADDR(X)<sp/><sp/>(-1-(X))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="158"><highlight class="comment"><sp/>*<sp/>The<sp/>makefile<sp/>scans<sp/>the<sp/>vdbe.c<sp/>source<sp/>file<sp/>and<sp/>creates<sp/>the<sp/>&quot;opcodes.h&quot;</highlight></codeline>
+<codeline lineno="159"><highlight class="comment"><sp/>*<sp/>header<sp/>file<sp/>that<sp/>defines<sp/>a<sp/>number<sp/>for<sp/>each<sp/>opcode<sp/>used<sp/>by<sp/>the<sp/>VDBE.</highlight></codeline>
+<codeline lineno="160"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;opcodes.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="164"><highlight class="comment"><sp/>*<sp/>Prototypes<sp/>for<sp/>the<sp/>VDBE<sp/>interface.<sp/><sp/>See<sp/>comments<sp/>on<sp/>the<sp/>implementation</highlight></codeline>
+<codeline lineno="165"><highlight class="comment"><sp/>*<sp/>for<sp/>a<sp/>description<sp/>of<sp/>what<sp/>each<sp/>of<sp/>these<sp/>routines<sp/>does.</highlight></codeline>
+<codeline lineno="166"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*sqlVdbeCreate(<ref refid="structParse" kindref="compound">Parse</ref><sp/>*);</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal">sql_vdbe_prepare(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*vdbe);</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq" kindref="compound">stailq</ref><sp/>*</highlight></codeline>
+<codeline lineno="189"><highlight class="normal">vdbe_autoinc_id_list(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*vdbe);</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sqlVdbeAddOp0(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sqlVdbeAddOp1(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sqlVdbeAddOp2(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sqlVdbeGoto(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sqlVdbeLoadString(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*);</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeMultiLoad(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*,<sp/>...);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sqlVdbeAddOp3(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sqlVdbeAddOp4(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*zP4,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sqlVdbeAddOp4Dup8(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>u8<sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sqlVdbeAddOp4Int(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeEndCoroutine(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeChangeOpcode(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/>u32<sp/>addr,<sp/>u8);</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeChangeP1(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/>u32<sp/>addr,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>P1);</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeChangeP2(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/>u32<sp/>addr,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>P2);</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeChangeP3(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/>u32<sp/>addr,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>P3);</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeChangeP5(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>P5);</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeJumpHere(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>addr);</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sqlVdbeChangeToNoop(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>addr);</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sqlVdbeDeletePriorOpcode(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/>u8<sp/>op);</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeChangeP4(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>addr,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*zP4,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>N);</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeAppendP4(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*pP4,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>p4type);</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal">sql_vdbe_set_p4_key_def(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structParse" kindref="compound">Parse</ref><sp/>*parse,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structkey__def" kindref="compound">key_def</ref><sp/>*<ref refid="structkey__def" kindref="compound">key_def</ref>);</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight></codeline>
+<codeline lineno="222"><highlight class="normal">VdbeOp<sp/>*sqlVdbeGetOp(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sqlVdbeMakeLabel(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*);</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeRunOnlyOnce(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*);</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal">vdbe_metadata_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*v);</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeDelete(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*);</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeClearObject(<ref refid="structsql" kindref="compound">sql</ref><sp/>*,<sp/><ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*);</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeMakeReady(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/><ref refid="structParse" kindref="compound">Parse</ref><sp/>*);</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sqlVdbeFinalize(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*);</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeResolveLabel(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sqlVdbeCurrentAddr(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*);</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeResetStepResult(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*);</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeRewind(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*);</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sqlVdbeReset(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*);</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeSetNumCols(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="normal">vdbe_metadata_set_col_name(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*v,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>col_idx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name);</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"></highlight></codeline>
+<codeline lineno="248"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="249"><highlight class="normal">vdbe_metadata_set_col_type(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*v,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>col_idx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*type);</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="252"><highlight class="normal">vdbe_metadata_set_col_collation(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*p,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structcoll" kindref="compound">coll</ref>,</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>coll_len);</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"></highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="256"><highlight class="normal">vdbe_metadata_set_col_nullability(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*p,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>nullable);</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"></highlight></codeline>
+<codeline lineno="258"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="259"><highlight class="normal">vdbe_metadata_set_col_autoincrement(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*p,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx);</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal">vdbe_metadata_set_col_span(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*p,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*span);</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight></codeline>
+<codeline lineno="264"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeCountChanges(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*);</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><ref refid="structsql" kindref="compound">sql</ref><sp/>*sqlVdbeDb(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*);</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeSetSql(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*z,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>n);</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeSwap(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/><ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*);</highlight></codeline>
+<codeline lineno="268"><highlight class="normal">VdbeOp<sp/>*sqlVdbeTakeOpArray(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>*);</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><ref refid="structMem" kindref="compound">sql_value</ref><sp/>*sqlVdbeGetBoundValue(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">,<sp/>u8);</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sqlVdbeExpandSql(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*);</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sqlMemCompare(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structMem" kindref="compound">Mem</ref><sp/>*,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structMem" kindref="compound">Mem</ref><sp/>*,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcoll" kindref="compound">coll</ref><sp/>*);</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"></highlight></codeline>
+<codeline lineno="280"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeRecordUnpackMsgpack(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*key_def,</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*msgpack,</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structUnpackedRecord" kindref="compound">UnpackedRecord</ref><sp/>*dest);</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"></highlight></codeline>
+<codeline lineno="284"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sqlVdbeRecordCompare(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsql" kindref="compound">sql</ref><sp/>*db,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>key_count,</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*key1,<sp/><ref refid="structUnpackedRecord" kindref="compound">UnpackedRecord</ref><sp/>*key2);</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><ref refid="structUnpackedRecord" kindref="compound">UnpackedRecord</ref><sp/>*sqlVdbeAllocUnpackedRecord(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsql" kindref="compound">sql</ref><sp/>*,</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*);</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeLinkSubProgram(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/><ref refid="structSubProgram" kindref="compound">SubProgram</ref><sp/>*);</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"></highlight></codeline>
+<codeline lineno="290"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Use<sp/>SQL_ENABLE_COMMENTS<sp/>to<sp/>enable<sp/>generation<sp/>of<sp/>extra<sp/>comments<sp/>on</highlight></codeline>
+<codeline lineno="291"><highlight class="comment"><sp/>*<sp/>each<sp/>VDBE<sp/>opcode.</highlight></codeline>
+<codeline lineno="292"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="293"><highlight class="comment"><sp/>*<sp/>Use<sp/>the<sp/>SQL_ENABLE_MODULE_COMMENTS<sp/>macro<sp/>to<sp/>see<sp/>some<sp/>extra<sp/>no-op</highlight></codeline>
+<codeline lineno="294"><highlight class="comment"><sp/>*<sp/>comments<sp/>in<sp/>VDBE<sp/>programs<sp/>that<sp/>show<sp/>key<sp/>decision<sp/>points<sp/>in<sp/>the<sp/>code</highlight></codeline>
+<codeline lineno="295"><highlight class="comment"><sp/>*<sp/>generator.</highlight></codeline>
+<codeline lineno="296"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="297"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>SQL_ENABLE_EXPLAIN_COMMENTS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="298"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeComment(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*,<sp/>...);</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VdbeComment(X)<sp/><sp/>sqlVdbeComment<sp/>X</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeNoopComment(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*,<sp/>...);</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VdbeNoopComment(X)<sp/><sp/>sqlVdbeNoopComment<sp/>X</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="302"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>SQL_ENABLE_MODULE_COMMENTS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="303"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VdbeModuleComment(X)<sp/><sp/>sqlVdbeNoopComment<sp/>X</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="304"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="305"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VdbeModuleComment(X)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="306"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="307"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="308"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VdbeComment(X)<sp/>(void)<sp/>0</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="309"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VdbeNoopComment(X)<sp/>(void)<sp/>0</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="310"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VdbeModuleComment(X)<sp/>(void)<sp/>0</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="311"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="312"><highlight class="normal"></highlight></codeline>
+<codeline lineno="313"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="314"><highlight class="comment"><sp/>*<sp/>The<sp/>VdbeCoverage<sp/>macros<sp/>are<sp/>used<sp/>to<sp/>set<sp/>a<sp/>coverage<sp/>testing<sp/>point</highlight></codeline>
+<codeline lineno="315"><highlight class="comment"><sp/>*<sp/>for<sp/>VDBE<sp/>branch<sp/>instructions.<sp/><sp/>The<sp/>coverage<sp/>testing<sp/>points<sp/>are<sp/>line</highlight></codeline>
+<codeline lineno="316"><highlight class="comment"><sp/>*<sp/>numbers<sp/>in<sp/>the<sp/>sql.c<sp/>source<sp/>file.<sp/><sp/>VDBE<sp/>branch<sp/>coverage<sp/>testing</highlight></codeline>
+<codeline lineno="317"><highlight class="comment"><sp/>*<sp/>only<sp/>works<sp/>with<sp/>an<sp/>amalagmation<sp/>build.<sp/><sp/>That&apos;s<sp/>ok<sp/>since<sp/>a<sp/>VDBE<sp/>branch</highlight></codeline>
+<codeline lineno="318"><highlight class="comment"><sp/>*<sp/>coverage<sp/>build<sp/>designed<sp/>for<sp/>testing<sp/>the<sp/>test<sp/>suite<sp/>only.<sp/><sp/>No<sp/>application</highlight></codeline>
+<codeline lineno="319"><highlight class="comment"><sp/>*<sp/>should<sp/>ever<sp/>ship<sp/>with<sp/>VDBE<sp/>branch<sp/>coverage<sp/>measuring<sp/>turned<sp/>on.</highlight></codeline>
+<codeline lineno="320"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="321"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>VdbeCoverage(v)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Mark<sp/>the<sp/>previously<sp/>coded<sp/>instruction</highlight></codeline>
+<codeline lineno="322"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>as<sp/>a<sp/>branch</highlight></codeline>
+<codeline lineno="323"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="324"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>VdbeCoverageIf(v,<sp/>conditional)<sp/><sp/><sp/>//<sp/>Mark<sp/>previous<sp/>if<sp/>conditional<sp/>true</highlight></codeline>
+<codeline lineno="325"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="326"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>VdbeCoverageAlwaysTaken(v)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Previous<sp/>branch<sp/>is<sp/>always<sp/>taken</highlight></codeline>
+<codeline lineno="327"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="328"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>VdbeCoverageNeverTaken(v)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>//<sp/>Previous<sp/>branch<sp/>is<sp/>never<sp/>taken</highlight></codeline>
+<codeline lineno="329"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="330"><highlight class="comment"><sp/>*<sp/>Every<sp/>VDBE<sp/>branch<sp/>operation<sp/>must<sp/>be<sp/>tagged<sp/>with<sp/>one<sp/>of<sp/>the<sp/>macros<sp/>above.</highlight></codeline>
+<codeline lineno="331"><highlight class="comment"><sp/>*<sp/>If<sp/>not,<sp/>then<sp/>when<sp/>&quot;make<sp/>test&quot;<sp/>is<sp/>run<sp/>with<sp/>-DSQL_VDBE_COVERAGE<sp/>and</highlight></codeline>
+<codeline lineno="332"><highlight class="comment"><sp/>*<sp/>-DSQL_DEBUG<sp/>then<sp/>an<sp/>ALWAYS()<sp/>will<sp/>fail<sp/>in<sp/>the<sp/>vdbeTakeBranch()</highlight></codeline>
+<codeline lineno="333"><highlight class="comment"><sp/>*<sp/>routine<sp/>in<sp/>vdbe.c,<sp/>alerting<sp/>the<sp/>developer<sp/>to<sp/>the<sp/>missed<sp/>tag.</highlight></codeline>
+<codeline lineno="334"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="335"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>SQL_VDBE_COVERAGE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="336"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>sqlVdbeSetLineNumber(<ref refid="structVdbe" kindref="compound">Vdbe</ref><sp/>*,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VdbeCoverage(v)<sp/>sqlVdbeSetLineNumber(v,__LINE__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="338"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VdbeCoverageIf(v,x)<sp/>if(x)sqlVdbeSetLineNumber(v,__LINE__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="339"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VdbeCoverageAlwaysTaken(v)<sp/>sqlVdbeSetLineNumber(v,2);</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="340"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VdbeCoverageNeverTaken(v)<sp/>sqlVdbeSetLineNumber(v,1);</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="341"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VDBE_OFFSET_LINENO(x)<sp/>(__LINE__+x)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="342"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="343"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VdbeCoverage(v)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="344"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VdbeCoverageIf(v,x)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="345"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VdbeCoverageAlwaysTaken(v)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="346"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VdbeCoverageNeverTaken(v)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="347"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VDBE_OFFSET_LINENO(x)<sp/>0</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="348"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="349"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>SQL_VDBE_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/sql/vdbe.h"/>
+  </compounddef>
+</doxygen>

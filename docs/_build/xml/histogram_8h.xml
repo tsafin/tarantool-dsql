@@ -1,0 +1,293 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="histogram_8h" kind="file" language="C++">
+    <compoundname>histogram.h</compoundname>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">assert.h</includes>
+    <includedby refid="vinyl_8c" local="yes">/home/tsafin/tarantool/src/box/vinyl.c</includedby>
+    <includedby refid="vy__lsm_8c" local="yes">/home/tsafin/tarantool/src/box/vy_lsm.c</includedby>
+    <includedby refid="vy__regulator_8c" local="yes">/home/tsafin/tarantool/src/box/vy_regulator.c</includedby>
+    <includedby refid="histogram_8c" local="yes">/home/tsafin/tarantool/src/histogram.c</includedby>
+    <includedby refid="latency_8c" local="yes">/home/tsafin/tarantool/src/latency.c</includedby>
+    <incdepgraph>
+      <node id="1620">
+        <label>assert.h</label>
+      </node>
+      <node id="1619">
+        <label>stdint.h</label>
+      </node>
+      <node id="1618">
+        <label>stddef.h</label>
+      </node>
+      <node id="1617">
+        <label>/home/tsafin/tarantool/src/histogram.h</label>
+        <link refid="histogram_8h"/>
+        <childnode refid="1618" relation="include">
+        </childnode>
+        <childnode refid="1619" relation="include">
+        </childnode>
+        <childnode refid="1620" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structhistogram__bucket" prot="public">histogram_bucket</innerclass>
+    <innerclass refid="structhistogram" prot="public">histogram</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="histogram_8h_1a89013b530f0ff1253c010dbf75b0bfca" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structhistogram" kindref="compound">histogram</ref> *</type>
+        <definition>struct histogram* histogram_new</definition>
+        <argsstring>(const int64_t *buckets, size_t n_buckets)</argsstring>
+        <name>histogram_new</name>
+        <param>
+          <type>const int64_t *</type>
+          <declname>buckets</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n_buckets</declname>
+        </param>
+        <briefdescription>
+<para>Create a new histogram given an array of bucket boundaries. </para>        </briefdescription>
+        <detaileddescription>
+<para>buckets[i] defines the upper bound for bucket i. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/histogram.h" line="59" column="1" bodyfile="/home/tsafin/tarantool/src/histogram.c" bodystart="39" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="histogram_8h_1ae1f12527569b82dfae93bec6d9debeb6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void histogram_delete</definition>
+        <argsstring>(struct histogram *hist)</argsstring>
+        <name>histogram_delete</name>
+        <param>
+          <type>struct <ref refid="structhistogram" kindref="compound">histogram</ref> *</type>
+          <declname>hist</declname>
+        </param>
+        <briefdescription>
+<para>Destroy a histogram. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/histogram.h" line="65" column="1" bodyfile="/home/tsafin/tarantool/src/histogram.c" bodystart="63" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="histogram_8h_1a57fe595ac900f08ab2d70187d7df89f6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void histogram_reset</definition>
+        <argsstring>(struct histogram *hist)</argsstring>
+        <name>histogram_reset</name>
+        <param>
+          <type>struct <ref refid="structhistogram" kindref="compound">histogram</ref> *</type>
+          <declname>hist</declname>
+        </param>
+        <briefdescription>
+<para>Reset a histogram. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/histogram.h" line="71" column="1" bodyfile="/home/tsafin/tarantool/src/histogram.c" bodystart="69" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="function" id="histogram_8h_1a140d4066aaa0ed89d21b734947733bfb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void histogram_collect</definition>
+        <argsstring>(struct histogram *hist, int64_t val)</argsstring>
+        <name>histogram_collect</name>
+        <param>
+          <type>struct <ref refid="structhistogram" kindref="compound">histogram</ref> *</type>
+          <declname>hist</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Update a histogram with a new observation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/histogram.h" line="77" column="1" bodyfile="/home/tsafin/tarantool/src/histogram.c" bodystart="108" bodyend="118"/>
+      </memberdef>
+      <memberdef kind="function" id="histogram_8h_1ae464690683817d933d9e8d1098806c94" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void histogram_discard</definition>
+        <argsstring>(struct histogram *hist, int64_t val)</argsstring>
+        <name>histogram_discard</name>
+        <param>
+          <type>struct <ref refid="structhistogram" kindref="compound">histogram</ref> *</type>
+          <declname>hist</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Remove a previously collected observation from a historam. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/histogram.h" line="83" column="1" bodyfile="/home/tsafin/tarantool/src/histogram.c" bodystart="121" bodyend="132"/>
+      </memberdef>
+      <memberdef kind="function" id="histogram_8h_1ac958f475064b48e593327ea1f2e31b60" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>int64_t histogram_percentile</definition>
+        <argsstring>(struct histogram *hist, int pct)</argsstring>
+        <name>histogram_percentile</name>
+        <param>
+          <type>struct <ref refid="structhistogram" kindref="compound">histogram</ref> *</type>
+          <declname>hist</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>pct</declname>
+        </param>
+        <briefdescription>
+<para>Calculate a percentile, i.e. </para>        </briefdescription>
+        <detaileddescription>
+<para>the value below which a given percentage of observations fall. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/histogram.h" line="90" column="1" bodyfile="/home/tsafin/tarantool/src/histogram.c" bodystart="135" bodyend="146"/>
+      </memberdef>
+      <memberdef kind="function" id="histogram_8h_1a3904fdb24646e8018dda6791eb8248af" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>int64_t histogram_percentile_lower</definition>
+        <argsstring>(struct histogram *hist, int pct)</argsstring>
+        <name>histogram_percentile_lower</name>
+        <param>
+          <type>struct <ref refid="structhistogram" kindref="compound">histogram</ref> *</type>
+          <declname>hist</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>pct</declname>
+        </param>
+        <briefdescription>
+<para>Same as histogram_percentile(), but return a lower bound estimate of the percentile. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/histogram.h" line="97" column="1" bodyfile="/home/tsafin/tarantool/src/histogram.c" bodystart="149" bodyend="159"/>
+      </memberdef>
+      <memberdef kind="function" id="histogram_8h_1af77aaf5460d83e5e805626ff43263e7a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int histogram_snprint</definition>
+        <argsstring>(char *buf, int size, struct histogram *hist)</argsstring>
+        <name>histogram_snprint</name>
+        <param>
+          <type>char *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structhistogram" kindref="compound">histogram</ref> *</type>
+          <declname>hist</declname>
+        </param>
+        <briefdescription>
+<para>Print string representation of a histogram. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/histogram.h" line="103" column="1" bodyfile="/home/tsafin/tarantool/src/histogram.c" bodystart="162" bodyend="186"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_HISTOGRAM_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_HISTOGRAM_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;assert.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42" refid="structhistogram__bucket" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structhistogram__bucket" kindref="compound">histogram_bucket</ref><sp/>{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>max;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47" refid="structhistogram" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structhistogram" kindref="compound">histogram</ref><sp/>{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>max;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>total;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n_buckets;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structhistogram__bucket" kindref="compound">histogram_bucket</ref><sp/>buckets[0];</highlight></codeline>
+<codeline lineno="52"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structhistogram" kindref="compound">histogram</ref><sp/>*</highlight></codeline>
+<codeline lineno="59"><highlight class="normal">histogram_new(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int64_t<sp/>*buckets,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n_buckets);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal">histogram_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhistogram" kindref="compound">histogram</ref><sp/>*hist);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal">histogram_reset(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhistogram" kindref="compound">histogram</ref><sp/>*hist);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal">histogram_collect(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhistogram" kindref="compound">histogram</ref><sp/>*hist,<sp/>int64_t<sp/>val);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal">histogram_discard(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhistogram" kindref="compound">histogram</ref><sp/>*hist,<sp/>int64_t<sp/>val);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal">int64_t</highlight></codeline>
+<codeline lineno="90"><highlight class="normal">histogram_percentile(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhistogram" kindref="compound">histogram</ref><sp/>*hist,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>pct);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal">int64_t</highlight></codeline>
+<codeline lineno="97"><highlight class="normal">histogram_percentile_lower(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhistogram" kindref="compound">histogram</ref><sp/>*hist,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>pct);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal">histogram_snprint(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>size,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structhistogram" kindref="compound">histogram</ref><sp/>*hist);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_HISTOGRAM_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/histogram.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,1078 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="session_8cc" kind="file" language="C++">
+    <compoundname>session.cc</compoundname>
+    <includes refid="session_8h" local="yes">session.h</includes>
+    <includes local="yes">fiber.h</includes>
+    <includes refid="memory_8h" local="yes">memory.h</includes>
+    <includes refid="assoc_8h" local="yes">assoc.h</includes>
+    <includes local="yes">trigger.h</includes>
+    <includes refid="user_8h" local="yes">user.h</includes>
+    <includes refid="box_2error_8h" local="yes">error.h</includes>
+    <includes refid="tt__static_8h" local="yes">tt_static.h</includes>
+    <includes refid="sql__stmt__cache_8h" local="yes">sql_stmt_cache.h</includes>
+    <incdepgraph>
+      <node id="865">
+        <label>/home/tsafin/tarantool/src/box/session.cc</label>
+        <link refid="session_8cc"/>
+        <childnode refid="866" relation="include">
+        </childnode>
+        <childnode refid="867" relation="include">
+        </childnode>
+      </node>
+      <node id="867">
+        <label>trigger.h</label>
+      </node>
+      <node id="866">
+        <label>fiber.h</label>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="session_8cc_1ab26fcf87d7c726e3696fabc6035332df" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* session_type_strs[]</definition>
+        <argsstring>[]</argsstring>
+        <name>session_type_strs</name>
+        <initializer>= {
+	&quot;background&quot;,
+	&quot;binary&quot;,
+	&quot;console&quot;,
+	&quot;repl&quot;,
+	&quot;<ref refid="structapplier" kindref="compound">applier</ref>&quot;,
+	&quot;unknown&quot;,
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="41" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="session_8cc_1aa64bb1322ee89cf0b277195016e60598" prot="public" static="yes" mutable="no">
+        <type>struct <ref refid="structsession__vtab" kindref="compound">session_vtab</ref></type>
+        <definition>struct session_vtab generic_session_vtab</definition>
+        <argsstring></argsstring>
+        <name>generic_session_vtab</name>
+        <initializer>= {
+	 generic_session_push,
+	 generic_session_fd,
+	 generic_session_sync,
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="41" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="session_8cc_1aeb051c3a762decbd8751f96950897ce4" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structsession__vtab" kindref="compound">session_vtab</ref></type>
+        <definition>struct session_vtab session_vtab_registry[]</definition>
+        <argsstring>[]</argsstring>
+        <name>session_vtab_registry</name>
+        <initializer>= {
+	 generic_session_vtab,
+	 generic_session_vtab,
+	 generic_session_vtab,
+	 generic_session_vtab,
+	 generic_session_vtab,
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="41" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="session_8cc_1a13ed38348d08dea729c8c2bf63960cbc" prot="public" static="yes" mutable="no">
+        <type>struct mh_i64ptr_t *</type>
+        <definition>struct mh_i64ptr_t* session_registry</definition>
+        <argsstring></argsstring>
+        <name>session_registry</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="64" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="session_8cc_1a19516bc1d0151bbc0b776fbeef860d5d" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t default_flags</definition>
+        <argsstring></argsstring>
+        <name>default_flags</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>default_flags accumulates flags value from SQL submodules. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is assigned during sql_init(). Lately it is used in each session initialization. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="66" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="session_8cc_1a131dc636b82cdc3e99f03ba89cb2e5dd" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmempool" kindref="compound">mempool</ref></type>
+        <definition>struct mempool session_pool</definition>
+        <argsstring></argsstring>
+        <name>session_pool</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="66" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="session_8cc_1afcc8300cfce7c253af397016a519c9e9" prot="public" static="yes" mutable="no">
+        <type>struct <ref refid="structsession__vtab" kindref="compound">session_vtab</ref></type>
+        <definition>struct session_vtab closed_session_vtab</definition>
+        <argsstring></argsstring>
+        <name>closed_session_vtab</name>
+        <initializer>= {
+	 closed_session_push,
+	 generic_session_fd,
+	 generic_session_sync,
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="99" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="session_8cc_1a3aa76a56859533a3617484d3cdd29ece" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcredentials" kindref="compound">credentials</ref></type>
+        <definition>struct credentials admin_credentials</definition>
+        <argsstring></argsstring>
+        <name>admin_credentials</name>
+        <briefdescription>
+<para>To quickly switch to admin user when executing on_connect/on_disconnect triggers in iproto. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="206" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="218" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="session_8cc_1a035de217181644352901b63fdaa31327" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>RLIST_HEAD</definition>
+        <argsstring>(session_on_connect)</argsstring>
+        <name>RLIST_HEAD</name>
+        <param>
+          <type>session_on_connect</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="70" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1a70bc886ba2558962cd4825d247b11ee9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>RLIST_HEAD</definition>
+        <argsstring>(session_on_disconnect)</argsstring>
+        <name>RLIST_HEAD</name>
+        <param>
+          <type>session_on_disconnect</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="71" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1a88e99c91f926ca513c9209fe661e4610" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>RLIST_HEAD</definition>
+        <argsstring>(session_on_auth)</argsstring>
+        <name>RLIST_HEAD</name>
+        <param>
+          <type>session_on_auth</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="72" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1a73dea52c0cd291d6322fa5e0d3e4c016" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>static uint64_t sid_max</definition>
+        <argsstring>(void)</argsstring>
+        <name>sid_max</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="75" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="75" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1a203f12a504455afa2e93951a55244bf3" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int session_on_stop</definition>
+        <argsstring>(struct trigger *trigger, void *)</argsstring>
+        <name>session_on_stop</name>
+        <param>
+          <type>struct <ref refid="structtrigger" kindref="compound">trigger</ref> *</type>
+          <declname>trigger</declname>
+        </param>
+        <param>
+          <type>void *</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="85" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="85" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1a24bafa5e4a124bbd246ea12e2cd895a6" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int closed_session_push</definition>
+        <argsstring>(struct session *session, struct port *port)</argsstring>
+        <name>closed_session_push</name>
+        <param>
+          <type>struct <ref refid="structsession" kindref="compound">session</ref> *</type>
+          <declname>session</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structport" kindref="compound">port</ref> *</type>
+          <declname>port</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="99" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="99" bodyend="105"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1a0ae2a2b7c5a23964e207aec2eb49781b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void session_close</definition>
+        <argsstring>(struct session *session)</argsstring>
+        <name>session_close</name>
+        <param>
+          <type>struct <ref refid="structsession" kindref="compound">session</ref> *</type>
+          <declname>session</declname>
+        </param>
+        <briefdescription>
+<para>Close a session. </para>        </briefdescription>
+        <detaileddescription>
+<para>It will return errors from all virtual methods and its type is fixed. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="114" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="114" bodyend="117"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1a5cc0aa3fc0b09a4fbf958b531a59197a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void session_set_type</definition>
+        <argsstring>(struct session *session, enum session_type type)</argsstring>
+        <name>session_set_type</name>
+        <param>
+          <type>struct <ref refid="structsession" kindref="compound">session</ref> *</type>
+          <declname>session</declname>
+        </param>
+        <param>
+          <type>enum session_type</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Change session type and vtab. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="120" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="120" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1a40e3f349561d835481235fd1149cf754" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structsession" kindref="compound">session</ref> *</type>
+        <definition>struct session* session_create</definition>
+        <argsstring>(enum session_type type)</argsstring>
+        <name>session_create</name>
+        <param>
+          <type>enum session_type</type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Create a session. </para>        </briefdescription>
+        <detaileddescription>
+<para>Invokes a Lua trigger box.session.on_connect if it is defined. Issues a new session identifier. Must called by the networking layer when a new connection is established.</para><para><simplesect kind="return"><para>handle for a created session </para></simplesect>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>tnt_Exception</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>or lua error if session trigger fails or runs out of resources. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="129" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="129" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1a9340717ae57ee912781c48b5ff20296f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structsession" kindref="compound">session</ref> *</type>
+        <definition>struct session* session_create_on_demand</definition>
+        <argsstring>(void)</argsstring>
+        <name>session_create_on_demand</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Create a new session on demand, and set fiber on_stop trigger to destroy it when this fiber ends. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="163" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="163" bodyend="180"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1a9b4f9e2dac13a172dab8c807384589ac" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool session_check_stmt_id</definition>
+        <argsstring>(struct session *session, uint32_t stmt_id)</argsstring>
+        <name>session_check_stmt_id</name>
+        <param>
+          <type>struct <ref refid="structsession" kindref="compound">session</ref> *</type>
+          <declname>session</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>stmt_id</declname>
+        </param>
+        <briefdescription>
+<para>Return true if given statement id belongs to the session. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="183" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="183" bodyend="189"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1a6981a4107f4b3ad91d549c22fe3ebb1c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int session_add_stmt_id</definition>
+        <argsstring>(struct session *session, uint32_t id)</argsstring>
+        <name>session_add_stmt_id</name>
+        <param>
+          <type>struct <ref refid="structsession" kindref="compound">session</ref> *</type>
+          <declname>session</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>stmt_id</declname>
+          <defname>id</defname>
+        </param>
+        <briefdescription>
+<para>Add prepared statement ID to the session hash. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="192" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="192" bodyend="203"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1a136d6494e7d88089202476f6a71f41d2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void session_remove_stmt_id</definition>
+        <argsstring>(struct session *session, uint32_t stmt_id)</argsstring>
+        <name>session_remove_stmt_id</name>
+        <param>
+          <type>struct <ref refid="structsession" kindref="compound">session</ref> *</type>
+          <declname>session</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>stmt_id</declname>
+        </param>
+        <briefdescription>
+<para>Remove prepared statement ID from the session hash. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="206" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="206" bodyend="212"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1a05812f6fb3a94dc05f4ed689300bb08e" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int session_run_triggers</definition>
+        <argsstring>(struct session *session, struct rlist *triggers)</argsstring>
+        <name>session_run_triggers</name>
+        <param>
+          <type>struct <ref refid="structsession" kindref="compound">session</ref> *</type>
+          <declname>session</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structrlist" kindref="compound">rlist</ref> *</type>
+          <declname>triggers</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="221" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="221" bodyend="235"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1ac6810089fc5a3b76e2355f7784cc62be" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void session_run_on_disconnect_triggers</definition>
+        <argsstring>(struct session *session)</argsstring>
+        <name>session_run_on_disconnect_triggers</name>
+        <param>
+          <type>struct <ref refid="structsession" kindref="compound">session</ref> *</type>
+          <declname>session</declname>
+        </param>
+        <briefdescription>
+<para>Run on-disconnect triggers. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="238" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="238" bodyend="242"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1a0e87d841b0af4e84384258f216c4c156" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int session_run_on_connect_triggers</definition>
+        <argsstring>(struct session *session)</argsstring>
+        <name>session_run_on_connect_triggers</name>
+        <param>
+          <type>struct <ref refid="structsession" kindref="compound">session</ref> *</type>
+          <declname>session</declname>
+        </param>
+        <briefdescription>
+<para>Run on-connect triggers. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="245" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="245" bodyend="248"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1a5da18e5cf911ab8845dcef14e39e2cf0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int session_run_on_auth_triggers</definition>
+        <argsstring>(const struct on_auth_trigger_ctx *result)</argsstring>
+        <name>session_run_on_auth_triggers</name>
+        <param>
+          <type>const struct <ref refid="structon__auth__trigger__ctx" kindref="compound">on_auth_trigger_ctx</ref> *</type>
+          <declname>result</declname>
+        </param>
+        <briefdescription>
+<para>Run auth triggers. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="251" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="251" bodyend="254"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1a1bfb92431f80980d89f2463884258eb1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void session_destroy</definition>
+        <argsstring>(struct session *session)</argsstring>
+        <name>session_destroy</name>
+        <param>
+          <type>struct <ref refid="structsession" kindref="compound">session</ref> *</type>
+          <defname>session</defname>
+        </param>
+        <briefdescription>
+<para>Destroy a session. </para>        </briefdescription>
+        <detaileddescription>
+<para>Must be called by the networking layer on disconnect. Invokes a Lua trigger box.session.on_disconnect if it is defined. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>session</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>session to destroy. may be NULL.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="exception"><parameteritem>
+<parameternamelist>
+<parametername>none</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="257" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="257" bodyend="265"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1af137028d01ba83867d18d22b278765ec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structsession" kindref="compound">session</ref> *</type>
+        <definition>struct session* session_find</definition>
+        <argsstring>(uint64_t sid)</argsstring>
+        <name>session_find</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>sid</declname>
+        </param>
+        <briefdescription>
+<para>Find a session by id. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="268" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="268" bodyend="275"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1ab6dd0478950dc28fd5dcac65796f0317" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void session_settings_init</definition>
+        <argsstring>(void)</argsstring>
+        <name>session_settings_init</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="278" column="1" bodyfile="/home/tsafin/tarantool/src/box/session_settings.c" bodystart="498" bodyend="507"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1aff65fa194786496cd56532d13731f94e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void session_init</definition>
+        <argsstring>(void)</argsstring>
+        <name>session_init</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="281" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="281" bodyend="289"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1a0e928c007f20a44f0aeabefbfea64a58" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void session_free</definition>
+        <argsstring>(void)</argsstring>
+        <name>session_free</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="292" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="292" bodyend="297"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1a66d4627e308f9ff81796887d9c8e9ee4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int access_check_session</definition>
+        <argsstring>(struct user *user)</argsstring>
+        <name>access_check_session</name>
+        <param>
+          <type>struct <ref refid="structuser" kindref="compound">user</ref> *</type>
+          <declname>user</declname>
+        </param>
+        <briefdescription>
+<para>Check whether or not the current user is authorized to connect. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="300" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="300" bodyend="313"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1acbc29e5722751ae306087e3633eeba69" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int access_check_universe_object</definition>
+        <argsstring>(user_access_t access, enum schema_object_type object_type, const char *object_name)</argsstring>
+        <name>access_check_universe_object</name>
+        <param>
+          <type>user_access_t</type>
+          <declname>access</declname>
+        </param>
+        <param>
+          <type>enum schema_object_type</type>
+          <declname>object_type</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>object_name</declname>
+        </param>
+        <briefdescription>
+<para>Same as access_check_universe(), but in case the current user doesn&apos;t have universal access, set AccessDeniedError for the given object type and name. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="316" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="316" bodyend="347"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1a45806bb4e386be643d60b5b8580508f8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int access_check_universe</definition>
+        <argsstring>(user_access_t access)</argsstring>
+        <name>access_check_universe</name>
+        <param>
+          <type>user_access_t</type>
+          <declname>access</declname>
+        </param>
+        <briefdescription>
+<para>Check whether or not the current user can be granted the requested access to the universe. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="350" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="350" bodyend="353"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1a90fb2e4f3d2a558cf2a14e7b503a7b7b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int generic_session_push</definition>
+        <argsstring>(struct session *session, struct port *port)</argsstring>
+        <name>generic_session_push</name>
+        <param>
+          <type>struct <ref refid="structsession" kindref="compound">session</ref> *</type>
+          <declname>session</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structport" kindref="compound">port</ref> *</type>
+          <declname>port</declname>
+        </param>
+        <briefdescription>
+<para>In a common case, a session does not support push. </para>        </briefdescription>
+        <detaileddescription>
+<para>This function always returns -1 and sets ER_UNSUPPORTED error. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="356" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="356" bodyend="363"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1ab9a7f3abfda67457fce12c650be6b8ca" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int generic_session_fd</definition>
+        <argsstring>(struct session *session)</argsstring>
+        <name>generic_session_fd</name>
+        <param>
+          <type>struct <ref refid="structsession" kindref="compound">session</ref> *</type>
+          <declname>session</declname>
+        </param>
+        <briefdescription>
+<para>Return -1 from any session. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="366" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="366" bodyend="370"/>
+      </memberdef>
+      <memberdef kind="function" id="session_8cc_1a2b4438c9a40e5bd15025e6001c0d1090" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>int64_t generic_session_sync</definition>
+        <argsstring>(struct session *session)</argsstring>
+        <name>generic_session_sync</name>
+        <param>
+          <type>struct <ref refid="structsession" kindref="compound">session</ref> *</type>
+          <declname>session</declname>
+        </param>
+        <briefdescription>
+<para>Return 0 from any session. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/session.cc" line="373" column="1" bodyfile="/home/tsafin/tarantool/src/box/session.cc" bodystart="373" bodyend="377"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;session.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;fiber.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;memory.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;assoc.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trigger.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;user.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;error.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tt_static.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;sql_stmt_cache.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*session_type_strs[]<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;background&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;binary&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;console&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;repl&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;applier&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;unknown&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="48"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsession__vtab" kindref="compound">session_vtab</ref><sp/>generic_session_vtab<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>.push<sp/>=<sp/>*/</highlight><highlight class="normal"><sp/>generic_session_push,</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>.fd<sp/>=<sp/>*/</highlight><highlight class="normal"><sp/>generic_session_fd,</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>.sync<sp/>=<sp/>*/</highlight><highlight class="normal"><sp/>generic_session_sync,</highlight></codeline>
+<codeline lineno="54"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsession__vtab" kindref="compound">session_vtab</ref><sp/>session_vtab_registry[]<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>BACKGROUND<sp/>*/</highlight><highlight class="normal"><sp/>generic_session_vtab,</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>BINARY<sp/>*/</highlight><highlight class="normal"><sp/>generic_session_vtab,</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>CONSOLE<sp/>*/</highlight><highlight class="normal"><sp/>generic_session_vtab,</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>REPL<sp/>*/</highlight><highlight class="normal"><sp/>generic_session_vtab,</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>APPLIER<sp/>*/</highlight><highlight class="normal"><sp/>generic_session_vtab,</highlight></codeline>
+<codeline lineno="62"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">mh_i64ptr_t<sp/>*session_registry;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal">uint32_t<sp/>default_flags<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmempool" kindref="compound">mempool</ref><sp/>session_pool;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal">RLIST_HEAD(session_on_connect);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal">RLIST_HEAD(session_on_disconnect);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal">RLIST_HEAD(session_on_auth);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint64_t</highlight></codeline>
+<codeline lineno="75"><highlight class="normal">sid_max(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="76"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint64_t<sp/>sid_max<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Return<sp/>the<sp/>next<sp/>sid<sp/>rolling<sp/>over<sp/>the<sp/>reserved<sp/>value<sp/>of<sp/>0.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(++sid_max<sp/>==<sp/>0)</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>sid_max;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal">session_on_stop(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtrigger" kindref="compound">trigger</ref><sp/>*<ref refid="structtrigger" kindref="compound">trigger</ref>,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<sp/></highlight><highlight class="comment">/*<sp/>event<sp/>*/</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="86"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="88"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Remove<sp/>on_stop<sp/>trigger<sp/>from<sp/>the<sp/>fiber,<sp/>otherwise<sp/>the</highlight></codeline>
+<codeline lineno="89"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>fiber<sp/>will<sp/>attempt<sp/>to<sp/>destroy<sp/>the<sp/>trigger<sp/>eventually,</highlight></codeline>
+<codeline lineno="90"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>after<sp/>the<sp/>trigger<sp/>and<sp/>its<sp/>memory<sp/>is<sp/>long<sp/>gone.</highlight></codeline>
+<codeline lineno="91"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>trigger_clear(trigger);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Destroy<sp/>the<sp/>session<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>session_destroy(fiber_get_session(<ref refid="structfiber" kindref="compound">fiber</ref>()));</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal">closed_session_push(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsession" kindref="compound">session</ref><sp/>*<ref refid="structsession" kindref="compound">session</ref>,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structport" kindref="compound">port</ref><sp/>*<ref refid="structport" kindref="compound">port</ref>)</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<sp/>session;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<sp/>port;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(ClientError,<sp/>ER_SESSION_CLOSED);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsession__vtab" kindref="compound">session_vtab</ref><sp/>closed_session_vtab<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>.push<sp/>=<sp/>*/</highlight><highlight class="normal"><sp/>closed_session_push,</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>.fd<sp/>=<sp/>*/</highlight><highlight class="normal"><sp/>generic_session_fd,</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>.sync<sp/>=<sp/>*/</highlight><highlight class="normal"><sp/>generic_session_sync,</highlight></codeline>
+<codeline lineno="111"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal">session_close(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsession" kindref="compound">session</ref><sp/>*<ref refid="structsession" kindref="compound">session</ref>)</highlight></codeline>
+<codeline lineno="115"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>session-&gt;<ref refid="structsession_1aef83bded140252d892f81244868cfcd1" kindref="member">vtab</ref><sp/>=<sp/>&amp;closed_session_vtab;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal">session_set_type(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structsession" kindref="compound">session</ref><sp/>*<ref refid="structsession" kindref="compound">session</ref>,<sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>session_type<sp/>type)</highlight></codeline>
+<codeline lineno="121"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(type<sp/>&lt;<sp/>session_type_MAX);</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(session-&gt;<ref refid="structsession_1aef83bded140252d892f81244868cfcd1" kindref="member">vtab</ref><sp/>!=<sp/>&amp;closed_session_vtab);</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>session-&gt;type<sp/>=<sp/>type;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>session-&gt;<ref refid="structsession_1aef83bded140252d892f81244868cfcd1" kindref="member">vtab</ref><sp/>=<sp/>&amp;session_vtab_registry[type];</highlight></codeline>
+<codeline lineno="126"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsession" kindref="compound">session</ref><sp/>*</highlight></codeline>
+<codeline lineno="129"><highlight class="normal">session_create(</highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>session_type<sp/>type)</highlight></codeline>
+<codeline lineno="130"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsession" kindref="compound">session</ref><sp/>*<ref refid="structsession" kindref="compound">session</ref><sp/>=</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">session<sp/>*)<sp/>mempool_alloc(&amp;session_pool);</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(session<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(OutOfMemory,<sp/>session_pool.<ref refid="structmempool_1a93950d26163ce1868564a35b39b78531" kindref="member">objsize</ref>,<sp/></highlight><highlight class="stringliteral">&quot;mempool&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;new<sp/>slab&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>session-&gt;<ref refid="structsession_1a109f95d0072f8de2ca3516aecb484d85" kindref="member">id</ref><sp/>=<sp/>sid_max();</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memset(&amp;session-&gt;<ref refid="structsession_1ae44f500c562a96e2460c5d59815335ad" kindref="member">meta</ref>,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(session-&gt;<ref refid="structsession_1ae44f500c562a96e2460c5d59815335ad" kindref="member">meta</ref>));</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>session_set_type(session,<sp/>type);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>session-&gt;<ref refid="structsession_1a769368dd4a193c062eb6829ec246566d" kindref="member">sql_flags</ref><sp/>=<sp/>default_flags;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>session-&gt;<ref refid="structsession_1a0e4a82b110a0edf2c58f64a9b1609592" kindref="member">sql_default_engine</ref><sp/>=<sp/>SQL_STORAGE_ENGINE_MEMTX;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>session-&gt;<ref refid="structsession_1a39c7395c40a59cb32228019095ae9744" kindref="member">sql_stmts</ref><sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>For<sp/>on_connect<sp/>triggers.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>credentials_create(&amp;session-&gt;<ref refid="structsession_1aa76540c1057fab1681439b023da93af3" kindref="member">credentials</ref>,<sp/>guest_user);</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmh__i64ptr__node__t" kindref="compound">mh_i64ptr_node_t</ref><sp/><ref refid="structnode" kindref="compound">node</ref>;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structnode" kindref="compound">node</ref>.key<sp/>=<sp/>session-&gt;<ref refid="structsession_1a109f95d0072f8de2ca3516aecb484d85" kindref="member">id</ref>;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structnode" kindref="compound">node</ref>.val<sp/>=<sp/>session;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_int_t<sp/>k<sp/>=<sp/>mh_i64ptr_put(session_registry,<sp/>&amp;<ref refid="structnode" kindref="compound">node</ref>,<sp/>NULL,<sp/>NULL);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(k<sp/>==<sp/>mh_end(session_registry))<sp/>{</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mempool_free(&amp;session_pool,<sp/>session);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(OutOfMemory,<sp/>0,<sp/></highlight><highlight class="stringliteral">&quot;session<sp/>hash&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;new<sp/>session&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>session;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">session<sp/>*</highlight></codeline>
+<codeline lineno="163"><highlight class="normal">session_create_on_demand(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="164"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(fiber_get_session(<ref refid="structfiber" kindref="compound">fiber</ref>())<sp/>==<sp/>NULL);</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Create<sp/>session<sp/>on<sp/>demand<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">session<sp/>*s<sp/>=<sp/>session_create(SESSION_TYPE_BACKGROUND);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(s<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>s-&gt;<ref refid="structsession_1a2479940a7aadd3fc1b107929e6111f24" kindref="member">fiber_on_stop</ref><sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>RLIST_LINK_INITIALIZER,<sp/>session_on_stop,<sp/>NULL,<sp/>NULL</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Add<sp/>a<sp/>trigger<sp/>to<sp/>destroy<sp/>session<sp/>on<sp/>fiber<sp/>stop<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>trigger_add(&amp;<ref refid="structfiber" kindref="compound">fiber</ref>()-&gt;on_stop,<sp/>&amp;s-&gt;<ref refid="structsession_1a2479940a7aadd3fc1b107929e6111f24" kindref="member">fiber_on_stop</ref>);</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>credentials_reset(&amp;s-&gt;<ref refid="structsession_1aa76540c1057fab1681439b023da93af3" kindref="member">credentials</ref>,<sp/>admin_user);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fiber_set_session(<ref refid="structfiber" kindref="compound">fiber</ref>(),<sp/>s);</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fiber_set_user(<ref refid="structfiber" kindref="compound">fiber</ref>(),<sp/>&amp;s-&gt;<ref refid="structsession_1aa76540c1057fab1681439b023da93af3" kindref="member">credentials</ref>);</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>s;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal">session_check_stmt_id(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>session<sp/>*session,<sp/>uint32_t<sp/>stmt_id)</highlight></codeline>
+<codeline lineno="184"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(session-&gt;<ref refid="structsession_1a39c7395c40a59cb32228019095ae9744" kindref="member">sql_stmts</ref><sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_int_t<sp/>i<sp/>=<sp/>mh_i32ptr_find(session-&gt;<ref refid="structsession_1a39c7395c40a59cb32228019095ae9744" kindref="member">sql_stmts</ref>,<sp/>stmt_id,<sp/>NULL);</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>i<sp/>!=<sp/>mh_end(session-&gt;<ref refid="structsession_1a39c7395c40a59cb32228019095ae9744" kindref="member">sql_stmts</ref>);</highlight></codeline>
+<codeline lineno="189"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal">session_add_stmt_id(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>session<sp/>*session,<sp/>uint32_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="193"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(session-&gt;<ref refid="structsession_1a39c7395c40a59cb32228019095ae9744" kindref="member">sql_stmts</ref><sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>session-&gt;<ref refid="structsession_1a39c7395c40a59cb32228019095ae9744" kindref="member">sql_stmts</ref><sp/>=<sp/>mh_i32ptr_new();</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(session-&gt;<ref refid="structsession_1a39c7395c40a59cb32228019095ae9744" kindref="member">sql_stmts</ref><sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(OutOfMemory,<sp/>0,<sp/></highlight><highlight class="stringliteral">&quot;mh_i32ptr_new&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;session<sp/>stmt<sp/>hash&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>sql_session_stmt_hash_add_id(session-&gt;<ref refid="structsession_1a39c7395c40a59cb32228019095ae9744" kindref="member">sql_stmts</ref>,<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="203"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal">session_remove_stmt_id(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>session<sp/>*session,<sp/>uint32_t<sp/>stmt_id)</highlight></codeline>
+<codeline lineno="207"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(session-&gt;<ref refid="structsession_1a39c7395c40a59cb32228019095ae9744" kindref="member">sql_stmts</ref><sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_int_t<sp/>i<sp/>=<sp/>mh_i32ptr_find(session-&gt;<ref refid="structsession_1a39c7395c40a59cb32228019095ae9744" kindref="member">sql_stmts</ref>,<sp/>stmt_id,<sp/>NULL);</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(i<sp/>!=<sp/>mh_end(session-&gt;<ref refid="structsession_1a39c7395c40a59cb32228019095ae9744" kindref="member">sql_stmts</ref>));</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_i32ptr_del(session-&gt;<ref refid="structsession_1a39c7395c40a59cb32228019095ae9744" kindref="member">sql_stmts</ref>,<sp/>i,<sp/>NULL);</highlight></codeline>
+<codeline lineno="212"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcredentials" kindref="compound">credentials</ref><sp/>admin_credentials;</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal">session_run_triggers(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>session<sp/>*session,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrlist" kindref="compound">rlist</ref><sp/>*triggers)</highlight></codeline>
+<codeline lineno="222"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber" kindref="compound">fiber</ref><sp/>*<ref refid="structfiber" kindref="compound">fiber</ref><sp/>=<sp/>fiber();</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(session<sp/>==<sp/>current_session());</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Run<sp/>triggers<sp/>with<sp/>admin<sp/>credentials<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fiber_set_user(fiber,<sp/>&amp;admin_credentials);</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>rc<sp/>=<sp/>trigger_run(triggers,<sp/>NULL);</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Restore<sp/>original<sp/>credentials<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fiber_set_user(fiber,<sp/>&amp;session-&gt;<ref refid="structsession_1aa76540c1057fab1681439b023da93af3" kindref="member">credentials</ref>);</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rc;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal">session_run_on_disconnect_triggers(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>session<sp/>*session)</highlight></codeline>
+<codeline lineno="239"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(session_run_triggers(session,<sp/>&amp;session_on_disconnect)<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_log();</highlight></codeline>
+<codeline lineno="242"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"></highlight></codeline>
+<codeline lineno="244"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="normal">session_run_on_connect_triggers(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>session<sp/>*session)</highlight></codeline>
+<codeline lineno="246"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>session_run_triggers(session,<sp/>&amp;session_on_connect);</highlight></codeline>
+<codeline lineno="248"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"></highlight></codeline>
+<codeline lineno="250"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="normal">session_run_on_auth_triggers(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structon__auth__trigger__ctx" kindref="compound">on_auth_trigger_ctx</ref><sp/>*result)</highlight></codeline>
+<codeline lineno="252"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>trigger_run(&amp;session_on_auth,<sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*)result);</highlight></codeline>
+<codeline lineno="254"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight></codeline>
+<codeline lineno="256"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="257"><highlight class="normal">session_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>session<sp/>*session)</highlight></codeline>
+<codeline lineno="258"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>session_storage_cleanup(session-&gt;<ref refid="structsession_1a109f95d0072f8de2ca3516aecb484d85" kindref="member">id</ref>);</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmh__i64ptr__node__t" kindref="compound">mh_i64ptr_node_t</ref><sp/><ref refid="structnode" kindref="compound">node</ref><sp/>=<sp/>{<sp/>session-&gt;<ref refid="structsession_1a109f95d0072f8de2ca3516aecb484d85" kindref="member">id</ref>,<sp/>NULL<sp/>};</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_i64ptr_remove(session_registry,<sp/>&amp;node,<sp/>NULL);</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>credentials_destroy(&amp;session-&gt;<ref refid="structsession_1aa76540c1057fab1681439b023da93af3" kindref="member">credentials</ref>);</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sql_session_stmt_hash_erase(session-&gt;<ref refid="structsession_1a39c7395c40a59cb32228019095ae9744" kindref="member">sql_stmts</ref>);</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mempool_free(&amp;session_pool,<sp/>session);</highlight></codeline>
+<codeline lineno="265"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"></highlight></codeline>
+<codeline lineno="267"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">session<sp/>*</highlight></codeline>
+<codeline lineno="268"><highlight class="normal">session_find(uint64_t<sp/>sid)</highlight></codeline>
+<codeline lineno="269"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_int_t<sp/>k<sp/>=<sp/>mh_i64ptr_find(session_registry,<sp/>sid,<sp/>NULL);</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(k<sp/>==<sp/>mh_end(session_registry))</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>session<sp/>*)</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_i64ptr_node(session_registry,<sp/>k)-&gt;val;</highlight></codeline>
+<codeline lineno="275"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"></highlight></codeline>
+<codeline lineno="277"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="278"><highlight class="normal">session_settings_init(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"></highlight></codeline>
+<codeline lineno="280"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="281"><highlight class="normal">session_init(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="282"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>session_registry<sp/>=<sp/>mh_i64ptr_new();</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(session_registry<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>panic(</highlight><highlight class="stringliteral">&quot;out<sp/>of<sp/>memory&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mempool_create(&amp;session_pool,<sp/>&amp;<ref refid="structcord" kindref="compound">cord</ref>()-&gt;slabc,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>session));</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>credentials_create(&amp;admin_credentials,<sp/>admin_user);</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>session_settings_init();</highlight></codeline>
+<codeline lineno="289"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"></highlight></codeline>
+<codeline lineno="291"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="292"><highlight class="normal">session_free(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="293"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(session_registry)</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_i64ptr_delete(session_registry);</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>credentials_destroy(&amp;admin_credentials);</highlight></codeline>
+<codeline lineno="297"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"></highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal">access_check_session(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structuser" kindref="compound">user</ref><sp/>*<ref refid="structuser" kindref="compound">user</ref>)</highlight></codeline>
+<codeline lineno="301"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="303"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Can&apos;t<sp/>use<sp/>here<sp/>access_check_universe</highlight></codeline>
+<codeline lineno="304"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>as<sp/>current_user<sp/>is<sp/>not<sp/>assigned<sp/>yet</highlight></codeline>
+<codeline lineno="305"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!(<ref refid="structuniverse" kindref="compound">universe</ref>.<ref refid="structuniverse_1af3f62730c1953b4776098a9f0e27bd0b" kindref="member">access</ref>[user-&gt;<ref refid="structuser_1af09114cb6c613b9c6958d95c2fba70dd" kindref="member">auth_token</ref>].<ref refid="structaccess_1a216bbeecbfc449af36abbf940beed976" kindref="member">effective</ref><sp/>&amp;<sp/>PRIV_S))<sp/>{</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(AccessDeniedError,<sp/>priv_name(PRIV_S),</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>schema_object_name(SC_UNIVERSE),<sp/></highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>user-&gt;def-&gt;<ref refid="structuser__def_1a3ee337371d7356b439d7dfc62275d66e" kindref="member">name</ref>);</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="313"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"></highlight></codeline>
+<codeline lineno="315"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="316"><highlight class="normal">access_check_universe_object(user_access_t<sp/><ref refid="structaccess" kindref="compound">access</ref>,</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>schema_object_type<sp/>object_type,</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*object_name)</highlight></codeline>
+<codeline lineno="319"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcredentials" kindref="compound">credentials</ref><sp/>*<ref refid="structcredentials" kindref="compound">credentials</ref><sp/>=<sp/>effective_user();</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>access<sp/>|=<sp/>PRIV_U;</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((credentials-&gt;<ref refid="structcredentials_1af0512d9725df8084f684874a0fc0e6a2" kindref="member">universal_access</ref><sp/>&amp;<sp/>access)<sp/>^<sp/>access)<sp/>{</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="324"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Access<sp/>violation,<sp/>report<sp/>error.</highlight></codeline>
+<codeline lineno="325"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>The<sp/>user<sp/>may<sp/>not<sp/>exist<sp/>already,<sp/>if<sp/>deleted</highlight></codeline>
+<codeline lineno="326"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>from<sp/>a<sp/>different<sp/>connection.</highlight></codeline>
+<codeline lineno="327"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>denied_access<sp/>=<sp/>access<sp/>&amp;<sp/>((credentials-&gt;<ref refid="structcredentials_1af0512d9725df8084f684874a0fc0e6a2" kindref="member">universal_access</ref></highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;<sp/>access)<sp/>^<sp/>access);</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">user<sp/>*user<sp/>=<sp/>user_find(credentials-&gt;<ref refid="structcredentials_1a04956116c84fc51c5e11d85b7b465fb0" kindref="member">uid</ref>);</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(user<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(AccessDeniedError,</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>priv_name(denied_access),</highlight></codeline>
+<codeline lineno="334"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>schema_object_name(object_type),<sp/>object_name,</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>user-&gt;def-&gt;<ref refid="structuser__def_1a3ee337371d7356b439d7dfc62275d66e" kindref="member">name</ref>);</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="338"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>The<sp/>user<sp/>may<sp/>have<sp/>been<sp/>dropped,<sp/>in</highlight></codeline>
+<codeline lineno="339"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>which<sp/>case<sp/>user_find()<sp/>will<sp/>set<sp/>the</highlight></codeline>
+<codeline lineno="340"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>error.</highlight></codeline>
+<codeline lineno="341"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(!diag_is_empty(&amp;fiber()-&gt;<ref refid="structdiag" kindref="compound">diag</ref>));</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="347"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"></highlight></codeline>
+<codeline lineno="349"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="350"><highlight class="normal">access_check_universe(user_access_t<sp/>access)</highlight></codeline>
+<codeline lineno="351"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="352"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>access_check_universe_object(access,<sp/>SC_UNIVERSE,<sp/></highlight><highlight class="stringliteral">&quot;&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="353"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"></highlight></codeline>
+<codeline lineno="355"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="356"><highlight class="normal">generic_session_push(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>session<sp/>*session,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structport" kindref="compound">port</ref><sp/>*<ref refid="structport" kindref="compound">port</ref>)</highlight></codeline>
+<codeline lineno="357"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="358"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<sp/>port;</highlight></codeline>
+<codeline lineno="359"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name<sp/>=</highlight></codeline>
+<codeline lineno="360"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tt_sprintf(</highlight><highlight class="stringliteral">&quot;Session<sp/>&apos;%s&apos;&quot;</highlight><highlight class="normal">,<sp/>session_type_strs[session-&gt;type]);</highlight></codeline>
+<codeline lineno="361"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_set(ClientError,<sp/>ER_UNSUPPORTED,<sp/>name,<sp/></highlight><highlight class="stringliteral">&quot;push()&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="362"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="363"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="364"><highlight class="normal"></highlight></codeline>
+<codeline lineno="365"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="366"><highlight class="normal">generic_session_fd(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>session<sp/>*session)</highlight></codeline>
+<codeline lineno="367"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<sp/>session;</highlight></codeline>
+<codeline lineno="369"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="370"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="371"><highlight class="normal"></highlight></codeline>
+<codeline lineno="372"><highlight class="normal">int64_t</highlight></codeline>
+<codeline lineno="373"><highlight class="normal">generic_session_sync(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>session<sp/>*session)</highlight></codeline>
+<codeline lineno="374"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<sp/>session;</highlight></codeline>
+<codeline lineno="376"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="377"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/session.cc"/>
+  </compounddef>
+</doxygen>

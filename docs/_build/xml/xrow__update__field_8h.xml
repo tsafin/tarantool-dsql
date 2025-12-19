@@ -1,0 +1,1414 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="xrow__update__field_8h" kind="file" language="C++">
+    <compoundname>xrow_update_field.h</compoundname>
+    <includes refid="util_8h" local="yes">trivia/util.h</includes>
+    <includes refid="tt__static_8h" local="yes">tt_static.h</includes>
+    <includes refid="stailq_8h" local="yes">salad/stailq.h</includes>
+    <includes refid="json_8h" local="yes">json/json.h</includes>
+    <includes refid="int96_8h" local="yes">bit/int96.h</includes>
+    <includes refid="mp__decimal_8h" local="yes">mp_decimal.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="xrow__update_8c" local="yes">/home/tsafin/tarantool/src/box/xrow_update.c</includedby>
+    <includedby refid="xrow__update__array_8c" local="yes">/home/tsafin/tarantool/src/box/xrow_update_array.c</includedby>
+    <includedby refid="xrow__update__bar_8c" local="yes">/home/tsafin/tarantool/src/box/xrow_update_bar.c</includedby>
+    <includedby refid="xrow__update__field_8c" local="yes">/home/tsafin/tarantool/src/box/xrow_update_field.c</includedby>
+    <includedby refid="xrow__update__map_8c" local="yes">/home/tsafin/tarantool/src/box/xrow_update_map.c</includedby>
+    <includedby refid="xrow__update__route_8c" local="yes">/home/tsafin/tarantool/src/box/xrow_update_route.c</includedby>
+    <incdepgraph>
+      <node id="1560">
+        <label>stdint.h</label>
+      </node>
+      <node id="1559">
+        <label>/home/tsafin/tarantool/src/box/xrow_update_field.h</label>
+        <link refid="xrow__update__field_8h"/>
+        <childnode refid="1560" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structxrow__update__arg__set" prot="public">xrow_update_arg_set</innerclass>
+    <innerclass refid="structxrow__update__arg__del" prot="public">xrow_update_arg_del</innerclass>
+    <innerclass refid="structxrow__update__arg__arith" prot="public">xrow_update_arg_arith</innerclass>
+    <innerclass refid="structxrow__update__arg__bit" prot="public">xrow_update_arg_bit</innerclass>
+    <innerclass refid="structxrow__update__arg__splice" prot="public">xrow_update_arg_splice</innerclass>
+    <innerclass refid="unionxrow__update__arg" prot="public">xrow_update_arg</innerclass>
+    <innerclass refid="structxrow__update__op__meta" prot="public">xrow_update_op_meta</innerclass>
+    <innerclass refid="structxrow__update__op" prot="public">xrow_update_op</innerclass>
+    <innerclass refid="structxrow__update__field" prot="public">xrow_update_field</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="xrow__update__field_8h_1a305dbb95e3b818f385f0704c767f082a" prot="public" static="no">
+        <name>OP_DECL_GENERIC</name>
+        <param><defname>type</defname></param>
+        <briefdescription>
+<para>Generate declarations for a concrete field type: array, bar etc. </para>        </briefdescription>
+        <detaileddescription>
+<para>These helper functions are used when a function, updating a field, doesn&apos;t know type of a child node to which wants to propagate the update.</para><para>Each complex type has basic operations of the same signature: insert, set, delete, arith, bit, splice.</para><para>For example, xrow_update_op_do_array_set calls xrow_update_op_do_field_set on its childs. Each child can be another array, a bar, a route, a map - anything. The functions below help to make such places shorter and simpler.</para><para>Note, that they are recursive, although it is not clearly visible. For example, if an update tree contains several array nodes on one tree branch, then update of the deepest array goes through each of these nodes and calls xrow_update_op_do_array_&lt;opname&gt;() on needed children. But it is ok, because operation count is usually small (&lt;&lt;50 in the most cases, usually &lt;= 5), and the update tree depth is not bigger than operation count. Also, fiber stack is big enough to fit ~10k update tree depth - incredible number, even though the real limit is 4k due to limited number of operations. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="485" column="9" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="669" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="xrow__update__field_8h_1ab947e4583c2178873e2b01b8108c0f06" prot="public" static="no">
+        <name>OP_DECL_GENERIC</name>
+        <param><defname>op_type</defname></param>
+        <initializer>static inline int								\
+xrow_update_op_do_field_##op_type(struct <ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref> *op,			\
+				  struct <ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref> *field)		\
+{										\
+	switch (field-&gt;type) {							\
+	case XUPDATE_ARRAY:							\
+		return xrow_update_op_do_array_##op_type(op, field);		\
+	case XUPDATE_NOP:							\
+		return xrow_update_op_do_nop_##op_type(op, field);		\
+	case XUPDATE_BAR:							\
+		return xrow_update_op_do_bar_##op_type(op, field);		\
+	case XUPDATE_ROUTE:							\
+		return xrow_update_op_do_route_##op_type(op, field);		\
+	case XUPDATE_MAP:							\
+		return xrow_update_op_do_map_##op_type(op, field);		\
+	default:								\
+		unreachable();							\
+	}									\
+	return 0;								\
+}</initializer>
+        <briefdescription>
+<para>Generate declarations for a concrete field type: array, bar etc. </para>        </briefdescription>
+        <detaileddescription>
+<para>These helper functions are used when a function, updating a field, doesn&apos;t know type of a child node to which wants to propagate the update.</para><para>Each complex type has basic operations of the same signature: insert, set, delete, arith, bit, splice.</para><para>For example, xrow_update_op_do_array_set calls xrow_update_op_do_field_set on its childs. Each child can be another array, a bar, a route, a map - anything. The functions below help to make such places shorter and simpler.</para><para>Note, that they are recursive, although it is not clearly visible. For example, if an update tree contains several array nodes on one tree branch, then update of the deepest array goes through each of these nodes and calls xrow_update_op_do_array_&lt;opname&gt;() on needed children. But it is ok, because operation count is usually small (&lt;&lt;50 in the most cases, usually &lt;= 5), and the update tree depth is not bigger than operation count. Also, fiber stack is big enough to fit ~10k update tree depth - incredible number, even though the real limit is 4k due to limited number of operations. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="669" column="9" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="669" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="xrow__update__field_8h_1ab763173f01a0459839ef02f20c0b0781" prot="public" static="no">
+        <name>xrow_update_arith_type</name>
+        <enumvalue id="xrow__update__field_8h_1ab763173f01a0459839ef02f20c0b0781a2a9981ae0bbf27e9ebfdb0f3e9a06c5e" prot="public">
+          <name>XUPDATE_TYPE_DECIMAL</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="xrow__update__field_8h_1ab763173f01a0459839ef02f20c0b0781ade18d6c8aa0dcecf8273f086c60b9886" prot="public">
+          <name>XUPDATE_TYPE_DOUBLE</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="xrow__update__field_8h_1ab763173f01a0459839ef02f20c0b0781a88d51f992d622d4de833ef88333addbe" prot="public">
+          <name>XUPDATE_TYPE_FLOAT</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="xrow__update__field_8h_1ab763173f01a0459839ef02f20c0b0781ab001a177fd4aaaa1810ad4151e4c798c" prot="public">
+          <name>XUPDATE_TYPE_INT</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>MsgPack format code of an arithmetic argument or result. </para>        </briefdescription>
+        <detaileddescription>
+<para>MsgPack codes are not used to simplify type calculation. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="77" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="77" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="enum" id="xrow__update__field_8h_1afb4df2eb1a9b7728516f92779d83e652" prot="public" static="no">
+        <name>xrow_update_type</name>
+        <enumvalue id="xrow__update__field_8h_1afb4df2eb1a9b7728516f92779d83e652aae2c80f704af80de50f9a0392ead886b" prot="public">
+          <name>XUPDATE_NOP</name>
+          <briefdescription>
+<para>Field is not updated. </para>          </briefdescription>
+          <detaileddescription>
+<para>Just save it as is. It is used, for example, when a rope is split in two parts: not changed left range of fields, and a right range with its first field changed. In this case the left range is NOP. And when a map is updated and split into rages, when only certain points are not NOP. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="xrow__update__field_8h_1afb4df2eb1a9b7728516f92779d83e652acc4957c443c7e58ddfa20d978982f3b9" prot="public">
+          <name>XUPDATE_SCALAR</name>
+          <briefdescription>
+<para>Field is a scalar value, updated via set, arith, bit, splice, or any other scalar-applicable operation. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="xrow__update__field_8h_1afb4df2eb1a9b7728516f92779d83e652a116ce1d5c2d89d702935b3902cf66311" prot="public">
+          <name>XUPDATE_ARRAY</name>
+          <briefdescription>
+<para>Field is an updated array. </para>          </briefdescription>
+          <detaileddescription>
+<para>Check the rope for updates of individual fields. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="xrow__update__field_8h_1afb4df2eb1a9b7728516f92779d83e652aaf60bb5058cb0241fa43b1968c69b19c" prot="public">
+          <name>XUPDATE_BAR</name>
+          <briefdescription>
+<para>Field of this type stores such update, that has non-empty JSON path isolated from all other update operations. </para>          </briefdescription>
+          <detaileddescription>
+<para>In such optimized case it is possible to do not allocate neither fields nor ops nor anything for path nodes. And this is the most common case. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="xrow__update__field_8h_1afb4df2eb1a9b7728516f92779d83e652a38d556feef9331037e4f029db3ff6ca0" prot="public">
+          <name>XUPDATE_ROUTE</name>
+          <briefdescription>
+<para>Field with a subtree of updates having the same prefix stored here explicitly. </para>          </briefdescription>
+          <detaileddescription>
+<para>New updates with the same prefix just follow it without decoding of JSON nor MessagePack. It can be quite helpful when an update works with the same internal object via several operations like this:</para><para>[1][2].a.b.c[1] = 20 [1][2].a.b.c[2] = 30 [1][2].a.b.c[3] = true</para><para>Here [1][2].a.b.c is stored only once as a route with a child XUPDATE_ARRAY making updates &apos;[1] = 20&apos;, &apos;[2] = 30&apos;, &apos;[3] = true&apos;. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="xrow__update__field_8h_1afb4df2eb1a9b7728516f92779d83e652af14aefafa0896feabfa602cad30a7c1b" prot="public">
+          <name>XUPDATE_MAP</name>
+          <briefdescription>
+<para>Field is an updated map. </para>          </briefdescription>
+          <detaileddescription>
+<para>Check item list for updates of individual fields. </para>          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Types of field update. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="261" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="261" bodyend="311"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="xrow__update__field_8h_1a2daa346387f446e68b3bd646379ee8c0" prot="public" static="no">
+        <type>int(*</type>
+        <definition>typedef int(* xrow_update_op_read_arg_f) (struct xrow_update_op *op, const char **expr, int index_base)</definition>
+        <argsstring>)(struct xrow_update_op *op, const char **expr, int index_base)</argsstring>
+        <name>xrow_update_op_read_arg_f</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="146" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="147" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="xrow__update__field_8h_1a04f5307f5c3dc8149ce28ca9fef3737c" prot="public" static="no">
+        <type>int(*</type>
+        <definition>typedef int(* xrow_update_op_do_f) (struct xrow_update_op *op, struct xrow_update_field *field)</definition>
+        <argsstring>)(struct xrow_update_op *op, struct xrow_update_field *field)</argsstring>
+        <name>xrow_update_op_do_f</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="150" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="151" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="xrow__update__field_8h_1ac7be481d876ca48e7f466f46fc100fac" prot="public" static="no">
+        <type>uint32_t(*</type>
+        <definition>typedef uint32_t(* xrow_update_op_store_f) (struct xrow_update_op *op, struct json_tree *format_tree, struct json_token *this_node, const char *in, char *out)</definition>
+        <argsstring>)(struct xrow_update_op *op, struct json_tree *format_tree, struct json_token *this_node, const char *in, char *out)</argsstring>
+        <name>xrow_update_op_store_f</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="154" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="155" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="xrow__update__field_8h_1ad41a120be63655e847504acb5208e190" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xrow_update_op_next_token</definition>
+        <argsstring>(struct xrow_update_op *op)</argsstring>
+        <name>xrow_update_op_next_token</name>
+        <param>
+          <type>struct <ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref> *</type>
+          <declname>op</declname>
+        </param>
+        <briefdescription>
+<para>Extract a next token from the operation path lexer. </para>        </briefdescription>
+        <detaileddescription>
+<para>The result is used to decide to which child of a current map/array the operation should be forwarded. It is not just a synonym to json_lexer_next_token, because fills some fields of <emphasis>op</emphasis>, and should be used only to chose a next child inside a current map/array. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="224" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.c" bodystart="671" bodyend="685"/>
+      </memberdef>
+      <memberdef kind="function" id="xrow__update__field_8h_1a4de07850d87253c498ac6117cc24a72c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xrow_update_op_decode</definition>
+        <argsstring>(struct xrow_update_op *op, int op_num, int index_base, struct tuple_dictionary *dict, const char **expr)</argsstring>
+        <name>xrow_update_op_decode</name>
+        <param>
+          <type>struct <ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref> *</type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>op_num</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>index_base</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref> *</type>
+          <declname>dict</declname>
+        </param>
+        <param>
+          <type>const char **</type>
+          <declname>expr</declname>
+        </param>
+        <briefdescription>
+<para>Decode an update operation from MessagePack. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="out">op</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Update operation. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>op_num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ordinal number of the operation. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>index_base</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field numbers base: 0 or 1. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dict</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Dictionary to lookup field number by a name. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>expr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>MessagePack.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Success. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Client error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="238" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.c" bodystart="688" bodyend="782"/>
+      </memberdef>
+      <memberdef kind="function" id="xrow__update__field_8h_1a7b57a465010bb1de6b76164afdaa4257" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool xrow_update_op_is_term</definition>
+        <argsstring>(const struct xrow_update_op *op)</argsstring>
+        <name>xrow_update_op_is_term</name>
+        <param>
+          <type>const struct <ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref> *</type>
+          <declname>op</declname>
+        </param>
+        <briefdescription>
+<para>Check if the operation should be applied on the current path node, i.e. </para>        </briefdescription>
+        <detaileddescription>
+<para>it is terminal. When an operation is just decoded and is applied to the top level of a tuple, a head of the JSON path is cut out. If nothing left, it is applied there. Otherwise the operation is applied to the next level of the tuple, according to where the path goes, and so on. In the end it reaches the target point, where it becomes terminal. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="251" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="251" bodyend="254"/>
+      </memberdef>
+      <memberdef kind="function" id="xrow__update__field_8h_1a9d05e07d3ec595a96a7feed5940b9cea" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t xrow_update_field_sizeof</definition>
+        <argsstring>(struct xrow_update_field *field)</argsstring>
+        <name>xrow_update_field_sizeof</name>
+        <param>
+          <type>struct <ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref> *</type>
+          <declname>field</declname>
+        </param>
+        <briefdescription>
+<para>Update_field has a generic API and a typed API. </para>        </briefdescription>
+        <detaileddescription>
+<para>The generic API takes fields of any type. These are: <verbatim>xrow_update_field_sizeof
+xrow_update_field_store
+xrow_update_op_do_field_&lt;operation&gt;
+</verbatim></para><para>Typed API is used when type of an update_field is known in code, and by generic API internally. These are <verbatim>xrow_update_&lt;type&gt;_sizeof
+xrow_update_&lt;type&gt;_store
+xrow_update_op_do_&lt;type&gt;_&lt;operation&gt;
+</verbatim></para><para>Sizeof calculates size of the whole subtree of a given update_field. Store saves the whole subtree. Operation executors apply an operation to one of the nodes in the subtree. They may change the update tree structure. Size of the updated field, including all children recursively. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="472" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.c" bodystart="108" bodyend="127"/>
+      </memberdef>
+      <memberdef kind="function" id="xrow__update__field_8h_1af0e11d7f3f4cc861dc14f69e430ba56e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t xrow_update_field_store</definition>
+        <argsstring>(struct xrow_update_field *field, struct json_tree *format_tree, struct json_token *this_node, char *out, char *out_end)</argsstring>
+        <name>xrow_update_field_store</name>
+        <param>
+          <type>struct <ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref> *</type>
+          <declname>field</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structjson__tree" kindref="compound">json_tree</ref> *</type>
+          <declname>format_tree</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+          <declname>this_node</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>out_end</declname>
+        </param>
+        <briefdescription>
+<para>Save the updated field, including all children recursively. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="476" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.c" bodystart="130" bodyend="161"/>
+      </memberdef>
+      <memberdef kind="function" id="xrow__update__field_8h_1a98d48f166246dc6ce54afd88afa76111" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xrow_update_array_create</definition>
+        <argsstring>(struct xrow_update_field *field, const char *header, const char *data, const char *data_end, uint32_t field_count)</argsstring>
+        <name>xrow_update_array_create</name>
+        <param>
+          <type>struct <ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref> *</type>
+          <declname>field</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>header</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>data_end</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>field_count</declname>
+        </param>
+        <briefdescription>
+<para>Initialize <emphasis>field</emphasis> as an array to update. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="out">field</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field to initialize. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>header</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Header of the MessagePack array <emphasis>data</emphasis>. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>MessagePack data of the array to update. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data_end</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>End of <emphasis>data</emphasis>. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>field_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field count in .</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Success. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="535" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_array.c" bodystart="167" bodyend="192"/>
+      </memberdef>
+      <memberdef kind="function" id="xrow__update__field_8h_1aecf6e0ff582fa13763db8f0684b11cd8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xrow_update_array_create_with_child</definition>
+        <argsstring>(struct xrow_update_field *field, const char *header, const struct xrow_update_field *child, int32_t field_no)</argsstring>
+        <name>xrow_update_array_create_with_child</name>
+        <param>
+          <type>struct <ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref> *</type>
+          <declname>field</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>header</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref> *</type>
+          <declname>child</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>field_no</declname>
+        </param>
+        <briefdescription>
+<para>The same as mere create, but the array is created with a first child right away. </para>        </briefdescription>
+        <detaileddescription>
+<para>It allows to make it more efficient, because under the hood a rope is created not as a one huge range which is then split in parts, but as two rope nodes from the beginning. On the summary: -1 rope node split, -1 decoding of fields from 0 to <emphasis>field_no</emphasis>.</para><para>The function is used during branching, where there was an existing update, but another one came with the same prefix, and a different suffix.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="out">field</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field to initialize. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>header</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Header of the MessagePack array. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>child</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A child subtree. The child is copied by value into the created array. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>field_no</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field number of <emphasis>child</emphasis>.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Success. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="561" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_array.c" bodystart="195" bodyend="242"/>
+      </memberdef>
+      <memberdef kind="function" id="xrow__update__field_8h_1af24d1faa3a2013818348cf5e579080fc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xrow_update_map_create</definition>
+        <argsstring>(struct xrow_update_field *field, const char *header, const char *data, const char *data_end, int field_count)</argsstring>
+        <name>xrow_update_map_create</name>
+        <param>
+          <type>struct <ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref> *</type>
+          <declname>field</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>header</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>data_end</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>field_count</declname>
+        </param>
+        <briefdescription>
+<para>Initialize <emphasis>field</emphasis> as a map to update. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="out">field</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field to initialize. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>header</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Header of the MessagePack map <emphasis>data</emphasis>. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>MessagePack data of the map to update. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data_end</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>End of <emphasis>data</emphasis>. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>field_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Key-value pair count in .</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Success. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="584" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_map.c" bodystart="342" bodyend="356"/>
+      </memberdef>
+      <memberdef kind="function" id="xrow__update__field_8h_1a7e21e24becce4a6b6520ad5c9f38da2a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xrow_update_map_create_with_child</definition>
+        <argsstring>(struct xrow_update_field *field, const char *header, const struct xrow_update_field *child, const char *key, uint32_t key_len)</argsstring>
+        <name>xrow_update_map_create_with_child</name>
+        <param>
+          <type>struct <ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref> *</type>
+          <declname>field</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>header</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref> *</type>
+          <declname>child</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>key_len</declname>
+        </param>
+        <briefdescription>
+<para>Create a map update with an existing child. </para>        </briefdescription>
+        <detaileddescription>
+<para>Motivation is exactly the same as with a similar array constructor. It allows to avoid unnecessary MessagePack decoding. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="593" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_map.c" bodystart="359" bodyend="413"/>
+      </memberdef>
+      <memberdef kind="function" id="xrow__update__field_8h_1aef35e753556febe0d3b95c34eb050948" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref> *</type>
+        <definition>struct xrow_update_field* xrow_update_route_branch</definition>
+        <argsstring>(struct xrow_update_field *field, struct xrow_update_op *new_op)</argsstring>
+        <name>xrow_update_route_branch</name>
+        <param>
+          <type>struct <ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref> *</type>
+          <declname>field</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref> *</type>
+          <declname>new_op</declname>
+        </param>
+        <briefdescription>
+<para>Take a bar or a route <emphasis>field</emphasis> and split its path in the place where <emphasis>new_op</emphasis> should be applied. </para>        </briefdescription>
+        <detaileddescription>
+<para>Prefix becomes a new route object, suffix becomes a child of the result route. In the result <emphasis>field</emphasis> stays root of its subtree, and a node of that subtree is returned, to which <emphasis>new_op</emphasis> should be applied.</para><para>Note, this function does not apply <emphasis>new_op</emphasis>. It just finds to where it <emphasis>should be</emphasis> applied and does all preparations. It is done deliberately, because otherwise do_cb() virtual function of <emphasis>new_op</emphasis> would have been called here, since there is no context. But a caller always knows exactly if it was insert, set, arith, etc. And a caller can and does use more specific function like xrow_update_op_do_field_set/insert/... .</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>field</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field to find where to apply <emphasis>new_op</emphasis>. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>new_op</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New operation to apply.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>not-NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A field to which <emphasis>new_op</emphasis> should be applied. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="638" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_route.c" bodystart="161" bodyend="320"/>
+      </memberdef>
+      <memberdef kind="function" id="xrow__update__field_8h_1a4c3d109efe5a661d8ab8403bfc2c847f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xrow_update_arith_make</definition>
+        <argsstring>(struct xrow_update_op *op, struct xrow_update_arg_arith arg, struct xrow_update_arg_arith *ret)</argsstring>
+        <name>xrow_update_arith_make</name>
+        <param>
+          <type>struct <ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref> *</type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structxrow__update__arg__arith" kindref="compound">xrow_update_arg_arith</ref></type>
+          <declname>arg</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structxrow__update__arg__arith" kindref="compound">xrow_update_arg_arith</ref> *</type>
+          <declname>ret</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="710" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.c" bodystart="364" bodyend="443"/>
+      </memberdef>
+      <memberdef kind="function" id="xrow__update__field_8h_1afdc43f277c9f67d6deb4f05afdb60f81" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t xrow_update_op_store_arith</definition>
+        <argsstring>(struct xrow_update_op *op, struct json_tree *format_tree, struct json_token *this_node, const char *in, char *out)</argsstring>
+        <name>xrow_update_op_store_arith</name>
+        <param>
+          <type>struct <ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref> *</type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structjson__tree" kindref="compound">json_tree</ref> *</type>
+          <declname>format_tree</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+          <declname>this_node</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>in</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="715" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.c" bodystart="531" bodyend="572"/>
+      </memberdef>
+      <memberdef kind="function" id="xrow__update__field_8h_1ad9961f006bcfa25495d5f6703dd75ad1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t xrow_update_arg_arith_sizeof</definition>
+        <argsstring>(const struct xrow_update_arg_arith *arg)</argsstring>
+        <name>xrow_update_arg_arith_sizeof</name>
+        <param>
+          <type>const struct <ref refid="structxrow__update__arg__arith" kindref="compound">xrow_update_arg_arith</ref> *</type>
+          <declname>arg</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="721" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.c" bodystart="342" bodyend="361"/>
+      </memberdef>
+      <memberdef kind="function" id="xrow__update__field_8h_1aa6e5c77fe5cecbe01a8dd04e173aec36" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xrow_update_op_do_arith</definition>
+        <argsstring>(struct xrow_update_op *op, const char *old)</argsstring>
+        <name>xrow_update_op_do_arith</name>
+        <param>
+          <type>struct <ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref> *</type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>old</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="724" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.c" bodystart="446" bodyend="454"/>
+      </memberdef>
+      <memberdef kind="function" id="xrow__update__field_8h_1ae051a8e9b2a5952672d8769ef5acb2f8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xrow_mp_read_arg_arith</definition>
+        <argsstring>(struct xrow_update_op *op, const char **expr, struct xrow_update_arg_arith *ret)</argsstring>
+        <name>xrow_mp_read_arg_arith</name>
+        <param>
+          <type>struct <ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref> *</type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>const char **</type>
+          <declname>expr</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structxrow__update__arg__arith" kindref="compound">xrow_update_arg_arith</ref> *</type>
+          <declname>ret</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="727" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.c" bodystart="186" bodyend="219"/>
+      </memberdef>
+      <memberdef kind="function" id="xrow__update__field_8h_1a9b27f6ae58811f8dd314e4f0ea551166" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xrow_update_op_do_bit</definition>
+        <argsstring>(struct xrow_update_op *op, const char *old)</argsstring>
+        <name>xrow_update_op_do_bit</name>
+        <param>
+          <type>struct <ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref> *</type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>old</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="731" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.c" bodystart="457" bodyend="478"/>
+      </memberdef>
+      <memberdef kind="function" id="xrow__update__field_8h_1aa974ffe707ab5847f9733d576849922d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xrow_update_op_do_splice</definition>
+        <argsstring>(struct xrow_update_op *op, const char *old)</argsstring>
+        <name>xrow_update_op_do_splice</name>
+        <param>
+          <type>struct <ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref> *</type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>old</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="734" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.c" bodystart="481" bodyend="511"/>
+      </memberdef>
+      <memberdef kind="function" id="xrow__update__field_8h_1a0aa4faf21289d75ee02136fe9bf4c2ca" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xrow_update_err_no_such_field</definition>
+        <argsstring>(const struct xrow_update_op *op)</argsstring>
+        <name>xrow_update_err_no_such_field</name>
+        <param>
+          <type>const struct <ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref> *</type>
+          <declname>op</declname>
+        </param>
+        <briefdescription>
+<para>{{{ Error helpers. </para>        </briefdescription>
+        <detaileddescription>
+<para>All the error helpers below set diag with appropriate error code, taking into account field_no &lt; 0, complex paths. They all return -1 to shorten error returning in a caller function to single line. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="747" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.c" bodystart="85" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="function" id="xrow__update__field_8h_1a0d87eff11853b84f6f52d1985b9036ae" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int xrow_update_err</definition>
+        <argsstring>(const struct xrow_update_op *op, const char *reason)</argsstring>
+        <name>xrow_update_err</name>
+        <param>
+          <type>const struct <ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref> *</type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>reason</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="750" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.c" bodystart="98" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="xrow__update__field_8h_1ab28e44edc21a6bf533e0bc40aefd6cdb" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int xrow_update_err_double</definition>
+        <argsstring>(const struct xrow_update_op *op)</argsstring>
+        <name>xrow_update_err_double</name>
+        <param>
+          <type>const struct <ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref> *</type>
+          <declname>op</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="753" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="753" bodyend="756"/>
+      </memberdef>
+      <memberdef kind="function" id="xrow__update__field_8h_1a254f9e00546b376408b059fed1c48110" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int xrow_update_err_bad_json</definition>
+        <argsstring>(const struct xrow_update_op *op, int pos)</argsstring>
+        <name>xrow_update_err_bad_json</name>
+        <param>
+          <type>const struct <ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref> *</type>
+          <declname>op</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>pos</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="759" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="759" bodyend="763"/>
+      </memberdef>
+      <memberdef kind="function" id="xrow__update__field_8h_1ac3e14eb51afa36e3eae18ca324b7a68c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int xrow_update_err_delete1</definition>
+        <argsstring>(const struct xrow_update_op *op)</argsstring>
+        <name>xrow_update_err_delete1</name>
+        <param>
+          <type>const struct <ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref> *</type>
+          <declname>op</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="766" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="766" bodyend="770"/>
+      </memberdef>
+      <memberdef kind="function" id="xrow__update__field_8h_1a08917b9ef752ea425c1a48d2a8c7efe6" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int xrow_update_err_duplicate</definition>
+        <argsstring>(const struct xrow_update_op *op)</argsstring>
+        <name>xrow_update_err_duplicate</name>
+        <param>
+          <type>const struct <ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref> *</type>
+          <declname>op</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="773" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="773" bodyend="776"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_BOX_TUPLE_UPDATE_FIELD_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_BOX_TUPLE_UPDATE_FIELD_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2019,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trivia/util.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tt_static.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;salad/stailq.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;json/json.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;bit/int96.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;mp_decimal.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="keyword">struct<sp/></highlight><highlight class="normal">xrow_update_rope;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref>;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref>;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref>;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>{{{<sp/>xrow_update_op<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63" refid="structxrow__update__arg__set" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__arg__set" kindref="compound">xrow_update_arg_set</ref><sp/>{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>length;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*value;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69" refid="structxrow__update__arg__del" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__arg__del" kindref="compound">xrow_update_arg_del</ref><sp/>{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>count;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>xrow_update_arith_type<sp/>{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>XUPDATE_TYPE_DECIMAL<sp/>=<sp/>0,<sp/></highlight><highlight class="comment">/*<sp/>MP_EXT<sp/>+<sp/>MP_DECIMAL<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>XUPDATE_TYPE_DOUBLE<sp/>=<sp/>1,<sp/></highlight><highlight class="comment">/*<sp/>MP_DOUBLE<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>XUPDATE_TYPE_FLOAT<sp/>=<sp/>2,<sp/></highlight><highlight class="comment">/*<sp/>MP_FLOAT<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>XUPDATE_TYPE_INT<sp/>=<sp/>3<sp/></highlight><highlight class="comment">/*<sp/>MP_INT/MP_UINT<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105" refid="structxrow__update__arg__arith" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__arg__arith" kindref="compound">xrow_update_arg_arith</ref><sp/>{</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>xrow_update_arith_type<sp/>type;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>dbl;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>flt;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structint96__num" kindref="compound">int96_num</ref><sp/>int96;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>decimal_t<sp/>dec;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="113"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116" refid="structxrow__update__arg__bit" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__arg__bit" kindref="compound">xrow_update_arg_bit</ref><sp/>{</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>val;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121" refid="structxrow__update__arg__splice" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__arg__splice" kindref="compound">xrow_update_arg_splice</ref><sp/>{</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>offset;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>cut_length;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*paste;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>paste_length;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>tail_offset;</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>tail_length;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138" refid="unionxrow__update__arg" refkind="compound"><highlight class="keyword">union<sp/></highlight><highlight class="normal"><ref refid="unionxrow__update__arg" kindref="compound">xrow_update_arg</ref><sp/>{</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__arg__set" kindref="compound">xrow_update_arg_set</ref><sp/>set;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__arg__del" kindref="compound">xrow_update_arg_del</ref><sp/>del;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__arg__arith" kindref="compound">xrow_update_arg_arith</ref><sp/>arith;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__arg__bit" kindref="compound">xrow_update_arg_bit</ref><sp/>bit;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__arg__splice" kindref="compound">xrow_update_arg_splice</ref><sp/>splice;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>int</highlight></codeline>
+<codeline lineno="147"><highlight class="normal">(*xrow_update_op_read_arg_f)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref><sp/>*op,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**expr,</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>index_base);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>int</highlight></codeline>
+<codeline lineno="151"><highlight class="normal">(*xrow_update_op_do_f)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref><sp/>*op,</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref><sp/>*field);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>uint32_t</highlight></codeline>
+<codeline lineno="155"><highlight class="normal">(*xrow_update_op_store_f)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref><sp/>*op,</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjson__tree" kindref="compound">json_tree</ref><sp/>*format_tree,</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*this_node,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*in,</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*out);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164" refid="structxrow__update__op__meta" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__op__meta" kindref="compound">xrow_update_op_meta</ref><sp/>{</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>xrow_update_op_read_arg_f<sp/>read_arg;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>xrow_update_op_do_f<sp/>do_op;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>xrow_update_op_store_f<sp/>store;</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>arg_count;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181" refid="structxrow__update__op" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref><sp/>{</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__op__meta" kindref="compound">xrow_update_op_meta</ref><sp/>*meta;</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal"><ref refid="unionxrow__update__arg" kindref="compound">xrow_update_arg</ref><sp/>arg;</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>json_token_type<sp/>token_type;</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_token_consumed;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*key;</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>key_len;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>field_no;</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>new_field_len;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>opcode;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjson__lexer" kindref="compound">json_lexer</ref><sp/>lexer;</highlight></codeline>
+<codeline lineno="213"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="224"><highlight class="normal">xrow_update_op_next_token(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref><sp/>*op);</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal">xrow_update_op_decode(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref><sp/>*op,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>op_num,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structjson__lexer_1ac573797bad860672ec4e3813c0550bf9" kindref="member">index_base</ref>,</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref><sp/>*dict,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**expr);</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight></codeline>
+<codeline lineno="250"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="normal">xrow_update_op_is_term(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref><sp/>*op)</highlight></codeline>
+<codeline lineno="252"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>json_lexer_is_eof(&amp;op-&gt;<ref refid="structxrow__update__op_1a5cebbf27f626c322a352ec4563e29e17" kindref="member">lexer</ref>);</highlight></codeline>
+<codeline lineno="254"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight></codeline>
+<codeline lineno="256"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>}}}<sp/>xrow_update_op<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="257"><highlight class="normal"></highlight></codeline>
+<codeline lineno="258"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>{{{<sp/>xrow_update_field<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="259"><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>xrow_update_type<sp/>{</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>XUPDATE_NOP,</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>XUPDATE_SCALAR,</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>XUPDATE_ARRAY,</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>XUPDATE_BAR,</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>XUPDATE_ROUTE,</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>XUPDATE_MAP,</highlight></codeline>
+<codeline lineno="311"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"></highlight></codeline>
+<codeline lineno="319" refid="structxrow__update__field" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref><sp/>{</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>xrow_update_type<sp/>type;</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data;</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>size;</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref><sp/>*op;</highlight></codeline>
+<codeline lineno="334"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/>scalar;</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">xrow_update_rope<sp/>*<ref refid="structrope" kindref="compound">rope</ref>;</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/>array;</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="351"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref><sp/>*op;</highlight></codeline>
+<codeline lineno="359"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*path;</highlight></codeline>
+<codeline lineno="360"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>path_len;</highlight></codeline>
+<codeline lineno="365"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*parent;</highlight></codeline>
+<codeline lineno="366"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="373"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*point;</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>point_size;</highlight></codeline>
+<codeline lineno="376"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="377"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="378"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>For<sp/>insertion<sp/>into<sp/>map.<sp/>New</highlight></codeline>
+<codeline lineno="379"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>key.<sp/>On<sp/>insertion<sp/>into<sp/>a<sp/>map</highlight></codeline>
+<codeline lineno="380"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>there<sp/>is<sp/>no<sp/>strict<sp/>order<sp/>as<sp/>in</highlight></codeline>
+<codeline lineno="381"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>array<sp/>and<sp/>no<sp/>point.<sp/>The<sp/>field</highlight></codeline>
+<codeline lineno="382"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>is<sp/>inserted<sp/>just<sp/>right<sp/>after</highlight></codeline>
+<codeline lineno="383"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>the<sp/>parent<sp/>header.</highlight></codeline>
+<codeline lineno="384"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="385"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="386"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*new_key;</highlight></codeline>
+<codeline lineno="387"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>new_key_len;</highlight></codeline>
+<codeline lineno="388"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="389"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="390"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/>bar;</highlight></codeline>
+<codeline lineno="392"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="397"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*path;</highlight></codeline>
+<codeline lineno="398"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>path_len;</highlight></codeline>
+<codeline lineno="400"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref><sp/>*<ref refid="structxrow__update__field_1ae7426480e0eeb85e02cbb624db559821" kindref="member">next_hop</ref>;</highlight></codeline>
+<codeline lineno="401"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/><ref refid="structxrow__update__field_1a426c18b8723ed379dd1df80d881770cd" kindref="member">route</ref>;</highlight></codeline>
+<codeline lineno="428"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="433"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq" kindref="compound">stailq</ref><sp/>items;</highlight></codeline>
+<codeline lineno="442"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>size;</highlight></codeline>
+<codeline lineno="443"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/>map;</highlight></codeline>
+<codeline lineno="444"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="445"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="446"><highlight class="normal"></highlight></codeline>
+<codeline lineno="471"><highlight class="normal">uint32_t</highlight></codeline>
+<codeline lineno="472"><highlight class="normal">xrow_update_field_sizeof(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref><sp/>*field);</highlight></codeline>
+<codeline lineno="473"><highlight class="normal"></highlight></codeline>
+<codeline lineno="475"><highlight class="normal">uint32_t</highlight></codeline>
+<codeline lineno="476"><highlight class="normal">xrow_update_field_store(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref><sp/>*field,</highlight></codeline>
+<codeline lineno="477"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__tree" kindref="compound">json_tree</ref><sp/>*format_tree,</highlight></codeline>
+<codeline lineno="478"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*this_node,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*out,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*out_end);</highlight></codeline>
+<codeline lineno="479"><highlight class="normal"></highlight></codeline>
+<codeline lineno="485"><highlight class="preprocessor">#define<sp/>OP_DECL_GENERIC(type)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="486"><highlight class="preprocessor">int<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="487"><highlight class="preprocessor">xrow_update_op_do_##type##_insert(struct<sp/>xrow_update_op<sp/>*op,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="488"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>struct<sp/>xrow_update_field<sp/>*field);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="489"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="490"><highlight class="preprocessor">int<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="491"><highlight class="preprocessor">xrow_update_op_do_##type##_set(struct<sp/>xrow_update_op<sp/>*op,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="492"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>struct<sp/>xrow_update_field<sp/>*field);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="493"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="494"><highlight class="preprocessor">int<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="495"><highlight class="preprocessor">xrow_update_op_do_##type##_delete(struct<sp/>xrow_update_op<sp/>*op,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="496"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>struct<sp/>xrow_update_field<sp/>*field);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="497"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="498"><highlight class="preprocessor">int<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="499"><highlight class="preprocessor">xrow_update_op_do_##type##_arith(struct<sp/>xrow_update_op<sp/>*op,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="500"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>struct<sp/>xrow_update_field<sp/>*field);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="501"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="502"><highlight class="preprocessor">int<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="503"><highlight class="preprocessor">xrow_update_op_do_##type##_bit(struct<sp/>xrow_update_op<sp/>*op,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="504"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>struct<sp/>xrow_update_field<sp/>*field);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="505"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="506"><highlight class="preprocessor">int<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="507"><highlight class="preprocessor">xrow_update_op_do_##type##_splice(struct<sp/>xrow_update_op<sp/>*op,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="508"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>struct<sp/>xrow_update_field<sp/>*field);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="509"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="510"><highlight class="preprocessor">uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="511"><highlight class="preprocessor">xrow_update_##type##_sizeof(struct<sp/>xrow_update_field<sp/>*field);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="512"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="513"><highlight class="preprocessor">uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="514"><highlight class="preprocessor">xrow_update_##type##_store(struct<sp/>xrow_update_field<sp/>*field,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="515"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>struct<sp/>json_tree<sp/>*format_tree,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="516"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>struct<sp/>json_token<sp/>*this_node,<sp/>char<sp/>*out,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="517"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>char<sp/>*out_end);</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="518"><highlight class="normal"></highlight></codeline>
+<codeline lineno="519"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>}}}<sp/>xrow_update_field<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="520"><highlight class="normal"></highlight></codeline>
+<codeline lineno="521"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>{{{<sp/>xrow_update_field.array<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="522"><highlight class="normal"></highlight></codeline>
+<codeline lineno="534"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="535"><highlight class="normal">xrow_update_array_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref><sp/>*field,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*header,</highlight></codeline>
+<codeline lineno="536"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data_end,</highlight></codeline>
+<codeline lineno="537"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>field_count);</highlight></codeline>
+<codeline lineno="538"><highlight class="normal"></highlight></codeline>
+<codeline lineno="560"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="561"><highlight class="normal">xrow_update_array_create_with_child(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref><sp/>*field,</highlight></codeline>
+<codeline lineno="562"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*header,</highlight></codeline>
+<codeline lineno="563"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref><sp/>*child,</highlight></codeline>
+<codeline lineno="564"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>field_no);</highlight></codeline>
+<codeline lineno="565"><highlight class="normal"></highlight></codeline>
+<codeline lineno="566"><highlight class="normal">OP_DECL_GENERIC(array)</highlight></codeline>
+<codeline lineno="567"><highlight class="normal"></highlight></codeline>
+<codeline lineno="568"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>}}}<sp/>xrow_update_field.array<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="569"><highlight class="normal"></highlight></codeline>
+<codeline lineno="570"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>{{{<sp/>xrow_update_field.map<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="571"><highlight class="normal"></highlight></codeline>
+<codeline lineno="572"><highlight class="normal"></highlight></codeline>
+<codeline lineno="583"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="584"><highlight class="normal">xrow_update_map_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref><sp/>*field,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*header,</highlight></codeline>
+<codeline lineno="585"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data_end,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>field_count);</highlight></codeline>
+<codeline lineno="586"><highlight class="normal"></highlight></codeline>
+<codeline lineno="592"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="593"><highlight class="normal">xrow_update_map_create_with_child(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref><sp/>*field,</highlight></codeline>
+<codeline lineno="594"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*header,</highlight></codeline>
+<codeline lineno="595"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref><sp/>*child,</highlight></codeline>
+<codeline lineno="596"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*key,<sp/>uint32_t<sp/>key_len);</highlight></codeline>
+<codeline lineno="597"><highlight class="normal"></highlight></codeline>
+<codeline lineno="598"><highlight class="normal">OP_DECL_GENERIC(map)</highlight></codeline>
+<codeline lineno="599"><highlight class="normal"></highlight></codeline>
+<codeline lineno="600"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>}}}<sp/>xrow_update_field.map<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="601"><highlight class="normal"></highlight></codeline>
+<codeline lineno="602"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>{{{<sp/>update_field.bar<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="603"><highlight class="normal"></highlight></codeline>
+<codeline lineno="604"><highlight class="normal">OP_DECL_GENERIC(bar)</highlight></codeline>
+<codeline lineno="605"><highlight class="normal"></highlight></codeline>
+<codeline lineno="606"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>}}}<sp/>update_field.bar<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="607"><highlight class="normal"></highlight></codeline>
+<codeline lineno="608"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>{{{<sp/>update_field.nop<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="609"><highlight class="normal"></highlight></codeline>
+<codeline lineno="610"><highlight class="normal">OP_DECL_GENERIC(nop)</highlight></codeline>
+<codeline lineno="611"><highlight class="normal"></highlight></codeline>
+<codeline lineno="612"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>}}}<sp/>update_field.nop<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="613"><highlight class="normal"></highlight></codeline>
+<codeline lineno="614"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>{{{<sp/>xrow_update_field.route<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="615"><highlight class="normal"></highlight></codeline>
+<codeline lineno="616"><highlight class="normal"></highlight></codeline>
+<codeline lineno="637"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref><sp/>*</highlight></codeline>
+<codeline lineno="638"><highlight class="normal">xrow_update_route_branch(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref><sp/>*field,</highlight></codeline>
+<codeline lineno="639"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref><sp/>*new_op);</highlight></codeline>
+<codeline lineno="640"><highlight class="normal"></highlight></codeline>
+<codeline lineno="641"><highlight class="normal">OP_DECL_GENERIC(<ref refid="structxrow__update__field_1a426c18b8723ed379dd1df80d881770cd" kindref="member">route</ref>)</highlight></codeline>
+<codeline lineno="642"><highlight class="normal"></highlight></codeline>
+<codeline lineno="643"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>}}}<sp/>xrow_update_field.route<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="644"><highlight class="normal"></highlight></codeline>
+<codeline lineno="645"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>OP_DECL_GENERIC</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="646"><highlight class="normal"></highlight></codeline>
+<codeline lineno="647"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>{{{<sp/>Common<sp/>helpers.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="648"><highlight class="normal"></highlight></codeline>
+<codeline lineno="669"><highlight class="preprocessor">#define<sp/>OP_DECL_GENERIC(op_type)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="670"><highlight class="preprocessor">static<sp/>inline<sp/>int<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="671"><highlight class="preprocessor">xrow_update_op_do_field_##op_type(struct<sp/>xrow_update_op<sp/>*op,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="672"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>struct<sp/>xrow_update_field<sp/>*field)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="673"><highlight class="preprocessor">{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="674"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>switch<sp/>(field-&gt;type)<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="675"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>XUPDATE_ARRAY:<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="676"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>xrow_update_op_do_array_##op_type(op,<sp/>field);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="677"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>XUPDATE_NOP:<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="678"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>xrow_update_op_do_nop_##op_type(op,<sp/>field);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="679"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>XUPDATE_BAR:<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="680"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>xrow_update_op_do_bar_##op_type(op,<sp/>field);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="681"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>XUPDATE_ROUTE:<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="682"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>xrow_update_op_do_route_##op_type(op,<sp/>field);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="683"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>case<sp/>XUPDATE_MAP:<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="684"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>xrow_update_op_do_map_##op_type(op,<sp/>field);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="685"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>default:<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="686"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>unreachable();<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="687"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="688"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>0;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="689"><highlight class="preprocessor">}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="690"><highlight class="normal"></highlight></codeline>
+<codeline lineno="691"><highlight class="normal">OP_DECL_GENERIC(insert)</highlight></codeline>
+<codeline lineno="692"><highlight class="normal"></highlight></codeline>
+<codeline lineno="693"><highlight class="normal">OP_DECL_GENERIC(</highlight><highlight class="keyword">set</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="694"><highlight class="normal"></highlight></codeline>
+<codeline lineno="695"><highlight class="normal">OP_DECL_GENERIC(</highlight><highlight class="keyword">delete</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="696"><highlight class="normal"></highlight></codeline>
+<codeline lineno="697"><highlight class="normal">OP_DECL_GENERIC(arith)</highlight></codeline>
+<codeline lineno="698"><highlight class="normal"></highlight></codeline>
+<codeline lineno="699"><highlight class="normal">OP_DECL_GENERIC(bit)</highlight></codeline>
+<codeline lineno="700"><highlight class="normal"></highlight></codeline>
+<codeline lineno="701"><highlight class="normal">OP_DECL_GENERIC(splice)</highlight></codeline>
+<codeline lineno="702"><highlight class="normal"></highlight></codeline>
+<codeline lineno="703"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>OP_DECL_GENERIC</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="704"><highlight class="normal"></highlight></codeline>
+<codeline lineno="705"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>}}}<sp/>Common<sp/>helpers.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="706"><highlight class="normal"></highlight></codeline>
+<codeline lineno="707"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>{{{<sp/>Scalar<sp/>helpers.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="708"><highlight class="normal"></highlight></codeline>
+<codeline lineno="709"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="710"><highlight class="normal">xrow_update_arith_make(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref><sp/>*op,</highlight></codeline>
+<codeline lineno="711"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__arg__arith" kindref="compound">xrow_update_arg_arith</ref><sp/>arg,</highlight></codeline>
+<codeline lineno="712"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__arg__arith" kindref="compound">xrow_update_arg_arith</ref><sp/>*ret);</highlight></codeline>
+<codeline lineno="713"><highlight class="normal"></highlight></codeline>
+<codeline lineno="714"><highlight class="normal">uint32_t</highlight></codeline>
+<codeline lineno="715"><highlight class="normal">xrow_update_op_store_arith(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref><sp/>*op,</highlight></codeline>
+<codeline lineno="716"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__tree" kindref="compound">json_tree</ref><sp/>*format_tree,</highlight></codeline>
+<codeline lineno="717"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*this_node,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*in,</highlight></codeline>
+<codeline lineno="718"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*out);</highlight></codeline>
+<codeline lineno="719"><highlight class="normal"></highlight></codeline>
+<codeline lineno="720"><highlight class="normal">uint32_t</highlight></codeline>
+<codeline lineno="721"><highlight class="normal">xrow_update_arg_arith_sizeof(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__arg__arith" kindref="compound">xrow_update_arg_arith</ref><sp/>*arg);</highlight></codeline>
+<codeline lineno="722"><highlight class="normal"></highlight></codeline>
+<codeline lineno="723"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="724"><highlight class="normal">xrow_update_op_do_arith(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref><sp/>*op,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*old);</highlight></codeline>
+<codeline lineno="725"><highlight class="normal"></highlight></codeline>
+<codeline lineno="726"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="727"><highlight class="normal">xrow_mp_read_arg_arith(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref><sp/>*op,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**expr,</highlight></codeline>
+<codeline lineno="728"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__arg__arith" kindref="compound">xrow_update_arg_arith</ref><sp/>*ret);</highlight></codeline>
+<codeline lineno="729"><highlight class="normal"></highlight></codeline>
+<codeline lineno="730"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="731"><highlight class="normal">xrow_update_op_do_bit(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref><sp/>*op,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*old);</highlight></codeline>
+<codeline lineno="732"><highlight class="normal"></highlight></codeline>
+<codeline lineno="733"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="734"><highlight class="normal">xrow_update_op_do_splice(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref><sp/>*op,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*old);</highlight></codeline>
+<codeline lineno="735"><highlight class="normal"></highlight></codeline>
+<codeline lineno="736"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>}}}<sp/>Scalar<sp/>helpers.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="737"><highlight class="normal"></highlight></codeline>
+<codeline lineno="746"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="747"><highlight class="normal">xrow_update_err_no_such_field(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref><sp/>*op);</highlight></codeline>
+<codeline lineno="748"><highlight class="normal"></highlight></codeline>
+<codeline lineno="749"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="750"><highlight class="normal">xrow_update_err(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref><sp/>*op,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*reason);</highlight></codeline>
+<codeline lineno="751"><highlight class="normal"></highlight></codeline>
+<codeline lineno="752"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="753"><highlight class="normal">xrow_update_err_double(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref><sp/>*op)</highlight></codeline>
+<codeline lineno="754"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="755"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>xrow_update_err(op,<sp/></highlight><highlight class="stringliteral">&quot;double<sp/>update<sp/>of<sp/>the<sp/>same<sp/>field&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="756"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="757"><highlight class="normal"></highlight></codeline>
+<codeline lineno="758"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="759"><highlight class="normal">xrow_update_err_bad_json(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref><sp/>*op,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>pos)</highlight></codeline>
+<codeline lineno="760"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="761"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>xrow_update_err(op,<sp/>tt_sprintf(</highlight><highlight class="stringliteral">&quot;invalid<sp/>JSON<sp/>in<sp/>position<sp/>%d&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="762"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pos));</highlight></codeline>
+<codeline lineno="763"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="764"><highlight class="normal"></highlight></codeline>
+<codeline lineno="765"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="766"><highlight class="normal">xrow_update_err_delete1(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref><sp/>*op)</highlight></codeline>
+<codeline lineno="767"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="768"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>xrow_update_err(op,<sp/></highlight><highlight class="stringliteral">&quot;can<sp/>delete<sp/>only<sp/>1<sp/>field<sp/>from<sp/>a<sp/>map<sp/>in<sp/>a<sp/>&quot;</highlight><highlight class="normal">\</highlight></codeline>
+<codeline lineno="769"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;row&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="770"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="771"><highlight class="normal"></highlight></codeline>
+<codeline lineno="772"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="773"><highlight class="normal">xrow_update_err_duplicate(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref><sp/>*op)</highlight></codeline>
+<codeline lineno="774"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="775"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>xrow_update_err(op,<sp/></highlight><highlight class="stringliteral">&quot;the<sp/>key<sp/>exists<sp/>already&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="776"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="777"><highlight class="normal"></highlight></codeline>
+<codeline lineno="780"><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_BOX_TUPLE_UPDATE_FIELD_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h"/>
+  </compounddef>
+</doxygen>

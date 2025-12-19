@@ -1,0 +1,308 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structsmall__alloc" kind="struct" language="C++" prot="public">
+    <compoundname>small_alloc</compoundname>
+    <includes local="no">small.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structsmall__alloc_1a76e3e988418ca149b80034f9fe689710" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref> *</type>
+        <definition>struct slab_cache* small_alloc::cache</definition>
+        <argsstring></argsstring>
+        <name>cache</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/small.h" line="140" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/small.h" bodystart="140" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsmall__alloc_1a80ee734b3e7498531793c221b768922d" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t small_alloc::step_pool_objsize_max</definition>
+        <argsstring></argsstring>
+        <name>step_pool_objsize_max</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/small.h" line="141" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/small.h" bodystart="141" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsmall__alloc_1a84f6ccb77497ac270f8522068fd42db8" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmempool" kindref="compound">mempool</ref></type>
+        <definition>struct mempool small_alloc::step_pools[STEP_POOL_MAX]</definition>
+        <argsstring>[STEP_POOL_MAX]</argsstring>
+        <name>step_pools</name>
+        <briefdescription>
+<para>All slabs in all pools must be of the same order, otherwise small_free() has no way to derive from pointer its slab and then the pool. </para>        </briefdescription>
+        <detaileddescription>
+<para>An array of &quot;stepped&quot; pools, pool-&gt;objsize of adjacent pools differ by a fixed size (step). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/small.h" line="141" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/small.h" bodystart="151" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsmall__alloc_1a19140f6e6e27a74edd257b65a6a9def9" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfactor__pool" kindref="compound">factor_pool</ref></type>
+        <definition>struct factor_pool small_alloc::factor_pool_cache[FACTOR_POOL_MAX]</definition>
+        <argsstring>[FACTOR_POOL_MAX]</argsstring>
+        <name>factor_pool_cache</name>
+        <briefdescription>
+<para>A cache for nodes in the factor_pools tree. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/small.h" line="141" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/small.h" bodystart="153" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsmall__alloc_1a21a5999af02aced308cfed5af7c2a9bb" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfactor__pool" kindref="compound">factor_pool</ref> *</type>
+        <definition>struct factor_pool* small_alloc::factor_pool_next</definition>
+        <argsstring></argsstring>
+        <name>factor_pool_next</name>
+        <briefdescription>
+<para>First free element in factor_pool_cache. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/small.h" line="155" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/small.h" bodystart="155" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsmall__alloc_1ab377c9d03e74db763bc8c0ffa47914e4" prot="public" static="no" mutable="no">
+        <type>factor_tree_t</type>
+        <definition>factor_tree_t small_alloc::factor_pools</definition>
+        <argsstring></argsstring>
+        <name>factor_pools</name>
+        <briefdescription>
+<para>A red-black tree with &quot;factored&quot; pools, i.e. </para>        </briefdescription>
+        <detaileddescription>
+<para>each pool differs from its neighbor by a factor. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/small.h" line="160" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/small.h" bodystart="160" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsmall__alloc_1a0cd1b8fffb3635e85c8a1d2428a6e3b2" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structlifo" kindref="compound">lifo</ref></type>
+        <definition>struct lifo small_alloc::delayed</definition>
+        <argsstring></argsstring>
+        <name>delayed</name>
+        <briefdescription>
+<para>List of mempool which objects to be freed if delayed free mode. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/small.h" line="160" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/small.h" bodystart="164" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsmall__alloc_1adc1cf5e5dec17ebdfa160cbfa6c28f84" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structlifo" kindref="compound">lifo</ref></type>
+        <definition>struct lifo small_alloc::delayed_large</definition>
+        <argsstring></argsstring>
+        <name>delayed_large</name>
+        <briefdescription>
+<para>List of large allocations by malloc() to be freed in delayed mode. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/small.h" line="160" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/small.h" bodystart="168" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsmall__alloc_1abb89bbf40d86f437eef3a67fecfa3ec1" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float small_alloc::factor</definition>
+        <argsstring></argsstring>
+        <name>factor</name>
+        <briefdescription>
+<para>The factor used for factored pools. </para>        </briefdescription>
+        <detaileddescription>
+<para>Must be &gt; 1. Is provided during initialization. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/small.h" line="173" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/small.h" bodystart="173" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsmall__alloc_1a29eec7d58ae71a10635dd4a2a5cc8800" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t small_alloc::objsize_max</definition>
+        <argsstring></argsstring>
+        <name>objsize_max</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/small.h" line="174" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/small.h" bodystart="174" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsmall__alloc_1afbf3f6aa10451ef02260173a3b94ab5e" prot="public" static="no" mutable="no">
+        <type>enum small_free_mode</type>
+        <definition>enum small_free_mode small_alloc::free_mode</definition>
+        <argsstring></argsstring>
+        <name>free_mode</name>
+        <briefdescription>
+<para>Free mode. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/small.h" line="174" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/small.h" bodystart="178" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsmall__alloc_1a9cdb6918c58a067ab7c7f729f751b88e" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t small_alloc::step_pool0_step_count</definition>
+        <argsstring></argsstring>
+        <name>step_pool0_step_count</name>
+        <briefdescription>
+<para>Object size of step pool 0 divided by STEP_SIZE, to quickly find the right stepped pool given object size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/small.h" line="183" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/small.h" bodystart="183" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A slab allocator for a wide range of object sizes. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="9053">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="9048">
+        <label>mempool</label>
+        <link refid="structmempool"/>
+        <childnode refid="9049" relation="usage">
+          <edgelabel>spare</edgelabel>
+          <edgelabel>first_hot_slab</edgelabel>
+        </childnode>
+        <childnode refid="9052" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="9054" relation="usage">
+          <edgelabel>link</edgelabel>
+          <edgelabel>delayed</edgelabel>
+        </childnode>
+        <childnode refid="9050" relation="usage">
+          <edgelabel>cold_slabs</edgelabel>
+        </childnode>
+        <childnode refid="9055" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="9050">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="9050" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="9052">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="9053" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="9050" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="9057">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="9049">
+        <label>mslab</label>
+        <link refid="structmslab"/>
+        <childnode refid="9050" relation="usage">
+          <edgelabel>next_in_cold</edgelabel>
+        </childnode>
+        <childnode refid="9051" relation="usage">
+          <edgelabel>slab</edgelabel>
+        </childnode>
+      </node>
+      <node id="9058">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="9056">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="9057" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="9058" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="9055">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="9052" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="9056" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="9059">
+        <label>factor_pool</label>
+        <link refid="structfactor__pool"/>
+        <childnode refid="9048" relation="usage">
+          <edgelabel>pool</edgelabel>
+        </childnode>
+        <childnode refid="9059" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="9054">
+        <label>lifo</label>
+        <link refid="structlifo"/>
+      </node>
+      <node id="9051">
+        <label>slab</label>
+        <link refid="structslab"/>
+        <childnode refid="9050" relation="usage">
+          <edgelabel>next_in_cache</edgelabel>
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+      <node id="9047">
+        <label>small_alloc</label>
+        <link refid="structsmall__alloc"/>
+        <childnode refid="9048" relation="usage">
+          <edgelabel>step_pools</edgelabel>
+        </childnode>
+        <childnode refid="9054" relation="usage">
+          <edgelabel>delayed_large</edgelabel>
+          <edgelabel>delayed</edgelabel>
+        </childnode>
+        <childnode refid="9059" relation="usage">
+          <edgelabel>factor_pool_next</edgelabel>
+          <edgelabel>factor_pool_cache</edgelabel>
+        </childnode>
+        <childnode refid="9055" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/small/small/small.h" line="139" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/small.h" bodystart="139" bodyend="184"/>
+    <listofallmembers>
+      <member refid="structsmall__alloc_1a76e3e988418ca149b80034f9fe689710" prot="public" virt="non-virtual"><scope>small_alloc</scope><name>cache</name></member>
+      <member refid="structsmall__alloc_1a0cd1b8fffb3635e85c8a1d2428a6e3b2" prot="public" virt="non-virtual"><scope>small_alloc</scope><name>delayed</name></member>
+      <member refid="structsmall__alloc_1adc1cf5e5dec17ebdfa160cbfa6c28f84" prot="public" virt="non-virtual"><scope>small_alloc</scope><name>delayed_large</name></member>
+      <member refid="structsmall__alloc_1abb89bbf40d86f437eef3a67fecfa3ec1" prot="public" virt="non-virtual"><scope>small_alloc</scope><name>factor</name></member>
+      <member refid="structsmall__alloc_1a19140f6e6e27a74edd257b65a6a9def9" prot="public" virt="non-virtual"><scope>small_alloc</scope><name>factor_pool_cache</name></member>
+      <member refid="structsmall__alloc_1a21a5999af02aced308cfed5af7c2a9bb" prot="public" virt="non-virtual"><scope>small_alloc</scope><name>factor_pool_next</name></member>
+      <member refid="structsmall__alloc_1ab377c9d03e74db763bc8c0ffa47914e4" prot="public" virt="non-virtual"><scope>small_alloc</scope><name>factor_pools</name></member>
+      <member refid="structsmall__alloc_1afbf3f6aa10451ef02260173a3b94ab5e" prot="public" virt="non-virtual"><scope>small_alloc</scope><name>free_mode</name></member>
+      <member refid="structsmall__alloc_1a29eec7d58ae71a10635dd4a2a5cc8800" prot="public" virt="non-virtual"><scope>small_alloc</scope><name>objsize_max</name></member>
+      <member refid="structsmall__alloc_1a9cdb6918c58a067ab7c7f729f751b88e" prot="public" virt="non-virtual"><scope>small_alloc</scope><name>step_pool0_step_count</name></member>
+      <member refid="structsmall__alloc_1a80ee734b3e7498531793c221b768922d" prot="public" virt="non-virtual"><scope>small_alloc</scope><name>step_pool_objsize_max</name></member>
+      <member refid="structsmall__alloc_1a84f6ccb77497ac270f8522068fd42db8" prot="public" virt="non-virtual"><scope>small_alloc</scope><name>step_pools</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,187 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="classRebuildCkConstraints" kind="class" language="C++" prot="public">
+    <compoundname>RebuildCkConstraints</compoundname>
+    <basecompoundref refid="classAlterSpaceOp" prot="public" virt="non-virtual">AlterSpaceOp</basecompoundref>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classRebuildCkConstraints_1a09bab3cce4bdcbc5cdf37021de4d9ec6" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist RebuildCkConstraints::ck_constraint</definition>
+        <argsstring></argsstring>
+        <name>ck_constraint</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1684" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1686" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classRebuildCkConstraints_1a22d00bfbca03e23a52bf063ecb042a0d" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void RebuildCkConstraints::space_swap_ck_constraint</definition>
+        <argsstring>(struct space *old_space, struct space *new_space)</argsstring>
+        <name>space_swap_ck_constraint</name>
+        <param>
+          <type>struct <ref refid="structspace" kindref="compound">space</ref> *</type>
+          <declname>old_space</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structspace" kindref="compound">space</ref> *</type>
+          <declname>new_space</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1681" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1709" bodyend="1716"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classRebuildCkConstraints_1aea1446f56c32750fe11d26d5ab167d36" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>RebuildCkConstraints::RebuildCkConstraints</definition>
+        <argsstring>(struct alter_space *alter)</argsstring>
+        <name>RebuildCkConstraints</name>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+          <declname>alter</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1684" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1684" bodyend="1685"/>
+      </memberdef>
+      <memberdef kind="function" id="classRebuildCkConstraints_1a4b0b70851e88a12e86ab401f01333908" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void RebuildCkConstraints::prepare</definition>
+        <argsstring>(struct alter_space *alter)</argsstring>
+        <name>prepare</name>
+        <reimplements refid="classAlterSpaceOp_1a5c35fcc6fa0a26b350e2bfd8b73c7d8c">prepare</reimplements>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+        </param>
+        <briefdescription>
+<para>Called after creating a new space. </para>        </briefdescription>
+        <detaileddescription>
+<para>Used for performing long-lasting operations, such as index rebuild or format check. May yield. May throw an exception. Must not modify the old space. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1687" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1694" bodyend="1706"/>
+      </memberdef>
+      <memberdef kind="function" id="classRebuildCkConstraints_1ad21e8bdaae712e06f458bb285e893d65" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void RebuildCkConstraints::alter</definition>
+        <argsstring>(struct alter_space *alter)</argsstring>
+        <name>alter</name>
+        <reimplements refid="classAlterSpaceOp_1a378a5a70c9583adc7e8e37039deac0c0">alter</reimplements>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+        </param>
+        <briefdescription>
+<para>Called after all registered operations have completed the preparation phase. </para>        </briefdescription>
+        <detaileddescription>
+<para>Used to propagate the old space state to the new space (e.g. move unchanged indexes). Must not yield or fail. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1688" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1719" bodyend="1722"/>
+      </memberdef>
+      <memberdef kind="function" id="classRebuildCkConstraints_1a28d03be0aca02e7693db45d5de0fc1ac" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void RebuildCkConstraints::rollback</definition>
+        <argsstring>(struct alter_space *alter)</argsstring>
+        <name>rollback</name>
+        <reimplements refid="classAlterSpaceOp_1aa67d5c66e41e7972f5db131c5a3d9775">rollback</reimplements>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+        </param>
+        <briefdescription>
+<para>Called in case a WAL error occurred. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is supposed to undo the effect of <ref refid="classAlterSpaceOp_1a5c35fcc6fa0a26b350e2bfd8b73c7d8c" kindref="member">AlterSpaceOp::prepare</ref> and <ref refid="classAlterSpaceOp_1a378a5a70c9583adc7e8e37039deac0c0" kindref="member">AlterSpaceOp::alter</ref>. Must not fail. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1689" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1725" bodyend="1728"/>
+      </memberdef>
+      <memberdef kind="function" id="classRebuildCkConstraints_1a5890cbad729e0671e2e6f9177f460f9a" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type></type>
+        <definition>RebuildCkConstraints::~RebuildCkConstraints</definition>
+        <argsstring>()</argsstring>
+        <name>~RebuildCkConstraints</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1690" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1730" bodyend="1743"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>As <ref refid="structck__constraint" kindref="compound">ck_constraint</ref> object depends on <ref refid="structspace__def" kindref="compound">space_def</ref> we must rebuild all ck constraints on space alter. </para>    </briefdescription>
+    <detaileddescription>
+<para>To perform it transactionally, we create a list of new ck constraint objects in ::prepare method that is fault-tolerant. Finally in ::alter or ::rollback methods we only swap those lists securely. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="7679">
+        <label>RebuildCkConstraints</label>
+        <link refid="classRebuildCkConstraints"/>
+        <childnode refid="7680" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="7680">
+        <label>AlterSpaceOp</label>
+        <link refid="classAlterSpaceOp"/>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="7683">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="7683" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="7681">
+        <label>RebuildCkConstraints</label>
+        <link refid="classRebuildCkConstraints"/>
+        <childnode refid="7682" relation="public-inheritance">
+        </childnode>
+        <childnode refid="7683" relation="usage">
+          <edgelabel>ck_constraint</edgelabel>
+        </childnode>
+      </node>
+      <node id="7682">
+        <label>AlterSpaceOp</label>
+        <link refid="classAlterSpaceOp"/>
+        <childnode refid="7683" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1680" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1679" bodyend="1691"/>
+    <listofallmembers>
+      <member refid="classRebuildCkConstraints_1ad21e8bdaae712e06f458bb285e893d65" prot="public" virt="virtual"><scope>RebuildCkConstraints</scope><name>alter</name></member>
+      <member refid="classAlterSpaceOp_1ada87e0e1106f5316848e451f5609b7a4" prot="public" virt="virtual"><scope>RebuildCkConstraints</scope><name>alter_def</name></member>
+      <member refid="classAlterSpaceOp_1ab74f256d2f9bf750c48d8f9496eb0bc9" prot="public" virt="non-virtual"><scope>RebuildCkConstraints</scope><name>AlterSpaceOp</name></member>
+      <member refid="classRebuildCkConstraints_1a09bab3cce4bdcbc5cdf37021de4d9ec6" prot="public" virt="non-virtual"><scope>RebuildCkConstraints</scope><name>ck_constraint</name></member>
+      <member refid="classAlterSpaceOp_1a87e8be9739a71a0f4100d3a67bd75100" prot="public" virt="virtual"><scope>RebuildCkConstraints</scope><name>commit</name></member>
+      <member refid="classAlterSpaceOp_1a18479b187ef8611fe72e6ee92904f1be" prot="public" virt="non-virtual"><scope>RebuildCkConstraints</scope><name>link</name></member>
+      <member refid="classAlterSpaceOp_1a700d3df81c1d87dc0818191dde139cae" prot="public" virt="non-virtual"><scope>RebuildCkConstraints</scope><name>operator delete</name></member>
+      <member refid="classAlterSpaceOp_1ad200979e4bf5c00b78bfef43f259ceba" prot="public" virt="non-virtual"><scope>RebuildCkConstraints</scope><name>operator new</name></member>
+      <member refid="classRebuildCkConstraints_1a4b0b70851e88a12e86ab401f01333908" prot="public" virt="virtual"><scope>RebuildCkConstraints</scope><name>prepare</name></member>
+      <member refid="classRebuildCkConstraints_1aea1446f56c32750fe11d26d5ab167d36" prot="public" virt="non-virtual"><scope>RebuildCkConstraints</scope><name>RebuildCkConstraints</name></member>
+      <member refid="classRebuildCkConstraints_1a28d03be0aca02e7693db45d5de0fc1ac" prot="public" virt="virtual"><scope>RebuildCkConstraints</scope><name>rollback</name></member>
+      <member refid="classRebuildCkConstraints_1a22d00bfbca03e23a52bf063ecb042a0d" prot="private" virt="non-virtual"><scope>RebuildCkConstraints</scope><name>space_swap_ck_constraint</name></member>
+      <member refid="classAlterSpaceOp_1a5549e172b94739b9fa7445b9599f506c" prot="public" virt="virtual"><scope>RebuildCkConstraints</scope><name>~AlterSpaceOp</name></member>
+      <member refid="classRebuildCkConstraints_1a5890cbad729e0671e2e6f9177f460f9a" prot="public" virt="virtual"><scope>RebuildCkConstraints</scope><name>~RebuildCkConstraints</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

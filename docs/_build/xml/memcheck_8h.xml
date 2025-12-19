@@ -1,0 +1,762 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="memcheck_8h" kind="file" language="C++">
+    <compoundname>memcheck.h</compoundname>
+    <includes refid="valgrind_8h" local="yes">valgrind.h</includes>
+    <includedby refid="lib_2core_2fiber_8c" local="yes">/home/tsafin/tarantool/src/lib/core/fiber.c</includedby>
+    <includedby refid="small_2mempool_8c" local="no">/home/tsafin/tarantool/src/lib/small/small/mempool.c</includedby>
+    <includedby refid="small_2region_8c" local="no">/home/tsafin/tarantool/src/lib/small/small/region.c</includedby>
+    <includedby refid="small_2slab__arena_8c" local="no">/home/tsafin/tarantool/src/lib/small/small/slab_arena.c</includedby>
+    <includedby refid="small_2slab__cache_8c" local="no">/home/tsafin/tarantool/src/lib/small/small/slab_cache.c</includedby>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="memcheck_8h_1a1e81c36d92e6b4a0411a13b86e9046c1" prot="public" static="no">
+        <name>VALGRIND_MAKE_MEM_NOACCESS</name>
+        <param><defname>_qzz_addr</defname></param>
+        <param><defname>_qzz_len</defname></param>
+        <initializer>VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* default return */,      \
+                            VG_USERREQ__MAKE_MEM_NOACCESS,       \
+                            (_qzz_addr), (_qzz_len), 0, 0, 0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" line="112" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="memcheck_8h_1aa81a080a0c1b57678026893106d39e32" prot="public" static="no">
+        <name>VALGRIND_MAKE_MEM_UNDEFINED</name>
+        <param><defname>_qzz_addr</defname></param>
+        <param><defname>_qzz_len</defname></param>
+        <initializer>VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* default return */,      \
+                            VG_USERREQ__MAKE_MEM_UNDEFINED,      \
+                            (_qzz_addr), (_qzz_len), 0, 0, 0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" line="119" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" bodystart="119" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="memcheck_8h_1a5bfd16e6fb1edc8650447a46f47cedfe" prot="public" static="no">
+        <name>VALGRIND_MAKE_MEM_DEFINED</name>
+        <param><defname>_qzz_addr</defname></param>
+        <param><defname>_qzz_len</defname></param>
+        <initializer>VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* default return */,      \
+                            VG_USERREQ__MAKE_MEM_DEFINED,        \
+                            (_qzz_addr), (_qzz_len), 0, 0, 0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" line="126" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="memcheck_8h_1a44678e7a87c9e21f62b9cf53701f08d3" prot="public" static="no">
+        <name>VALGRIND_MAKE_MEM_DEFINED_IF_ADDRESSABLE</name>
+        <param><defname>_qzz_addr</defname></param>
+        <param><defname>_qzz_len</defname></param>
+        <initializer>VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* default return */,              \
+                            VG_USERREQ__MAKE_MEM_DEFINED_IF_ADDRESSABLE, \
+                            (_qzz_addr), (_qzz_len), 0, 0, 0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" line="134" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" bodystart="134" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="memcheck_8h_1a63d1d1d09be781ac0c7e85dbc4c3ebfc" prot="public" static="no">
+        <name>VALGRIND_CREATE_BLOCK</name>
+        <param><defname>_qzz_addr</defname></param>
+        <param><defname>_qzz_len</defname></param>
+        <param><defname>_qzz_desc</defname></param>
+        <initializer>VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* default return */,        \
+                            VG_USERREQ__CREATE_BLOCK,              \
+                            (_qzz_addr), (_qzz_len), (_qzz_desc),  \
+                            0, 0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" line="143" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" bodystart="143" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="memcheck_8h_1aa6ef5345c35a5ed5be23ae648b3f8388" prot="public" static="no">
+        <name>VALGRIND_DISCARD</name>
+        <param><defname>_qzz_blkindex</defname></param>
+        <initializer>VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* default return */,      \
+                            VG_USERREQ__DISCARD,                 \
+                            0, (_qzz_blkindex), 0, 0, 0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" line="151" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" bodystart="151" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="memcheck_8h_1ae4d207aee667c74599efb5742d6f54f5" prot="public" static="no">
+        <name>VALGRIND_CHECK_MEM_IS_ADDRESSABLE</name>
+        <param><defname>_qzz_addr</defname></param>
+        <param><defname>_qzz_len</defname></param>
+        <initializer>VALGRIND_DO_CLIENT_REQUEST_EXPR(0,                             \
+                            VG_USERREQ__CHECK_MEM_IS_ADDRESSABLE,  \
+                            (_qzz_addr), (_qzz_len), 0, 0, 0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" line="163" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" bodystart="163" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="memcheck_8h_1ad25b608de124cdd67cc17cfe18f7efca" prot="public" static="no">
+        <name>VALGRIND_CHECK_MEM_IS_DEFINED</name>
+        <param><defname>_qzz_addr</defname></param>
+        <param><defname>_qzz_len</defname></param>
+        <initializer>VALGRIND_DO_CLIENT_REQUEST_EXPR(0,                           \
+                            VG_USERREQ__CHECK_MEM_IS_DEFINED,    \
+                            (_qzz_addr), (_qzz_len), 0, 0, 0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" line="172" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" bodystart="172" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="memcheck_8h_1a5ccbff4b38961ff947af26e176528613" prot="public" static="no">
+        <name>VALGRIND_CHECK_VALUE_IS_DEFINED</name>
+        <param><defname>__lvalue</defname></param>
+        <initializer>VALGRIND_CHECK_MEM_IS_DEFINED(                                \
+      (volatile unsigned char *)&amp;(__lvalue),                     \
+                      (unsigned long)(sizeof (__lvalue)))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" line="182" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" bodystart="182" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="memcheck_8h_1a71e6753f6f55bb915fb667d8209c8918" prot="public" static="no">
+        <name>VALGRIND_DO_LEAK_CHECK</name>
+        <initializer>VALGRIND_DO_CLIENT_REQUEST_STMT(VG_USERREQ__DO_LEAK_CHECK,   \
+                                    0, 0, 0, 0, 0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" line="189" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" bodystart="189" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="memcheck_8h_1a3e2533eb3cb51d666b2d7b6e577e2958" prot="public" static="no">
+        <name>VALGRIND_DO_ADDED_LEAK_CHECK</name>
+        <initializer>VALGRIND_DO_CLIENT_REQUEST_STMT(VG_USERREQ__DO_LEAK_CHECK,  \
+                                    0, 1, 0, 0, 0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" line="196" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" bodystart="196" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="memcheck_8h_1a441bcd68fb93aebab597308bb1469445" prot="public" static="no">
+        <name>VALGRIND_DO_CHANGED_LEAK_CHECK</name>
+        <initializer>VALGRIND_DO_CLIENT_REQUEST_STMT(VG_USERREQ__DO_LEAK_CHECK,  \
+                                    0, 2, 0, 0, 0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" line="203" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" bodystart="203" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="memcheck_8h_1af96a83150cc4025e43502448bd7d11a8" prot="public" static="no">
+        <name>VALGRIND_DO_QUICK_LEAK_CHECK</name>
+        <initializer>VALGRIND_DO_CLIENT_REQUEST_STMT(VG_USERREQ__DO_LEAK_CHECK,   \
+                                    1, 0, 0, 0, 0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" line="208" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" bodystart="208" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="memcheck_8h_1a950ecad762466a686344df0e82105725" prot="public" static="no">
+        <name>VALGRIND_COUNT_LEAKS</name>
+        <param><defname>leaked</defname></param>
+        <param><defname>dubious</defname></param>
+        <param><defname>reachable</defname></param>
+        <param><defname>suppressed</defname></param>
+        <initializer>/* For safety on 64-bit platforms we assign the results to private
+      unsigned long variables, then assign these to the lvalues the <ref refid="structuser" kindref="compound">user</ref>
+      specified, which works no matter what type &apos;leaked&apos;, &apos;dubious&apos;, etc
+      are.  We also initialise &apos;_qzz_leaked&apos;, etc because
+      VG_USERREQ__COUNT_LEAKS doesn&apos;t mark the values returned as
+      defined. */                                                        \
+   {                                                                     \
+    unsigned long _qzz_leaked    = 0, _qzz_dubious    = 0;               \
+    unsigned long _qzz_reachable = 0, _qzz_suppressed = 0;               \
+    VALGRIND_DO_CLIENT_REQUEST_STMT(                                     \
+                               VG_USERREQ__COUNT_LEAKS,                  \
+                               &amp;_qzz_leaked, &amp;_qzz_dubious,              \
+                               &amp;_qzz_reachable, &amp;_qzz_suppressed, 0);    \
+    leaked     = _qzz_leaked;                                            \
+    dubious    = _qzz_dubious;                                           \
+    reachable  = _qzz_reachable;                                         \
+    suppressed = _qzz_suppressed;                                        \
+   }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" line="219" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" bodystart="214" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="memcheck_8h_1a44dfaf8f52b023631fe3ad1728307209" prot="public" static="no">
+        <name>VALGRIND_COUNT_LEAK_BLOCKS</name>
+        <param><defname>leaked</defname></param>
+        <param><defname>dubious</defname></param>
+        <param><defname>reachable</defname></param>
+        <param><defname>suppressed</defname></param>
+        <initializer>/* For safety on 64-bit platforms we assign the results to private
+      unsigned long variables, then assign these to the lvalues the <ref refid="structuser" kindref="compound">user</ref>
+      specified, which works no matter what type &apos;leaked&apos;, &apos;dubious&apos;, etc
+      are.  We also initialise &apos;_qzz_leaked&apos;, etc because
+      VG_USERREQ__COUNT_LEAKS doesn&apos;t mark the values returned as
+      defined. */                                                        \
+   {                                                                     \
+    unsigned long _qzz_leaked    = 0, _qzz_dubious    = 0;               \
+    unsigned long _qzz_reachable = 0, _qzz_suppressed = 0;               \
+    VALGRIND_DO_CLIENT_REQUEST_STMT(                                     \
+                               VG_USERREQ__COUNT_LEAK_BLOCKS,            \
+                               &amp;_qzz_leaked, &amp;_qzz_dubious,              \
+                               &amp;_qzz_reachable, &amp;_qzz_suppressed, 0);    \
+    leaked     = _qzz_leaked;                                            \
+    dubious    = _qzz_dubious;                                           \
+    reachable  = _qzz_reachable;                                         \
+    suppressed = _qzz_suppressed;                                        \
+   }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" line="241" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" bodystart="236" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="memcheck_8h_1a6d291c64b926de5b4a182c22650a290b" prot="public" static="no">
+        <name>VALGRIND_GET_VBITS</name>
+        <param><defname>zza</defname></param>
+        <param><defname>zzvbits</defname></param>
+        <param><defname>zznbytes</defname></param>
+        <initializer>(unsigned)VALGRIND_DO_CLIENT_REQUEST_EXPR(0,                \
+                                    VG_USERREQ__GET_VBITS,      \
+                                    (const char*)(zza),         \
+                                    (char*)(zzvbits),           \
+                                    (zznbytes), 0, 0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" line="266" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" bodystart="266" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="memcheck_8h_1ae1493016f76f89110f560cde33bae0ae" prot="public" static="no">
+        <name>VALGRIND_SET_VBITS</name>
+        <param><defname>zza</defname></param>
+        <param><defname>zzvbits</defname></param>
+        <param><defname>zznbytes</defname></param>
+        <initializer>(unsigned)VALGRIND_DO_CLIENT_REQUEST_EXPR(0,                \
+                                    VG_USERREQ__SET_VBITS,      \
+                                    (const char*)(zza),         \
+                                    (const char*)(zzvbits),     \
+                                    (zznbytes), 0, 0 )</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" line="282" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" bodystart="282" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="memcheck_8h_1a4c5efd0be49720b9b0c63e8eb871bc5c" prot="public" static="no">
+        <name>VALGRIND_DISABLE_ADDR_ERROR_REPORTING_IN_RANGE</name>
+        <param><defname>_qzz_addr</defname></param>
+        <param><defname>_qzz_len</defname></param>
+        <initializer>VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* default return */,    \
+       VG_USERREQ__DISABLE_ADDR_ERROR_REPORTING_IN_RANGE,      \
+       (_qzz_addr), (_qzz_len), 0, 0, 0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" line="291" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" bodystart="291" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="memcheck_8h_1a082d409e0345b55e31dbfc7590937507" prot="public" static="no">
+        <name>VALGRIND_ENABLE_ADDR_ERROR_REPORTING_IN_RANGE</name>
+        <param><defname>_qzz_addr</defname></param>
+        <param><defname>_qzz_len</defname></param>
+        <initializer>VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* default return */,    \
+       VG_USERREQ__ENABLE_ADDR_ERROR_REPORTING_IN_RANGE,       \
+       (_qzz_addr), (_qzz_len), 0, 0, 0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" line="296" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" bodystart="296" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="memcheck_8h_1a23a16f205cc3129c32a34c7d740b09b3" prot="public" static="no">
+        <name>Vg_MemCheckClientRequest</name>
+        <enumvalue id="memcheck_8h_1a23a16f205cc3129c32a34c7d740b09b3a5d744182b98c693ec9e2024e3895f680" prot="public">
+          <name>VG_USERREQ__MAKE_MEM_NOACCESS</name>
+          <initializer>= VG_USERREQ_TOOL_BASE(&apos;M&apos;,&apos;C&apos;)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="memcheck_8h_1a23a16f205cc3129c32a34c7d740b09b3a5adfc1733a3ebf1d1833a492a2e4f9db" prot="public">
+          <name>VG_USERREQ__MAKE_MEM_UNDEFINED</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="memcheck_8h_1a23a16f205cc3129c32a34c7d740b09b3aebd19beffa144541a1ba11c985b185b7" prot="public">
+          <name>VG_USERREQ__MAKE_MEM_DEFINED</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="memcheck_8h_1a23a16f205cc3129c32a34c7d740b09b3abfa6d2f462d0ff580f622ca4aabd9b53" prot="public">
+          <name>VG_USERREQ__DISCARD</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="memcheck_8h_1a23a16f205cc3129c32a34c7d740b09b3ac4117f5aba89d89babd2a211fc8b2931" prot="public">
+          <name>VG_USERREQ__CHECK_MEM_IS_ADDRESSABLE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="memcheck_8h_1a23a16f205cc3129c32a34c7d740b09b3a6b445d7bc5f946691418356e9150eb5f" prot="public">
+          <name>VG_USERREQ__CHECK_MEM_IS_DEFINED</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="memcheck_8h_1a23a16f205cc3129c32a34c7d740b09b3aa5341e7fc23244a00317fb4d6e0ace33" prot="public">
+          <name>VG_USERREQ__DO_LEAK_CHECK</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="memcheck_8h_1a23a16f205cc3129c32a34c7d740b09b3aa9729c8456488819a2dfe3a358a36c0e" prot="public">
+          <name>VG_USERREQ__COUNT_LEAKS</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="memcheck_8h_1a23a16f205cc3129c32a34c7d740b09b3ae4c7a8b1604ba1136d2b9ed689305a20" prot="public">
+          <name>VG_USERREQ__GET_VBITS</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="memcheck_8h_1a23a16f205cc3129c32a34c7d740b09b3a7412cb01dec8ce76b7c9829edced49a2" prot="public">
+          <name>VG_USERREQ__SET_VBITS</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="memcheck_8h_1a23a16f205cc3129c32a34c7d740b09b3aa72d133e4dcee413a3ac01773841d1ab" prot="public">
+          <name>VG_USERREQ__CREATE_BLOCK</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="memcheck_8h_1a23a16f205cc3129c32a34c7d740b09b3ad7676f36d2e51dae57aa1bc116add770" prot="public">
+          <name>VG_USERREQ__MAKE_MEM_DEFINED_IF_ADDRESSABLE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="memcheck_8h_1a23a16f205cc3129c32a34c7d740b09b3a5650180ee384c26a934f78dcf3f4ba63" prot="public">
+          <name>VG_USERREQ__COUNT_LEAK_BLOCKS</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="memcheck_8h_1a23a16f205cc3129c32a34c7d740b09b3a41a04b7bc1088709a88482357fca8e60" prot="public">
+          <name>VG_USERREQ__ENABLE_ADDR_ERROR_REPORTING_IN_RANGE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="memcheck_8h_1a23a16f205cc3129c32a34c7d740b09b3a00f434d0b60fda722c8a80c8427cd205" prot="public">
+          <name>VG_USERREQ__DISABLE_ADDR_ERROR_REPORTING_IN_RANGE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="memcheck_8h_1a23a16f205cc3129c32a34c7d740b09b3abe0881cf266c6c78d4cc22702f3fa55e" prot="public">
+          <name>_VG_USERREQ__MEMCHECK_RECORD_OVERLAP_ERROR</name>
+          <initializer>= VG_USERREQ_TOOL_BASE(&apos;M&apos;,&apos;C&apos;) + 256</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" line="79" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h" bodystart="78" bodyend="105"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/><sp/><sp/>----------------------------------------------------------------</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"></highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/><sp/><sp/>Notice<sp/>that<sp/>the<sp/>following<sp/>BSD-style<sp/>license<sp/>applies<sp/>to<sp/>this<sp/>one</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/><sp/><sp/>file<sp/>(memcheck.h)<sp/>only.<sp/><sp/>The<sp/>rest<sp/>of<sp/>Valgrind<sp/>is<sp/>licensed<sp/>under<sp/>the</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/><sp/><sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License,<sp/>version<sp/>2,<sp/>unless</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/><sp/><sp/>otherwise<sp/>indicated.<sp/><sp/>See<sp/>the<sp/>COPYING<sp/>file<sp/>in<sp/>the<sp/>source</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/><sp/><sp/>distribution<sp/>for<sp/>details.</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"></highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/><sp/><sp/>----------------------------------------------------------------</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"></highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/><sp/><sp/>This<sp/>file<sp/>is<sp/>part<sp/>of<sp/>MemCheck,<sp/>a<sp/>heavyweight<sp/>Valgrind<sp/>tool<sp/>for</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/><sp/><sp/>detecting<sp/>memory<sp/>errors.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"></highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/><sp/><sp/>Copyright<sp/>(C)<sp/>2000-2015<sp/>Julian<sp/>Seward.<sp/><sp/>All<sp/>rights<sp/>reserved.</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"></highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/><sp/><sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or<sp/>without</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/><sp/><sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following<sp/>conditions</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/><sp/><sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"></highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/><sp/><sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above<sp/>copyright</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"></highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/><sp/><sp/>2.<sp/>The<sp/>origin<sp/>of<sp/>this<sp/>software<sp/>must<sp/>not<sp/>be<sp/>misrepresented;<sp/>you<sp/>must<sp/></highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>not<sp/>claim<sp/>that<sp/>you<sp/>wrote<sp/>the<sp/>original<sp/>software.<sp/><sp/>If<sp/>you<sp/>use<sp/>this<sp/></highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>software<sp/>in<sp/>a<sp/>product,<sp/>an<sp/>acknowledgment<sp/>in<sp/>the<sp/>product<sp/></highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>documentation<sp/>would<sp/>be<sp/>appreciated<sp/>but<sp/>is<sp/>not<sp/>required.</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"></highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/><sp/><sp/>3.<sp/>Altered<sp/>source<sp/>versions<sp/>must<sp/>be<sp/>plainly<sp/>marked<sp/>as<sp/>such,<sp/>and<sp/>must</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>not<sp/>be<sp/>misrepresented<sp/>as<sp/>being<sp/>the<sp/>original<sp/>software.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"></highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/><sp/><sp/>4.<sp/>The<sp/>name<sp/>of<sp/>the<sp/>author<sp/>may<sp/>not<sp/>be<sp/>used<sp/>to<sp/>endorse<sp/>or<sp/>promote<sp/></highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>products<sp/>derived<sp/>from<sp/>this<sp/>software<sp/>without<sp/>specific<sp/>prior<sp/>written<sp/></highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>permission.</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"></highlight></codeline>
+<codeline lineno="37"><highlight class="comment"><sp/><sp/><sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>THE<sp/>AUTHOR<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND<sp/>ANY<sp/>EXPRESS</highlight></codeline>
+<codeline lineno="38"><highlight class="comment"><sp/><sp/><sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>THE<sp/>IMPLIED</highlight></codeline>
+<codeline lineno="39"><highlight class="comment"><sp/><sp/><sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR<sp/>A<sp/>PARTICULAR<sp/>PURPOSE</highlight></codeline>
+<codeline lineno="40"><highlight class="comment"><sp/><sp/><sp/>ARE<sp/>DISCLAIMED.<sp/><sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL<sp/>THE<sp/>AUTHOR<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY</highlight></codeline>
+<codeline lineno="41"><highlight class="comment"><sp/><sp/><sp/>DIRECT,<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="42"><highlight class="comment"><sp/><sp/><sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF<sp/>SUBSTITUTE</highlight></codeline>
+<codeline lineno="43"><highlight class="comment"><sp/><sp/><sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR<sp/>BUSINESS</highlight></codeline>
+<codeline lineno="44"><highlight class="comment"><sp/><sp/><sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF<sp/>LIABILITY,</highlight></codeline>
+<codeline lineno="45"><highlight class="comment"><sp/><sp/><sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT<sp/>(INCLUDING</highlight></codeline>
+<codeline lineno="46"><highlight class="comment"><sp/><sp/><sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF<sp/>THE<sp/>USE<sp/>OF<sp/>THIS</highlight></codeline>
+<codeline lineno="47"><highlight class="comment"><sp/><sp/><sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="48"><highlight class="comment"></highlight></codeline>
+<codeline lineno="49"><highlight class="comment"><sp/><sp/><sp/>----------------------------------------------------------------</highlight></codeline>
+<codeline lineno="50"><highlight class="comment"></highlight></codeline>
+<codeline lineno="51"><highlight class="comment"><sp/><sp/><sp/>Notice<sp/>that<sp/>the<sp/>above<sp/>BSD-style<sp/>license<sp/>applies<sp/>to<sp/>this<sp/>one<sp/>file</highlight></codeline>
+<codeline lineno="52"><highlight class="comment"><sp/><sp/><sp/>(memcheck.h)<sp/>only.<sp/><sp/>The<sp/>entire<sp/>rest<sp/>of<sp/>Valgrind<sp/>is<sp/>licensed<sp/>under</highlight></codeline>
+<codeline lineno="53"><highlight class="comment"><sp/><sp/><sp/>the<sp/>terms<sp/>of<sp/>the<sp/>GNU<sp/>General<sp/>Public<sp/>License,<sp/>version<sp/>2.<sp/><sp/>See<sp/>the</highlight></codeline>
+<codeline lineno="54"><highlight class="comment"><sp/><sp/><sp/>COPYING<sp/>file<sp/>in<sp/>the<sp/>source<sp/>distribution<sp/>for<sp/>details.</highlight></codeline>
+<codeline lineno="55"><highlight class="comment"></highlight></codeline>
+<codeline lineno="56"><highlight class="comment"><sp/><sp/><sp/>----------------------------------------------------------------<sp/></highlight></codeline>
+<codeline lineno="57"><highlight class="comment">*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>__MEMCHECK_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__MEMCHECK_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>This<sp/>file<sp/>is<sp/>for<sp/>inclusion<sp/>into<sp/>client<sp/>(your!)<sp/>code.</highlight></codeline>
+<codeline lineno="65"><highlight class="comment"></highlight></codeline>
+<codeline lineno="66"><highlight class="comment"><sp/><sp/><sp/>You<sp/>can<sp/>use<sp/>these<sp/>macros<sp/>to<sp/>manipulate<sp/>and<sp/>query<sp/>memory<sp/>permissions</highlight></codeline>
+<codeline lineno="67"><highlight class="comment"><sp/><sp/><sp/>inside<sp/>your<sp/>own<sp/>programs.</highlight></codeline>
+<codeline lineno="68"><highlight class="comment"></highlight></codeline>
+<codeline lineno="69"><highlight class="comment"><sp/><sp/><sp/>See<sp/>comment<sp/>near<sp/>the<sp/>top<sp/>of<sp/>valgrind.h<sp/>on<sp/>how<sp/>to<sp/>use<sp/>them.</highlight></codeline>
+<codeline lineno="70"><highlight class="comment">*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;valgrind.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>!!<sp/>ABIWARNING<sp/>!!<sp/>ABIWARNING<sp/>!!<sp/>ABIWARNING<sp/>!!<sp/>ABIWARNING<sp/>!!<sp/></highlight></codeline>
+<codeline lineno="75"><highlight class="comment"><sp/><sp/><sp/>This<sp/>enum<sp/>comprises<sp/>an<sp/>ABI<sp/>exported<sp/>by<sp/>Valgrind<sp/>to<sp/>programs</highlight></codeline>
+<codeline lineno="76"><highlight class="comment"><sp/><sp/><sp/>which<sp/>use<sp/>client<sp/>requests.<sp/><sp/>DO<sp/>NOT<sp/>CHANGE<sp/>THE<sp/>ORDER<sp/>OF<sp/>THESE</highlight></codeline>
+<codeline lineno="77"><highlight class="comment"><sp/><sp/><sp/>ENTRIES,<sp/>NOR<sp/>DELETE<sp/>ANY<sp/>--<sp/>add<sp/>new<sp/>ones<sp/>at<sp/>the<sp/>end.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{<sp/></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__MAKE_MEM_NOACCESS<sp/>=<sp/>VG_USERREQ_TOOL_BASE(</highlight><highlight class="charliteral">&apos;M&apos;</highlight><highlight class="normal">,</highlight><highlight class="charliteral">&apos;C&apos;</highlight><highlight class="normal">),</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__MAKE_MEM_UNDEFINED,</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__MAKE_MEM_DEFINED,</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__DISCARD,</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__CHECK_MEM_IS_ADDRESSABLE,</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__CHECK_MEM_IS_DEFINED,</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__DO_LEAK_CHECK,</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__COUNT_LEAKS,</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__GET_VBITS,</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__SET_VBITS,</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__CREATE_BLOCK,</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__MAKE_MEM_DEFINED_IF_ADDRESSABLE,</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Not<sp/>next<sp/>to<sp/>VG_USERREQ__COUNT_LEAKS<sp/>because<sp/>it<sp/>was<sp/>added<sp/>later.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__COUNT_LEAK_BLOCKS,</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__ENABLE_ADDR_ERROR_REPORTING_IN_RANGE,</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__DISABLE_ADDR_ERROR_REPORTING_IN_RANGE,</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>This<sp/>is<sp/>just<sp/>for<sp/>memcheck&apos;s<sp/>internal<sp/>use<sp/>-<sp/>don&apos;t<sp/>use<sp/>it<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>_VG_USERREQ__MEMCHECK_RECORD_OVERLAP_ERROR<sp/></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>VG_USERREQ_TOOL_BASE(</highlight><highlight class="charliteral">&apos;M&apos;</highlight><highlight class="normal">,</highlight><highlight class="charliteral">&apos;C&apos;</highlight><highlight class="normal">)<sp/>+<sp/>256</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/>}<sp/>Vg_MemCheckClientRequest;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Client-code<sp/>macros<sp/>to<sp/>manipulate<sp/>the<sp/>state<sp/>of<sp/>memory.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Mark<sp/>memory<sp/>at<sp/>_qzz_addr<sp/>as<sp/>unaddressable<sp/>for<sp/>_qzz_len<sp/>bytes.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VALGRIND_MAKE_MEM_NOACCESS(_qzz_addr,_qzz_len)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="113"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>VALGRIND_DO_CLIENT_REQUEST_EXPR(0<sp/></highlight><highlight class="comment">/*<sp/>default<sp/>return<sp/>*/</highlight><highlight class="preprocessor">,<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="114"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__MAKE_MEM_NOACCESS,<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="115"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(_qzz_addr),<sp/>(_qzz_len),<sp/>0,<sp/>0,<sp/>0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Similarly,<sp/>mark<sp/>memory<sp/>at<sp/>_qzz_addr<sp/>as<sp/>addressable<sp/>but<sp/>undefined</highlight></codeline>
+<codeline lineno="118"><highlight class="comment"><sp/><sp/><sp/>for<sp/>_qzz_len<sp/>bytes.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VALGRIND_MAKE_MEM_UNDEFINED(_qzz_addr,_qzz_len)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="120"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>VALGRIND_DO_CLIENT_REQUEST_EXPR(0<sp/></highlight><highlight class="comment">/*<sp/>default<sp/>return<sp/>*/</highlight><highlight class="preprocessor">,<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="121"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__MAKE_MEM_UNDEFINED,<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="122"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(_qzz_addr),<sp/>(_qzz_len),<sp/>0,<sp/>0,<sp/>0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Similarly,<sp/>mark<sp/>memory<sp/>at<sp/>_qzz_addr<sp/>as<sp/>addressable<sp/>and<sp/>defined</highlight></codeline>
+<codeline lineno="125"><highlight class="comment"><sp/><sp/><sp/>for<sp/>_qzz_len<sp/>bytes.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VALGRIND_MAKE_MEM_DEFINED(_qzz_addr,_qzz_len)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="127"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>VALGRIND_DO_CLIENT_REQUEST_EXPR(0<sp/></highlight><highlight class="comment">/*<sp/>default<sp/>return<sp/>*/</highlight><highlight class="preprocessor">,<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="128"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__MAKE_MEM_DEFINED,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="129"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(_qzz_addr),<sp/>(_qzz_len),<sp/>0,<sp/>0,<sp/>0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Similar<sp/>to<sp/>VALGRIND_MAKE_MEM_DEFINED<sp/>except<sp/>that<sp/>addressability<sp/>is</highlight></codeline>
+<codeline lineno="132"><highlight class="comment"><sp/><sp/><sp/>not<sp/>altered:<sp/>bytes<sp/>which<sp/>are<sp/>addressable<sp/>are<sp/>marked<sp/>as<sp/>defined,</highlight></codeline>
+<codeline lineno="133"><highlight class="comment"><sp/><sp/><sp/>but<sp/>those<sp/>which<sp/>are<sp/>not<sp/>addressable<sp/>are<sp/>left<sp/>unchanged.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VALGRIND_MAKE_MEM_DEFINED_IF_ADDRESSABLE(_qzz_addr,_qzz_len)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="135"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>VALGRIND_DO_CLIENT_REQUEST_EXPR(0<sp/></highlight><highlight class="comment">/*<sp/>default<sp/>return<sp/>*/</highlight><highlight class="preprocessor">,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="136"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__MAKE_MEM_DEFINED_IF_ADDRESSABLE,<sp/>\</highlight></codeline>
+<codeline lineno="137"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(_qzz_addr),<sp/>(_qzz_len),<sp/>0,<sp/>0,<sp/>0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Create<sp/>a<sp/>block-description<sp/>handle.<sp/><sp/>The<sp/>description<sp/>is<sp/>an<sp/>ascii</highlight></codeline>
+<codeline lineno="140"><highlight class="comment"><sp/><sp/><sp/>string<sp/>which<sp/>is<sp/>included<sp/>in<sp/>any<sp/>messages<sp/>pertaining<sp/>to<sp/>addresses</highlight></codeline>
+<codeline lineno="141"><highlight class="comment"><sp/><sp/><sp/>within<sp/>the<sp/>specified<sp/>memory<sp/>range.<sp/><sp/>Has<sp/>no<sp/>other<sp/>effect<sp/>on<sp/>the</highlight></codeline>
+<codeline lineno="142"><highlight class="comment"><sp/><sp/><sp/>properties<sp/>of<sp/>the<sp/>memory<sp/>range.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VALGRIND_CREATE_BLOCK(_qzz_addr,_qzz_len,<sp/>_qzz_desc)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="144"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>VALGRIND_DO_CLIENT_REQUEST_EXPR(0<sp/></highlight><highlight class="comment">/*<sp/>default<sp/>return<sp/>*/</highlight><highlight class="preprocessor">,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="145"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__CREATE_BLOCK,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="146"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(_qzz_addr),<sp/>(_qzz_len),<sp/>(_qzz_desc),<sp/><sp/>\</highlight></codeline>
+<codeline lineno="147"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0,<sp/>0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Discard<sp/>a<sp/>block-description-handle.<sp/>Returns<sp/>1<sp/>for<sp/>an</highlight></codeline>
+<codeline lineno="150"><highlight class="comment"><sp/><sp/><sp/>invalid<sp/>handle,<sp/>0<sp/>for<sp/>a<sp/>valid<sp/>handle.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VALGRIND_DISCARD(_qzz_blkindex)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="152"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>VALGRIND_DO_CLIENT_REQUEST_EXPR(0<sp/></highlight><highlight class="comment">/*<sp/>default<sp/>return<sp/>*/</highlight><highlight class="preprocessor">,<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="153"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__DISCARD,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="154"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0,<sp/>(_qzz_blkindex),<sp/>0,<sp/>0,<sp/>0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Client-code<sp/>macros<sp/>to<sp/>check<sp/>the<sp/>state<sp/>of<sp/>memory.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Check<sp/>that<sp/>memory<sp/>at<sp/>_qzz_addr<sp/>is<sp/>addressable<sp/>for<sp/>_qzz_len<sp/>bytes.</highlight></codeline>
+<codeline lineno="160"><highlight class="comment"><sp/><sp/><sp/>If<sp/>suitable<sp/>addressibility<sp/>is<sp/>not<sp/>established,<sp/>Valgrind<sp/>prints<sp/>an</highlight></codeline>
+<codeline lineno="161"><highlight class="comment"><sp/><sp/><sp/>error<sp/>message<sp/>and<sp/>returns<sp/>the<sp/>address<sp/>of<sp/>the<sp/>first<sp/>offending<sp/>byte.</highlight></codeline>
+<codeline lineno="162"><highlight class="comment"><sp/><sp/><sp/>Otherwise<sp/>it<sp/>returns<sp/>zero.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VALGRIND_CHECK_MEM_IS_ADDRESSABLE(_qzz_addr,_qzz_len)<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="164"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>VALGRIND_DO_CLIENT_REQUEST_EXPR(0,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="165"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__CHECK_MEM_IS_ADDRESSABLE,<sp/><sp/>\</highlight></codeline>
+<codeline lineno="166"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(_qzz_addr),<sp/>(_qzz_len),<sp/>0,<sp/>0,<sp/>0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Check<sp/>that<sp/>memory<sp/>at<sp/>_qzz_addr<sp/>is<sp/>addressable<sp/>and<sp/>defined<sp/>for</highlight></codeline>
+<codeline lineno="169"><highlight class="comment"><sp/><sp/><sp/>_qzz_len<sp/>bytes.<sp/><sp/>If<sp/>suitable<sp/>addressibility<sp/>and<sp/>definedness<sp/>are<sp/>not</highlight></codeline>
+<codeline lineno="170"><highlight class="comment"><sp/><sp/><sp/>established,<sp/>Valgrind<sp/>prints<sp/>an<sp/>error<sp/>message<sp/>and<sp/>returns<sp/>the</highlight></codeline>
+<codeline lineno="171"><highlight class="comment"><sp/><sp/><sp/>address<sp/>of<sp/>the<sp/>first<sp/>offending<sp/>byte.<sp/><sp/>Otherwise<sp/>it<sp/>returns<sp/>zero.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VALGRIND_CHECK_MEM_IS_DEFINED(_qzz_addr,_qzz_len)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="173"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>VALGRIND_DO_CLIENT_REQUEST_EXPR(0,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="174"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__CHECK_MEM_IS_DEFINED,<sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="175"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(_qzz_addr),<sp/>(_qzz_len),<sp/>0,<sp/>0,<sp/>0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Use<sp/>this<sp/>macro<sp/>to<sp/>force<sp/>the<sp/>definedness<sp/>and<sp/>addressibility<sp/>of<sp/>an</highlight></codeline>
+<codeline lineno="178"><highlight class="comment"><sp/><sp/><sp/>lvalue<sp/>to<sp/>be<sp/>checked.<sp/><sp/>If<sp/>suitable<sp/>addressibility<sp/>and<sp/>definedness</highlight></codeline>
+<codeline lineno="179"><highlight class="comment"><sp/><sp/><sp/>are<sp/>not<sp/>established,<sp/>Valgrind<sp/>prints<sp/>an<sp/>error<sp/>message<sp/>and<sp/>returns</highlight></codeline>
+<codeline lineno="180"><highlight class="comment"><sp/><sp/><sp/>the<sp/>address<sp/>of<sp/>the<sp/>first<sp/>offending<sp/>byte.<sp/><sp/>Otherwise<sp/>it<sp/>returns</highlight></codeline>
+<codeline lineno="181"><highlight class="comment"><sp/><sp/><sp/>zero.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VALGRIND_CHECK_VALUE_IS_DEFINED(__lvalue)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="183"><highlight class="preprocessor"><sp/><sp/><sp/>VALGRIND_CHECK_MEM_IS_DEFINED(<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="184"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/>(volatile<sp/>unsigned<sp/>char<sp/>*)&amp;(__lvalue),<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="185"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(unsigned<sp/>long)(sizeof<sp/>(__lvalue)))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Do<sp/>a<sp/>full<sp/>memory<sp/>leak<sp/>check<sp/>(like<sp/>--leak-check=full)<sp/>mid-execution.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VALGRIND_DO_LEAK_CHECK<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="190"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>VALGRIND_DO_CLIENT_REQUEST_STMT(VG_USERREQ__DO_LEAK_CHECK,<sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="191"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0,<sp/>0,<sp/>0,<sp/>0,<sp/>0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Same<sp/>as<sp/>VALGRIND_DO_LEAK_CHECK<sp/>but<sp/>only<sp/>showing<sp/>the<sp/>entries<sp/>for</highlight></codeline>
+<codeline lineno="194"><highlight class="comment"><sp/><sp/><sp/>which<sp/>there<sp/>was<sp/>an<sp/>increase<sp/>in<sp/>leaked<sp/>bytes<sp/>or<sp/>leaked<sp/>nr<sp/>of<sp/>blocks</highlight></codeline>
+<codeline lineno="195"><highlight class="comment"><sp/><sp/><sp/>since<sp/>the<sp/>previous<sp/>leak<sp/>search.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VALGRIND_DO_ADDED_LEAK_CHECK<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="197"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>VALGRIND_DO_CLIENT_REQUEST_STMT(VG_USERREQ__DO_LEAK_CHECK,<sp/><sp/>\</highlight></codeline>
+<codeline lineno="198"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0,<sp/>1,<sp/>0,<sp/>0,<sp/>0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Same<sp/>as<sp/>VALGRIND_DO_ADDED_LEAK_CHECK<sp/>but<sp/>showing<sp/>entries<sp/>with</highlight></codeline>
+<codeline lineno="201"><highlight class="comment"><sp/><sp/><sp/>increased<sp/>or<sp/>decreased<sp/>leaked<sp/>bytes/blocks<sp/>since<sp/>previous<sp/>leak</highlight></codeline>
+<codeline lineno="202"><highlight class="comment"><sp/><sp/><sp/>search.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VALGRIND_DO_CHANGED_LEAK_CHECK<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="204"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>VALGRIND_DO_CLIENT_REQUEST_STMT(VG_USERREQ__DO_LEAK_CHECK,<sp/><sp/>\</highlight></codeline>
+<codeline lineno="205"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0,<sp/>2,<sp/>0,<sp/>0,<sp/>0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Do<sp/>a<sp/>summary<sp/>memory<sp/>leak<sp/>check<sp/>(like<sp/>--leak-check=summary)<sp/>mid-execution.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VALGRIND_DO_QUICK_LEAK_CHECK<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="209"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>VALGRIND_DO_CLIENT_REQUEST_STMT(VG_USERREQ__DO_LEAK_CHECK,<sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="210"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>1,<sp/>0,<sp/>0,<sp/>0,<sp/>0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Return<sp/>number<sp/>of<sp/>leaked,<sp/>dubious,<sp/>reachable<sp/>and<sp/>suppressed<sp/>bytes<sp/>found<sp/>by</highlight></codeline>
+<codeline lineno="213"><highlight class="comment"><sp/><sp/><sp/>all<sp/>previous<sp/>leak<sp/>checks.<sp/><sp/>They<sp/>must<sp/>be<sp/>lvalues.<sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VALGRIND_COUNT_LEAKS(leaked,<sp/>dubious,<sp/>reachable,<sp/>suppressed)<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="215"><highlight class="preprocessor"><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>For<sp/>safety<sp/>on<sp/>64-bit<sp/>platforms<sp/>we<sp/>assign<sp/>the<sp/>results<sp/>to<sp/>private</highlight></codeline>
+<codeline lineno="216"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>unsigned<sp/>long<sp/>variables,<sp/>then<sp/>assign<sp/>these<sp/>to<sp/>the<sp/>lvalues<sp/>the<sp/>user</highlight></codeline>
+<codeline lineno="217"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>specified,<sp/>which<sp/>works<sp/>no<sp/>matter<sp/>what<sp/>type<sp/>&apos;leaked&apos;,<sp/>&apos;dubious&apos;,<sp/>etc</highlight></codeline>
+<codeline lineno="218"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>are.<sp/><sp/>We<sp/>also<sp/>initialise<sp/>&apos;_qzz_leaked&apos;,<sp/>etc<sp/>because</highlight></codeline>
+<codeline lineno="219"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__COUNT_LEAKS<sp/>doesn&apos;t<sp/>mark<sp/>the<sp/>values<sp/>returned<sp/>as</highlight></codeline>
+<codeline lineno="220"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>defined.<sp/>*/</highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="221"><highlight class="preprocessor"><sp/><sp/><sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="222"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>unsigned<sp/>long<sp/>_qzz_leaked<sp/><sp/><sp/><sp/>=<sp/>0,<sp/>_qzz_dubious<sp/><sp/><sp/><sp/>=<sp/>0;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="223"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>unsigned<sp/>long<sp/>_qzz_reachable<sp/>=<sp/>0,<sp/>_qzz_suppressed<sp/>=<sp/>0;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="224"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>VALGRIND_DO_CLIENT_REQUEST_STMT(<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="225"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__COUNT_LEAKS,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="226"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;_qzz_leaked,<sp/>&amp;_qzz_dubious,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="227"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;_qzz_reachable,<sp/>&amp;_qzz_suppressed,<sp/>0);<sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="228"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>leaked<sp/><sp/><sp/><sp/><sp/>=<sp/>_qzz_leaked;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="229"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>dubious<sp/><sp/><sp/><sp/>=<sp/>_qzz_dubious;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="230"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>reachable<sp/><sp/>=<sp/>_qzz_reachable;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="231"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>suppressed<sp/>=<sp/>_qzz_suppressed;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="232"><highlight class="preprocessor"><sp/><sp/><sp/>}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Return<sp/>number<sp/>of<sp/>leaked,<sp/>dubious,<sp/>reachable<sp/>and<sp/>suppressed<sp/>bytes<sp/>found<sp/>by</highlight></codeline>
+<codeline lineno="235"><highlight class="comment"><sp/><sp/><sp/>all<sp/>previous<sp/>leak<sp/>checks.<sp/><sp/>They<sp/>must<sp/>be<sp/>lvalues.<sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VALGRIND_COUNT_LEAK_BLOCKS(leaked,<sp/>dubious,<sp/>reachable,<sp/>suppressed)<sp/>\</highlight></codeline>
+<codeline lineno="237"><highlight class="preprocessor"><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>For<sp/>safety<sp/>on<sp/>64-bit<sp/>platforms<sp/>we<sp/>assign<sp/>the<sp/>results<sp/>to<sp/>private</highlight></codeline>
+<codeline lineno="238"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>unsigned<sp/>long<sp/>variables,<sp/>then<sp/>assign<sp/>these<sp/>to<sp/>the<sp/>lvalues<sp/>the<sp/>user</highlight></codeline>
+<codeline lineno="239"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>specified,<sp/>which<sp/>works<sp/>no<sp/>matter<sp/>what<sp/>type<sp/>&apos;leaked&apos;,<sp/>&apos;dubious&apos;,<sp/>etc</highlight></codeline>
+<codeline lineno="240"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>are.<sp/><sp/>We<sp/>also<sp/>initialise<sp/>&apos;_qzz_leaked&apos;,<sp/>etc<sp/>because</highlight></codeline>
+<codeline lineno="241"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__COUNT_LEAKS<sp/>doesn&apos;t<sp/>mark<sp/>the<sp/>values<sp/>returned<sp/>as</highlight></codeline>
+<codeline lineno="242"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>defined.<sp/>*/</highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="243"><highlight class="preprocessor"><sp/><sp/><sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="244"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>unsigned<sp/>long<sp/>_qzz_leaked<sp/><sp/><sp/><sp/>=<sp/>0,<sp/>_qzz_dubious<sp/><sp/><sp/><sp/>=<sp/>0;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="245"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>unsigned<sp/>long<sp/>_qzz_reachable<sp/>=<sp/>0,<sp/>_qzz_suppressed<sp/>=<sp/>0;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="246"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>VALGRIND_DO_CLIENT_REQUEST_STMT(<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="247"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__COUNT_LEAK_BLOCKS,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="248"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;_qzz_leaked,<sp/>&amp;_qzz_dubious,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="249"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;_qzz_reachable,<sp/>&amp;_qzz_suppressed,<sp/>0);<sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="250"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>leaked<sp/><sp/><sp/><sp/><sp/>=<sp/>_qzz_leaked;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="251"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>dubious<sp/><sp/><sp/><sp/>=<sp/>_qzz_dubious;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="252"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>reachable<sp/><sp/>=<sp/>_qzz_reachable;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="253"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>suppressed<sp/>=<sp/>_qzz_suppressed;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="254"><highlight class="preprocessor"><sp/><sp/><sp/>}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight></codeline>
+<codeline lineno="256"><highlight class="normal"></highlight></codeline>
+<codeline lineno="257"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Get<sp/>the<sp/>validity<sp/>data<sp/>for<sp/>addresses<sp/>[zza..zza+zznbytes-1]<sp/>and<sp/>copy<sp/>it</highlight></codeline>
+<codeline lineno="258"><highlight class="comment"><sp/><sp/><sp/>into<sp/>the<sp/>provided<sp/>zzvbits<sp/>array.<sp/><sp/>Return<sp/>values:</highlight></codeline>
+<codeline lineno="259"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>0<sp/><sp/><sp/>if<sp/>not<sp/>running<sp/>on<sp/>valgrind</highlight></codeline>
+<codeline lineno="260"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>1<sp/><sp/><sp/>success</highlight></codeline>
+<codeline lineno="261"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>2<sp/><sp/><sp/>[previously<sp/>indicated<sp/>unaligned<sp/>arrays;<sp/><sp/>these<sp/>are<sp/>now<sp/>allowed]</highlight></codeline>
+<codeline lineno="262"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>3<sp/><sp/><sp/>if<sp/>any<sp/>parts<sp/>of<sp/>zzsrc/zzvbits<sp/>are<sp/>not<sp/>addressable.</highlight></codeline>
+<codeline lineno="263"><highlight class="comment"><sp/><sp/><sp/>The<sp/>metadata<sp/>is<sp/>not<sp/>copied<sp/>in<sp/>cases<sp/>0,<sp/>2<sp/>or<sp/>3<sp/>so<sp/>it<sp/>should<sp/>be</highlight></codeline>
+<codeline lineno="264"><highlight class="comment"><sp/><sp/><sp/>impossible<sp/>to<sp/>segfault<sp/>your<sp/>system<sp/>by<sp/>using<sp/>this<sp/>call.</highlight></codeline>
+<codeline lineno="265"><highlight class="comment">*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VALGRIND_GET_VBITS(zza,zzvbits,zznbytes)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="267"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>(unsigned)VALGRIND_DO_CLIENT_REQUEST_EXPR(0,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="268"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__GET_VBITS,<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="269"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(const<sp/>char*)(zza),<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="270"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(char*)(zzvbits),<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="271"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(zznbytes),<sp/>0,<sp/>0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal"></highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Set<sp/>the<sp/>validity<sp/>data<sp/>for<sp/>addresses<sp/>[zza..zza+zznbytes-1],<sp/>copying<sp/>it</highlight></codeline>
+<codeline lineno="274"><highlight class="comment"><sp/><sp/><sp/>from<sp/>the<sp/>provided<sp/>zzvbits<sp/>array.<sp/><sp/>Return<sp/>values:</highlight></codeline>
+<codeline lineno="275"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>0<sp/><sp/><sp/>if<sp/>not<sp/>running<sp/>on<sp/>valgrind</highlight></codeline>
+<codeline lineno="276"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>1<sp/><sp/><sp/>success</highlight></codeline>
+<codeline lineno="277"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>2<sp/><sp/><sp/>[previously<sp/>indicated<sp/>unaligned<sp/>arrays;<sp/><sp/>these<sp/>are<sp/>now<sp/>allowed]</highlight></codeline>
+<codeline lineno="278"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/>3<sp/><sp/><sp/>if<sp/>any<sp/>parts<sp/>of<sp/>zza/zzvbits<sp/>are<sp/>not<sp/>addressable.</highlight></codeline>
+<codeline lineno="279"><highlight class="comment"><sp/><sp/><sp/>The<sp/>metadata<sp/>is<sp/>not<sp/>copied<sp/>in<sp/>cases<sp/>0,<sp/>2<sp/>or<sp/>3<sp/>so<sp/>it<sp/>should<sp/>be</highlight></codeline>
+<codeline lineno="280"><highlight class="comment"><sp/><sp/><sp/>impossible<sp/>to<sp/>segfault<sp/>your<sp/>system<sp/>by<sp/>using<sp/>this<sp/>call.</highlight></codeline>
+<codeline lineno="281"><highlight class="comment">*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="282"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VALGRIND_SET_VBITS(zza,zzvbits,zznbytes)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="283"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>(unsigned)VALGRIND_DO_CLIENT_REQUEST_EXPR(0,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="284"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__SET_VBITS,<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="285"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(const<sp/>char*)(zza),<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="286"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(const<sp/>char*)(zzvbits),<sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="287"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(zznbytes),<sp/>0,<sp/>0<sp/>)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="288"><highlight class="normal"></highlight></codeline>
+<codeline lineno="289"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Disable<sp/>and<sp/>re-enable<sp/>reporting<sp/>of<sp/>addressing<sp/>errors<sp/>in<sp/>the</highlight></codeline>
+<codeline lineno="290"><highlight class="comment"><sp/><sp/><sp/>specified<sp/>address<sp/>range.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="291"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VALGRIND_DISABLE_ADDR_ERROR_REPORTING_IN_RANGE(_qzz_addr,_qzz_len)<sp/>\</highlight></codeline>
+<codeline lineno="292"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>VALGRIND_DO_CLIENT_REQUEST_EXPR(0<sp/></highlight><highlight class="comment">/*<sp/>default<sp/>return<sp/>*/</highlight><highlight class="preprocessor">,<sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="293"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__DISABLE_ADDR_ERROR_REPORTING_IN_RANGE,<sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="294"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(_qzz_addr),<sp/>(_qzz_len),<sp/>0,<sp/>0,<sp/>0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="295"><highlight class="normal"></highlight></codeline>
+<codeline lineno="296"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>VALGRIND_ENABLE_ADDR_ERROR_REPORTING_IN_RANGE(_qzz_addr,_qzz_len)<sp/>\</highlight></codeline>
+<codeline lineno="297"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>VALGRIND_DO_CLIENT_REQUEST_EXPR(0<sp/></highlight><highlight class="comment">/*<sp/>default<sp/>return<sp/>*/</highlight><highlight class="preprocessor">,<sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="298"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VG_USERREQ__ENABLE_ADDR_ERROR_REPORTING_IN_RANGE,<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="299"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(_qzz_addr),<sp/>(_qzz_len),<sp/>0,<sp/>0,<sp/>0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal"></highlight></codeline>
+<codeline lineno="301"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="302"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/small/third_party/valgrind/memcheck.h"/>
+  </compounddef>
+</doxygen>

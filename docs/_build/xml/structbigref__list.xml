@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structbigref__list" kind="struct" language="C++" prot="public">
+    <compoundname>bigref_list</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structbigref__list_1ac2d9b50350b36690d12af6bc6f3ecbbd" prot="public" static="no" mutable="no">
+        <type>uint32_t *</type>
+        <definition>uint32_t* bigref_list::refs</definition>
+        <argsstring></argsstring>
+        <name>refs</name>
+        <briefdescription>
+<para>Free-list of big reference counters. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple.c" line="206" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple.c" bodystart="206" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structbigref__list_1a80f54c81572b4715be62aba529e6c0d5" prot="public" static="no" mutable="no">
+        <type>uint16_t</type>
+        <definition>uint16_t bigref_list::capacity</definition>
+        <argsstring></argsstring>
+        <name>capacity</name>
+        <briefdescription>
+<para>Capacity of the array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple.c" line="208" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple.c" bodystart="208" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structbigref__list_1a4cb5aac34db71610e26e2f604c9f3df7" prot="public" static="no" mutable="no">
+        <type>uint16_t</type>
+        <definition>uint16_t bigref_list::vacant_index</definition>
+        <argsstring></argsstring>
+        <name>vacant_index</name>
+        <briefdescription>
+<para>Index of first free element. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple.c" line="210" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple.c" bodystart="210" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Container for big reference counters. </para>    </briefdescription>
+    <detaileddescription>
+<para>Contains array of big reference counters, size of this array and number of non-zero big reference counters. When reference counter of tuple becomes more than 32767, field refs of this tuple becomes index of big reference counter in big reference counter array and field is_bigref is set true. The moment big reference becomes equal 32767 it is set to 0, refs of the tuple becomes 32767 and is_bigref becomes false. Big reference counter can be equal to 0 or be more than 32767. </para>    </detaileddescription>
+    <location file="/home/tsafin/tarantool/src/box/tuple.c" line="204" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple.c" bodystart="204" bodyend="211"/>
+    <listofallmembers>
+      <member refid="structbigref__list_1a80f54c81572b4715be62aba529e6c0d5" prot="public" virt="non-virtual"><scope>bigref_list</scope><name>capacity</name></member>
+      <member refid="structbigref__list_1ac2d9b50350b36690d12af6bc6f3ecbbd" prot="public" virt="non-virtual"><scope>bigref_list</scope><name>refs</name></member>
+      <member refid="structbigref__list_1a4cb5aac34db71610e26e2f604c9f3df7" prot="public" virt="non-virtual"><scope>bigref_list</scope><name>vacant_index</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

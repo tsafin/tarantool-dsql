@@ -1,0 +1,193 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structtx__manager" kind="struct" language="C++" prot="public">
+    <compoundname>tx_manager</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structtx__manager_1a15c2e24d5d5291fae5550548fd06454c" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist tx_manager::read_view_txs</definition>
+        <argsstring></argsstring>
+        <name>read_view_txs</name>
+        <briefdescription>
+<para>List of all transactions that are in a read view. </para>        </briefdescription>
+        <detaileddescription>
+<para>New transactions are added to the tail of this list, so the list is ordered by rv_psn. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.c" line="1221" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.c" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtx__manager_1ad3e28f021d77e833ba9e2c8bd27c16a5" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmempool" kindref="compound">mempool</ref></type>
+        <definition>struct mempool tx_manager::memtx_tx_story_pool[BOX_INDEX_MAX]</definition>
+        <argsstring>[BOX_INDEX_MAX]</argsstring>
+        <name>memtx_tx_story_pool</name>
+        <briefdescription>
+<para>Mempools for tx_story objects with different index count. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.c" line="1221" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.c" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtx__manager_1a66e2591a6289942d40ff10874d695548" prot="public" static="no" mutable="no">
+        <type>struct mh_history_t *</type>
+        <definition>struct mh_history_t* tx_manager::history</definition>
+        <argsstring></argsstring>
+        <name>history</name>
+        <briefdescription>
+<para><ref refid="structHash" kindref="compound">Hash</ref> table tuple -&gt; <ref refid="structmemtx__story" kindref="compound">memtx_story</ref> of that tuple. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.c" line="73" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.c" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtx__manager_1ae976a1607c698a0e244f24c6eac79ee8" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist tx_manager::all_stories</definition>
+        <argsstring></argsstring>
+        <name>all_stories</name>
+        <briefdescription>
+<para>List of all <ref refid="structmemtx__story" kindref="compound">memtx_story</ref> objects. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.c" line="73" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.c" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtx__manager_1a391ebac80cbcfafff6b774572532f2f6" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref> *</type>
+        <definition>struct rlist* tx_manager::traverse_all_stories</definition>
+        <argsstring></argsstring>
+        <name>traverse_all_stories</name>
+        <briefdescription>
+<para>Iterator that sequentially traverses all <ref refid="structmemtx__story" kindref="compound">memtx_story</ref> objects. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/memtx_tx.c" line="77" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.c" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="11113">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="11108">
+        <label>mempool</label>
+        <link refid="structmempool"/>
+        <childnode refid="11109" relation="usage">
+          <edgelabel>spare</edgelabel>
+          <edgelabel>first_hot_slab</edgelabel>
+        </childnode>
+        <childnode refid="11112" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="11114" relation="usage">
+          <edgelabel>link</edgelabel>
+          <edgelabel>delayed</edgelabel>
+        </childnode>
+        <childnode refid="11110" relation="usage">
+          <edgelabel>cold_slabs</edgelabel>
+        </childnode>
+        <childnode refid="11115" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="11110">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="11110" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="11112">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="11113" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="11110" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="11117">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="11109">
+        <label>mslab</label>
+        <link refid="structmslab"/>
+        <childnode refid="11110" relation="usage">
+          <edgelabel>next_in_cold</edgelabel>
+        </childnode>
+        <childnode refid="11111" relation="usage">
+          <edgelabel>slab</edgelabel>
+        </childnode>
+      </node>
+      <node id="11118">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="11116">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="11117" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="11118" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="11115">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="11112" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="11116" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="11114">
+        <label>lifo</label>
+        <link refid="structlifo"/>
+      </node>
+      <node id="11111">
+        <label>slab</label>
+        <link refid="structslab"/>
+        <childnode refid="11110" relation="usage">
+          <edgelabel>next_in_cache</edgelabel>
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+      <node id="11107">
+        <label>tx_manager</label>
+        <link refid="structtx__manager"/>
+        <childnode refid="11108" relation="usage">
+          <edgelabel>memtx_tx_story_pool</edgelabel>
+        </childnode>
+        <childnode refid="11110" relation="usage">
+          <edgelabel>all_stories</edgelabel>
+          <edgelabel>read_view_txs</edgelabel>
+          <edgelabel>traverse_all_stories</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/memtx_tx.c" line="63" column="1" bodyfile="/home/tsafin/tarantool/src/box/memtx_tx.c" bodystart="62" bodyend="78"/>
+    <listofallmembers>
+      <member refid="structtx__manager_1ae976a1607c698a0e244f24c6eac79ee8" prot="public" virt="non-virtual"><scope>tx_manager</scope><name>all_stories</name></member>
+      <member refid="structtx__manager_1a66e2591a6289942d40ff10874d695548" prot="public" virt="non-virtual"><scope>tx_manager</scope><name>history</name></member>
+      <member refid="structtx__manager_1ad3e28f021d77e833ba9e2c8bd27c16a5" prot="public" virt="non-virtual"><scope>tx_manager</scope><name>memtx_tx_story_pool</name></member>
+      <member refid="structtx__manager_1a15c2e24d5d5291fae5550548fd06454c" prot="public" virt="non-virtual"><scope>tx_manager</scope><name>read_view_txs</name></member>
+      <member refid="structtx__manager_1a391ebac80cbcfafff6b774572532f2f6" prot="public" virt="non-virtual"><scope>tx_manager</scope><name>traverse_all_stories</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

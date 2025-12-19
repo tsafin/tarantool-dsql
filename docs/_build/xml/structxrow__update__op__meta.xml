@@ -1,0 +1,146 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structxrow__update__op__meta" kind="struct" language="C++" prot="public">
+    <compoundname>xrow_update_op_meta</compoundname>
+    <includes local="no">xrow_update_field.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structxrow__update__op__meta_1a2e51c067980731af76f99ed6f48835dc" prot="public" static="no" mutable="no">
+        <type>xrow_update_op_read_arg_f</type>
+        <definition>xrow_update_op_read_arg_f xrow_update_op_meta::read_arg</definition>
+        <argsstring></argsstring>
+        <name>read_arg</name>
+        <briefdescription>
+<para>Virtual function to read the arguments of the operation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="169" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="169" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxrow__update__op__meta_1af18b6430e645f6772cf6278594aead83" prot="public" static="no" mutable="no">
+        <type>xrow_update_op_do_f</type>
+        <definition>xrow_update_op_do_f xrow_update_op_meta::do_op</definition>
+        <argsstring></argsstring>
+        <name>do_op</name>
+        <briefdescription>
+<para>Virtual function to execute the operation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="171" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="171" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxrow__update__op__meta_1a6912ddd621b13ba645feb876b293d93d" prot="public" static="no" mutable="no">
+        <type>xrow_update_op_store_f</type>
+        <definition>xrow_update_op_store_f xrow_update_op_meta::store</definition>
+        <argsstring></argsstring>
+        <name>store</name>
+        <briefdescription>
+<para>Virtual function to store a result of the operation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="175" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="175" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxrow__update__op__meta_1ac3a8b1691ac3284e9a201cd8c03380c7" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t xrow_update_op_meta::arg_count</definition>
+        <argsstring></argsstring>
+        <name>arg_count</name>
+        <briefdescription>
+<para>Argument count. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="177" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="177" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A set of functions and properties to initialize, do and store an operation. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="18080">
+        <label>xrow_update_arg_splice</label>
+        <link refid="structxrow__update__arg__splice"/>
+      </node>
+      <node id="18071">
+        <label>xrow_update_op_meta</label>
+        <link refid="structxrow__update__op__meta"/>
+        <childnode refid="18072" relation="usage">
+          <edgelabel>do_op</edgelabel>
+          <edgelabel>store</edgelabel>
+          <edgelabel>read_arg</edgelabel>
+        </childnode>
+      </node>
+      <node id="18074">
+        <label>xrow_update_arg</label>
+        <link refid="unionxrow__update__arg"/>
+        <childnode refid="18075" relation="usage">
+          <edgelabel>bit</edgelabel>
+        </childnode>
+        <childnode refid="18076" relation="usage">
+          <edgelabel>del</edgelabel>
+        </childnode>
+        <childnode refid="18077" relation="usage">
+          <edgelabel>arith</edgelabel>
+        </childnode>
+        <childnode refid="18079" relation="usage">
+          <edgelabel>set</edgelabel>
+        </childnode>
+        <childnode refid="18080" relation="usage">
+          <edgelabel>splice</edgelabel>
+        </childnode>
+      </node>
+      <node id="18072">
+        <label>xrow_update_op</label>
+        <link refid="structxrow__update__op"/>
+        <childnode refid="18073" relation="usage">
+          <edgelabel>lexer</edgelabel>
+        </childnode>
+        <childnode refid="18074" relation="usage">
+          <edgelabel>arg</edgelabel>
+        </childnode>
+        <childnode refid="18071" relation="usage">
+          <edgelabel>meta</edgelabel>
+        </childnode>
+      </node>
+      <node id="18073">
+        <label>json_lexer</label>
+        <link refid="structjson__lexer"/>
+      </node>
+      <node id="18077">
+        <label>xrow_update_arg_arith</label>
+        <link refid="structxrow__update__arg__arith"/>
+        <childnode refid="18078" relation="usage">
+          <edgelabel>int96</edgelabel>
+        </childnode>
+      </node>
+      <node id="18075">
+        <label>xrow_update_arg_bit</label>
+        <link refid="structxrow__update__arg__bit"/>
+      </node>
+      <node id="18078">
+        <label>int96_num</label>
+        <link refid="structint96__num"/>
+      </node>
+      <node id="18076">
+        <label>xrow_update_arg_del</label>
+        <link refid="structxrow__update__arg__del"/>
+      </node>
+      <node id="18079">
+        <label>xrow_update_arg_set</label>
+        <link refid="structxrow__update__arg__set"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="164" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="164" bodyend="178"/>
+    <listofallmembers>
+      <member refid="structxrow__update__op__meta_1ac3a8b1691ac3284e9a201cd8c03380c7" prot="public" virt="non-virtual"><scope>xrow_update_op_meta</scope><name>arg_count</name></member>
+      <member refid="structxrow__update__op__meta_1af18b6430e645f6772cf6278594aead83" prot="public" virt="non-virtual"><scope>xrow_update_op_meta</scope><name>do_op</name></member>
+      <member refid="structxrow__update__op__meta_1a2e51c067980731af76f99ed6f48835dc" prot="public" virt="non-virtual"><scope>xrow_update_op_meta</scope><name>read_arg</name></member>
+      <member refid="structxrow__update__op__meta_1a6912ddd621b13ba645feb876b293d93d" prot="public" virt="non-virtual"><scope>xrow_update_op_meta</scope><name>store</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

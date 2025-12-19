@@ -1,0 +1,179 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structjson__token" kind="struct" language="C++" prot="public">
+    <compoundname>json_token</compoundname>
+    <includes local="no">json.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structjson__token_1a2ba7a3b9b86ed1ccf95b02821dd951ce" prot="public" static="no" mutable="no">
+        <type>enum json_token_type</type>
+        <definition>enum json_token_type json_token::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="63" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structjson__token_1acda9730cd0b93ca4a2c4da1127cc5344" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* json_token::str</definition>
+        <argsstring></argsstring>
+        <name>str</name>
+        <briefdescription>
+<para>String identifier. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="88" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structjson__token_1a62f334c0585bbc7b030dc0c2131dd127" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int json_token::len</definition>
+        <argsstring></argsstring>
+        <name>len</name>
+        <briefdescription>
+<para>Length of <emphasis>str</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="90" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structjson__token_1a08cfd5e94e703ddf272a5af24087f847" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int json_token::num</definition>
+        <argsstring></argsstring>
+        <name>num</name>
+        <briefdescription>
+<para>Index value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="93" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structjson__token_1a271bccc7a9e1da05d773de39758fcb20" prot="public" static="no" mutable="no">
+        <type>union json_token::@220</type>
+        <definition>union json_token::@220 json_token::@221</definition>
+        <argsstring></argsstring>
+        <name>@221</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="94" column="1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structjson__token_1afd6c04813b839b2c6ce2a89e12d83098" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> *</type>
+        <definition>struct json_token* json_token::parent</definition>
+        <argsstring></argsstring>
+        <name>parent</name>
+        <briefdescription>
+<para>Pointer to the parent token in a JSON tree. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="96" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structjson__token_1a43ba43314cf1454fcf50db5f7b6697de" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref> **</type>
+        <definition>struct json_token** json_token::children</definition>
+        <argsstring></argsstring>
+        <name>children</name>
+        <briefdescription>
+<para>Array of child tokens in a JSON tree. </para>        </briefdescription>
+        <detaileddescription>
+<para>Indexes in this array match [token.num] index for JSON_TOKEN_NUM type and are allocated sequentially for JSON_TOKEN_STR child tokens.</para><para>JSON_TOKEN_ANY is exclusive. If it&apos;s present, it must be the only one and have index 0 in the children array. It will be returned by lookup by any key. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="107" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structjson__token_1a040b29a3ce1b7824348f40ec3f795de2" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int json_token::children_capacity</definition>
+        <argsstring></argsstring>
+        <name>children_capacity</name>
+        <briefdescription>
+<para>Allocation size of children array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="109" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structjson__token_1aeeab6e48780a1467533de923f2b2ca04" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int json_token::max_child_idx</definition>
+        <argsstring></argsstring>
+        <name>max_child_idx</name>
+        <briefdescription>
+<para>Max occupied index in the children array or -1 if the children array is empty. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="114" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="114" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structjson__token_1a540ee2b5384cd181412ab96e3e88ab8a" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int json_token::sibling_idx</definition>
+        <argsstring></argsstring>
+        <name>sibling_idx</name>
+        <briefdescription>
+<para>Index of this token in parent&apos;s children array or -1 if the token was removed from a JSON tree or represents a JSON tree root. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="120" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structjson__token_1aeec0c5a0d162f7e61b3e127478ed3f1a" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t json_token::hash</definition>
+        <argsstring></argsstring>
+        <name>hash</name>
+        <briefdescription>
+<para><ref refid="structHash" kindref="compound">Hash</ref> value of the token. </para>        </briefdescription>
+        <detaileddescription>
+<para>Used for lookups in a JSON tree. For more details, see the comment to <ref refid="structjson__tree_1a11c858e9be4339b6785cd57fef9bc81b" kindref="member">json_tree::hash</ref>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="125" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Element of a JSON path. </para>    </briefdescription>
+    <detaileddescription>
+<para>It can be either string or number. String idenfiers are in [&quot;...&quot;] and between dots. Numbers are indexes in [...].</para><para>May be organized in a tree-like structure reflecting a JSON document structure, for more details see the comment to struct <ref refid="structjson__tree" kindref="compound">json_tree</ref>. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="4669">
+        <label>json_token</label>
+        <link refid="structjson__token"/>
+        <childnode refid="4669" relation="usage">
+          <edgelabel>parent</edgelabel>
+          <edgelabel>children</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/json/json.h" line="83" column="1" bodyfile="/home/tsafin/tarantool/src/lib/json/json.h" bodystart="83" bodyend="126"/>
+    <listofallmembers>
+      <member refid="structjson__token_1a43ba43314cf1454fcf50db5f7b6697de" prot="public" virt="non-virtual"><scope>json_token</scope><name>children</name></member>
+      <member refid="structjson__token_1a040b29a3ce1b7824348f40ec3f795de2" prot="public" virt="non-virtual"><scope>json_token</scope><name>children_capacity</name></member>
+      <member refid="structjson__token_1aeec0c5a0d162f7e61b3e127478ed3f1a" prot="public" virt="non-virtual"><scope>json_token</scope><name>hash</name></member>
+      <member refid="structjson__token_1a62f334c0585bbc7b030dc0c2131dd127" prot="public" virt="non-virtual"><scope>json_token</scope><name>len</name></member>
+      <member refid="structjson__token_1aeeab6e48780a1467533de923f2b2ca04" prot="public" virt="non-virtual"><scope>json_token</scope><name>max_child_idx</name></member>
+      <member refid="structjson__token_1a08cfd5e94e703ddf272a5af24087f847" prot="public" virt="non-virtual"><scope>json_token</scope><name>num</name></member>
+      <member refid="structjson__token_1afd6c04813b839b2c6ce2a89e12d83098" prot="public" virt="non-virtual"><scope>json_token</scope><name>parent</name></member>
+      <member refid="structjson__token_1a540ee2b5384cd181412ab96e3e88ab8a" prot="public" virt="non-virtual"><scope>json_token</scope><name>sibling_idx</name></member>
+      <member refid="structjson__token_1acda9730cd0b93ca4a2c4da1127cc5344" prot="public" virt="non-virtual"><scope>json_token</scope><name>str</name></member>
+      <member refid="structjson__token_1a2ba7a3b9b86ed1ccf95b02821dd951ce" prot="public" virt="non-virtual"><scope>json_token</scope><name>type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structfield__map__builder__slot" kind="struct" language="C++" prot="public">
+    <compoundname>field_map_builder_slot</compoundname>
+    <includes local="no">field_map.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structfield__map__builder__slot_1afd5d05a50d60fdecddd26687e34c276a" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool field_map_builder_slot::has_extent</definition>
+        <argsstring></argsstring>
+        <name>has_extent</name>
+        <briefdescription>
+<para>True when this slot must be interpret as extent pointer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/field_map.h" line="136" column="1" bodyfile="/home/tsafin/tarantool/src/box/field_map.h" bodystart="136" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfield__map__builder__slot_1a1975d758452bda81ccbd36d2099981d9" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t field_map_builder_slot::offset</definition>
+        <argsstring></argsstring>
+        <name>offset</name>
+        <briefdescription>
+<para>Data offset in tuple. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/field_map.h" line="139" column="1" bodyfile="/home/tsafin/tarantool/src/box/field_map.h" bodystart="139" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfield__map__builder__slot_1a76b0d1074270faededccbd9f2e0c5004" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfield__map__builder__slot__extent" kindref="compound">field_map_builder_slot_extent</ref> *</type>
+        <definition>struct field_map_builder_slot_extent* field_map_builder_slot::extent</definition>
+        <argsstring></argsstring>
+        <name>extent</name>
+        <briefdescription>
+<para>Pointer to field_map extent. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/field_map.h" line="141" column="1" bodyfile="/home/tsafin/tarantool/src/box/field_map.h" bodystart="141" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfield__map__builder__slot_1aec90e49dc352fae590a40b214aa3e281" prot="public" static="no" mutable="no">
+        <type>union field_map_builder_slot::@10</type>
+        <definition>union field_map_builder_slot::@10 field_map_builder_slot::@11</definition>
+        <argsstring></argsstring>
+        <name>@11</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/field_map.h" line="142" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Instead of using uint32_t offset slots directly the <ref refid="structfield__map__builder" kindref="compound">field_map_builder</ref> uses this structure as a storage atom. </para>    </briefdescription>
+    <detaileddescription>
+<para>When there is a need to initialize an extent, the <ref refid="structfield__map__builder" kindref="compound">field_map_builder</ref> allocates a new memory chunk and sets field_map_builder_slot::pointer (instead of real field_map reallocation).</para><para>On field_map_build, all of the <ref refid="structfield__map__builder__slot__extent" kindref="compound">field_map_builder_slot_extent(s)</ref> are dumped to the same memory chunk that the regular field_map slots and corresponding slots are initialized with negative extent offset.</para><para>The allocated memory is accounted for in extents_size. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="3539">
+        <label>field_map_builder_slot</label>
+        <link refid="structfield__map__builder__slot"/>
+        <childnode refid="3540" relation="usage">
+          <edgelabel>extent</edgelabel>
+        </childnode>
+      </node>
+      <node id="3540">
+        <label>field_map_builder_slot_extent</label>
+        <link refid="structfield__map__builder__slot__extent"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/field_map.h" line="131" column="1" bodyfile="/home/tsafin/tarantool/src/box/field_map.h" bodystart="131" bodyend="143"/>
+    <listofallmembers>
+      <member refid="structfield__map__builder__slot_1a76b0d1074270faededccbd9f2e0c5004" prot="public" virt="non-virtual"><scope>field_map_builder_slot</scope><name>extent</name></member>
+      <member refid="structfield__map__builder__slot_1afd5d05a50d60fdecddd26687e34c276a" prot="public" virt="non-virtual"><scope>field_map_builder_slot</scope><name>has_extent</name></member>
+      <member refid="structfield__map__builder__slot_1a1975d758452bda81ccbd36d2099981d9" prot="public" virt="non-virtual"><scope>field_map_builder_slot</scope><name>offset</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

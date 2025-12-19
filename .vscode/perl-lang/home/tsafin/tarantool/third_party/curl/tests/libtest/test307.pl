@@ -1,0 +1,1 @@
+{"version":4,"vars":[{"line":25,"name":"ARGV","kind":12},{"name":"CURL","line":30,"kind":12},{"kind":12,"line":35,"name":"CURL"},{"line":39,"name":"CURL","kind":12}]}

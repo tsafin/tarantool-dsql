@@ -1,0 +1,218 @@
+commands = {
+   luatest = {
+      "luatest/scm-1"
+   }
+}
+dependencies = {
+   checks = {
+      ["3.1.0-1"] = {
+         {
+            constraints = {
+               {
+                  op = ">=",
+                  version = {
+                     5, 1, string = "5.1"
+                  }
+               }
+            },
+            name = "lua"
+         }
+      }
+   },
+   luatest = {
+      ["scm-1"] = {
+         {
+            constraints = {
+               {
+                  op = ">=",
+                  version = {
+                     5, 1, string = "5.1"
+                  }
+               }
+            },
+            name = "lua"
+         },
+         {
+            constraints = {
+               {
+                  op = ">=",
+                  version = {
+                     3, 0, 0, string = "3.0.0"
+                  }
+               }
+            },
+            name = "checks"
+         }
+      }
+   }
+}
+modules = {
+   checks = {
+      "checks/3.1.0-1"
+   },
+   ["luarocks.test.luatest"] = {
+      "luatest/scm-1"
+   },
+   luatest = {
+      "luatest/scm-1"
+   },
+   ["luatest.VERSION"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.assertions"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.capture"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.capturing"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.class"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.cli_entrypoint"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.comparator"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.coverage"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.coverage_utils"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.ffi_io"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.group"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.helpers"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.hooks"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.http_response"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.loader"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.mismatch_formatter"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.monitor"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.output.generic"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.output.junit"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.output.nil"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.output.tap"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.output.text"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.output_beautifier"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.parametrizer"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.pp"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.process"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.runner"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.sandboxed_runner"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.server"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.sorted_pairs"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.test_instance"] = {
+      "luatest/scm-1"
+   },
+   ["luatest.utils"] = {
+      "luatest/scm-1"
+   }
+}
+repository = {
+   checks = {
+      ["3.1.0-1"] = {
+         {
+            arch = "installed",
+            commands = {},
+            dependencies = {},
+            modules = {
+               checks = "checks.lua"
+            }
+         }
+      }
+   },
+   luatest = {
+      ["scm-1"] = {
+         {
+            arch = "installed",
+            commands = {
+               luatest = "luatest"
+            },
+            dependencies = {
+               checks = "3.1.0-1"
+            },
+            modules = {
+               ["luarocks.test.luatest"] = "luarocks/test/luatest.lua",
+               luatest = "luatest/init.lua",
+               ["luatest.VERSION"] = "luatest/VERSION.lua",
+               ["luatest.assertions"] = "luatest/assertions.lua",
+               ["luatest.capture"] = "luatest/capture.lua",
+               ["luatest.capturing"] = "luatest/capturing.lua",
+               ["luatest.class"] = "luatest/class.lua",
+               ["luatest.cli_entrypoint"] = "luatest/cli_entrypoint.lua",
+               ["luatest.comparator"] = "luatest/comparator.lua",
+               ["luatest.coverage"] = "luatest/coverage.lua",
+               ["luatest.coverage_utils"] = "luatest/coverage_utils.lua",
+               ["luatest.ffi_io"] = "luatest/ffi_io.lua",
+               ["luatest.group"] = "luatest/group.lua",
+               ["luatest.helpers"] = "luatest/helpers.lua",
+               ["luatest.hooks"] = "luatest/hooks.lua",
+               ["luatest.http_response"] = "luatest/http_response.lua",
+               ["luatest.loader"] = "luatest/loader.lua",
+               ["luatest.mismatch_formatter"] = "luatest/mismatch_formatter.lua",
+               ["luatest.monitor"] = "luatest/monitor.lua",
+               ["luatest.output.generic"] = "luatest/output/generic.lua",
+               ["luatest.output.junit"] = "luatest/output/junit.lua",
+               ["luatest.output.nil"] = "luatest/output/nil.lua",
+               ["luatest.output.tap"] = "luatest/output/tap.lua",
+               ["luatest.output.text"] = "luatest/output/text.lua",
+               ["luatest.output_beautifier"] = "luatest/output_beautifier.lua",
+               ["luatest.parametrizer"] = "luatest/parametrizer.lua",
+               ["luatest.pp"] = "luatest/pp.lua",
+               ["luatest.process"] = "luatest/process.lua",
+               ["luatest.runner"] = "luatest/runner.lua",
+               ["luatest.sandboxed_runner"] = "luatest/sandboxed_runner.lua",
+               ["luatest.server"] = "luatest/server.lua",
+               ["luatest.sorted_pairs"] = "luatest/sorted_pairs.lua",
+               ["luatest.test_instance"] = "luatest/test_instance.lua",
+               ["luatest.utils"] = "luatest/utils.lua"
+            }
+         }
+      }
+   }
+}

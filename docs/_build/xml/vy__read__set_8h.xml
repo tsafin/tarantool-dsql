@@ -1,0 +1,475 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="vy__read__set_8h" kind="file" language="C++">
+    <compoundname>vy_read_set.h</compoundname>
+    <includes local="no">assert.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes refid="rb_8h" local="no">small/rb.h</includes>
+    <includes refid="stailq_8h" local="yes">salad/stailq.h</includes>
+    <includes refid="util_8h" local="yes">trivia/util.h</includes>
+    <includes refid="vy__entry_8h" local="yes">vy_entry.h</includes>
+    <includedby refid="vy__lsm_8h" local="yes">/home/tsafin/tarantool/src/box/vy_lsm.h</includedby>
+    <includedby refid="vy__tx_8h" local="yes">/home/tsafin/tarantool/src/box/vy_tx.h</includedby>
+    <includedby refid="vy__lsm_8c" local="yes">/home/tsafin/tarantool/src/box/vy_lsm.c</includedby>
+    <includedby refid="vy__read__set_8c" local="yes">/home/tsafin/tarantool/src/box/vy_read_set.c</includedby>
+    <includedby refid="vy__tx_8c" local="yes">/home/tsafin/tarantool/src/box/vy_tx.c</includedby>
+    <incdepgraph>
+      <node id="1363">
+        <label>stdbool.h</label>
+      </node>
+      <node id="1362">
+        <label>assert.h</label>
+      </node>
+      <node id="1365">
+        <label>stdint.h</label>
+      </node>
+      <node id="1364">
+        <label>stddef.h</label>
+      </node>
+      <node id="1361">
+        <label>/home/tsafin/tarantool/src/box/vy_read_set.h</label>
+        <link refid="vy__read__set_8h"/>
+        <childnode refid="1362" relation="include">
+        </childnode>
+        <childnode refid="1363" relation="include">
+        </childnode>
+        <childnode refid="1364" relation="include">
+        </childnode>
+        <childnode refid="1365" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structvy__read__interval" prot="public">vy_read_interval</innerclass>
+    <innerclass refid="structvy__tx__conflict__iterator" prot="public">vy_tx_conflict_iterator</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="vy__read__set_8h_1a884ceaa850e86ebd3bd9ebd16352545f" prot="public" static="no">
+        <name>RB_COMPACT</name>
+        <initializer>1</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_read_set.h" line="39" column="9" bodyfile="/home/tsafin/tarantool/src/box/vy_read_set.h" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="vy__read__set_8h_1ad83ded1c7a454d2aeb607147d8309d0b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int vy_read_interval_cmpl</definition>
+        <argsstring>(const struct vy_read_interval *a, const struct vy_read_interval *b)</argsstring>
+        <name>vy_read_interval_cmpl</name>
+        <param>
+          <type>const struct <ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref> *</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref> *</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Compare left boundaries of two intervals. </para>        </briefdescription>
+        <detaileddescription>
+<para>Let &apos;A&apos; and &apos;B&apos; be the intervals of keys from the left boundary of &apos;a&apos; and &apos;b&apos; to plus infinity, respectively. Assume that</para><para><itemizedlist>
+<listitem><para>a &gt; b iff A is spanned by B</para></listitem><listitem><para>a = b iff A equals B</para></listitem><listitem><para>a &lt; b iff A spans B </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_read_set.h" line="96" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_read_set.c" bodystart="44" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__read__set_8h_1a6ed8370a6f9f7ca982698489786ff60e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int vy_read_interval_cmpr</definition>
+        <argsstring>(const struct vy_read_interval *a, const struct vy_read_interval *b)</argsstring>
+        <name>vy_read_interval_cmpr</name>
+        <param>
+          <type>const struct <ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref> *</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref> *</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Compare right boundaries of two intervals. </para>        </briefdescription>
+        <detaileddescription>
+<para>Let &apos;A&apos; and &apos;B&apos; be the intervals of keys from minus infinity to the right boundary of &apos;a&apos; and &apos;b&apos;, respectively. Assume that</para><para><itemizedlist>
+<listitem><para>a &gt; b iff A spans B</para></listitem><listitem><para>a = b iff A equals B</para></listitem><listitem><para>a &lt; b iff A is spanned by B </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_read_set.h" line="110" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_read_set.c" bodystart="65" bodyend="83"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__read__set_8h_1aca3de5ed3623d891f5db03549e5c31e6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool vy_read_interval_should_merge</definition>
+        <argsstring>(const struct vy_read_interval *l, const struct vy_read_interval *r)</argsstring>
+        <name>vy_read_interval_should_merge</name>
+        <param>
+          <type>const struct <ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref> *</type>
+          <declname>l</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Return true if two intervals should be merged. </para>        </briefdescription>
+        <detaileddescription>
+<para>Interval &apos;l&apos; must start before interval &apos;r&apos;. Note, if this function returns true, it does not necessarily mean that the intervals intersect - they might complement each other, e.g.</para><para>(10, 12] and (12, 20] </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_read_set.h" line="123" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_read_set.c" bodystart="86" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__read__set_8h_1aa19665977d1639063e5409e6806e04b9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef rb_tree</definition>
+        <argsstring>(struct vy_read_interval) vy_tx_read_set_t</argsstring>
+        <name>rb_tree</name>
+        <param>
+          <type>struct <ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref></type>
+        </param>
+        <briefdescription>
+<para>Tree that contains tuple intervals read by a transactions. </para>        </briefdescription>
+        <detaileddescription>
+<para>Interval tree used for tracking reads done from an LSM tree by all active transactions.</para><para>Linked by vy_read_interval-&gt;in_tx. Sorted by <ref refid="structvy__lsm" kindref="compound">vy_lsm</ref>, then by vy_read_interval-&gt;left. Intervals stored in this tree must not intersect.</para><para>Linked by vy_read_interval-&gt;in_lsm. Sorted by vy_read_interval-&gt;left, then by <ref refid="structvy__tx" kindref="compound">vy_tx</ref>. Intervals that belong to different transactions may intersect. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_read_set.h" line="132" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__read__set_8h_1a584a8efc679fc65ffa1c022f7bf30eac" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int vy_tx_read_set_cmp</definition>
+        <argsstring>(const struct vy_read_interval *a, const struct vy_read_interval *b)</argsstring>
+        <name>vy_tx_read_set_cmp</name>
+        <param>
+          <type>const struct <ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref> *</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref> *</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_read_set.h" line="135" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_read_set.h" bodystart="135" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__read__set_8h_1a49bcf0fad340189f6c9bf652c9eb1a60" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>rb_gen</definition>
+        <argsstring>(MAYBE_UNUSED static inline, vy_tx_read_set_, vy_tx_read_set_t, struct vy_read_interval, in_tx, vy_tx_read_set_cmp)</argsstring>
+        <name>rb_gen</name>
+        <param>
+          <type>MAYBE_UNUSED static</type>
+          <declname>inline</declname>
+        </param>
+        <param>
+          <type>vy_tx_read_set_</type>
+        </param>
+        <param>
+          <type>vy_tx_read_set_t</type>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref></type>
+        </param>
+        <param>
+          <type>in_tx</type>
+        </param>
+        <param>
+          <type>vy_tx_read_set_cmp</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_read_set.h" line="145" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__read__set_8h_1a2d9401535a2440a997026b7158e9e17e" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int vy_lsm_read_set_cmp</definition>
+        <argsstring>(const struct vy_read_interval *a, const struct vy_read_interval *b)</argsstring>
+        <name>vy_lsm_read_set_cmp</name>
+        <param>
+          <type>const struct <ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref> *</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref> *</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_read_set.h" line="157" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_read_set.h" bodystart="157" bodyend="165"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__read__set_8h_1ad0fd0292032b029d17dd5c6abf58fb49" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_lsm_read_set_aug</definition>
+        <argsstring>(struct vy_read_interval *node, const struct vy_read_interval *left, const struct vy_read_interval *right)</argsstring>
+        <name>vy_lsm_read_set_aug</name>
+        <param>
+          <type>struct <ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref> *</type>
+          <declname>left</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref> *</type>
+          <declname>right</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_read_set.h" line="168" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_read_set.h" bodystart="168" bodyend="179"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__read__set_8h_1a36abc107caae4d3f053e64efd2ac77df" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>rb_gen_aug</definition>
+        <argsstring>(MAYBE_UNUSED static inline, vy_lsm_read_set_, vy_lsm_read_set_t, struct vy_read_interval, in_lsm, vy_lsm_read_set_cmp, vy_lsm_read_set_aug)</argsstring>
+        <name>rb_gen_aug</name>
+        <param>
+          <type>MAYBE_UNUSED static</type>
+          <declname>inline</declname>
+        </param>
+        <param>
+          <type>vy_lsm_read_set_</type>
+        </param>
+        <param>
+          <type>vy_lsm_read_set_t</type>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref></type>
+        </param>
+        <param>
+          <type>in_lsm</type>
+        </param>
+        <param>
+          <type>vy_lsm_read_set_cmp</type>
+        </param>
+        <param>
+          <type>vy_lsm_read_set_aug</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_read_set.h" line="181" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__read__set_8h_1a6d53ba9868733b529bcbd3368705f5c2" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_tx_conflict_iterator_init</definition>
+        <argsstring>(struct vy_tx_conflict_iterator *it, vy_lsm_read_set_t *read_set, struct vy_entry key)</argsstring>
+        <name>vy_tx_conflict_iterator_init</name>
+        <param>
+          <type>struct <ref refid="structvy__tx__conflict__iterator" kindref="compound">vy_tx_conflict_iterator</ref> *</type>
+          <declname>it</declname>
+        </param>
+        <param>
+          <type>vy_lsm_read_set_t *</type>
+          <declname>read_set</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_read_set.h" line="204" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_read_set.h" bodystart="204" bodyend="210"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__read__set_8h_1ac15ea5ed8a405e0e54ae083291acb62d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structvy__tx" kindref="compound">vy_tx</ref> *</type>
+        <definition>struct vy_tx* vy_tx_conflict_iterator_next</definition>
+        <argsstring>(struct vy_tx_conflict_iterator *it)</argsstring>
+        <name>vy_tx_conflict_iterator_next</name>
+        <param>
+          <type>struct <ref refid="structvy__tx__conflict__iterator" kindref="compound">vy_tx_conflict_iterator</ref> *</type>
+          <declname>it</declname>
+        </param>
+        <briefdescription>
+<para>Return the next conflicting transaction or NULL. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note, the same transaction may be returned more than once. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_read_set.h" line="217" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_read_set.c" bodystart="110" bodyend="185"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>INCLUDES_TARANTOOL_BOX_VY_READ_SET_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INCLUDES_TARANTOOL_BOX_VY_READ_SET_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2017,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>AUTHORS<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>AUTHORS<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;assert.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>RB_COMPACT<sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;small/rb.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;salad/stailq.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trivia/util.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;vy_entry.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__tx" kindref="compound">vy_tx</ref>;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__lsm" kindref="compound">vy_lsm</ref>;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56" refid="structvy__read__interval" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref><sp/>{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__tx" kindref="compound">vy_tx</ref><sp/>*<ref refid="structvy__read__interval_1a8cb540d2c6a27bb7893e4bfde2e645bc" kindref="member">tx</ref>;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__lsm" kindref="compound">vy_lsm</ref><sp/>*<ref refid="structvy__read__interval_1ae5df68d1ab83ec6da3407040bc696587" kindref="member">lsm</ref>;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>left;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>right;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structvy__read__interval_1a7f024053326db993393d002ac161e52f" kindref="member">left_belongs</ref>;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structvy__read__interval_1a80bb7e2937bc281c247f4211a1800a40" kindref="member">right_belongs</ref>;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref><sp/>*<ref refid="structvy__read__interval_1a2c872bdf6acaee250a77505e59800459" kindref="member">subtree_last</ref>;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structvy__read__interval_1a32134dceca76f477f9dda531f7512225" kindref="member">rb_node</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref>)<sp/>in_tx;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structvy__read__interval_1a32134dceca76f477f9dda531f7512225" kindref="member">rb_node</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref>)<sp/>in_lsm;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>in_merge;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal">vy_read_interval_cmpl(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref><sp/>*a,</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref><sp/>*b);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal">vy_read_interval_cmpr(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref><sp/>*a,</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref><sp/>*b);</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal">vy_read_interval_should_merge(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref><sp/>*l,</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref><sp/>*r);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/><ref refid="vclock_8h_1a15322e8502106a1fe47e37b5147a8644" kindref="member">rb_tree</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref>)<sp/>vy_tx_read_set_t;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal">vy_tx_read_set_cmp(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref><sp/>*a,</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref><sp/>*b)</highlight></codeline>
+<codeline lineno="137"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(a-&gt;<ref refid="structvy__read__interval_1a8cb540d2c6a27bb7893e4bfde2e645bc" kindref="member">tx</ref><sp/>==<sp/>b-&gt;<ref refid="structvy__read__interval_1a8cb540d2c6a27bb7893e4bfde2e645bc" kindref="member">tx</ref>);</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>rc<sp/>=<sp/>a-&gt;<ref refid="structvy__read__interval_1ae5df68d1ab83ec6da3407040bc696587" kindref="member">lsm</ref><sp/>&lt;<sp/>b-&gt;<ref refid="structvy__read__interval_1ae5df68d1ab83ec6da3407040bc696587" kindref="member">lsm</ref><sp/>?<sp/>-1<sp/>:<sp/>a-&gt;<ref refid="structvy__read__interval_1ae5df68d1ab83ec6da3407040bc696587" kindref="member">lsm</ref><sp/>&gt;<sp/>b-&gt;<ref refid="structvy__read__interval_1ae5df68d1ab83ec6da3407040bc696587" kindref="member">lsm</ref>;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rc<sp/>==<sp/>0)</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rc<sp/>=<sp/>vy_read_interval_cmpl(a,<sp/>b);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rc;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal">rb_gen(MAYBE_UNUSED<sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal">,<sp/>vy_tx_read_set_,<sp/>vy_tx_read_set_t,</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref>,<sp/>in_tx,<sp/>vy_tx_read_set_cmp);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/><ref refid="vclock_8h_1a15322e8502106a1fe47e37b5147a8644" kindref="member">rb_tree</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref>)<sp/>vy_lsm_read_set_t;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal">vy_lsm_read_set_cmp(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref><sp/>*a,</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref><sp/>*b)</highlight></codeline>
+<codeline lineno="159"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(a-&gt;<ref refid="structvy__read__interval_1ae5df68d1ab83ec6da3407040bc696587" kindref="member">lsm</ref><sp/>==<sp/>b-&gt;<ref refid="structvy__read__interval_1ae5df68d1ab83ec6da3407040bc696587" kindref="member">lsm</ref>);</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>rc<sp/>=<sp/>vy_read_interval_cmpl(a,<sp/>b);</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rc<sp/>==<sp/>0)</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rc<sp/>=<sp/>a-&gt;<ref refid="structvy__read__interval_1a8cb540d2c6a27bb7893e4bfde2e645bc" kindref="member">tx</ref><sp/>&lt;<sp/>b-&gt;<ref refid="structvy__read__interval_1a8cb540d2c6a27bb7893e4bfde2e645bc" kindref="member">tx</ref><sp/>?<sp/>-1<sp/>:<sp/>a-&gt;<ref refid="structvy__read__interval_1a8cb540d2c6a27bb7893e4bfde2e645bc" kindref="member">tx</ref><sp/>&gt;<sp/>b-&gt;<ref refid="structvy__read__interval_1a8cb540d2c6a27bb7893e4bfde2e645bc" kindref="member">tx</ref>;</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rc;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal">vy_lsm_read_set_aug(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref><sp/>*<ref refid="structnode" kindref="compound">node</ref>,</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref><sp/>*<ref refid="structvy__read__interval_1a274ffcad03447680b992665dde28b30c" kindref="member">left</ref>,</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref><sp/>*<ref refid="structvy__read__interval_1a6c0f4ef2cd175f02b36b1d75be4e7f9e" kindref="member">right</ref>)</highlight></codeline>
+<codeline lineno="171"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structvy__read__interval_1a2c872bdf6acaee250a77505e59800459" kindref="member">subtree_last</ref><sp/>=<sp/>node;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(left<sp/>!=<sp/>NULL<sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_read_interval_cmpr(left-&gt;<ref refid="structvy__read__interval_1a2c872bdf6acaee250a77505e59800459" kindref="member">subtree_last</ref>,<sp/>node-&gt;<ref refid="structvy__read__interval_1a2c872bdf6acaee250a77505e59800459" kindref="member">subtree_last</ref>)<sp/>&gt;<sp/>0)</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structvy__read__interval_1a2c872bdf6acaee250a77505e59800459" kindref="member">subtree_last</ref><sp/>=<sp/>left-&gt;<ref refid="structvy__read__interval_1a2c872bdf6acaee250a77505e59800459" kindref="member">subtree_last</ref>;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(right<sp/>!=<sp/>NULL<sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_read_interval_cmpr(right-&gt;<ref refid="structvy__read__interval_1a2c872bdf6acaee250a77505e59800459" kindref="member">subtree_last</ref>,<sp/>node-&gt;<ref refid="structvy__read__interval_1a2c872bdf6acaee250a77505e59800459" kindref="member">subtree_last</ref>)<sp/>&gt;<sp/>0)</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structvy__read__interval_1a2c872bdf6acaee250a77505e59800459" kindref="member">subtree_last</ref><sp/>=<sp/>right-&gt;<ref refid="structvy__read__interval_1a2c872bdf6acaee250a77505e59800459" kindref="member">subtree_last</ref>;</highlight></codeline>
+<codeline lineno="179"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal">rb_gen_aug(MAYBE_UNUSED<sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal">,<sp/>vy_lsm_read_set_,<sp/>vy_lsm_read_set_t,</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__read__interval" kindref="compound">vy_read_interval</ref>,<sp/>in_lsm,<sp/>vy_lsm_read_set_cmp,</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_lsm_read_set_aug);</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188" refid="structvy__tx__conflict__iterator" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__tx__conflict__iterator" kindref="compound">vy_tx_conflict_iterator</ref><sp/>{</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>key;</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">vy_lsm_read_set_walk<sp/>tree_walk;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>tree_dir;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal">vy_tx_conflict_iterator_init(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__tx__conflict__iterator" kindref="compound">vy_tx_conflict_iterator</ref><sp/>*it,</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_lsm_read_set_t<sp/>*read_set,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>key)</highlight></codeline>
+<codeline lineno="206"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_lsm_read_set_walk_init(&amp;it-&gt;<ref refid="structvy__tx__conflict__iterator_1a0a678181a34e6dc0121c0a9fcd864665" kindref="member">tree_walk</ref>,<sp/>read_set);</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>it-&gt;<ref refid="structvy__tx__conflict__iterator_1a4aed3adbd02ea68a56c86e96ec8bdeff" kindref="member">tree_dir</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>it-&gt;<ref refid="structvy__tx__conflict__iterator_1a8da75867d5d3c0e75540dc56ca1f5543" kindref="member">key</ref><sp/>=<sp/>key;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__tx" kindref="compound">vy_tx</ref><sp/>*</highlight></codeline>
+<codeline lineno="217"><highlight class="normal">vy_tx_conflict_iterator_next(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__tx__conflict__iterator" kindref="compound">vy_tx_conflict_iterator</ref><sp/>*it);</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>INCLUDES_TARANTOOL_BOX_VY_READ_SET_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/vy_read_set.h"/>
+  </compounddef>
+</doxygen>

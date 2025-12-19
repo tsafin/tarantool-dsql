@@ -1,0 +1,389 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvy__write__iterator" kind="struct" language="C++" prot="public">
+    <compoundname>vy_write_iterator</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvy__write__iterator_1a3c0ff92e34a008c4920b2ac354cdc528" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__stmt__stream" kindref="compound">vy_stmt_stream</ref></type>
+        <definition>struct vy_stmt_stream vy_write_iterator::base</definition>
+        <argsstring></argsstring>
+        <name>base</name>
+        <briefdescription>
+<para>Parent class, must be the first member. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.c" line="145" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="169" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__write__iterator_1a3a661b60be5d15b265b2aaa806628eb9" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist vy_write_iterator::src_list</definition>
+        <argsstring></argsstring>
+        <name>src_list</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.c" line="145" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="171" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__write__iterator_1a1095e8efc9859c90c7d669166c01d418" prot="public" static="no" mutable="no">
+        <type><ref refid="structheap__core__structure" kindref="compound">heap_t</ref></type>
+        <definition>heap_t vy_write_iterator::src_heap</definition>
+        <argsstring></argsstring>
+        <name>src_heap</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.c" line="173" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="173" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__write__iterator_1a3731b977202c6c15dd55eae4416c0c98" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+        <definition>struct key_def* vy_write_iterator::cmp_def</definition>
+        <argsstring></argsstring>
+        <name>cmp_def</name>
+        <briefdescription>
+<para>Index key definition used to store statements on disk. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.c" line="175" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="175" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__write__iterator_1ab5182a462a5b5a6887b2aa59c7081169" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool vy_write_iterator::is_last_level</definition>
+        <argsstring></argsstring>
+        <name>is_last_level</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.c" line="177" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="177" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__write__iterator_1a4793d057f11a4f3ef207ec0a59a28f9b" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool vy_write_iterator::is_primary</definition>
+        <argsstring></argsstring>
+        <name>is_primary</name>
+        <briefdescription>
+<para>Set if this iterator is for a primary index. </para>        </briefdescription>
+        <detaileddescription>
+<para>Not all implementation are applicable to the primary key and its tuple format is different. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.c" line="183" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="183" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__write__iterator_1a42a6324b74b0bb9fc51d3cff70d657e5" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__deferred__delete__handler" kindref="compound">vy_deferred_delete_handler</ref> *</type>
+        <definition>struct vy_deferred_delete_handler* vy_write_iterator::deferred_delete_handler</definition>
+        <argsstring></argsstring>
+        <name>deferred_delete_handler</name>
+        <briefdescription>
+<para>Deferred DELETE handler. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.c" line="185" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="185" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__write__iterator_1a3261760f1e4bb7f71c6e61c897b01264" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+        <definition>struct vy_entry vy_write_iterator::deferred_delete</definition>
+        <argsstring></argsstring>
+        <name>deferred_delete</name>
+        <briefdescription>
+<para>Last scanned REPLACE or DELETE statement that was inserted into the primary index without deletion of the old tuple from secondary indexes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.c" line="185" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="191" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__write__iterator_1aeb9d5969f90e82b3aa776f1d235cc48b" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int vy_write_iterator::rv_count</definition>
+        <argsstring></argsstring>
+        <name>rv_count</name>
+        <briefdescription>
+<para>Length of the . </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.c" line="193" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="193" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__write__iterator_1af502aa37bd1ec36779f04d9e59241209" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int vy_write_iterator::rv_used_count</definition>
+        <argsstring></argsstring>
+        <name>rv_used_count</name>
+        <briefdescription>
+<para>If there are no changes between two read views, the newer read view is left empty. </para>        </briefdescription>
+        <detaileddescription>
+<para>This is a count of non-empty read views. It&apos;s used to speed up squashing. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.c" line="199" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="199" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__write__iterator_1a96f937af7e4fe99dfccb3235688ed843" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int vy_write_iterator::stmt_i</definition>
+        <argsstring></argsstring>
+        <name>stmt_i</name>
+        <briefdescription>
+<para>Current read view in . </para>        </briefdescription>
+        <detaileddescription>
+<para>It is used to return key versions one by one from vy_write_iterator_next. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.c" line="204" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="204" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__write__iterator_1accc738cc86d568860fbcab4e2329b999" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+        <definition>struct vy_entry vy_write_iterator::last</definition>
+        <argsstring></argsstring>
+        <name>last</name>
+        <briefdescription>
+<para>Last statement returned to the caller, pinned in memory. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.c" line="204" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="208" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__write__iterator_1a59bd78a023330a7ed756e4a72998504b" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__read__view__stmt" kindref="compound">vy_read_view_stmt</ref></type>
+        <definition>struct vy_read_view_stmt vy_write_iterator::read_views[0]</definition>
+        <argsstring>[0]</argsstring>
+        <name>read_views</name>
+        <briefdescription>
+<para>Read views of the same key sorted by LSN in descending order, starting from INT64_MAX. </para>        </briefdescription>
+        <detaileddescription>
+<para>Some read views in  can be empty,<itemizedlist>
+<listitem><para>if there are no changes since the previous read view</para></listitem><listitem><para>if there are no changes up until this read view since the beginning of time. </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.c" line="204" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="218" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="15742">
+        <label>vy_stmt_stream_iface</label>
+        <link refid="structvy__stmt__stream__iface"/>
+        <childnode refid="15741" relation="usage">
+          <edgelabel>stop</edgelabel>
+          <edgelabel>close</edgelabel>
+          <edgelabel>next</edgelabel>
+          <edgelabel>start</edgelabel>
+        </childnode>
+      </node>
+      <node id="15735">
+        <label>key_part</label>
+        <link refid="structkey__part"/>
+        <childnode refid="15736" relation="usage">
+          <edgelabel>coll</edgelabel>
+        </childnode>
+      </node>
+      <node id="15722">
+        <label>vy_write_iterator</label>
+        <link refid="structvy__write__iterator"/>
+        <childnode refid="15723" relation="usage">
+          <edgelabel>deferred_delete</edgelabel>
+          <edgelabel>last</edgelabel>
+        </childnode>
+        <childnode refid="15725" relation="usage">
+          <edgelabel>deferred_delete_handler</edgelabel>
+        </childnode>
+        <childnode refid="15727" relation="usage">
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="15737" relation="usage">
+          <edgelabel>src_heap</edgelabel>
+        </childnode>
+        <childnode refid="15734" relation="usage">
+          <edgelabel>src_list</edgelabel>
+        </childnode>
+        <childnode refid="15739" relation="usage">
+          <edgelabel>read_views</edgelabel>
+        </childnode>
+        <childnode refid="15741" relation="usage">
+          <edgelabel>base</edgelabel>
+        </childnode>
+      </node>
+      <node id="15739">
+        <label>vy_read_view_stmt</label>
+        <link refid="structvy__read__view__stmt"/>
+        <childnode refid="15723" relation="usage">
+          <edgelabel>entry</edgelabel>
+        </childnode>
+        <childnode refid="15740" relation="usage">
+          <edgelabel>history</edgelabel>
+        </childnode>
+      </node>
+      <node id="15729">
+        <label>access</label>
+        <link refid="structaccess"/>
+      </node>
+      <node id="15733">
+        <label>credentials</label>
+        <link refid="structcredentials"/>
+        <childnode refid="15734" relation="usage">
+          <edgelabel>in_user</edgelabel>
+        </childnode>
+      </node>
+      <node id="15734">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="15734" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="15723">
+        <label>vy_entry</label>
+        <link refid="structvy__entry"/>
+        <childnode refid="15724" relation="usage">
+          <edgelabel>stmt</edgelabel>
+        </childnode>
+      </node>
+      <node id="15727">
+        <label>key_def</label>
+        <link refid="structkey__def"/>
+        <childnode refid="15724" relation="usage">
+          <edgelabel>tuple_hash</edgelabel>
+          <edgelabel>tuple_compare_with_key</edgelabel>
+          <edgelabel>tuple_compare</edgelabel>
+          <edgelabel>tuple_hint</edgelabel>
+          <edgelabel>tuple_extract_key</edgelabel>
+        </childnode>
+        <childnode refid="15727" relation="usage">
+          <edgelabel>key_hash</edgelabel>
+          <edgelabel>tuple_extract_key_raw</edgelabel>
+          <edgelabel>key_hint</edgelabel>
+        </childnode>
+        <childnode refid="15728" relation="usage">
+          <edgelabel>func_index_func</edgelabel>
+        </childnode>
+        <childnode refid="15735" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="15724">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="15738">
+        <label>heap_node</label>
+        <link refid="structheap__node"/>
+      </node>
+      <node id="15726">
+        <label>vy_deferred_delete_handler_iface</label>
+        <link refid="structvy__deferred__delete__handler__iface"/>
+        <childnode refid="15725" relation="usage">
+          <edgelabel>process</edgelabel>
+          <edgelabel>destroy</edgelabel>
+        </childnode>
+      </node>
+      <node id="15728">
+        <label>func</label>
+        <link refid="structfunc"/>
+        <childnode refid="15729" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="15730" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="15731" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="15733" relation="usage">
+          <edgelabel>owner_credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="15730">
+        <label>func_vtab</label>
+        <link refid="structfunc__vtab"/>
+      </node>
+      <node id="15725">
+        <label>vy_deferred_delete_handler</label>
+        <link refid="structvy__deferred__delete__handler"/>
+        <childnode refid="15726" relation="usage">
+          <edgelabel>iface</edgelabel>
+        </childnode>
+      </node>
+      <node id="15737">
+        <label>heap_core_structure</label>
+        <link refid="structheap__core__structure"/>
+        <childnode refid="15738" relation="usage">
+          <edgelabel>harr</edgelabel>
+        </childnode>
+      </node>
+      <node id="15732">
+        <label>func_opts</label>
+        <link refid="structfunc__opts"/>
+      </node>
+      <node id="15731">
+        <label>func_def</label>
+        <link refid="structfunc__def"/>
+        <childnode refid="15732" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="15736">
+        <label>coll</label>
+        <link refid="structcoll"/>
+        <childnode refid="15736" relation="usage">
+          <edgelabel>cmp</edgelabel>
+          <edgelabel>hint</edgelabel>
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+      <node id="15740">
+        <label>vy_write_history</label>
+        <link refid="structvy__write__history"/>
+        <childnode refid="15723" relation="usage">
+          <edgelabel>entry</edgelabel>
+        </childnode>
+        <childnode refid="15740" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="15741">
+        <label>vy_stmt_stream</label>
+        <link refid="structvy__stmt__stream"/>
+        <childnode refid="15742" relation="usage">
+          <edgelabel>iface</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/vy_write_iterator.c" line="167" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_write_iterator.c" bodystart="167" bodyend="219"/>
+    <listofallmembers>
+      <member refid="structvy__write__iterator_1a3c0ff92e34a008c4920b2ac354cdc528" prot="public" virt="non-virtual"><scope>vy_write_iterator</scope><name>base</name></member>
+      <member refid="structvy__write__iterator_1a3731b977202c6c15dd55eae4416c0c98" prot="public" virt="non-virtual"><scope>vy_write_iterator</scope><name>cmp_def</name></member>
+      <member refid="structvy__write__iterator_1a3261760f1e4bb7f71c6e61c897b01264" prot="public" virt="non-virtual"><scope>vy_write_iterator</scope><name>deferred_delete</name></member>
+      <member refid="structvy__write__iterator_1a42a6324b74b0bb9fc51d3cff70d657e5" prot="public" virt="non-virtual"><scope>vy_write_iterator</scope><name>deferred_delete_handler</name></member>
+      <member refid="structvy__write__iterator_1ab5182a462a5b5a6887b2aa59c7081169" prot="public" virt="non-virtual"><scope>vy_write_iterator</scope><name>is_last_level</name></member>
+      <member refid="structvy__write__iterator_1a4793d057f11a4f3ef207ec0a59a28f9b" prot="public" virt="non-virtual"><scope>vy_write_iterator</scope><name>is_primary</name></member>
+      <member refid="structvy__write__iterator_1accc738cc86d568860fbcab4e2329b999" prot="public" virt="non-virtual"><scope>vy_write_iterator</scope><name>last</name></member>
+      <member refid="structvy__write__iterator_1a59bd78a023330a7ed756e4a72998504b" prot="public" virt="non-virtual"><scope>vy_write_iterator</scope><name>read_views</name></member>
+      <member refid="structvy__write__iterator_1aeb9d5969f90e82b3aa776f1d235cc48b" prot="public" virt="non-virtual"><scope>vy_write_iterator</scope><name>rv_count</name></member>
+      <member refid="structvy__write__iterator_1af502aa37bd1ec36779f04d9e59241209" prot="public" virt="non-virtual"><scope>vy_write_iterator</scope><name>rv_used_count</name></member>
+      <member refid="structvy__write__iterator_1a1095e8efc9859c90c7d669166c01d418" prot="public" virt="non-virtual"><scope>vy_write_iterator</scope><name>src_heap</name></member>
+      <member refid="structvy__write__iterator_1a3a661b60be5d15b265b2aaa806628eb9" prot="public" virt="non-virtual"><scope>vy_write_iterator</scope><name>src_list</name></member>
+      <member refid="structvy__write__iterator_1a96f937af7e4fe99dfccb3235688ed843" prot="public" virt="non-virtual"><scope>vy_write_iterator</scope><name>stmt_i</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

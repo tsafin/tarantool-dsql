@@ -1,0 +1,1037 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="tuple__format_8h" kind="file" language="C++">
+    <compoundname>tuple_format.h</compoundname>
+    <includes refid="key__def_8h" local="yes">key_def.h</includes>
+    <includes refid="field__def_8h" local="yes">field_def.h</includes>
+    <includes refid="errinj_8h" local="yes">errinj.h</includes>
+    <includes refid="json_8h" local="yes">json/json.h</includes>
+    <includes refid="tuple__dictionary_8h" local="yes">tuple_dictionary.h</includes>
+    <includes refid="field__map_8h" local="yes">field_map.h</includes>
+    <includedby refid="tuple_8h" local="yes">/home/tsafin/tarantool/src/box/tuple.h</includedby>
+    <includedby refid="box_8cc" local="yes">/home/tsafin/tarantool/src/box/box.cc</includedby>
+    <includedby refid="index__def_8c" local="yes">/home/tsafin/tarantool/src/box/index_def.c</includedby>
+    <includedby refid="key__def_8c" local="yes">/home/tsafin/tarantool/src/box/key_def.c</includedby>
+    <includedby refid="misc_8cc" local="yes">/home/tsafin/tarantool/src/box/lua/misc.cc</includedby>
+    <includedby refid="merger_8c" local="yes">/home/tsafin/tarantool/src/box/merger.c</includedby>
+    <includedby refid="space_8c" local="yes">/home/tsafin/tarantool/src/box/space.c</includedby>
+    <includedby refid="build_8c" local="yes">/home/tsafin/tarantool/src/box/sql/build.c</includedby>
+    <includedby refid="update_8c" local="yes">/home/tsafin/tarantool/src/box/sql/update.c</includedby>
+    <includedby refid="vdbeaux_8c" local="yes">/home/tsafin/tarantool/src/box/sql/vdbeaux.c</includedby>
+    <includedby refid="tuple__format_8c" local="yes">/home/tsafin/tarantool/src/box/tuple_format.c</includedby>
+    <includedby refid="vy__stmt_8c" local="yes">/home/tsafin/tarantool/src/box/vy_stmt.c</includedby>
+    <includedby refid="xrow__update_8c" local="yes">/home/tsafin/tarantool/src/box/xrow_update.c</includedby>
+    <includedby refid="xrow__update__array_8c" local="yes">/home/tsafin/tarantool/src/box/xrow_update_array.c</includedby>
+    <includedby refid="xrow__update__field_8c" local="yes">/home/tsafin/tarantool/src/box/xrow_update_field.c</includedby>
+    <includedby refid="xrow__update__map_8c" local="yes">/home/tsafin/tarantool/src/box/xrow_update_map.c</includedby>
+    <innerclass refid="structtuple__format__vtab" prot="public">tuple_format_vtab</innerclass>
+    <innerclass refid="structtuple__field" prot="public">tuple_field</innerclass>
+    <innerclass refid="structtuple__format" prot="public">tuple_format</innerclass>
+    <innerclass refid="structtuple__format__iterator" prot="public">tuple_format_iterator</innerclass>
+    <innerclass refid="structtuple__format__iterator__entry" prot="public">tuple_format_iterator_entry</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="tuple__format_8h_1a01aea4eb01aa6415eee118b5a5ee3dad" prot="public" static="no">
+        <name>@107</name>
+        <enumvalue id="tuple__format_8h_1a01aea4eb01aa6415eee118b5a5ee3dadae1de60c3520c35fac44796d295e1bac8" prot="public">
+          <name>FORMAT_ID_MAX</name>
+          <initializer>= UINT16_MAX - 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="tuple__format_8h_1a01aea4eb01aa6415eee118b5a5ee3dadaf175200f50f2e0b1f8083cc64476acab" prot="public">
+          <name>FORMAT_ID_NIL</name>
+          <initializer>= UINT16_MAX</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="51" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="51" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="enum" id="tuple__format_8h_1a7646ae03981912f97626c39dfe9318da" prot="public" static="no">
+        <name>@108</name>
+        <enumvalue id="tuple__format_8h_1a7646ae03981912f97626c39dfe9318daa476bdcf9f6e7181619b2f3e28e22644e" prot="public">
+          <name>FORMAT_REF_MAX</name>
+          <initializer>= INT32_MAX</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="52" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="52" bodyend="52"/>
+      </memberdef>
+      <memberdef kind="enum" id="tuple__format_8h_1a29d44341ce767c5dfc737d622fc97ba1" prot="public" static="no">
+        <name>@109</name>
+        <enumvalue id="tuple__format_8h_1a29d44341ce767c5dfc737d622fc97ba1a8cb4d6d48c5be78e23eebfef2175c812" prot="public">
+          <name>TUPLE_INDEX_BASE</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="59" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="59" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="enum" id="tuple__format_8h_1a1b7b7893d940926615b39239ac05829d" prot="public" static="no">
+        <name>@110</name>
+        <enumvalue id="tuple__format_8h_1a1b7b7893d940926615b39239ac05829daea04289d63b194a8d8ee839216c6577b" prot="public">
+          <name>TUPLE_OFFSET_SLOT_NIL</name>
+          <initializer>= INT32_MAX</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="64" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="64" bodyend="64"/>
+      </memberdef>
+      <memberdef kind="enum" id="tuple__format_8h_1a098384b0034af0daa7c9c5c82b563567" prot="public" static="no">
+        <name>@111</name>
+        <enumvalue id="tuple__format_8h_1a098384b0034af0daa7c9c5c82b563567a8106fa90bc7ad8556626f95f2831f754" prot="public">
+          <name>TUPLE_FORMAT_ITERATOR_VALIDATE</name>
+          <initializer>= 1 &lt;&lt; 0</initializer>
+          <briefdescription>
+<para>This flag is set for iterator that should perform tuple validation to conform the specified format. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="tuple__format_8h_1a098384b0034af0daa7c9c5c82b563567af5a42f11ce5d94e3a99f003e866dd3f2" prot="public">
+          <name>TUPLE_FORMAT_ITERATOR_KEY_PARTS_ONLY</name>
+          <initializer>= 1 &lt;&lt; 1</initializer>
+          <briefdescription>
+<para>This flag is set for iterator that should skip the tuple fields that are not marked as key_parts in format::fields tree. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Tuple format iterator flags to configure parse mode. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="441" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="441" bodyend="453"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="tuple__format_8h_1ab230ff08fb24d580407126fc905cc271" prot="public" static="no">
+        <type>struct <ref refid="structtuple__format" kindref="compound">tuple_format</ref></type>
+        <definition>typedef struct tuple_format box_tuple_format_t</definition>
+        <argsstring></argsstring>
+        <name>box_tuple_format_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="373" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="377" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="tuple__format_8h_1a0668290e0d63c340eff271e69e0755a5" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtuple__format" kindref="compound">tuple_format</ref> **</type>
+        <definition>struct tuple_format** tuple_formats</definition>
+        <argsstring></argsstring>
+        <name>tuple_formats</name>
+        <briefdescription>
+<para>Global table of tuple formats. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="290" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.c" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="tuple__format_8h_1a2f7b9d4972409c4374611fdc17110dc8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tuple_format_free</definition>
+        <argsstring>()</argsstring>
+        <name>tuple_format_free</name>
+        <briefdescription>
+<para>Destroy tuple format subsystem and free resourses. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="49" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.c" bodystart="923" bodyend="941"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__format_8h_1a115dad98ef91c1f5f39a9859691c6086" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool tuple_field_is_nullable</definition>
+        <argsstring>(struct tuple_field *tuple_field)</argsstring>
+        <name>tuple_field_is_nullable</name>
+        <param>
+          <type>struct <ref refid="structtuple__field" kindref="compound">tuple_field</ref> *</type>
+          <declname>tuple_field</declname>
+        </param>
+        <briefdescription>
+<para>Get is_nullable property of <ref refid="structtuple__field" kindref="compound">tuple_field</ref>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername><ref refid="structtuple__field" kindref="compound">tuple_field</ref></parametername>
+</parameternamelist>
+<parameterdescription>
+<para>for which attribute is being fetched</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>boolean</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>nullability attribute </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="155" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="155" bodyend="158"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__format_8h_1a8b93e65a9f97a3952329f6e9844e0ec0" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t tuple_format_field_count</definition>
+        <argsstring>(struct tuple_format *format)</argsstring>
+        <name>tuple_format_field_count</name>
+        <param>
+          <type>struct <ref refid="structtuple__format" kindref="compound">tuple_format</ref> *</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+<para>Return the number of top-level tuple fields defined by a given format. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="251" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="251" bodyend="255"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__format_8h_1a3593a097383cd4ffd3fdf542b7959901" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structtuple__field" kindref="compound">tuple_field</ref> *</type>
+        <definition>static struct tuple_field* tuple_format_field_by_path</definition>
+        <argsstring>(struct tuple_format *format, uint32_t fieldno, const char *path, uint32_t path_len)</argsstring>
+        <name>tuple_format_field_by_path</name>
+        <param>
+          <type>struct <ref refid="structtuple__format" kindref="compound">tuple_format</ref> *</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>fieldno</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>path</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>path_len</declname>
+        </param>
+        <briefdescription>
+<para>Return meta information of a tuple field given a format, field index and path. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="262" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="262" bodyend="278"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__format_8h_1a1739dd60e6cc0b5f968f0e2d922ac567" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structtuple__field" kindref="compound">tuple_field</ref> *</type>
+        <definition>static struct tuple_field* tuple_format_field</definition>
+        <argsstring>(struct tuple_format *format, uint32_t fieldno)</argsstring>
+        <name>tuple_format_field</name>
+        <param>
+          <type>struct <ref refid="structtuple__format" kindref="compound">tuple_format</ref> *</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>fieldno</declname>
+        </param>
+        <briefdescription>
+<para>Return meta information of a top-level tuple field given a format and a field index. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="285" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="285" bodyend="288"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__format_8h_1a9f27a1716f64724fe520bfd73abb7636" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t tuple_format_id</definition>
+        <argsstring>(struct tuple_format *format)</argsstring>
+        <name>tuple_format_id</name>
+        <param>
+          <type>struct <ref refid="structtuple__format" kindref="compound">tuple_format</ref> *</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="293" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="293" bodyend="297"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__format_8h_1ab1c90036b27b231460373b8ba1d87a51" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structtuple__format" kindref="compound">tuple_format</ref> *</type>
+        <definition>static struct tuple_format* tuple_format_by_id</definition>
+        <argsstring>(uint32_t tuple_format_id)</argsstring>
+        <name>tuple_format_by_id</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>tuple_format_id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="300" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="300" bodyend="303"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__format_8h_1a3c40ca03e3115708ab2f0b82c918bc78" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void tuple_format_delete</definition>
+        <argsstring>(struct tuple_format *format)</argsstring>
+        <name>tuple_format_delete</name>
+        <param>
+          <type>struct <ref refid="structtuple__format" kindref="compound">tuple_format</ref> *</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+<para>Delete a format with zero ref count. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="307" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.c" bodystart="764" bodyend="770"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__format_8h_1afac8bee46ed3682bf7cd588af3d5703c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void tuple_format_ref</definition>
+        <argsstring>(struct tuple_format *format)</argsstring>
+        <name>tuple_format_ref</name>
+        <param>
+          <type>struct <ref refid="structtuple__format" kindref="compound">tuple_format</ref> *</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="310" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="310" bodyend="314"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__format_8h_1ad715f1cda5c8a9517f2ead27d307fca0" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void tuple_format_unref</definition>
+        <argsstring>(struct tuple_format *format)</argsstring>
+        <name>tuple_format_unref</name>
+        <param>
+          <type>struct <ref refid="structtuple__format" kindref="compound">tuple_format</ref> *</type>
+          <declname>format</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="317" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="317" bodyend="322"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__format_8h_1a21ce5755300d309aef7f50fa0d842706" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structtuple__format" kindref="compound">tuple_format</ref> *</type>
+        <definition>struct tuple_format* tuple_format_new</definition>
+        <argsstring>(struct tuple_format_vtab *vtab, void *engine, struct key_def *const *keys, uint16_t key_count, const struct field_def *space_fields, uint32_t space_field_count, uint32_t exact_field_count, struct tuple_dictionary *dict, bool is_temporary, bool is_ephemeral)</argsstring>
+        <name>tuple_format_new</name>
+        <param>
+          <type>struct <ref refid="structtuple__format__vtab" kindref="compound">tuple_format_vtab</ref> *</type>
+          <declname>vtab</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>engine</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *const *</type>
+          <declname>keys</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>key_count</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structfield__def" kindref="compound">field_def</ref> *</type>
+          <declname>space_fields</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>space_field_count</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>exact_field_count</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref> *</type>
+          <declname>dict</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>is_temporary</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>is_ephemeral</declname>
+        </param>
+        <briefdescription>
+<para>Allocate, construct and register a new in-memory tuple format. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>vtab</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Virtual function table for specific engines. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>engine</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to storage engine. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>keys</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of key_defs of a space. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The number of keys in <emphasis>keys</emphasis> array. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>space_fields</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of fields, defined in a space format. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>space_field_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of <emphasis>space_fields</emphasis>. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>exact_field_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Exact field count for format. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>is_temporary</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Set if format belongs to temporary space. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>is_ephemeral</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Set if format belongs to ephemeral space.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>not</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NULL Tuple format. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Memory error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="340" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.c" bodystart="773" bodyend="809"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__format_8h_1ab0d41aa57156851a3f77a51c1f380565" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool tuple_format1_can_store_format2_tuples</definition>
+        <argsstring>(struct tuple_format *format1, struct tuple_format *format2)</argsstring>
+        <name>tuple_format1_can_store_format2_tuples</name>
+        <param>
+          <type>struct <ref refid="structtuple__format" kindref="compound">tuple_format</ref> *</type>
+          <declname>format1</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtuple__format" kindref="compound">tuple_format</ref> *</type>
+          <declname>format2</declname>
+        </param>
+        <briefdescription>
+<para>Check, if <emphasis>format1</emphasis> can store any tuples of <emphasis>format2</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>For example, if a field is not nullable in format1 and the same field is nullable in format2, or the field type is integer in format1 and unsigned in format2, then format1 can not store format2 tuples. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>format1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>tuple format to check for compatibility of </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>format2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>tuple format to check compatibility with</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>True</parametername>
+<parametername>if</parametername>
+</parameternamelist>
+<parameterdescription>
+<para><emphasis>format1</emphasis> can store any tuples of <emphasis>format2</emphasis>. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="359" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.c" bodystart="812" bodyend="853"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__format_8h_1ac2119e2cbe70b25612e98bf7e6bc3f10" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t tuple_format_min_field_count</definition>
+        <argsstring>(struct key_def *const *keys, uint16_t key_count, const struct field_def *space_fields, uint32_t space_field_count)</argsstring>
+        <name>tuple_format_min_field_count</name>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *const *</type>
+          <declname>keys</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>key_count</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structfield__def" kindref="compound">field_def</ref> *</type>
+          <declname>space_fields</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>space_field_count</declname>
+        </param>
+        <briefdescription>
+<para>Calculate minimal field count of tuples with specified keys and space format. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>keys</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of key definitions of indexes. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of <emphasis>keys</emphasis>. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>space_fields</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of fields from a space format. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>space_field_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of <emphasis>space_fields</emphasis>.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>Minimal</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>field count. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="373" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.c" bodystart="888" bodyend="907"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__format_8h_1a19699999d0398fb88281bbd8ae5abc6f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tuple_field_map_create</definition>
+        <argsstring>(struct tuple_format *format, const char *tuple, bool validate, struct field_map_builder *builder)</argsstring>
+        <name>tuple_field_map_create</name>
+        <param>
+          <type>struct <ref refid="structtuple__format" kindref="compound">tuple_format</ref> *</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>tuple</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>validate</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structfield__map__builder" kindref="compound">field_map_builder</ref> *</type>
+          <declname>builder</declname>
+        </param>
+        <briefdescription>
+<para>public </para>        </briefdescription>
+        <detaileddescription>
+<para>Allocate a field map for the given tuple on the region.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>format</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Tuple format. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tuple</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>MessagePack array. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>validate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>If set, validate the tuple against the format. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>builder[out]</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The pointer to field map builder object to be prepared.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Success. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Format error. +----------------<mdash/>+ Result: | offN | ... | off1 | +----------------<mdash/>+ ^ field_map tuple + off_i = indexed_field_i;</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para>declaration for details. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="429" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.c" bodystart="857" bodyend="885"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__format_8h_1aa70bb99641834e44858a5d68443b272e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tuple_format_init</definition>
+        <argsstring>()</argsstring>
+        <name>tuple_format_init</name>
+        <briefdescription>
+<para>Initialize tuple format subsystem. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on success, -1 otherwise. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="437" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.c" bodystart="910" bodyend="919"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__format_8h_1aac1994a1d4debf601efd619e2c7826ae" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tuple_format_iterator_create</definition>
+        <argsstring>(struct tuple_format_iterator *it, struct tuple_format *format, const char *tuple, uint8_t flags, uint32_t *field_count, struct region *region)</argsstring>
+        <name>tuple_format_iterator_create</name>
+        <param>
+          <type>struct <ref refid="structtuple__format__iterator" kindref="compound">tuple_format_iterator</ref> *</type>
+          <declname>it</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtuple__format" kindref="compound">tuple_format</ref> *</type>
+          <declname>format</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>tuple</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>flags</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>field_count</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structregion" kindref="compound">region</ref> *</type>
+          <declname>region</declname>
+        </param>
+        <briefdescription>
+<para>Initialize tuple decode iterator with tuple format and tuple data pointer. </para>        </briefdescription>
+        <detaileddescription>
+<para>Function uses the region to allocate the traversal stack and required fields bitmasks.</para><para>Returns 0 on success. In case of error sets diag message and returns -1. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="565" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.c" bodystart="956" bodyend="1007"/>
+      </memberdef>
+      <memberdef kind="function" id="tuple__format_8h_1ae4b7a579b98592d6954e2adb91d3ed29" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tuple_format_iterator_next</definition>
+        <argsstring>(struct tuple_format_iterator *it, struct tuple_format_iterator_entry *entry)</argsstring>
+        <name>tuple_format_iterator_next</name>
+        <param>
+          <type>struct <ref refid="structtuple__format__iterator" kindref="compound">tuple_format_iterator</ref> *</type>
+          <declname>it</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structtuple__format__iterator__entry" kindref="compound">tuple_format_iterator_entry</ref> *</type>
+          <declname>entry</declname>
+        </param>
+        <briefdescription>
+<para>Perform tuple decode step and update iterator state. </para>        </briefdescription>
+        <detaileddescription>
+<para>Update entry pointer with actual format parse context.</para><para>Returns 0 on success. In case of error sets diag message and returns -1. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="578" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.c" bodystart="1036" bodyend="1188"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_BOX_TUPLE_FORMAT_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_BOX_TUPLE_FORMAT_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;key_def.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;field_def.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;errinj.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;json/json.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;tuple_dictionary.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;field_map.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal">tuple_format_free();</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{<sp/>FORMAT_ID_MAX<sp/>=<sp/>UINT16_MAX<sp/>-<sp/>1,<sp/>FORMAT_ID_NIL<sp/>=<sp/>UINT16_MAX<sp/>};</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{<sp/>FORMAT_REF_MAX<sp/>=<sp/>INT32_MAX};</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="55"><highlight class="comment"><sp/>*<sp/>We<sp/>don&apos;t<sp/>pass<sp/>TUPLE_INDEX_BASE<sp/>around<sp/>dynamically<sp/>all<sp/>the<sp/>time,</highlight></codeline>
+<codeline lineno="56"><highlight class="comment"><sp/>*<sp/>at<sp/>least<sp/>hard<sp/>code<sp/>it<sp/>so<sp/>that<sp/>in<sp/>most<sp/>cases<sp/>it&apos;s<sp/>a<sp/>nice<sp/>error</highlight></codeline>
+<codeline lineno="57"><highlight class="comment"><sp/>*<sp/>message</highlight></codeline>
+<codeline lineno="58"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{<sp/>TUPLE_INDEX_BASE<sp/>=<sp/>1<sp/>};</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="61"><highlight class="comment"><sp/>*<sp/>A<sp/>special<sp/>value<sp/>to<sp/>indicate<sp/>that<sp/>tuple<sp/>format<sp/>doesn&apos;t<sp/>store</highlight></codeline>
+<codeline lineno="62"><highlight class="comment"><sp/>*<sp/>an<sp/>offset<sp/>for<sp/>a<sp/>field_id.</highlight></codeline>
+<codeline lineno="63"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{<sp/>TUPLE_OFFSET_SLOT_NIL<sp/>=<sp/>INT32_MAX<sp/>};</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple" kindref="compound">tuple</ref>;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__chunk" kindref="compound">tuple_chunk</ref>;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__format" kindref="compound">tuple_format</ref>;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcoll" kindref="compound">coll</ref>;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72" refid="structtuple__format__vtab" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__format__vtab" kindref="compound">tuple_format_vtab</ref><sp/>{</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>void</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(*<ref refid="structtuple__format__vtab_1a426c8820f002b7a4b42de2fc643fad8b" kindref="member">tuple_delete</ref>)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>*format,<sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple" kindref="compound">tuple</ref><sp/>*<ref refid="structtuple" kindref="compound">tuple</ref>);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple" kindref="compound">tuple</ref>*</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(*tuple_new)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>*format,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data,</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*end);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>void</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(*<ref refid="structtuple__format__vtab_1a89e3aacc3ff82515f5dc8cb6855374e5" kindref="member">tuple_chunk_delete</ref>)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>*format,</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(*tuple_chunk_new)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>*format,<sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple" kindref="compound">tuple</ref><sp/>*<ref refid="structtuple" kindref="compound">tuple</ref>,</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data,<sp/>uint32_t<sp/>data_sz);</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103" refid="structtuple__field" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__field" kindref="compound">tuple_field</ref><sp/>{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>id;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>field_type<sp/>type;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>offset_slot;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_key_part;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_multikey_part;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>on_conflict_action<sp/>nullable_action;</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcoll" kindref="compound">coll</ref><sp/>*<ref refid="structcoll" kindref="compound">coll</ref>;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structcoll__id" kindref="compound">coll_id</ref>;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*multikey_required_fields;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>token;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal">tuple_field_is_nullable(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__field" kindref="compound">tuple_field</ref><sp/>*<ref refid="structtuple__field" kindref="compound">tuple_field</ref>)</highlight></codeline>
+<codeline lineno="156"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>tuple_field-&gt;<ref refid="structtuple__field_1a2ede3bab75ad80d56eb541d98de2b772" kindref="member">nullable_action</ref><sp/>==<sp/>ON_CONFLICT_ACTION_NONE;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164" refid="structtuple__format" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>{</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__format__vtab" kindref="compound">tuple_format_vtab</ref><sp/>vtab;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structengine" kindref="compound">engine</ref>;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>id;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>hash;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>epoch;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>refs;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_temporary;</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_ephemeral;</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>field_map_size;</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>exact_field_count;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>index_field_count;</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>min_field_count;</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>total_field_count;</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*required_fields;</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref><sp/>*dict;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>fields_depth;</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjson__tree" kindref="compound">json_tree</ref><sp/>fields;</highlight></codeline>
+<codeline lineno="244"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"></highlight></codeline>
+<codeline lineno="250"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t</highlight></codeline>
+<codeline lineno="251"><highlight class="normal">tuple_format_field_count(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>*format)</highlight></codeline>
+<codeline lineno="252"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*root<sp/>=<sp/>&amp;format-&gt;<ref refid="structtuple__format_1a9698cbe70035de243417a8f1404c5616" kindref="member">fields</ref>.<ref refid="structjson__tree_1a6023c2bf7ea4008a9cc7e61f9080c0f8" kindref="member">root</ref>;</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>root-&gt;<ref refid="structjson__token_1a43ba43314cf1454fcf50db5f7b6697de" kindref="member">children</ref><sp/>!=<sp/>NULL<sp/>?<sp/>root-&gt;<ref refid="structjson__token_1aeeab6e48780a1467533de923f2b2ca04" kindref="member">max_child_idx</ref><sp/>+<sp/>1<sp/>:<sp/>0;</highlight></codeline>
+<codeline lineno="255"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">tuple_field<sp/>*</highlight></codeline>
+<codeline lineno="262"><highlight class="normal">tuple_format_field_by_path(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>*format,<sp/>uint32_t<sp/>fieldno,</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*path,<sp/>uint32_t<sp/>path_len)</highlight></codeline>
+<codeline lineno="264"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(fieldno<sp/>&lt;<sp/>tuple_format_field_count(format));</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>token;</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>token.type<sp/>=<sp/>JSON_TOKEN_NUM;</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>token.<ref refid="structjson__token_1a08cfd5e94e703ddf272a5af24087f847" kindref="member">num</ref><sp/>=<sp/>fieldno;</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">tuple_field<sp/>*root<sp/>=</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>json_tree_lookup_entry(&amp;format-&gt;<ref refid="structtuple__format_1a9698cbe70035de243417a8f1404c5616" kindref="member">fields</ref>,<sp/>&amp;format-&gt;<ref refid="structtuple__format_1a9698cbe70035de243417a8f1404c5616" kindref="member">fields</ref>.<ref refid="structjson__tree_1a6023c2bf7ea4008a9cc7e61f9080c0f8" kindref="member">root</ref>,</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;token,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tuple_field,<sp/>token);</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(root<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(path<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>root;</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>json_tree_lookup_path_entry(&amp;format-&gt;<ref refid="structtuple__format_1a9698cbe70035de243417a8f1404c5616" kindref="member">fields</ref>,<sp/>&amp;root-&gt;<ref refid="structtuple__field_1a154dd51c3662e8db95700916f1ef67fa" kindref="member">token</ref>,</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>path,<sp/>path_len,<sp/>TUPLE_INDEX_BASE,</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>tuple_field,<sp/>token);</highlight></codeline>
+<codeline lineno="278"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"></highlight></codeline>
+<codeline lineno="284"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">tuple_field<sp/>*</highlight></codeline>
+<codeline lineno="285"><highlight class="normal">tuple_format_field(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>*format,<sp/>uint32_t<sp/>fieldno)</highlight></codeline>
+<codeline lineno="286"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>tuple_format_field_by_path(format,<sp/>fieldno,<sp/>NULL,<sp/>0);</highlight></codeline>
+<codeline lineno="288"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"></highlight></codeline>
+<codeline lineno="290"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>**tuple_formats;</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"></highlight></codeline>
+<codeline lineno="292"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t</highlight></codeline>
+<codeline lineno="293"><highlight class="normal">tuple_format_id(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>*format)</highlight></codeline>
+<codeline lineno="294"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(tuple_formats[format-&gt;<ref refid="structtuple__format_1a38e25fa19c795a1207ff305ad1f3b4e7" kindref="member">id</ref>]<sp/>==<sp/>format);</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>format-&gt;<ref refid="structtuple__format_1a38e25fa19c795a1207ff305ad1f3b4e7" kindref="member">id</ref>;</highlight></codeline>
+<codeline lineno="297"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"></highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>*</highlight></codeline>
+<codeline lineno="300"><highlight class="normal">tuple_format_by_id(uint32_t<sp/>tuple_format_id)</highlight></codeline>
+<codeline lineno="301"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>tuple_formats[tuple_format_id];</highlight></codeline>
+<codeline lineno="303"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"></highlight></codeline>
+<codeline lineno="306"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="307"><highlight class="normal">tuple_format_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>*format);</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"></highlight></codeline>
+<codeline lineno="309"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="310"><highlight class="normal">tuple_format_ref(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>*format)</highlight></codeline>
+<codeline lineno="311"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert((uint64_t)format-&gt;<ref refid="structtuple__format_1a6e4d612ab5c7c884345decdabec365c6" kindref="member">refs</ref><sp/>+<sp/>1<sp/>&lt;=<sp/>FORMAT_REF_MAX);</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>format-&gt;<ref refid="structtuple__format_1a6e4d612ab5c7c884345decdabec365c6" kindref="member">refs</ref>++;</highlight></codeline>
+<codeline lineno="314"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"></highlight></codeline>
+<codeline lineno="316"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="317"><highlight class="normal">tuple_format_unref(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>*format)</highlight></codeline>
+<codeline lineno="318"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(format-&gt;<ref refid="structtuple__format_1a6e4d612ab5c7c884345decdabec365c6" kindref="member">refs</ref><sp/>&gt;=<sp/>1);</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(--format-&gt;<ref refid="structtuple__format_1a6e4d612ab5c7c884345decdabec365c6" kindref="member">refs</ref><sp/>==<sp/>0)</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tuple_format_delete(format);</highlight></codeline>
+<codeline lineno="322"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"></highlight></codeline>
+<codeline lineno="339"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>*</highlight></codeline>
+<codeline lineno="340"><highlight class="normal">tuple_format_new(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__format__vtab" kindref="compound">tuple_format_vtab</ref><sp/>*<ref refid="structtuple__format_1afbb4f8a5fa791a4c5990b867aa5a0bf5" kindref="member">vtab</ref>,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structengine" kindref="compound">engine</ref>,</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structkey__def" kindref="compound">key_def</ref><sp/>*<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>*keys,<sp/>uint16_t<sp/>key_count,</highlight></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfield__def" kindref="compound">field_def</ref><sp/>*space_fields,</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>space_field_count,<sp/>uint32_t<sp/><ref refid="structtuple__format_1ad3c930b39cf2e5baccfdfbe3aa84f690" kindref="member">exact_field_count</ref>,</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__dictionary" kindref="compound">tuple_dictionary</ref><sp/>*<ref refid="structtuple__format_1ac203572d902f679ebd8435407bb8c5f0" kindref="member">dict</ref>,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structtuple__format_1aa32dadb39164e6928b31e861ab4ab696" kindref="member">is_temporary</ref>,</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structtuple__format_1aa4a9693417c8f68cd525454bdc2dd715" kindref="member">is_ephemeral</ref>);</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"></highlight></codeline>
+<codeline lineno="358"><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="359"><highlight class="normal">tuple_format1_can_store_format2_tuples(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>*format1,</highlight></codeline>
+<codeline lineno="360"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>*format2);</highlight></codeline>
+<codeline lineno="361"><highlight class="normal"></highlight></codeline>
+<codeline lineno="372"><highlight class="normal">uint32_t</highlight></codeline>
+<codeline lineno="373"><highlight class="normal">tuple_format_min_field_count(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structkey__def" kindref="compound">key_def</ref><sp/>*<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>*keys,<sp/>uint16_t<sp/>key_count,</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfield__def" kindref="compound">field_def</ref><sp/>*space_fields,</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>space_field_count);</highlight></codeline>
+<codeline lineno="376"><highlight class="normal"></highlight></codeline>
+<codeline lineno="377"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>box_tuple_format_t;</highlight></codeline>
+<codeline lineno="378"><highlight class="normal"></highlight></codeline>
+<codeline lineno="389"><highlight class="normal">box_tuple_format_t<sp/>*</highlight></codeline>
+<codeline lineno="390"><highlight class="normal">box_tuple_format_new(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structkey__def" kindref="compound">key_def</ref><sp/>**keys,<sp/>uint16_t<sp/>key_count);</highlight></codeline>
+<codeline lineno="391"><highlight class="normal"></highlight></codeline>
+<codeline lineno="397"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="398"><highlight class="normal">box_tuple_format_ref(box_tuple_format_t<sp/>*format);</highlight></codeline>
+<codeline lineno="399"><highlight class="normal"></highlight></codeline>
+<codeline lineno="405"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="406"><highlight class="normal">box_tuple_format_unref(box_tuple_format_t<sp/>*format);</highlight></codeline>
+<codeline lineno="407"><highlight class="normal"></highlight></codeline>
+<codeline lineno="428"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="429"><highlight class="normal">tuple_field_map_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>*format,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structtuple" kindref="compound">tuple</ref>,</highlight></codeline>
+<codeline lineno="430"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>validate,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfield__map__builder" kindref="compound">field_map_builder</ref><sp/>*builder);</highlight></codeline>
+<codeline lineno="431"><highlight class="normal"></highlight></codeline>
+<codeline lineno="436"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="437"><highlight class="normal">tuple_format_init();</highlight></codeline>
+<codeline lineno="438"><highlight class="normal"></highlight></codeline>
+<codeline lineno="439"><highlight class="normal"></highlight></codeline>
+<codeline lineno="441"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="446"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TUPLE_FORMAT_ITERATOR_VALIDATE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>1<sp/>&lt;&lt;<sp/>0,</highlight></codeline>
+<codeline lineno="452"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TUPLE_FORMAT_ITERATOR_KEY_PARTS_ONLY<sp/><sp/><sp/><sp/>=<sp/>1<sp/>&lt;&lt;<sp/>1,</highlight></codeline>
+<codeline lineno="453"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="454"><highlight class="normal"></highlight></codeline>
+<codeline lineno="459" refid="structtuple__format__iterator" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__format__iterator" kindref="compound">tuple_format_iterator</ref><sp/>{</highlight></codeline>
+<codeline lineno="461"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*pos;</highlight></codeline>
+<codeline lineno="466"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>*format;</highlight></codeline>
+<codeline lineno="468"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>flags;</highlight></codeline>
+<codeline lineno="479"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmp__stack" kindref="compound">mp_stack</ref><sp/>stack;</highlight></codeline>
+<codeline lineno="485"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmp__frame" kindref="compound">mp_frame</ref><sp/>*multikey_frame;</highlight></codeline>
+<codeline lineno="491"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjson__token" kindref="compound">json_token</ref><sp/>*<ref refid="structjson__token_1afd6c04813b839b2c6ce2a89e12d83098" kindref="member">parent</ref>;</highlight></codeline>
+<codeline lineno="496"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>required_fields_sz;</highlight></codeline>
+<codeline lineno="502"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*required_fields;</highlight></codeline>
+<codeline lineno="508"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*multikey_required_fields;</highlight></codeline>
+<codeline lineno="509"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="510"><highlight class="normal"></highlight></codeline>
+<codeline lineno="512" refid="structtuple__format__iterator__entry" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtuple__format__iterator__entry" kindref="compound">tuple_format_iterator_entry</ref><sp/>{</highlight></codeline>
+<codeline lineno="514"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data;</highlight></codeline>
+<codeline lineno="520"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data_end;</highlight></codeline>
+<codeline lineno="528"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">tuple_field<sp/>*field;</highlight></codeline>
+<codeline lineno="533"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">tuple_field<sp/>*parent;</highlight></codeline>
+<codeline lineno="539"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>count;</highlight></codeline>
+<codeline lineno="546"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>multikey_count;</highlight></codeline>
+<codeline lineno="551"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>multikey_idx;</highlight></codeline>
+<codeline lineno="552"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="553"><highlight class="normal"></highlight></codeline>
+<codeline lineno="564"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="565"><highlight class="normal">tuple_format_iterator_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__format__iterator" kindref="compound">tuple_format_iterator</ref><sp/>*it,</highlight></codeline>
+<codeline lineno="566"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__format" kindref="compound">tuple_format</ref><sp/>*format,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*tuple,</highlight></codeline>
+<codeline lineno="567"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>flags,<sp/>uint32_t<sp/>*field_count,</highlight></codeline>
+<codeline lineno="568"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structregion" kindref="compound">region</ref><sp/>*<ref refid="structregion" kindref="compound">region</ref>);</highlight></codeline>
+<codeline lineno="569"><highlight class="normal"></highlight></codeline>
+<codeline lineno="577"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="578"><highlight class="normal">tuple_format_iterator_next(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__format__iterator" kindref="compound">tuple_format_iterator</ref><sp/>*it,</highlight></codeline>
+<codeline lineno="579"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple__format__iterator__entry" kindref="compound">tuple_format_iterator_entry</ref><sp/>*entry);</highlight></codeline>
+<codeline lineno="580"><highlight class="normal"></highlight></codeline>
+<codeline lineno="581"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="582"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="583"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="584"><highlight class="normal"></highlight></codeline>
+<codeline lineno="585"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>#ifndef<sp/>TARANTOOL_BOX_TUPLE_FORMAT_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/tuple_format.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,319 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="sql__stmt__cache_8h" kind="file" language="C++">
+    <compoundname>sql_stmt_cache.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdio.h</includes>
+    <includes refid="rlist_8h" local="yes">small/rlist.h</includes>
+    <includedby refid="box_8cc" local="yes">/home/tsafin/tarantool/src/box/box.cc</includedby>
+    <includedby refid="execute_8c" local="yes">/home/tsafin/tarantool/src/box/execute.c</includedby>
+    <includedby refid="lua_2execute_8c" local="yes">/home/tsafin/tarantool/src/box/lua/execute.c</includedby>
+    <includedby refid="box_2lua_2info_8c" local="yes">/home/tsafin/tarantool/src/box/lua/info.c</includedby>
+    <includedby refid="session_8cc" local="yes">/home/tsafin/tarantool/src/box/session.cc</includedby>
+    <includedby refid="sql_8c" local="yes">/home/tsafin/tarantool/src/box/sql.c</includedby>
+    <includedby refid="sql__stmt__cache_8c" local="yes">/home/tsafin/tarantool/src/box/sql_stmt_cache.c</includedby>
+    <incdepgraph>
+      <node id="1113">
+        <label>stdint.h</label>
+      </node>
+      <node id="1112">
+        <label>/home/tsafin/tarantool/src/box/sql_stmt_cache.h</label>
+        <link refid="sql__stmt__cache_8h"/>
+        <childnode refid="1113" relation="include">
+        </childnode>
+        <childnode refid="1114" relation="include">
+        </childnode>
+      </node>
+      <node id="1114">
+        <label>stdio.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structstmt__cache__entry" prot="public">stmt_cache_entry</innerclass>
+    <innerclass refid="structsql__stmt__cache" prot="public">sql_stmt_cache</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="sql__stmt__cache_8h_1a297ce51ad747475019c6cbcbcb1dcd67" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sql_stmt_cache_init</definition>
+        <argsstring>(void)</argsstring>
+        <name>sql_stmt_cache_init</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize global cache for prepared statements. </para>        </briefdescription>
+        <detaileddescription>
+<para>Called once during database setup (in sql_init()). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" line="92" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="42" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8h_1a87f694b540420fb2adf2290525bdcc80" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sql_stmt_cache_stat</definition>
+        <argsstring>(struct info_handler *h)</argsstring>
+        <name>sql_stmt_cache_stat</name>
+        <param>
+          <type>struct <ref refid="structinfo__handler" kindref="compound">info_handler</ref> *</type>
+          <declname>h</declname>
+        </param>
+        <briefdescription>
+<para>Store statistics concerning cache (current size and number of statements in it) into info handler . </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" line="99" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="53" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8h_1ad9e92dffdbafbaf0c6a2daca02af3408" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sql_session_stmt_hash_erase</definition>
+        <argsstring>(struct mh_i32ptr_t *hash)</argsstring>
+        <name>sql_session_stmt_hash_erase</name>
+        <param>
+          <type>struct mh_i32ptr_t *</type>
+          <declname>hash</declname>
+        </param>
+        <briefdescription>
+<para>Erase session local hash: unref statements belong to this session and deallocate hash itself. </para>        </briefdescription>
+        <detaileddescription>
+<para>is assumed to be member of struct session . </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" line="107" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="184" bodyend="196"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8h_1aa8f00b7b1caaa0d3bfd4087548057aa3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sql_session_stmt_hash_add_id</definition>
+        <argsstring>(struct mh_i32ptr_t *hash, uint32_t stmt_id)</argsstring>
+        <name>sql_session_stmt_hash_add_id</name>
+        <param>
+          <type>struct mh_i32ptr_t *</type>
+          <declname>hash</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>stmt_id</declname>
+        </param>
+        <briefdescription>
+<para>Add entry corresponding to prepared statement with given ID to session-local hash and increase its ref counter. </para>        </briefdescription>
+        <detaileddescription>
+<para>is assumed to be member of struct session . </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" line="115" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="199" bodyend="212"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8h_1ae486436ac5503ea0466d81f16ef0ec79" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t sql_stmt_calculate_id</definition>
+        <argsstring>(const char *sql_str, size_t len)</argsstring>
+        <name>sql_stmt_calculate_id</name>
+        <param>
+          <type>const char *</type>
+          <declname>sql_str</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Prepared statement ID is supposed to be hash value of the original SQL query string. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" line="122" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="215" bodyend="218"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8h_1a07cbefb3346aa80a120fd427b5498d65" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void sql_stmt_unref</definition>
+        <argsstring>(uint32_t stmt_id)</argsstring>
+        <name>sql_stmt_unref</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>stmt_id</declname>
+        </param>
+        <briefdescription>
+<para>Unref prepared statement entry in global holder. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" line="126" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="221" bodyend="226"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8h_1a4776990969396595a76f867a2b729460" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sql_stmt_cache_update</definition>
+        <argsstring>(struct sql_stmt *old_stmt, struct sql_stmt *new_stmt)</argsstring>
+        <name>sql_stmt_cache_update</name>
+        <param>
+          <type>struct sql_stmt *</type>
+          <declname>old_stmt</declname>
+        </param>
+        <param>
+          <type>struct sql_stmt *</type>
+          <declname>new_stmt</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" line="129" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="229" bodyend="237"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8h_1aeccfdbe88692d32caddce9c2dfc86221" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sql_stmt_cache_insert</definition>
+        <argsstring>(struct sql_stmt *stmt)</argsstring>
+        <name>sql_stmt_cache_insert</name>
+        <param>
+          <type>struct sql_stmt *</type>
+          <declname>stmt</declname>
+        </param>
+        <briefdescription>
+<para>Save prepared statement to the prepared statement cache. </para>        </briefdescription>
+        <detaileddescription>
+<para>Account cache size change. If the cache is full (i.e. memory quota is exceeded) diag error is raised. In case of success return id of prepared statement via output parameter . </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" line="138" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="240" bodyend="276"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8h_1af29e440c9facd1fe778f05be693f43fc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct sql_stmt *</type>
+        <definition>struct sql_stmt* sql_stmt_cache_find</definition>
+        <argsstring>(uint32_t stmt_id)</argsstring>
+        <name>sql_stmt_cache_find</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>stmt_id</declname>
+        </param>
+        <briefdescription>
+<para>Find entry by SQL string. </para>        </briefdescription>
+        <detaileddescription>
+<para>In case of search fails it returns NULL. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" line="142" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="279" bodyend="285"/>
+      </memberdef>
+      <memberdef kind="function" id="sql__stmt__cache_8h_1ad86867f2460a750c20c1439c3fd1dfce" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sql_stmt_cache_set_size</definition>
+        <argsstring>(size_t size)</argsstring>
+        <name>sql_stmt_cache_set_size</name>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Set prepared cache size limit. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.h" line="147" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql_stmt_cache.c" bodystart="288" bodyend="300"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>INCLUDES_PREP_STMT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INCLUDES_PREP_STMT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2019,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdio.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;small/rlist.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">sql_stmt;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">mh_i64ptr_t;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structinfo__handler" kindref="compound">info_handler</ref>;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="structstmt__cache__entry" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref><sp/>{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">sql_stmt<sp/>*<ref refid="structstmt__cache__entry_1a3530ae73ca76bccbca931325955aa238" kindref="member">stmt</ref>;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>link;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structstmt__cache__entry_1a4ab93f91246cf0a86f5078212976a3c7" kindref="member">refs</ref>;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="structsql__stmt__cache" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsql__stmt__cache" kindref="compound">sql_stmt_cache</ref><sp/>{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>mem_used;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>mem_quota;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">mh_i32ptr_t<sp/>*hash;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>gc_queue;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstmt__cache__entry" kindref="compound">stmt_cache_entry</ref><sp/>*last_found;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal">sql_stmt_cache_init(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal">sql_stmt_cache_stat(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structinfo__handler" kindref="compound">info_handler</ref><sp/>*h);</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal">sql_session_stmt_hash_erase(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>mh_i32ptr_t<sp/>*hash);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal">sql_session_stmt_hash_add_id(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>mh_i32ptr_t<sp/>*hash,<sp/>uint32_t<sp/>stmt_id);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal">uint32_t</highlight></codeline>
+<codeline lineno="122"><highlight class="normal">sql_stmt_calculate_id(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sql_str,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal">sql_stmt_unref(uint32_t<sp/>stmt_id);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal">sql_stmt_cache_update(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sql_stmt<sp/>*old_stmt,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sql_stmt<sp/>*new_stmt);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal">sql_stmt_cache_insert(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sql_stmt<sp/>*<ref refid="structstmt__cache__entry_1a3530ae73ca76bccbca931325955aa238" kindref="member">stmt</ref>);</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="keyword">struct<sp/></highlight><highlight class="normal">sql_stmt<sp/>*</highlight></codeline>
+<codeline lineno="142"><highlight class="normal">sql_stmt_cache_find(uint32_t<sp/>stmt_id);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal">sql_stmt_cache_set_size(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>{<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/sql_stmt_cache.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,174 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structobuf" kind="struct" language="C++" prot="public">
+    <compoundname>obuf</compoundname>
+    <includes local="no">obuf.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structobuf_1a50d2d7b3a46feda87361e876bc3ff820" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref> *</type>
+        <definition>struct slab_cache* obuf::slabc</definition>
+        <argsstring></argsstring>
+        <name>slabc</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="82" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structobuf_1afad667d410049316f57c5d6d216287dc" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int obuf::pos</definition>
+        <argsstring></argsstring>
+        <name>pos</name>
+        <briefdescription>
+<para>Position of the &quot;current&quot; iovec. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="84" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structobuf_1ae5d35ba04c301e83f4e9ea202465264c" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int obuf::n_iov</definition>
+        <argsstring></argsstring>
+        <name>n_iov</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="86" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structobuf_1a68ff055831699b7d317cd5541a664e83" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t obuf::used</definition>
+        <argsstring></argsstring>
+        <name>used</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="88" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.h" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structobuf_1a821af45839bd464df38723fb9e2ecd6b" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t obuf::start_capacity</definition>
+        <argsstring></argsstring>
+        <name>start_capacity</name>
+        <briefdescription>
+<para>iov[0] size (allocations are normally a multiple of this number), but can be larger if a large chunk is requested by obuf_reserve(). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="94" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structobuf_1a7e2ea9ae6b084e29f64bea79869c0dc1" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t obuf::capacity[SMALL_OBUF_IOV_MAX+1]</definition>
+        <argsstring>[SMALL_OBUF_IOV_MAX+1]</argsstring>
+        <name>capacity</name>
+        <briefdescription>
+<para>How many bytes are actually allocated for each iovec. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="96" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structobuf_1a99e5a11d828e965b5a555291b0822e44" prot="public" static="no" mutable="no">
+        <type>struct iovec</type>
+        <definition>struct iovec obuf::iov[SMALL_OBUF_IOV_MAX+1]</definition>
+        <argsstring>[SMALL_OBUF_IOV_MAX+1]</argsstring>
+        <name>iov</name>
+        <briefdescription>
+<para>List of iovec vectors, each vector is at least twice as big as the previous one. </para>        </briefdescription>
+        <detaileddescription>
+<para>The vector following the last allocated one is always zero-initialized (iov_base = NULL, iov_len = 0). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="96" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>An output buffer is a vector of struct iovec for writev(). </para>    </briefdescription>
+    <detaileddescription>
+<para>Each iovec buffer is allocated using slab allocator. Buffer size grows by a factor of 2. <ref refid="structWith" kindref="compound">With</ref> this growth factor, the number of used buffers is unlikely to ever exceed the hard limit of SMALL_OBUF_IOV_MAX. If it does, an exception is raised. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="6285">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="6282">
+        <label>obuf</label>
+        <link refid="structobuf"/>
+        <childnode refid="6283" relation="usage">
+          <edgelabel>slabc</edgelabel>
+        </childnode>
+      </node>
+      <node id="6286">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="6286" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="6284">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="6285" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="6286" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="6288">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="6289">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="6287">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="6288" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="6289" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="6283">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="6284" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="6287" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/small/small/obuf.h" line="81" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/obuf.h" bodystart="80" bodyend="104"/>
+    <listofallmembers>
+      <member refid="structobuf_1a7e2ea9ae6b084e29f64bea79869c0dc1" prot="public" virt="non-virtual"><scope>obuf</scope><name>capacity</name></member>
+      <member refid="structobuf_1a99e5a11d828e965b5a555291b0822e44" prot="public" virt="non-virtual"><scope>obuf</scope><name>iov</name></member>
+      <member refid="structobuf_1ae5d35ba04c301e83f4e9ea202465264c" prot="public" virt="non-virtual"><scope>obuf</scope><name>n_iov</name></member>
+      <member refid="structobuf_1afad667d410049316f57c5d6d216287dc" prot="public" virt="non-virtual"><scope>obuf</scope><name>pos</name></member>
+      <member refid="structobuf_1a50d2d7b3a46feda87361e876bc3ff820" prot="public" virt="non-virtual"><scope>obuf</scope><name>slabc</name></member>
+      <member refid="structobuf_1a821af45839bd464df38723fb9e2ecd6b" prot="public" virt="non-virtual"><scope>obuf</scope><name>start_capacity</name></member>
+      <member refid="structobuf_1a68ff055831699b7d317cd5541a664e83" prot="public" virt="non-virtual"><scope>obuf</scope><name>used</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

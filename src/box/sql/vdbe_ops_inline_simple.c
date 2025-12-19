@@ -5,15 +5,11 @@
  * This file contains wrapper functions for simple inline opcodes
  * extracted from vdbe.c and refactored to work in the generated dispatcher.
  *
- * Opcodes in this file (10 opcodes, all < 100 chars in original form):
+ * Opcodes in this file (6 opcodes, all < 100 chars in original form):
  * - OP_Noop: No operation
  * - OP_Explain: Explain query plan
  * - OP_SkipLoad: Skip VDBE loading
  * - OP_Expire: Expire cached schema
- * - OP_TTransaction: Transaction control
- * - OP_TransactionRollback: Rollback transaction
- * - OP_ResetCount: Reset statement counter
- * - OP_TransactionBegin: Begin transaction
  * - OP_NotNull: Jump if not null (control flow)
  * - OP_Permutation: Permutation setup
  */
@@ -21,11 +17,7 @@
 #include "sqlInt.h"
 #include "mem.h"
 #include "vdbeInt.h"
-
-/* Forward declarations for transaction functions */
-extern int sql_transaction_begin(Vdbe *p);
-extern int sql_transaction_commit(Vdbe *p);
-extern int sql_transaction_rollback(Vdbe *p);
+#include "tarantoolInt.h"
 
 /*
  * Opcode: NOOP - No operation
@@ -91,88 +83,6 @@ vdbe_op_expire_inline(Vdbe *p, Op *pOp, Mem *aMem)
 	return 0;
 }
 
-/*
- * Opcode: TRANSACTIONBEGIN - Begin transaction
- *
- * Start a new transaction.
- */
-int
-vdbe_op_transactionbegin_inline(Vdbe *p, Op *pOp, Mem *aMem)
-{
-	(void)pOp;
-	(void)aMem;
-
-	if (sql_transaction_begin(p) != 0) {
-		return -1;
-	}
-	return 0;
-}
-
-/*
- * Opcode: TRANSACTIONCOMMIT - Commit transaction
- *
- * Commit the current transaction.
- */
-int
-vdbe_op_transactioncommit_inline(Vdbe *p, Op *pOp, Mem *aMem)
-{
-	(void)pOp;
-	(void)aMem;
-
-	if (sql_transaction_commit(p) != 0) {
-		return -1;
-	}
-	return 0;
-}
-
-/*
- * Opcode: TRANSACTIONROLLBACK - Rollback transaction
- *
- * Rollback the current transaction.
- */
-int
-vdbe_op_transactionrollback_inline(Vdbe *p, Op *pOp, Mem *aMem)
-{
-	(void)pOp;
-	(void)aMem;
-
-	if (sql_transaction_rollback(p) != 0) {
-		return -1;
-	}
-	return 0;
-}
-
-/*
- * Opcode: TTRANSACTION - Transaction type/mode
- *
- * Set transaction type.
- */
-int
-vdbe_op_ttransaction_inline(Vdbe *p, Op *pOp, Mem *aMem)
-{
-	(void)p;
-	(void)pOp;
-	(void)aMem;
-
-	/* Transaction type is typically handled during setup */
-	return 0;
-}
-
-/*
- * Opcode: RESETCOUNT - Reset statement counter
- *
- * Reset the statement execution counter.
- */
-int
-vdbe_op_resetcount_inline(Vdbe *p, Op *pOp, Mem *aMem)
-{
-	(void)p;
-	(void)pOp;
-	(void)aMem;
-
-	/* Counter reset handled at higher level */
-	return 0;
-}
 
 /*
  * Opcode: NOTNULL - Jump if not null

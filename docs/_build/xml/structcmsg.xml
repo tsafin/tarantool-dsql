@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structcmsg" kind="struct" language="C++" prot="public">
+    <compoundname>cmsg</compoundname>
+    <includes local="no">cbus.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structcmsg_1a87882b3b293b03d3ec36d01e1660fb91" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structstailq__entry" kindref="compound">stailq_entry</ref></type>
+        <definition>struct stailq_entry cmsg::fifo</definition>
+        <argsstring></argsstring>
+        <name>fifo</name>
+        <briefdescription>
+<para>A member of the linked list - fifo of the pipe the message is stuck in currently, waiting to get delivered. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="76" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcmsg_1a7ae9b405f7dbf2014cabe579c7cf3ab6" prot="public" static="no" mutable="no">
+        <type>const struct <ref refid="structcmsg__hop" kindref="compound">cmsg_hop</ref> *</type>
+        <definition>const struct cmsg_hop* cmsg::route</definition>
+        <argsstring></argsstring>
+        <name>route</name>
+        <briefdescription>
+<para>The message routing path. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="88" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcmsg_1ae1c5e18cd82d4df924e4da8f52624f27" prot="public" static="no" mutable="no">
+        <type>const struct <ref refid="structcmsg__hop" kindref="compound">cmsg_hop</ref> *</type>
+        <definition>const struct cmsg_hop* cmsg::hop</definition>
+        <argsstring></argsstring>
+        <name>hop</name>
+        <briefdescription>
+<para>The current hop the message is at. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="90" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A message traveling between cords. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="1216">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="1216" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="1215">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="1216" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="1211">
+        <label>cpipe</label>
+        <link refid="structcpipe"/>
+        <childnode refid="1212" relation="usage">
+          <edgelabel>on_flush</edgelabel>
+        </childnode>
+        <childnode refid="1213" relation="usage">
+          <edgelabel>endpoint</edgelabel>
+        </childnode>
+        <childnode refid="1215" relation="usage">
+          <edgelabel>input</edgelabel>
+        </childnode>
+      </node>
+      <node id="1210">
+        <label>cmsg_hop</label>
+        <link refid="structcmsg__hop"/>
+        <childnode refid="1211" relation="usage">
+          <edgelabel>pipe</edgelabel>
+        </childnode>
+        <childnode refid="1209" relation="usage">
+          <edgelabel>f</edgelabel>
+        </childnode>
+      </node>
+      <node id="1212">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="1212" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="1209">
+        <label>cmsg</label>
+        <link refid="structcmsg"/>
+        <childnode refid="1210" relation="usage">
+          <edgelabel>hop</edgelabel>
+          <edgelabel>route</edgelabel>
+        </childnode>
+        <childnode refid="1216" relation="usage">
+          <edgelabel>fifo</edgelabel>
+        </childnode>
+      </node>
+      <node id="1214">
+        <label>fiber_cond</label>
+        <link refid="structfiber__cond"/>
+        <childnode refid="1212" relation="usage">
+          <edgelabel>waiters</edgelabel>
+        </childnode>
+      </node>
+      <node id="1213">
+        <label>cbus_endpoint</label>
+        <link refid="structcbus__endpoint"/>
+        <childnode refid="1214" relation="usage">
+          <edgelabel>cond</edgelabel>
+        </childnode>
+        <childnode refid="1212" relation="usage">
+          <edgelabel>in_cbus</edgelabel>
+        </childnode>
+        <childnode refid="1215" relation="usage">
+          <edgelabel>output</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/core/cbus.h" line="80" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.h" bodystart="80" bodyend="91"/>
+    <listofallmembers>
+      <member refid="structcmsg_1a87882b3b293b03d3ec36d01e1660fb91" prot="public" virt="non-virtual"><scope>cmsg</scope><name>fifo</name></member>
+      <member refid="structcmsg_1ae1c5e18cd82d4df924e4da8f52624f27" prot="public" virt="non-virtual"><scope>cmsg</scope><name>hop</name></member>
+      <member refid="structcmsg_1a7ae9b405f7dbf2014cabe579c7cf3ab6" prot="public" virt="non-virtual"><scope>cmsg</scope><name>route</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

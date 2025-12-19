@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structsynchro__request" kind="struct" language="C++" prot="public">
+    <compoundname>synchro_request</compoundname>
+    <includes local="no">xrow.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structsynchro__request_1a9753c51614cc807c70df1161092012a1" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t synchro_request::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <briefdescription>
+<para>Operation type - IPROTO_ROLLBACK or IPROTO_CONFIRM. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow.h" line="216" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow.h" bodystart="216" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsynchro__request_1a1c0a93aee964c4ee803c2378b7b1ea6e" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t synchro_request::replica_id</definition>
+        <argsstring></argsstring>
+        <name>replica_id</name>
+        <briefdescription>
+<para>ID of the instance owning the pending transactions. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note, it may be not the same instance, who created this request. An instance can make an operation on foreign synchronous transactions in case a new master tries to finish transactions of an old master. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow.h" line="224" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow.h" bodystart="224" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structsynchro__request_1a536534568c3ee4452a73c7dd203e9800" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t synchro_request::lsn</definition>
+        <argsstring></argsstring>
+        <name>lsn</name>
+        <briefdescription>
+<para>Operation LSN. </para>        </briefdescription>
+        <detaileddescription>
+<para>In case of CONFIRM it means &apos;confirm all transactions with lsn &lt;= this value&apos;. In case of ROLLBACK it means &apos;rollback all transactions with lsn &gt;= this value&apos;. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow.h" line="232" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow.h" bodystart="232" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Synchronous replication request - confirmation or rollback of pending synchronous transactions. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/tsafin/tarantool/src/box/xrow.h" line="214" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow.h" bodystart="214" bodyend="233"/>
+    <listofallmembers>
+      <member refid="structsynchro__request_1a536534568c3ee4452a73c7dd203e9800" prot="public" virt="non-virtual"><scope>synchro_request</scope><name>lsn</name></member>
+      <member refid="structsynchro__request_1a1c0a93aee964c4ee803c2378b7b1ea6e" prot="public" virt="non-virtual"><scope>synchro_request</scope><name>replica_id</name></member>
+      <member refid="structsynchro__request_1a9753c51614cc807c70df1161092012a1" prot="public" virt="non-virtual"><scope>synchro_request</scope><name>type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

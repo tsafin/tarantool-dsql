@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structxlog__tx__cursor" kind="struct" language="C++" prot="public">
+    <compoundname>xlog_tx_cursor</compoundname>
+    <includes local="no">xlog.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structxlog__tx__cursor_1a63a90b2d2eaaf38aa208d7528992e1f5" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structibuf" kindref="compound">ibuf</ref></type>
+        <definition>struct ibuf xlog_tx_cursor::rows</definition>
+        <argsstring></argsstring>
+        <name>rows</name>
+        <briefdescription>
+<para>rows buffer </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="396" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="569" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxlog__tx__cursor_1ac6996c3e1482e0b5a53c6aecb41a63de" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t xlog_tx_cursor::size</definition>
+        <argsstring></argsstring>
+        <name>size</name>
+        <briefdescription>
+<para>tx size </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="571" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="571" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>xlog tx iterator </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="17974">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="17971">
+        <label>ibuf</label>
+        <link refid="structibuf"/>
+        <childnode refid="17972" relation="usage">
+          <edgelabel>slabc</edgelabel>
+        </childnode>
+      </node>
+      <node id="17970">
+        <label>xlog_tx_cursor</label>
+        <link refid="structxlog__tx__cursor"/>
+        <childnode refid="17971" relation="usage">
+          <edgelabel>rows</edgelabel>
+        </childnode>
+      </node>
+      <node id="17975">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="17975" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="17973">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="17974" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="17975" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="17977">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="17978">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="17976">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="17977" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="17978" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="17972">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="17973" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="17976" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/xlog.h" line="567" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="566" bodyend="572"/>
+    <listofallmembers>
+      <member refid="structxlog__tx__cursor_1a63a90b2d2eaaf38aa208d7528992e1f5" prot="public" virt="non-virtual"><scope>xlog_tx_cursor</scope><name>rows</name></member>
+      <member refid="structxlog__tx__cursor_1ac6996c3e1482e0b5a53c6aecb41a63de" prot="public" virt="non-virtual"><scope>xlog_tx_cursor</scope><name>size</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

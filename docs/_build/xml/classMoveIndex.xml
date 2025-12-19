@@ -1,0 +1,133 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="classMoveIndex" kind="class" language="C++" prot="public">
+    <compoundname>MoveIndex</compoundname>
+    <basecompoundref refid="classAlterSpaceOp" prot="public" virt="non-virtual">AlterSpaceOp</basecompoundref>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classMoveIndex_1a1071907dc5355cc5258538d020be0fc3" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t MoveIndex::iid</definition>
+        <argsstring></argsstring>
+        <name>iid</name>
+        <briefdescription>
+<para>id of the index on the move. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1325" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1325" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classMoveIndex_1a727c1a5ec9ec669d2b5810e0cc5aaec7" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>MoveIndex::MoveIndex</definition>
+        <argsstring>(struct alter_space *alter, uint32_t iid_arg)</argsstring>
+        <name>MoveIndex</name>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+          <declname>alter</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>iid_arg</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1322" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1322" bodyend="1323"/>
+      </memberdef>
+      <memberdef kind="function" id="classMoveIndex_1aa969e5da682bd2a8ba502a88854c5e5d" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void MoveIndex::alter</definition>
+        <argsstring>(struct alter_space *alter)</argsstring>
+        <name>alter</name>
+        <reimplements refid="classAlterSpaceOp_1a378a5a70c9583adc7e8e37039deac0c0">alter</reimplements>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+        </param>
+        <briefdescription>
+<para>Called after all registered operations have completed the preparation phase. </para>        </briefdescription>
+        <detaileddescription>
+<para>Used to propagate the old space state to the new space (e.g. move unchanged indexes). Must not yield or fail. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1326" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1331" bodyend="1334"/>
+      </memberdef>
+      <memberdef kind="function" id="classMoveIndex_1ae2f06af685888a3bddda16fec032e221" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void MoveIndex::rollback</definition>
+        <argsstring>(struct alter_space *alter)</argsstring>
+        <name>rollback</name>
+        <reimplements refid="classAlterSpaceOp_1aa67d5c66e41e7972f5db131c5a3d9775">rollback</reimplements>
+        <param>
+          <type>struct <ref refid="structalter__space" kindref="compound">alter_space</ref> *</type>
+        </param>
+        <briefdescription>
+<para>Called in case a WAL error occurred. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is supposed to undo the effect of <ref refid="classAlterSpaceOp_1a5c35fcc6fa0a26b350e2bfd8b73c7d8c" kindref="member">AlterSpaceOp::prepare</ref> and <ref refid="classAlterSpaceOp_1a378a5a70c9583adc7e8e37039deac0c0" kindref="member">AlterSpaceOp::alter</ref>. Must not fail. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1327" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1337" bodyend="1340"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A no-op to preserve the old index data in the new space. </para>    </briefdescription>
+    <detaileddescription>
+<para>Added to the alter specification when the index at hand is not affected by alter in any way. </para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="6142">
+        <label>AlterSpaceOp</label>
+        <link refid="classAlterSpaceOp"/>
+      </node>
+      <node id="6141">
+        <label>MoveIndex</label>
+        <link refid="classMoveIndex"/>
+        <childnode refid="6142" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="6145">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="6145" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="6144">
+        <label>AlterSpaceOp</label>
+        <link refid="classAlterSpaceOp"/>
+        <childnode refid="6145" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="6143">
+        <label>MoveIndex</label>
+        <link refid="classMoveIndex"/>
+        <childnode refid="6144" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/alter.cc" line="1320" column="1" bodyfile="/home/tsafin/tarantool/src/box/alter.cc" bodystart="1319" bodyend="1328"/>
+    <listofallmembers>
+      <member refid="classMoveIndex_1aa969e5da682bd2a8ba502a88854c5e5d" prot="public" virt="virtual"><scope>MoveIndex</scope><name>alter</name></member>
+      <member refid="classAlterSpaceOp_1ada87e0e1106f5316848e451f5609b7a4" prot="public" virt="virtual"><scope>MoveIndex</scope><name>alter_def</name></member>
+      <member refid="classAlterSpaceOp_1ab74f256d2f9bf750c48d8f9496eb0bc9" prot="public" virt="non-virtual"><scope>MoveIndex</scope><name>AlterSpaceOp</name></member>
+      <member refid="classAlterSpaceOp_1a87e8be9739a71a0f4100d3a67bd75100" prot="public" virt="virtual"><scope>MoveIndex</scope><name>commit</name></member>
+      <member refid="classMoveIndex_1a1071907dc5355cc5258538d020be0fc3" prot="public" virt="non-virtual"><scope>MoveIndex</scope><name>iid</name></member>
+      <member refid="classAlterSpaceOp_1a18479b187ef8611fe72e6ee92904f1be" prot="public" virt="non-virtual"><scope>MoveIndex</scope><name>link</name></member>
+      <member refid="classMoveIndex_1a727c1a5ec9ec669d2b5810e0cc5aaec7" prot="public" virt="non-virtual"><scope>MoveIndex</scope><name>MoveIndex</name></member>
+      <member refid="classAlterSpaceOp_1a700d3df81c1d87dc0818191dde139cae" prot="public" virt="non-virtual"><scope>MoveIndex</scope><name>operator delete</name></member>
+      <member refid="classAlterSpaceOp_1ad200979e4bf5c00b78bfef43f259ceba" prot="public" virt="non-virtual"><scope>MoveIndex</scope><name>operator new</name></member>
+      <member refid="classAlterSpaceOp_1a5c35fcc6fa0a26b350e2bfd8b73c7d8c" prot="public" virt="virtual"><scope>MoveIndex</scope><name>prepare</name></member>
+      <member refid="classMoveIndex_1ae2f06af685888a3bddda16fec032e221" prot="public" virt="virtual"><scope>MoveIndex</scope><name>rollback</name></member>
+      <member refid="classAlterSpaceOp_1a5549e172b94739b9fa7445b9599f506c" prot="public" virt="virtual"><scope>MoveIndex</scope><name>~AlterSpaceOp</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

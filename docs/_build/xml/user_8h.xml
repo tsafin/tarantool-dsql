@@ -1,0 +1,521 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="user_8h" kind="file" language="C++">
+    <compoundname>user.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes refid="user__def_8h" local="yes">user_def.h</includes>
+    <includes refid="region_8h" local="yes">small/region.h</includes>
+    <includedby refid="alter_8cc" local="yes">/home/tsafin/tarantool/src/box/alter.cc</includedby>
+    <includedby refid="session_8h" local="yes">/home/tsafin/tarantool/src/box/session.h</includedby>
+    <includedby refid="authentication_8cc" local="yes">/home/tsafin/tarantool/src/box/authentication.cc</includedby>
+    <includedby refid="box_8cc" local="yes">/home/tsafin/tarantool/src/box/box.cc</includedby>
+    <includedby refid="session_8c" local="yes">/home/tsafin/tarantool/src/box/lua/session.c</includedby>
+    <includedby refid="schema_8cc" local="yes">/home/tsafin/tarantool/src/box/schema.cc</includedby>
+    <includedby refid="session_8cc" local="yes">/home/tsafin/tarantool/src/box/session.cc</includedby>
+    <includedby refid="space_8c" local="yes">/home/tsafin/tarantool/src/box/space.c</includedby>
+    <includedby refid="build_8c" local="yes">/home/tsafin/tarantool/src/box/sql/build.c</includedby>
+    <includedby refid="user_8cc" local="yes">/home/tsafin/tarantool/src/box/user.cc</includedby>
+    <incdepgraph>
+      <node id="1216">
+        <label>stdint.h</label>
+      </node>
+      <node id="1215">
+        <label>/home/tsafin/tarantool/src/box/user.h</label>
+        <link refid="user_8h"/>
+        <childnode refid="1216" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structuniverse" prot="public">universe</innerclass>
+    <innerclass refid="structuser__map" prot="public">user_map</innerclass>
+    <innerclass refid="structuser" prot="public">user</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="user_8h_1aeac2de18c0ed342a690b3e2ba3c52426" prot="public" static="no">
+        <name>@116</name>
+        <enumvalue id="user_8h_1aeac2de18c0ed342a690b3e2ba3c52426aa82b8e220c419ab30b34277bd9fb55d8" prot="public">
+          <name>UMAP_INT_BITS</name>
+          <initializer>= CHAR_BIT * sizeof(umap_int_t)</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="user_8h_1aeac2de18c0ed342a690b3e2ba3c52426acc010e5ad10688fd401c42b949572d1a" prot="public">
+          <name>USER_MAP_SIZE</name>
+          <initializer>= (BOX_USER_MAX + UMAP_INT_BITS - 1)/UMAP_INT_BITS</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/user.h" line="52" column="1" bodyfile="/home/tsafin/tarantool/src/box/user.h" bodystart="52" bodyend="55"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="user_8h_1a0e296f00d5e17350939708aa4ddccefd" prot="public" static="no">
+        <type>unsigned int</type>
+        <definition>typedef unsigned int umap_int_t</definition>
+        <argsstring></argsstring>
+        <name>umap_int_t</name>
+        <briefdescription>
+<para>Bitmap type for used/unused authentication token map. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/user.h" line="51" column="1" bodyfile="/home/tsafin/tarantool/src/box/user.h" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="user_8h_1a78868a069ca1605a7b8df555690a506b" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structuniverse" kindref="compound">universe</ref></type>
+        <definition>struct universe universe</definition>
+        <argsstring></argsstring>
+        <name>universe</name>
+        <briefdescription>
+<para>A single instance of the universe. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/user.h" line="810" column="1" bodyfile="/home/tsafin/tarantool/src/box/user.cc" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="user_8h_1ad8d244360e6a59fad9eea845fd056541" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool user_map_is_empty</definition>
+        <argsstring>(struct user_map *map)</argsstring>
+        <name>user_map_is_empty</name>
+        <param>
+          <type>struct <ref refid="structuser__map" kindref="compound">user_map</ref> *</type>
+          <declname>map</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/user.h" line="62" column="1" bodyfile="/home/tsafin/tarantool/src/box/user.h" bodystart="62" bodyend="68"/>
+      </memberdef>
+      <memberdef kind="function" id="user_8h_1a5743d852bbc86df9936eb9f8eee9cc48" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef rb_tree</definition>
+        <argsstring>(struct priv_def) privset_t</argsstring>
+        <name>rb_tree</name>
+        <param>
+          <type>struct <ref refid="structpriv__def" kindref="compound">priv_def</ref></type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/user.h" line="70" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="user_8h_1a8ddbd65246269189b5cea15e6f0b7a3b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>rb_proto</definition>
+        <argsstring>(, privset_, privset_t, struct priv_def)</argsstring>
+        <name>rb_proto</name>
+        <param>
+          <type>privset_</type>
+        </param>
+        <param>
+          <type>privset_t</type>
+        </param>
+        <param>
+          <type>struct <ref refid="structpriv__def" kindref="compound">priv_def</ref></type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/user.h" line="71" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="user_8h_1a6954660b4ec3235a89d19982db64ebc7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structaccess" kindref="compound">access</ref> *</type>
+        <definition>struct access* access_find</definition>
+        <argsstring>(enum schema_object_type object_type, uint32_t object_id)</argsstring>
+        <name>access_find</name>
+        <param>
+          <type>enum schema_object_type</type>
+          <declname>object_type</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>object_id</declname>
+        </param>
+        <briefdescription>
+<para>Find the corresponding access structure given object type and object id. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/user.h" line="102" column="1" bodyfile="/home/tsafin/tarantool/src/box/user.cc" bodystart="215" bodyend="288"/>
+      </memberdef>
+      <memberdef kind="function" id="user_8h_1a0972f22b80a7707074ae1c526ed42f4f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structuser" kindref="compound">user</ref> *</type>
+        <definition>struct user* user_by_id</definition>
+        <argsstring>(uint32_t uid)</argsstring>
+        <name>user_by_id</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>uid</declname>
+        </param>
+        <briefdescription>
+<para>Find user by id. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/user.h" line="106" column="1" bodyfile="/home/tsafin/tarantool/src/box/user.cc" bodystart="503" bodyend="509"/>
+      </memberdef>
+      <memberdef kind="function" id="user_8h_1a746a24b363a9298c91969cf67234d4b2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structuser" kindref="compound">user</ref> *</type>
+        <definition>struct user* user_find_by_name</definition>
+        <argsstring>(const char *name, uint32_t len)</argsstring>
+        <name>user_find_by_name</name>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Find user by name. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/user.h" line="109" column="1" bodyfile="/home/tsafin/tarantool/src/box/user.cc" bodystart="529" bodyend="542"/>
+      </memberdef>
+      <memberdef kind="function" id="user_8h_1ab6da2d37d3bbcdc2e05dfe4ef5b281d3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structuser" kindref="compound">user</ref> *</type>
+        <definition>struct user* user_find</definition>
+        <argsstring>(uint32_t uid)</argsstring>
+        <name>user_find</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>uid</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/user.h" line="113" column="1" bodyfile="/home/tsafin/tarantool/src/box/user.cc" bodystart="512" bodyend="518"/>
+      </memberdef>
+      <memberdef kind="function" id="user_8h_1a7227f43cc9f776ff3e4b981c51fe9316" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structuser" kindref="compound">user</ref> *</type>
+        <definition>struct user* user_find_by_token</definition>
+        <argsstring>(uint8_t auth_token)</argsstring>
+        <name>user_find_by_token</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>auth_token</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/user.h" line="117" column="1" bodyfile="/home/tsafin/tarantool/src/box/user.cc" bodystart="522" bodyend="525"/>
+      </memberdef>
+      <memberdef kind="function" id="user_8h_1a291b25c1f6b8a925338880fa41a51ee7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void credentials_create</definition>
+        <argsstring>(struct credentials *cr, struct user *user)</argsstring>
+        <name>credentials_create</name>
+        <param>
+          <type>struct <ref refid="structcredentials" kindref="compound">credentials</ref> *</type>
+          <declname>cr</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structuser" kindref="compound">user</ref> *</type>
+          <declname>user</declname>
+        </param>
+        <briefdescription>
+<para>Create a cache of user&apos;s privileges in <emphasis>cr</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Create a cache of user&apos;s privileges in <emphasis>cr</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/user.h" line="121" column="1" bodyfile="/home/tsafin/tarantool/src/box/user.cc" bodystart="792" bodyend="798"/>
+      </memberdef>
+      <memberdef kind="function" id="user_8h_1a8cc7c09f5205d767b2c7050d06b869d0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void credentials_create_empty</definition>
+        <argsstring>(struct credentials *cr)</argsstring>
+        <name>credentials_create_empty</name>
+        <param>
+          <type>struct <ref refid="structcredentials" kindref="compound">credentials</ref> *</type>
+          <declname>cr</declname>
+        </param>
+        <briefdescription>
+<para>Create a dummy credentials cache without a user. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/user.h" line="125" column="1" bodyfile="/home/tsafin/tarantool/src/box/user.cc" bodystart="801" bodyend="807"/>
+      </memberdef>
+      <memberdef kind="function" id="user_8h_1abe3d4536a4ac9a6596e2cf6a0e264757" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool credentials_is_empty</definition>
+        <argsstring>(const struct credentials *cr)</argsstring>
+        <name>credentials_is_empty</name>
+        <param>
+          <type>const struct <ref refid="structcredentials" kindref="compound">credentials</ref> *</type>
+          <declname>cr</declname>
+        </param>
+        <briefdescription>
+<para>Check if <emphasis>cr</emphasis> has a source user. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/user.h" line="129" column="1" bodyfile="/home/tsafin/tarantool/src/box/user.h" bodystart="129" bodyend="132"/>
+      </memberdef>
+      <memberdef kind="function" id="user_8h_1a6a7d23dc77618206e0a4ab818b95581a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void credentials_destroy</definition>
+        <argsstring>(struct credentials *cr)</argsstring>
+        <name>credentials_destroy</name>
+        <param>
+          <type>struct <ref refid="structcredentials" kindref="compound">credentials</ref> *</type>
+          <declname>cr</declname>
+        </param>
+        <briefdescription>
+<para>Free credentials resources, invalidate the object. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/user.h" line="136" column="1" bodyfile="/home/tsafin/tarantool/src/box/user.cc" bodystart="810" bodyend="813"/>
+      </memberdef>
+      <memberdef kind="function" id="user_8h_1a083b48c49ffff539e1bc79fc5491ea6d" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void credentials_reset</definition>
+        <argsstring>(struct credentials *cr, struct user *new_user)</argsstring>
+        <name>credentials_reset</name>
+        <param>
+          <type>struct <ref refid="structcredentials" kindref="compound">credentials</ref> *</type>
+          <declname>cr</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structuser" kindref="compound">user</ref> *</type>
+          <declname>new_user</declname>
+        </param>
+        <briefdescription>
+<para>Change source user of the credentials cache. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/user.h" line="140" column="1" bodyfile="/home/tsafin/tarantool/src/box/user.h" bodystart="140" bodyend="144"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>INCLUDES_TARANTOOL_BOX_USER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INCLUDES_TARANTOOL_BOX_USER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;user_def.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;small/region.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42" refid="structuniverse" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structuniverse" kindref="compound">universe</ref><sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structaccess" kindref="compound">access</ref><sp/>access[BOX_USER_MAX];</highlight></codeline>
+<codeline lineno="45"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structuniverse" kindref="compound">universe</ref><sp/>universe;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>umap_int_t;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>UMAP_INT_BITS<sp/>=<sp/>CHAR_BIT<sp/>*<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(umap_int_t),</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>USER_MAP_SIZE<sp/>=<sp/>(BOX_USER_MAX<sp/>+<sp/>UMAP_INT_BITS<sp/>-<sp/>1)/UMAP_INT_BITS</highlight></codeline>
+<codeline lineno="55"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57" refid="structuser__map" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structuser__map" kindref="compound">user_map</ref><sp/>{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>umap_int_t<sp/>m[USER_MAP_SIZE];</highlight></codeline>
+<codeline lineno="59"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal">user_map_is_empty(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structuser__map" kindref="compound">user_map</ref><sp/>*map)</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>USER_MAP_SIZE;<sp/>i++)</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(map-&gt;m[i])</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/><ref refid="vclock_8h_1a15322e8502106a1fe47e37b5147a8644" kindref="member">rb_tree</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structpriv__def" kindref="compound">priv_def</ref>)<sp/>privset_t;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal">rb_proto(,<sp/>privset_,<sp/>privset_t,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structpriv__def" kindref="compound">priv_def</ref>);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73" refid="structuser" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structuser" kindref="compound">user</ref></highlight></codeline>
+<codeline lineno="74"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structuser__def" kindref="compound">user_def</ref><sp/>*def;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>auth_token;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structuser__map" kindref="compound">user_map</ref><sp/>users;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structuser__map" kindref="compound">user_map</ref><sp/>roles;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>privset_t<sp/>privs;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_dirty;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structregion" kindref="compound">region</ref><sp/>pool;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>credentials_list;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">access<sp/>access[BOX_USER_MAX];</highlight></codeline>
+<codeline lineno="99"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">access<sp/>*</highlight></codeline>
+<codeline lineno="102"><highlight class="normal">access_find(</highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>schema_object_type<sp/>object_type,<sp/>uint32_t<sp/>object_id);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structuser" kindref="compound">user</ref><sp/>*</highlight></codeline>
+<codeline lineno="106"><highlight class="normal">user_by_id(uint32_t<sp/>uid);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structuser" kindref="compound">user</ref><sp/>*</highlight></codeline>
+<codeline lineno="109"><highlight class="normal">user_find_by_name(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,<sp/>uint32_t<sp/>len);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Find<sp/>a<sp/>user<sp/>by<sp/>name.<sp/>Used<sp/>by<sp/>authentication.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structuser" kindref="compound">user</ref><sp/>*</highlight></codeline>
+<codeline lineno="113"><highlight class="normal">user_find(uint32_t<sp/>uid);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Find<sp/>a<sp/>user<sp/>by<sp/>authentication<sp/>token.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structuser" kindref="compound">user</ref><sp/>*</highlight></codeline>
+<codeline lineno="117"><highlight class="normal">user_find_by_token(uint8_t<sp/><ref refid="structuser_1af09114cb6c613b9c6958d95c2fba70dd" kindref="member">auth_token</ref>);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal">credentials_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcredentials" kindref="compound">credentials</ref><sp/>*cr,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structuser" kindref="compound">user</ref><sp/>*<ref refid="structuser" kindref="compound">user</ref>);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal">credentials_create_empty(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcredentials" kindref="compound">credentials</ref><sp/>*cr);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal">credentials_is_empty(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcredentials" kindref="compound">credentials</ref><sp/>*cr)</highlight></codeline>
+<codeline lineno="130"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>cr-&gt;<ref refid="structcredentials_1a657ce3055da5e49720d967383de2c47b" kindref="member">auth_token</ref><sp/>==<sp/>BOX_USER_MAX;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal">credentials_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcredentials" kindref="compound">credentials</ref><sp/>*cr);</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal">credentials_reset(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcredentials" kindref="compound">credentials</ref><sp/>*cr,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>user<sp/>*new_user)</highlight></codeline>
+<codeline lineno="141"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>credentials_destroy(cr);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>credentials_create(cr,<sp/>new_user);</highlight></codeline>
+<codeline lineno="144"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structuser" kindref="compound">user</ref><sp/>*guest_user,<sp/>*admin_user;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="163"><highlight class="comment"><sp/>*<sp/>Insert<sp/>or<sp/>update<sp/>user<sp/>object<sp/>(a<sp/>cache<sp/>entry</highlight></codeline>
+<codeline lineno="164"><highlight class="comment"><sp/>*<sp/>for<sp/>user).</highlight></codeline>
+<codeline lineno="165"><highlight class="comment"><sp/>*<sp/>This<sp/>is<sp/>called<sp/>from<sp/>a<sp/>trigger<sp/>on<sp/>_user<sp/>table</highlight></codeline>
+<codeline lineno="166"><highlight class="comment"><sp/>*<sp/>and<sp/>from<sp/>trigger<sp/>on<sp/>_priv<sp/>table,<sp/>(in<sp/>the<sp/>latter</highlight></codeline>
+<codeline lineno="167"><highlight class="comment"><sp/>*<sp/>case,<sp/>only<sp/>when<sp/>making<sp/>a<sp/>grant<sp/>on<sp/>the<sp/>universe).</highlight></codeline>
+<codeline lineno="168"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="169"><highlight class="comment"><sp/>*<sp/>If<sp/>a<sp/>user<sp/>already<sp/>exists,<sp/>update<sp/>it,<sp/>otherwise</highlight></codeline>
+<codeline lineno="170"><highlight class="comment"><sp/>*<sp/>find<sp/>space<sp/>in<sp/>users[]<sp/>array<sp/>and<sp/>store<sp/>the<sp/>new</highlight></codeline>
+<codeline lineno="171"><highlight class="comment"><sp/>*<sp/>user<sp/>in<sp/>it.<sp/>Update<sp/>user-&gt;auth_token</highlight></codeline>
+<codeline lineno="172"><highlight class="comment"><sp/>*<sp/>with<sp/>an<sp/>index<sp/>in<sp/>the<sp/>users[]<sp/>array.</highlight></codeline>
+<codeline lineno="173"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structuser" kindref="compound">user</ref><sp/>*</highlight></codeline>
+<codeline lineno="175"><highlight class="normal">user_cache_replace(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structuser__def" kindref="compound">user_def</ref><sp/>*<ref refid="structuser" kindref="compound">user</ref>);</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal">user_cache_delete(uint32_t<sp/>uid);</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">user<sp/>*</highlight></codeline>
+<codeline lineno="185"><highlight class="normal">user_find_by_name_xc(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,<sp/>uint32_t<sp/>len)</highlight></codeline>
+<codeline lineno="186"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">user<sp/>*user<sp/>=<sp/>user_find_by_name(name,<sp/>len);</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(user<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diag_raise();</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>user;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="194"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal">user_cache_init(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal">user_cache_free(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>{{{<sp/>Roles<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal">role_check(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>user<sp/>*grantee,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>user<sp/>*role);</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal">role_grant(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>user<sp/>*grantee,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>user<sp/>*role);</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal">role_revoke(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>user<sp/>*grantee,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>user<sp/>*role);</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal">priv_grant(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>user<sp/>*grantee,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structpriv__def" kindref="compound">priv_def</ref><sp/>*priv);</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="232"><highlight class="normal">priv_def_create_from_tuple(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structpriv__def" kindref="compound">priv_def</ref><sp/>*priv,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structtuple" kindref="compound">tuple</ref><sp/>*<ref refid="structtuple" kindref="compound">tuple</ref>);</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>}}}<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>INCLUDES_TARANTOOL_BOX_USER_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/user.h"/>
+  </compounddef>
+</doxygen>

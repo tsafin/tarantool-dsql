@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structtxn__savepoint" kind="struct" language="C++" prot="public">
+    <compoundname>txn_savepoint</compoundname>
+    <includes local="no">txn.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structtxn__savepoint_1a39e9c2cab774792ce5335b3eee63c565" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int txn_savepoint::in_sub_stmt</definition>
+        <argsstring></argsstring>
+        <name>in_sub_stmt</name>
+        <briefdescription>
+<para>Saved substatement level at the time of a savepoint creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="230" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="230" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtxn__savepoint_1a7661cbece23451de84c8ac37ffd5a855" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structstailq__entry" kindref="compound">stailq_entry</ref> *</type>
+        <definition>struct stailq_entry* txn_savepoint::stmt</definition>
+        <argsstring></argsstring>
+        <name>stmt</name>
+        <briefdescription>
+<para>Statement, on which a savepoint is created. </para>        </briefdescription>
+        <detaileddescription>
+<para>On rollback to this savepoint all newer statements are rolled back. Initialized to NULL in case a savepoint is created in an empty transaction. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="237" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="237" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtxn__savepoint_1a3b8885f2312e6b9cd9cd9bddc934cbc6" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t txn_savepoint::fk_deferred_count</definition>
+        <argsstring></argsstring>
+        <name>fk_deferred_count</name>
+        <briefdescription>
+<para>Each foreign key constraint is classified as either immediate (by default) or deferred. </para>        </briefdescription>
+        <detaileddescription>
+<para>In autocommit mode they mean the same. Inside separate transaction, deferred FK constraints are not checked until the transaction tries to commit. For as long as a transaction is open, it is allowed to exist in a state violating any number of deferred FK constraints. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="247" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="247" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtxn__savepoint_1a42096ec4d2342ef6409718ffa5d00a58" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist txn_savepoint::link</definition>
+        <argsstring></argsstring>
+        <name>link</name>
+        <briefdescription>
+<para>Organize savepoints into linked list. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="247" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="249" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtxn__savepoint_1a0d8f6c8dc7362c0bd9c10f431ca614dd" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char txn_savepoint::name[1]</definition>
+        <argsstring>[1]</argsstring>
+        <name>name</name>
+        <briefdescription>
+<para>Optional name of savepoint. </para>        </briefdescription>
+        <detaileddescription>
+<para>If savepoint lacks name (i.e. anonymous savepoint available only by reference to the object), name[0] == &apos;&apos;. Otherwise, memory for name is reserved in the same memory chunk as struct <ref refid="structtxn__savepoint" kindref="compound">txn_savepoint</ref> itself - name is placed right after structure (see txn_savepoint_new()). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/txn.h" line="258" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="258" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Transaction savepoint object. </para>    </briefdescription>
+    <detaileddescription>
+<para>Allocated on a transaction region and becames invalid after the transaction&apos;s end. Allows to rollback a transaction partially. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="11354">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="11354" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="11355">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="11355" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="11353">
+        <label>txn_savepoint</label>
+        <link refid="structtxn__savepoint"/>
+        <childnode refid="11354" relation="usage">
+          <edgelabel>stmt</edgelabel>
+        </childnode>
+        <childnode refid="11355" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/txn.h" line="225" column="1" bodyfile="/home/tsafin/tarantool/src/box/txn.h" bodystart="225" bodyend="259"/>
+    <listofallmembers>
+      <member refid="structtxn__savepoint_1a3b8885f2312e6b9cd9cd9bddc934cbc6" prot="public" virt="non-virtual"><scope>txn_savepoint</scope><name>fk_deferred_count</name></member>
+      <member refid="structtxn__savepoint_1a39e9c2cab774792ce5335b3eee63c565" prot="public" virt="non-virtual"><scope>txn_savepoint</scope><name>in_sub_stmt</name></member>
+      <member refid="structtxn__savepoint_1a42096ec4d2342ef6409718ffa5d00a58" prot="public" virt="non-virtual"><scope>txn_savepoint</scope><name>link</name></member>
+      <member refid="structtxn__savepoint_1a0d8f6c8dc7362c0bd9c10f431ca614dd" prot="public" virt="non-virtual"><scope>txn_savepoint</scope><name>name</name></member>
+      <member refid="structtxn__savepoint_1a7661cbece23451de84c8ac37ffd5a855" prot="public" virt="non-virtual"><scope>txn_savepoint</scope><name>stmt</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

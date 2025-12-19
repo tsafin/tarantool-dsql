@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structmerge__source__vtab" kind="struct" language="C++" prot="public">
+    <compoundname>merge_source_vtab</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structmerge__source__vtab_1af8d769cbe0c54250f8f7dabe28542634" prot="public" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* merge_source_vtab::destroy) (struct merge_source *base)</definition>
+        <argsstring>)(struct merge_source *base)</argsstring>
+        <name>destroy</name>
+        <briefdescription>
+<para>Free a merge source. </para>        </briefdescription>
+        <detaileddescription>
+<para>Don&apos;t call it directly, use merge_source_unref() instead. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/merger.h" line="57" column="1" bodyfile="/home/tsafin/tarantool/src/box/merger.h" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmerge__source__vtab_1a54f6c38c07f6b7eb0859a92d8c25a884" prot="public" static="no" mutable="no">
+        <type>int(*</type>
+        <definition>int(* merge_source_vtab::next) (struct merge_source *base, struct tuple_format *format, struct tuple **out)</definition>
+        <argsstring>)(struct merge_source *base, struct tuple_format *format, struct tuple **out)</argsstring>
+        <name>next</name>
+        <briefdescription>
+<para>Get a next tuple (refcounted) from a source. </para>        </briefdescription>
+        <detaileddescription>
+<para>When format is not NULL the resulting tuple will be in a compatible format.</para><para>When format is NULL it means that it does not matter for a caller in which format a tuple will be.</para><para>Return 0 when successfully fetched a tuple or NULL. In case of an error set a diag and return -1. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/merger.h" line="70" column="1" bodyfile="/home/tsafin/tarantool/src/box/merger.h" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/tsafin/tarantool/src/box/merger.h" line="50" column="1" bodyfile="/home/tsafin/tarantool/src/box/merger.h" bodystart="50" bodyend="72"/>
+    <listofallmembers>
+      <member refid="structmerge__source__vtab_1af8d769cbe0c54250f8f7dabe28542634" prot="public" virt="non-virtual"><scope>merge_source_vtab</scope><name>destroy</name></member>
+      <member refid="structmerge__source__vtab_1a54f6c38c07f6b7eb0859a92d8c25a884" prot="public" virt="non-virtual"><scope>merge_source_vtab</scope><name>next</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,444 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="relay_8h" kind="file" language="C++">
+    <compoundname>relay.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="box_8cc" local="yes">/home/tsafin/tarantool/src/box/box.cc</includedby>
+    <includedby refid="box_2lua_2info_8c" local="yes">/home/tsafin/tarantool/src/box/lua/info.c</includedby>
+    <includedby refid="raft_8c" local="yes">/home/tsafin/tarantool/src/box/raft.c</includedby>
+    <includedby refid="relay_8cc" local="yes">/home/tsafin/tarantool/src/box/relay.cc</includedby>
+    <includedby refid="replication_8cc" local="yes">/home/tsafin/tarantool/src/box/replication.cc</includedby>
+    <incdepgraph>
+      <node id="805">
+        <label>stdint.h</label>
+      </node>
+      <node id="804">
+        <label>/home/tsafin/tarantool/src/box/relay.h</label>
+        <link refid="relay_8h"/>
+        <childnode refid="805" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="relay_8h_1a03bd22b89964c2dc3c53f81d53fc893f" prot="public" static="no">
+        <name>relay_state</name>
+        <enumvalue id="relay_8h_1a03bd22b89964c2dc3c53f81d53fc893faf7b0b99355931f08cb01f2df09edb57f" prot="public">
+          <name>RELAY_OFF</name>
+          <briefdescription>
+<para>Applier has not connected to the master or not expected. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="relay_8h_1a03bd22b89964c2dc3c53f81d53fc893fa4096779dc22eeaba64a1f0d64f2f8451" prot="public">
+          <name>RELAY_FOLLOW</name>
+          <briefdescription>
+<para>Applier has connected to the master. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="relay_8h_1a03bd22b89964c2dc3c53f81d53fc893faafee80d96567e8ea30b10c7d21f3b2c0" prot="public">
+          <name>RELAY_STOPPED</name>
+          <briefdescription>
+<para>Applier disconnected from the master. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.h" line="45" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.h" bodystart="45" bodyend="58"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="relay_8h_1a59e730a72225ee7804dcf587c2450e58" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structrelay" kindref="compound">relay</ref> *</type>
+        <definition>struct relay* relay_new</definition>
+        <argsstring>(struct replica *replica)</argsstring>
+        <name>relay_new</name>
+        <param>
+          <type>struct <ref refid="structreplica" kindref="compound">replica</ref> *</type>
+          <declname>replica</declname>
+        </param>
+        <briefdescription>
+<para>Create a relay which is not running. </para>        </briefdescription>
+        <detaileddescription>
+<para>object. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.h" line="62" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="190" bodyend="205"/>
+      </memberdef>
+      <memberdef kind="function" id="relay_8h_1a54a815a8bbc99f945e13f3804af07545" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void relay_cancel</definition>
+        <argsstring>(struct relay *relay)</argsstring>
+        <name>relay_cancel</name>
+        <param>
+          <type>struct <ref refid="structrelay" kindref="compound">relay</ref> *</type>
+          <declname>relay</declname>
+        </param>
+        <briefdescription>
+<para>Cancel a running relay. </para>        </briefdescription>
+        <detaileddescription>
+<para>Called on shutdown. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.h" line="66" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="225" bodyend="233"/>
+      </memberdef>
+      <memberdef kind="function" id="relay_8h_1abb840b0e644cdd7fbdf4db63b312e1c5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void relay_delete</definition>
+        <argsstring>(struct relay *relay)</argsstring>
+        <name>relay_delete</name>
+        <param>
+          <type>struct <ref refid="structrelay" kindref="compound">relay</ref> *</type>
+          <declname>relay</declname>
+        </param>
+        <briefdescription>
+<para>Destroy and delete the relay. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.h" line="70" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="277" bodyend="285"/>
+      </memberdef>
+      <memberdef kind="function" id="relay_8h_1a4b96714f30c31d346a01b9202f811741" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structdiag" kindref="compound">diag</ref> *</type>
+        <definition>struct diag* relay_get_diag</definition>
+        <argsstring>(struct relay *relay)</argsstring>
+        <name>relay_get_diag</name>
+        <param>
+          <type>struct <ref refid="structrelay" kindref="compound">relay</ref> *</type>
+          <declname>relay</declname>
+        </param>
+        <briefdescription>
+<para>Get last relay&apos;s diagnostic error. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.h" line="74" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="159" bodyend="162"/>
+      </memberdef>
+      <memberdef kind="function" id="relay_8h_1aed828330d2823a65adccf00c7c1dcc0c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>enum relay_state</type>
+        <definition>enum relay_state relay_get_state</definition>
+        <argsstring>(const struct relay *relay)</argsstring>
+        <name>relay_get_state</name>
+        <param>
+          <type>const struct <ref refid="structrelay" kindref="compound">relay</ref> *</type>
+          <declname>relay</declname>
+        </param>
+        <briefdescription>
+<para>Return the current state of relay. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.h" line="74" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="165" bodyend="168"/>
+      </memberdef>
+      <memberdef kind="function" id="relay_8h_1a37c914bc5e862e61e58bde6d3115a74d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+        <definition>const struct vclock* relay_vclock</definition>
+        <argsstring>(const struct relay *relay)</argsstring>
+        <name>relay_vclock</name>
+        <param>
+          <type>const struct <ref refid="structrelay" kindref="compound">relay</ref> *</type>
+          <declname>relay</declname>
+        </param>
+        <briefdescription>
+<para>Returns relay&apos;s vclock. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>relay</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>relay </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>relay&apos;s vclock </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.h" line="86" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="171" bodyend="174"/>
+      </memberdef>
+      <memberdef kind="function" id="relay_8h_1abdcaf8822e36ca77f059595cdbd7ea33" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double relay_last_row_time</definition>
+        <argsstring>(const struct relay *relay)</argsstring>
+        <name>relay_last_row_time</name>
+        <param>
+          <type>const struct <ref refid="structrelay" kindref="compound">relay</ref> *</type>
+          <declname>relay</declname>
+        </param>
+        <briefdescription>
+<para>Returns relay&apos;s last_row_time. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>relay</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>relay </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>relay&apos;s last_row_time </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.h" line="94" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="177" bodyend="180"/>
+      </memberdef>
+      <memberdef kind="function" id="relay_8h_1a790f0ff7f00cbc280dc9ce3d55117a97" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void relay_push_raft</definition>
+        <argsstring>(struct relay *relay, const struct raft_request *req)</argsstring>
+        <name>relay_push_raft</name>
+        <param>
+          <type>struct <ref refid="structrelay" kindref="compound">relay</ref> *</type>
+          <declname>relay</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structraft__request" kindref="compound">raft_request</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <briefdescription>
+<para>Send a Raft update request to the relay channel. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is not guaranteed that it will be delivered. The connection may break. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.h" line="101" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="903" bodyend="941"/>
+      </memberdef>
+      <memberdef kind="function" id="relay_8h_1a0d6a6355c4b2672e9cf2a7be775b701b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void relay_initial_join</definition>
+        <argsstring>(int fd, uint64_t sync, struct vclock *vclock)</argsstring>
+        <name>relay_initial_join</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>sync</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <briefdescription>
+<para>Send initial JOIN rows to the replica. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>client connection </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sync</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>sync from incoming JOIN request </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vclock[out]</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vclock of the read view sent to the replica </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.h" line="115" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="303" bodyend="345"/>
+      </memberdef>
+      <memberdef kind="function" id="relay_8h_1ab5f22474d967c60dd1aeb1c44eaf0a4a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void relay_final_join</definition>
+        <argsstring>(int fd, uint64_t sync, struct vclock *start_vclock, struct vclock *stop_vclock)</argsstring>
+        <name>relay_final_join</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>sync</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>start_vclock</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>stop_vclock</declname>
+        </param>
+        <briefdescription>
+<para>Send final JOIN rows to the replica. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>client connection </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sync</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>sync from incoming JOIN request </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.h" line="124" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="365" bodyend="395"/>
+      </memberdef>
+      <memberdef kind="function" id="relay_8h_1a76d61c217b4b2f46a78d979f37af81e8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void relay_subscribe</definition>
+        <argsstring>(struct replica *replica, int fd, uint64_t sync, struct vclock *replica_vclock, uint32_t replica_version_id, uint32_t replica_id_filter)</argsstring>
+        <name>relay_subscribe</name>
+        <param>
+          <type>struct <ref refid="structreplica" kindref="compound">replica</ref> *</type>
+          <declname>replica</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>sync</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>replica_vclock</declname>
+          <defname>replica_clock</defname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>replica_version_id</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>replica_id_filter</declname>
+        </param>
+        <briefdescription>
+<para>Subscribe a replica to updates. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>none.</para></simplesect>
+Subscribe a replica to updates. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/relay.h" line="133" column="1" bodyfile="/home/tsafin/tarantool/src/box/relay.cc" bodystart="788" bodyend="826"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_REPLICATION_RELAY_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_REPLICATION_RELAY_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrelay" kindref="compound">relay</ref>;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structreplica" kindref="compound">replica</ref>;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref>;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvclock" kindref="compound">vclock</ref>;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>relay_state<sp/>{</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>RELAY_OFF,</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>RELAY_FOLLOW,</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>RELAY_STOPPED,</highlight></codeline>
+<codeline lineno="58"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrelay" kindref="compound">relay</ref><sp/>*</highlight></codeline>
+<codeline lineno="62"><highlight class="normal">relay_new(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structreplica" kindref="compound">replica</ref><sp/>*<ref refid="structreplica" kindref="compound">replica</ref>);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal">relay_cancel(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrelay" kindref="compound">relay</ref><sp/>*<ref refid="structrelay" kindref="compound">relay</ref>);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal">relay_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrelay" kindref="compound">relay</ref><sp/>*<ref refid="structrelay" kindref="compound">relay</ref>);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structdiag" kindref="compound">diag</ref>*</highlight></codeline>
+<codeline lineno="74"><highlight class="normal">relay_get_diag(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrelay" kindref="compound">relay</ref><sp/>*<ref refid="structrelay" kindref="compound">relay</ref>);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>relay_state</highlight></codeline>
+<codeline lineno="78"><highlight class="normal">relay_get_state(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrelay" kindref="compound">relay</ref><sp/>*<ref refid="structrelay" kindref="compound">relay</ref>);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvclock" kindref="compound">vclock</ref><sp/>*</highlight></codeline>
+<codeline lineno="86"><highlight class="normal">relay_vclock(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrelay" kindref="compound">relay</ref><sp/>*<ref refid="structrelay" kindref="compound">relay</ref>);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="keywordtype">double</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal">relay_last_row_time(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrelay" kindref="compound">relay</ref><sp/>*<ref refid="structrelay" kindref="compound">relay</ref>);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal">relay_push_raft(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structrelay" kindref="compound">relay</ref><sp/>*<ref refid="structrelay" kindref="compound">relay</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structraft__request" kindref="compound">raft_request</ref><sp/>*req);</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal">relay_initial_join(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/>uint64_t<sp/>sync,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvclock" kindref="compound">vclock</ref><sp/>*<ref refid="structvclock" kindref="compound">vclock</ref>);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal">relay_final_join(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/>uint64_t<sp/>sync,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvclock" kindref="compound">vclock</ref><sp/>*start_vclock,</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvclock" kindref="compound">vclock</ref><sp/>*stop_vclock);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal">relay_subscribe(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structreplica" kindref="compound">replica</ref><sp/>*<ref refid="structreplica" kindref="compound">replica</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/>uint64_t<sp/>sync,</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvclock" kindref="compound">vclock</ref><sp/>*replica_vclock,<sp/>uint32_t<sp/>replica_version_id,</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>replica_id_filter);</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_REPLICATION_RELAY_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/relay.h"/>
+  </compounddef>
+</doxygen>

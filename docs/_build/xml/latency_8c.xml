@@ -1,0 +1,248 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="latency_8c" kind="file" language="C++">
+    <compoundname>latency.c</compoundname>
+    <includes refid="latency_8h" local="yes">latency.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes refid="histogram_8h" local="yes">histogram.h</includes>
+    <includes refid="util_8h" local="yes">trivia/util.h</includes>
+    <incdepgraph>
+      <node id="1635">
+        <label>stdint.h</label>
+      </node>
+      <node id="1634">
+        <label>/home/tsafin/tarantool/src/latency.c</label>
+        <link refid="latency_8c"/>
+        <childnode refid="1635" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="latency_8c_1a5efefa44b296976f2147b8acbed1752c" prot="public" static="no">
+        <name>@169</name>
+        <enumvalue id="latency_8c_1a5efefa44b296976f2147b8acbed1752cacdd32a7e48d6d4416e38de3bc0343704" prot="public">
+          <name>USEC_PER_MSEC</name>
+          <initializer>= 1000</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="latency_8c_1a5efefa44b296976f2147b8acbed1752cab706ce787733ae18fb8a63c7d1d2d023" prot="public">
+          <name>USEC_PER_SEC</name>
+          <initializer>= 1000000</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/latency.c" line="38" column="1" bodyfile="/home/tsafin/tarantool/src/latency.c" bodystart="38" bodyend="41"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="latency_8c_1a7a67a7753c5c4eea972ea5da65c4468a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int latency_create</definition>
+        <argsstring>(struct latency *latency)</argsstring>
+        <name>latency_create</name>
+        <param>
+          <type>struct <ref refid="structlatency" kindref="compound">latency</ref> *</type>
+          <declname>latency</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a latency counter. </para>        </briefdescription>
+        <detaileddescription>
+<para>Return 0 on success, -1 on OOM. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/latency.c" line="44" column="1" bodyfile="/home/tsafin/tarantool/src/latency.c" bodystart="44" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="latency_8c_1a0dde39b284f082b06a30dc4276bd1257" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void latency_destroy</definition>
+        <argsstring>(struct latency *latency)</argsstring>
+        <name>latency_destroy</name>
+        <param>
+          <type>struct <ref refid="structlatency" kindref="compound">latency</ref> *</type>
+          <declname>latency</declname>
+        </param>
+        <briefdescription>
+<para>Destroy a latency counter. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/latency.c" line="73" column="1" bodyfile="/home/tsafin/tarantool/src/latency.c" bodystart="73" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="latency_8c_1acc4c884cd76c234e4749eb0b923e1679" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void latency_reset</definition>
+        <argsstring>(struct latency *latency)</argsstring>
+        <name>latency_reset</name>
+        <param>
+          <type>struct <ref refid="structlatency" kindref="compound">latency</ref> *</type>
+          <declname>latency</declname>
+        </param>
+        <briefdescription>
+<para>Reset a latency counter. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/latency.c" line="79" column="1" bodyfile="/home/tsafin/tarantool/src/latency.c" bodystart="79" bodyend="83"/>
+      </memberdef>
+      <memberdef kind="function" id="latency_8c_1a9770b23c000fd7aaf9335620fcdb24a8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void latency_collect</definition>
+        <argsstring>(struct latency *latency, double value)</argsstring>
+        <name>latency_collect</name>
+        <param>
+          <type>struct <ref refid="structlatency" kindref="compound">latency</ref> *</type>
+          <declname>latency</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>Update a latency counter with a new observation. </para>        </briefdescription>
+        <detaileddescription>
+<para>is the observed latency value, in seconds. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/latency.c" line="86" column="1" bodyfile="/home/tsafin/tarantool/src/latency.c" bodystart="86" bodyend="90"/>
+      </memberdef>
+      <memberdef kind="function" id="latency_8c_1a37d922eb813ec6e525b35499416d0e94" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double latency_get</definition>
+        <argsstring>(struct latency *latency, int pct)</argsstring>
+        <name>latency_get</name>
+        <param>
+          <type>struct <ref refid="structlatency" kindref="compound">latency</ref> *</type>
+          <declname>latency</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>pct</declname>
+        </param>
+        <briefdescription>
+<para>Get accumulated latency value, in seconds. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns -th percentile of all observations. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/latency.c" line="93" column="1" bodyfile="/home/tsafin/tarantool/src/latency.c" bodystart="93" bodyend="97"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2017,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>AUTHORS<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>AUTHORS<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;latency.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;histogram.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trivia/util.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>USEC_PER_MSEC<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>1000,</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>USEC_PER_SEC<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>1000000,</highlight></codeline>
+<codeline lineno="41"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal">latency_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structlatency" kindref="compound">latency</ref><sp/>*<ref refid="structlatency" kindref="compound">latency</ref>)</highlight></codeline>
+<codeline lineno="45"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{<sp/>US<sp/>=<sp/>1,<sp/>MS<sp/>=<sp/>USEC_PER_MSEC,<sp/>S<sp/>=<sp/>USEC_PER_SEC<sp/>};</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>int64_t<sp/>buckets[]<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>1<sp/>*<sp/>US,<sp/><sp/><sp/>2<sp/>*<sp/>US,<sp/><sp/><sp/>3<sp/>*<sp/>US,<sp/><sp/><sp/>4<sp/>*<sp/>US,<sp/><sp/><sp/>5<sp/>*<sp/>US,<sp/><sp/><sp/>6<sp/>*<sp/>US,</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>7<sp/>*<sp/>US,<sp/><sp/><sp/>8<sp/>*<sp/>US,<sp/><sp/><sp/>9<sp/>*<sp/>US,</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>10<sp/>*<sp/>US,<sp/><sp/>20<sp/>*<sp/>US,<sp/><sp/>30<sp/>*<sp/>US,<sp/><sp/>40<sp/>*<sp/>US,<sp/><sp/>50<sp/>*<sp/>US,<sp/><sp/>60<sp/>*<sp/>US,</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>70<sp/>*<sp/>US,<sp/><sp/>80<sp/>*<sp/>US,<sp/><sp/>90<sp/>*<sp/>US,</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>100<sp/>*<sp/>US,<sp/>200<sp/>*<sp/>US,<sp/>300<sp/>*<sp/>US,<sp/>400<sp/>*<sp/>US,<sp/>500<sp/>*<sp/>US,<sp/>600<sp/>*<sp/>US,</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>700<sp/>*<sp/>US,<sp/>800<sp/>*<sp/>US,<sp/>900<sp/>*<sp/>US,</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>1<sp/>*<sp/>MS,<sp/><sp/><sp/>2<sp/>*<sp/>MS,<sp/><sp/><sp/>3<sp/>*<sp/>MS,<sp/><sp/><sp/>4<sp/>*<sp/>MS,<sp/><sp/><sp/>5<sp/>*<sp/>MS,<sp/><sp/><sp/>6<sp/>*<sp/>MS,</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>7<sp/>*<sp/>MS,<sp/><sp/><sp/>8<sp/>*<sp/>MS,<sp/><sp/><sp/>9<sp/>*<sp/>MS,</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>10<sp/>*<sp/>MS,<sp/><sp/>20<sp/>*<sp/>MS,<sp/><sp/>30<sp/>*<sp/>MS,<sp/><sp/>40<sp/>*<sp/>MS,<sp/><sp/>50<sp/>*<sp/>MS,<sp/><sp/>60<sp/>*<sp/>MS,</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>70<sp/>*<sp/>MS,<sp/><sp/>80<sp/>*<sp/>MS,<sp/><sp/>90<sp/>*<sp/>MS,</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>100<sp/>*<sp/>MS,<sp/>200<sp/>*<sp/>MS,<sp/>300<sp/>*<sp/>MS,<sp/>400<sp/>*<sp/>MS,<sp/>500<sp/>*<sp/>MS,<sp/>600<sp/>*<sp/>MS,</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>700<sp/>*<sp/>MS,<sp/>800<sp/>*<sp/>MS,<sp/>900<sp/>*<sp/>MS,</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>1<sp/>*<sp/>S,<sp/><sp/><sp/><sp/>2<sp/>*<sp/>S,<sp/><sp/><sp/><sp/>3<sp/>*<sp/>S,<sp/><sp/><sp/><sp/>4<sp/>*<sp/>S,<sp/><sp/><sp/><sp/>5<sp/>*<sp/>S,<sp/><sp/><sp/><sp/>6<sp/>*<sp/>S,</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>7<sp/>*<sp/>S,<sp/><sp/><sp/><sp/>8<sp/>*<sp/>S,<sp/><sp/><sp/><sp/>9<sp/>*<sp/>S,<sp/><sp/><sp/>10<sp/>*<sp/>S,</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>latency-&gt;<ref refid="structlatency_1a792054e83bdb8098445a5a2e0e139806" kindref="member">histogram</ref><sp/>=<sp/>histogram_new(buckets,<sp/>lengthof(buckets));</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(latency-&gt;<ref refid="structlatency_1a792054e83bdb8098445a5a2e0e139806" kindref="member">histogram</ref><sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>histogram_collect(latency-&gt;<ref refid="structlatency_1a792054e83bdb8098445a5a2e0e139806" kindref="member">histogram</ref>,<sp/>0);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal">latency_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>latency<sp/>*latency)</highlight></codeline>
+<codeline lineno="74"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>histogram_delete(latency-&gt;<ref refid="structlatency_1a792054e83bdb8098445a5a2e0e139806" kindref="member">histogram</ref>);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal">latency_reset(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>latency<sp/>*latency)</highlight></codeline>
+<codeline lineno="80"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>histogram_reset(latency-&gt;<ref refid="structlatency_1a792054e83bdb8098445a5a2e0e139806" kindref="member">histogram</ref>);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>histogram_collect(latency-&gt;<ref refid="structlatency_1a792054e83bdb8098445a5a2e0e139806" kindref="member">histogram</ref>,<sp/>0);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal">latency_collect(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>latency<sp/>*latency,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>value)</highlight></codeline>
+<codeline lineno="87"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>value_usec<sp/>=<sp/>value<sp/>*<sp/>USEC_PER_SEC;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>histogram_collect(latency-&gt;<ref refid="structlatency_1a792054e83bdb8098445a5a2e0e139806" kindref="member">histogram</ref>,<sp/>value_usec);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal">latency_get(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>latency<sp/>*latency,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>pct)</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>value_usec<sp/>=<sp/>histogram_percentile(latency-&gt;<ref refid="structlatency_1a792054e83bdb8098445a5a2e0e139806" kindref="member">histogram</ref>,<sp/>pct);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">)value_usec<sp/>/<sp/>USEC_PER_SEC;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/latency.c"/>
+  </compounddef>
+</doxygen>

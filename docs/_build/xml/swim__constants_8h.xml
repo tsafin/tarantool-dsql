@@ -1,0 +1,209 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="swim__constants_8h" kind="file" language="C++">
+    <compoundname>swim_constants.h</compoundname>
+    <includedby refid="lib_2swim_2swim_8h" local="yes">/home/tsafin/tarantool/src/lib/swim/swim.h</includedby>
+    <includedby refid="swim__proto_8h" local="yes">/home/tsafin/tarantool/src/lib/swim/swim_proto.h</includedby>
+    <innerclass refid="structswim__incarnation" prot="public">swim_incarnation</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="swim__constants_8h_1aeac13188d4dd57f3aed828a81372d0b3" prot="public" static="no">
+        <name>swim_member_status</name>
+        <enumvalue id="swim__constants_8h_1aeac13188d4dd57f3aed828a81372d0b3a92da43b100a6a9549e8069b3f751b1c3" prot="public">
+          <name>MEMBER_ALIVE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+<para>The instance is ok, responds to requests. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="swim__constants_8h_1aeac13188d4dd57f3aed828a81372d0b3ae68c7415422d742dcde04b763f190e0b" prot="public">
+          <name>MEMBER_SUSPECTED</name>
+          <briefdescription>
+<para>If a member has not responded to a ping, it is declared as suspected to be dead. </para>          </briefdescription>
+          <detaileddescription>
+<para>After more failed pings it is finally dead. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="swim__constants_8h_1aeac13188d4dd57f3aed828a81372d0b3a08dcdcd0f4c8a0c65310767654b9b1f3" prot="public">
+          <name>MEMBER_DEAD</name>
+          <briefdescription>
+<para>The member is considered dead. </para>          </briefdescription>
+          <detaileddescription>
+<para>It will disappear from the membership after some unacknowledged pings. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="swim__constants_8h_1aeac13188d4dd57f3aed828a81372d0b3a79c86bd06e2bb7960b114b0a7a2bdabe" prot="public">
+          <name>MEMBER_LEFT</name>
+          <briefdescription>
+<para>The member has voluntary left the cluster. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="swim__constants_8h_1aeac13188d4dd57f3aed828a81372d0b3a5498bdca091ff450bbe4764d83876278" prot="public">
+          <name>swim_member_status_MAX</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Constants for public API. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_constants.h" line="37" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_constants.h" bodystart="37" bodyend="54"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="swim__constants_8h_1ae0090335b7122a4cfea8a44a350c90a4" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* swim_member_status_strs[]</definition>
+        <argsstring>[]</argsstring>
+        <name>swim_member_status_strs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_constants.h" line="56" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_proto.c" bodystart="38" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="swim__constants_8h_1a8cfbed28a48a25e2777667d0e24ad50e" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void swim_incarnation_create</definition>
+        <argsstring>(struct swim_incarnation *i, uint64_t generation, uint64_t version)</argsstring>
+        <name>swim_incarnation_create</name>
+        <param>
+          <type>struct <ref refid="structswim__incarnation" kindref="compound">swim_incarnation</ref> *</type>
+          <declname>i</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>generation</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>version</declname>
+        </param>
+        <briefdescription>
+<para>Create a new incarnation value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_constants.h" line="81" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim_constants.h" bodystart="81" bodyend="86"/>
+      </memberdef>
+      <memberdef kind="function" id="swim__constants_8h_1a7d7555374d291b7f5d32adc092b79430" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int swim_incarnation_cmp</definition>
+        <argsstring>(const struct swim_incarnation *l, const struct swim_incarnation *r)</argsstring>
+        <name>swim_incarnation_cmp</name>
+        <param>
+          <type>const struct <ref refid="structswim__incarnation" kindref="compound">swim_incarnation</ref> *</type>
+          <declname>l</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structswim__incarnation" kindref="compound">swim_incarnation</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Compare two incarnation values. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>=0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>l == r. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>&lt;0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>l &lt; r. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>&gt;0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>l &gt; r. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim_constants.h" line="95" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="245" bodyend="250"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_SWIM_CONSTANTS_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_SWIM_CONSTANTS_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2019,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight></codeline>
+<codeline lineno="37"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>swim_member_status<sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>MEMBER_ALIVE<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>MEMBER_SUSPECTED,</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>MEMBER_DEAD,</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>MEMBER_LEFT,</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>swim_member_status_MAX,</highlight></codeline>
+<codeline lineno="54"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*swim_member_status_strs[];</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="structswim__incarnation" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structswim__incarnation" kindref="compound">swim_incarnation</ref><sp/>{</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/><ref refid="structswim__incarnation_1a0c6f8742fc2b8f848757db86ce05f379" kindref="member">generation</ref>;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/><ref refid="structswim__incarnation_1aacf971e10607880c3cd74aab2c064ddd" kindref="member">version</ref>;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal">swim_incarnation_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structswim__incarnation" kindref="compound">swim_incarnation</ref><sp/>*i,<sp/>uint64_t<sp/><ref refid="structswim__incarnation_1a0c6f8742fc2b8f848757db86ce05f379" kindref="member">generation</ref>,</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/><ref refid="structswim__incarnation_1aacf971e10607880c3cd74aab2c064ddd" kindref="member">version</ref>)</highlight></codeline>
+<codeline lineno="83"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>i-&gt;<ref refid="structswim__incarnation_1a0c6f8742fc2b8f848757db86ce05f379" kindref="member">generation</ref><sp/>=<sp/><ref refid="structswim__incarnation_1a0c6f8742fc2b8f848757db86ce05f379" kindref="member">generation</ref>;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>i-&gt;<ref refid="structswim__incarnation_1aacf971e10607880c3cd74aab2c064ddd" kindref="member">version</ref><sp/>=<sp/><ref refid="structswim__incarnation_1aacf971e10607880c3cd74aab2c064ddd" kindref="member">version</ref>;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal">swim_incarnation_cmp(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structswim__incarnation" kindref="compound">swim_incarnation</ref><sp/>*l,</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structswim__incarnation" kindref="compound">swim_incarnation</ref><sp/>*r);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_SWIM_CONSTANTS_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/swim/swim_constants.h"/>
+  </compounddef>
+</doxygen>

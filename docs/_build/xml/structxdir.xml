@@ -1,0 +1,190 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structxdir" kind="struct" language="C++" prot="public">
+    <compoundname>xdir</compoundname>
+    <includes local="no">xlog.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structxdir_1a5e142322e6dbaa60618aacf5fdf817c7" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structxlog__opts" kindref="compound">xlog_opts</ref></type>
+        <definition>struct xlog_opts xdir::opts</definition>
+        <argsstring></argsstring>
+        <name>opts</name>
+        <briefdescription>
+<para>Xlog write options. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="84" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="122" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxdir_1a05235189d3231bba055714a21663e39a" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool xdir::force_recovery</definition>
+        <argsstring></argsstring>
+        <name>force_recovery</name>
+        <briefdescription>
+<para>Allow partial recovery from a damaged/incorrect data directory. </para>        </briefdescription>
+        <detaileddescription>
+<para>Suppresses exceptions when scanning the directory, parsing file headers, or reading partial or corrupt rows. Incorrect objects are skipped. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="130" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="130" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxdir_1aec5d82db142d5260ca3007b33563887c" prot="public" static="no" mutable="no">
+        <type>enum log_suffix</type>
+        <definition>enum log_suffix xdir::suffix</definition>
+        <argsstring></argsstring>
+        <name>suffix</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="130" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxdir_1a2801ee3a28e34e0ae888c5ca26b0f8ed" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int xdir::open_wflags</definition>
+        <argsstring></argsstring>
+        <name>open_wflags</name>
+        <briefdescription>
+<para>Additional flags to apply at open(2) to write. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="136" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="136" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxdir_1a9f075139f0d1071669458f955b4c37de" prot="public" static="no" mutable="no">
+        <type>const struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref> *</type>
+        <definition>const struct tt_uuid* xdir::instance_uuid</definition>
+        <argsstring></argsstring>
+        <name>instance_uuid</name>
+        <briefdescription>
+<para>A pointer to this instance uuid. </para>        </briefdescription>
+        <detaileddescription>
+<para>If not assigned (tt_uuid_is_nil returns true), instance id check for logs in this directory is not performed. Otherwise, any log in this directory must have the matching instance id. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="144" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="144" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxdir_1a231020efc8801a8419453f14dda07139" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* xdir::filetype</definition>
+        <argsstring></argsstring>
+        <name>filetype</name>
+        <briefdescription>
+<para>Text of a marker written to the text file header: XLOG (meaning it&apos;s a write ahead log) SNAP (a snapshot) or VYLOG. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="150" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="150" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxdir_1a08c614589d2c18a1b2104a450fc2ff79" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* xdir::filename_ext</definition>
+        <argsstring></argsstring>
+        <name>filename_ext</name>
+        <briefdescription>
+<para>File name extension (.xlog or .snap). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="154" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="154" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxdir_1a0d3d4013d9b95dc7c3e368b149224559" prot="public" static="no" mutable="no">
+        <type>mode_t</type>
+        <definition>mode_t xdir::mode</definition>
+        <argsstring></argsstring>
+        <name>mode</name>
+        <briefdescription>
+<para>File create mode in this directory. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="156" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="156" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxdir_1a88843469ad29aee46d1a8122c6134f4a" prot="public" static="no" mutable="no">
+        <type>vclockset_t</type>
+        <definition>vclockset_t xdir::index</definition>
+        <argsstring></argsstring>
+        <name>index</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="161" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="161" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxdir_1af7f3792ec449c6c0602d9b47b8ca1a9e" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char xdir::dirname[PATH_MAX]</definition>
+        <argsstring>[PATH_MAX]</argsstring>
+        <name>dirname</name>
+        <briefdescription>
+<para>Directory path. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="165" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="165" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxdir_1a9f09675d5c655c7a5f6acad07bac03f9" prot="public" static="no" mutable="no">
+        <type>enum xdir_type</type>
+        <definition>enum xdir_type xdir::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <briefdescription>
+<para>Snapshots or xlogs. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="165" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="167" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A handle for a data directory with write ahead logs, snapshots, vylogs. </para>    </briefdescription>
+    <detaileddescription>
+<para>Can be used to find the last log in the directory, scan through all logs, create a new log. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="17930">
+        <label>xdir</label>
+        <link refid="structxdir"/>
+        <childnode refid="17931" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+        <childnode refid="17932" relation="usage">
+          <edgelabel>instance_uuid</edgelabel>
+        </childnode>
+      </node>
+      <node id="17931">
+        <label>xlog_opts</label>
+        <link refid="structxlog__opts"/>
+      </node>
+      <node id="17932">
+        <label>tt_uuid</label>
+        <link refid="structtt__uuid"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/xlog.h" line="120" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="120" bodyend="168"/>
+    <listofallmembers>
+      <member refid="structxdir_1af7f3792ec449c6c0602d9b47b8ca1a9e" prot="public" virt="non-virtual"><scope>xdir</scope><name>dirname</name></member>
+      <member refid="structxdir_1a08c614589d2c18a1b2104a450fc2ff79" prot="public" virt="non-virtual"><scope>xdir</scope><name>filename_ext</name></member>
+      <member refid="structxdir_1a231020efc8801a8419453f14dda07139" prot="public" virt="non-virtual"><scope>xdir</scope><name>filetype</name></member>
+      <member refid="structxdir_1a05235189d3231bba055714a21663e39a" prot="public" virt="non-virtual"><scope>xdir</scope><name>force_recovery</name></member>
+      <member refid="structxdir_1a88843469ad29aee46d1a8122c6134f4a" prot="public" virt="non-virtual"><scope>xdir</scope><name>index</name></member>
+      <member refid="structxdir_1a9f075139f0d1071669458f955b4c37de" prot="public" virt="non-virtual"><scope>xdir</scope><name>instance_uuid</name></member>
+      <member refid="structxdir_1a0d3d4013d9b95dc7c3e368b149224559" prot="public" virt="non-virtual"><scope>xdir</scope><name>mode</name></member>
+      <member refid="structxdir_1a2801ee3a28e34e0ae888c5ca26b0f8ed" prot="public" virt="non-virtual"><scope>xdir</scope><name>open_wflags</name></member>
+      <member refid="structxdir_1a5e142322e6dbaa60618aacf5fdf817c7" prot="public" virt="non-virtual"><scope>xdir</scope><name>opts</name></member>
+      <member refid="structxdir_1aec5d82db142d5260ca3007b33563887c" prot="public" virt="non-virtual"><scope>xdir</scope><name>suffix</name></member>
+      <member refid="structxdir_1a9f09675d5c655c7a5f6acad07bac03f9" prot="public" virt="non-virtual"><scope>xdir</scope><name>type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

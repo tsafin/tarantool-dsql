@@ -1,0 +1,550 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structiproto__connection" kind="struct" language="C++" prot="public">
+    <compoundname>iproto_connection</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structiproto__connection_1a1e653553855de974c7b1c56faf5d7d92" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structibuf" kindref="compound">ibuf</ref></type>
+        <definition>struct ibuf iproto_connection::ibuf[2]</definition>
+        <argsstring>[2]</argsstring>
+        <name>ibuf</name>
+        <briefdescription>
+<para>Two rotating buffers for input. </para>        </briefdescription>
+        <detaileddescription>
+<para>Input is first read into ibuf[0]. As soon as it buffer becomes full, the buffers are rotated. When all input buffers are used up, the input is suspended. The buffer becomes available for use again when tx thread completes processing the messages stored in the buffer. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="234" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="421" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structiproto__connection_1ac72c567c281585a37fef1ec50dcbc5c3" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structibuf" kindref="compound">ibuf</ref> *</type>
+        <definition>struct ibuf* iproto_connection::p_ibuf</definition>
+        <argsstring></argsstring>
+        <name>p_ibuf</name>
+        <briefdescription>
+<para>Pointer to the current buffer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="423" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="423" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structiproto__connection_1a2af830c8e90fee3d98e72b0f9f720149" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structobuf" kindref="compound">obuf</ref></type>
+        <definition>struct obuf iproto_connection::obuf[2]</definition>
+        <argsstring>[2]</argsstring>
+        <name>obuf</name>
+        <briefdescription>
+<para>Two rotating buffers for output. </para>        </briefdescription>
+        <detaileddescription>
+<para>The tx thread switches to another buffer if it finds it to be empty (flushed out). This guarantees that memory gets recycled as soon as output is flushed by the iproto thread. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="423" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="430" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structiproto__connection_1af610dd0c4e83191e58640aa0f7521ad7" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structiproto__wpos" kindref="compound">iproto_wpos</ref></type>
+        <definition>struct iproto_wpos iproto_connection::wpos</definition>
+        <argsstring></argsstring>
+        <name>wpos</name>
+        <briefdescription>
+<para>Position in the output buffer that points to the beginning of the data awaiting to be flushed. </para>        </briefdescription>
+        <detaileddescription>
+<para>Advanced by the iproto thread upon successfull flush. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="423" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="436" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structiproto__connection_1a9799d02397c0acbb91acfa493e6f3daf" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structiproto__wpos" kindref="compound">iproto_wpos</ref></type>
+        <definition>struct iproto_wpos iproto_connection::wend</definition>
+        <argsstring></argsstring>
+        <name>wend</name>
+        <briefdescription>
+<para>Position in the output buffer that points to the end of the data awaiting to be flushed. </para>        </briefdescription>
+        <detaileddescription>
+<para>Advanced by the iproto thread upon receiving a message from the tx thread telling that more output is available (see <ref refid="structiproto__msg_1a329aae3293c705b050410fc0f400a65d" kindref="member">iproto_msg::wpos</ref>). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="423" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="443" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structiproto__connection_1a801db6c59929df92f3e602690a95ecea" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t iproto_connection::parse_size</definition>
+        <argsstring></argsstring>
+        <name>parse_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="455" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="455" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structiproto__connection_1a09d3bf831b992ff7c24bc45152d0159e" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int iproto_connection::long_poll_count</definition>
+        <argsstring></argsstring>
+        <name>long_poll_count</name>
+        <briefdescription>
+<para>Nubmer of active long polling requests that have already discarded their arguments in order not to stall other connections. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="461" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="461" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structiproto__connection_1a7820e9d36eaa86a3f07065e2a5c27122" prot="public" static="no" mutable="no">
+        <type>struct ev_io</type>
+        <definition>struct ev_io iproto_connection::input</definition>
+        <argsstring></argsstring>
+        <name>input</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="461" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="462" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structiproto__connection_1abf8493175a469ea5799c9b1d5c34ebe9" prot="public" static="no" mutable="no">
+        <type>struct ev_io</type>
+        <definition>struct ev_io iproto_connection::output</definition>
+        <argsstring></argsstring>
+        <name>output</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="461" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="463" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structiproto__connection_1a5e9d937fb96774757aba84dd50f216a4" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structsession" kindref="compound">session</ref> *</type>
+        <definition>struct session* iproto_connection::session</definition>
+        <argsstring></argsstring>
+        <name>session</name>
+        <briefdescription>
+<para>Logical session. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="465" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="465" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structiproto__connection_1a7072e70e9a1718d101fbeafe7e8a93b4" prot="public" static="no" mutable="no">
+        <type>ev_loop *</type>
+        <definition>ev_loop* iproto_connection::loop</definition>
+        <argsstring></argsstring>
+        <name>loop</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="466" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="466" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structiproto__connection_1aeba0f545141ad9f92d87d68f847fea3a" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcmsg" kindref="compound">cmsg</ref></type>
+        <definition>struct cmsg iproto_connection::disconnect_msg</definition>
+        <argsstring></argsstring>
+        <name>disconnect_msg</name>
+        <briefdescription>
+<para>Pre-allocated disconnect msg. </para>        </briefdescription>
+        <detaileddescription>
+<para>Is sent right after actual disconnect has happened. Does not destroy the connection. Used to notify existing requests about the occasion. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="466" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="473" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structiproto__connection_1ad5f5b94a56c68ae61378cc169cbdaf35" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcmsg" kindref="compound">cmsg</ref></type>
+        <definition>struct cmsg iproto_connection::destroy_msg</definition>
+        <argsstring></argsstring>
+        <name>destroy_msg</name>
+        <briefdescription>
+<para>Pre-allocated destroy msg. </para>        </briefdescription>
+        <detaileddescription>
+<para>Is sent after disconnect has happened and a last request has finished. Firstly destroys tx-related resources and then deletes the connection. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="466" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="480" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structiproto__connection_1af2b49357e7ecfe154bb4f3c3918a8bb0" prot="public" static="no" mutable="no">
+        <type>enum iproto_connection_state</type>
+        <definition>enum iproto_connection_state iproto_connection::state</definition>
+        <argsstring></argsstring>
+        <name>state</name>
+        <briefdescription>
+<para>Connection state. </para>        </briefdescription>
+        <detaileddescription>
+<para>Mainly it is used to determine when the connection can be destroyed, and for debug purposes to assert on a double destroy, for example. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="466" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="486" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structiproto__connection_1a68f87236ec6bcd4f57ab63e7eb35d1f1" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist iproto_connection::in_stop_list</definition>
+        <argsstring></argsstring>
+        <name>in_stop_list</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="466" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="487" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structiproto__connection_1a90079f774ad2ba9ef177a58265cbd356" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structiproto__kharon" kindref="compound">iproto_kharon</ref></type>
+        <definition>struct iproto_kharon iproto_connection::kharon</definition>
+        <argsstring></argsstring>
+        <name>kharon</name>
+        <briefdescription>
+<para>Kharon is used to implement box.session.push(). </para>        </briefdescription>
+        <detaileddescription>
+<para>When a new push is ready, tx uses kharon to notify iproto about new data in connection output buffer.</para><para>Kharon can not be in two places at the time. When kharon leaves tx, is_push_sent is set to true. After that new pushes can not use it. Instead, they set is_push_pending flag. When Kharon is back to tx it clears is_push_sent, checks is_push_pending and departs immediately back to iproto if it is set.</para><para>This design makes it easy to use a single message per connection for pushes while new pushes do not wait for the message to become available.</para><para><heading level="2">iproto tx </heading>
+</para><para><itemizedlist>
+<listitem><para>[push message] &lt;<mdash/> notification -<mdash/></para></listitem><listitem><para>[push message] [feed event] <mdash/> kharon travels back -<mdash/>&gt; [write to socket]</para></listitem><listitem><para>[push message] [new push found] &lt;<mdash/> notification -<mdash/> [write ends] ... </para></listitem></itemizedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="466" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="518" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structiproto__connection_1a0af61d4a06069ff7401e08d56397bbf5" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structobuf" kindref="compound">obuf</ref> *</type>
+        <definition>struct obuf* iproto_connection::p_obuf</definition>
+        <argsstring></argsstring>
+        <name>p_obuf</name>
+        <briefdescription>
+<para>Pointer to the current output buffer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="526" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="526" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structiproto__connection_1a187543dc0e292beff5868be30bae2c6c" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool iproto_connection::is_push_sent</definition>
+        <argsstring></argsstring>
+        <name>is_push_sent</name>
+        <briefdescription>
+<para>True if Kharon is in use/travelling. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="528" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="528" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structiproto__connection_1ab88b535045fa8591f6cef8590d93673b" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool iproto_connection::is_push_pending</definition>
+        <argsstring></argsstring>
+        <name>is_push_pending</name>
+        <briefdescription>
+<para>True if new pushes are waiting for Kharon return. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="533" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="533" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structiproto__connection_1acff8e0159c5aa3b1465f025194972a6f" prot="public" static="no" mutable="no">
+        <type>struct iproto_connection::@24</type>
+        <definition>struct iproto_connection::@24  iproto_connection::tx</definition>
+        <argsstring></argsstring>
+        <name>tx</name>
+        <briefdescription>
+<para>The following fields are used exclusively by the tx thread. </para>        </briefdescription>
+        <detaileddescription>
+<para>Align them to prevent false-sharing. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="534" column="1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structiproto__connection_1a3e9780299c80188b01281ff9cc76179f" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char iproto_connection::salt[IPROTO_SALT_SIZE]</definition>
+        <argsstring>[IPROTO_SALT_SIZE]</argsstring>
+        <name>salt</name>
+        <briefdescription>
+<para>Authentication salt. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="536" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="536" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Context of a single client connection. </para>    </briefdescription>
+    <detaileddescription>
+<para>Interaction scheme:</para><para>Receive from the network. | +<mdash/>|------------------<mdash/>+ +---------<mdash/>+ | | iproto thread | | tx thread | | v | | | | ibuf[0]- - - - - - - - -|- -|- - &gt;+ | | | | | | | ibuf[1] | | | | | | | | | | obuf[0] &lt;- - - - - - - -|- -|- - -+ | | | | | | | | | obuf[1] &lt;- - -|- -|- - -+ | +-<mdash/>|--------<mdash/>|-----<mdash/>+ +---------<mdash/>+ | v | Send to | network. v Send to network after obuf[1], i.e. older responses are sent first.</para><para>ibuf structure: rpos wpos end +----------------<mdash/>|-------------<mdash/>|----------<mdash/>+ ________/________/ ________/____/ \ msg msg / msg parse ______________/ size response is sent, messages are discarded </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="4531">
+        <label>serializer_opts</label>
+        <link refid="structserializer__opts"/>
+      </node>
+      <node id="4523">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="4543">
+        <label>ibuf</label>
+        <link refid="structibuf"/>
+        <childnode refid="4521" relation="usage">
+          <edgelabel>slabc</edgelabel>
+        </childnode>
+      </node>
+      <node id="4542">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="4542" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="4532">
+        <label>session_vtab</label>
+        <link refid="structsession__vtab"/>
+      </node>
+      <node id="4541">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="4542" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="4535">
+        <label>iproto_kharon</label>
+        <link refid="structiproto__kharon"/>
+        <childnode refid="4519" relation="usage">
+          <edgelabel>wpos</edgelabel>
+        </childnode>
+        <childnode refid="4536" relation="usage">
+          <edgelabel>base</edgelabel>
+        </childnode>
+      </node>
+      <node id="4518">
+        <label>iproto_connection</label>
+        <link refid="structiproto__connection"/>
+        <childnode refid="4519" relation="usage">
+          <edgelabel>wend</edgelabel>
+          <edgelabel>wpos</edgelabel>
+        </childnode>
+        <childnode refid="4520" relation="usage">
+          <edgelabel>p_obuf</edgelabel>
+          <edgelabel>obuf</edgelabel>
+        </childnode>
+        <childnode refid="4529" relation="usage">
+          <edgelabel>session</edgelabel>
+        </childnode>
+        <childnode refid="4535" relation="usage">
+          <edgelabel>kharon</edgelabel>
+        </childnode>
+        <childnode refid="4524" relation="usage">
+          <edgelabel>in_stop_list</edgelabel>
+        </childnode>
+        <childnode refid="4543" relation="usage">
+          <edgelabel>p_ibuf</edgelabel>
+          <edgelabel>ibuf</edgelabel>
+        </childnode>
+        <childnode refid="4536" relation="usage">
+          <edgelabel>destroy_msg</edgelabel>
+          <edgelabel>disconnect_msg</edgelabel>
+        </childnode>
+      </node>
+      <node id="4534">
+        <label>credentials</label>
+        <link refid="structcredentials"/>
+        <childnode refid="4524" relation="usage">
+          <edgelabel>in_user</edgelabel>
+        </childnode>
+      </node>
+      <node id="4538">
+        <label>cpipe</label>
+        <link refid="structcpipe"/>
+        <childnode refid="4524" relation="usage">
+          <edgelabel>on_flush</edgelabel>
+        </childnode>
+        <childnode refid="4539" relation="usage">
+          <edgelabel>endpoint</edgelabel>
+        </childnode>
+        <childnode refid="4541" relation="usage">
+          <edgelabel>input</edgelabel>
+        </childnode>
+      </node>
+      <node id="4537">
+        <label>cmsg_hop</label>
+        <link refid="structcmsg__hop"/>
+        <childnode refid="4538" relation="usage">
+          <edgelabel>pipe</edgelabel>
+        </childnode>
+        <childnode refid="4536" relation="usage">
+          <edgelabel>f</edgelabel>
+        </childnode>
+      </node>
+      <node id="4520">
+        <label>obuf</label>
+        <link refid="structobuf"/>
+        <childnode refid="4521" relation="usage">
+          <edgelabel>slabc</edgelabel>
+        </childnode>
+      </node>
+      <node id="4519">
+        <label>iproto_wpos</label>
+        <link refid="structiproto__wpos"/>
+        <childnode refid="4520" relation="usage">
+          <edgelabel>obuf</edgelabel>
+        </childnode>
+        <childnode refid="4528" relation="usage">
+          <edgelabel>svp</edgelabel>
+        </childnode>
+      </node>
+      <node id="4524">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="4524" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="4536">
+        <label>cmsg</label>
+        <link refid="structcmsg"/>
+        <childnode refid="4537" relation="usage">
+          <edgelabel>hop</edgelabel>
+          <edgelabel>route</edgelabel>
+        </childnode>
+        <childnode refid="4542" relation="usage">
+          <edgelabel>fifo</edgelabel>
+        </childnode>
+      </node>
+      <node id="4522">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="4523" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="4524" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="4533">
+        <label>trigger</label>
+        <link refid="structtrigger"/>
+        <childnode refid="4533" relation="usage">
+          <edgelabel>run</edgelabel>
+          <edgelabel>destroy</edgelabel>
+        </childnode>
+        <childnode refid="4524" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="4526">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="4527">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="4525">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="4526" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="4527" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="4521">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="4522" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="4525" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="4528">
+        <label>obuf_svp</label>
+        <link refid="structobuf__svp"/>
+      </node>
+      <node id="4540">
+        <label>fiber_cond</label>
+        <link refid="structfiber__cond"/>
+        <childnode refid="4524" relation="usage">
+          <edgelabel>waiters</edgelabel>
+        </childnode>
+      </node>
+      <node id="4530">
+        <label>session_meta</label>
+        <link refid="structsession__meta"/>
+        <childnode refid="4531" relation="usage">
+          <edgelabel>serializer_opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="4529">
+        <label>session</label>
+        <link refid="structsession"/>
+        <childnode refid="4530" relation="usage">
+          <edgelabel>meta</edgelabel>
+        </childnode>
+        <childnode refid="4532" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="4533" relation="usage">
+          <edgelabel>fiber_on_stop</edgelabel>
+        </childnode>
+        <childnode refid="4534" relation="usage">
+          <edgelabel>credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="4539">
+        <label>cbus_endpoint</label>
+        <link refid="structcbus__endpoint"/>
+        <childnode refid="4540" relation="usage">
+          <edgelabel>cond</edgelabel>
+        </childnode>
+        <childnode refid="4524" relation="usage">
+          <edgelabel>in_cbus</edgelabel>
+        </childnode>
+        <childnode refid="4541" relation="usage">
+          <edgelabel>output</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/iproto.cc" line="412" column="1" bodyfile="/home/tsafin/tarantool/src/box/iproto.cc" bodystart="411" bodyend="537"/>
+    <listofallmembers>
+      <member refid="structiproto__connection_1ad5f5b94a56c68ae61378cc169cbdaf35" prot="public" virt="non-virtual"><scope>iproto_connection</scope><name>destroy_msg</name></member>
+      <member refid="structiproto__connection_1aeba0f545141ad9f92d87d68f847fea3a" prot="public" virt="non-virtual"><scope>iproto_connection</scope><name>disconnect_msg</name></member>
+      <member refid="structiproto__connection_1a1e653553855de974c7b1c56faf5d7d92" prot="public" virt="non-virtual"><scope>iproto_connection</scope><name>ibuf</name></member>
+      <member refid="structiproto__connection_1a68f87236ec6bcd4f57ab63e7eb35d1f1" prot="public" virt="non-virtual"><scope>iproto_connection</scope><name>in_stop_list</name></member>
+      <member refid="structiproto__connection_1a7820e9d36eaa86a3f07065e2a5c27122" prot="public" virt="non-virtual"><scope>iproto_connection</scope><name>input</name></member>
+      <member refid="structiproto__connection_1ab88b535045fa8591f6cef8590d93673b" prot="public" virt="non-virtual"><scope>iproto_connection</scope><name>is_push_pending</name></member>
+      <member refid="structiproto__connection_1a187543dc0e292beff5868be30bae2c6c" prot="public" virt="non-virtual"><scope>iproto_connection</scope><name>is_push_sent</name></member>
+      <member refid="structiproto__connection_1a90079f774ad2ba9ef177a58265cbd356" prot="public" virt="non-virtual"><scope>iproto_connection</scope><name>kharon</name></member>
+      <member refid="structiproto__connection_1a09d3bf831b992ff7c24bc45152d0159e" prot="public" virt="non-virtual"><scope>iproto_connection</scope><name>long_poll_count</name></member>
+      <member refid="structiproto__connection_1a7072e70e9a1718d101fbeafe7e8a93b4" prot="public" virt="non-virtual"><scope>iproto_connection</scope><name>loop</name></member>
+      <member refid="structiproto__connection_1a2af830c8e90fee3d98e72b0f9f720149" prot="public" virt="non-virtual"><scope>iproto_connection</scope><name>obuf</name></member>
+      <member refid="structiproto__connection_1abf8493175a469ea5799c9b1d5c34ebe9" prot="public" virt="non-virtual"><scope>iproto_connection</scope><name>output</name></member>
+      <member refid="structiproto__connection_1ac72c567c281585a37fef1ec50dcbc5c3" prot="public" virt="non-virtual"><scope>iproto_connection</scope><name>p_ibuf</name></member>
+      <member refid="structiproto__connection_1a0af61d4a06069ff7401e08d56397bbf5" prot="public" virt="non-virtual"><scope>iproto_connection</scope><name>p_obuf</name></member>
+      <member refid="structiproto__connection_1a801db6c59929df92f3e602690a95ecea" prot="public" virt="non-virtual"><scope>iproto_connection</scope><name>parse_size</name></member>
+      <member refid="structiproto__connection_1a3e9780299c80188b01281ff9cc76179f" prot="public" virt="non-virtual"><scope>iproto_connection</scope><name>salt</name></member>
+      <member refid="structiproto__connection_1a5e9d937fb96774757aba84dd50f216a4" prot="public" virt="non-virtual"><scope>iproto_connection</scope><name>session</name></member>
+      <member refid="structiproto__connection_1af2b49357e7ecfe154bb4f3c3918a8bb0" prot="public" virt="non-virtual"><scope>iproto_connection</scope><name>state</name></member>
+      <member refid="structiproto__connection_1acff8e0159c5aa3b1465f025194972a6f" prot="public" virt="non-virtual"><scope>iproto_connection</scope><name>tx</name></member>
+      <member refid="structiproto__connection_1a9799d02397c0acbb91acfa493e6f3daf" prot="public" virt="non-virtual"><scope>iproto_connection</scope><name>wend</name></member>
+      <member refid="structiproto__connection_1af610dd0c4e83191e58640aa0f7521ad7" prot="public" virt="non-virtual"><scope>iproto_connection</scope><name>wpos</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

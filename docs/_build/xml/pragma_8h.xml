@@ -1,0 +1,199 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="pragma_8h" kind="file" language="C++">
+    <compoundname>pragma.h</compoundname>
+    <includedby refid="pragma_8c" local="yes">/home/tsafin/tarantool/src/box/sql/pragma.c</includedby>
+    <innerclass refid="structPragmaName" prot="public">PragmaName</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="pragma_8h_1a1b70d876770ccff427513794d6b0b2a7" prot="public" static="no">
+        <name>@78</name>
+        <enumvalue id="pragma_8h_1a1b70d876770ccff427513794d6b0b2a7a93d9c52a5b68f369ea6a57e2cfb5b85f" prot="public">
+          <name>PRAGMA_COLLATION_LIST</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="pragma_8h_1a1b70d876770ccff427513794d6b0b2a7a61b8787533401f1e4db08f8b9b302584" prot="public">
+          <name>PRAGMA_FOREIGN_KEY_LIST</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="pragma_8h_1a1b70d876770ccff427513794d6b0b2a7ac9f33c076de5ac2749d7aae73425c822" prot="public">
+          <name>PRAGMA_INDEX_INFO</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="pragma_8h_1a1b70d876770ccff427513794d6b0b2a7a2b8a1dae3bef50884232a5afe680f14b" prot="public">
+          <name>PRAGMA_INDEX_LIST</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="pragma_8h_1a1b70d876770ccff427513794d6b0b2a7a3cfaf7fc9409e512c37ffef18a16cd5d" prot="public">
+          <name>PRAGMA_STATS</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="pragma_8h_1a1b70d876770ccff427513794d6b0b2a7aa144c2186f95315baddf15dd143364fb" prot="public">
+          <name>PRAGMA_TABLE_INFO</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>List of ID of pragmas. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/pragma.h" line="3" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/pragma.h" bodystart="2" bodyend="10"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="pragma_8h_1a7869616902c71d1c4856ade7f0784c95" prot="public" static="yes" mutable="no">
+        <type>const char *const</type>
+        <definition>const char* const pragCName[]</definition>
+        <argsstring>[]</argsstring>
+        <name>pragCName</name>
+        <briefdescription>
+<para>Column names and types for pragmas. </para>        </briefdescription>
+        <detaileddescription>
+<para>The type of the column is the following value after its name. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/pragma.h" line="16" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/pragma.h" bodystart="16" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="pragma_8h_1a74bbcfdf4bc27f30160687de751365f7" prot="public" static="yes" mutable="no">
+        <type>const struct <ref refid="structPragmaName" kindref="compound">PragmaName</ref></type>
+        <definition>const struct PragmaName aPragmaName[]</definition>
+        <argsstring>[]</argsstring>
+        <name>aPragmaName</name>
+        <initializer>= {
+	{&quot;collation_list&quot;, PRAGMA_COLLATION_LIST, 38, 2},
+	{&quot;foreign_key_list&quot;, PRAGMA_FOREIGN_KEY_LIST, 42, 8},
+	{&quot;index_info&quot;, PRAGMA_INDEX_INFO, 20, 6},
+	{&quot;index_list&quot;, PRAGMA_INDEX_LIST, 32, 3},
+	{&quot;stats&quot;, PRAGMA_STATS, 12, 4},
+	{&quot;table_info&quot;, PRAGMA_TABLE_INFO, 0, 6},
+}</initializer>
+        <briefdescription>
+<para>The order of pragmas in this array is important: it has to be sorted. </para>        </briefdescription>
+        <detaileddescription>
+<para>For more info see pragma_locate function. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/sql/pragma.h" line="16" column="1" bodyfile="/home/tsafin/tarantool/src/box/sql/pragma.h" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"></codeline>
+<codeline lineno="2"><highlight class="keyword">enum</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="4"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>PRAGMA_COLLATION_LIST<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="5"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>PRAGMA_FOREIGN_KEY_LIST,</highlight></codeline>
+<codeline lineno="6"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>PRAGMA_INDEX_INFO,</highlight></codeline>
+<codeline lineno="7"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>PRAGMA_INDEX_LIST,</highlight></codeline>
+<codeline lineno="8"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>PRAGMA_STATS,</highlight></codeline>
+<codeline lineno="9"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>PRAGMA_TABLE_INFO,</highlight></codeline>
+<codeline lineno="10"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>pragCName[]<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Used<sp/>by:<sp/>table_info<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/><sp/>0<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;cid&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/><sp/>1<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;integer&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/><sp/>2<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;name&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/><sp/>3<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;text&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/><sp/>4<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;type&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/><sp/>3<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;text&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/><sp/>6<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;notnull&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/><sp/>1<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;integer&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/><sp/>8<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;dflt_value&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/><sp/>9<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;text&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>10<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;pk&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>11<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;integer&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Used<sp/>by:<sp/>stats<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>12<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;table&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>13<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;text&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>14<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;index&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>15<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;text&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>16<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;width&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>17<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;integer&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>18<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;height&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>19<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;integer&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Used<sp/>by:<sp/>index_info<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>20<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;seqno&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>21<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;integer&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>22<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;cid&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>23<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;integer&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>24<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;name&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>25<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;text&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>26<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;desc&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>27<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;integer&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>28<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;coll&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>29<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;text&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>30<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;type&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>31<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;text&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Used<sp/>by:<sp/>index_list<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>32<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;seq&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>33<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;integer&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>34<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;name&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>35<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;text&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>36<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;unique&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>37<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;integer&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Used<sp/>by:<sp/>collation_list<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>38<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;seq&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>39<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;integer&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>40<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;name&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>41<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;text&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Used<sp/>by:<sp/>foreign_key_list<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>42<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;id&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>43<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;integer&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>44<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;seq&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>45<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;integer&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>46<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;table&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>47<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;text&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>48<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;from&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>49<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;text&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>50<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;to&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>51<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;text&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>52<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;on_update&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>53<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;text&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>54<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;on_delete&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>55<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;text&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>56<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;match&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/><sp/>57<sp/>*/</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;text&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="81"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84" refid="structPragmaName" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structPragmaName" kindref="compound">PragmaName</ref><sp/>{</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structPragmaName_1ade7aeb859181f74f7b9b7a88481ed2a3" kindref="member">zName</ref>;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>u8<sp/><ref refid="structPragmaName_1a62d8aae764f7d69ea67d62645d05d327" kindref="member">ePragTyp</ref>;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>u8<sp/><ref refid="structPragmaName_1ad979162577450238dc72b1a2c11ddbfb" kindref="member">iPragCName</ref>;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>u8<sp/><ref refid="structPragmaName_1ab44421a7317447590f3127ad383b5715" kindref="member">nPragCName</ref>;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structPragmaName" kindref="compound">PragmaName</ref><sp/>aPragmaName[]<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight><highlight class="stringliteral">&quot;collation_list&quot;</highlight><highlight class="normal">,<sp/>PRAGMA_COLLATION_LIST,<sp/>38,<sp/>2},</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight><highlight class="stringliteral">&quot;foreign_key_list&quot;</highlight><highlight class="normal">,<sp/>PRAGMA_FOREIGN_KEY_LIST,<sp/>42,<sp/>8},</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight><highlight class="stringliteral">&quot;index_info&quot;</highlight><highlight class="normal">,<sp/>PRAGMA_INDEX_INFO,<sp/>20,<sp/>6},</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight><highlight class="stringliteral">&quot;index_list&quot;</highlight><highlight class="normal">,<sp/>PRAGMA_INDEX_LIST,<sp/>32,<sp/>3},</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight><highlight class="stringliteral">&quot;stats&quot;</highlight><highlight class="normal">,<sp/>PRAGMA_STATS,<sp/>12,<sp/>4},</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight><highlight class="stringliteral">&quot;table_info&quot;</highlight><highlight class="normal">,<sp/>PRAGMA_TABLE_INFO,<sp/>0,<sp/>6},</highlight></codeline>
+<codeline lineno="106"><highlight class="normal">};</highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/sql/pragma.h"/>
+  </compounddef>
+</doxygen>

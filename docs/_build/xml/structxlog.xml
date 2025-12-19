@@ -1,0 +1,323 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structxlog" kind="struct" language="C++" prot="public">
+    <compoundname>xlog</compoundname>
+    <includes local="no">xlog.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structxlog_1adbd09a3618a4ffa9df25bb9b2a6ba4a4" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structxlog__opts" kindref="compound">xlog_opts</ref></type>
+        <definition>struct xlog_opts xlog::opts</definition>
+        <argsstring></argsstring>
+        <name>opts</name>
+        <briefdescription>
+<para>Xlog write options. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="294" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="336" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxlog_1a2a327a6d255b46abfb4cf6bbdaf8d029" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structxlog__meta" kindref="compound">xlog_meta</ref></type>
+        <definition>struct xlog_meta xlog::meta</definition>
+        <argsstring></argsstring>
+        <name>meta</name>
+        <briefdescription>
+<para>xlog meta header </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="294" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="338" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxlog_1a487fc77fc64501ca2e6355d94d2a9c7d" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int xlog::fd</definition>
+        <argsstring></argsstring>
+        <name>fd</name>
+        <briefdescription>
+<para>File handle. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="340" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="340" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxlog_1aa25a9c65236999e135a966964789bdee" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t xlog::rows</definition>
+        <argsstring></argsstring>
+        <name>rows</name>
+        <briefdescription>
+<para>How many xlog rows are in the file last time it was read or written. </para>        </briefdescription>
+        <detaileddescription>
+<para>Updated in xlog_cursor_close() and is used to check whether or not we have discovered a new row in the file since it was last read. This is used in local hot standby to &quot;follow up&quot; on new rows appended to the file. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="349" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="349" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxlog_1a34fd72ed2bd6a1e41d24a52bbc6c87b4" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t xlog::tx_rows</definition>
+        <argsstring></argsstring>
+        <name>tx_rows</name>
+        <briefdescription>
+<para>The number of rows in the current tx, part of tx state used only in write mode. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="354" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="354" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxlog_1aade134ea522f04d999ccf53caf6a8f1e" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char xlog::filename[PATH_MAX]</definition>
+        <argsstring>[PATH_MAX]</argsstring>
+        <name>filename</name>
+        <briefdescription>
+<para>Log file name. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="356" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="356" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxlog_1aed821948121f2cd427dab91839eb5242" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool xlog::is_inprogress</definition>
+        <argsstring></argsstring>
+        <name>is_inprogress</name>
+        <briefdescription>
+<para>Whether this file has .inprogress suffix. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="358" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="358" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxlog_1a9f0e16674f07f28dd4b0c134feef6a1c" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool xlog::is_autocommit</definition>
+        <argsstring></argsstring>
+        <name>is_autocommit</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="372" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="372" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxlog_1aa11fa3f9c2fc9fed8f6de67a967ff287" prot="public" static="no" mutable="no">
+        <type>off_t</type>
+        <definition>off_t xlog::offset</definition>
+        <argsstring></argsstring>
+        <name>offset</name>
+        <briefdescription>
+<para>The current offset in the log file, for writing. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="374" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="374" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxlog_1a00803170d154c210fd6e50bcdc5da29b" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t xlog::allocated</definition>
+        <argsstring></argsstring>
+        <name>allocated</name>
+        <briefdescription>
+<para>Size of disk space preallocated at  with xlog_fallocate(). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="379" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="379" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxlog_1a2b1a1f05aab876367b5c39f68ab78dad" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structobuf" kindref="compound">obuf</ref></type>
+        <definition>struct obuf xlog::obuf</definition>
+        <argsstring></argsstring>
+        <name>obuf</name>
+        <briefdescription>
+<para>Output buffer, works as row accumulator for compression. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="379" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="384" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxlog_1a3e1c04eb70a54accdedef51de6ec35ab" prot="public" static="no" mutable="no">
+        <type>ZSTD_CCtx *</type>
+        <definition>ZSTD_CCtx* xlog::zctx</definition>
+        <argsstring></argsstring>
+        <name>zctx</name>
+        <briefdescription>
+<para>The context of zstd compression. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="386" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="386" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxlog_1a67408c4b6ba08adc3bb7419dd2fa5c60" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structobuf" kindref="compound">obuf</ref></type>
+        <definition>struct obuf xlog::zbuf</definition>
+        <argsstring></argsstring>
+        <name>zbuf</name>
+        <briefdescription>
+<para>Compressed output buffer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="386" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="390" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxlog_1ae3c6c35785d1d37ad6ee0dfcdb3a8deb" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t xlog::synced_size</definition>
+        <argsstring></argsstring>
+        <name>synced_size</name>
+        <briefdescription>
+<para>Synced file size. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="394" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="394" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxlog_1a09530d43eeaefaee0ae31fdd38d7e032" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double xlog::sync_time</definition>
+        <argsstring></argsstring>
+        <name>sync_time</name>
+        <briefdescription>
+<para>Time when xlog wast synced last time. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xlog.h" line="396" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="396" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A single log file - a snapshot, a vylog or a write ahead log. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="17939">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="17934">
+        <label>xlog</label>
+        <link refid="structxlog"/>
+        <childnode refid="17935" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+        <childnode refid="17936" relation="usage">
+          <edgelabel>obuf</edgelabel>
+          <edgelabel>zbuf</edgelabel>
+        </childnode>
+        <childnode refid="17944" relation="usage">
+          <edgelabel>meta</edgelabel>
+        </childnode>
+      </node>
+      <node id="17936">
+        <label>obuf</label>
+        <link refid="structobuf"/>
+        <childnode refid="17937" relation="usage">
+          <edgelabel>slabc</edgelabel>
+        </childnode>
+      </node>
+      <node id="17940">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="17940" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="17938">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="17939" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="17940" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="17942">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="17944">
+        <label>xlog_meta</label>
+        <link refid="structxlog__meta"/>
+        <childnode refid="17945" relation="usage">
+          <edgelabel>instance_uuid</edgelabel>
+        </childnode>
+        <childnode refid="17946" relation="usage">
+          <edgelabel>vclock</edgelabel>
+          <edgelabel>prev_vclock</edgelabel>
+        </childnode>
+      </node>
+      <node id="17943">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="17941">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="17942" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="17943" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="17935">
+        <label>xlog_opts</label>
+        <link refid="structxlog__opts"/>
+      </node>
+      <node id="17937">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="17938" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="17941" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="17946">
+        <label>vclock</label>
+        <link refid="structvclock"/>
+      </node>
+      <node id="17945">
+        <label>tt_uuid</label>
+        <link refid="structtt__uuid"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/xlog.h" line="334" column="1" bodyfile="/home/tsafin/tarantool/src/box/xlog.h" bodystart="334" bodyend="397"/>
+    <listofallmembers>
+      <member refid="structxlog_1a00803170d154c210fd6e50bcdc5da29b" prot="public" virt="non-virtual"><scope>xlog</scope><name>allocated</name></member>
+      <member refid="structxlog_1a487fc77fc64501ca2e6355d94d2a9c7d" prot="public" virt="non-virtual"><scope>xlog</scope><name>fd</name></member>
+      <member refid="structxlog_1aade134ea522f04d999ccf53caf6a8f1e" prot="public" virt="non-virtual"><scope>xlog</scope><name>filename</name></member>
+      <member refid="structxlog_1a9f0e16674f07f28dd4b0c134feef6a1c" prot="public" virt="non-virtual"><scope>xlog</scope><name>is_autocommit</name></member>
+      <member refid="structxlog_1aed821948121f2cd427dab91839eb5242" prot="public" virt="non-virtual"><scope>xlog</scope><name>is_inprogress</name></member>
+      <member refid="structxlog_1a2a327a6d255b46abfb4cf6bbdaf8d029" prot="public" virt="non-virtual"><scope>xlog</scope><name>meta</name></member>
+      <member refid="structxlog_1a2b1a1f05aab876367b5c39f68ab78dad" prot="public" virt="non-virtual"><scope>xlog</scope><name>obuf</name></member>
+      <member refid="structxlog_1aa11fa3f9c2fc9fed8f6de67a967ff287" prot="public" virt="non-virtual"><scope>xlog</scope><name>offset</name></member>
+      <member refid="structxlog_1adbd09a3618a4ffa9df25bb9b2a6ba4a4" prot="public" virt="non-virtual"><scope>xlog</scope><name>opts</name></member>
+      <member refid="structxlog_1aa25a9c65236999e135a966964789bdee" prot="public" virt="non-virtual"><scope>xlog</scope><name>rows</name></member>
+      <member refid="structxlog_1a09530d43eeaefaee0ae31fdd38d7e032" prot="public" virt="non-virtual"><scope>xlog</scope><name>sync_time</name></member>
+      <member refid="structxlog_1ae3c6c35785d1d37ad6ee0dfcdb3a8deb" prot="public" virt="non-virtual"><scope>xlog</scope><name>synced_size</name></member>
+      <member refid="structxlog_1a34fd72ed2bd6a1e41d24a52bbc6c87b4" prot="public" virt="non-virtual"><scope>xlog</scope><name>tx_rows</name></member>
+      <member refid="structxlog_1a67408c4b6ba08adc3bb7419dd2fa5c60" prot="public" virt="non-virtual"><scope>xlog</scope><name>zbuf</name></member>
+      <member refid="structxlog_1a3e1c04eb70a54accdedef51de6ec35ab" prot="public" virt="non-virtual"><scope>xlog</scope><name>zctx</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

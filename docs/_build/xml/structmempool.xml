@@ -1,0 +1,296 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structmempool" kind="struct" language="C++" prot="public">
+    <compoundname>mempool</compoundname>
+    <includes local="no">mempool.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structmempool_1a99e49ea0785d648c0f73f32f3c9f7d0d" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structlifo" kindref="compound">lifo</ref></type>
+        <definition>struct lifo mempool::link</definition>
+        <argsstring></argsstring>
+        <name>link</name>
+        <briefdescription>
+<para>A link in delayed free list of pools. </para>        </briefdescription>
+        <detaileddescription>
+<para>Must be the first member in the struct. <simplesect kind="see"><para>smfree_delayed(). </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="91" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="129" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmempool_1aa2bdb21db897d45d6726e26954c92c06" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structlifo" kindref="compound">lifo</ref></type>
+        <definition>struct lifo mempool::delayed</definition>
+        <argsstring></argsstring>
+        <name>delayed</name>
+        <briefdescription>
+<para>List of pointers for delayed free. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="91" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="131" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmempool_1a2834d04700d296aaa34718785d67e8d8" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref> *</type>
+        <definition>struct slab_cache* mempool::cache</definition>
+        <argsstring></argsstring>
+        <name>cache</name>
+        <briefdescription>
+<para>The source of empty slabs. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="133" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmempool_1ad7f6e80f9bcb69dc37459599f5512c7c" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structslab__list" kindref="compound">slab_list</ref></type>
+        <definition>struct slab_list mempool::slabs</definition>
+        <argsstring></argsstring>
+        <name>slabs</name>
+        <briefdescription>
+<para>All slabs. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="133" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="135" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmempool_1aa44655bd51d8d5aed5ef9245d6f0a203" prot="public" static="no" mutable="no">
+        <type>mslab_tree_t</type>
+        <definition>mslab_tree_t mempool::hot_slabs</definition>
+        <argsstring></argsstring>
+        <name>hot_slabs</name>
+        <briefdescription>
+<para>Slabs with some amount of free space available are put into this red-black tree, which is sorted by slab address. </para>        </briefdescription>
+        <detaileddescription>
+<para>A (partially) free slab with the smallest address is chosen for allocation. This reduces internal memory fragmentation across many slabs. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="143" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="143" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmempool_1ab06282c5ef48da09407d74ddafc25f8b" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmslab" kindref="compound">mslab</ref> *</type>
+        <definition>struct mslab* mempool::first_hot_slab</definition>
+        <argsstring></argsstring>
+        <name>first_hot_slab</name>
+        <briefdescription>
+<para>Cached leftmost node of hot_slabs tree. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="145" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="145" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmempool_1a4d28caff673e2674ec3e093ff95c1c49" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist mempool::cold_slabs</definition>
+        <argsstring></argsstring>
+        <name>cold_slabs</name>
+        <briefdescription>
+<para>Slabs with a little of free items count, staged to be added to hot_slabs tree. </para>        </briefdescription>
+        <detaileddescription>
+<para>Are used in case the tree is empty or the allocator runs out of memory. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="145" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="151" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmempool_1a7c3a3c75647a35c85c19a003f565abd5" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmslab" kindref="compound">mslab</ref> *</type>
+        <definition>struct mslab* mempool::spare</definition>
+        <argsstring></argsstring>
+        <name>spare</name>
+        <briefdescription>
+<para>A completely empty slab which is not freed only to avoid the overhead of <ref refid="structslab__cache" kindref="compound">slab_cache</ref> oscillation around a single element allocation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="157" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="157" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmempool_1a93950d26163ce1868564a35b39b78531" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t mempool::objsize</definition>
+        <argsstring></argsstring>
+        <name>objsize</name>
+        <briefdescription>
+<para>The size of an individual object. </para>        </briefdescription>
+        <detaileddescription>
+<para>All objects allocated on the pool have the same size. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="162" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="162" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmempool_1a81e3a937e049e90259f8e020c137c4db" prot="public" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t mempool::slab_order</definition>
+        <argsstring></argsstring>
+        <name>slab_order</name>
+        <briefdescription>
+<para>Mempool slabs are ordered (. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="see"><para>slab_cache.h for definition of &quot;ordered&quot;). The order is calculated when the pool is initialized or is set explicitly. The latter is necessary for &apos;small&apos; allocator, which needs to quickly find <ref refid="structmempool" kindref="compound">mempool</ref> containing an allocated object when the object is freed. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="171" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="171" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmempool_1ab95f0b91b3ebe934d3b039cb50e3a2ac" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t mempool::objcount</definition>
+        <argsstring></argsstring>
+        <name>objcount</name>
+        <briefdescription>
+<para>How many objects can fit in a slab. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="173" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="173" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmempool_1ac4f5a995cd16edad56f4b4d127174ebf" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t mempool::offset</definition>
+        <argsstring></argsstring>
+        <name>offset</name>
+        <briefdescription>
+<para>Offset from beginning of slab to the first object. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="175" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="175" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structmempool_1a27f13d07bf4a975679f8c9099416b88d" prot="public" static="no" mutable="no">
+        <type>intptr_t</type>
+        <definition>intptr_t mempool::slab_ptr_mask</definition>
+        <argsstring></argsstring>
+        <name>slab_ptr_mask</name>
+        <briefdescription>
+<para>Address mask to translate ptr to slab. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="177" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="177" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A memory pool. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="4960">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="4955">
+        <label>mempool</label>
+        <link refid="structmempool"/>
+        <childnode refid="4956" relation="usage">
+          <edgelabel>spare</edgelabel>
+          <edgelabel>first_hot_slab</edgelabel>
+        </childnode>
+        <childnode refid="4959" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="4961" relation="usage">
+          <edgelabel>link</edgelabel>
+          <edgelabel>delayed</edgelabel>
+        </childnode>
+        <childnode refid="4957" relation="usage">
+          <edgelabel>cold_slabs</edgelabel>
+        </childnode>
+        <childnode refid="4962" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="4957">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="4957" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="4959">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="4960" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="4957" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="4964">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="4956">
+        <label>mslab</label>
+        <link refid="structmslab"/>
+        <childnode refid="4957" relation="usage">
+          <edgelabel>next_in_cold</edgelabel>
+        </childnode>
+        <childnode refid="4958" relation="usage">
+          <edgelabel>slab</edgelabel>
+        </childnode>
+      </node>
+      <node id="4965">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="4963">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="4964" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="4965" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="4962">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="4959" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="4963" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="4961">
+        <label>lifo</label>
+        <link refid="structlifo"/>
+      </node>
+      <node id="4958">
+        <label>slab</label>
+        <link refid="structslab"/>
+        <childnode refid="4957" relation="usage">
+          <edgelabel>next_in_cache</edgelabel>
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="123" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="122" bodyend="178"/>
+    <listofallmembers>
+      <member refid="structmempool_1a2834d04700d296aaa34718785d67e8d8" prot="public" virt="non-virtual"><scope>mempool</scope><name>cache</name></member>
+      <member refid="structmempool_1a4d28caff673e2674ec3e093ff95c1c49" prot="public" virt="non-virtual"><scope>mempool</scope><name>cold_slabs</name></member>
+      <member refid="structmempool_1aa2bdb21db897d45d6726e26954c92c06" prot="public" virt="non-virtual"><scope>mempool</scope><name>delayed</name></member>
+      <member refid="structmempool_1ab06282c5ef48da09407d74ddafc25f8b" prot="public" virt="non-virtual"><scope>mempool</scope><name>first_hot_slab</name></member>
+      <member refid="structmempool_1aa44655bd51d8d5aed5ef9245d6f0a203" prot="public" virt="non-virtual"><scope>mempool</scope><name>hot_slabs</name></member>
+      <member refid="structmempool_1a99e49ea0785d648c0f73f32f3c9f7d0d" prot="public" virt="non-virtual"><scope>mempool</scope><name>link</name></member>
+      <member refid="structmempool_1ab95f0b91b3ebe934d3b039cb50e3a2ac" prot="public" virt="non-virtual"><scope>mempool</scope><name>objcount</name></member>
+      <member refid="structmempool_1a93950d26163ce1868564a35b39b78531" prot="public" virt="non-virtual"><scope>mempool</scope><name>objsize</name></member>
+      <member refid="structmempool_1ac4f5a995cd16edad56f4b4d127174ebf" prot="public" virt="non-virtual"><scope>mempool</scope><name>offset</name></member>
+      <member refid="structmempool_1a81e3a937e049e90259f8e020c137c4db" prot="public" virt="non-virtual"><scope>mempool</scope><name>slab_order</name></member>
+      <member refid="structmempool_1a27f13d07bf4a975679f8c9099416b88d" prot="public" virt="non-virtual"><scope>mempool</scope><name>slab_ptr_mask</name></member>
+      <member refid="structmempool_1ad7f6e80f9bcb69dc37459599f5512c7c" prot="public" virt="non-virtual"><scope>mempool</scope><name>slabs</name></member>
+      <member refid="structmempool_1a7c3a3c75647a35c85c19a003f565abd5" prot="public" virt="non-virtual"><scope>mempool</scope><name>spare</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

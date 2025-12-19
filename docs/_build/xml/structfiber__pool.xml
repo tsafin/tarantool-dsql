@@ -1,0 +1,229 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structfiber__pool" kind="struct" language="C++" prot="public">
+    <compoundname>fiber_pool</compoundname>
+    <includes local="no">fiber_pool.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structfiber__pool_1af39823dc1c54f3579c786dc8fd51b99d" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist fiber_pool::idle</definition>
+        <argsstring></argsstring>
+        <name>idle</name>
+        <briefdescription>
+<para>Cache of fibers which work on incoming messages. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber_pool.h" line="54" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber_pool.h" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber__pool_1a530db8e0debddfaaacf432cbb6b8a75d" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int fiber_pool::size</definition>
+        <argsstring></argsstring>
+        <name>size</name>
+        <briefdescription>
+<para>The number of fibers in the pool. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber_pool.h" line="56" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber_pool.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber__pool_1a23bb968642246e50889680f361d91edc" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int fiber_pool::max_size</definition>
+        <argsstring></argsstring>
+        <name>max_size</name>
+        <briefdescription>
+<para>The limit on the number of fibers working on tasks. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber_pool.h" line="58" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber_pool.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber__pool_1a758ed0975daec1a645e9bdc228469f14" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float fiber_pool::idle_timeout</definition>
+        <argsstring></argsstring>
+        <name>idle_timeout</name>
+        <briefdescription>
+<para>Fibers in leave the pool if they have nothing to do for longer than this. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber_pool.h" line="63" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber_pool.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber__pool_1a6a95e3c26a8a325aecf30ba9dba02893" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structstailq" kindref="compound">stailq</ref></type>
+        <definition>struct stailq fiber_pool::output</definition>
+        <argsstring></argsstring>
+        <name>output</name>
+        <briefdescription>
+<para>Staged messages (for fibers to work on) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber_pool.h" line="63" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber_pool.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber__pool_1ac357bae43292f3db09fd3664d7ca574b" prot="public" static="no" mutable="no">
+        <type>struct ev_timer</type>
+        <definition>struct ev_timer fiber_pool::idle_timer</definition>
+        <argsstring></argsstring>
+        <name>idle_timer</name>
+        <briefdescription>
+<para>Timer for idle workers. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber_pool.h" line="63" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber_pool.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber__pool_1a88afbb55604637865916264c7eba7c03" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfiber__cond" kindref="compound">fiber_cond</ref></type>
+        <definition>struct fiber_cond fiber_pool::worker_cond</definition>
+        <argsstring></argsstring>
+        <name>worker_cond</name>
+        <briefdescription>
+<para>Condition for worker exit signaling. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber_pool.h" line="63" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber_pool.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber__pool_1a953c984c409613b1da47b89e5315f852" prot="public" static="no" mutable="no">
+        <type>struct fiber_pool::@206</type>
+        <definition>struct fiber_pool::@206 fiber_pool::@207</definition>
+        <argsstring></argsstring>
+        <name>@207</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber_pool.h" line="70" column="1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber__pool_1a7a431900a91c218d011510463cd54b53" prot="public" static="no" mutable="no">
+        <type>struct ev_loop *</type>
+        <definition>struct ev_loop* fiber_pool::consumer</definition>
+        <argsstring></argsstring>
+        <name>consumer</name>
+        <briefdescription>
+<para>The consumer thread loop. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber_pool.h" line="73" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber_pool.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber__pool_1ad85109f9e09af1f3441984c092c19bf7" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcbus__endpoint" kindref="compound">cbus_endpoint</ref></type>
+        <definition>struct cbus_endpoint fiber_pool::endpoint</definition>
+        <argsstring></argsstring>
+        <name>endpoint</name>
+        <briefdescription>
+<para>cbus endpoint to fetch messages from </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber_pool.h" line="73" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber_pool.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber__pool_1acde13e3e6a3c0342a4b40c5142da6066" prot="public" static="no" mutable="no">
+        <type>struct fiber_pool::@208</type>
+        <definition>struct fiber_pool::@208 fiber_pool::@209</definition>
+        <argsstring></argsstring>
+        <name>@209</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber_pool.h" line="76" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A pool of worker fibers to handle messages, so that each message is handled in its own fiber. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="3410">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="3410" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="3409">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="3410" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="3405">
+        <label>fiber_pool</label>
+        <link refid="structfiber__pool"/>
+        <childnode refid="3406" relation="usage">
+          <edgelabel>worker_cond</edgelabel>
+        </childnode>
+        <childnode refid="3407" relation="usage">
+          <edgelabel>idle</edgelabel>
+        </childnode>
+        <childnode refid="3408" relation="usage">
+          <edgelabel>endpoint</edgelabel>
+        </childnode>
+        <childnode refid="3409" relation="usage">
+          <edgelabel>output</edgelabel>
+        </childnode>
+      </node>
+      <node id="3407">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="3407" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="3406">
+        <label>fiber_cond</label>
+        <link refid="structfiber__cond"/>
+        <childnode refid="3407" relation="usage">
+          <edgelabel>waiters</edgelabel>
+        </childnode>
+      </node>
+      <node id="3408">
+        <label>cbus_endpoint</label>
+        <link refid="structcbus__endpoint"/>
+        <childnode refid="3406" relation="usage">
+          <edgelabel>cond</edgelabel>
+        </childnode>
+        <childnode refid="3407" relation="usage">
+          <edgelabel>in_cbus</edgelabel>
+        </childnode>
+        <childnode refid="3409" relation="usage">
+          <edgelabel>output</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/core/fiber_pool.h" line="51" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber_pool.h" bodystart="51" bodyend="77"/>
+    <listofallmembers>
+      <member refid="structfiber__pool_1a7a431900a91c218d011510463cd54b53" prot="public" virt="non-virtual"><scope>fiber_pool</scope><name>consumer</name></member>
+      <member refid="structfiber__pool_1ad85109f9e09af1f3441984c092c19bf7" prot="public" virt="non-virtual"><scope>fiber_pool</scope><name>endpoint</name></member>
+      <member refid="structfiber__pool_1af39823dc1c54f3579c786dc8fd51b99d" prot="public" virt="non-virtual"><scope>fiber_pool</scope><name>idle</name></member>
+      <member refid="structfiber__pool_1a758ed0975daec1a645e9bdc228469f14" prot="public" virt="non-virtual"><scope>fiber_pool</scope><name>idle_timeout</name></member>
+      <member refid="structfiber__pool_1ac357bae43292f3db09fd3664d7ca574b" prot="public" virt="non-virtual"><scope>fiber_pool</scope><name>idle_timer</name></member>
+      <member refid="structfiber__pool_1a23bb968642246e50889680f361d91edc" prot="public" virt="non-virtual"><scope>fiber_pool</scope><name>max_size</name></member>
+      <member refid="structfiber__pool_1a6a95e3c26a8a325aecf30ba9dba02893" prot="public" virt="non-virtual"><scope>fiber_pool</scope><name>output</name></member>
+      <member refid="structfiber__pool_1a530db8e0debddfaaacf432cbb6b8a75d" prot="public" virt="non-virtual"><scope>fiber_pool</scope><name>size</name></member>
+      <member refid="structfiber__pool_1a88afbb55604637865916264c7eba7c03" prot="public" virt="non-virtual"><scope>fiber_pool</scope><name>worker_cond</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

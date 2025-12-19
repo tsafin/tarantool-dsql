@@ -1,0 +1,660 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="lib_2core_2fio_8h" kind="file" language="C++">
+    <compoundname>fio.h</compoundname>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">sys/types.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">sys/uio.h</includes>
+    <includes local="no">assert.h</includes>
+    <includedby refid="coio__file_8c" local="yes">/home/tsafin/tarantool/src/lib/core/coio_file.c</includedby>
+    <includedby refid="lib_2core_2fio_8c" local="yes">/home/tsafin/tarantool/src/lib/core/fio.c</includedby>
+    <incdepgraph>
+      <node id="1966">
+        <label>stdbool.h</label>
+      </node>
+      <node id="1968">
+        <label>assert.h</label>
+      </node>
+      <node id="1964">
+        <label>stddef.h</label>
+      </node>
+      <node id="1965">
+        <label>sys/types.h</label>
+      </node>
+      <node id="1967">
+        <label>sys/uio.h</label>
+      </node>
+      <node id="1963">
+        <label>/home/tsafin/tarantool/src/lib/core/fio.h</label>
+        <link refid="lib_2core_2fio_8h"/>
+        <childnode refid="1964" relation="include">
+        </childnode>
+        <childnode refid="1965" relation="include">
+        </childnode>
+        <childnode refid="1966" relation="include">
+        </childnode>
+        <childnode refid="1967" relation="include">
+        </childnode>
+        <childnode refid="1968" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structfio__batch" prot="public">fio_batch</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="lib_2core_2fio_8h_1adf9d036c44185a1ed8be2c35e1357570" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char* fio_filename</definition>
+        <argsstring>(int fd)</argsstring>
+        <name>fio_filename</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <briefdescription>
+<para>POSIX file I/O: take into account EINTR (read and write exactly the requested number of bytes), log errors nicely, provide batch writes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fio.h" line="49" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fio.c" bodystart="47" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fio_8h_1a422b79c11c01f3374e8d2461a6605e38" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t fio_read</definition>
+        <argsstring>(int fd, void *buf, size_t count)</argsstring>
+        <name>fio_read</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Read up to N bytes from file into the buffer, re-trying for interrupted reads. </para>        </briefdescription>
+        <detaileddescription>
+<para>In case of a non-transient error, writes a message to the error log.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>file descriptor. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to the buffer. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>how many bytes to read.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>When count is 0, returns 0. When count &gt; SSIZE_MAX, the result is unspecified. Otherwise, returns the total number of bytes read, or -1 if error. In case EOF is reached and less than count bytes are read, the actual number of bytes read is returned (can be 0 or more).</para></simplesect>
+If an error occurs after a few bytes were read, -1 is returned and current read offset is unspecified. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fio.h" line="72" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fio.c" bodystart="70" bodyend="90"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fio_8h_1ab4f072695e0e0e61d56f3b2e1e5bc590" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t fio_pread</definition>
+        <argsstring>(int fd, void *buf, size_t count, off_t offset)</argsstring>
+        <name>fio_pread</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <param>
+          <type>off_t</type>
+          <declname>offset</declname>
+        </param>
+        <briefdescription>
+<para>Read up to N bytes from file into the buffer, re-trying for interrupted reads. </para>        </briefdescription>
+        <detaileddescription>
+<para>In case of a non-transient error, writes a message to the error log.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>file descriptor. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to the buffer. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>how many bytes to read. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>file offset</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>When count is 0, returns 0. When count &gt; SSIZE_MAX, the result is unspecified. Otherwise, returns the total number of bytes read, or -1 if error. In case EOF is reached and less than count bytes are read, the actual number of bytes read is returned (can be 0 or more). </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fio.h" line="92" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fio.c" bodystart="93" bodyend="113"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fio_8h_1aa985ebcaac86b8c7cb5fb989b6c1c65f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int fio_writen</definition>
+        <argsstring>(int fd, const void *buf, size_t count)</argsstring>
+        <name>fio_writen</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Write the given buffer, re-trying for partial writes (when interrupted by a signal, for instance). </para>        </briefdescription>
+        <detaileddescription>
+<para>In case of a non-transient error, writes a message to the error log.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>file descriptor. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>pointer to a buffer. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer size.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on success </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>on error. If an error occurs after a few bytes were written then current write offset of <emphasis>fd</emphasis> is unspecified. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fio.h" line="109" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fio.c" bodystart="116" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fio_8h_1a7572684efa2d757ccc40afe2f6a9ab12" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t fio_writev</definition>
+        <argsstring>(int fd, struct iovec *iov, int iovcnt)</argsstring>
+        <name>fio_writev</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>struct iovec *</type>
+          <declname>iov</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>iovcnt</declname>
+        </param>
+        <briefdescription>
+<para>A simple wrapper around writev(). </para>        </briefdescription>
+        <detaileddescription>
+<para>Re-tries write in case of EINTR. In case of a serious error, writes a message to the error log.</para><para>This function does not retry for partial writes because:<itemizedlist>
+<listitem><para>it requires tedious byte counting, even when there is no partial write, just to find out what happened</para></listitem><listitem><para>on most file systems, a partial write happens only in case of ENOSPC, which won&apos;t go away if we retry.</para></listitem><listitem><para>there is a remote chance of partial write of a large iov, (&gt; 4MB) due to a signal interrupt, but this is so rare that it&apos;s not worth slowing down the main case for the sake of it.</para></listitem><listitem><para>to finish a partial write one has to allocate a copy of iov</para></listitem></itemizedlist>
+</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>file descriptor. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>iov</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a vector of buffer descriptors (</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para>man writev). </para></simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector size</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>When count is 0, returns 0. When count is positive, returns the total number of bytes written, or -1 if error. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fio.h" line="136" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fio.c" bodystart="138" bodyend="153"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fio_8h_1a8c80f5ccbc7e844eaf6631e6a1198a78" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t fio_writevn</definition>
+        <argsstring>(int fd, struct iovec *iov, int iovcnt)</argsstring>
+        <name>fio_writevn</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>struct iovec *</type>
+          <declname>iov</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>iovcnt</declname>
+        </param>
+        <briefdescription>
+<para>A wrapper around writev, but retries for partial writes. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>file descriptor. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>iov</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a vector of buffer descriptors (</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para>man writev). </para></simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>vector size</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>When count is 0, returns 0. When count is positive, returns the total number of bytes written, or -1 if error. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fio.h" line="151" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fio.c" bodystart="156" bodyend="179"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fio_8h_1a94b13b92f2a9534cfb84eab2f3614697" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>off_t</type>
+        <definition>off_t fio_lseek</definition>
+        <argsstring>(int fd, off_t offset, int whence)</argsstring>
+        <name>fio_lseek</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>off_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>whence</declname>
+        </param>
+        <briefdescription>
+<para>An error-reporting aware wrapper around lseek(). </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>file offset value or -1 if error </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fio.h" line="159" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fio.c" bodystart="182" bodyend="196"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fio_8h_1aed242d9865acaadc4fd3d22728a6b711" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int fio_truncate</definition>
+        <argsstring>(int fd, off_t offset)</argsstring>
+        <name>fio_truncate</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>off_t</type>
+          <declname>offset</declname>
+        </param>
+        <briefdescription>
+<para>Truncate a file and log a message in case of error. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fio.h" line="163" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fio.c" bodystart="199" bodyend="206"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fio_8h_1a08cb1de4dea465535e2dd5396c9ebdee" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structfio__batch" kindref="compound">fio_batch</ref> *</type>
+        <definition>struct fio_batch* fio_batch_new</definition>
+        <argsstring>(void)</argsstring>
+        <name>fio_batch_new</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fio.h" line="182" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fio.c" bodystart="210" bodyend="225"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fio_8h_1add345f1d1207126f14c4a997c7594cbf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void fio_batch_delete</definition>
+        <argsstring>(struct fio_batch *batch)</argsstring>
+        <name>fio_batch_delete</name>
+        <param>
+          <type>struct <ref refid="structfio__batch" kindref="compound">fio_batch</ref> *</type>
+          <declname>batch</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fio.h" line="185" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fio.c" bodystart="228" bodyend="231"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fio_8h_1a73c039af0d0f4f918521dbdb74cfe837" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void fio_batch_reset</definition>
+        <argsstring>(struct fio_batch *batch)</argsstring>
+        <name>fio_batch_reset</name>
+        <param>
+          <type>struct <ref refid="structfio__batch" kindref="compound">fio_batch</ref> *</type>
+          <declname>batch</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fio.h" line="188" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fio.h" bodystart="188" bodyend="192"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fio_8h_1ad9023605fd0fee5a4e9fce89edc08ce5" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t fio_batch_size</definition>
+        <argsstring>(struct fio_batch *batch)</argsstring>
+        <name>fio_batch_size</name>
+        <param>
+          <type>struct <ref refid="structfio__batch" kindref="compound">fio_batch</ref> *</type>
+          <declname>batch</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fio.h" line="195" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fio.h" bodystart="195" bodyend="198"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fio_8h_1af7c22ba3a4d5b01041df9c648d84cd1f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int fio_batch_unused</definition>
+        <argsstring>(struct fio_batch *batch)</argsstring>
+        <name>fio_batch_unused</name>
+        <param>
+          <type>struct <ref refid="structfio__batch" kindref="compound">fio_batch</ref> *</type>
+          <declname>batch</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fio.h" line="201" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fio.h" bodystart="201" bodyend="204"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fio_8h_1a50f44a1126f5e93b09390a5f83c4dbce" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t fio_batch_add</definition>
+        <argsstring>(struct fio_batch *batch, int count)</argsstring>
+        <name>fio_batch_add</name>
+        <param>
+          <type>struct <ref refid="structfio__batch" kindref="compound">fio_batch</ref> *</type>
+          <declname>batch</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Add a row to a batch. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="pre"><para>iovcnt is the number of iov elements previously booked with fio_batch_book() and filled with data </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fio.h" line="212" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fio.c" bodystart="234" bodyend="248"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fio_8h_1a468b4917ea9469359198e918645bb90b" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct iovec *</type>
+        <definition>static struct iovec* fio_batch_book</definition>
+        <argsstring>(struct fio_batch *batch, int count)</argsstring>
+        <name>fio_batch_book</name>
+        <param>
+          <type>struct <ref refid="structfio__batch" kindref="compound">fio_batch</ref> *</type>
+          <declname>batch</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Ensure the iov has at least &apos;count&apos; elements. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fio.h" line="218" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fio.h" bodystart="218" bodyend="223"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2fio_8h_1a186b333e287cb0669c3a990383c74425" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t fio_batch_write</definition>
+        <argsstring>(struct fio_batch *batch, int fd)</argsstring>
+        <name>fio_batch_write</name>
+        <param>
+          <type>struct <ref refid="structfio__batch" kindref="compound">fio_batch</ref> *</type>
+          <declname>batch</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <briefdescription>
+<para>Write batch to fd using writev(2) and rotate batch. </para>        </briefdescription>
+        <detaileddescription>
+<para>In case of partial write batch will contain remaining data. <simplesect kind="see"><para>fio_writev() </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fio.h" line="231" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fio.c" bodystart="284" bodyend="292"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LIB_CORE_FIO_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LIB_CORE_FIO_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight></codeline>
+<codeline lineno="38"><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sys/types.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sys/uio.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;assert.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="49"><highlight class="normal">fio_filename(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">iovec;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal">ssize_t</highlight></codeline>
+<codeline lineno="72"><highlight class="normal">fio_read(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal">ssize_t</highlight></codeline>
+<codeline lineno="92"><highlight class="normal">fio_pread(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count,<sp/>off_t<sp/>offset);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal">fio_writen(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal">ssize_t</highlight></codeline>
+<codeline lineno="136"><highlight class="normal">fio_writev(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>iovec<sp/>*iov,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>iovcnt);</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal">ssize_t</highlight></codeline>
+<codeline lineno="151"><highlight class="normal">fio_writevn(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>iovec<sp/>*iov,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>iovcnt);</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal">off_t</highlight></codeline>
+<codeline lineno="159"><highlight class="normal">fio_lseek(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/>off_t<sp/>offset,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>whence);</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal">fio_truncate(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/>off_t<sp/>offset);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169" refid="structfio__batch" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfio__batch" kindref="compound">fio_batch</ref></highlight></codeline>
+<codeline lineno="170"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structfio__batch_1ae6f4b5de075a0da8098759433ecd8ac7" kindref="member">bytes</ref>;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structfio__batch_1a07683fa5177a573f59dedd39b337ba88" kindref="member">iovcnt</ref>;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structfio__batch_1a7b656eb07f117ac04116c9387bedcf92" kindref="member">max_iov</ref>;</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Batched<sp/>rows.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">iovec<sp/>iov[];</highlight></codeline>
+<codeline lineno="179"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfio__batch" kindref="compound">fio_batch</ref><sp/>*</highlight></codeline>
+<codeline lineno="182"><highlight class="normal">fio_batch_new(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal">fio_batch_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfio__batch" kindref="compound">fio_batch</ref><sp/>*batch);</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal">fio_batch_reset(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfio__batch" kindref="compound">fio_batch</ref><sp/>*batch)</highlight></codeline>
+<codeline lineno="189"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>batch-&gt;<ref refid="structfio__batch_1ae6f4b5de075a0da8098759433ecd8ac7" kindref="member">bytes</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>batch-&gt;<ref refid="structfio__batch_1a07683fa5177a573f59dedd39b337ba88" kindref="member">iovcnt</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="192"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal">fio_batch_size(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfio__batch" kindref="compound">fio_batch</ref><sp/>*batch)</highlight></codeline>
+<codeline lineno="196"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>batch-&gt;<ref refid="structfio__batch_1ae6f4b5de075a0da8098759433ecd8ac7" kindref="member">bytes</ref>;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal">fio_batch_unused(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfio__batch" kindref="compound">fio_batch</ref><sp/>*batch)</highlight></codeline>
+<codeline lineno="202"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>batch-&gt;<ref refid="structfio__batch_1a7b656eb07f117ac04116c9387bedcf92" kindref="member">max_iov</ref><sp/>-<sp/>batch-&gt;<ref refid="structfio__batch_1a07683fa5177a573f59dedd39b337ba88" kindref="member">iovcnt</ref>;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal">fio_batch_add(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfio__batch" kindref="compound">fio_batch</ref><sp/>*batch,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>count);</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">iovec<sp/>*</highlight></codeline>
+<codeline lineno="218"><highlight class="normal">fio_batch_book(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfio__batch" kindref="compound">fio_batch</ref><sp/>*batch,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>count)</highlight></codeline>
+<codeline lineno="219"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(batch-&gt;<ref refid="structfio__batch_1a07683fa5177a573f59dedd39b337ba88" kindref="member">iovcnt</ref><sp/>+<sp/>count<sp/>&lt;=<sp/>batch-&gt;<ref refid="structfio__batch_1a7b656eb07f117ac04116c9387bedcf92" kindref="member">max_iov</ref>)</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>batch-&gt;iov<sp/>+<sp/>batch-&gt;<ref refid="structfio__batch_1a07683fa5177a573f59dedd39b337ba88" kindref="member">iovcnt</ref>;</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="223"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal">ssize_t</highlight></codeline>
+<codeline lineno="231"><highlight class="normal">fio_batch_write(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structfio__batch" kindref="compound">fio_batch</ref><sp/>*batch,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd);</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_LIB_CORE_FIO_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/core/fio.h"/>
+  </compounddef>
+</doxygen>

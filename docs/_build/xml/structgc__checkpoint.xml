@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structgc__checkpoint" kind="struct" language="C++" prot="public">
+    <compoundname>gc_checkpoint</compoundname>
+    <includes local="no">gc.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structgc__checkpoint_1a3ddcb7250256c10d8d6c402f7345e2dd" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist gc_checkpoint::in_checkpoints</definition>
+        <argsstring></argsstring>
+        <name>in_checkpoints</name>
+        <briefdescription>
+<para>Link in <ref refid="structgc__state_1a3dfbfeed799d55ad7df096209bef8a71" kindref="member">gc_state::checkpoints</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/gc.h" line="336" column="1" bodyfile="/home/tsafin/tarantool/src/box/gc.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structgc__checkpoint_1a1049ea7dfcf0aa6e8fbc511d30d2b0a4" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvclock" kindref="compound">vclock</ref></type>
+        <definition>struct vclock gc_checkpoint::vclock</definition>
+        <argsstring></argsstring>
+        <name>vclock</name>
+        <briefdescription>
+<para>VClock of the checkpoint. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/gc.h" line="336" column="1" bodyfile="/home/tsafin/tarantool/src/box/gc.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structgc__checkpoint_1a1897ca7aea0d1448405b286e3fdad932" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist gc_checkpoint::refs</definition>
+        <argsstring></argsstring>
+        <name>refs</name>
+        <briefdescription>
+<para>List of checkpoint references, linked by <ref refid="structgc__checkpoint__ref_1a4fdca1fe0c172a5e8cf4425e35bdbeb2" kindref="member">gc_checkpoint_ref::in_refs</ref>. </para>        </briefdescription>
+        <detaileddescription>
+<para>We use a list rather than a reference counter so that we can list reference names in box.info.gc(). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/gc.h" line="336" column="1" bodyfile="/home/tsafin/tarantool/src/box/gc.h" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Garbage collector keeps track of all preserved checkpoints. </para>    </briefdescription>
+    <detaileddescription>
+<para>The following structure represents a checkpoint. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="3817">
+        <label>gc_checkpoint</label>
+        <link refid="structgc__checkpoint"/>
+        <childnode refid="3818" relation="usage">
+          <edgelabel>vclock</edgelabel>
+        </childnode>
+        <childnode refid="3819" relation="usage">
+          <edgelabel>refs</edgelabel>
+          <edgelabel>in_checkpoints</edgelabel>
+        </childnode>
+      </node>
+      <node id="3819">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="3819" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="3818">
+        <label>vclock</label>
+        <link refid="structvclock"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/gc.h" line="58" column="1" bodyfile="/home/tsafin/tarantool/src/box/gc.h" bodystart="58" bodyend="71"/>
+    <listofallmembers>
+      <member refid="structgc__checkpoint_1a3ddcb7250256c10d8d6c402f7345e2dd" prot="public" virt="non-virtual"><scope>gc_checkpoint</scope><name>in_checkpoints</name></member>
+      <member refid="structgc__checkpoint_1a1897ca7aea0d1448405b286e3fdad932" prot="public" virt="non-virtual"><scope>gc_checkpoint</scope><name>refs</name></member>
+      <member refid="structgc__checkpoint_1a1049ea7dfcf0aa6e8fbc511d30d2b0a4" prot="public" virt="non-virtual"><scope>gc_checkpoint</scope><name>vclock</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

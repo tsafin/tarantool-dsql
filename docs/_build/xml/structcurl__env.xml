@@ -1,0 +1,182 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structcurl__env" kind="struct" language="C++" prot="public">
+    <compoundname>curl_env</compoundname>
+    <includes local="no">curl.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structcurl__env_1a224213c48a8f79d80167726599df3e84" prot="public" static="no" mutable="no">
+        <type>CURLM *</type>
+        <definition>CURLM* curl_env::multi</definition>
+        <argsstring></argsstring>
+        <name>multi</name>
+        <briefdescription>
+<para>libcurl multi handler. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/curl.h" line="56" column="1" bodyfile="/home/tsafin/tarantool/src/curl.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcurl__env_1a43d046f8281989c9df0e9c54feeebd3f" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structmempool" kindref="compound">mempool</ref></type>
+        <definition>struct mempool curl_env::sock_pool</definition>
+        <argsstring></argsstring>
+        <name>sock_pool</name>
+        <briefdescription>
+<para>Memory pool for sockets. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/curl.h" line="56" column="1" bodyfile="/home/tsafin/tarantool/src/curl.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcurl__env_1a7c5c68fe44e3abb7d415c4ddbe110d3a" prot="public" static="no" mutable="no">
+        <type>struct ev_timer</type>
+        <definition>struct ev_timer curl_env::timer_event</definition>
+        <argsstring></argsstring>
+        <name>timer_event</name>
+        <briefdescription>
+<para>libev timer watcher. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/curl.h" line="56" column="1" bodyfile="/home/tsafin/tarantool/src/curl.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcurl__env_1a50f917d8bf189dfa3416093763577d89" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcurl__stat" kindref="compound">curl_stat</ref></type>
+        <definition>struct curl_stat curl_env::stat</definition>
+        <argsstring></argsstring>
+        <name>stat</name>
+        <briefdescription>
+<para>Statistics. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/curl.h" line="56" column="1" bodyfile="/home/tsafin/tarantool/src/curl.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>CURL Environment. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2303">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="2297">
+        <label>curl_stat</label>
+        <link refid="structcurl__stat"/>
+      </node>
+      <node id="2298">
+        <label>mempool</label>
+        <link refid="structmempool"/>
+        <childnode refid="2299" relation="usage">
+          <edgelabel>spare</edgelabel>
+          <edgelabel>first_hot_slab</edgelabel>
+        </childnode>
+        <childnode refid="2302" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="2304" relation="usage">
+          <edgelabel>link</edgelabel>
+          <edgelabel>delayed</edgelabel>
+        </childnode>
+        <childnode refid="2300" relation="usage">
+          <edgelabel>cold_slabs</edgelabel>
+        </childnode>
+        <childnode refid="2305" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="2300">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="2300" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="2302">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="2303" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="2300" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="2307">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="2299">
+        <label>mslab</label>
+        <link refid="structmslab"/>
+        <childnode refid="2300" relation="usage">
+          <edgelabel>next_in_cold</edgelabel>
+        </childnode>
+        <childnode refid="2301" relation="usage">
+          <edgelabel>slab</edgelabel>
+        </childnode>
+      </node>
+      <node id="2308">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="2306">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="2307" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="2308" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="2305">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="2302" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="2306" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="2304">
+        <label>lifo</label>
+        <link refid="structlifo"/>
+      </node>
+      <node id="2296">
+        <label>curl_env</label>
+        <link refid="structcurl__env"/>
+        <childnode refid="2297" relation="usage">
+          <edgelabel>stat</edgelabel>
+        </childnode>
+        <childnode refid="2298" relation="usage">
+          <edgelabel>sock_pool</edgelabel>
+        </childnode>
+      </node>
+      <node id="2301">
+        <label>slab</label>
+        <link refid="structslab"/>
+        <childnode refid="2300" relation="usage">
+          <edgelabel>next_in_cache</edgelabel>
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/curl.h" line="54" column="1" bodyfile="/home/tsafin/tarantool/src/curl.h" bodystart="54" bodyend="63"/>
+    <listofallmembers>
+      <member refid="structcurl__env_1a224213c48a8f79d80167726599df3e84" prot="public" virt="non-virtual"><scope>curl_env</scope><name>multi</name></member>
+      <member refid="structcurl__env_1a43d046f8281989c9df0e9c54feeebd3f" prot="public" virt="non-virtual"><scope>curl_env</scope><name>sock_pool</name></member>
+      <member refid="structcurl__env_1a50f917d8bf189dfa3416093763577d89" prot="public" virt="non-virtual"><scope>curl_env</scope><name>stat</name></member>
+      <member refid="structcurl__env_1a7c5c68fe44e3abb7d415c4ddbe110d3a" prot="public" virt="non-virtual"><scope>curl_env</scope><name>timer_event</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

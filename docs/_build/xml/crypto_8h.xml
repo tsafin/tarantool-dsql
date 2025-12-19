@@ -1,0 +1,867 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="crypto_8h" kind="file" language="C++">
+    <compoundname>crypto.h</compoundname>
+    <includedby refid="crypto_8c" local="yes">/home/tsafin/tarantool/src/lib/crypto/crypto.c</includedby>
+    <includedby refid="lib_2swim_2swim_8h" local="yes">/home/tsafin/tarantool/src/lib/swim/swim.h</includedby>
+    <includedby refid="swim__io_8h" local="yes">/home/tsafin/tarantool/src/lib/swim/swim_io.h</includedby>
+    <includedby refid="main_8cc" local="yes">/home/tsafin/tarantool/src/main.cc</includedby>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="crypto_8h_1abf788d227f9de5fcfef4b94cdcdcc7c5" prot="public" static="no">
+        <name>crypto_algo</name>
+        <enumvalue id="crypto_8h_1abf788d227f9de5fcfef4b94cdcdcc7c5a90f9341c7eed17a96831b6dae9098256" prot="public">
+          <name>CRYPTO_ALGO_NONE</name>
+          <briefdescription>
+<para>None to disable encryption. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="crypto_8h_1abf788d227f9de5fcfef4b94cdcdcc7c5a518b27952da2d6dca4ee617c28840123" prot="public">
+          <name>CRYPTO_ALGO_AES128</name>
+          <briefdescription>
+<para>AES - Advanced Encryption Standard. </para>          </briefdescription>
+          <detaileddescription>
+<para>It is a symmetric key block cipher algorithm. AES encodes data in blocks of 128 bits, for what it uses a key and an initial vector. Key size can be 128, 192 and 256 bits. AES still is considered strong cipher. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="crypto_8h_1abf788d227f9de5fcfef4b94cdcdcc7c5aa0d48602bac8438f444b7a32a0c20264" prot="public">
+          <name>CRYPTO_ALGO_AES192</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="crypto_8h_1abf788d227f9de5fcfef4b94cdcdcc7c5ae4193835d01252b947fd523b0432e0aa" prot="public">
+          <name>CRYPTO_ALGO_AES256</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="crypto_8h_1abf788d227f9de5fcfef4b94cdcdcc7c5a778b12ffe84209a279c1b2ade661f48a" prot="public">
+          <name>CRYPTO_ALGO_DES</name>
+          <briefdescription>
+<para>DES - Data Encryption Standard. </para>          </briefdescription>
+          <detaileddescription>
+<para>It is a symmetric key block cipher algorithm. It has a fixed block size 64 bits, a key of size 56 working bits and 8 not used for encryption. Its initial vector size is 64 bits as well. Note, that DES is not considered secure because of too small key size. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="crypto_8h_1abf788d227f9de5fcfef4b94cdcdcc7c5af2811d902833678e9ff5260fc5094995" prot="public">
+          <name>crypto_algo_MAX</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Cryptography library based on OpenSSL. </para>        </briefdescription>
+        <detaileddescription>
+<para>It provides wrappers around OpenSSL functions encapsulating compatibility issues and problematic non-standard C API.</para><para>Most of the cipher algorithms here are block-wise, with a secret key and sometimes with an additional public key. A secret key should be shared among communicating nodes and never transmitted explicitly.</para><para>A public key in some algorithms is also called initial vector, and is an additional entropy factor. It prevents an attack when an attacker somehow learns a purpose or content of one data packet and immediately learns purpose of all the same looking packets. Initial vector should be generated randomly for each data packet, nonetheless it is not private and can be sent without encryption. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/crypto/crypto.h" line="56" column="1" bodyfile="/home/tsafin/tarantool/src/lib/crypto/crypto.h" bodystart="56" bodyend="79"/>
+      </memberdef>
+      <memberdef kind="enum" id="crypto_8h_1aa39aaf2a26f2f640d9a5f45f2b8bd328" prot="public" static="no">
+        <name>crypto_mode</name>
+        <enumvalue id="crypto_8h_1aa39aaf2a26f2f640d9a5f45f2b8bd328af3d1c05bffa2e1c070c8296d0a2b6d52" prot="public">
+          <name>CRYPTO_MODE_ECB</name>
+          <briefdescription>
+<para>Electronic CodeBook. </para>          </briefdescription>
+          <detaileddescription>
+<para>The message is split into blocks, and each block is encrypted separately. Weak, because data patterns leak. But fast, can be parallelized. And does not require an initial vector.</para><para>C_i = Encrypt(P_i) </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="crypto_8h_1aa39aaf2a26f2f640d9a5f45f2b8bd328a23aad56f7363a1c64af840628b308db8" prot="public">
+          <name>CRYPTO_MODE_CBC</name>
+          <briefdescription>
+<para>Cipher Block Chaining. </para>          </briefdescription>
+          <detaileddescription>
+<para>Each block of plain data is XORed with the previous encrypted block before being encrypted. The most commonly used mode. Encryption can&apos;t be parallelized because of sequential dependency of blocks, but decryption <emphasis>can be</emphasis>, because each block in fact depends only on single previous encrypted block. A decoder does not need to decrypt C_i-1 to decrypt C_i.</para><para>C_i = Encrypt(P_i ^ C_i-1). C_0 = IV </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="crypto_8h_1aa39aaf2a26f2f640d9a5f45f2b8bd328a11bacc7970b519235cd207906884131e" prot="public">
+          <name>CRYPTO_MODE_CFB</name>
+          <briefdescription>
+<para>Cipher FeedBack. </para>          </briefdescription>
+          <detaileddescription>
+<para>Works similarly to CBC, but a bit different. Each block of plain data is encrypted as XOR of the plain data with second encryption of the previous block. This mode is able to encode a message byte by byte, without addition of a padding. Decryption can be parallelized.</para><para>C_i = Encrypt(C_i-1) ^ P_i C_0 = IV </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="crypto_8h_1aa39aaf2a26f2f640d9a5f45f2b8bd328aae3a7aa71697d4af307d5fbe1d4ee5c0" prot="public">
+          <name>CRYPTO_MODE_OFB</name>
+          <briefdescription>
+<para>Output FeedBack. </para>          </briefdescription>
+          <detaileddescription>
+<para>The same as CFB, but encryption can be parallelized partially.</para><para>C_i = P_i ^ Encrypt(I_i) I_i = Encrypt(I_i-1) I_0 = IV </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="crypto_8h_1aa39aaf2a26f2f640d9a5f45f2b8bd328af60075d050beca33f2c9e40c8e4eb4c0" prot="public">
+          <name>crypto_mode_MAX</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/crypto/crypto.h" line="83" column="1" bodyfile="/home/tsafin/tarantool/src/lib/crypto/crypto.h" bodystart="83" bodyend="129"/>
+      </memberdef>
+      <memberdef kind="enum" id="crypto_8h_1ae07532c74c7e685988e820f34d132fc1" prot="public" static="no">
+        <name>@218</name>
+        <enumvalue id="crypto_8h_1ae07532c74c7e685988e820f34d132fc1a883bcac43588a3a86723e60aa279d05f" prot="public">
+          <name>CRYPTO_AES_BLOCK_SIZE</name>
+          <initializer>= 16</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="crypto_8h_1ae07532c74c7e685988e820f34d132fc1adeeba947200d469405134fb699459629" prot="public">
+          <name>CRYPTO_AES_IV_SIZE</name>
+          <initializer>= 16</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="crypto_8h_1ae07532c74c7e685988e820f34d132fc1a5862bd0070f78a41b2a8159908b2e7fb" prot="public">
+          <name>CRYPTO_AES128_KEY_SIZE</name>
+          <initializer>= 16</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="crypto_8h_1ae07532c74c7e685988e820f34d132fc1a05cbb418e5b376402c43ef59950700fb" prot="public">
+          <name>CRYPTO_AES192_KEY_SIZE</name>
+          <initializer>= 24</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="crypto_8h_1ae07532c74c7e685988e820f34d132fc1aa4e45e39563bf05f8666bf58bc749daa" prot="public">
+          <name>CRYPTO_AES256_KEY_SIZE</name>
+          <initializer>= 32</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="crypto_8h_1ae07532c74c7e685988e820f34d132fc1abc25415e0d5b7989c4cd622e1cc7a53d" prot="public">
+          <name>CRYPTO_DES_BLOCK_SIZE</name>
+          <initializer>= 8</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="crypto_8h_1ae07532c74c7e685988e820f34d132fc1a3aaeb34da0ae6b762adadf655b3b5f15" prot="public">
+          <name>CRYPTO_DES_IV_SIZE</name>
+          <initializer>= 8</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="crypto_8h_1ae07532c74c7e685988e820f34d132fc1a970afa448f321518c20b51313184ca50" prot="public">
+          <name>CRYPTO_DES_KEY_SIZE</name>
+          <initializer>= 8</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="crypto_8h_1ae07532c74c7e685988e820f34d132fc1aeeb9bfb0431bc900800ee1cd99126f63" prot="public">
+          <name>CRYPTO_MAX_KEY_SIZE</name>
+          <initializer>= 32</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="crypto_8h_1ae07532c74c7e685988e820f34d132fc1a6595cc70d2f3f2e5fdcc7cba992c7214" prot="public">
+          <name>CRYPTO_MAX_IV_SIZE</name>
+          <initializer>= 16</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="crypto_8h_1ae07532c74c7e685988e820f34d132fc1ad8e335e05a7719d069b185031021eb5a" prot="public">
+          <name>CRYPTO_MAX_BLOCK_SIZE</name>
+          <initializer>= 16</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Values obtained from EVP_CIPHER_*() API, but the constants are needed in some places at compilation time. </para>        </briefdescription>
+        <detaileddescription>
+<para>For example, for statically sized buffers. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/crypto/crypto.h" line="138" column="1" bodyfile="/home/tsafin/tarantool/src/lib/crypto/crypto.h" bodystart="138" bodyend="152"/>
+      </memberdef>
+      <memberdef kind="enum" id="crypto_8h_1ae82f63c6424f9f3db96ce9cfd8ba520d" prot="public" static="no">
+        <name>crypto_direction</name>
+        <enumvalue id="crypto_8h_1ae82f63c6424f9f3db96ce9cfd8ba520da59664e4f6f26160620d3d2b0ed9ef140" prot="public">
+          <name>CRYPTO_DIR_DECRYPT</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="crypto_8h_1ae82f63c6424f9f3db96ce9cfd8ba520da12b2536cb9d9b9bfb16bee8d7e6450b1" prot="public">
+          <name>CRYPTO_DIR_ENCRYPT</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>OpenSSL API provides generic methods to do both encryption and decryption depending on one &apos;int&apos; parameter passed into initialization function EVP_CipherInit_ex. </para>        </briefdescription>
+        <detaileddescription>
+<para>Here these constants are assigned to more readable names. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/crypto/crypto.h" line="160" column="1" bodyfile="/home/tsafin/tarantool/src/lib/crypto/crypto.h" bodystart="160" bodyend="163"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="crypto_8h_1a1665c7275bd95c5e473f821841e46bd7" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* crypto_algo_strs[]</definition>
+        <argsstring>[]</argsstring>
+        <name>crypto_algo_strs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/crypto/crypto.h" line="81" column="1" bodyfile="/home/tsafin/tarantool/src/lib/crypto/crypto.c" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="crypto_8h_1ab8ec8b8d44ee7241ccf52cd61c003496" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* crypto_mode_strs[]</definition>
+        <argsstring>[]</argsstring>
+        <name>crypto_mode_strs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/crypto/crypto.h" line="131" column="1" bodyfile="/home/tsafin/tarantool/src/lib/crypto/crypto.c" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="crypto_8h_1ad3f6ba5f739e6c4f744ea1267b675897" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structcrypto__stream" kindref="compound">crypto_stream</ref> *</type>
+        <definition>struct crypto_stream* crypto_stream_new</definition>
+        <argsstring>(enum crypto_algo algo, enum crypto_mode mode, enum crypto_direction dir)</argsstring>
+        <name>crypto_stream_new</name>
+        <param>
+          <type>enum crypto_algo</type>
+          <declname>algo</declname>
+        </param>
+        <param>
+          <type>enum crypto_mode</type>
+          <declname>mode</declname>
+        </param>
+        <param>
+          <type>enum crypto_direction</type>
+          <declname>dir</declname>
+        </param>
+        <briefdescription>
+<para>Crypto stream is an object allowing to encrypt/decrypt data packets with different public and secret keys step by step. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/crypto/crypto.h" line="172" column="1" bodyfile="/home/tsafin/tarantool/src/lib/crypto/crypto.c" bodystart="128" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="crypto_8h_1aaa576e8d0649a5119223ed9e07f480d5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int crypto_stream_begin</definition>
+        <argsstring>(struct crypto_stream *s, const char *key, int key_size, const char *iv, int iv_size)</argsstring>
+        <name>crypto_stream_begin</name>
+        <param>
+          <type>struct <ref refid="structcrypto__stream" kindref="compound">crypto_stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>key_size</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>iv</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>iv_size</declname>
+        </param>
+        <briefdescription>
+<para>Start a new data packet. </para>        </briefdescription>
+        <detaileddescription>
+<para><emphasis>key</emphasis> and <emphasis>iv</emphasis> are secret and public keys respectively. <parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Success. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error. Diag is set. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/crypto/crypto.h" line="182" column="1" bodyfile="/home/tsafin/tarantool/src/lib/crypto/crypto.c" bodystart="151" bodyend="173"/>
+      </memberdef>
+      <memberdef kind="function" id="crypto_8h_1a00595ffefae0c0a8bd5e2b141a8ee7b4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int crypto_stream_append</definition>
+        <argsstring>(struct crypto_stream *s, const char *in, int in_size, char *out, int out_size)</argsstring>
+        <name>crypto_stream_append</name>
+        <param>
+          <type>struct <ref refid="structcrypto__stream" kindref="compound">crypto_stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>in</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>in_size</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>out_size</declname>
+        </param>
+        <briefdescription>
+<para>Encrypt/decrypt next part of the current data packet. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error. Diag is set. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of written bytes. If &gt; <emphasis>out_size</emphasis> then nothing is written, needed number of bytes is returned. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/crypto/crypto.h" line="192" column="1" bodyfile="/home/tsafin/tarantool/src/lib/crypto/crypto.c" bodystart="176" bodyend="187"/>
+      </memberdef>
+      <memberdef kind="function" id="crypto_8h_1a3268fdbedaa9570d056bf1c07ada6e95" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int crypto_stream_commit</definition>
+        <argsstring>(struct crypto_stream *s, char *out, int out_size)</argsstring>
+        <name>crypto_stream_commit</name>
+        <param>
+          <type>struct <ref refid="structcrypto__stream" kindref="compound">crypto_stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>out_size</declname>
+        </param>
+        <briefdescription>
+<para>Finalize the current data packet. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note, a margin can be added to the result. <parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error. Diag is set. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of written bytes. If &gt; <emphasis>out_size</emphasis> then nothing is written, needed number of bytes is returned. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/crypto/crypto.h" line="203" column="1" bodyfile="/home/tsafin/tarantool/src/lib/crypto/crypto.c" bodystart="190" bodyend="201"/>
+      </memberdef>
+      <memberdef kind="function" id="crypto_8h_1a4229d9da45e12a186d73c9759237a9bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void crypto_stream_delete</definition>
+        <argsstring>(struct crypto_stream *s)</argsstring>
+        <name>crypto_stream_delete</name>
+        <param>
+          <type>struct <ref refid="structcrypto__stream" kindref="compound">crypto_stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Delete a stream, free its memory. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/crypto/crypto.h" line="207" column="1" bodyfile="/home/tsafin/tarantool/src/lib/crypto/crypto.c" bodystart="204" bodyend="208"/>
+      </memberdef>
+      <memberdef kind="function" id="crypto_8h_1acad4868c2be5436f74b09a1c3d9d6c6e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structcrypto__codec" kindref="compound">crypto_codec</ref> *</type>
+        <definition>struct crypto_codec* crypto_codec_new</definition>
+        <argsstring>(enum crypto_algo algo, enum crypto_mode mode, const char *key, int key_size)</argsstring>
+        <name>crypto_codec_new</name>
+        <param>
+          <type>enum crypto_algo</type>
+          <declname>algo</declname>
+        </param>
+        <param>
+          <type>enum crypto_mode</type>
+          <declname>mode</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>key_size</declname>
+        </param>
+        <briefdescription>
+<para>Create a new codec working with a specified <emphasis>algo</emphasis> algorithm in <emphasis>mode</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is remarkable that both algorithm and mode strongly affect secrecy and efficiency. Codec is similar to stream, but provides shorter and simpler API, and can both decrypt and encrypt without recreation. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/crypto/crypto.h" line="219" column="1" bodyfile="/home/tsafin/tarantool/src/lib/crypto/crypto.c" bodystart="227" bodyend="253"/>
+      </memberdef>
+      <memberdef kind="function" id="crypto_8h_1a7734ea3c24c752e9630743145b415e96" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int crypto_codec_gen_iv</definition>
+        <argsstring>(struct crypto_codec *c, char *out, int out_size)</argsstring>
+        <name>crypto_codec_gen_iv</name>
+        <param>
+          <type>struct <ref refid="structcrypto__codec" kindref="compound">crypto_codec</ref> *</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>out_size</declname>
+        </param>
+        <briefdescription>
+<para>Generate a new initial vector, dump it into <emphasis>out</emphasis> buffer and return number of written (or wanted to be written) bytes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/crypto/crypto.h" line="227" column="1" bodyfile="/home/tsafin/tarantool/src/lib/crypto/crypto.c" bodystart="256" bodyend="262"/>
+      </memberdef>
+      <memberdef kind="function" id="crypto_8h_1afbbd0408f1838f6f923a56a380ee6441" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int crypto_codec_iv_size</definition>
+        <argsstring>(const struct crypto_codec *c)</argsstring>
+        <name>crypto_codec_iv_size</name>
+        <param>
+          <type>const struct <ref refid="structcrypto__codec" kindref="compound">crypto_codec</ref> *</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Initial vector size. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is a constant depending on an algorithm and mode. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/crypto/crypto.h" line="234" column="1" bodyfile="/home/tsafin/tarantool/src/lib/crypto/crypto.c" bodystart="265" bodyend="268"/>
+      </memberdef>
+      <memberdef kind="function" id="crypto_8h_1a9ce0c53f82cab80421ab5ccf809d70a8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int crypto_codec_encrypt</definition>
+        <argsstring>(struct crypto_codec *c, const char *iv, const char *in, int in_size, char *out, int out_size)</argsstring>
+        <name>crypto_codec_encrypt</name>
+        <param>
+          <type>struct <ref refid="structcrypto__codec" kindref="compound">crypto_codec</ref> *</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>iv</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>in</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>in_size</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>out_size</declname>
+        </param>
+        <briefdescription>
+<para>Encrypt plain data by codec <emphasis>c</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>c</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Codec. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>iv</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial vector. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Plain input data. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte size of <emphasis>in</emphasis>. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte size of <emphasis>out</emphasis>.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error. Diag is set. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of written bytes. If &gt; <emphasis>out_size</emphasis> then nothing is written, needed number of bytes is returned. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/crypto/crypto.h" line="250" column="1" bodyfile="/home/tsafin/tarantool/src/lib/crypto/crypto.c" bodystart="304" bodyend="309"/>
+      </memberdef>
+      <memberdef kind="function" id="crypto_8h_1aa22745ae2870f731e5c524afe789de3b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int crypto_codec_decrypt</definition>
+        <argsstring>(struct crypto_codec *c, const char *iv, const char *in, int in_size, char *out, int out_size)</argsstring>
+        <name>crypto_codec_decrypt</name>
+        <param>
+          <type>struct <ref refid="structcrypto__codec" kindref="compound">crypto_codec</ref> *</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>iv</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>in</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>in_size</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>out_size</declname>
+        </param>
+        <briefdescription>
+<para>Decrypt cipher by codec <emphasis>c</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>c</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Codec. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>iv</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial vector used to encode <emphasis>in</emphasis>. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cipher to decode. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte size of <emphasis>in</emphasis>. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte size of <emphasis>out</emphasis>.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error. Diag is set. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of written bytes. If &gt; <emphasis>out_size</emphasis> then nothing is written, needed number of bytes is returned. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/crypto/crypto.h" line="267" column="1" bodyfile="/home/tsafin/tarantool/src/lib/crypto/crypto.c" bodystart="312" bodyend="317"/>
+      </memberdef>
+      <memberdef kind="function" id="crypto_8h_1aac3597e5113ea70d96f2e775fe52e935" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void crypto_codec_delete</definition>
+        <argsstring>(struct crypto_codec *c)</argsstring>
+        <name>crypto_codec_delete</name>
+        <param>
+          <type>struct <ref refid="structcrypto__codec" kindref="compound">crypto_codec</ref> *</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Delete a codec, free its memory. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/crypto/crypto.h" line="272" column="1" bodyfile="/home/tsafin/tarantool/src/lib/crypto/crypto.c" bodystart="320" bodyend="324"/>
+      </memberdef>
+      <memberdef kind="function" id="crypto_8h_1a2ca66594182ad6110b531bee690b1c56" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void crypto_init</definition>
+        <argsstring>(void)</argsstring>
+        <name>crypto_init</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/crypto/crypto.h" line="275" column="1" bodyfile="/home/tsafin/tarantool/src/lib/crypto/crypto.c" bodystart="327" bodyend="337"/>
+      </memberdef>
+      <memberdef kind="function" id="crypto_8h_1aae2e9b22c0eccbdb50301c333b403ed4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void crypto_free</definition>
+        <argsstring>(void)</argsstring>
+        <name>crypto_free</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/crypto/crypto.h" line="278" column="1" bodyfile="/home/tsafin/tarantool/src/lib/crypto/crypto.c" bodystart="340" bodyend="345"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LIB_CRYPTO_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LIB_CRYPTO_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2019,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>crypto_algo<sp/>{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_ALGO_NONE,</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_ALGO_AES128,</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_ALGO_AES192,</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_ALGO_AES256,</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_ALGO_DES,</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>crypto_algo_MAX,</highlight></codeline>
+<codeline lineno="79"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*crypto_algo_strs[];</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>crypto_mode<sp/>{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_MODE_ECB,</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_MODE_CBC,</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_MODE_CFB,</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_MODE_OFB,</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>crypto_mode_MAX,</highlight></codeline>
+<codeline lineno="129"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*crypto_mode_strs[];</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_AES_BLOCK_SIZE<sp/>=<sp/>16,</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_AES_IV_SIZE<sp/>=<sp/>16,</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_AES128_KEY_SIZE<sp/>=<sp/>16,</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_AES192_KEY_SIZE<sp/>=<sp/>24,</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_AES256_KEY_SIZE<sp/>=<sp/>32,</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_DES_BLOCK_SIZE<sp/>=<sp/>8,</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_DES_IV_SIZE<sp/>=<sp/>8,</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_DES_KEY_SIZE<sp/>=<sp/>8,</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_MAX_KEY_SIZE<sp/>=<sp/>32,</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_MAX_IV_SIZE<sp/>=<sp/>16,</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_MAX_BLOCK_SIZE<sp/>=<sp/>16,</highlight></codeline>
+<codeline lineno="152"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>crypto_direction<sp/>{</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_DIR_DECRYPT<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CRYPTO_DIR_ENCRYPT<sp/>=<sp/>1,</highlight></codeline>
+<codeline lineno="163"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcrypto__stream" kindref="compound">crypto_stream</ref>;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcrypto__stream" kindref="compound">crypto_stream</ref><sp/>*</highlight></codeline>
+<codeline lineno="172"><highlight class="normal">crypto_stream_new(</highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>crypto_algo<sp/>algo,<sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>crypto_mode<sp/>mode,</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>crypto_direction<sp/><ref refid="structcrypto__stream_1aece5d06071894b607e18bb1669886d06" kindref="member">dir</ref>);</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal">crypto_stream_begin(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcrypto__stream" kindref="compound">crypto_stream</ref><sp/>*s,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*key,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>key_size,</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*iv,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>iv_size);</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal">crypto_stream_append(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcrypto__stream" kindref="compound">crypto_stream</ref><sp/>*s,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*in,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>in_size,</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*out,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>out_size);</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal">crypto_stream_commit(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcrypto__stream" kindref="compound">crypto_stream</ref><sp/>*s,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*out,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>out_size);</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal">crypto_stream_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcrypto__stream" kindref="compound">crypto_stream</ref><sp/>*s);</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcrypto__codec" kindref="compound">crypto_codec</ref>;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcrypto__codec" kindref="compound">crypto_codec</ref><sp/>*</highlight></codeline>
+<codeline lineno="219"><highlight class="normal">crypto_codec_new(</highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>crypto_algo<sp/>algo,<sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>crypto_mode<sp/>mode,</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structcrypto__codec_1aaaaa72405a56335eaa697d6e34cd261e" kindref="member">key</ref>,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>key_size);</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal">crypto_codec_gen_iv(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcrypto__codec" kindref="compound">crypto_codec</ref><sp/>*c,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*out,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>out_size);</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight></codeline>
+<codeline lineno="233"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="normal">crypto_codec_iv_size(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcrypto__codec" kindref="compound">crypto_codec</ref><sp/>*c);</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="249"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="250"><highlight class="normal">crypto_codec_encrypt(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcrypto__codec" kindref="compound">crypto_codec</ref><sp/>*c,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*iv,</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*in,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>in_size,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*out,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>out_size);</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="267"><highlight class="normal">crypto_codec_decrypt(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcrypto__codec" kindref="compound">crypto_codec</ref><sp/>*c,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*iv,</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*in,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>in_size,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*out,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>out_size);</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal">crypto_codec_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcrypto__codec" kindref="compound">crypto_codec</ref><sp/>*c);</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight></codeline>
+<codeline lineno="274"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="275"><highlight class="normal">crypto_init(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"></highlight></codeline>
+<codeline lineno="277"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="278"><highlight class="normal">crypto_free(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"></highlight></codeline>
+<codeline lineno="280"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="281"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="283"><highlight class="normal"></highlight></codeline>
+<codeline lineno="284"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_LIB_CRYPTO_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/crypto/crypto.h"/>
+  </compounddef>
+</doxygen>

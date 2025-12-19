@@ -1,0 +1,185 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structtuple__field" kind="struct" language="C++" prot="public">
+    <compoundname>tuple_field</compoundname>
+    <includes local="no">tuple_format.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structtuple__field_1a9249b6f09450f0968296e3096b2056bf" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t tuple_field::id</definition>
+        <argsstring></argsstring>
+        <name>id</name>
+        <briefdescription>
+<para>Unique field identifier. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="105" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="105" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__field_1a233f11265923511aaa133ea290cf4c8a" prot="public" static="no" mutable="no">
+        <type>enum field_type</type>
+        <definition>enum field_type tuple_field::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <briefdescription>
+<para>Field type of an indexed field. </para>        </briefdescription>
+        <detaileddescription>
+<para>If a field participates in at least one of space indexes then its type is stored in this member. If a field does not participate in an index then UNKNOWN is stored for it. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="105" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__field_1aa0e0c0dd1add9c44572b7363f1c6ac36" prot="public" static="no" mutable="no">
+        <type>int32_t</type>
+        <definition>int32_t tuple_field::offset_slot</definition>
+        <argsstring></argsstring>
+        <name>offset_slot</name>
+        <briefdescription>
+<para>Offset slot in field map in tuple. </para>        </briefdescription>
+        <detaileddescription>
+<para>Normally tuple stores field map - offsets of all fields participating in indexes. This allows quick access to most used fields without parsing entire mspack. This member stores position in the field map of tuple for current field. If the field does not participate in indexes then it has no offset in field map and INT_MAX is stored in this member. Due to specific field map in tuple (it is stored before tuple), the positions in field map is negative. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="126" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__field_1a799632839ecf23fa0c130e8a22f04a4f" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tuple_field::is_key_part</definition>
+        <argsstring></argsstring>
+        <name>is_key_part</name>
+        <briefdescription>
+<para>True if this field is used by an index. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="128" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="128" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__field_1a53bc33387440fcef298c5a63bb352e3b" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool tuple_field::is_multikey_part</definition>
+        <argsstring></argsstring>
+        <name>is_multikey_part</name>
+        <briefdescription>
+<para>True if this field is used by multikey index. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="130" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="130" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__field_1a2ede3bab75ad80d56eb541d98de2b772" prot="public" static="no" mutable="no">
+        <type>enum on_conflict_action</type>
+        <definition>enum on_conflict_action tuple_field::nullable_action</definition>
+        <argsstring></argsstring>
+        <name>nullable_action</name>
+        <briefdescription>
+<para>Action to perform if NULL constraint failed. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="130" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="132" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__field_1ae02b4208c449b202a83459561beed8f7" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcoll" kindref="compound">coll</ref> *</type>
+        <definition>struct coll* tuple_field::coll</definition>
+        <argsstring></argsstring>
+        <name>coll</name>
+        <briefdescription>
+<para>Collation definition for string comparison. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="134" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="134" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__field_1afa2ab385c4a555b9a350b9914149af45" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t tuple_field::coll_id</definition>
+        <argsstring></argsstring>
+        <name>coll_id</name>
+        <briefdescription>
+<para>Collation identifier. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="136" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="136" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__field_1a47caebd97a752df43428931e714de7b8" prot="public" static="no" mutable="no">
+        <type>void *</type>
+        <definition>void* tuple_field::multikey_required_fields</definition>
+        <argsstring></argsstring>
+        <name>multikey_required_fields</name>
+        <briefdescription>
+<para>Bitmap of fields that must be present in a tuple conforming to the multikey subtree. </para>        </briefdescription>
+        <detaileddescription>
+<para>Not NULL only when <ref refid="structtuple__field" kindref="compound">tuple_field</ref>:token.type == JSON_TOKEN_ANY. Indexed by <ref refid="structtuple__field_1a9249b6f09450f0968296e3096b2056bf" kindref="member">tuple_field::id</ref>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="143" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="143" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structtuple__field_1a154dd51c3662e8db95700916f1ef67fa" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structjson__token" kindref="compound">json_token</ref></type>
+        <definition>struct json_token tuple_field::token</definition>
+        <argsstring></argsstring>
+        <name>token</name>
+        <briefdescription>
+<para>Link in <ref refid="structtuple__format_1a9698cbe70035de243417a8f1404c5616" kindref="member">tuple_format::fields</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="143" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="145" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Tuple field meta information for <ref refid="structtuple__format" kindref="compound">tuple_format</ref>. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="11004">
+        <label>json_token</label>
+        <link refid="structjson__token"/>
+        <childnode refid="11004" relation="usage">
+          <edgelabel>parent</edgelabel>
+          <edgelabel>children</edgelabel>
+        </childnode>
+      </node>
+      <node id="11003">
+        <label>tuple_field</label>
+        <link refid="structtuple__field"/>
+        <childnode refid="11004" relation="usage">
+          <edgelabel>token</edgelabel>
+        </childnode>
+        <childnode refid="11005" relation="usage">
+          <edgelabel>coll</edgelabel>
+        </childnode>
+      </node>
+      <node id="11005">
+        <label>coll</label>
+        <link refid="structcoll"/>
+        <childnode refid="11005" relation="usage">
+          <edgelabel>cmp</edgelabel>
+          <edgelabel>hint</edgelabel>
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/tuple_format.h" line="103" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_format.h" bodystart="103" bodyend="146"/>
+    <listofallmembers>
+      <member refid="structtuple__field_1ae02b4208c449b202a83459561beed8f7" prot="public" virt="non-virtual"><scope>tuple_field</scope><name>coll</name></member>
+      <member refid="structtuple__field_1afa2ab385c4a555b9a350b9914149af45" prot="public" virt="non-virtual"><scope>tuple_field</scope><name>coll_id</name></member>
+      <member refid="structtuple__field_1a9249b6f09450f0968296e3096b2056bf" prot="public" virt="non-virtual"><scope>tuple_field</scope><name>id</name></member>
+      <member refid="structtuple__field_1a799632839ecf23fa0c130e8a22f04a4f" prot="public" virt="non-virtual"><scope>tuple_field</scope><name>is_key_part</name></member>
+      <member refid="structtuple__field_1a53bc33387440fcef298c5a63bb352e3b" prot="public" virt="non-virtual"><scope>tuple_field</scope><name>is_multikey_part</name></member>
+      <member refid="structtuple__field_1a47caebd97a752df43428931e714de7b8" prot="public" virt="non-virtual"><scope>tuple_field</scope><name>multikey_required_fields</name></member>
+      <member refid="structtuple__field_1a2ede3bab75ad80d56eb541d98de2b772" prot="public" virt="non-virtual"><scope>tuple_field</scope><name>nullable_action</name></member>
+      <member refid="structtuple__field_1aa0e0c0dd1add9c44572b7363f1c6ac36" prot="public" virt="non-virtual"><scope>tuple_field</scope><name>offset_slot</name></member>
+      <member refid="structtuple__field_1a154dd51c3662e8db95700916f1ef67fa" prot="public" virt="non-virtual"><scope>tuple_field</scope><name>token</name></member>
+      <member refid="structtuple__field_1a233f11265923511aaa133ea290cf4c8a" prot="public" virt="non-virtual"><scope>tuple_field</scope><name>type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

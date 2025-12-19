@@ -1,0 +1,391 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="journal_8h" kind="file" language="C++">
+    <compoundname>journal.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes refid="stailq_8h" local="yes">salad/stailq.h</includes>
+    <includes local="yes">fiber.h</includes>
+    <includedby refid="wal_8h" local="yes">/home/tsafin/tarantool/src/box/wal.h</includedby>
+    <includedby refid="applier_8cc" local="yes">/home/tsafin/tarantool/src/box/applier.cc</includedby>
+    <includedby refid="journal_8c" local="yes">/home/tsafin/tarantool/src/box/journal.c</includedby>
+    <includedby refid="raft_8c" local="yes">/home/tsafin/tarantool/src/box/raft.c</includedby>
+    <includedby refid="txn_8c" local="yes">/home/tsafin/tarantool/src/box/txn.c</includedby>
+    <includedby refid="txn__limbo_8c" local="yes">/home/tsafin/tarantool/src/box/txn_limbo.c</includedby>
+    <incdepgraph>
+      <node id="337">
+        <label>stdbool.h</label>
+      </node>
+      <node id="336">
+        <label>stdint.h</label>
+      </node>
+      <node id="335">
+        <label>/home/tsafin/tarantool/src/box/journal.h</label>
+        <link refid="journal_8h"/>
+        <childnode refid="336" relation="include">
+        </childnode>
+        <childnode refid="337" relation="include">
+        </childnode>
+        <childnode refid="338" relation="include">
+        </childnode>
+      </node>
+      <node id="338">
+        <label>fiber.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structjournal__entry" prot="public">journal_entry</innerclass>
+    <innerclass refid="structjournal" prot="public">journal</innerclass>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="journal_8h_1ae6ee968a98f9e1a2dd291884c79562f5" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* journal_write_async_f) (struct journal_entry *entry)</definition>
+        <argsstring>)(struct journal_entry *entry)</argsstring>
+        <name>journal_write_async_f</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/journal.h" line="45" column="1" bodyfile="/home/tsafin/tarantool/src/box/journal.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="journal_8h_1aa523d2d21f012ecd1ff65b164dd9b367" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structjournal" kindref="compound">journal</ref> *</type>
+        <definition>struct journal* current_journal</definition>
+        <argsstring></argsstring>
+        <name>current_journal</name>
+        <briefdescription>
+<para>Depending on the step of recovery and instance configuration points at a concrete implementation of the journal. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/journal.h" line="141" column="1" bodyfile="/home/tsafin/tarantool/src/box/journal.c" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="journal_8h_1a885a701641169ca72fbd1f5958fbc86e" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void journal_entry_create</definition>
+        <argsstring>(struct journal_entry *entry, size_t n_rows, size_t approx_len, journal_write_async_f write_async_cb, void *complete_data)</argsstring>
+        <name>journal_entry_create</name>
+        <param>
+          <type>struct <ref refid="structjournal__entry" kindref="compound">journal_entry</ref> *</type>
+          <declname>entry</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n_rows</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>approx_len</declname>
+        </param>
+        <param>
+          <type>journal_write_async_f</type>
+          <declname>write_async_cb</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>complete_data</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a new journal entry. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/journal.h" line="90" column="1" bodyfile="/home/tsafin/tarantool/src/box/journal.h" bodystart="90" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="journal_8h_1ac2dcd685d52ba0baee8871aaf7f5089d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structjournal__entry" kindref="compound">journal_entry</ref> *</type>
+        <definition>struct journal_entry* journal_entry_new</definition>
+        <argsstring>(size_t n_rows, struct region *region, journal_write_async_f write_async_cb, void *complete_data)</argsstring>
+        <name>journal_entry_new</name>
+        <param>
+          <type>size_t</type>
+          <declname>n_rows</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structregion" kindref="compound">region</ref> *</type>
+          <declname>region</declname>
+        </param>
+        <param>
+          <type>journal_write_async_f</type>
+          <declname>write_async_cb</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>complete_data</declname>
+        </param>
+        <briefdescription>
+<para>Create a new journal entry. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>NULL if out of memory, fiber diagnostics area is set </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/journal.h" line="108" column="1" bodyfile="/home/tsafin/tarantool/src/box/journal.c" bodystart="38" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="journal_8h_1a6130dc0ebea659fbd2cceeded23a72d1" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void journal_async_complete</definition>
+        <argsstring>(struct journal_entry *entry)</argsstring>
+        <name>journal_async_complete</name>
+        <param>
+          <type>struct <ref refid="structjournal__entry" kindref="compound">journal_entry</ref> *</type>
+          <declname>entry</declname>
+        </param>
+        <briefdescription>
+<para>Complete asynchronous write. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/journal.h" line="131" column="1" bodyfile="/home/tsafin/tarantool/src/box/journal.h" bodystart="131" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="journal_8h_1ab5ddd81d11f9e4b79b216b767b55d704" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int journal_write</definition>
+        <argsstring>(struct journal_entry *entry)</argsstring>
+        <name>journal_write</name>
+        <param>
+          <type>struct <ref refid="structjournal__entry" kindref="compound">journal_entry</ref> *</type>
+          <declname>entry</declname>
+        </param>
+        <briefdescription>
+<para>Write a single entry to the journal in synchronous way. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>0 if write was processed by a backend or -1 in case of an error. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/journal.h" line="149" column="1" bodyfile="/home/tsafin/tarantool/src/box/journal.h" bodystart="149" bodyend="152"/>
+      </memberdef>
+      <memberdef kind="function" id="journal_8h_1acb347e9292f30b8d295a564cdfd12fdf" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int journal_write_async</definition>
+        <argsstring>(struct journal_entry *entry)</argsstring>
+        <name>journal_write_async</name>
+        <param>
+          <type>struct <ref refid="structjournal__entry" kindref="compound">journal_entry</ref> *</type>
+          <declname>entry</declname>
+        </param>
+        <briefdescription>
+<para>Queue a single entry to the journal in asynchronous way. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>0 if write was queued to a backend or -1 in case of an error. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/journal.h" line="160" column="1" bodyfile="/home/tsafin/tarantool/src/box/journal.h" bodystart="160" bodyend="163"/>
+      </memberdef>
+      <memberdef kind="function" id="journal_8h_1ace69f4e2d55588ec12e467f0f88cee5f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void journal_set</definition>
+        <argsstring>(struct journal *new_journal)</argsstring>
+        <name>journal_set</name>
+        <param>
+          <type>struct <ref refid="structjournal" kindref="compound">journal</ref> *</type>
+          <declname>new_journal</declname>
+        </param>
+        <briefdescription>
+<para>Change the current implementation of the journaling API. </para>        </briefdescription>
+        <detaileddescription>
+<para>Happens during life cycle of an instance:</para><para><orderedlist>
+<listitem><para>When recovering a snapshot, the log sequence numbers don&apos;t matter and are not used, transactions can be recovered in any order. A stub API simply returns 0 for every write request.</para></listitem><listitem><para>When recovering from the local write ahead log, the LSN of each entry is already known. In this case, the journal API should simply return the existing log sequence numbers of records and do nothing else.</para></listitem></orderedlist>
+<orderedlist>
+<listitem><para>After recovery, in wal_mode = NONE, the implementation fakes a WAL by using a simple counter to provide log sequence numbers.</para></listitem><listitem><para>If the write ahead log is on, the WAL thread is issuing the log sequence numbers. </para></listitem></orderedlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/journal.h" line="187" column="1" bodyfile="/home/tsafin/tarantool/src/box/journal.h" bodystart="187" bodyend="190"/>
+      </memberdef>
+      <memberdef kind="function" id="journal_8h_1a9103a0321aa23184cc8879fb4167b27a" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void journal_create</definition>
+        <argsstring>(struct journal *journal, int(*write_async)(struct journal *journal, struct journal_entry *entry), int(*write)(struct journal *journal, struct journal_entry *entry))</argsstring>
+        <name>journal_create</name>
+        <param>
+          <type>struct <ref refid="structjournal" kindref="compound">journal</ref> *</type>
+          <declname>journal</declname>
+        </param>
+        <param>
+          <type>int(*)(struct <ref refid="structjournal" kindref="compound">journal</ref> *<ref refid="structjournal" kindref="compound">journal</ref>, struct <ref refid="structjournal__entry" kindref="compound">journal_entry</ref> *entry)</type>
+          <declname>write_async</declname>
+        </param>
+        <param>
+          <type>int(*)(struct <ref refid="structjournal" kindref="compound">journal</ref> *<ref refid="structjournal" kindref="compound">journal</ref>, struct <ref refid="structjournal__entry" kindref="compound">journal_entry</ref> *entry)</type>
+          <declname>write</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/journal.h" line="193" column="1" bodyfile="/home/tsafin/tarantool/src/box/journal.h" bodystart="193" bodyend="201"/>
+      </memberdef>
+      <memberdef kind="function" id="journal_8h_1acb3b5f54239884dee3357eb5ae8c981d" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool journal_is_initialized</definition>
+        <argsstring>(struct journal *journal)</argsstring>
+        <name>journal_is_initialized</name>
+        <param>
+          <type>struct <ref refid="structjournal" kindref="compound">journal</ref> *</type>
+          <declname>journal</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/journal.h" line="204" column="1" bodyfile="/home/tsafin/tarantool/src/box/journal.h" bodystart="204" bodyend="207"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_JOURNAL_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_JOURNAL_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2017,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;salad/stailq.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;fiber.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__header" kindref="compound">xrow_header</ref>;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjournal__entry" kindref="compound">journal_entry</ref>;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*journal_write_async_f)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjournal__entry" kindref="compound">journal_entry</ref><sp/>*entry);</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="structjournal__entry" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjournal__entry" kindref="compound">journal_entry</ref><sp/>{</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>fifo;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structjournal__entry_1ad46b075e2e0fd64a9762560769c64a0e" kindref="member">res</ref>;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structjournal__entry_1a6fab96ea8ba7243b58a2a5afacab551b" kindref="member">complete_data</ref>;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>journal_write_async_f<sp/><ref refid="structjournal__entry_1adff94ba75ab69f9d08e98acd27678942" kindref="member">write_async_cb</ref>;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structjournal__entry_1a433b18e9497a9b42d9253429e142fe96" kindref="member">approx_len</ref>;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structjournal__entry_1ac7aff54a1e5aecb3bb721070851513e8" kindref="member">n_rows</ref>;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxrow__header" kindref="compound">xrow_header</ref><sp/>*<ref refid="structjournal__entry_1a49d4f3067184c4b8ad78bad64d32118a" kindref="member">rows</ref>[];</highlight></codeline>
+<codeline lineno="82"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structregion" kindref="compound">region</ref>;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal">journal_entry_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjournal__entry" kindref="compound">journal_entry</ref><sp/>*entry,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structjournal__entry_1ac7aff54a1e5aecb3bb721070851513e8" kindref="member">n_rows</ref>,</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structjournal__entry_1a433b18e9497a9b42d9253429e142fe96" kindref="member">approx_len</ref>,</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>journal_write_async_f<sp/><ref refid="structjournal__entry_1adff94ba75ab69f9d08e98acd27678942" kindref="member">write_async_cb</ref>,</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structjournal__entry_1a6fab96ea8ba7243b58a2a5afacab551b" kindref="member">complete_data</ref>)</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>entry-&gt;<ref refid="structjournal__entry_1adff94ba75ab69f9d08e98acd27678942" kindref="member">write_async_cb</ref><sp/><sp/><sp/>=<sp/><ref refid="structjournal__entry_1adff94ba75ab69f9d08e98acd27678942" kindref="member">write_async_cb</ref>;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>entry-&gt;<ref refid="structjournal__entry_1a6fab96ea8ba7243b58a2a5afacab551b" kindref="member">complete_data</ref><sp/><sp/><sp/><sp/>=<sp/><ref refid="structjournal__entry_1a6fab96ea8ba7243b58a2a5afacab551b" kindref="member">complete_data</ref>;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>entry-&gt;<ref refid="structjournal__entry_1a433b18e9497a9b42d9253429e142fe96" kindref="member">approx_len</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="structjournal__entry_1a433b18e9497a9b42d9253429e142fe96" kindref="member">approx_len</ref>;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>entry-&gt;<ref refid="structjournal__entry_1ac7aff54a1e5aecb3bb721070851513e8" kindref="member">n_rows</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="structjournal__entry_1ac7aff54a1e5aecb3bb721070851513e8" kindref="member">n_rows</ref>;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>entry-&gt;<ref refid="structjournal__entry_1ad46b075e2e0fd64a9762560769c64a0e" kindref="member">res</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>-1;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjournal__entry" kindref="compound">journal_entry</ref><sp/>*</highlight></codeline>
+<codeline lineno="108"><highlight class="normal">journal_entry_new(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n_rows,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structregion" kindref="compound">region</ref><sp/>*<ref refid="structregion" kindref="compound">region</ref>,</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>journal_write_async_f<sp/>write_async_cb,</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*complete_data);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117" refid="structjournal" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjournal" kindref="compound">journal</ref><sp/>{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>(*write_async)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjournal" kindref="compound">journal</ref><sp/>*<ref refid="structjournal" kindref="compound">journal</ref>,</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjournal__entry" kindref="compound">journal_entry</ref><sp/>*entry);</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int<sp/>(*write)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">journal<sp/>*journal,</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjournal__entry" kindref="compound">journal_entry</ref><sp/>*entry);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal">journal_async_complete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjournal__entry" kindref="compound">journal_entry</ref><sp/>*entry)</highlight></codeline>
+<codeline lineno="132"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(entry-&gt;<ref refid="structjournal__entry_1adff94ba75ab69f9d08e98acd27678942" kindref="member">write_async_cb</ref><sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>entry-&gt;<ref refid="structjournal__entry_1adff94ba75ab69f9d08e98acd27678942" kindref="member">write_async_cb</ref>(entry);</highlight></codeline>
+<codeline lineno="135"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structjournal" kindref="compound">journal</ref><sp/>*current_journal;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal">journal_write(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjournal__entry" kindref="compound">journal_entry</ref><sp/>*entry)</highlight></codeline>
+<codeline lineno="150"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>current_journal-&gt;<ref refid="structjournal_1a9b484600553b73106f3618f87734856d" kindref="member">write</ref>(current_journal,<sp/>entry);</highlight></codeline>
+<codeline lineno="152"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal">journal_write_async(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjournal__entry" kindref="compound">journal_entry</ref><sp/>*entry)</highlight></codeline>
+<codeline lineno="161"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>current_journal-&gt;<ref refid="structjournal_1a8d1d6e34570a5829935aac3db222946e" kindref="member">write_async</ref>(current_journal,<sp/>entry);</highlight></codeline>
+<codeline lineno="163"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal">journal_set(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjournal" kindref="compound">journal</ref><sp/>*new_journal)</highlight></codeline>
+<codeline lineno="188"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>current_journal<sp/>=<sp/>new_journal;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal">journal_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjournal" kindref="compound">journal</ref><sp/>*<ref refid="structjournal" kindref="compound">journal</ref>,</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>(*<ref refid="structjournal_1a8d1d6e34570a5829935aac3db222946e" kindref="member">write_async</ref>)(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>journal<sp/>*journal,</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjournal__entry" kindref="compound">journal_entry</ref><sp/>*entry),</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>(*<ref refid="structjournal_1a9b484600553b73106f3618f87734856d" kindref="member">write</ref>)(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>journal<sp/>*journal,</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structjournal__entry" kindref="compound">journal_entry</ref><sp/>*entry))</highlight></codeline>
+<codeline lineno="198"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>journal-&gt;<ref refid="structjournal_1a8d1d6e34570a5829935aac3db222946e" kindref="member">write_async</ref><sp/><sp/><sp/><sp/>=<sp/><ref refid="structjournal_1a8d1d6e34570a5829935aac3db222946e" kindref="member">write_async</ref>;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>journal-&gt;<ref refid="structjournal_1a9b484600553b73106f3618f87734856d" kindref="member">write</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="structjournal_1a9b484600553b73106f3618f87734856d" kindref="member">write</ref>;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal">journal_is_initialized(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>journal<sp/>*journal)</highlight></codeline>
+<codeline lineno="205"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>journal-&gt;<ref refid="structjournal_1a9b484600553b73106f3618f87734856d" kindref="member">write</ref><sp/>!=<sp/>NULL;</highlight></codeline>
+<codeline lineno="207"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_JOURNAL_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/journal.h"/>
+  </compounddef>
+</doxygen>

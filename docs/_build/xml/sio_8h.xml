@@ -1,0 +1,838 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="sio_8h" kind="file" language="C++">
+    <compoundname>sio.h</compoundname>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">sys/types.h</includes>
+    <includes local="no">sys/socket.h</includes>
+    <includes local="no">netinet/in.h</includes>
+    <includes local="no">netdb.h</includes>
+    <includes local="no">fcntl.h</includes>
+    <includes local="no">tarantool_ev.h</includes>
+    <includes refid="errno_8h" local="no">errno.h</includes>
+    <includedby refid="iproto_8cc" local="yes">/home/tsafin/tarantool/src/box/iproto.cc</includedby>
+    <includedby refid="session_8c" local="no">/home/tsafin/tarantool/src/box/lua/session.c</includedby>
+    <includedby refid="replication_8cc" local="yes">/home/tsafin/tarantool/src/box/replication.cc</includedby>
+    <includedby refid="evio_8h" local="yes">/home/tsafin/tarantool/src/lib/core/evio.h</includedby>
+    <includedby refid="coio_8cc" local="yes">/home/tsafin/tarantool/src/lib/core/coio.cc</includedby>
+    <includedby refid="sio_8c" local="yes">/home/tsafin/tarantool/src/lib/core/sio.c</includedby>
+    <includedby refid="lib_2swim_2swim_8c" local="yes">/home/tsafin/tarantool/src/lib/swim/swim.c</includedby>
+    <includedby refid="swim__io_8c" local="yes">/home/tsafin/tarantool/src/lib/swim/swim_io.c</includedby>
+    <incdepgraph>
+      <node id="2074">
+        <label>stdbool.h</label>
+      </node>
+      <node id="2077">
+        <label>netinet/in.h</label>
+      </node>
+      <node id="2080">
+        <label>tarantool_ev.h</label>
+      </node>
+      <node id="2079">
+        <label>fcntl.h</label>
+      </node>
+      <node id="2073">
+        <label>/home/tsafin/tarantool/src/lib/core/sio.h</label>
+        <link refid="sio_8h"/>
+        <childnode refid="2074" relation="include">
+        </childnode>
+        <childnode refid="2075" relation="include">
+        </childnode>
+        <childnode refid="2076" relation="include">
+        </childnode>
+        <childnode refid="2077" relation="include">
+        </childnode>
+        <childnode refid="2078" relation="include">
+        </childnode>
+        <childnode refid="2079" relation="include">
+        </childnode>
+        <childnode refid="2080" relation="include">
+        </childnode>
+      </node>
+      <node id="2078">
+        <label>netdb.h</label>
+      </node>
+      <node id="2075">
+        <label>sys/types.h</label>
+      </node>
+      <node id="2076">
+        <label>sys/socket.h</label>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="sio_8h_1acb6f6fa3e73244ffcf5c366390b4a4ed" prot="public" static="no">
+        <name>@217</name>
+        <enumvalue id="sio_8h_1acb6f6fa3e73244ffcf5c366390b4a4edaa0ce7a285e944e805a898d5fe379420e" prot="public">
+          <name>SERVICE_NAME_MAXLEN</name>
+          <initializer>= 32</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>A thin wrapper around BSD sockets. </para>        </briefdescription>
+        <detaileddescription>
+<para>Sets the diagnostics area with a nicely formatted message for most errors (some intermittent errors such as EWOULDBLOCK, EINTR, EINPROGRESS, EAGAIN are an exception to this). The API is following suite of BSD socket API: most functinos -1 on error, 0 or a valid file descriptor on success. Exceptions to this rule, once again, are marked explicitly. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="55" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.h" bodystart="55" bodyend="55"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="sio_8h_1aa67b8add8a5c9556baffa18bd2a5a744" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool sio_wouldblock</definition>
+        <argsstring>(int err)</argsstring>
+        <name>sio_wouldblock</name>
+        <param>
+          <type>int</type>
+          <declname>err</declname>
+        </param>
+        <briefdescription>
+<para>Check if an errno, returned from a sio function, means a non-critical error: EAGAIN, EWOULDBLOCK, EINTR. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="62" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.h" bodystart="62" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="sio_8h_1ac9ed7ef792816c90a2ba022b85c2fea8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char* sio_strfaddr</definition>
+        <argsstring>(const struct sockaddr *addr, socklen_t addrlen)</argsstring>
+        <name>sio_strfaddr</name>
+        <param>
+          <type>const struct sockaddr *</type>
+          <declname>addr</declname>
+        </param>
+        <param>
+          <type>socklen_t</type>
+          <declname>addrlen</declname>
+        </param>
+        <briefdescription>
+<para>Format the address provided in struct sockaddr *addr. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns result in a static thread-local buffer. May garble errno. Used for error reporting. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="74" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.c" bodystart="315" bodyend="344"/>
+      </memberdef>
+      <memberdef kind="function" id="sio_8h_1a3af4e4a9944d6046a3b69e30fb84c2e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sio_getpeername</definition>
+        <argsstring>(int fd, struct sockaddr *addr, socklen_t *addrlen)</argsstring>
+        <name>sio_getpeername</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>struct sockaddr *</type>
+          <declname>addr</declname>
+        </param>
+        <param>
+          <type>socklen_t *</type>
+          <declname>addrlen</declname>
+        </param>
+        <briefdescription>
+<para>Return a filled in struct sockaddr provided the file descriptor. </para>        </briefdescription>
+        <detaileddescription>
+<para>May garble the errno.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">fd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a file descriptor; safe to hold any value, but don&apos;t expect meaningful results for -1</para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>output buffer </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">addrlen</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>buffer length </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="87" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.c" bodystart="295" bodyend="302"/>
+      </memberdef>
+      <memberdef kind="function" id="sio_8h_1a894dc17b09ca4337ca1775334294f866" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sio_getsockname</definition>
+        <argsstring>(int fd, struct sockaddr *addr, socklen_t *addrlen)</argsstring>
+        <name>sio_getsockname</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>struct sockaddr *</type>
+          <declname>addr</declname>
+        </param>
+        <param>
+          <type>socklen_t *</type>
+          <declname>addrlen</declname>
+        </param>
+        <briefdescription>
+<para>Fill <emphasis>addr</emphasis> with a real address currently bound to <emphasis>fd</emphasis> socket. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Socket. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>An address structure to fill. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+</parameternamelist>
+<parameterdescription>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="102" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.c" bodystart="305" bodyend="312"/>
+      </memberdef>
+      <memberdef kind="function" id="sio_8h_1a6c70f3dee10e5285383582686a56465f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int sio_move_iov</definition>
+        <argsstring>(struct iovec *iov, size_t nwr, size_t *iov_len)</argsstring>
+        <name>sio_move_iov</name>
+        <param>
+          <type>struct iovec *</type>
+          <declname>iov</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>nwr</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>iov_len</declname>
+        </param>
+        <briefdescription>
+<para>Advance write position in the iovec array based on its current value and the number of bytes written. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="in">iov</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the vector being written with writev(). </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="in">nwr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>number of bytes written, </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="pre"><para>&gt;= 0 </para></simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="inout">iov_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>offset in iov[0];</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>offset of iov[0] for the next write </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="116" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.h" bodystart="116" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="sio_8h_1ade8fed52b0b9f3921555f7127e1716b3" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void sio_add_to_iov</definition>
+        <argsstring>(struct iovec *iov, size_t size)</argsstring>
+        <name>sio_add_to_iov</name>
+        <param>
+          <type>struct iovec *</type>
+          <declname>iov</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Change values of iov-&gt;iov_len and iov-&gt;iov_base to adjust to a partial write. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="133" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.h" bodystart="133" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="sio_8h_1a7145db888598ae7ab135b0b3d3288ded" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char* sio_socketname</definition>
+        <argsstring>(int fd)</argsstring>
+        <name>sio_socketname</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <briefdescription>
+<para>Pretty print socket name and peer (for exceptions). </para>        </briefdescription>
+        <detaileddescription>
+<para>Preserves the errno. Returns a thread-local buffer. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="143" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.c" bodystart="50" bodyend="81"/>
+      </memberdef>
+      <memberdef kind="function" id="sio_8h_1a64924abdd21f998f9a51a0c9b82ece8c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sio_socket</definition>
+        <argsstring>(int domain, int type, int protocol)</argsstring>
+        <name>sio_socket</name>
+        <param>
+          <type>int</type>
+          <declname>domain</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>protocol</declname>
+        </param>
+        <briefdescription>
+<para>Create a TCP or AF_UNIX socket. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="146" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.c" bodystart="128" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="sio_8h_1af64368f86e3425b2f1fea1c3a80b5098" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sio_getfl</definition>
+        <argsstring>(int fd)</argsstring>
+        <name>sio_getfl</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <briefdescription>
+<para>Get socket flags. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="149" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.c" bodystart="140" bodyend="147"/>
+      </memberdef>
+      <memberdef kind="function" id="sio_8h_1adaf29895763be9f94089bb5e8d755182" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sio_setfl</definition>
+        <argsstring>(int fd, int flag, int on)</argsstring>
+        <name>sio_setfl</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flag</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>on</declname>
+        </param>
+        <briefdescription>
+<para>Set socket flags. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="152" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.c" bodystart="150" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="sio_8h_1af2c95b217e345b3f2c6ff1e86eeb92a9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sio_setsockopt</definition>
+        <argsstring>(int fd, int level, int optname, const void *optval, socklen_t optlen)</argsstring>
+        <name>sio_setsockopt</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>level</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>optname</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>optval</declname>
+        </param>
+        <param>
+          <type>socklen_t</type>
+          <declname>optlen</declname>
+        </param>
+        <briefdescription>
+<para>Set an option on a socket. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="156" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.c" bodystart="163" bodyend="172"/>
+      </memberdef>
+      <memberdef kind="function" id="sio_8h_1a222d0c846df5b456cb770c701736f657" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sio_getsockopt</definition>
+        <argsstring>(int fd, int level, int optname, void *optval, socklen_t *optlen)</argsstring>
+        <name>sio_getsockopt</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>level</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>optname</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>optval</declname>
+        </param>
+        <param>
+          <type>socklen_t *</type>
+          <declname>optlen</declname>
+        </param>
+        <briefdescription>
+<para>Get a socket option value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="161" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.c" bodystart="175" bodyend="184"/>
+      </memberdef>
+      <memberdef kind="function" id="sio_8h_1ae77fd1fd2b3dea487921ac36bf361920" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sio_connect</definition>
+        <argsstring>(int fd, struct sockaddr *addr, socklen_t addrlen)</argsstring>
+        <name>sio_connect</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>struct sockaddr *</type>
+          <declname>addr</declname>
+        </param>
+        <param>
+          <type>socklen_t</type>
+          <declname>addrlen</declname>
+        </param>
+        <briefdescription>
+<para>Connect a client socket to a server. </para>        </briefdescription>
+        <detaileddescription>
+<para>The diagnostics is not set in case of EINPROGRESS. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="168" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.c" bodystart="187" bodyend="196"/>
+      </memberdef>
+      <memberdef kind="function" id="sio_8h_1ad6a0ead80af1311a105e536813745e5a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sio_bind</definition>
+        <argsstring>(int fd, struct sockaddr *addr, socklen_t addrlen)</argsstring>
+        <name>sio_bind</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>struct sockaddr *</type>
+          <declname>addr</declname>
+        </param>
+        <param>
+          <type>socklen_t</type>
+          <declname>addrlen</declname>
+        </param>
+        <briefdescription>
+<para>Bind a socket to the given address. </para>        </briefdescription>
+        <detaileddescription>
+<para>The diagnostics is not set in case of EADDRINUSE. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="174" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.c" bodystart="199" bodyend="205"/>
+      </memberdef>
+      <memberdef kind="function" id="sio_8h_1aba978b2f26a429abf0b4f095971c56e2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sio_listen</definition>
+        <argsstring>(int fd)</argsstring>
+        <name>sio_listen</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <briefdescription>
+<para>Mark a socket as accepting connections. </para>        </briefdescription>
+        <detaileddescription>
+<para>The diagnostics is not set in case of EADDRINUSE. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="180" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.c" bodystart="208" bodyend="214"/>
+      </memberdef>
+      <memberdef kind="function" id="sio_8h_1a16223d1f8bb15d64d45331f430bdb33a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sio_accept</definition>
+        <argsstring>(int fd, struct sockaddr *addr, socklen_t *addrlen)</argsstring>
+        <name>sio_accept</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>struct sockaddr *</type>
+          <declname>addr</declname>
+        </param>
+        <param>
+          <type>socklen_t *</type>
+          <declname>addrlen</declname>
+        </param>
+        <briefdescription>
+<para>Accept a client connection on a server socket. </para>        </briefdescription>
+        <detaileddescription>
+<para>The diagnostics is not set for inprogress errors (<simplesect kind="see"><para>sio_wouldblock()) </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="187" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.c" bodystart="217" bodyend="224"/>
+      </memberdef>
+      <memberdef kind="function" id="sio_8h_1a238282b46916918b491b2764c319ee47" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t sio_read</definition>
+        <argsstring>(int fd, void *buf, size_t count)</argsstring>
+        <name>sio_read</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Read <emphasis>up to</emphasis> &apos;count&apos; bytes from a socket. </para>        </briefdescription>
+        <detaileddescription>
+<para>The diagnostics is not set for sio_wouldblock() errors. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="193" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.c" bodystart="227" bodyend="250"/>
+      </memberdef>
+      <memberdef kind="function" id="sio_8h_1a6671c48d43e91124f5c31988ff7eb3b1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t sio_write</definition>
+        <argsstring>(int fd, const void *buf, size_t count)</argsstring>
+        <name>sio_write</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Write up to &apos;count&apos; bytes to a socket. </para>        </briefdescription>
+        <detaileddescription>
+<para>The diagnostics is not set in case of sio_wouldblock() errors. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="199" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.c" bodystart="253" bodyend="260"/>
+      </memberdef>
+      <memberdef kind="function" id="sio_8h_1a378d9f76193afda0c81f721c2ddeb1f2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t sio_writev</definition>
+        <argsstring>(int fd, const struct iovec *iov, int iovcnt)</argsstring>
+        <name>sio_writev</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>const struct iovec *</type>
+          <declname>iov</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>iovcnt</declname>
+        </param>
+        <briefdescription>
+<para>Write to a socket with iovec. </para>        </briefdescription>
+        <detaileddescription>
+<para>The diagnostics is not set in case of sio_wouldblock() errors. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="205" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.c" bodystart="263" bodyend="270"/>
+      </memberdef>
+      <memberdef kind="function" id="sio_8h_1ac9d4fb17b3fe5c48bc8a4605824145e0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t sio_sendto</definition>
+        <argsstring>(int fd, const void *buf, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen)</argsstring>
+        <name>sio_sendto</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <param>
+          <type>const struct sockaddr *</type>
+          <declname>dest_addr</declname>
+        </param>
+        <param>
+          <type>socklen_t</type>
+          <declname>addrlen</declname>
+        </param>
+        <briefdescription>
+<para>Send a message on a socket. </para>        </briefdescription>
+        <detaileddescription>
+<para>The diagnostics is not set for sio_wouldblock() errors. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="211" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.c" bodystart="273" bodyend="281"/>
+      </memberdef>
+      <memberdef kind="function" id="sio_8h_1a3154973e853846656ecb72f2e7bb38b3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t sio_recvfrom</definition>
+        <argsstring>(int fd, void *buf, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen)</argsstring>
+        <name>sio_recvfrom</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <param>
+          <type>struct sockaddr *</type>
+          <declname>src_addr</declname>
+        </param>
+        <param>
+          <type>socklen_t *</type>
+          <declname>addrlen</declname>
+        </param>
+        <briefdescription>
+<para>Receive a message on a socket. </para>        </briefdescription>
+        <detaileddescription>
+<para>The diagnostics is not set for sio_wouldblock() errors. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="218" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.c" bodystart="284" bodyend="292"/>
+      </memberdef>
+      <memberdef kind="function" id="sio_8h_1adf61a7a01c12ccee5d20e308056310f7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int sio_uri_to_addr</definition>
+        <argsstring>(const char *uri, struct sockaddr *addr, bool *is_host_empty)</argsstring>
+        <name>sio_uri_to_addr</name>
+        <param>
+          <type>const char *</type>
+          <declname>uri</declname>
+        </param>
+        <param>
+          <type>struct sockaddr *</type>
+          <declname>addr</declname>
+        </param>
+        <param>
+          <type>bool *</type>
+          <declname>is_host_empty</declname>
+        </param>
+        <briefdescription>
+<para>Convert a string URI like &quot;ip:port&quot; or &quot;unix/:path&quot; to sockaddr_in/un structure. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/sio.h" line="226" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/sio.c" bodystart="347" bodyend="384"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LIB_CORE_SIO_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LIB_CORE_SIO_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight></codeline>
+<codeline lineno="42"><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sys/types.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sys/socket.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;netinet/in.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;netdb.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;fcntl.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;tarantool_ev.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;errno.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{<sp/>SERVICE_NAME_MAXLEN<sp/>=<sp/>32<sp/>};</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal">sio_wouldblock(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>err)</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>err<sp/>==<sp/>EAGAIN<sp/>||<sp/>err<sp/>==<sp/>EWOULDBLOCK<sp/>||<sp/>err<sp/>==<sp/>EINTR;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="74"><highlight class="normal">sio_strfaddr(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sockaddr<sp/>*addr,<sp/>socklen_t<sp/>addrlen);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal">sio_getpeername(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sockaddr<sp/>*addr,<sp/>socklen_t<sp/>*addrlen);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal">sio_getsockname(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sockaddr<sp/>*addr,<sp/>socklen_t<sp/>*addrlen);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal">sio_move_iov(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>iovec<sp/>*iov,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>nwr,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*iov_len)</highlight></codeline>
+<codeline lineno="117"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>nwr<sp/>+=<sp/>*iov_len;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">iovec<sp/>*begin<sp/>=<sp/>iov;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(nwr<sp/>&gt;<sp/>0<sp/>&amp;&amp;<sp/>nwr<sp/>&gt;=<sp/>iov-&gt;iov_len)<sp/>{</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>nwr<sp/>-=<sp/>iov-&gt;iov_len;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>iov++;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*iov_len<sp/>=<sp/>nwr;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>iov<sp/>-<sp/>begin;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal">sio_add_to_iov(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>iovec<sp/>*iov,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="134"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>iov-&gt;iov_len<sp/>+=<sp/>size;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>iov-&gt;iov_base<sp/>=<sp/>(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*)<sp/>iov-&gt;iov_base<sp/>-<sp/>size;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sio_socketname(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd);</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sio_socket(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>domain,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>type,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>protocol);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sio_getfl(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sio_setfl(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flag,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>on);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal">sio_setsockopt(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>level,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>optname,</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*optval,<sp/>socklen_t<sp/>optlen);</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal">sio_getsockopt(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>level,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>optname,</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*optval,<sp/>socklen_t<sp/>*optlen);</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sio_connect(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sockaddr<sp/>*addr,<sp/>socklen_t<sp/>addrlen);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sio_bind(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sockaddr<sp/>*addr,<sp/>socklen_t<sp/>addrlen);</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sio_listen(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd);</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>sio_accept(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sockaddr<sp/>*addr,<sp/>socklen_t<sp/>*addrlen);</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal">ssize_t<sp/>sio_read(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count);</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal">ssize_t<sp/>sio_write(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count);</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal">ssize_t<sp/>sio_writev(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>iovec<sp/>*iov,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>iovcnt);</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal">ssize_t<sp/>sio_sendto(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags,</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sockaddr<sp/>*dest_addr,<sp/>socklen_t<sp/>addrlen);</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal">ssize_t<sp/>sio_recvfrom(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags,</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sockaddr<sp/>*src_addr,<sp/>socklen_t<sp/>*addrlen);</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal">sio_uri_to_addr(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structuri" kindref="compound">uri</ref>,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>sockaddr<sp/>*addr,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>*is_host_empty);</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_LIB_CORE_SIO_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/core/sio.h"/>
+  </compounddef>
+</doxygen>

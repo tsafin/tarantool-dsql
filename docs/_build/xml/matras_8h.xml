@@ -1,0 +1,758 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="matras_8h" kind="file" language="C++">
+    <compoundname>matras.h</compoundname>
+    <includes local="no">assert.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="memtx__bitset_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_bitset.c</includedby>
+    <includedby refid="bps__tree_8h" local="yes">/home/tsafin/tarantool/src/lib/salad/bps_tree.h</includedby>
+    <includedby refid="light_8h" local="yes">/home/tsafin/tarantool/src/lib/salad/light.h</includedby>
+    <includedby refid="rtree_8h" local="yes">/home/tsafin/tarantool/src/lib/salad/rtree.h</includedby>
+    <includedby refid="matras_8c" local="yes">/home/tsafin/tarantool/src/lib/small/small/matras.c</includedby>
+    <includedby refid="matras_8cc" local="no">/home/tsafin/tarantool/src/lib/small/test/matras.cc</includedby>
+    <incdepgraph>
+      <node id="2310">
+        <label>assert.h</label>
+      </node>
+      <node id="2311">
+        <label>stdint.h</label>
+      </node>
+      <node id="2309">
+        <label>/home/tsafin/tarantool/src/lib/small/small/matras.h</label>
+        <link refid="matras_8h"/>
+        <childnode refid="2310" relation="include">
+        </childnode>
+        <childnode refid="2311" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structmatras__view" prot="public">matras_view</innerclass>
+    <innerclass refid="structmatras" prot="public">matras</innerclass>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="matras_8h_1a9eaec1693916f52c575eec85c4ab7177" prot="public" static="no">
+        <type>uint32_t</type>
+        <definition>typedef uint32_t matras_id_t</definition>
+        <argsstring></argsstring>
+        <name>matras_id_t</name>
+        <briefdescription>
+<para>Type of a block ID. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/matras.h" line="131" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/matras.h" bodystart="131" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="matras_8h_1a0f10d0ad766c73fa93fd5203252f4315" prot="public" static="no">
+        <type>void *(*</type>
+        <definition>typedef void*(* matras_alloc_func) (void *ctx)</definition>
+        <argsstring>)(void *ctx)</argsstring>
+        <name>matras_alloc_func</name>
+        <briefdescription>
+<para>Type of the extent allocator (the allocator for regions of size M). </para>        </briefdescription>
+        <detaileddescription>
+<para>Is allowed to return NULL, but is not allowed to throw an exception </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/matras.h" line="139" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/matras.h" bodystart="139" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="matras_8h_1a8985af3eb57849c080e1db44247a794b" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* matras_free_func) (void *ctx, void *ptr)</definition>
+        <argsstring>)(void *ctx, void *ptr)</argsstring>
+        <name>matras_free_func</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/matras.h" line="140" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/matras.h" bodystart="140" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="matras_8h_1a3d44bc74818800497be8d64ce5acfc80" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void matras_create</definition>
+        <argsstring>(struct matras *m, matras_id_t extent_size, matras_id_t block_size, matras_alloc_func alloc_func, matras_free_func free_func, void *alloc_ctx)</argsstring>
+        <name>matras_create</name>
+        <param>
+          <type>struct <ref refid="structmatras" kindref="compound">matras</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <param>
+          <type>matras_id_t</type>
+          <declname>extent_size</declname>
+        </param>
+        <param>
+          <type>matras_id_t</type>
+          <declname>block_size</declname>
+        </param>
+        <param>
+          <type>matras_alloc_func</type>
+          <declname>alloc_func</declname>
+        </param>
+        <param>
+          <type>matras_free_func</type>
+          <declname>free_func</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>alloc_ctx</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an empty instance of pointer translating block allocator. </para>        </briefdescription>
+        <detaileddescription>
+<para>Does not allocate memory. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/matras.h" line="211" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/matras.c" bodystart="39" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="matras_8h_1ab64c22587feb636d2b932f6f4ccbba0a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void matras_reset</definition>
+        <argsstring>(struct matras *m)</argsstring>
+        <name>matras_reset</name>
+        <param>
+          <type>struct <ref refid="structmatras" kindref="compound">matras</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Free all memory used by an instance of matras and reinitialize it. </para>        </briefdescription>
+        <detaileddescription>
+<para>Identical to matras_destroy(m); matras_create(m, ...); </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/matras.h" line="221" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/matras.c" bodystart="79" bodyend="83"/>
+      </memberdef>
+      <memberdef kind="function" id="matras_8h_1a70bc1905ac01658ac5d050cf79974026" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void matras_destroy</definition>
+        <argsstring>(struct matras *m)</argsstring>
+        <name>matras_destroy</name>
+        <param>
+          <type>struct <ref refid="structmatras" kindref="compound">matras</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Free all memory used by an instance of matras. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/matras.h" line="227" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/matras.c" bodystart="111" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="matras_8h_1a9c462dcb3ed07b21fed7158e74d5143d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>void* matras_alloc</definition>
+        <argsstring>(struct matras *m, matras_id_t *id)</argsstring>
+        <name>matras_alloc</name>
+        <param>
+          <type>struct <ref refid="structmatras" kindref="compound">matras</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <param>
+          <type>matras_id_t *</type>
+          <declname>id</declname>
+          <defname>result_id</defname>
+        </param>
+        <briefdescription>
+<para>Allocate a new block. </para>        </briefdescription>
+        <detaileddescription>
+<para>Return both, block pointer and block id.</para><para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>failed to allocate memory </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/matras.h" line="236" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/matras.c" bodystart="148" bodyend="215"/>
+      </memberdef>
+      <memberdef kind="function" id="matras_8h_1a975e4d0df3d0dafba9e4258e5d5f4297" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void matras_dealloc</definition>
+        <argsstring>(struct matras *m)</argsstring>
+        <name>matras_dealloc</name>
+        <param>
+          <type>struct <ref refid="structmatras" kindref="compound">matras</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/matras.h" line="242" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/matras.c" bodystart="221" bodyend="252"/>
+      </memberdef>
+      <memberdef kind="function" id="matras_8h_1a6b3c6ec7b409dc9016ae5d546ca6f24c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>void* matras_alloc_range</definition>
+        <argsstring>(struct matras *m, matras_id_t *id, matras_id_t range_count)</argsstring>
+        <name>matras_alloc_range</name>
+        <param>
+          <type>struct <ref refid="structmatras" kindref="compound">matras</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <param>
+          <type>matras_id_t *</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type>matras_id_t</type>
+          <declname>range_count</declname>
+        </param>
+        <briefdescription>
+<para>Allocate a range_count of blocks. </para>        </briefdescription>
+        <detaileddescription>
+<para>Return both, first block pointer and first block id. This method only works if current number of blocks and number of blocks in one extent are divisible by range_count. range_count must also be less or equal to number of blocks in one extent.</para><para><parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>failed to allocate memory </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/matras.h" line="253" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/matras.c" bodystart="263" bodyend="271"/>
+      </memberdef>
+      <memberdef kind="function" id="matras_8h_1affaed6247c551f26a67c1fe1c5e53c51" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void matras_dealloc_range</definition>
+        <argsstring>(struct matras *m, matras_id_t range_count)</argsstring>
+        <name>matras_dealloc_range</name>
+        <param>
+          <type>struct <ref refid="structmatras" kindref="compound">matras</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <param>
+          <type>matras_id_t</type>
+          <declname>range_count</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/matras.h" line="262" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/matras.c" bodystart="280" bodyend="286"/>
+      </memberdef>
+      <memberdef kind="function" id="matras_8h_1a2895e223e2d66867a20893c2189c3cd6" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void *</type>
+        <definition>static void * matras_get</definition>
+        <argsstring>(const struct matras *m, matras_id_t id)</argsstring>
+        <name>matras_get</name>
+        <param>
+          <type>const struct <ref refid="structmatras" kindref="compound">matras</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <param>
+          <type>matras_id_t</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+<para>Convert block id into block address. </para>        </briefdescription>
+        <detaileddescription>
+<para>matras_get definition </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/matras.h" line="268" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/matras.h" bodystart="370" bodyend="373"/>
+      </memberdef>
+      <memberdef kind="function" id="matras_8h_1a269c36aeb712b92c9dc9c2c5c291d850" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void *</type>
+        <definition>static void * matras_view_get</definition>
+        <argsstring>(const struct matras *m, const struct matras_view *v, matras_id_t id)</argsstring>
+        <name>matras_view_get</name>
+        <param>
+          <type>const struct <ref refid="structmatras" kindref="compound">matras</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structmatras__view" kindref="compound">matras_view</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>matras_id_t</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+<para>Convert block id of a specified version into block address. </para>        </briefdescription>
+        <detaileddescription>
+<para>matras_view_get definition </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/matras.h" line="274" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/matras.h" bodystart="360" bodyend="364"/>
+      </memberdef>
+      <memberdef kind="function" id="matras_8h_1ab1e400d518d0050e107ad457f9b05f38" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>matras_id_t</type>
+        <definition>matras_id_t matras_extent_count</definition>
+        <argsstring>(const struct matras *m)</argsstring>
+        <name>matras_extent_count</name>
+        <param>
+          <type>const struct <ref refid="structmatras" kindref="compound">matras</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Return the number of allocated extents (of size m-&gt;extent_size each) </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/matras.h" line="281" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/matras.c" bodystart="292" bodyend="295"/>
+      </memberdef>
+      <memberdef kind="function" id="matras_8h_1a50bbab3eeca56b8799f2618b96f1ec50" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void matras_head_read_view</definition>
+        <argsstring>(struct matras_view *v)</argsstring>
+        <name>matras_head_read_view</name>
+        <param>
+          <type>struct <ref refid="structmatras__view" kindref="compound">matras_view</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/matras.h" line="289" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/matras.h" bodystart="324" bodyend="327"/>
+      </memberdef>
+      <memberdef kind="function" id="matras_8h_1aa871ec723ec8fd3595781b6be5efe134" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void matras_create_read_view</definition>
+        <argsstring>(struct matras *m, struct matras_view *v)</argsstring>
+        <name>matras_create_read_view</name>
+        <param>
+          <type>struct <ref refid="structmatras" kindref="compound">matras</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structmatras__view" kindref="compound">matras_view</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/matras.h" line="295" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/matras.c" bodystart="301" bodyend="308"/>
+      </memberdef>
+      <memberdef kind="function" id="matras_8h_1af77f32d86844e69da91e599f918396ac" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void matras_destroy_read_view</definition>
+        <argsstring>(struct matras *m, struct matras_view *v)</argsstring>
+        <name>matras_destroy_read_view</name>
+        <param>
+          <type>struct <ref refid="structmatras" kindref="compound">matras</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structmatras__view" kindref="compound">matras_view</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/matras.h" line="301" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/matras.c" bodystart="314" bodyend="372"/>
+      </memberdef>
+      <memberdef kind="function" id="matras_8h_1a0f4f5afd9a42baea2ef3d77dddc4ce4a" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int matras_is_read_view_created</definition>
+        <argsstring>(struct matras_view *v)</argsstring>
+        <name>matras_is_read_view_created</name>
+        <param>
+          <type>struct <ref refid="structmatras__view" kindref="compound">matras_view</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/matras.h" line="309" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/matras.h" bodystart="333" bodyend="336"/>
+      </memberdef>
+      <memberdef kind="function" id="matras_8h_1a925e623701cfb83b48293b47ec42a586" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>void* matras_touch</definition>
+        <argsstring>(struct matras *m, matras_id_t id)</argsstring>
+        <name>matras_touch</name>
+        <param>
+          <type>struct <ref refid="structmatras" kindref="compound">matras</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <param>
+          <type>matras_id_t</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/matras.h" line="318" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/matras.c" bodystart="381" bodyend="437"/>
+      </memberdef>
+      <memberdef kind="function" id="matras_8h_1ab1e8f13e1795b51e6cf2df88bbe97a78" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void *</type>
+        <definition>static void* matras_view_get_no_check</definition>
+        <argsstring>(const struct matras *m, const struct matras_view *v, matras_id_t id)</argsstring>
+        <name>matras_view_get_no_check</name>
+        <param>
+          <type>const struct <ref refid="structmatras" kindref="compound">matras</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structmatras__view" kindref="compound">matras_view</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>matras_id_t</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+<para>Common part of matras_view_get and matras_get. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/matras.h" line="342" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/matras.h" bodystart="342" bodyend="354"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>INCLUDES_TARANTOOL_SMALL_MATRAS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INCLUDES_TARANTOOL_SMALL_MATRAS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>{{{<sp/>Description<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*<sp/>matras<sp/>-<sp/>Memory<sp/>Address<sp/>TRanSlation<sp/>Allocator<sp/>(Smile)</highlight></codeline>
+<codeline lineno="37"><highlight class="comment"><sp/>*<sp/>matras<sp/>is<sp/>as<sp/>allocator,<sp/>that<sp/>provides<sp/>aligned<sp/>blocks<sp/>of<sp/>specified</highlight></codeline>
+<codeline lineno="38"><highlight class="comment"><sp/>*<sp/>size<sp/>(N),<sp/>and<sp/>a<sp/>32-bit<sp/>integer<sp/>identifiers<sp/>for</highlight></codeline>
+<codeline lineno="39"><highlight class="comment"><sp/>*<sp/>each<sp/>returned<sp/>block.<sp/>Block<sp/>identifiers<sp/>grow<sp/>incrementally</highlight></codeline>
+<codeline lineno="40"><highlight class="comment"><sp/>*<sp/>starting<sp/>from<sp/>0.</highlight></codeline>
+<codeline lineno="41"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="42"><highlight class="comment"><sp/>*<sp/>The<sp/>block<sp/>size<sp/>(N)<sp/>must<sp/>be<sp/>a<sp/>power<sp/>of<sp/>2<sp/>(checked<sp/>by<sp/>assert<sp/>in</highlight></codeline>
+<codeline lineno="43"><highlight class="comment"><sp/>*<sp/>the<sp/>debug<sp/>build).<sp/>matras<sp/>can<sp/>restore<sp/>a<sp/>pointer<sp/>to<sp/>the<sp/>block</highlight></codeline>
+<codeline lineno="44"><highlight class="comment"><sp/>*<sp/>give<sp/>block<sp/>ID,<sp/>so<sp/>one<sp/>can<sp/>store<sp/>such<sp/>32-bit<sp/>ids<sp/>instead<sp/>of</highlight></codeline>
+<codeline lineno="45"><highlight class="comment"><sp/>*<sp/>storing<sp/>pointers<sp/>to<sp/>blocks.</highlight></codeline>
+<codeline lineno="46"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="47"><highlight class="comment"><sp/>*<sp/>Since<sp/>block<sp/>IDs<sp/>grow<sp/>incrementally<sp/>from<sp/>0<sp/>and<sp/>matras</highlight></codeline>
+<codeline lineno="48"><highlight class="comment"><sp/>*<sp/>instance<sp/>stores<sp/>the<sp/>number<sp/>of<sp/>provided<sp/>blocks,<sp/>there<sp/>is<sp/>a</highlight></codeline>
+<codeline lineno="49"><highlight class="comment"><sp/>*<sp/>simple<sp/>way<sp/>to<sp/>iterate<sp/>over<sp/>all<sp/>provided<sp/>blocks.</highlight></codeline>
+<codeline lineno="50"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="51"><highlight class="comment"><sp/>*<sp/>Implementation</highlight></codeline>
+<codeline lineno="52"><highlight class="comment"><sp/>*<sp/>--------------</highlight></codeline>
+<codeline lineno="53"><highlight class="comment"><sp/>*<sp/>To<sp/>support<sp/>block<sp/>allocation,<sp/>matras<sp/>allocates<sp/>extents<sp/>of<sp/>memory</highlight></codeline>
+<codeline lineno="54"><highlight class="comment"><sp/>*<sp/>by<sp/>means<sp/>of<sp/>the<sp/>supplied<sp/>allocator,<sp/>each<sp/>extent<sp/>having<sp/>the<sp/>same</highlight></codeline>
+<codeline lineno="55"><highlight class="comment"><sp/>*<sp/>size<sp/>(M),<sp/>M<sp/>is<sp/>a<sp/>power<sp/>of<sp/>2<sp/>and<sp/>a<sp/>multiple<sp/>of<sp/>N.</highlight></codeline>
+<codeline lineno="56"><highlight class="comment"><sp/>*<sp/>There<sp/>is<sp/>no<sp/>way<sp/>to<sp/>free<sp/>a<sp/>single<sp/>block,<sp/>except<sp/>the<sp/>last<sp/>one,</highlight></codeline>
+<codeline lineno="57"><highlight class="comment"><sp/>*<sp/>allocated,<sp/>which<sp/>happens<sp/>to<sp/>be<sp/>the<sp/>one<sp/>with<sp/>the<sp/>largest<sp/>ID.</highlight></codeline>
+<codeline lineno="58"><highlight class="comment"><sp/>*<sp/>Destroying<sp/>a<sp/>matras<sp/>instance<sp/>frees<sp/>all<sp/>allocated<sp/>extents.</highlight></codeline>
+<codeline lineno="59"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="60"><highlight class="comment"><sp/>*<sp/>Address<sp/>translation</highlight></codeline>
+<codeline lineno="61"><highlight class="comment"><sp/>*<sp/>-------------------</highlight></codeline>
+<codeline lineno="62"><highlight class="comment"><sp/>*<sp/>To<sp/>implement<sp/>32-bit<sp/>address<sp/>space<sp/>for<sp/>block<sp/>identifiers,</highlight></codeline>
+<codeline lineno="63"><highlight class="comment"><sp/>*<sp/>matras<sp/>maintains<sp/>a<sp/>simple<sp/>tree<sp/>of<sp/>address<sp/>translation<sp/>tables.</highlight></codeline>
+<codeline lineno="64"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="65"><highlight class="comment"><sp/>*<sp/>*<sp/>First<sp/>N1<sp/>bits<sp/>of<sp/>the<sp/>identifier<sp/>denote<sp/>a<sp/>level<sp/>0<sp/>extend</highlight></codeline>
+<codeline lineno="66"><highlight class="comment"><sp/>*<sp/><sp/><sp/>id,<sp/>which<sp/>stores<sp/>the<sp/>address<sp/>of<sp/>level<sp/>1<sp/>extent.</highlight></codeline>
+<codeline lineno="67"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="68"><highlight class="comment"><sp/>*<sp/>*<sp/>Second<sp/>N2<sp/>bits<sp/>of<sp/>block<sp/>identifier<sp/>stores<sp/>the<sp/>address</highlight></codeline>
+<codeline lineno="69"><highlight class="comment"><sp/>*<sp/><sp/><sp/>of<sp/>a<sp/>level<sp/>2<sp/>extent,<sp/>which<sp/>stores<sp/>actual<sp/>blocks.</highlight></codeline>
+<codeline lineno="70"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="71"><highlight class="comment"><sp/>*<sp/>*<sp/>The<sp/>remaining<sp/>N3<sp/>bits<sp/>denote<sp/>the<sp/>block<sp/>number</highlight></codeline>
+<codeline lineno="72"><highlight class="comment"><sp/>*<sp/><sp/><sp/>within<sp/>the<sp/>extent.</highlight></codeline>
+<codeline lineno="73"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="74"><highlight class="comment"><sp/>*<sp/>Actual<sp/>values<sp/>of<sp/>N1<sp/>and<sp/>N2<sp/>are<sp/>a<sp/>function<sp/>of<sp/>block<sp/>size<sp/>B,</highlight></codeline>
+<codeline lineno="75"><highlight class="comment"><sp/>*<sp/>extent<sp/>size<sp/>M<sp/>and<sp/>sizeof(void<sp/>*).</highlight></codeline>
+<codeline lineno="76"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="77"><highlight class="comment"><sp/>*<sp/>To<sp/>sum<sp/>up,<sp/>with<sp/>a<sp/>given<sp/>N<sp/>and<sp/>M<sp/>matras<sp/>instance:</highlight></codeline>
+<codeline lineno="78"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="79"><highlight class="comment"><sp/>*<sp/>1)<sp/>can<sp/>provide<sp/>not<sp/>more<sp/>than</highlight></codeline>
+<codeline lineno="80"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>pow(M<sp/>/<sp/>sizeof(void*),<sp/>2)<sp/>*<sp/>(M<sp/>/<sp/>N)<sp/>blocks</highlight></codeline>
+<codeline lineno="81"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="82"><highlight class="comment"><sp/>*<sp/>2)<sp/>costs<sp/>2<sp/>random<sp/>memory<sp/>accesses<sp/>to<sp/>provide<sp/>a<sp/>new<sp/>block</highlight></codeline>
+<codeline lineno="83"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>or<sp/>restore<sp/>a<sp/>block<sp/>pointer<sp/>from<sp/>block<sp/>id</highlight></codeline>
+<codeline lineno="84"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="85"><highlight class="comment"><sp/>*<sp/>3)<sp/>has<sp/>an<sp/>approximate<sp/>memory<sp/>overhead<sp/>of<sp/>size<sp/>(L<sp/>*<sp/>M)</highlight></codeline>
+<codeline lineno="86"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="87"><highlight class="comment"><sp/>*<sp/>Of<sp/>course,<sp/>the<sp/>integer<sp/>type<sp/>used<sp/>for<sp/>block<sp/>id<sp/>(matras_id_t,</highlight></codeline>
+<codeline lineno="88"><highlight class="comment"><sp/>*<sp/>usually<sp/>is<sp/>a<sp/>typedef<sp/>to<sp/>uint32)<sp/>also<sp/>limits<sp/>the<sp/>maximum<sp/>number</highlight></codeline>
+<codeline lineno="89"><highlight class="comment"><sp/>*<sp/>of<sp/>objects<sp/>that<sp/>can<sp/>be<sp/>allocated<sp/>by<sp/>a<sp/>single<sp/>instance<sp/>of<sp/>matras.</highlight></codeline>
+<codeline lineno="90"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="91"><highlight class="comment"><sp/>*<sp/>Versioning</highlight></codeline>
+<codeline lineno="92"><highlight class="comment"><sp/>*<sp/>----------</highlight></codeline>
+<codeline lineno="93"><highlight class="comment"><sp/>*<sp/>Starting<sp/>from<sp/>Tarantool<sp/>1.6,<sp/>matras<sp/>implements<sp/>a<sp/>way<sp/>to<sp/>create</highlight></codeline>
+<codeline lineno="94"><highlight class="comment"><sp/>*<sp/>a<sp/>consistent<sp/>read<sp/>view<sp/>of<sp/>allocated<sp/>data<sp/>with</highlight></codeline>
+<codeline lineno="95"><highlight class="comment"><sp/>*<sp/>matras_create_read_view().<sp/>Once<sp/>a<sp/>read<sp/>view<sp/>is</highlight></codeline>
+<codeline lineno="96"><highlight class="comment"><sp/>*<sp/>created,<sp/>the<sp/>same<sp/>block<sp/>identifier<sp/>can<sp/>return<sp/>two<sp/>different</highlight></codeline>
+<codeline lineno="97"><highlight class="comment"><sp/>*<sp/>physical<sp/>addresses<sp/>in<sp/>two<sp/>views:<sp/>the<sp/>created<sp/>view</highlight></codeline>
+<codeline lineno="98"><highlight class="comment"><sp/>*<sp/>and<sp/>the<sp/>current<sp/>or<sp/>latest<sp/>view.<sp/>Multiple<sp/>read<sp/>views<sp/>can<sp/>be</highlight></codeline>
+<codeline lineno="99"><highlight class="comment"><sp/>*<sp/>created.<sp/><sp/>To<sp/>work<sp/>correctly<sp/>with<sp/>possibly<sp/>existing<sp/>read<sp/>views,</highlight></codeline>
+<codeline lineno="100"><highlight class="comment"><sp/>*<sp/>the<sp/>application<sp/>must<sp/>inform<sp/>matras<sp/>that<sp/>data<sp/>in<sp/>a<sp/>block<sp/>is<sp/>about<sp/>to</highlight></codeline>
+<codeline lineno="101"><highlight class="comment"><sp/>*<sp/>change,<sp/>using<sp/>matras_touch()<sp/>call.<sp/>Only<sp/>a<sp/>block<sp/>which<sp/>belong<sp/>to</highlight></codeline>
+<codeline lineno="102"><highlight class="comment"><sp/>*<sp/>the<sp/>current,<sp/>i.e.<sp/>latest,<sp/>view,<sp/>can<sp/>be<sp/>changed:<sp/>created</highlight></codeline>
+<codeline lineno="103"><highlight class="comment"><sp/>*<sp/>views<sp/>are<sp/>immutable.</highlight></codeline>
+<codeline lineno="104"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="105"><highlight class="comment"><sp/>*<sp/>The<sp/>implementation<sp/>of<sp/>read<sp/>views<sp/>is<sp/>based<sp/>on<sp/>copy-on-write</highlight></codeline>
+<codeline lineno="106"><highlight class="comment"><sp/>*<sp/>technique,<sp/>which<sp/>is<sp/>cheap<sp/>enough<sp/>as<sp/>long<sp/>as<sp/>not<sp/>too<sp/>many</highlight></codeline>
+<codeline lineno="107"><highlight class="comment"><sp/>*<sp/>objects<sp/>have<sp/>to<sp/>be<sp/>touched<sp/>while<sp/>a<sp/>view<sp/>exists.</highlight></codeline>
+<codeline lineno="108"><highlight class="comment"><sp/>*<sp/>Another<sp/>important<sp/>property<sp/>of<sp/>the<sp/>copy-on-write<sp/>mechanism<sp/>is</highlight></codeline>
+<codeline lineno="109"><highlight class="comment"><sp/>*<sp/>that<sp/>whenever<sp/>a<sp/>write<sp/>occurs,<sp/>the<sp/>writer<sp/>pays<sp/>the<sp/>penalty</highlight></codeline>
+<codeline lineno="110"><highlight class="comment"><sp/>*<sp/>and<sp/>copies<sp/>the<sp/>block<sp/>to<sp/>a<sp/>new<sp/>location,<sp/>and<sp/>gets<sp/>a<sp/>new<sp/>physical</highlight></codeline>
+<codeline lineno="111"><highlight class="comment"><sp/>*<sp/>address<sp/>for<sp/>the<sp/>same<sp/>block<sp/>id.<sp/>The<sp/>reader<sp/>keeps<sp/>using<sp/>the</highlight></codeline>
+<codeline lineno="112"><highlight class="comment"><sp/>*<sp/>old<sp/>address.<sp/>This<sp/>makes<sp/>it<sp/>possible<sp/>to<sp/>access<sp/>the</highlight></codeline>
+<codeline lineno="113"><highlight class="comment"><sp/>*<sp/>created<sp/>read<sp/>view<sp/>in<sp/>a<sp/>concurrent<sp/>thread,<sp/>as<sp/>long<sp/>as<sp/>this</highlight></codeline>
+<codeline lineno="114"><highlight class="comment"><sp/>*<sp/>thread<sp/>is<sp/>created<sp/>after<sp/>the<sp/>read<sp/>view<sp/>itself<sp/>is<sp/>created.</highlight></codeline>
+<codeline lineno="115"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>}}}<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;assert.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="preprocessor">#ifdef<sp/>WIN32</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>__int32<sp/>matras_id_t;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>uint32_t<sp/>matras_id_t;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*(*matras_alloc_func)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*matras_free_func)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ptr);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148" refid="structmatras__view" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmatras__view" kindref="compound">matras_view</ref><sp/>{</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>root<sp/>extent<sp/>of<sp/>the<sp/>view<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*root;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>block<sp/>count<sp/>in<sp/>the<sp/>view<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>matras_id_t<sp/>block_count;</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>all<sp/>views<sp/>are<sp/>linked<sp/>into<sp/>doubly<sp/>linked<sp/>list<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmatras__view" kindref="compound">matras_view</ref><sp/>*prev_view,<sp/>*next_view;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161" refid="structmatras" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmatras" kindref="compound">matras</ref><sp/>{</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Main<sp/>read/write<sp/>view<sp/>of<sp/>the<sp/>matras<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmatras__view" kindref="compound">matras_view</ref><sp/>head;</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Block<sp/>size<sp/>(N)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>matras_id_t<sp/>block_size;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Extent<sp/>size<sp/>(M)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>matras_id_t<sp/>extent_size;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Numberof<sp/>allocated<sp/>extents<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>matras_id_t<sp/>extent_count;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>binary<sp/>logarithm<sp/><sp/>of<sp/>maximum<sp/>possible<sp/>created<sp/>blocks<sp/>count<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>matras_id_t<sp/>log2_capacity;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>See<sp/>&quot;Shifts<sp/>and<sp/>masks<sp/>explanation&quot;<sp/>below<sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>matras_id_t<sp/>shift1,<sp/>shift2;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>See<sp/>&quot;Shifts<sp/>and<sp/>masks<sp/>explanation&quot;<sp/>below<sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>matras_id_t<sp/>mask1,<sp/>mask2;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>External<sp/>extent<sp/>allocator<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>matras_alloc_func<sp/>alloc_func;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>External<sp/>extent<sp/>deallocator<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>matras_free_func<sp/>free_func;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Argument<sp/>passed<sp/>to<sp/>extent<sp/>allocator<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*alloc_ctx;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="185"><highlight class="comment"><sp/>*<sp/>&quot;Shifts<sp/>and<sp/>masks<sp/>explanation&quot;</highlight></codeline>
+<codeline lineno="186"><highlight class="comment"><sp/>*<sp/>For<sp/>3-level<sp/>matras<sp/>(L<sp/>=<sp/>3),<sp/>as<sp/>claimed<sp/>above,<sp/>block<sp/>ID<sp/>consist<sp/>of</highlight></codeline>
+<codeline lineno="187"><highlight class="comment"><sp/>*<sp/>three<sp/>parts<sp/>(N1,<sp/>N2<sp/>and<sp/>N3).</highlight></codeline>
+<codeline lineno="188"><highlight class="comment"><sp/>*<sp/>In<sp/>order<sp/>to<sp/>optimize<sp/>splitting<sp/>ID,<sp/>several<sp/>masks<sp/>and<sp/>shifts</highlight></codeline>
+<codeline lineno="189"><highlight class="comment"><sp/>*<sp/>are<sp/>precalculated<sp/>during<sp/>matras<sp/>initialization.</highlight></codeline>
+<codeline lineno="190"><highlight class="comment"><sp/>*<sp/>Heres<sp/>is<sp/>an<sp/>example<sp/>block<sp/>ID<sp/>bits,<sp/>high<sp/>order<sp/>bits<sp/>first:</highlight></codeline>
+<codeline lineno="191"><highlight class="comment"><sp/>*<sp/>ID<sp/>:<sp/><sp/><sp/>0<sp/><sp/>0<sp/><sp/>0<sp/><sp/>0<sp/><sp/>N1<sp/>N1<sp/>N1<sp/>N1<sp/>N2<sp/>N2<sp/>N2<sp/>N2<sp/>N3<sp/>N3<sp/>N3<sp/>N3<sp/>N3</highlight></codeline>
+<codeline lineno="192"><highlight class="comment"><sp/>*<sp/>mask1:<sp/>0<sp/><sp/>0<sp/><sp/>0<sp/><sp/>0<sp/><sp/>0<sp/><sp/>0<sp/><sp/>0<sp/><sp/>0<sp/><sp/>1<sp/><sp/>1<sp/><sp/>1<sp/><sp/>1<sp/><sp/>1<sp/><sp/>1<sp/><sp/>1<sp/><sp/>1<sp/><sp/>1</highlight></codeline>
+<codeline lineno="193"><highlight class="comment"><sp/>*<sp/>mask1:<sp/>0<sp/><sp/>0<sp/><sp/>0<sp/><sp/>0<sp/><sp/>0<sp/><sp/>0<sp/><sp/>0<sp/><sp/>0<sp/><sp/>0<sp/><sp/>0<sp/><sp/>0<sp/><sp/>0<sp/><sp/>1<sp/><sp/>1<sp/><sp/>1<sp/><sp/>1<sp/><sp/>1</highlight></codeline>
+<codeline lineno="194"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;---------shift1--------&gt;</highlight></codeline>
+<codeline lineno="195"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&lt;---shift2--&gt;</highlight></codeline>
+<codeline lineno="196"><highlight class="comment"><sp/>*<sp/>When<sp/>defined<sp/>in<sp/>such<sp/>way,<sp/>one<sp/>can<sp/>simply<sp/>split<sp/>ID<sp/>to<sp/>N1,<sp/>N2<sp/>and<sp/>N3:</highlight></codeline>
+<codeline lineno="197"><highlight class="comment"><sp/>*<sp/>N1<sp/>=<sp/>ID<sp/>&gt;&gt;<sp/>shift1</highlight></codeline>
+<codeline lineno="198"><highlight class="comment"><sp/>*<sp/>N2<sp/>=<sp/>(ID<sp/>&amp;<sp/>mask1)<sp/>&gt;&gt;<sp/>shift2</highlight></codeline>
+<codeline lineno="199"><highlight class="comment"><sp/>*<sp/>N3<sp/>=<sp/>ID<sp/>&amp;<sp/>mask2</highlight></codeline>
+<codeline lineno="200"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="203"><highlight class="comment"><sp/>*<sp/>matras<sp/>API<sp/>declaration</highlight></codeline>
+<codeline lineno="204"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal">matras_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras" kindref="compound">matras</ref><sp/>*m,<sp/>matras_id_t<sp/>extent_size,<sp/>matras_id_t<sp/>block_size,</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>matras_alloc_func<sp/>alloc_func,<sp/>matras_free_func<sp/>free_func,</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*alloc_ctx);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal">matras_reset(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras" kindref="compound">matras</ref><sp/>*m);</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal">matras_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras" kindref="compound">matras</ref><sp/>*m);</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight></codeline>
+<codeline lineno="235"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="236"><highlight class="normal">matras_alloc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras" kindref="compound">matras</ref><sp/>*m,<sp/>matras_id_t<sp/>*</highlight><highlight class="keywordtype">id</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="239"><highlight class="comment"><sp/>*<sp/>Deallocate<sp/>last<sp/>block<sp/>(block<sp/>with<sp/>maximum<sp/>ID)</highlight></codeline>
+<codeline lineno="240"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal">matras_dealloc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras" kindref="compound">matras</ref><sp/>*m);</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"></highlight></codeline>
+<codeline lineno="252"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="253"><highlight class="normal">matras_alloc_range(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras" kindref="compound">matras</ref><sp/>*m,<sp/>matras_id_t<sp/>*</highlight><highlight class="keywordtype">id</highlight><highlight class="normal">,<sp/>matras_id_t<sp/>range_count);</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"></highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="256"><highlight class="comment"><sp/>*<sp/>Deallocate<sp/>last<sp/>range_count<sp/>of<sp/>blocks<sp/>(blocks<sp/>with<sp/>maximum<sp/>ID)</highlight></codeline>
+<codeline lineno="257"><highlight class="comment"><sp/>*<sp/>This<sp/>method<sp/>only<sp/>works<sp/>if<sp/>current<sp/>number<sp/>of<sp/>blocks<sp/>and</highlight></codeline>
+<codeline lineno="258"><highlight class="comment"><sp/>*<sp/>number<sp/>of<sp/>blocks<sp/>in<sp/>one<sp/>extent<sp/>are<sp/>divisible<sp/>by<sp/>range_count.</highlight></codeline>
+<codeline lineno="259"><highlight class="comment"><sp/>*<sp/>range_count<sp/>must<sp/>also<sp/>be<sp/>less<sp/>or<sp/>equal<sp/>to<sp/>number<sp/>of<sp/>blocks<sp/>in<sp/>one<sp/>extent.</highlight></codeline>
+<codeline lineno="260"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal">matras_dealloc_range(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras" kindref="compound">matras</ref><sp/>*m,<sp/>matras_id_t<sp/>range_count);</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight></codeline>
+<codeline lineno="267"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="268"><highlight class="normal">matras_get(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras" kindref="compound">matras</ref><sp/>*m,<sp/>matras_id_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight></codeline>
+<codeline lineno="273"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="274"><highlight class="normal">matras_view_get(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras" kindref="compound">matras</ref><sp/>*m,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras__view" kindref="compound">matras_view</ref><sp/>*v,</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>matras_id_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"></highlight></codeline>
+<codeline lineno="277"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="278"><highlight class="comment"><sp/>*<sp/>Getting<sp/>number<sp/>of<sp/>allocated<sp/>extents<sp/>(of<sp/>size<sp/>extent_size<sp/>each)</highlight></codeline>
+<codeline lineno="279"><highlight class="comment">*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="280"><highlight class="normal">matras_id_t</highlight></codeline>
+<codeline lineno="281"><highlight class="normal">matras_extent_count(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras" kindref="compound">matras</ref><sp/>*m);</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"></highlight></codeline>
+<codeline lineno="283"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="284"><highlight class="comment"><sp/>*<sp/>Connect<sp/>read<sp/>view<sp/>to<sp/>the<sp/>matras<sp/>so<sp/>that<sp/>it<sp/>is<sp/>always<sp/>connected<sp/>with<sp/>main,</highlight></codeline>
+<codeline lineno="285"><highlight class="comment"><sp/>*<sp/><sp/>&quot;head&quot;<sp/>read<sp/>view.<sp/>Such<sp/>a<sp/>read<sp/>view<sp/>does<sp/>not<sp/>consume<sp/>any<sp/>resources<sp/>and</highlight></codeline>
+<codeline lineno="286"><highlight class="comment"><sp/>*<sp/><sp/>should<sp/>not<sp/>be<sp/>destroyed.</highlight></codeline>
+<codeline lineno="287"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="288"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="289"><highlight class="normal">matras_head_read_view(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras__view" kindref="compound">matras_view</ref><sp/>*v);</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"></highlight></codeline>
+<codeline lineno="291"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="292"><highlight class="comment"><sp/>*<sp/>Create<sp/>new<sp/>read<sp/>view.</highlight></codeline>
+<codeline lineno="293"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="294"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="295"><highlight class="normal">matras_create_read_view(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras" kindref="compound">matras</ref><sp/>*m,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras__view" kindref="compound">matras_view</ref><sp/>*v);</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"></highlight></codeline>
+<codeline lineno="297"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="298"><highlight class="comment"><sp/>*<sp/>Delete<sp/>a<sp/>read<sp/>view.</highlight></codeline>
+<codeline lineno="299"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="301"><highlight class="normal">matras_destroy_read_view(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras" kindref="compound">matras</ref><sp/>*m,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras__view" kindref="compound">matras_view</ref><sp/>*v);</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"></highlight></codeline>
+<codeline lineno="303"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="304"><highlight class="comment"><sp/>*<sp/>Determine<sp/>if<sp/>the<sp/>read<sp/>view<sp/>is<sp/>created.</highlight></codeline>
+<codeline lineno="305"><highlight class="comment"><sp/>*<sp/>@return<sp/>1<sp/>if<sp/>the<sp/>read<sp/>view<sp/>was<sp/>created<sp/>with<sp/>matras_create_read_view</highlight></codeline>
+<codeline lineno="306"><highlight class="comment"><sp/>*<sp/>@return<sp/>0<sp/>if<sp/>the<sp/>read<sp/>view<sp/>was<sp/>initialized<sp/>with<sp/>matras_head_read_view</highlight></codeline>
+<codeline lineno="307"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="308"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="309"><highlight class="normal">matras_is_read_view_created(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras__view" kindref="compound">matras_view</ref><sp/>*v);</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"></highlight></codeline>
+<codeline lineno="311"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="312"><highlight class="comment"><sp/>*<sp/>Notify<sp/>matras<sp/>that<sp/>memory<sp/>at<sp/>given<sp/>ID<sp/>will<sp/>be<sp/>changed.</highlight></codeline>
+<codeline lineno="313"><highlight class="comment"><sp/>*<sp/>Returns<sp/>(perhaps<sp/>new)<sp/>address<sp/>of<sp/>memory<sp/>associated<sp/>with<sp/>that<sp/>block.</highlight></codeline>
+<codeline lineno="314"><highlight class="comment"><sp/>*<sp/>Returns<sp/>NULL<sp/>on<sp/>memory<sp/>error</highlight></codeline>
+<codeline lineno="315"><highlight class="comment"><sp/>*<sp/>Only<sp/>needed<sp/>(and<sp/>does<sp/>any<sp/>work)<sp/>if<sp/>some<sp/>versions<sp/>are<sp/>used.</highlight></codeline>
+<codeline lineno="316"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="317"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="318"><highlight class="normal">matras_touch(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras" kindref="compound">matras</ref><sp/>*m,<sp/>matras_id_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"></highlight></codeline>
+<codeline lineno="320"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="321"><highlight class="comment"><sp/>*<sp/>matras_head_read_view<sp/>implementation.</highlight></codeline>
+<codeline lineno="322"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="323"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="324"><highlight class="normal">matras_head_read_view(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras__view" kindref="compound">matras_view</ref><sp/>*v)</highlight></codeline>
+<codeline lineno="325"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>v-&gt;next_view<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="327"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"></highlight></codeline>
+<codeline lineno="329"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="330"><highlight class="comment"><sp/>*<sp/>matras_is_read_view_created<sp/>implementation.</highlight></codeline>
+<codeline lineno="331"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="332"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="333"><highlight class="normal">matras_is_read_view_created(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras__view" kindref="compound">matras_view</ref><sp/>*v)</highlight></codeline>
+<codeline lineno="334"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>v-&gt;next_view<sp/>?<sp/>1<sp/>:<sp/>0;</highlight></codeline>
+<codeline lineno="336"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"></highlight></codeline>
+<codeline lineno="341"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="342"><highlight class="normal">matras_view_get_no_check(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras" kindref="compound">matras</ref><sp/>*m,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras__view" kindref="compound">matras_view</ref><sp/>*v,</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>matras_id_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="344"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(id<sp/>&lt;<sp/>v-&gt;block_count);</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"></highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>see<sp/>&quot;Shifts<sp/>and<sp/>masks<sp/>explanation&quot;<sp/>for<sp/>details<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="348"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>matras_id_t<sp/>n1<sp/>=<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal"><sp/>&gt;&gt;<sp/>m-&gt;shift1;</highlight></codeline>
+<codeline lineno="349"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>matras_id_t<sp/>n2<sp/>=<sp/>(</highlight><highlight class="keywordtype">id</highlight><highlight class="normal"><sp/>&amp;<sp/>m-&gt;mask1)<sp/>&gt;&gt;<sp/>m-&gt;shift2;</highlight></codeline>
+<codeline lineno="350"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>matras_id_t<sp/>n3<sp/>=<sp/>(</highlight><highlight class="keywordtype">id</highlight><highlight class="normal"><sp/>&amp;<sp/>m-&gt;mask2);</highlight></codeline>
+<codeline lineno="351"><highlight class="normal"></highlight></codeline>
+<codeline lineno="352"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>***extent<sp/>=<sp/>(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>***)v-&gt;root;</highlight></codeline>
+<codeline lineno="353"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>&amp;extent[n1][n2][n3<sp/>*<sp/>m-&gt;block_size];</highlight></codeline>
+<codeline lineno="354"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="355"><highlight class="normal"></highlight></codeline>
+<codeline lineno="359"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="360"><highlight class="normal">matras_view_get(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras" kindref="compound">matras</ref><sp/>*m,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras__view" kindref="compound">matras_view</ref><sp/>*v,</highlight></codeline>
+<codeline lineno="361"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>matras_id_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="362"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>matras_view_get_no_check(m,<sp/>v-&gt;next_view<sp/>?<sp/>v<sp/>:<sp/>&amp;m-&gt;head,<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="364"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="365"><highlight class="normal"></highlight></codeline>
+<codeline lineno="369"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="370"><highlight class="normal">matras_get(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmatras" kindref="compound">matras</ref><sp/>*m,<sp/>matras_id_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="371"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="372"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>matras_view_get_no_check(m,<sp/>&amp;m-&gt;head,<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="373"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"></highlight></codeline>
+<codeline lineno="375"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="376"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="377"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="378"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>INCLUDES_TARANTOOL_SMALL_MATRAS_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/small/small/matras.h"/>
+  </compounddef>
+</doxygen>

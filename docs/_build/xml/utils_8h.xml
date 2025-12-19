@@ -1,0 +1,1425 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="utils_8h" kind="file" language="C++">
+    <compoundname>utils.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes refid="string_8h" local="no">string.h</includes>
+    <includes local="no">math.h</includes>
+    <includes refid="msgpuck_8h" local="no">msgpuck.h</includes>
+    <includes refid="lua_2trigger_8h" local="yes">trigger.h</includes>
+    <includes local="no">lua.h</includes>
+    <includes local="no">lauxlib.h</includes>
+    <includes local="no">lj_state.h</includes>
+    <includes local="no">lj_obj.h</includes>
+    <includes local="no">lj_ctype.h</includes>
+    <includes local="no">lj_cdata.h</includes>
+    <includes local="no">lj_cconv.h</includes>
+    <includes local="no">lj_lib.h</includes>
+    <includes local="no">lj_tab.h</includes>
+    <includes local="no">lj_meta.h</includes>
+    <includes local="yes">lua/error.h</includes>
+    <includes refid="mp__extension__types_8h" local="yes">lib/core/mp_extension_types.h</includes>
+    <includes refid="lib_2core_2decimal_8h" local="yes">lib/core/decimal.h</includes>
+    <includedby refid="box_8cc" local="yes">/home/tsafin/tarantool/src/box/box.cc</includedby>
+    <includedby refid="func_8c" local="yes">/home/tsafin/tarantool/src/box/func.c</includedby>
+    <includedby refid="lua_2call_8c" local="yes">/home/tsafin/tarantool/src/box/lua/call.c</includedby>
+    <includedby refid="cfg_8cc" local="yes">/home/tsafin/tarantool/src/box/lua/cfg.cc</includedby>
+    <includedby refid="console_8c" local="yes">/home/tsafin/tarantool/src/box/lua/console.c</includedby>
+    <includedby refid="ctl_8c" local="yes">/home/tsafin/tarantool/src/box/lua/ctl.c</includedby>
+    <includedby refid="lua_2error_8cc" local="yes">/home/tsafin/tarantool/src/box/lua/error.cc</includedby>
+    <includedby refid="lua_2execute_8c" local="yes">/home/tsafin/tarantool/src/box/lua/execute.c</includedby>
+    <includedby refid="box_2lua_2index_8c" local="yes">/home/tsafin/tarantool/src/box/lua/index.c</includedby>
+    <includedby refid="box_2lua_2info_8c" local="yes">/home/tsafin/tarantool/src/box/lua/info.c</includedby>
+    <includedby refid="box_2lua_2init_8c" local="yes">/home/tsafin/tarantool/src/box/lua/init.c</includedby>
+    <includedby refid="lua_2key__def_8c" local="yes">/home/tsafin/tarantool/src/box/lua/key_def.c</includedby>
+    <includedby refid="lua_2merger_8c" local="yes">/home/tsafin/tarantool/src/box/lua/merger.c</includedby>
+    <includedby refid="misc_8cc" local="yes">/home/tsafin/tarantool/src/box/lua/misc.cc</includedby>
+    <includedby refid="lua_2sequence_8c" local="yes">/home/tsafin/tarantool/src/box/lua/sequence.c</includedby>
+    <includedby refid="serialize__lua_8c" local="yes">/home/tsafin/tarantool/src/box/lua/serialize_lua.c</includedby>
+    <includedby refid="session_8c" local="yes">/home/tsafin/tarantool/src/box/lua/session.c</includedby>
+    <includedby refid="slab_8c" local="yes">/home/tsafin/tarantool/src/box/lua/slab.c</includedby>
+    <includedby refid="space_8cc" local="yes">/home/tsafin/tarantool/src/box/lua/space.cc</includedby>
+    <includedby refid="stat_8c" local="yes">/home/tsafin/tarantool/src/box/lua/stat.c</includedby>
+    <includedby refid="lua_2tuple_8c" local="yes">/home/tsafin/tarantool/src/box/lua/tuple.c</includedby>
+    <includedby refid="lua_2xlog_8c" local="no">/home/tsafin/tarantool/src/box/lua/xlog.c</includedby>
+    <includedby refid="sql_2func_8c" local="yes">/home/tsafin/tarantool/src/box/sql/func.c</includedby>
+    <includedby refid="cfg_8c" local="yes">/home/tsafin/tarantool/src/cfg.c</includedby>
+    <includedby refid="lua_2decimal_8c" local="yes">/home/tsafin/tarantool/src/lua/decimal.c</includedby>
+    <includedby refid="digest_8c" local="yes">/home/tsafin/tarantool/src/lua/digest.c</includedby>
+    <includedby refid="errno_8c" local="yes">/home/tsafin/tarantool/src/lua/errno.c</includedby>
+    <includedby refid="error_8c" local="yes">/home/tsafin/tarantool/src/lua/error.c</includedby>
+    <includedby refid="lua_2fiber_8c" local="yes">/home/tsafin/tarantool/src/lua/fiber.c</includedby>
+    <includedby refid="lua_2fiber__channel_8c" local="yes">/home/tsafin/tarantool/src/lua/fiber_channel.c</includedby>
+    <includedby refid="lua_2fiber__cond_8c" local="yes">/home/tsafin/tarantool/src/lua/fiber_cond.c</includedby>
+    <includedby refid="lua_2fio_8c" local="yes">/home/tsafin/tarantool/src/lua/fio.c</includedby>
+    <includedby refid="lua_2httpc_8c" local="yes">/home/tsafin/tarantool/src/lua/httpc.c</includedby>
+    <includedby refid="lua_2info_8c" local="yes">/home/tsafin/tarantool/src/lua/info.c</includedby>
+    <includedby refid="lua_2init_8c" local="yes">/home/tsafin/tarantool/src/lua/init.c</includedby>
+    <includedby refid="lua_2msgpack_8c" local="yes">/home/tsafin/tarantool/src/lua/msgpack.c</includedby>
+    <includedby refid="lua_2msgpack_8h" local="yes">/home/tsafin/tarantool/src/lua/msgpack.h</includedby>
+    <includedby refid="lua_2pickle_8c" local="yes">/home/tsafin/tarantool/src/lua/pickle.c</includedby>
+    <includedby refid="lua_2popen_8c" local="yes">/home/tsafin/tarantool/src/lua/popen.c</includedby>
+    <includedby refid="socket_8c" local="yes">/home/tsafin/tarantool/src/lua/socket.c</includedby>
+    <includedby refid="lua_2swim_8c" local="yes">/home/tsafin/tarantool/src/lua/swim.c</includedby>
+    <includedby refid="lua_2trigger_8c" local="yes">/home/tsafin/tarantool/src/lua/trigger.c</includedby>
+    <includedby refid="utf8_8c" local="yes">/home/tsafin/tarantool/src/lua/utf8.c</includedby>
+    <includedby refid="utils_8c" local="yes">/home/tsafin/tarantool/src/lua/utils.c</includedby>
+    <incdepgraph>
+      <node id="2696">
+        <label>stdbool.h</label>
+      </node>
+      <node id="2698">
+        <label>stdarg.h</label>
+      </node>
+      <node id="2697">
+        <label>assert.h</label>
+      </node>
+      <node id="2690">
+        <label>/home/tsafin/tarantool/src/lua/utils.h</label>
+        <link refid="utils_8h"/>
+        <childnode refid="2691" relation="include">
+        </childnode>
+        <childnode refid="2692" relation="include">
+        </childnode>
+        <childnode refid="2693" relation="include">
+        </childnode>
+        <childnode refid="2700" relation="include">
+        </childnode>
+        <childnode refid="2701" relation="include">
+        </childnode>
+        <childnode refid="2702" relation="include">
+        </childnode>
+        <childnode refid="2703" relation="include">
+        </childnode>
+        <childnode refid="2704" relation="include">
+        </childnode>
+        <childnode refid="2705" relation="include">
+        </childnode>
+        <childnode refid="2706" relation="include">
+        </childnode>
+        <childnode refid="2707" relation="include">
+        </childnode>
+        <childnode refid="2708" relation="include">
+        </childnode>
+        <childnode refid="2709" relation="include">
+        </childnode>
+        <childnode refid="2710" relation="include">
+        </childnode>
+      </node>
+      <node id="2700">
+        <label>lua.h</label>
+      </node>
+      <node id="2691">
+        <label>stdint.h</label>
+      </node>
+      <node id="2694">
+        <label>stdlib.h</label>
+      </node>
+      <node id="2705">
+        <label>lj_cdata.h</label>
+      </node>
+      <node id="2707">
+        <label>lj_lib.h</label>
+      </node>
+      <node id="2704">
+        <label>lj_ctype.h</label>
+      </node>
+      <node id="2695">
+        <label>stddef.h</label>
+      </node>
+      <node id="2708">
+        <label>lj_tab.h</label>
+      </node>
+      <node id="2710">
+        <label>lua/error.h</label>
+      </node>
+      <node id="2701">
+        <label>lauxlib.h</label>
+      </node>
+      <node id="2709">
+        <label>lj_meta.h</label>
+      </node>
+      <node id="2692">
+        <label>math.h</label>
+      </node>
+      <node id="2703">
+        <label>lj_obj.h</label>
+      </node>
+      <node id="2693">
+        <label>msgpuck.h</label>
+        <link refid="msgpuck_8h"/>
+        <childnode refid="2694" relation="include">
+        </childnode>
+        <childnode refid="2691" relation="include">
+        </childnode>
+        <childnode refid="2695" relation="include">
+        </childnode>
+        <childnode refid="2696" relation="include">
+        </childnode>
+        <childnode refid="2697" relation="include">
+        </childnode>
+        <childnode refid="2698" relation="include">
+        </childnode>
+        <childnode refid="2699" relation="include">
+        </childnode>
+      </node>
+      <node id="2702">
+        <label>lj_state.h</label>
+      </node>
+      <node id="2706">
+        <label>lj_cconv.h</label>
+      </node>
+      <node id="2699">
+        <label>stdio.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structluaL__serializer" prot="public">luaL_serializer</innerclass>
+    <innerclass refid="structluaL__field" prot="public">luaL_field</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="utils_8h_1af5c743df88d50b3b58342e564eff200e" prot="public" static="no">
+        <name>LUAL_SERIALIZER</name>
+        <initializer>&quot;serializer&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="299" column="9" bodyfile="/home/tsafin/tarantool/src/lua/utils.h" bodystart="299" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="utils_8h_1ad75566cac0239ccf86d25a3e2d430e1e" prot="public" static="no">
+        <name>LUAL_SERIALIZE</name>
+        <initializer>&quot;__serialize&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="300" column="9" bodyfile="/home/tsafin/tarantool/src/lua/utils.h" bodystart="300" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="utils_8h_1ae1cb16b1acef0772ea4192316f742aa8" prot="public" static="no">
+        <type>struct <ref refid="structibuf" kindref="compound">ibuf</ref></type>
+        <definition>typedef struct ibuf box_ibuf_t</definition>
+        <argsstring></argsstring>
+        <name>box_ibuf_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="1149" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="utils_8h_1a32aab890bf42871527cacfdfd85d8f8c" prot="public" static="no" mutable="no">
+        <type>struct lua_State *</type>
+        <definition>struct lua_State* tarantool_L</definition>
+        <argsstring></argsstring>
+        <name>tarantool_L</name>
+        <briefdescription>
+<para>Single global lua_State shared by core and modules. </para>        </briefdescription>
+        <detaileddescription>
+<para>Created with tarantool_lua_init(). const char *msg = lua_tostring(L, -1); snprintf(m_errmsg, sizeof(m_errmsg), &quot;%s&quot;, msg ? msg : &quot;&quot;);</para><para>Single global lua_State shared by core and modules. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="74" column="1" bodyfile="/home/tsafin/tarantool/src/lua/init.c" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="utils_8h_1ae73f59e49db32ead6a22cb1ecaa337ae" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structibuf" kindref="compound">ibuf</ref> *</type>
+        <definition>struct ibuf* tarantool_lua_ibuf</definition>
+        <argsstring></argsstring>
+        <name>tarantool_lua_ibuf</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="75" column="1" bodyfile="/home/tsafin/tarantool/src/lua/init.c" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="utils_8h_1a05dd22d64719f58948101bacd4e0bac8" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int luaL_nil_ref</definition>
+        <argsstring></argsstring>
+        <name>luaL_nil_ref</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="295" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.c" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="utils_8h_1a1bd1fe7732da69f6aa24f9e48954342a" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int luaL_map_metatable_ref</definition>
+        <argsstring></argsstring>
+        <name>luaL_map_metatable_ref</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="296" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.c" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="utils_8h_1ac25d2248a36a5a88e6ecd84cf0438ecc" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int luaL_array_metatable_ref</definition>
+        <argsstring></argsstring>
+        <name>luaL_array_metatable_ref</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="297" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.c" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="utils_8h_1a66abc5a406986cb76adff861e2b8d8b5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref> *</type>
+        <definition>struct tt_uuid* luaL_pushuuid</definition>
+        <argsstring>(struct lua_State *L)</argsstring>
+        <name>luaL_pushuuid</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="78" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.c" bodystart="111" bodyend="114"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1a10dcdbcde2e06660cd39915220ff64fc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t luaL_metatype</definition>
+        <argsstring>(struct lua_State *L, const char *ctypename, const struct luaL_Reg *methods)</argsstring>
+        <name>luaL_metatype</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>ctypename</declname>
+        </param>
+        <param>
+          <type>const struct luaL_Reg *</type>
+          <declname>methods</declname>
+        </param>
+        <briefdescription>
+<para>public </para>        </briefdescription>
+        <detaileddescription>
+<para>Return CTypeID (FFI) of given CDATA type, register a metatable with <emphasis>methods</emphasis> to be associated with every value of the given type on its creation iva FFI. <simplesect kind="see"><para>luaL_register_type </para></simplesect>
+<simplesect kind="see"><para>luaL_ctypeid </para></simplesect>
+<simplesect kind="return"><para>CTypeID </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="169" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.c" bodystart="165" bodyend="190"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1aabf901c77ae41f2980061e59a8279fad" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>lua_Integer</type>
+        <definition>static lua_Integer luaL_arrlen</definition>
+        <argsstring>(struct lua_State *L, int idx)</argsstring>
+        <name>luaL_arrlen</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>idx</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="173" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.h" bodystart="173" bodyend="187"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1a43c58fa3c1578602779840f7dad9c6c4" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>lua_Integer</type>
+        <definition>static lua_Integer luaL_maplen</definition>
+        <argsstring>(struct lua_State *L, int idx)</argsstring>
+        <name>luaL_maplen</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>idx</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="190" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.h" bodystart="190" bodyend="199"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1a2c020bb7b0d5a4938c6ce54bedd98ff6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref> *</type>
+        <definition>struct luaL_serializer* luaL_newserializer</definition>
+        <argsstring>(struct lua_State *L, const char *modname, const luaL_Reg *reg)</argsstring>
+        <name>luaL_newserializer</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>modname</declname>
+        </param>
+        <param>
+          <type>const luaL_Reg *</type>
+          <declname>reg</declname>
+        </param>
+        <briefdescription>
+<para>serializer.new() Lua binding. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>L</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>stack </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>reg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>methods to register </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>parent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>parent serializer to inherit configuration </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>new serializer </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="303" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.c" bodystart="368" bodyend="433"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1a4b5a188f0999bac7451d0608395d7906" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void luaL_serializer_copy_options</definition>
+        <argsstring>(struct luaL_serializer *dst, const struct luaL_serializer *src)</argsstring>
+        <name>luaL_serializer_copy_options</name>
+        <param>
+          <type>struct <ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref> *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref> *</type>
+          <declname>src</declname>
+        </param>
+        <briefdescription>
+<para>Copy all option fields of <emphasis>src</emphasis> into <emphasis>dst</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>Other fields, such as triggers, are not touched. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="310" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.c" bodystart="281" bodyend="285"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1a4d145d6939d4341d54a79e52fb39f7e3" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref> *</type>
+        <definition>static struct luaL_serializer* luaL_checkserializer</definition>
+        <argsstring>(struct lua_State *L)</argsstring>
+        <name>luaL_checkserializer</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="314" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.h" bodystart="314" bodyend="317"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1aa6363f2cb3ea21f89aee762f53808768" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void luaL_serializer_create</definition>
+        <argsstring>(struct luaL_serializer *cfg)</argsstring>
+        <name>luaL_serializer_create</name>
+        <param>
+          <type>struct <ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <briefdescription>
+<para>Initialize serializer with default parameters. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Serializer to inherit configuration. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="324" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.c" bodystart="271" bodyend="278"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1aa46f23eed78fc23112050d3ca09d711e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void luaL_serializer_parse_options</definition>
+        <argsstring>(struct lua_State *l, struct luaL_serializer *cfg)</argsstring>
+        <name>luaL_serializer_parse_options</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>l</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="structParse" kindref="compound">Parse</ref> configuration table into <emphasis>cfg</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>L</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Lua stack. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Serializer to inherit configuration. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="332" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.c" bodystart="322" bodyend="329"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1a89fef55cc2d025c456a7d4e75d0e5cda" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int luaL_tofield</definition>
+        <argsstring>(struct lua_State *L, struct luaL_serializer *cfg, const struct serializer_opts *opts, int index, struct luaL_field *field)</argsstring>
+        <name>luaL_tofield</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structserializer__opts" kindref="compound">serializer_opts</ref> *</type>
+          <declname>opts</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structluaL__field" kindref="compound">luaL_field</ref> *</type>
+          <declname>field</declname>
+        </param>
+        <briefdescription>
+<para>Convert a value from the Lua stack to a lua_field structure. </para>        </briefdescription>
+        <detaileddescription>
+<para>This function is designed for use with Lua bindings and data serialization functions (YAML, MsgPack, JSON, etc.).</para><para>Conversion rules:<itemizedlist>
+<listitem><para>LUA_TNUMBER when is integer and &gt;= 0 -&gt; UINT</para></listitem><listitem><para>LUA_TNUMBER when is integer and &lt; 0 -&gt; INT</para></listitem><listitem><para>LUA_TNUMBER when is not integer -&gt; DOUBLE</para></listitem><listitem><para>LUA_TBOOLEAN -&gt; BOOL</para></listitem><listitem><para>LUA_TSTRING -&gt; STRING</para></listitem><listitem><para>LUA_TNIL -&gt; NIL</para></listitem><listitem><para>LUA_TTABLE when is array -&gt; ARRAY</para></listitem><listitem><para>LUA_TTABLE when is not array -&gt; MAP</para></listitem><listitem><para>LUA_TUSERDATA, LUA_TLIGHTUSERDATA, CTID_P_VOID when == NULL -&gt; NIL</para></listitem><listitem><para>CTID_INT*, CTID_CCHAR when &gt;= 0 -&gt; UINT</para></listitem><listitem><para>CTID_INT*, CTID_CCHAR when &lt; 0 -&gt; INT</para></listitem><listitem><para>CTID_FLOAT -&gt; FLOAT</para></listitem><listitem><para>CTID_DOUBLE -&gt; DOUBLE</para></listitem><listitem><para>CTID_BOOL -&gt; BOOL</para></listitem><listitem><para>otherwise -&gt; EXT</para></listitem></itemizedlist>
+</para><para>ARRAY vs MAP recognition works based on encode_sparse_convert, encode_sparse_ratio, encode_sparse_safe and encode_load_metatables config parameters (see above). Tables are not saved to lua_field structure and should be processed manually, according to returned type and size value.</para><para>This function doesn&apos;t try to unpack unknown types and simple returns MP_EXT. The caller can use luaL_tofield() for basic conversion, then invoke internal hooks(if available) and then call luaL_checkfield(), which will try to unpack cdata/userdata objects or raise and error.</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>L</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>stack </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>configuration </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>opts</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the Lua serializer additional options. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>stack index </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>field</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>conversion result</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Success. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>-1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="399" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.c" bodystart="620" bodyend="773"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1ae626fbfa600b2e7245a2c99dc98c3199" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void luaL_convertfield</definition>
+        <argsstring>(struct lua_State *L, struct luaL_serializer *cfg, int idx, struct luaL_field *field)</argsstring>
+        <name>luaL_convertfield</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>idx</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structluaL__field" kindref="compound">luaL_field</ref> *</type>
+          <declname>field</declname>
+        </param>
+        <briefdescription>
+<para>Try to convert userdata/cdata values using defined conversion logic. </para>        </briefdescription>
+        <detaileddescription>
+<para>Must be used only after lua_tofield().</para><para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>L</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>stack </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>configuration </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>idx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>stack index </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>field</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>conversion result </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="413" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.c" bodystart="776" bodyend="812"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1a005df9210e6a37b786ac2d25964bf629" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void luaL_checkfield</definition>
+        <argsstring>(struct lua_State *L, struct luaL_serializer *cfg, int idx, struct luaL_field *field)</argsstring>
+        <name>luaL_checkfield</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>idx</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structluaL__field" kindref="compound">luaL_field</ref> *</type>
+          <declname>field</declname>
+        </param>
+        <briefdescription>
+<para>A wrapper for luaL_tofield() and luaL_convertfield() that tries to convert value or raise an error. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>L</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>stack </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>configuration </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>idx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>stack index </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>field</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>conversion result </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para>lua_tofield() </para></simplesect>
+<simplesect kind="see"><para>luaL_convertfield()</para></simplesect>
+Common conversion order for tables: size/count detection -&gt; (sparse array checking) -&gt; (__serialize)</para><para>Common conversion order for userdata/cdata objects: (internal trigger) -&gt; (__serialize) -&gt; (tostring) -&gt; (nil) -&gt; exception</para><para>Common conversion order for other types: (tostring) -&gt; (nil) -&gt; exception </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="436" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.h" bodystart="436" bodyend="444"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1afaa1bc8749e7b50d148e36c8b7969e0f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void luaL_register_type</definition>
+        <argsstring>(struct lua_State *L, const char *type_name, const struct luaL_Reg *methods)</argsstring>
+        <name>luaL_register_type</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>type_name</declname>
+        </param>
+        <param>
+          <type>const struct luaL_Reg *</type>
+          <declname>methods</declname>
+        </param>
+        <briefdescription>
+<para>A helper to register a single type metatable. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="447" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.c" bodystart="818" bodyend="833"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1aef1f34f4d68c6aa17a91c79d65b127d7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void luaL_register_module</definition>
+        <argsstring>(struct lua_State *L, const char *modname, const struct luaL_Reg *methods)</argsstring>
+        <name>luaL_register_module</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>modname</declname>
+        </param>
+        <param>
+          <type>const struct luaL_Reg *</type>
+          <declname>methods</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="452" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.c" bodystart="836" bodyend="857"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1a423e4f7d34021058e1bdacc1597097f8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int luaT_toerror</definition>
+        <argsstring>(lua_State *L)</argsstring>
+        <name>luaT_toerror</name>
+        <param>
+          <type>lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <briefdescription>
+<para>public </para>        </briefdescription>
+        <detaileddescription>
+<para>Convert the last value on the stack into Tarantool error and set diagnostics. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="558" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.c" bodystart="1006" bodyend="1017"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1aca94311a7d959f18a2269a8331f808c2" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void luaL_setmaphint</definition>
+        <argsstring>(struct lua_State *L, int idx)</argsstring>
+        <name>luaL_setmaphint</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>idx</declname>
+        </param>
+        <briefdescription>
+<para>Push Lua Table with __serialize = &apos;map&apos; hint onto the stack. </para>        </briefdescription>
+        <detaileddescription>
+<para>Tables with __serialize hint are properly handled by all serializers. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>L</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>stack </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>idx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>index in the stack </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="567" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.h" bodystart="567" bodyend="574"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1ab802e29f171b0bff6833cee03e000fe1" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void luaL_setarrayhint</definition>
+        <argsstring>(struct lua_State *L, int idx)</argsstring>
+        <name>luaL_setarrayhint</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>idx</declname>
+        </param>
+        <briefdescription>
+<para>Push Lua Table with __serialize = &apos;seq&apos; hint onto the stack. </para>        </briefdescription>
+        <detaileddescription>
+<para>Tables with __serialize hint are properly handled by all serializers. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>L</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>stack </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>idx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>index in the stack </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="583" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.h" bodystart="583" bodyend="590"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1a0332c53b99e4dfdd96744426e7c821e3" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void luaL_pushnull</definition>
+        <argsstring>(struct lua_State *L)</argsstring>
+        <name>luaL_pushnull</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <briefdescription>
+<para>Push ffi&apos;s NULL (cdata&lt;void *&gt;: NULL) onto the stack. </para>        </briefdescription>
+        <detaileddescription>
+<para>Can be used as replacement of nil in Lua tables. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>L</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>stack </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="598" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.h" bodystart="598" bodyend="601"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1a54baeeb8477608fcbed27a965c7248d5" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool luaL_isnull</definition>
+        <argsstring>(struct lua_State *L, int idx)</argsstring>
+        <name>luaL_isnull</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>idx</declname>
+        </param>
+        <briefdescription>
+<para>Return true if the value at Lua stack is ffi&apos;s NULL (cdata&lt;void *&gt;: NULL). </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>L</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>stack </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>idx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>stack index </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="610" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.h" bodystart="610" bodyend="618"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1a1ac7b838c99336bc14eada21cdc27217" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void luaL_checkfinite</definition>
+        <argsstring>(struct lua_State *L, struct luaL_serializer *cfg, lua_Number number)</argsstring>
+        <name>luaL_checkfinite</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <param>
+          <type>lua_Number</type>
+          <declname>number</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="621" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.h" bodystart="621" bodyend="626"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1a09c52e2884e778d1437720b60c1ec4b0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct lua_State *</type>
+        <definition>struct lua_State* luaT_newthread</definition>
+        <argsstring>(struct lua_State *L)</argsstring>
+        <name>luaT_newthread</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <briefdescription>
+<para>Creates a new Lua coroutine in a protected frame. </para>        </briefdescription>
+        <detaileddescription>
+<para>If &lt;lua_newthread&gt; call underneath succeeds, the created Lua state is on the top of the guest stack and a pointer to this state is returned. Otherwise LUA_ERRMEM error is handled and the result is NULL. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>L</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>is a Lua state </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="see"><para>&lt;lua_newthread&gt; </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="638" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.c" bodystart="1251" bodyend="1261"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1a764f1360b99831fcf2b59c1c2ce2dd18" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int luaL_checkconstchar</definition>
+        <argsstring>(struct lua_State *L, int idx, const char **res, uint32_t *cdata_type_p)</argsstring>
+        <name>luaL_checkconstchar</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>idx</declname>
+        </param>
+        <param>
+          <type>const char **</type>
+          <declname>res</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>cdata_type_p</declname>
+        </param>
+        <briefdescription>
+<para>Check if a value on <emphasis>L</emphasis> stack by index <emphasis>idx</emphasis> is pointer at char or const char. </para>        </briefdescription>
+        <detaileddescription>
+<para>&apos;(char *)NULL&apos; is also considered a valid char pointer. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="646" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.c" bodystart="1124" bodyend="1136"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1a65b878ec5039b78f2b5cf2b666d0bc9e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structluaL__iterator" kindref="compound">luaL_iterator</ref> *</type>
+        <definition>struct luaL_iterator* luaL_iterator_new</definition>
+        <argsstring>(lua_State *L, int idx)</argsstring>
+        <name>luaL_iterator_new</name>
+        <param>
+          <type>lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>idx</declname>
+        </param>
+        <briefdescription>
+<para>Create a Lua iterator from a gen, param, state triplet. </para>        </briefdescription>
+        <detaileddescription>
+<para>If idx == 0, then three top stack values are used as the triplet. Note: they are not popped.</para><para>Otherwise idx is index on Lua stack points to a {gen, param, state} table. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="666" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.c" bodystart="1153" bodyend="1184"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1ac102ed86747e306bb4cdc1423e74de89" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int luaL_iterator_next</definition>
+        <argsstring>(lua_State *L, struct luaL_iterator *it)</argsstring>
+        <name>luaL_iterator_next</name>
+        <param>
+          <type>lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structluaL__iterator" kindref="compound">luaL_iterator</ref> *</type>
+          <declname>it</declname>
+        </param>
+        <briefdescription>
+<para>Move iterator to the next value. </para>        </briefdescription>
+        <detaileddescription>
+<para>Push values returned by gen(param, state).</para><para>Return count of pushed values. Zero means no more results available. In case of a Lua error in a gen function return -1 and set a diag. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="677" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.c" bodystart="1187" bodyend="1224"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1a8da68ae6ce91a339f0fc253c88c787e6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void luaL_iterator_delete</definition>
+        <argsstring>(struct luaL_iterator *it)</argsstring>
+        <name>luaL_iterator_delete</name>
+        <param>
+          <type>struct <ref refid="structluaL__iterator" kindref="compound">luaL_iterator</ref> *</type>
+          <declname>it</declname>
+        </param>
+        <briefdescription>
+<para>Free all resources held by the iterator. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="682" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.c" bodystart="1226" bodyend="1232"/>
+      </memberdef>
+      <memberdef kind="function" id="utils_8h_1ae6d5a40cdbd8ce136b93e72db1fb85f3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int tarantool_lua_utils_init</definition>
+        <argsstring>(struct lua_State *L)</argsstring>
+        <name>tarantool_lua_utils_init</name>
+        <param>
+          <type>struct lua_State *</type>
+          <declname>L</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lua/utils.h" line="687" column="1" bodyfile="/home/tsafin/tarantool/src/lua/utils.c" bodystart="1264" bodyend="1317"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LUA_UTILS_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LUA_UTILS_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2015,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;math.h&gt;</highlight><highlight class="normal"><sp/></highlight><highlight class="comment">/*<sp/>modf,<sp/>isfinite<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;<ref refid="msgpuck_8h" kindref="compound">msgpuck.h</ref>&gt;</highlight><highlight class="normal"><sp/></highlight><highlight class="comment">/*<sp/>enum<sp/>mp_type<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;trigger.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;lua.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;lauxlib.h&gt;</highlight><highlight class="normal"><sp/></highlight><highlight class="comment">/*<sp/>luaL_error<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;lj_state.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;lj_obj.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;lj_ctype.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;lj_cdata.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;lj_cconv.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;lj_lib.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;lj_tab.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;lj_meta.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;lua/error.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;lib/core/mp_extension_types.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;lib/core/decimal.h&quot;</highlight><highlight class="normal"><sp/></highlight><highlight class="comment">/*<sp/>decimal_t<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structserializer__opts" kindref="compound">serializer_opts</ref>;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">lua_State;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structibuf" kindref="compound">ibuf</ref>;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structibuf" kindref="compound">ibuf</ref><sp/><ref refid="structibuf" kindref="compound">box_ibuf_t</ref>;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref>;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">lua_State<sp/>*tarantool_L;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structibuf" kindref="compound">ibuf</ref><sp/>*tarantool_lua_ibuf;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*</highlight></codeline>
+<codeline lineno="78"><highlight class="normal">luaL_pushuuid(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal">LUA_API<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal">luaL_iscdata(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal">LUA_API<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="112"><highlight class="normal">luaL_pushcdata(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/>uint32_t<sp/>ctypeid);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal">LUA_API<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="123"><highlight class="normal">luaL_checkcdata(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx,<sp/>uint32_t<sp/>*ctypeid);</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal">LUA_API<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal">luaL_setcdatagc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal">LUA_API<sp/>uint32_t</highlight></codeline>
+<codeline lineno="144"><highlight class="normal">luaL_ctypeid(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*ctypename);</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal">LUA_API<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal">luaL_cdef(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*ctypename);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal">uint32_t</highlight></codeline>
+<codeline lineno="169"><highlight class="normal">luaL_metatype(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*ctypename,</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>luaL_Reg<sp/>*methods);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>lua_Integer</highlight></codeline>
+<codeline lineno="173"><highlight class="normal">luaL_arrlen(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx)</highlight></codeline>
+<codeline lineno="174"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lua_Integer<sp/>max<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lua_pushnil(L);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(lua_next(L,<sp/>idx))<sp/>{</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lua_pop(L,<sp/>1);<sp/></highlight><highlight class="comment">/*<sp/>pop<sp/>the<sp/>value<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(lua_type(L,<sp/>-1)<sp/>!=<sp/>LUA_TNUMBER)</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lua_Number<sp/>k<sp/>=<sp/>lua_tonumber(L,<sp/>-1);</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(k<sp/>&lt;=<sp/>max<sp/>||<sp/>floor(k)<sp/>!=<sp/>k)</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>max<sp/>=<sp/>k;</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>max;</highlight></codeline>
+<codeline lineno="187"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>lua_Integer</highlight></codeline>
+<codeline lineno="190"><highlight class="normal">luaL_maplen(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx)</highlight></codeline>
+<codeline lineno="191"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lua_Integer<sp/>size<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lua_pushnil(L);</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(lua_next(L,<sp/>idx))<sp/>{</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lua_pop(L,<sp/>1);<sp/></highlight><highlight class="comment">/*<sp/>pop<sp/>the<sp/>value<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>size++;</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>size;</highlight></codeline>
+<codeline lineno="199"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204" refid="structluaL__serializer" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref><sp/>{</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer_1a119030c91d6d19003214fe0dfe8a0485" kindref="member">encode_sparse_convert</ref>;</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer_1a262f858d5f81f56148f9958e82df832a" kindref="member">encode_sparse_ratio</ref>;</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer_1aa875048e6d6d1adf3237ac7c626762dc" kindref="member">encode_sparse_safe</ref>;</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer_1aa317d7c64348d791a95571287d5bb81c" kindref="member">encode_max_depth</ref>;</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer_1a2c8500c4aec7660c8c1c7c37888e8e78" kindref="member">encode_deep_as_nil</ref>;</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer_1a4b3d1ea2d242d71f1b9355c14a370b99" kindref="member">encode_invalid_numbers</ref>;</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer_1aa91fd89cfa0178276cd9f8f158952fa7" kindref="member">encode_number_precision</ref>;</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer_1a1cdec64fe6a1ff20da206d572af025d1" kindref="member">encode_load_metatables</ref>;</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer_1ab5a4ee32e216c697c2423d6f5e3c03a7" kindref="member">encode_use_tostring</ref>;</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer_1a64d9ce49a70bd9d42c384e0cd293d001" kindref="member">encode_invalid_as_nil</ref>;</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer_1a2f96bb3f6359e4790c37eba4ce752a4b" kindref="member">decode_invalid_numbers</ref>;</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer_1a793dcbc6b2373adc5a08659333c04d4d" kindref="member">decode_save_metatables</ref>;</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer_1ac01da8b8cf5e8ba4c4cdccebdcdf7f25" kindref="member">decode_max_depth</ref>;</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer_1a2da7563572cb986f12e84a898449bcb0" kindref="member">has_compact</ref>;</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer_1a3c65b77fc032d4000f8c7f64edc1d7ac" kindref="member">end_of_options</ref>[0];</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtrigger" kindref="compound">trigger</ref><sp/>update_trigger;</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>on_update;</highlight></codeline>
+<codeline lineno="293"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"></highlight></codeline>
+<codeline lineno="295"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>luaL_nil_ref;</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>luaL_map_metatable_ref;</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>luaL_array_metatable_ref;</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"></highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LUAL_SERIALIZER<sp/>&quot;serializer&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LUAL_SERIALIZE<sp/>&quot;__serialize&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="301"><highlight class="normal"></highlight></codeline>
+<codeline lineno="302"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref><sp/>*</highlight></codeline>
+<codeline lineno="303"><highlight class="normal">luaL_newserializer(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*modname,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>luaL_Reg<sp/>*reg);</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"></highlight></codeline>
+<codeline lineno="309"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="310"><highlight class="normal">luaL_serializer_copy_options(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref><sp/>*dst,</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref><sp/>*src);</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"></highlight></codeline>
+<codeline lineno="313"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref><sp/>*</highlight></codeline>
+<codeline lineno="314"><highlight class="normal">luaL_checkserializer(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L)<sp/>{</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref><sp/>*)</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>luaL_checkudata(L,<sp/>lua_upvalueindex(1),<sp/>LUAL_SERIALIZER);</highlight></codeline>
+<codeline lineno="317"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"></highlight></codeline>
+<codeline lineno="323"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="324"><highlight class="normal">luaL_serializer_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref><sp/>*cfg);</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"></highlight></codeline>
+<codeline lineno="331"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="332"><highlight class="normal">luaL_serializer_parse_options(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*l,</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref><sp/>*cfg);</highlight></codeline>
+<codeline lineno="334"><highlight class="normal"></highlight></codeline>
+<codeline lineno="336" refid="structluaL__field" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structluaL__field" kindref="compound">luaL_field</ref><sp/>{</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data;</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>len;</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/>sval;</highlight></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>ival;</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>dval;</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>fval;</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>bval;</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Array<sp/>or<sp/>map.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>size;</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>decimal_t<sp/>*decval;</highlight></codeline>
+<codeline lineno="349"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structtt__uuid" kindref="compound">tt_uuid</ref><sp/>*uuidval;</highlight></codeline>
+<codeline lineno="350"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="351"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="msgpuck_8h_1a2d475ca7ff94ba648ab4fbdc8e49eabd" kindref="member">mp_type</ref><sp/>type;</highlight></codeline>
+<codeline lineno="352"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>subtypes<sp/>of<sp/>MP_EXT<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="353"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>mp_extension_type<sp/>ext_type;</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>compact;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>a<sp/>flag<sp/>used<sp/>by<sp/>YAML<sp/>serializer<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="355"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"></highlight></codeline>
+<codeline lineno="398"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="399"><highlight class="normal">luaL_tofield(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref><sp/>*cfg,</highlight></codeline>
+<codeline lineno="400"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structserializer__opts" kindref="compound">serializer_opts</ref><sp/>*opts,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structindex" kindref="compound">index</ref>,</highlight></codeline>
+<codeline lineno="401"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structluaL__field" kindref="compound">luaL_field</ref><sp/>*field);</highlight></codeline>
+<codeline lineno="402"><highlight class="normal"></highlight></codeline>
+<codeline lineno="412"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="413"><highlight class="normal">luaL_convertfield(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref><sp/>*cfg,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx,</highlight></codeline>
+<codeline lineno="414"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structluaL__field" kindref="compound">luaL_field</ref><sp/>*field);</highlight></codeline>
+<codeline lineno="415"><highlight class="normal"></highlight></codeline>
+<codeline lineno="435"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="436"><highlight class="normal">luaL_checkfield(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref><sp/>*cfg,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx,</highlight></codeline>
+<codeline lineno="437"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structluaL__field" kindref="compound">luaL_field</ref><sp/>*field)</highlight></codeline>
+<codeline lineno="438"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="439"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(luaL_tofield(L,<sp/>cfg,<sp/>NULL,<sp/>idx,<sp/>field)<sp/>&lt;<sp/>0)</highlight></codeline>
+<codeline lineno="440"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>luaT_error(L);</highlight></codeline>
+<codeline lineno="441"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(field-&gt;type<sp/>!=<sp/>MP_EXT<sp/>||<sp/>field-&gt;ext_type<sp/>!=<sp/>MP_UNKNOWN_EXTENSION)</highlight></codeline>
+<codeline lineno="442"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="443"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>luaL_convertfield(L,<sp/>cfg,<sp/>idx,<sp/>field);</highlight></codeline>
+<codeline lineno="444"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="445"><highlight class="normal"></highlight></codeline>
+<codeline lineno="446"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="447"><highlight class="normal">luaL_register_type(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*type_name,</highlight></codeline>
+<codeline lineno="448"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>luaL_Reg<sp/>*methods);</highlight></codeline>
+<codeline lineno="449"><highlight class="normal"></highlight></codeline>
+<codeline lineno="450"><highlight class="normal"></highlight></codeline>
+<codeline lineno="451"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="452"><highlight class="normal">luaL_register_module(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*modname,</highlight></codeline>
+<codeline lineno="453"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>luaL_Reg<sp/>*methods);</highlight></codeline>
+<codeline lineno="454"><highlight class="normal"></highlight></codeline>
+<codeline lineno="463"><highlight class="normal">LUA_API<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="464"><highlight class="normal">luaL_pushuint64(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/>uint64_t<sp/>val);</highlight></codeline>
+<codeline lineno="465"><highlight class="normal"></highlight></codeline>
+<codeline lineno="472"><highlight class="normal">LUA_API<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="473"><highlight class="normal">luaL_pushint64(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/>int64_t<sp/>val);</highlight></codeline>
+<codeline lineno="474"><highlight class="normal"></highlight></codeline>
+<codeline lineno="480"><highlight class="normal">LUA_API<sp/>uint64_t</highlight></codeline>
+<codeline lineno="481"><highlight class="normal">luaL_checkuint64(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx);</highlight></codeline>
+<codeline lineno="482"><highlight class="normal"></highlight></codeline>
+<codeline lineno="488"><highlight class="normal">LUA_API<sp/>int64_t</highlight></codeline>
+<codeline lineno="489"><highlight class="normal">luaL_checkint64(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx);</highlight></codeline>
+<codeline lineno="490"><highlight class="normal"></highlight></codeline>
+<codeline lineno="496"><highlight class="normal">LUA_API<sp/>uint64_t</highlight></codeline>
+<codeline lineno="497"><highlight class="normal">luaL_touint64(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx);</highlight></codeline>
+<codeline lineno="498"><highlight class="normal"></highlight></codeline>
+<codeline lineno="504"><highlight class="normal">LUA_API<sp/>int64_t</highlight></codeline>
+<codeline lineno="505"><highlight class="normal">luaL_toint64(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx);</highlight></codeline>
+<codeline lineno="506"><highlight class="normal"></highlight></codeline>
+<codeline lineno="511"><highlight class="normal">LUA_API<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="512"><highlight class="normal">luaT_call(lua_State<sp/>*L,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>nargs,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>nreturns);</highlight></codeline>
+<codeline lineno="513"><highlight class="normal"></highlight></codeline>
+<codeline lineno="518"><highlight class="normal">LUA_API<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="519"><highlight class="normal">luaT_cpcall(lua_State<sp/>*L,<sp/>lua_CFunction<sp/><ref refid="structfunc" kindref="compound">func</ref>,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ud);</highlight></codeline>
+<codeline lineno="520"><highlight class="normal"></highlight></codeline>
+<codeline lineno="524"><highlight class="normal">LUA_API<sp/>lua_State<sp/>*</highlight></codeline>
+<codeline lineno="525"><highlight class="normal">luaT_state(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="526"><highlight class="normal"></highlight></codeline>
+<codeline lineno="530"><highlight class="normal">LUA_API<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="531"><highlight class="normal">luaT_tolstring(lua_State<sp/>*L,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*ssize);</highlight></codeline>
+<codeline lineno="532"><highlight class="normal"></highlight></codeline>
+<codeline lineno="540"><highlight class="normal">LUA_API<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="541"><highlight class="normal">luaL_iscallable(lua_State<sp/>*L,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx);</highlight></codeline>
+<codeline lineno="542"><highlight class="normal"></highlight></codeline>
+<codeline lineno="548"><highlight class="normal">LUA_API<sp/><ref refid="structibuf" kindref="compound">box_ibuf_t</ref><sp/>*</highlight></codeline>
+<codeline lineno="549"><highlight class="normal">luaT_toibuf(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx);</highlight></codeline>
+<codeline lineno="550"><highlight class="normal"></highlight></codeline>
+<codeline lineno="557"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="558"><highlight class="normal">luaT_toerror(lua_State<sp/>*L);</highlight></codeline>
+<codeline lineno="559"><highlight class="normal"></highlight></codeline>
+<codeline lineno="566"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="567"><highlight class="normal">luaL_setmaphint(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx)</highlight></codeline>
+<codeline lineno="568"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="569"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(idx<sp/>&lt;<sp/>0)</highlight></codeline>
+<codeline lineno="570"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>idx<sp/>=<sp/>lua_gettop(L)<sp/>+<sp/>idx<sp/>+<sp/>1;</highlight></codeline>
+<codeline lineno="571"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(lua_type(L,<sp/>idx)<sp/>==<sp/>LUA_TTABLE);</highlight></codeline>
+<codeline lineno="572"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lua_rawgeti(L,<sp/>LUA_REGISTRYINDEX,<sp/>luaL_map_metatable_ref);</highlight></codeline>
+<codeline lineno="573"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lua_setmetatable(L,<sp/>idx);</highlight></codeline>
+<codeline lineno="574"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="575"><highlight class="normal"></highlight></codeline>
+<codeline lineno="582"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="583"><highlight class="normal">luaL_setarrayhint(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx)</highlight></codeline>
+<codeline lineno="584"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="585"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(idx<sp/>&lt;<sp/>0)</highlight></codeline>
+<codeline lineno="586"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>idx<sp/>=<sp/>lua_gettop(L)<sp/>+<sp/>idx<sp/>+<sp/>1;</highlight></codeline>
+<codeline lineno="587"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(lua_type(L,<sp/>idx)<sp/>==<sp/>LUA_TTABLE);</highlight></codeline>
+<codeline lineno="588"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lua_rawgeti(L,<sp/>LUA_REGISTRYINDEX,<sp/>luaL_array_metatable_ref);</highlight></codeline>
+<codeline lineno="589"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lua_setmetatable(L,<sp/>idx);</highlight></codeline>
+<codeline lineno="590"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="591"><highlight class="normal"></highlight></codeline>
+<codeline lineno="597"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="598"><highlight class="normal">luaL_pushnull(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L)</highlight></codeline>
+<codeline lineno="599"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="600"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lua_rawgeti(L,<sp/>LUA_REGISTRYINDEX,<sp/>luaL_nil_ref);</highlight></codeline>
+<codeline lineno="601"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="602"><highlight class="normal"></highlight></codeline>
+<codeline lineno="609"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="610"><highlight class="normal">luaL_isnull(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx)</highlight></codeline>
+<codeline lineno="611"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="612"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(lua_type(L,<sp/>idx)<sp/>==<sp/>LUA_TCDATA)<sp/>{</highlight></codeline>
+<codeline lineno="613"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>GCcdata<sp/>*cd<sp/>=<sp/>cdataV(L-&gt;base<sp/>+<sp/>idx<sp/>-<sp/>1);</highlight></codeline>
+<codeline lineno="614"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>cd-&gt;ctypeid<sp/>==<sp/>CTID_P_VOID<sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="615"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>**)cdataptr(cd)<sp/>==<sp/>NULL;</highlight></codeline>
+<codeline lineno="616"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="617"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="618"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="619"><highlight class="normal"></highlight></codeline>
+<codeline lineno="620"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="621"><highlight class="normal">luaL_checkfinite(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structluaL__serializer" kindref="compound">luaL_serializer</ref><sp/>*cfg,</highlight></codeline>
+<codeline lineno="622"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lua_Number<sp/>number)</highlight></codeline>
+<codeline lineno="623"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="624"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!cfg-&gt;<ref refid="structluaL__serializer_1a2f96bb3f6359e4790c37eba4ce752a4b" kindref="member">decode_invalid_numbers</ref><sp/>&amp;&amp;<sp/>!isfinite(number))</highlight></codeline>
+<codeline lineno="625"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>luaL_error(L,<sp/></highlight><highlight class="stringliteral">&quot;number<sp/>must<sp/>not<sp/>be<sp/>NaN<sp/>or<sp/>Inf&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="626"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="627"><highlight class="normal"></highlight></codeline>
+<codeline lineno="637"><highlight class="keyword">struct<sp/></highlight><highlight class="normal">lua_State<sp/>*</highlight></codeline>
+<codeline lineno="638"><highlight class="normal">luaT_newthread(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L);</highlight></codeline>
+<codeline lineno="639"><highlight class="normal"></highlight></codeline>
+<codeline lineno="645"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="646"><highlight class="normal">luaL_checkconstchar(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**res,</highlight></codeline>
+<codeline lineno="647"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>*cdata_type_p);</highlight></codeline>
+<codeline lineno="648"><highlight class="normal"></highlight></codeline>
+<codeline lineno="649"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>{{{<sp/>Helper<sp/>functions<sp/>to<sp/>interact<sp/>with<sp/>a<sp/>Lua<sp/>iterator<sp/>from<sp/>C<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="650"><highlight class="normal"></highlight></codeline>
+<codeline lineno="654"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structluaL__iterator" kindref="compound">luaL_iterator</ref>;</highlight></codeline>
+<codeline lineno="655"><highlight class="normal"></highlight></codeline>
+<codeline lineno="665"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structluaL__iterator" kindref="compound">luaL_iterator</ref><sp/>*</highlight></codeline>
+<codeline lineno="666"><highlight class="normal">luaL_iterator_new(lua_State<sp/>*L,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>idx);</highlight></codeline>
+<codeline lineno="667"><highlight class="normal"></highlight></codeline>
+<codeline lineno="676"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="677"><highlight class="normal">luaL_iterator_next(lua_State<sp/>*L,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structluaL__iterator" kindref="compound">luaL_iterator</ref><sp/>*it);</highlight></codeline>
+<codeline lineno="678"><highlight class="normal"></highlight></codeline>
+<codeline lineno="682"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>luaL_iterator_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structluaL__iterator" kindref="compound">luaL_iterator</ref><sp/>*it);</highlight></codeline>
+<codeline lineno="683"><highlight class="normal"></highlight></codeline>
+<codeline lineno="684"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>}}}<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="685"><highlight class="normal"></highlight></codeline>
+<codeline lineno="686"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="687"><highlight class="normal">tarantool_lua_utils_init(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lua_State<sp/>*L);</highlight></codeline>
+<codeline lineno="688"><highlight class="normal"></highlight></codeline>
+<codeline lineno="689"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="690"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="691"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="692"><highlight class="normal"></highlight></codeline>
+<codeline lineno="693"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_LUA_UTILS_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lua/utils.h"/>
+  </compounddef>
+</doxygen>

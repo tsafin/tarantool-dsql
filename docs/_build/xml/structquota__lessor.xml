@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structquota__lessor" kind="struct" language="C++" prot="public">
+    <compoundname>quota_lessor</compoundname>
+    <includes local="no">quota_lessor.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structquota__lessor_1a1695def8d095d7c7ab9d01fd15437a27" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structquota" kindref="compound">quota</ref> *</type>
+        <definition>struct quota* quota_lessor::source</definition>
+        <argsstring></argsstring>
+        <name>source</name>
+        <briefdescription>
+<para>Original thread-safe, 1Kb precision quota. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h" line="52" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structquota__lessor_1abe4fdfe1a690e17cd14cec407ea0320b" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t quota_lessor::used</definition>
+        <argsstring></argsstring>
+        <name>used</name>
+        <briefdescription>
+<para>The number of bytes taken from <emphasis>source</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h" line="54" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structquota__lessor_1a330b6cd40731d281204f1f480c0ed703" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t quota_lessor::leased</definition>
+        <argsstring></argsstring>
+        <name>leased</name>
+        <briefdescription>
+<para>The number of bytes leased. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h" line="56" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Quota lessor is a convenience wrapper around thread-safe <computeroutput>struct quota</computeroutput> to allocate small chunks of memory from the single thread. </para>    </briefdescription>
+    <detaileddescription>
+<para>Original quota has 1Kb precision and uses atomics, which are too slow for frequent calls from different threads.</para><para>The quota lessor allocates huge (1Mb+) chunks of memory from the source quota and then leases small chunks to the end users. The end of lease is implemented in the similar way - the lessor does not release small amounts, but accumulates freed memory until it reaches at least 1Mb an then releases it.</para><para>This decreases usage of atomic locks and improves quota precision from 1024 bytes to 1 byte. This class, however, is not thread-safe, so there must be a lessor in each thread. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="7602">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="7601">
+        <label>quota_lessor</label>
+        <link refid="structquota__lessor"/>
+        <childnode refid="7602" relation="usage">
+          <edgelabel>source</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h" line="50" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/quota_lessor.h" bodystart="50" bodyend="57"/>
+    <listofallmembers>
+      <member refid="structquota__lessor_1a330b6cd40731d281204f1f480c0ed703" prot="public" virt="non-virtual"><scope>quota_lessor</scope><name>leased</name></member>
+      <member refid="structquota__lessor_1a1695def8d095d7c7ab9d01fd15437a27" prot="public" virt="non-virtual"><scope>quota_lessor</scope><name>source</name></member>
+      <member refid="structquota__lessor_1abe4fdfe1a690e17cd14cec407ea0320b" prot="public" virt="non-virtual"><scope>quota_lessor</scope><name>used</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

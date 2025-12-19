@@ -1,0 +1,219 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structwal__watcher" kind="struct" language="C++" prot="public">
+    <compoundname>wal_watcher</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structwal__watcher_1a450d4a9767d8223182340fb956060297" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist wal_watcher::next</definition>
+        <argsstring></argsstring>
+        <name>next</name>
+        <briefdescription>
+<para>Link in <ref refid="structwal__writer_1a50fd396b7c87df145d762a37a6760170" kindref="member">wal_writer::watchers</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="111" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__watcher_1a102b9949ca2bbbf14f4b9ca803b2e2c8" prot="public" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* wal_watcher::cb) (struct wal_watcher *, unsigned events)</definition>
+        <argsstring>)(struct wal_watcher *, unsigned events)</argsstring>
+        <name>cb</name>
+        <briefdescription>
+<para>The watcher callback function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="125" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.h" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__watcher_1a212dbb96df57191e5ac919fcb139e29d" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcpipe" kindref="compound">cpipe</ref></type>
+        <definition>struct cpipe wal_watcher::wal_pipe</definition>
+        <argsstring></argsstring>
+        <name>wal_pipe</name>
+        <briefdescription>
+<para>Pipe from the watcher to WAL. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="125" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.h" bodystart="127" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__watcher_1a54bab5db258603900ad40a7ac3712951" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcpipe" kindref="compound">cpipe</ref></type>
+        <definition>struct cpipe wal_watcher::watcher_pipe</definition>
+        <argsstring></argsstring>
+        <name>watcher_pipe</name>
+        <briefdescription>
+<para>Pipe from WAL to the watcher. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="125" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.h" bodystart="129" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__watcher_1ae862f35103769cad3de3dd0bf88b5e8f" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcmsg__hop" kindref="compound">cmsg_hop</ref></type>
+        <definition>struct cmsg_hop wal_watcher::route[2]</definition>
+        <argsstring>[2]</argsstring>
+        <name>route</name>
+        <briefdescription>
+<para>Cbus route used for notifying the watcher. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="125" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.h" bodystart="131" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__watcher_1a8c4cb6ef47c4a612e862c1c004a279e8" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structwal__watcher__msg" kindref="compound">wal_watcher_msg</ref></type>
+        <definition>struct wal_watcher_msg wal_watcher::msg</definition>
+        <argsstring></argsstring>
+        <name>msg</name>
+        <briefdescription>
+<para>Message sent to notify the watcher. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="125" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.h" bodystart="133" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structwal__watcher_1aec949aeb61305f5d620c14ec2ea4b963" prot="public" static="no" mutable="no">
+        <type>unsigned</type>
+        <definition>unsigned wal_watcher::pending_events</definition>
+        <argsstring></argsstring>
+        <name>pending_events</name>
+        <briefdescription>
+<para>Bit mask of WAL events that happened while the notification message was en route. </para>        </briefdescription>
+        <detaileddescription>
+<para>It indicates that the message must be resend right upon returning to WAL. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/wal.h" line="140" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.h" bodystart="140" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="16181">
+        <label>wal_watcher_msg</label>
+        <link refid="structwal__watcher__msg"/>
+        <childnode refid="16172" relation="usage">
+          <edgelabel>watcher</edgelabel>
+        </childnode>
+        <childnode refid="16180" relation="usage">
+          <edgelabel>cmsg</edgelabel>
+        </childnode>
+      </node>
+      <node id="16179">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="16179" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="16178">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="16179" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="16174">
+        <label>cpipe</label>
+        <link refid="structcpipe"/>
+        <childnode refid="16175" relation="usage">
+          <edgelabel>on_flush</edgelabel>
+        </childnode>
+        <childnode refid="16176" relation="usage">
+          <edgelabel>endpoint</edgelabel>
+        </childnode>
+        <childnode refid="16178" relation="usage">
+          <edgelabel>input</edgelabel>
+        </childnode>
+      </node>
+      <node id="16173">
+        <label>cmsg_hop</label>
+        <link refid="structcmsg__hop"/>
+        <childnode refid="16174" relation="usage">
+          <edgelabel>pipe</edgelabel>
+        </childnode>
+        <childnode refid="16180" relation="usage">
+          <edgelabel>f</edgelabel>
+        </childnode>
+      </node>
+      <node id="16175">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="16175" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="16180">
+        <label>cmsg</label>
+        <link refid="structcmsg"/>
+        <childnode refid="16173" relation="usage">
+          <edgelabel>hop</edgelabel>
+          <edgelabel>route</edgelabel>
+        </childnode>
+        <childnode refid="16179" relation="usage">
+          <edgelabel>fifo</edgelabel>
+        </childnode>
+      </node>
+      <node id="16172">
+        <label>wal_watcher</label>
+        <link refid="structwal__watcher"/>
+        <childnode refid="16173" relation="usage">
+          <edgelabel>route</edgelabel>
+        </childnode>
+        <childnode refid="16181" relation="usage">
+          <edgelabel>msg</edgelabel>
+        </childnode>
+        <childnode refid="16175" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="16174" relation="usage">
+          <edgelabel>wal_pipe</edgelabel>
+          <edgelabel>watcher_pipe</edgelabel>
+        </childnode>
+      </node>
+      <node id="16177">
+        <label>fiber_cond</label>
+        <link refid="structfiber__cond"/>
+        <childnode refid="16175" relation="usage">
+          <edgelabel>waiters</edgelabel>
+        </childnode>
+      </node>
+      <node id="16176">
+        <label>cbus_endpoint</label>
+        <link refid="structcbus__endpoint"/>
+        <childnode refid="16177" relation="usage">
+          <edgelabel>cond</edgelabel>
+        </childnode>
+        <childnode refid="16175" relation="usage">
+          <edgelabel>in_cbus</edgelabel>
+        </childnode>
+        <childnode refid="16178" relation="usage">
+          <edgelabel>output</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/wal.h" line="121" column="1" bodyfile="/home/tsafin/tarantool/src/box/wal.h" bodystart="121" bodyend="141"/>
+    <listofallmembers>
+      <member refid="structwal__watcher_1a102b9949ca2bbbf14f4b9ca803b2e2c8" prot="public" virt="non-virtual"><scope>wal_watcher</scope><name>cb</name></member>
+      <member refid="structwal__watcher_1a8c4cb6ef47c4a612e862c1c004a279e8" prot="public" virt="non-virtual"><scope>wal_watcher</scope><name>msg</name></member>
+      <member refid="structwal__watcher_1a450d4a9767d8223182340fb956060297" prot="public" virt="non-virtual"><scope>wal_watcher</scope><name>next</name></member>
+      <member refid="structwal__watcher_1aec949aeb61305f5d620c14ec2ea4b963" prot="public" virt="non-virtual"><scope>wal_watcher</scope><name>pending_events</name></member>
+      <member refid="structwal__watcher_1ae862f35103769cad3de3dd0bf88b5e8f" prot="public" virt="non-virtual"><scope>wal_watcher</scope><name>route</name></member>
+      <member refid="structwal__watcher_1a212dbb96df57191e5ac919fcb139e29d" prot="public" virt="non-virtual"><scope>wal_watcher</scope><name>wal_pipe</name></member>
+      <member refid="structwal__watcher_1a54bab5db258603900ad40a7ac3712951" prot="public" virt="non-virtual"><scope>wal_watcher</scope><name>watcher_pipe</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

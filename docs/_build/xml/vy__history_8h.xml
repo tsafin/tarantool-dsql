@@ -1,0 +1,304 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="vy__history_8h" kind="file" language="C++">
+    <compoundname>vy_history.h</compoundname>
+    <includes local="no">assert.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes refid="rlist_8h" local="no">small/rlist.h</includes>
+    <includes refid="iproto__constants_8h" local="yes">iproto_constants.h</includes>
+    <includes refid="vy__stmt_8h" local="yes">vy_stmt.h</includes>
+    <includedby refid="vy__cache_8c" local="yes">/home/tsafin/tarantool/src/box/vy_cache.c</includedby>
+    <includedby refid="vy__history_8c" local="yes">/home/tsafin/tarantool/src/box/vy_history.c</includedby>
+    <includedby refid="vy__lsm_8c" local="yes">/home/tsafin/tarantool/src/box/vy_lsm.c</includedby>
+    <includedby refid="vy__mem_8c" local="yes">/home/tsafin/tarantool/src/box/vy_mem.c</includedby>
+    <includedby refid="vy__point__lookup_8c" local="yes">/home/tsafin/tarantool/src/box/vy_point_lookup.c</includedby>
+    <includedby refid="vy__read__iterator_8c" local="yes">/home/tsafin/tarantool/src/box/vy_read_iterator.c</includedby>
+    <includedby refid="vy__run_8c" local="yes">/home/tsafin/tarantool/src/box/vy_run.c</includedby>
+    <includedby refid="vy__tx_8c" local="yes">/home/tsafin/tarantool/src/box/vy_tx.c</includedby>
+    <incdepgraph>
+      <node id="1272">
+        <label>stdbool.h</label>
+      </node>
+      <node id="1271">
+        <label>assert.h</label>
+      </node>
+      <node id="1270">
+        <label>/home/tsafin/tarantool/src/box/vy_history.h</label>
+        <link refid="vy__history_8h"/>
+        <childnode refid="1271" relation="include">
+        </childnode>
+        <childnode refid="1272" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structvy__history" prot="public">vy_history</innerclass>
+    <innerclass refid="structvy__history__node" prot="public">vy_history_node</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="vy__history_8h_1af29780ffd5050b2eb358be3b9b4d831f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_history_create</definition>
+        <argsstring>(struct vy_history *history, struct mempool *pool)</argsstring>
+        <name>vy_history_create</name>
+        <param>
+          <type>struct <ref refid="structvy__history" kindref="compound">vy_history</ref> *</type>
+          <declname>history</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structmempool" kindref="compound">mempool</ref> *</type>
+          <declname>pool</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a history list. </para>        </briefdescription>
+        <detaileddescription>
+<para>The &apos;pool&apos; argument specifies the memory pool to use for node allocations. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_history.h" line="85" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_history.h" bodystart="85" bodyend="89"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__history_8h_1a19ad35fcdee12a829ee13ca10dbf66dd" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool vy_history_is_terminal</definition>
+        <argsstring>(struct vy_history *history)</argsstring>
+        <name>vy_history_is_terminal</name>
+        <param>
+          <type>struct <ref refid="structvy__history" kindref="compound">vy_history</ref> *</type>
+          <declname>history</declname>
+        </param>
+        <briefdescription>
+<para>Return true if the history of a key contains terminal node in the end, i.e. </para>        </briefdescription>
+        <detaileddescription>
+<para>REPLACE of DELETE statement. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_history.h" line="96" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_history.h" bodystart="96" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__history_8h_1a8cfbd719d82c56fddd91eb2e1c5d18b2" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+        <definition>static struct vy_entry vy_history_last_stmt</definition>
+        <argsstring>(struct vy_history *history)</argsstring>
+        <name>vy_history_last_stmt</name>
+        <param>
+          <type>struct <ref refid="structvy__history" kindref="compound">vy_history</ref> *</type>
+          <declname>history</declname>
+        </param>
+        <briefdescription>
+<para>Return the last (newest, having max LSN) statement of the given key history or NULL if the history is empty. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_history.h" line="96" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_history.h" bodystart="114" bodyend="122"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__history_8h_1a4bf25dbfcd95c5831fa9239754a04139" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_history_splice</definition>
+        <argsstring>(struct vy_history *dst, struct vy_history *src)</argsstring>
+        <name>vy_history_splice</name>
+        <param>
+          <type>struct <ref refid="structvy__history" kindref="compound">vy_history</ref> *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__history" kindref="compound">vy_history</ref> *</type>
+          <declname>src</declname>
+        </param>
+        <briefdescription>
+<para>Append all statements of history  to history . </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_history.h" line="128" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_history.h" bodystart="128" bodyend="132"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__history_8h_1ab9a7a43866bc715934e6edc4b188faa1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int vy_history_append_stmt</definition>
+        <argsstring>(struct vy_history *history, struct vy_entry entry)</argsstring>
+        <name>vy_history_append_stmt</name>
+        <param>
+          <type>struct <ref refid="structvy__history" kindref="compound">vy_history</ref> *</type>
+          <declname>history</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+          <declname>entry</declname>
+        </param>
+        <briefdescription>
+<para>Append an (older) statement to a history list. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns 0 on success, -1 on memory allocation error. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_history.h" line="139" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_history.c" bodystart="46" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__history_8h_1aba82d63f091ac2ef2248be14e4b3d6cd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_history_cleanup</definition>
+        <argsstring>(struct vy_history *history)</argsstring>
+        <name>vy_history_cleanup</name>
+        <param>
+          <type>struct <ref refid="structvy__history" kindref="compound">vy_history</ref> *</type>
+          <declname>history</declname>
+        </param>
+        <briefdescription>
+<para>Release all statements stored in the given history and reinitialize the history list. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_history.h" line="146" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_history.c" bodystart="64" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__history_8h_1ad34cc4ad944541fd9c14f894cb29ce5d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int vy_history_apply</definition>
+        <argsstring>(struct vy_history *history, struct key_def *cmp_def, bool keep_delete, int *upserts_applied, struct vy_entry *ret)</argsstring>
+        <name>vy_history_apply</name>
+        <param>
+          <type>struct <ref refid="structvy__history" kindref="compound">vy_history</ref> *</type>
+          <declname>history</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>cmp_def</declname>
+        </param>
+        <param>
+          <type>bool</type>
+          <declname>keep_delete</declname>
+        </param>
+        <param>
+          <type>int *</type>
+          <declname>upserts_applied</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref> *</type>
+          <declname>ret</declname>
+        </param>
+        <briefdescription>
+<para>Get a resultant statement from collected history. </para>        </briefdescription>
+        <detaileddescription>
+<para>If the resultant statement is a DELETE, the function will return NULL unless  flag is set. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_history.h" line="154" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_history.c" bodystart="76" bodyend="118"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>INCLUDES_TARANTOOL_BOX_VY_HISTORY_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INCLUDES_TARANTOOL_BOX_VY_HISTORY_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2018,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>AUTHORS<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>AUTHORS<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;assert.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;small/rlist.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;iproto_constants.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;vy_stmt.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmempool" kindref="compound">mempool</ref>;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="structvy__history" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__history" kindref="compound">vy_history</ref><sp/>{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>stmts;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmempool" kindref="compound">mempool</ref><sp/>*<ref refid="structvy__history_1aa151ae819e107617a0e7f8604ddc9392" kindref="member">pool</ref>;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59" refid="structvy__history__node" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__history__node" kindref="compound">vy_history_node</ref><sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>link;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>entry;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_refable;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal">vy_history_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__history" kindref="compound">vy_history</ref><sp/>*history,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmempool" kindref="compound">mempool</ref><sp/>*<ref refid="structvy__history_1aa151ae819e107617a0e7f8604ddc9392" kindref="member">pool</ref>)</highlight></codeline>
+<codeline lineno="86"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>history-&gt;<ref refid="structvy__history_1aa151ae819e107617a0e7f8604ddc9392" kindref="member">pool</ref><sp/>=<sp/><ref refid="structvy__history_1aa151ae819e107617a0e7f8604ddc9392" kindref="member">pool</ref>;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_create(&amp;history-&gt;<ref refid="structvy__history_1ae22074272596c5157d64ca6fa2e59353" kindref="member">stmts</ref>);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal">vy_history_is_terminal(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__history" kindref="compound">vy_history</ref><sp/>*history)</highlight></codeline>
+<codeline lineno="97"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rlist_empty(&amp;history-&gt;<ref refid="structvy__history_1ae22074272596c5157d64ca6fa2e59353" kindref="member">stmts</ref>))</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__history__node" kindref="compound">vy_history_node</ref><sp/>*<ref refid="structnode" kindref="compound">node</ref><sp/>=<sp/>rlist_last_entry(&amp;history-&gt;<ref refid="structvy__history_1ae22074272596c5157d64ca6fa2e59353" kindref="member">stmts</ref>,</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__history__node" kindref="compound">vy_history_node</ref>,<sp/><ref refid="structvy__history__node_1a65aac9de407b74577b5744fd8cef1c9c" kindref="member">link</ref>);</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(vy_stmt_type(node-&gt;<ref refid="structvy__history__node_1a6904c216f7542d7977d9bffc969f2ee0" kindref="member">entry</ref>.stmt)<sp/>==<sp/>IPROTO_REPLACE<sp/>||</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_stmt_type(node-&gt;<ref refid="structvy__history__node_1a6904c216f7542d7977d9bffc969f2ee0" kindref="member">entry</ref>.stmt)<sp/>==<sp/>IPROTO_DELETE<sp/>||</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_stmt_type(node-&gt;<ref refid="structvy__history__node_1a6904c216f7542d7977d9bffc969f2ee0" kindref="member">entry</ref>.stmt)<sp/>==<sp/>IPROTO_INSERT<sp/>||</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_stmt_type(node-&gt;<ref refid="structvy__history__node_1a6904c216f7542d7977d9bffc969f2ee0" kindref="member">entry</ref>.stmt)<sp/>==<sp/>IPROTO_UPSERT);</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>vy_stmt_type(node-&gt;<ref refid="structvy__history__node_1a6904c216f7542d7977d9bffc969f2ee0" kindref="member">entry</ref>.stmt)<sp/>!=<sp/>IPROTO_UPSERT;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__entry" kindref="compound">vy_entry</ref></highlight></codeline>
+<codeline lineno="114"><highlight class="normal">vy_history_last_stmt(struct<sp/>vy_history<sp/>*history)</highlight></codeline>
+<codeline lineno="115"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rlist_empty(&amp;history-&gt;<ref refid="structvy__history_1ae22074272596c5157d64ca6fa2e59353" kindref="member">stmts</ref>))</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>vy_entry_none();</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Newest<sp/>statement<sp/>is<sp/>at<sp/>the<sp/>head<sp/>of<sp/>the<sp/>list.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__history__node" kindref="compound">vy_history_node</ref><sp/>*<ref refid="structnode" kindref="compound">node</ref><sp/>=<sp/>rlist_first_entry(&amp;history-&gt;<ref refid="structvy__history_1ae22074272596c5157d64ca6fa2e59353" kindref="member">stmts</ref>,</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__history__node" kindref="compound">vy_history_node</ref>,<sp/><ref refid="structvy__history__node_1a65aac9de407b74577b5744fd8cef1c9c" kindref="member">link</ref>);</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>node-&gt;<ref refid="structvy__history__node_1a6904c216f7542d7977d9bffc969f2ee0" kindref="member">entry</ref>;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal">vy_history_splice(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vy_history<sp/>*dst,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vy_history<sp/>*src)</highlight></codeline>
+<codeline lineno="129"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(dst-&gt;<ref refid="structvy__history_1aa151ae819e107617a0e7f8604ddc9392" kindref="member">pool</ref><sp/>==<sp/>src-&gt;<ref refid="structvy__history_1aa151ae819e107617a0e7f8604ddc9392" kindref="member">pool</ref>);</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_splice_tail(&amp;dst-&gt;<ref refid="structvy__history_1ae22074272596c5157d64ca6fa2e59353" kindref="member">stmts</ref>,<sp/>&amp;src-&gt;<ref refid="structvy__history_1ae22074272596c5157d64ca6fa2e59353" kindref="member">stmts</ref>);</highlight></codeline>
+<codeline lineno="132"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal">vy_history_append_stmt(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vy_history<sp/>*history,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/><ref refid="structvy__history__node_1a6904c216f7542d7977d9bffc969f2ee0" kindref="member">entry</ref>);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal">vy_history_cleanup(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vy_history<sp/>*history);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal">vy_history_apply(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vy_history<sp/>*history,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structkey__def" kindref="compound">key_def</ref><sp/>*cmp_def,</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>keep_delete,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>*upserts_applied,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__entry" kindref="compound">vy_entry</ref><sp/>*ret);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>INCLUDES_TARANTOOL_BOX_VY_HISTORY_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/vy_history.h"/>
+  </compounddef>
+</doxygen>

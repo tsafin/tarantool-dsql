@@ -1,0 +1,197 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structxrow__update" kind="struct" language="C++" prot="public">
+    <compoundname>xrow_update</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structxrow__update_1a09708de43fb77edf1292a0e3114eeb2b" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structxrow__update__op" kindref="compound">xrow_update_op</ref> *</type>
+        <definition>struct xrow_update_op* xrow_update::ops</definition>
+        <argsstring></argsstring>
+        <name>ops</name>
+        <briefdescription>
+<para>Operations array. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update.c" line="108" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update.c" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxrow__update_1af2467a5e7a08c186004e12620c67495d" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t xrow_update::op_count</definition>
+        <argsstring></argsstring>
+        <name>op_count</name>
+        <briefdescription>
+<para>Length of ops. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update.c" line="110" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update.c" bodystart="110" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxrow__update_1aa6d9d1f31e9c1fc517aac1f1b913bc7b" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int xrow_update::index_base</definition>
+        <argsstring></argsstring>
+        <name>index_base</name>
+        <briefdescription>
+<para>Index base for MessagePack update operations. </para>        </briefdescription>
+        <detaileddescription>
+<para>If update is from Lua, then the base is 1. Otherwise 0. That field exists because Lua uses 1-based array indexing, and Lua-to-MessagePack encoder keeps this indexing when encodes operations array. Index base allows not to re-encode each Lua update with 0-based indexes. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update.c" line="119" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update.c" bodystart="119" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxrow__update_1a477768ac0582bddc248ef7894c4e350c" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t xrow_update::column_mask</definition>
+        <argsstring></argsstring>
+        <name>column_mask</name>
+        <briefdescription>
+<para>A bitmask of all columns modified by this update. </para>        </briefdescription>
+        <detaileddescription>
+<para>Only the first level of a tuple is accounted here. I.e. if a field [1][2][3] was updated, then only [1] is reflected. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update.c" line="126" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update.c" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxrow__update_1a7285bf93bc6f0d182c5997bc7b8cb958" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref></type>
+        <definition>struct xrow_update_field xrow_update::root</definition>
+        <argsstring></argsstring>
+        <name>root</name>
+        <briefdescription>
+<para>First level of update tree. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is always array. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update.c" line="126" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update.c" bodystart="128" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>UPDATE is represented by a sequence of operations, each working with a single field. </para>    </briefdescription>
+    <detaileddescription>
+<para>There also are operations which add or remove fields. Only one operation on the same field is allowed. Field is any part of a tuple: top-level array&apos;s field, leaf of a complex tuple with lots of maps and arrays inside, a whole map/array inside a tuple.</para><para>Supported field change operations are: SET, ADD, SUBTRACT; bitwise AND, XOR and OR; SPLICE. Supported tuple change operations are: SET, DELETE, INSERT.</para><para>If the number of fields in a tuple is altered by an operation, field index of all following operations is evaluated against the new tuple. It applies to internal tuple&apos;s arrays too.</para><para>Despite the allowed complexity, a typical use case for UPDATE is when the operation count is much less than field count in a tuple.</para><para><ref refid="structWith" kindref="compound">With</ref> the common case in mind, UPDATE tries to minimize the amount of unnecessary temporary tuple copies.</para><para>First, operations are parsed and initialized. Then they are applied one by one to a tuple. Each operation may change an already located field in a tuple, or may split parent of the field into subtrees. After all operations are applied, the result is a tree of updated, new, and non-changed fields. The tree needs to be flattened into MessagePack format. For that a resulting tuple length is calculated. Memory for the new tuple is allocated in one contiguous chunk. Then the update tree is stored into the chunk as a result tuple.</para><para>Note, that the result tree didn&apos;t allocate anything until a result was stored. It was referencing old tuple&apos;s memory. <ref refid="structWith" kindref="compound">With</ref> this approach, cost of UPDATE is proportional to O(tuple length) + O(C * log C), where C is the number of operations in the request, and data is copied from the old tuple to the new one only once.</para><para>As long as INSERT and DELETE change the relative field order in arrays and maps, these fields are represented as special structures optimized for updates to provide fast search and don&apos;t realloc anything. It is &apos;rope&apos; data structure for array, and a simpler key-value list sorted by update time for map.</para><para>A rope is a binary tree designed to store long strings built from pieces. Each tree node points to a substring of a large string. In our case, each rope node points at a range of fields, initially in the old tuple, and then, as fields are added and deleted by UPDATE, in the &quot;current&quot; tuple. Note, that the tuple itself is not materialized: when operations which affect field count are initialized, the rope is updated to reflect the new field order. In particular, if a field is deleted by an operation, it disappears from the rope and all subsequent operations on this field number instead affect the field following the deleted one.Update internal state </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="17991">
+        <label>xrow_update_arg_splice</label>
+        <link refid="structxrow__update__arg__splice"/>
+      </node>
+      <node id="17992">
+        <label>xrow_update_op_meta</label>
+        <link refid="structxrow__update__op__meta"/>
+        <childnode refid="17983" relation="usage">
+          <edgelabel>do_op</edgelabel>
+          <edgelabel>store</edgelabel>
+          <edgelabel>read_arg</edgelabel>
+        </childnode>
+      </node>
+      <node id="17995">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="17995" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="17985">
+        <label>xrow_update_arg</label>
+        <link refid="unionxrow__update__arg"/>
+        <childnode refid="17986" relation="usage">
+          <edgelabel>bit</edgelabel>
+        </childnode>
+        <childnode refid="17987" relation="usage">
+          <edgelabel>del</edgelabel>
+        </childnode>
+        <childnode refid="17988" relation="usage">
+          <edgelabel>arith</edgelabel>
+        </childnode>
+        <childnode refid="17990" relation="usage">
+          <edgelabel>set</edgelabel>
+        </childnode>
+        <childnode refid="17991" relation="usage">
+          <edgelabel>splice</edgelabel>
+        </childnode>
+      </node>
+      <node id="17994">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="17995" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="17982">
+        <label>xrow_update</label>
+        <link refid="structxrow__update"/>
+        <childnode refid="17983" relation="usage">
+          <edgelabel>ops</edgelabel>
+        </childnode>
+        <childnode refid="17993" relation="usage">
+          <edgelabel>root</edgelabel>
+        </childnode>
+      </node>
+      <node id="17983">
+        <label>xrow_update_op</label>
+        <link refid="structxrow__update__op"/>
+        <childnode refid="17984" relation="usage">
+          <edgelabel>lexer</edgelabel>
+        </childnode>
+        <childnode refid="17985" relation="usage">
+          <edgelabel>arg</edgelabel>
+        </childnode>
+        <childnode refid="17992" relation="usage">
+          <edgelabel>meta</edgelabel>
+        </childnode>
+      </node>
+      <node id="17984">
+        <label>json_lexer</label>
+        <link refid="structjson__lexer"/>
+      </node>
+      <node id="17993">
+        <label>xrow_update_field</label>
+        <link refid="structxrow__update__field"/>
+        <childnode refid="17983" relation="usage">
+          <edgelabel>op</edgelabel>
+        </childnode>
+        <childnode refid="17994" relation="usage">
+          <edgelabel>items</edgelabel>
+        </childnode>
+        <childnode refid="17993" relation="usage">
+          <edgelabel>next_hop</edgelabel>
+        </childnode>
+      </node>
+      <node id="17988">
+        <label>xrow_update_arg_arith</label>
+        <link refid="structxrow__update__arg__arith"/>
+        <childnode refid="17989" relation="usage">
+          <edgelabel>int96</edgelabel>
+        </childnode>
+      </node>
+      <node id="17986">
+        <label>xrow_update_arg_bit</label>
+        <link refid="structxrow__update__arg__bit"/>
+      </node>
+      <node id="17989">
+        <label>int96_num</label>
+        <link refid="structint96__num"/>
+      </node>
+      <node id="17987">
+        <label>xrow_update_arg_del</label>
+        <link refid="structxrow__update__arg__del"/>
+      </node>
+      <node id="17990">
+        <label>xrow_update_arg_set</label>
+        <link refid="structxrow__update__arg__set"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/xrow_update.c" line="106" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update.c" bodystart="105" bodyend="129"/>
+    <listofallmembers>
+      <member refid="structxrow__update_1a477768ac0582bddc248ef7894c4e350c" prot="public" virt="non-virtual"><scope>xrow_update</scope><name>column_mask</name></member>
+      <member refid="structxrow__update_1aa6d9d1f31e9c1fc517aac1f1b913bc7b" prot="public" virt="non-virtual"><scope>xrow_update</scope><name>index_base</name></member>
+      <member refid="structxrow__update_1af2467a5e7a08c186004e12620c67495d" prot="public" virt="non-virtual"><scope>xrow_update</scope><name>op_count</name></member>
+      <member refid="structxrow__update_1a09708de43fb77edf1292a0e3114eeb2b" prot="public" virt="non-virtual"><scope>xrow_update</scope><name>ops</name></member>
+      <member refid="structxrow__update_1a7285bf93bc6f0d182c5997bc7b8cb958" prot="public" virt="non-virtual"><scope>xrow_update</scope><name>root</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,579 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="mempool_8h" kind="file" language="C++">
+    <compoundname>mempool.h</compoundname>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">inttypes.h</includes>
+    <includes local="no">sys/types.h</includes>
+    <includes refid="string_8h" local="no">string.h</includes>
+    <includes refid="slab__cache_8h" local="yes">slab_cache.h</includes>
+    <includes refid="lifo_8h" local="yes">lifo.h</includes>
+    <includes refid="rb_8h" local="yes">rb.h</includes>
+    <includedby refid="memtx__engine_8h" local="no">/home/tsafin/tarantool/src/box/memtx_engine.h</includedby>
+    <includedby refid="memtx__bitset_8c" local="no">/home/tsafin/tarantool/src/box/memtx_bitset.c</includedby>
+    <includedby refid="memtx__engine_8c" local="no">/home/tsafin/tarantool/src/box/memtx_engine.c</includedby>
+    <includedby refid="memtx__hash_8c" local="no">/home/tsafin/tarantool/src/box/memtx_hash.c</includedby>
+    <includedby refid="memtx__rtree_8c" local="no">/home/tsafin/tarantool/src/box/memtx_rtree.c</includedby>
+    <includedby refid="memtx__tree_8c" local="no">/home/tsafin/tarantool/src/box/memtx_tree.c</includedby>
+    <includedby refid="memtx__tx_8c" local="yes">/home/tsafin/tarantool/src/box/memtx_tx.c</includedby>
+    <includedby refid="box_2port_8c" local="no">/home/tsafin/tarantool/src/box/port.c</includedby>
+    <includedby refid="replication_8cc" local="no">/home/tsafin/tarantool/src/box/replication.cc</includedby>
+    <includedby refid="sequence_8c" local="no">/home/tsafin/tarantool/src/box/sequence.c</includedby>
+    <includedby refid="sysview_8c" local="no">/home/tsafin/tarantool/src/box/sysview.c</includedby>
+    <includedby refid="vy__run_8h" local="yes">/home/tsafin/tarantool/src/box/vy_run.h</includedby>
+    <includedby refid="vy__lsm_8h" local="no">/home/tsafin/tarantool/src/box/vy_lsm.h</includedby>
+    <includedby refid="vy__cache_8h" local="yes">/home/tsafin/tarantool/src/box/vy_cache.h</includedby>
+    <includedby refid="vy__tx_8h" local="no">/home/tsafin/tarantool/src/box/vy_tx.h</includedby>
+    <includedby refid="vinyl_8c" local="no">/home/tsafin/tarantool/src/box/vinyl.c</includedby>
+    <includedby refid="vy__history_8c" local="no">/home/tsafin/tarantool/src/box/vy_history.c</includedby>
+    <includedby refid="vy__log_8c" local="no">/home/tsafin/tarantool/src/box/vy_log.c</includedby>
+    <includedby refid="vy__lsm_8c" local="no">/home/tsafin/tarantool/src/box/vy_lsm.c</includedby>
+    <includedby refid="vy__tx_8c" local="no">/home/tsafin/tarantool/src/box/vy_tx.c</includedby>
+    <includedby refid="curl_8h" local="no">/home/tsafin/tarantool/src/curl.h</includedby>
+    <includedby refid="httpc_8h" local="no">/home/tsafin/tarantool/src/httpc.h</includedby>
+    <includedby refid="lib_2core_2fiber_8h" local="yes">/home/tsafin/tarantool/src/lib/core/fiber.h</includedby>
+    <includedby refid="lib_2core_2fiber__cond_8c" local="no">/home/tsafin/tarantool/src/lib/core/fiber_cond.c</includedby>
+    <includedby refid="small_2mempool_8c" local="yes">/home/tsafin/tarantool/src/lib/small/small/mempool.c</includedby>
+    <includedby refid="small_8h" local="yes">/home/tsafin/tarantool/src/lib/small/small/small.h</includedby>
+    <includedby refid="test_2mempool_8c" local="no">/home/tsafin/tarantool/src/lib/small/test/mempool.c</includedby>
+    <incdepgraph>
+      <node id="2323">
+        <label>stdbool.h</label>
+      </node>
+      <node id="2322">
+        <label>stddef.h</label>
+      </node>
+      <node id="2325">
+        <label>sys/types.h</label>
+      </node>
+      <node id="2321">
+        <label>/home/tsafin/tarantool/src/lib/small/small/mempool.h</label>
+        <link refid="mempool_8h"/>
+        <childnode refid="2322" relation="include">
+        </childnode>
+        <childnode refid="2323" relation="include">
+        </childnode>
+        <childnode refid="2324" relation="include">
+        </childnode>
+        <childnode refid="2325" relation="include">
+        </childnode>
+      </node>
+      <node id="2324">
+        <label>inttypes.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structmslab" prot="public">mslab</innerclass>
+    <innerclass refid="structmempool" prot="public">mempool</innerclass>
+    <innerclass refid="structmempool__stats" prot="public">mempool_stats</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="mempool_8h_1a884ceaa850e86ebd3bd9ebd16352545f" prot="public" static="no">
+        <name>RB_COMPACT</name>
+        <initializer>1</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="40" column="12" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="mempool_8h_1ab552f3b16eb8f993c22e2c90e6a94e23" prot="public" static="yes" mutable="no">
+        <type>const double</type>
+        <definition>const double OVERHEAD_RATIO</definition>
+        <argsstring></argsstring>
+        <name>OVERHEAD_RATIO</name>
+        <initializer>= 0.01</initializer>
+        <briefdescription>
+<para>Mempool will try to allocate blocks large enough to ensure the overhead from internal fragmentation is less than the specified below. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="99" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="mempool_8h_1a6428db0a7ecc9a187b3a73c07333e6f2" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t mslab_sizeof</definition>
+        <argsstring>()</argsstring>
+        <name>mslab_sizeof</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="102" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="102" bodyend="105"/>
+      </memberdef>
+      <memberdef kind="function" id="mempool_8h_1a67808d341fe6e94fd38d0001bd79db9a" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t mempool_objsize_max</definition>
+        <argsstring>(uint32_t slab_size)</argsstring>
+        <name>mempool_objsize_max</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>slab_size</declname>
+        </param>
+        <briefdescription>
+<para>Calculate the maximal size of an object for which it makes sense to create a memory pool given the size of the slab. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="112" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="112" bodyend="117"/>
+      </memberdef>
+      <memberdef kind="function" id="mempool_8h_1ad6f3cbf38a89a16cf53adde6bfbd941e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>typedef</type>
+        <definition>typedef rb_tree</definition>
+        <argsstring>(struct mslab) mslab_tree_t</argsstring>
+        <name>rb_tree</name>
+        <param>
+          <type>struct <ref refid="structmslab" kindref="compound">mslab</ref></type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="119" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="mempool_8h_1a1da6e38e5e9c4193bd4d6b9d8cc8b7ee" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void mempool_stats</definition>
+        <argsstring>(struct mempool *mempool, struct mempool_stats *stats)</argsstring>
+        <name>mempool_stats</name>
+        <param>
+          <type>struct <ref refid="structmempool" kindref="compound">mempool</ref> *</type>
+          <declname>mempool</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structmempool__stats" kindref="compound">mempool_stats</ref> *</type>
+          <declname>stats</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="196" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.c" bodystart="210" bodyend="229"/>
+      </memberdef>
+      <memberdef kind="function" id="mempool_8h_1a8eced5d2dc21b7495167b5a080abfd4f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t mempool_count</definition>
+        <argsstring>(struct mempool *pool)</argsstring>
+        <name>mempool_count</name>
+        <param>
+          <type>struct <ref refid="structmempool" kindref="compound">mempool</ref> *</type>
+          <declname>pool</declname>
+        </param>
+        <briefdescription>
+<para>Number of objects in the pool. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="202" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="202" bodyend="205"/>
+      </memberdef>
+      <memberdef kind="function" id="mempool_8h_1a8044acd6068ede8c1f954f33103215e7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void mempool_create_with_order</definition>
+        <argsstring>(struct mempool *pool, struct slab_cache *cache, uint32_t objsize, uint8_t order)</argsstring>
+        <name>mempool_create_with_order</name>
+        <param>
+          <type>struct <ref refid="structmempool" kindref="compound">mempool</ref> *</type>
+          <declname>pool</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref> *</type>
+          <declname>cache</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>objsize</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>order</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><xrefsect id="todo_1_todo000004"><xreftitle>Todo</xreftitle><xrefdescription><para>: struct <ref refid="structmempool__iterator" kindref="compound">mempool_iterator</ref> </para></xrefdescription></xrefsect></para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="210" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.c" bodystart="145" bodyend="166"/>
+      </memberdef>
+      <memberdef kind="function" id="mempool_8h_1a543eb47eb1e541f8390c1b1cebd30357" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void mempool_create</definition>
+        <argsstring>(struct mempool *pool, struct slab_cache *cache, uint32_t objsize)</argsstring>
+        <name>mempool_create</name>
+        <param>
+          <type>struct <ref refid="structmempool" kindref="compound">mempool</ref> *</type>
+          <declname>pool</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structslab__cache" kindref="compound">slab_cache</ref> *</type>
+          <declname>cache</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>objsize</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a mempool. </para>        </briefdescription>
+        <detaileddescription>
+<para>Tell the pool the size of objects it will contain.</para><para>objsize must be &gt;= sizeof(mbitmap_t) If allocated objects must be aligned, then objsize must be aligned. The start of free area in a slab is always uint64_t aligned.</para><para><simplesect kind="see"><para>mempool_destroy() </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="225" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="225" bodyend="241"/>
+      </memberdef>
+      <memberdef kind="function" id="mempool_8h_1afb8699fad727b776387a34110c3c3bac" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>static bool mempool_is_initialized</definition>
+        <argsstring>(struct mempool *pool)</argsstring>
+        <name>mempool_is_initialized</name>
+        <param>
+          <type>struct <ref refid="structmempool" kindref="compound">mempool</ref> *</type>
+          <declname>pool</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="244" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="244" bodyend="247"/>
+      </memberdef>
+      <memberdef kind="function" id="mempool_8h_1a3bfa9a64f3c754b37893558557cff1b6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void mempool_destroy</definition>
+        <argsstring>(struct mempool *pool)</argsstring>
+        <name>mempool_destroy</name>
+        <param>
+          <type>struct <ref refid="structmempool" kindref="compound">mempool</ref> *</type>
+          <declname>pool</declname>
+        </param>
+        <briefdescription>
+<para>Free the memory pool and release all cached memory blocks. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="see"><para>mempool_create() </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="254" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.c" bodystart="169" bodyend="175"/>
+      </memberdef>
+      <memberdef kind="function" id="mempool_8h_1a752485eb9002dd3f9dc1651207278035" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>void* mempool_alloc</definition>
+        <argsstring>(struct mempool *pool)</argsstring>
+        <name>mempool_alloc</name>
+        <param>
+          <type>struct <ref refid="structmempool" kindref="compound">mempool</ref> *</type>
+          <declname>pool</declname>
+        </param>
+        <briefdescription>
+<para>Allocate an object. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="258" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.c" bodystart="178" bodyend="207"/>
+      </memberdef>
+      <memberdef kind="function" id="mempool_8h_1a5133311b97516203b7bd26c8e7f16861" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void mslab_free</definition>
+        <argsstring>(struct mempool *pool, struct mslab *slab, void *ptr)</argsstring>
+        <name>mslab_free</name>
+        <param>
+          <type>struct <ref refid="structmempool" kindref="compound">mempool</ref> *</type>
+          <declname>pool</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structmslab" kindref="compound">mslab</ref> *</type>
+          <declname>slab</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ptr</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="261" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.c" bodystart="91" bodyend="142"/>
+      </memberdef>
+      <memberdef kind="function" id="mempool_8h_1a65e27ab7c906920d8db4aaee83e8ea28" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void mempool_free</definition>
+        <argsstring>(struct mempool *pool, void *ptr)</argsstring>
+        <name>mempool_free</name>
+        <param>
+          <type>struct <ref refid="structmempool" kindref="compound">mempool</ref> *</type>
+          <declname>pool</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ptr</declname>
+        </param>
+        <briefdescription>
+<para>Free a single object. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="pre"><para>the object is allocated in this pool. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="268" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="268" bodyend="279"/>
+      </memberdef>
+      <memberdef kind="function" id="mempool_8h_1ae82248438a1fa196976c6c0223e4f22e" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t mempool_used</definition>
+        <argsstring>(struct mempool *pool)</argsstring>
+        <name>mempool_used</name>
+        <param>
+          <type>struct <ref refid="structmempool" kindref="compound">mempool</ref> *</type>
+          <declname>pool</declname>
+        </param>
+        <briefdescription>
+<para>How much memory is used by this pool. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="284" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="284" bodyend="287"/>
+      </memberdef>
+      <memberdef kind="function" id="mempool_8h_1a879a520df7477caeed369d4f53805bf9" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t mempool_total</definition>
+        <argsstring>(struct mempool *pool)</argsstring>
+        <name>mempool_total</name>
+        <param>
+          <type>struct <ref refid="structmempool" kindref="compound">mempool</ref> *</type>
+          <declname>pool</declname>
+        </param>
+        <briefdescription>
+<para>How much memory is held by this pool. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h" line="292" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/mempool.h" bodystart="292" bodyend="295"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>INCLUDES_TARANTOOL_SMALL_MEMPOOL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INCLUDES_TARANTOOL_SMALL_MEMPOOL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;inttypes.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sys/types.h&gt;</highlight><highlight class="normal"><sp/></highlight><highlight class="comment">/*<sp/>ssize_t<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;slab_cache.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;lifo.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>RB_COMPACT<sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;rb.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78" refid="structmslab" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmslab" kindref="compound">mslab</ref><sp/>{</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structslab" kindref="compound">slab</ref><sp/>slab;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Head<sp/>of<sp/>the<sp/>list<sp/>of<sp/>used<sp/>but<sp/>freed<sp/>objects<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*free_list;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structmslab_1ad3d24100ccbaa80d38ec6c970a41e369" kindref="member">free_offset</ref>;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structmslab_1a5a9be4efadab65fe57c6a8b2b7e1832e" kindref="member">nfree</ref>;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structmslab_1a86320e85bf6f855a21af72f6540e6ec1" kindref="member">rb_node</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmslab" kindref="compound">mslab</ref>)<sp/>next_in_hot;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>next_in_cold;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structmslab_1abed04ff5c02a29a8418c7b28f3f1e02f" kindref="member">in_hot_slabs</ref>;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>OVERHEAD_RATIO<sp/>=<sp/>0.01;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t</highlight></codeline>
+<codeline lineno="102"><highlight class="normal">mslab_sizeof()</highlight></codeline>
+<codeline lineno="103"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>small_align(</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmslab" kindref="compound">mslab</ref>),<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(intptr_t));</highlight></codeline>
+<codeline lineno="105"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t</highlight></codeline>
+<codeline lineno="112"><highlight class="normal">mempool_objsize_max(uint32_t<sp/>slab_size)</highlight></codeline>
+<codeline lineno="113"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Fit<sp/>at<sp/>least<sp/>4<sp/>objects<sp/>in<sp/>a<sp/>slab,<sp/>aligned<sp/>by<sp/>pointer<sp/>size.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>((slab_size<sp/>-<sp/>mslab_sizeof())<sp/>/<sp/>16)<sp/>&amp;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>~(</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(intptr_t)<sp/>-<sp/>1);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/><ref refid="vclock_8h_1a15322e8502106a1fe47e37b5147a8644" kindref="member">rb_tree</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmslab" kindref="compound">mslab</ref>)<sp/>mslab_tree_t;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122" refid="structmempool" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmempool" kindref="compound">mempool</ref></highlight></codeline>
+<codeline lineno="123"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structlifo" kindref="compound">lifo</ref><sp/>link;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structlifo" kindref="compound">lifo</ref><sp/>delayed;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>*cache;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structslab__list" kindref="compound">slab_list</ref><sp/>slabs;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mslab_tree_t<sp/>hot_slabs;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmslab" kindref="compound">mslab</ref><sp/>*first_hot_slab;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>cold_slabs;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmslab" kindref="compound">mslab</ref><sp/>*spare;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>objsize;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>slab_order;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>objcount;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>offset;</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>intptr_t<sp/>slab_ptr_mask;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181" refid="structmempool__stats" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmempool__stats" kindref="compound">mempool_stats</ref></highlight></codeline>
+<codeline lineno="182"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>objsize;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>objcount;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>slabsize;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>slabcount;</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structsmall__stats" kindref="compound">small_stats</ref><sp/>totals;</highlight></codeline>
+<codeline lineno="193"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><ref refid="structmempool__stats" kindref="compound">mempool_stats</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmempool" kindref="compound">mempool</ref><sp/>*<ref refid="structmempool" kindref="compound">mempool</ref>,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmempool__stats" kindref="compound">mempool_stats</ref><sp/>*<ref refid="structstats" kindref="compound">stats</ref>);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal">mempool_count(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>mempool<sp/>*pool)</highlight></codeline>
+<codeline lineno="203"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>pool-&gt;<ref refid="structmempool_1ad7f6e80f9bcb69dc37459599f5512c7c" kindref="member">slabs</ref>.<ref refid="structslab__list_1ac501108982f9025d0bddc5cf72a8324c" kindref="member">stats</ref>.used/pool-&gt;<ref refid="structmempool_1a93950d26163ce1868564a35b39b78531" kindref="member">objsize</ref>;</highlight></codeline>
+<codeline lineno="205"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="normal">mempool_create_with_order(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>mempool<sp/>*pool,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>*cache,</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>objsize,<sp/>uint8_t<sp/>order);</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="224"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="normal">mempool_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>mempool<sp/>*pool,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__cache" kindref="compound">slab_cache</ref><sp/>*cache,</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>objsize)</highlight></codeline>
+<codeline lineno="227"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>overhead<sp/>=<sp/>(objsize<sp/>&gt;<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmslab" kindref="compound">mslab</ref>)<sp/>?</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>objsize<sp/>:<sp/>sizeof(struct<sp/>mslab));</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>size_t<sp/>slab_size<sp/>=<sp/>(size_t)<sp/>(overhead<sp/>/<sp/>OVERHEAD_RATIO);</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>if<sp/>(slab_size<sp/>&gt;<sp/>cache-&gt;arena-&gt;slab_size)</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slab_size<sp/>=<sp/>cache-&gt;arena-&gt;slab_size;</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="234"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Calculate<sp/>the<sp/>amount<sp/>of<sp/>usable<sp/>space<sp/>in<sp/>a<sp/>slab.</highlight></codeline>
+<codeline lineno="235"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>@note:<sp/>this<sp/>asserts<sp/>that<sp/>slab_size_min<sp/>is<sp/>less<sp/>than</highlight></codeline>
+<codeline lineno="236"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>SLAB_ORDER_MAX.</highlight></codeline>
+<codeline lineno="237"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>order<sp/>=<sp/>slab_order(cache,<sp/>slab_size);</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(order<sp/>&lt;=<sp/>cache-&gt;order_max);</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/>mempool_create_with_order(pool,<sp/>cache,<sp/>objsize,<sp/>order);</highlight></codeline>
+<codeline lineno="241"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="normal">static<sp/>inline<sp/>bool</highlight></codeline>
+<codeline lineno="244"><highlight class="normal">mempool_is_initialized(struct<sp/>mempool<sp/>*pool)</highlight></codeline>
+<codeline lineno="245"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>pool-&gt;<ref refid="structmempool_1a2834d04700d296aaa34718785d67e8d8" kindref="member">cache</ref><sp/>!=<sp/>NULL;</highlight></codeline>
+<codeline lineno="247"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"></highlight></codeline>
+<codeline lineno="253"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="254"><highlight class="normal">mempool_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>mempool<sp/>*pool);</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight></codeline>
+<codeline lineno="257"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="258"><highlight class="normal">mempool_alloc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>mempool<sp/>*pool);</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"></highlight></codeline>
+<codeline lineno="260"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="normal">mslab_free(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>mempool<sp/>*pool,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structmslab" kindref="compound">mslab</ref><sp/>*<ref refid="structslab" kindref="compound">slab</ref>,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ptr);</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"></highlight></codeline>
+<codeline lineno="267"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="normal">mempool_free(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>mempool<sp/>*pool,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ptr)</highlight></codeline>
+<codeline lineno="269"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>NDEBUG</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memset(ptr,<sp/></highlight><highlight class="charliteral">&apos;#&apos;</highlight><highlight class="normal">,<sp/>pool-&gt;<ref refid="structmempool_1a93950d26163ce1868564a35b39b78531" kindref="member">objsize</ref>);</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(ptr);</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmslab" kindref="compound">mslab</ref><sp/>*slab<sp/>=<sp/>(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmslab" kindref="compound">mslab</ref><sp/>*)</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slab_from_ptr(ptr,<sp/>pool-&gt;<ref refid="structmempool_1a27f13d07bf4a975679f8c9099416b88d" kindref="member">slab_ptr_mask</ref>);</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(slab-&gt;slab.<ref refid="structslab_1aa5a8861326307f46c5ecf490ce624df9" kindref="member">order</ref><sp/>==<sp/>pool-&gt;<ref refid="structmempool_1a81e3a937e049e90259f8e020c137c4db" kindref="member">slab_order</ref>);</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pool-&gt;<ref refid="structmempool_1ad7f6e80f9bcb69dc37459599f5512c7c" kindref="member">slabs</ref>.<ref refid="structslab__list_1ac501108982f9025d0bddc5cf72a8324c" kindref="member">stats</ref>.used<sp/>-=<sp/>pool-&gt;<ref refid="structmempool_1a93950d26163ce1868564a35b39b78531" kindref="member">objsize</ref>;</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mslab_free(pool,<sp/>slab,<sp/>ptr);</highlight></codeline>
+<codeline lineno="279"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"></highlight></codeline>
+<codeline lineno="281"><highlight class="normal"></highlight></codeline>
+<codeline lineno="283"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="284"><highlight class="normal">mempool_used(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>mempool<sp/>*pool)</highlight></codeline>
+<codeline lineno="285"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>pool-&gt;<ref refid="structmempool_1ad7f6e80f9bcb69dc37459599f5512c7c" kindref="member">slabs</ref>.<ref refid="structslab__list_1ac501108982f9025d0bddc5cf72a8324c" kindref="member">stats</ref>.used;</highlight></codeline>
+<codeline lineno="287"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"></highlight></codeline>
+<codeline lineno="289"><highlight class="normal"></highlight></codeline>
+<codeline lineno="291"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="292"><highlight class="normal">mempool_total(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>mempool<sp/>*pool)</highlight></codeline>
+<codeline lineno="293"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>pool-&gt;<ref refid="structmempool_1ad7f6e80f9bcb69dc37459599f5512c7c" kindref="member">slabs</ref>.<ref refid="structslab__list_1ac501108982f9025d0bddc5cf72a8324c" kindref="member">stats</ref>.total;</highlight></codeline>
+<codeline lineno="295"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"></highlight></codeline>
+<codeline lineno="297"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="298"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;exception.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal"></highlight></codeline>
+<codeline lineno="301"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="302"><highlight class="normal">mempool_alloc_xc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>mempool<sp/>*pool)</highlight></codeline>
+<codeline lineno="303"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ptr<sp/>=<sp/>mempool_alloc(pool);</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ptr<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tnt_raise(OutOfMemory,<sp/>pool-&gt;<ref refid="structmempool_1a93950d26163ce1868564a35b39b78531" kindref="member">objsize</ref>,</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;mempool&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;new<sp/>slab&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ptr;</highlight></codeline>
+<codeline lineno="309"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"></highlight></codeline>
+<codeline lineno="311"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="312"><highlight class="normal">mempool_alloc0_xc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>mempool<sp/>*pool)</highlight></codeline>
+<codeline lineno="313"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>memset(mempool_alloc_xc(pool),<sp/>0,<sp/>pool-&gt;<ref refid="structmempool_1a93950d26163ce1868564a35b39b78531" kindref="member">objsize</ref>);</highlight></codeline>
+<codeline lineno="315"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"></highlight></codeline>
+<codeline lineno="317"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="318"><highlight class="normal"></highlight></codeline>
+<codeline lineno="319"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>INCLUDES_TARANTOOL_SMALL_MEMPOOL_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/small/small/mempool.h"/>
+  </compounddef>
+</doxygen>

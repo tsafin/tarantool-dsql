@@ -1,0 +1,1185 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvy__run__writer" kind="struct" language="C++" prot="public">
+    <compoundname>vy_run_writer</compoundname>
+    <includes local="no">vy_run.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvy__run__writer_1a4b1eb340da859e16edce3e614b6b02a8" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__run" kindref="compound">vy_run</ref> *</type>
+        <definition>struct vy_run* vy_run_writer::run</definition>
+        <argsstring></argsstring>
+        <name>run</name>
+        <briefdescription>
+<para>Run to fill. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_run.h" line="591" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_run.h" bodystart="591" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__writer_1a299da944f8c1541798160f1782f237cd" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* vy_run_writer::dirpath</definition>
+        <argsstring></argsstring>
+        <name>dirpath</name>
+        <briefdescription>
+<para>Path to directory with run files. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_run.h" line="593" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_run.h" bodystart="593" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__writer_1a3a587e7a621f1f8306250c553daf948c" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t vy_run_writer::space_id</definition>
+        <argsstring></argsstring>
+        <name>space_id</name>
+        <briefdescription>
+<para>Identifier of a space owning the run. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_run.h" line="595" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_run.h" bodystart="595" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__writer_1a344e8baf4ee38d080992458cb5c16510" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t vy_run_writer::iid</definition>
+        <argsstring></argsstring>
+        <name>iid</name>
+        <briefdescription>
+<para>Identifier of an index owning the run. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_run.h" line="597" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_run.h" bodystart="597" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__writer_1a30fc5b7323aa77586628b72189a58477" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+        <definition>struct key_def* vy_run_writer::cmp_def</definition>
+        <argsstring></argsstring>
+        <name>cmp_def</name>
+        <briefdescription>
+<para>Key definition to extract from tuple and store as page min key, run min/max keys, and secondary index statements. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_run.h" line="603" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_run.h" bodystart="603" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__writer_1a9a6f866571583dc3febb2c4bfa3bf406" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+        <definition>struct key_def* vy_run_writer::key_def</definition>
+        <argsstring></argsstring>
+        <name>key_def</name>
+        <briefdescription>
+<para>Key definition to calculate bloom. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_run.h" line="605" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_run.h" bodystart="605" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__writer_1a343d0e474f37c69b3b92cd2d0f4b1df3" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t vy_run_writer::page_size</definition>
+        <argsstring></argsstring>
+        <name>page_size</name>
+        <briefdescription>
+<para>Minimal page size. </para>        </briefdescription>
+        <detaileddescription>
+<para>When a page becames bigger, it is dumped. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_run.h" line="610" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_run.h" bodystart="610" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__writer_1a0ad13bdc325559009efd70359489177b" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t vy_run_writer::page_info_capacity</definition>
+        <argsstring></argsstring>
+        <name>page_info_capacity</name>
+        <briefdescription>
+<para>Current page info capacity. </para>        </briefdescription>
+        <detaileddescription>
+<para>Can grow with page number. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_run.h" line="614" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_run.h" bodystart="614" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__writer_1a6cc99948e081afe08fbef820a3b63a15" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool vy_run_writer::no_compression</definition>
+        <argsstring></argsstring>
+        <name>no_compression</name>
+        <briefdescription>
+<para>Don&apos;t use compression while writing xlog files. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_run.h" line="616" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_run.h" bodystart="616" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__writer_1a16b6f6944149b298dfd1af830792f988" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structxlog" kindref="compound">xlog</ref></type>
+        <definition>struct xlog vy_run_writer::data_xlog</definition>
+        <argsstring></argsstring>
+        <name>data_xlog</name>
+        <briefdescription>
+<para>Xlog to write data. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_run.h" line="616" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_run.h" bodystart="618" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__writer_1a58f9ca17c9f3efc12fb86c118fa879c0" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double vy_run_writer::bloom_fpr</definition>
+        <argsstring></argsstring>
+        <name>bloom_fpr</name>
+        <briefdescription>
+<para>Bloom filter false positive rate. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_run.h" line="620" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_run.h" bodystart="620" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__writer_1a76f9d73ea895663e80d8f8ee70dc1668" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtuple__bloom__builder" kindref="compound">tuple_bloom_builder</ref> *</type>
+        <definition>struct tuple_bloom_builder* vy_run_writer::bloom</definition>
+        <argsstring></argsstring>
+        <name>bloom</name>
+        <briefdescription>
+<para>Bloom filter. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_run.h" line="622" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_run.h" bodystart="622" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__writer_1a8b5bdd82e77328c02a4c6e643d66c264" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structibuf" kindref="compound">ibuf</ref></type>
+        <definition>struct ibuf vy_run_writer::row_index_buf</definition>
+        <argsstring></argsstring>
+        <name>row_index_buf</name>
+        <briefdescription>
+<para>Buffer of a current page row offsets. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_run.h" line="622" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_run.h" bodystart="624" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__writer_1a96f8e6ba17065d48d8bb2d9458ef0d43" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+        <definition>struct vy_entry vy_run_writer::last</definition>
+        <argsstring></argsstring>
+        <name>last</name>
+        <briefdescription>
+<para>Remember a last written statement to use it as a source of max key of a finished run. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_run.h" line="622" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_run.h" bodystart="629" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Run_writer fills a created run with statements one by one, splitting them into pages. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="14543">
+        <label>serializer_opts</label>
+        <link refid="structserializer__opts"/>
+      </node>
+      <node id="14476">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="14535">
+        <label>json_tree</label>
+        <link refid="structjson__tree"/>
+        <childnode refid="14536" relation="usage">
+          <edgelabel>root</edgelabel>
+        </childnode>
+      </node>
+      <node id="14512">
+        <label>ExprList</label>
+        <link refid="structExprList"/>
+        <childnode refid="14513" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="14473">
+        <label>ibuf</label>
+        <link refid="structibuf"/>
+        <childnode refid="14474" relation="usage">
+          <edgelabel>slabc</edgelabel>
+        </childnode>
+      </node>
+      <node id="14523">
+        <label>index_stat</label>
+        <link refid="structindex__stat"/>
+        <childnode refid="14524" relation="usage">
+          <edgelabel>samples</edgelabel>
+        </childnode>
+      </node>
+      <node id="14532">
+        <label>iterator</label>
+        <link refid="structiterator"/>
+        <childnode refid="14529" relation="usage">
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="14493">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="14493" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="14556">
+        <label>vy_stmt_stat</label>
+        <link refid="structvy__stmt__stat"/>
+      </node>
+      <node id="14540">
+        <label>region</label>
+        <link refid="structregion"/>
+        <childnode refid="14475" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="14474" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="14471">
+        <label>key_part</label>
+        <link refid="structkey__part"/>
+        <childnode refid="14472" relation="usage">
+          <edgelabel>coll</edgelabel>
+        </childnode>
+      </node>
+      <node id="14495">
+        <label>mempool</label>
+        <link refid="structmempool"/>
+        <childnode refid="14496" relation="usage">
+          <edgelabel>spare</edgelabel>
+          <edgelabel>first_hot_slab</edgelabel>
+        </childnode>
+        <childnode refid="14475" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="14498" relation="usage">
+          <edgelabel>link</edgelabel>
+          <edgelabel>delayed</edgelabel>
+        </childnode>
+        <childnode refid="14470" relation="usage">
+          <edgelabel>cold_slabs</edgelabel>
+        </childnode>
+        <childnode refid="14474" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="14524">
+        <label>index_sample</label>
+        <link refid="structindex__sample"/>
+      </node>
+      <node id="14544">
+        <label>session_vtab</label>
+        <link refid="structsession__vtab"/>
+      </node>
+      <node id="14552">
+        <label>vy_run_info</label>
+        <link refid="structvy__run__info"/>
+        <childnode refid="14553" relation="usage">
+          <edgelabel>bloom</edgelabel>
+        </childnode>
+        <childnode refid="14556" relation="usage">
+          <edgelabel>stmt_stat</edgelabel>
+        </childnode>
+      </node>
+      <node id="14527">
+        <label>TriggerStep</label>
+        <link refid="structTriggerStep"/>
+        <childnode refid="14527" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pLast</edgelabel>
+        </childnode>
+        <childnode refid="14508" relation="usage">
+          <edgelabel>pWhere</edgelabel>
+        </childnode>
+        <childnode refid="14519" relation="usage">
+          <edgelabel>pIdList</edgelabel>
+        </childnode>
+        <childnode refid="14514" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="14512" relation="usage">
+          <edgelabel>pExprList</edgelabel>
+        </childnode>
+      </node>
+      <node id="14546">
+        <label>diag</label>
+        <link refid="structdiag"/>
+      </node>
+      <node id="14536">
+        <label>json_token</label>
+        <link refid="structjson__token"/>
+        <childnode refid="14536" relation="usage">
+          <edgelabel>parent</edgelabel>
+          <edgelabel>children</edgelabel>
+        </childnode>
+      </node>
+      <node id="14492">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="14493" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="14550">
+        <label>vy_page_info</label>
+        <link refid="structvy__page__info"/>
+      </node>
+      <node id="14465">
+        <label>access</label>
+        <link refid="structaccess"/>
+      </node>
+      <node id="14553">
+        <label>tuple_bloom</label>
+        <link refid="structtuple__bloom"/>
+        <childnode refid="14554" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="14518">
+        <label>SrcList::SrcList_item</label>
+        <link refid="structSrcList_1_1SrcList__item"/>
+        <childnode refid="14504" relation="usage">
+          <edgelabel>space</edgelabel>
+        </childnode>
+        <childnode refid="14508" relation="usage">
+          <edgelabel>pOn</edgelabel>
+        </childnode>
+        <childnode refid="14519" relation="usage">
+          <edgelabel>pUsing</edgelabel>
+        </childnode>
+        <childnode refid="14521" relation="usage">
+          <edgelabel>pIBIndex</edgelabel>
+        </childnode>
+        <childnode refid="14514" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="14512" relation="usage">
+          <edgelabel>pFuncArg</edgelabel>
+        </childnode>
+      </node>
+      <node id="14516">
+        <label>With::Cte</label>
+        <link refid="structWith_1_1Cte"/>
+        <childnode refid="14514" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="14512" relation="usage">
+          <edgelabel>pCols</edgelabel>
+        </childnode>
+      </node>
+      <node id="14514">
+        <label>Select</label>
+        <link refid="structSelect"/>
+        <childnode refid="14508" relation="usage">
+          <edgelabel>pOffset</edgelabel>
+          <edgelabel>pHaving</edgelabel>
+          <edgelabel>pWhere</edgelabel>
+          <edgelabel>pLimit</edgelabel>
+        </childnode>
+        <childnode refid="14515" relation="usage">
+          <edgelabel>pWith</edgelabel>
+        </childnode>
+        <childnode refid="14514" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pPrior</edgelabel>
+        </childnode>
+        <childnode refid="14517" relation="usage">
+          <edgelabel>pSrc</edgelabel>
+        </childnode>
+        <childnode refid="14512" relation="usage">
+          <edgelabel>pEList</edgelabel>
+          <edgelabel>pOrderBy</edgelabel>
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="14487">
+        <label>vy_run_env</label>
+        <link refid="structvy__run__env"/>
+        <childnode refid="14488" relation="usage">
+          <edgelabel>reader_pool</edgelabel>
+        </childnode>
+        <childnode refid="14495" relation="usage">
+          <edgelabel>read_task_pool</edgelabel>
+        </childnode>
+      </node>
+      <node id="14469">
+        <label>credentials</label>
+        <link refid="structcredentials"/>
+        <childnode refid="14470" relation="usage">
+          <edgelabel>in_user</edgelabel>
+        </childnode>
+      </node>
+      <node id="14503">
+        <label>engine_vtab</label>
+        <link refid="structengine__vtab"/>
+        <childnode refid="14504" relation="usage">
+          <edgelabel>create_space</edgelabel>
+        </childnode>
+      </node>
+      <node id="14504">
+        <label>space</label>
+        <link refid="structspace"/>
+        <childnode refid="14505" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="14502" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="14526" relation="usage">
+          <edgelabel>sql_triggers</edgelabel>
+        </childnode>
+        <childnode refid="14465" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="14528" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="14533" relation="usage">
+          <edgelabel>format</edgelabel>
+        </childnode>
+        <childnode refid="14537" relation="usage">
+          <edgelabel>ck_constraint_trigger</edgelabel>
+        </childnode>
+        <childnode refid="14470" relation="usage">
+          <edgelabel>before_replace</edgelabel>
+          <edgelabel>on_replace</edgelabel>
+          <edgelabel>child_fk_constraint</edgelabel>
+          <edgelabel>memtx_stories</edgelabel>
+          <edgelabel>parent_fk_constraint</edgelabel>
+          <edgelabel>ck_constraint</edgelabel>
+        </childnode>
+        <childnode refid="14538" relation="usage">
+          <edgelabel>sequence</edgelabel>
+        </childnode>
+        <childnode refid="14529" relation="usage">
+          <edgelabel>index_map</edgelabel>
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="14489">
+        <label>cpipe</label>
+        <link refid="structcpipe"/>
+        <childnode refid="14470" relation="usage">
+          <edgelabel>on_flush</edgelabel>
+        </childnode>
+        <childnode refid="14490" relation="usage">
+          <edgelabel>endpoint</edgelabel>
+        </childnode>
+        <childnode refid="14492" relation="usage">
+          <edgelabel>input</edgelabel>
+        </childnode>
+      </node>
+      <node id="14545">
+        <label>clock_stat</label>
+        <link refid="structclock__stat"/>
+      </node>
+      <node id="14480">
+        <label>xlog</label>
+        <link refid="structxlog"/>
+        <childnode refid="14481" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+        <childnode refid="14482" relation="usage">
+          <edgelabel>obuf</edgelabel>
+          <edgelabel>zbuf</edgelabel>
+        </childnode>
+        <childnode refid="14483" relation="usage">
+          <edgelabel>meta</edgelabel>
+        </childnode>
+      </node>
+      <node id="14555">
+        <label>bloom_block</label>
+        <link refid="structbloom__block"/>
+      </node>
+      <node id="14510">
+        <label>AggInfo::AggInfo_col</label>
+        <link refid="structAggInfo_1_1AggInfo__col"/>
+        <childnode refid="14505" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="14508" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="14461">
+        <label>tuple_bloom_builder</label>
+        <link refid="structtuple__bloom__builder"/>
+        <childnode refid="14462" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="14530">
+        <label>index_vtab</label>
+        <link refid="structindex__vtab"/>
+        <childnode refid="14531" relation="usage">
+          <edgelabel>create_snapshot_iterator</edgelabel>
+        </childnode>
+        <childnode refid="14532" relation="usage">
+          <edgelabel>create_iterator</edgelabel>
+        </childnode>
+      </node>
+      <node id="14482">
+        <label>obuf</label>
+        <link refid="structobuf"/>
+        <childnode refid="14474" relation="usage">
+          <edgelabel>slabc</edgelabel>
+        </childnode>
+      </node>
+      <node id="14506">
+        <label>tuple_dictionary</label>
+        <link refid="structtuple__dictionary"/>
+      </node>
+      <node id="14508">
+        <label>Expr</label>
+        <link refid="structExpr"/>
+        <childnode refid="14505" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="14509" relation="usage">
+          <edgelabel>pAggInfo</edgelabel>
+        </childnode>
+        <childnode refid="14508" relation="usage">
+          <edgelabel>pRight</edgelabel>
+          <edgelabel>pLeft</edgelabel>
+        </childnode>
+        <childnode refid="14514" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="14512" relation="usage">
+          <edgelabel>pList</edgelabel>
+        </childnode>
+      </node>
+      <node id="14501">
+        <label>txn</label>
+        <link refid="structtxn"/>
+        <childnode refid="14502" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="14493" relation="usage">
+          <edgelabel>in_txn_cache</edgelabel>
+          <edgelabel>sub_stmt_begin</edgelabel>
+        </childnode>
+        <childnode refid="14540" relation="usage">
+          <edgelabel>region</edgelabel>
+        </childnode>
+        <childnode refid="14500" relation="usage">
+          <edgelabel>fiber</edgelabel>
+        </childnode>
+        <childnode refid="14537" relation="usage">
+          <edgelabel>fiber_on_stop</edgelabel>
+          <edgelabel>fiber_on_yield</edgelabel>
+        </childnode>
+        <childnode refid="14470" relation="usage">
+          <edgelabel>on_wal_write</edgelabel>
+          <edgelabel>read_set</edgelabel>
+          <edgelabel>conflict_list</edgelabel>
+          <edgelabel>in_read_view_txs</edgelabel>
+          <edgelabel>savepoints</edgelabel>
+          <edgelabel>conflicted_by_list</edgelabel>
+        </childnode>
+        <childnode refid="14492" relation="usage">
+          <edgelabel>stmts</edgelabel>
+        </childnode>
+      </node>
+      <node id="14509">
+        <label>AggInfo</label>
+        <link refid="structAggInfo"/>
+        <childnode refid="14510" relation="usage">
+          <edgelabel>aCol</edgelabel>
+        </childnode>
+        <childnode refid="14511" relation="usage">
+          <edgelabel>aFunc</edgelabel>
+        </childnode>
+        <childnode refid="14512" relation="usage">
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="14470">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="14470" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="14459">
+        <label>vy_entry</label>
+        <link refid="structvy__entry"/>
+        <childnode refid="14460" relation="usage">
+          <edgelabel>stmt</edgelabel>
+        </childnode>
+      </node>
+      <node id="14531">
+        <label>snapshot_iterator</label>
+        <link refid="structsnapshot__iterator"/>
+      </node>
+      <node id="14475">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="14476" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="14470" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="14517">
+        <label>SrcList</label>
+        <link refid="structSrcList"/>
+        <childnode refid="14518" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="14548">
+        <label>ipc_msg</label>
+        <link refid="structipc__msg"/>
+      </node>
+      <node id="14539">
+        <label>sequence_def</label>
+        <link refid="structsequence__def"/>
+      </node>
+      <node id="14462">
+        <label>tuple_hash_array</label>
+        <link refid="structtuple__hash__array"/>
+      </node>
+      <node id="14519">
+        <label>IdList</label>
+        <link refid="structIdList"/>
+        <childnode refid="14520" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="14529">
+        <label>index</label>
+        <link refid="structindex"/>
+        <childnode refid="14502" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="14530" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="14521" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="14538">
+        <label>sequence</label>
+        <link refid="structsequence"/>
+        <childnode refid="14465" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="14539" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="14507">
+        <label>field_def</label>
+        <link refid="structfield__def"/>
+        <childnode refid="14508" relation="usage">
+          <edgelabel>default_value_expr</edgelabel>
+        </childnode>
+      </node>
+      <node id="14463">
+        <label>key_def</label>
+        <link refid="structkey__def"/>
+        <childnode refid="14460" relation="usage">
+          <edgelabel>tuple_hash</edgelabel>
+          <edgelabel>tuple_compare_with_key</edgelabel>
+          <edgelabel>tuple_compare</edgelabel>
+          <edgelabel>tuple_hint</edgelabel>
+          <edgelabel>tuple_extract_key</edgelabel>
+        </childnode>
+        <childnode refid="14463" relation="usage">
+          <edgelabel>key_hash</edgelabel>
+          <edgelabel>tuple_extract_key_raw</edgelabel>
+          <edgelabel>key_hint</edgelabel>
+        </childnode>
+        <childnode refid="14464" relation="usage">
+          <edgelabel>func_index_func</edgelabel>
+        </childnode>
+        <childnode refid="14471" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="14537">
+        <label>trigger</label>
+        <link refid="structtrigger"/>
+        <childnode refid="14537" relation="usage">
+          <edgelabel>run</edgelabel>
+          <edgelabel>destroy</edgelabel>
+        </childnode>
+        <childnode refid="14470" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="14460">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="14551">
+        <label>vy_disk_stmt_counter</label>
+        <link refid="structvy__disk__stmt__counter"/>
+      </node>
+      <node id="14478">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="14521">
+        <label>index_def</label>
+        <link refid="structindex__def"/>
+        <childnode refid="14522" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+        <childnode refid="14463" relation="usage">
+          <edgelabel>key_def</edgelabel>
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="14470" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="14525">
+        <label>space_opts</label>
+        <link refid="structspace__opts"/>
+      </node>
+      <node id="14496">
+        <label>mslab</label>
+        <link refid="structmslab"/>
+        <childnode refid="14470" relation="usage">
+          <edgelabel>next_in_cold</edgelabel>
+        </childnode>
+        <childnode refid="14497" relation="usage">
+          <edgelabel>slab</edgelabel>
+        </childnode>
+      </node>
+      <node id="14483">
+        <label>xlog_meta</label>
+        <link refid="structxlog__meta"/>
+        <childnode refid="14484" relation="usage">
+          <edgelabel>instance_uuid</edgelabel>
+        </childnode>
+        <childnode refid="14485" relation="usage">
+          <edgelabel>vclock</edgelabel>
+          <edgelabel>prev_vclock</edgelabel>
+        </childnode>
+      </node>
+      <node id="14464">
+        <label>func</label>
+        <link refid="structfunc"/>
+        <childnode refid="14465" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="14466" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="14467" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="14469" relation="usage">
+          <edgelabel>owner_credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="14466">
+        <label>func_vtab</label>
+        <link refid="structfunc__vtab"/>
+      </node>
+      <node id="14526">
+        <label>sql_trigger</label>
+        <link refid="structsql__trigger"/>
+        <childnode refid="14527" relation="usage">
+          <edgelabel>step_list</edgelabel>
+        </childnode>
+        <childnode refid="14508" relation="usage">
+          <edgelabel>pWhen</edgelabel>
+        </childnode>
+        <childnode refid="14526" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="14519" relation="usage">
+          <edgelabel>pColumns</edgelabel>
+        </childnode>
+      </node>
+      <node id="14479">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="14477">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="14478" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="14479" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="14468">
+        <label>func_opts</label>
+        <link refid="structfunc__opts"/>
+      </node>
+      <node id="14481">
+        <label>xlog_opts</label>
+        <link refid="structxlog__opts"/>
+      </node>
+      <node id="14488">
+        <label>vy_run_reader</label>
+        <link refid="structvy__run__reader"/>
+        <childnode refid="14489" relation="usage">
+          <edgelabel>tx_pipe</edgelabel>
+          <edgelabel>reader_pipe</edgelabel>
+        </childnode>
+        <childnode refid="14494" relation="usage">
+          <edgelabel>cord</edgelabel>
+        </childnode>
+      </node>
+      <node id="14474">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="14475" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="14477" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="14534">
+        <label>tuple_format_vtab</label>
+        <link refid="structtuple__format__vtab"/>
+        <childnode refid="14460" relation="usage">
+          <edgelabel>tuple_new</edgelabel>
+        </childnode>
+      </node>
+      <node id="14533">
+        <label>tuple_format</label>
+        <link refid="structtuple__format"/>
+        <childnode refid="14506" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="14534" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="14535" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+      </node>
+      <node id="14554">
+        <label>bloom</label>
+        <link refid="structbloom"/>
+        <childnode refid="14555" relation="usage">
+          <edgelabel>table</edgelabel>
+        </childnode>
+      </node>
+      <node id="14467">
+        <label>func_def</label>
+        <link refid="structfunc__def"/>
+        <childnode refid="14468" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="14515">
+        <label>With</label>
+        <link refid="structWith"/>
+        <childnode refid="14516" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+        <childnode refid="14515" relation="usage">
+          <edgelabel>pOuter</edgelabel>
+        </childnode>
+      </node>
+      <node id="14485">
+        <label>vclock</label>
+        <link refid="structvclock"/>
+      </node>
+      <node id="14505">
+        <label>space_def</label>
+        <link refid="structspace__def"/>
+        <childnode refid="14506" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="14507" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+        <childnode refid="14525" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="14502">
+        <label>engine</label>
+        <link refid="structengine"/>
+        <childnode refid="14503" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="14470" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="14498">
+        <label>lifo</label>
+        <link refid="structlifo"/>
+      </node>
+      <node id="14491">
+        <label>fiber_cond</label>
+        <link refid="structfiber__cond"/>
+        <childnode refid="14470" relation="usage">
+          <edgelabel>waiters</edgelabel>
+        </childnode>
+      </node>
+      <node id="14499">
+        <label>cpu_stat</label>
+        <link refid="structcpu__stat"/>
+      </node>
+      <node id="14484">
+        <label>tt_uuid</label>
+        <link refid="structtt__uuid"/>
+      </node>
+      <node id="14520">
+        <label>IdList::IdList_item</label>
+        <link refid="structIdList_1_1IdList__item"/>
+      </node>
+      <node id="14547">
+        <label>ipc_wait_pad</label>
+        <link refid="structipc__wait__pad"/>
+        <childnode refid="14548" relation="usage">
+          <edgelabel>msg</edgelabel>
+        </childnode>
+      </node>
+      <node id="14500">
+        <label>fiber</label>
+        <link refid="structfiber"/>
+        <childnode refid="14501" relation="usage">
+          <edgelabel>txn</edgelabel>
+        </childnode>
+        <childnode refid="14540" relation="usage">
+          <edgelabel>gc</edgelabel>
+        </childnode>
+        <childnode refid="14500" relation="usage">
+          <edgelabel>caller</edgelabel>
+        </childnode>
+        <childnode refid="14469" relation="usage">
+          <edgelabel>credentials</edgelabel>
+        </childnode>
+        <childnode refid="14541" relation="usage">
+          <edgelabel>session</edgelabel>
+        </childnode>
+        <childnode refid="14545" relation="usage">
+          <edgelabel>clock_stat</edgelabel>
+        </childnode>
+        <childnode refid="14470" relation="usage">
+          <edgelabel>wake</edgelabel>
+          <edgelabel>on_stop</edgelabel>
+          <edgelabel>on_yield</edgelabel>
+          <edgelabel>link</edgelabel>
+          <edgelabel>state</edgelabel>
+        </childnode>
+        <childnode refid="14546" relation="usage">
+          <edgelabel>diag</edgelabel>
+        </childnode>
+        <childnode refid="14497" relation="usage">
+          <edgelabel>stack_slab</edgelabel>
+        </childnode>
+        <childnode refid="14547" relation="usage">
+          <edgelabel>wait_pad</edgelabel>
+        </childnode>
+      </node>
+      <node id="14472">
+        <label>coll</label>
+        <link refid="structcoll"/>
+        <childnode refid="14472" relation="usage">
+          <edgelabel>cmp</edgelabel>
+          <edgelabel>hint</edgelabel>
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+      <node id="14497">
+        <label>slab</label>
+        <link refid="structslab"/>
+        <childnode refid="14470" relation="usage">
+          <edgelabel>next_in_cache</edgelabel>
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+      <node id="14542">
+        <label>session_meta</label>
+        <link refid="structsession__meta"/>
+        <childnode refid="14543" relation="usage">
+          <edgelabel>serializer_opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="14522">
+        <label>index_opts</label>
+        <link refid="structindex__opts"/>
+        <childnode refid="14523" relation="usage">
+          <edgelabel>stat</edgelabel>
+        </childnode>
+      </node>
+      <node id="14541">
+        <label>session</label>
+        <link refid="structsession"/>
+        <childnode refid="14542" relation="usage">
+          <edgelabel>meta</edgelabel>
+        </childnode>
+        <childnode refid="14544" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="14537" relation="usage">
+          <edgelabel>fiber_on_stop</edgelabel>
+        </childnode>
+        <childnode refid="14469" relation="usage">
+          <edgelabel>credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="14458">
+        <label>vy_run_writer</label>
+        <link refid="structvy__run__writer"/>
+        <childnode refid="14459" relation="usage">
+          <edgelabel>last</edgelabel>
+        </childnode>
+        <childnode refid="14461" relation="usage">
+          <edgelabel>bloom</edgelabel>
+        </childnode>
+        <childnode refid="14463" relation="usage">
+          <edgelabel>key_def</edgelabel>
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="14473" relation="usage">
+          <edgelabel>row_index_buf</edgelabel>
+        </childnode>
+        <childnode refid="14480" relation="usage">
+          <edgelabel>data_xlog</edgelabel>
+        </childnode>
+        <childnode refid="14486" relation="usage">
+          <edgelabel>run</edgelabel>
+        </childnode>
+      </node>
+      <node id="14494">
+        <label>cord</label>
+        <link refid="structcord"/>
+        <childnode refid="14495" relation="usage">
+          <edgelabel>fiber_mempool</edgelabel>
+        </childnode>
+        <childnode refid="14499" relation="usage">
+          <edgelabel>cpu_stat</edgelabel>
+        </childnode>
+        <childnode refid="14500" relation="usage">
+          <edgelabel>sched</edgelabel>
+          <edgelabel>fiber</edgelabel>
+        </childnode>
+        <childnode refid="14545" relation="usage">
+          <edgelabel>clock_stat</edgelabel>
+        </childnode>
+        <childnode refid="14470" relation="usage">
+          <edgelabel>dead</edgelabel>
+          <edgelabel>alive</edgelabel>
+          <edgelabel>ready</edgelabel>
+        </childnode>
+        <childnode refid="14474" relation="usage">
+          <edgelabel>slabc</edgelabel>
+        </childnode>
+        <childnode refid="14549" relation="usage">
+          <edgelabel>on_exit</edgelabel>
+        </childnode>
+      </node>
+      <node id="14549">
+        <label>cord_on_exit</label>
+        <link refid="structcord__on__exit"/>
+      </node>
+      <node id="14513">
+        <label>ExprList::ExprList_item</label>
+        <link refid="structExprList_1_1ExprList__item"/>
+        <childnode refid="14508" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="14486">
+        <label>vy_run</label>
+        <link refid="structvy__run"/>
+        <childnode refid="14487" relation="usage">
+          <edgelabel>env</edgelabel>
+        </childnode>
+        <childnode refid="14550" relation="usage">
+          <edgelabel>page_info</edgelabel>
+        </childnode>
+        <childnode refid="14551" relation="usage">
+          <edgelabel>count</edgelabel>
+        </childnode>
+        <childnode refid="14552" relation="usage">
+          <edgelabel>info</edgelabel>
+        </childnode>
+        <childnode refid="14470" relation="usage">
+          <edgelabel>in_unused</edgelabel>
+          <edgelabel>in_lsm</edgelabel>
+        </childnode>
+      </node>
+      <node id="14511">
+        <label>AggInfo::AggInfo_func</label>
+        <link refid="structAggInfo_1_1AggInfo__func"/>
+        <childnode refid="14508" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+        <childnode refid="14464" relation="usage">
+          <edgelabel>func</edgelabel>
+        </childnode>
+      </node>
+      <node id="14490">
+        <label>cbus_endpoint</label>
+        <link refid="structcbus__endpoint"/>
+        <childnode refid="14491" relation="usage">
+          <edgelabel>cond</edgelabel>
+        </childnode>
+        <childnode refid="14470" relation="usage">
+          <edgelabel>in_cbus</edgelabel>
+        </childnode>
+        <childnode refid="14492" relation="usage">
+          <edgelabel>output</edgelabel>
+        </childnode>
+      </node>
+      <node id="14528">
+        <label>space_vtab</label>
+        <link refid="structspace__vtab"/>
+        <childnode refid="14529" relation="usage">
+          <edgelabel>create_index</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/vy_run.h" line="589" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_run.h" bodystart="589" bodyend="630"/>
+    <listofallmembers>
+      <member refid="structvy__run__writer_1a76f9d73ea895663e80d8f8ee70dc1668" prot="public" virt="non-virtual"><scope>vy_run_writer</scope><name>bloom</name></member>
+      <member refid="structvy__run__writer_1a58f9ca17c9f3efc12fb86c118fa879c0" prot="public" virt="non-virtual"><scope>vy_run_writer</scope><name>bloom_fpr</name></member>
+      <member refid="structvy__run__writer_1a30fc5b7323aa77586628b72189a58477" prot="public" virt="non-virtual"><scope>vy_run_writer</scope><name>cmp_def</name></member>
+      <member refid="structvy__run__writer_1a16b6f6944149b298dfd1af830792f988" prot="public" virt="non-virtual"><scope>vy_run_writer</scope><name>data_xlog</name></member>
+      <member refid="structvy__run__writer_1a299da944f8c1541798160f1782f237cd" prot="public" virt="non-virtual"><scope>vy_run_writer</scope><name>dirpath</name></member>
+      <member refid="structvy__run__writer_1a344e8baf4ee38d080992458cb5c16510" prot="public" virt="non-virtual"><scope>vy_run_writer</scope><name>iid</name></member>
+      <member refid="structvy__run__writer_1a9a6f866571583dc3febb2c4bfa3bf406" prot="public" virt="non-virtual"><scope>vy_run_writer</scope><name>key_def</name></member>
+      <member refid="structvy__run__writer_1a96f8e6ba17065d48d8bb2d9458ef0d43" prot="public" virt="non-virtual"><scope>vy_run_writer</scope><name>last</name></member>
+      <member refid="structvy__run__writer_1a6cc99948e081afe08fbef820a3b63a15" prot="public" virt="non-virtual"><scope>vy_run_writer</scope><name>no_compression</name></member>
+      <member refid="structvy__run__writer_1a0ad13bdc325559009efd70359489177b" prot="public" virt="non-virtual"><scope>vy_run_writer</scope><name>page_info_capacity</name></member>
+      <member refid="structvy__run__writer_1a343d0e474f37c69b3b92cd2d0f4b1df3" prot="public" virt="non-virtual"><scope>vy_run_writer</scope><name>page_size</name></member>
+      <member refid="structvy__run__writer_1a8b5bdd82e77328c02a4c6e643d66c264" prot="public" virt="non-virtual"><scope>vy_run_writer</scope><name>row_index_buf</name></member>
+      <member refid="structvy__run__writer_1a4b1eb340da859e16edce3e614b6b02a8" prot="public" virt="non-virtual"><scope>vy_run_writer</scope><name>run</name></member>
+      <member refid="structvy__run__writer_1a3a587e7a621f1f8306250c553daf948c" prot="public" virt="non-virtual"><scope>vy_run_writer</scope><name>space_id</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

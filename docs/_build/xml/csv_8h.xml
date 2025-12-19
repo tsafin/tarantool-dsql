@@ -1,0 +1,655 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="csv_8h" kind="file" language="C++">
+    <compoundname>csv.h</compoundname>
+    <includes local="no">stdio.h</includes>
+    <includedby refid="csv_8c" local="yes">/home/tsafin/tarantool/src/lib/csv/csv.c</includedby>
+    <incdepgraph>
+      <node id="2109">
+        <label>/home/tsafin/tarantool/src/lib/csv/csv.h</label>
+        <link refid="csv_8h"/>
+        <childnode refid="2110" relation="include">
+        </childnode>
+      </node>
+      <node id="2110">
+        <label>stdio.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structcsv" prot="public">csv</innerclass>
+    <innerclass refid="structcsv__iterator" prot="public">csv_iterator</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="csv_8h_1a4193bf688ab519122764dc12b2cd9f49" prot="public" static="no">
+        <name>csv_parser_option</name>
+        <enumvalue id="csv_8h_1a4193bf688ab519122764dc12b2cd9f49a5890ce85231d2e7e7b05acf47a82c836" prot="public">
+          <name>CSV_OPT_DELIMITER</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="csv_8h_1a4193bf688ab519122764dc12b2cd9f49a47b009b34dfab1280fc30de87100c45b" prot="public">
+          <name>CSV_OPT_QUOTE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="csv_8h_1a4193bf688ab519122764dc12b2cd9f49af77661be84b13da1429c750fba1744f8" prot="public">
+          <name>CSV_OPT_REALLOC</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="csv_8h_1a4193bf688ab519122764dc12b2cd9f49a7e6b475881f9056cfbce6aedaaee6ace" prot="public">
+          <name>CSV_OPT_EMIT_FIELD</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="csv_8h_1a4193bf688ab519122764dc12b2cd9f49a7f2f039f0cbfb3432720d8df6fabc99a" prot="public">
+          <name>CSV_OPT_EMIT_ROW</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="csv_8h_1a4193bf688ab519122764dc12b2cd9f49a580b7d53850bc8a9ed9a6d4e5259ed4e" prot="public">
+          <name>CSV_OPT_EMIT_CTX</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/csv/csv.h" line="62" column="1" bodyfile="/home/tsafin/tarantool/src/lib/csv/csv.h" bodystart="62" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="enum" id="csv_8h_1afda3c4835347b8e8c87530e59171d7ff" prot="public" static="no">
+        <name>csv_iteraion_state</name>
+        <enumvalue id="csv_8h_1afda3c4835347b8e8c87530e59171d7ffa23e247e3ea1cfb078f2661fad95ab4a2" prot="public">
+          <name>CSV_IT_OK</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="csv_8h_1afda3c4835347b8e8c87530e59171d7ffafaff66f955227e1b21a54e0d6ae595de" prot="public">
+          <name>CSV_IT_EOL</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="csv_8h_1afda3c4835347b8e8c87530e59171d7ffaeb8ff7fcfce3001cde25c7d034144a45" prot="public">
+          <name>CSV_IT_NEEDMORE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="csv_8h_1afda3c4835347b8e8c87530e59171d7ffa8243b2df4e5811a10744e13ebc88686f" prot="public">
+          <name>CSV_IT_EOF</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="csv_8h_1afda3c4835347b8e8c87530e59171d7ffaaab78ea184b7235830fa2b83dd266d40" prot="public">
+          <name>CSV_IT_ERROR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/csv/csv.h" line="71" column="1" bodyfile="/home/tsafin/tarantool/src/lib/csv/csv.h" bodystart="71" bodyend="77"/>
+      </memberdef>
+      <memberdef kind="enum" id="csv_8h_1adfa77626026ccdd3e33ae6897590ef54" prot="public" static="no">
+        <name>csv_parser_state</name>
+        <enumvalue id="csv_8h_1adfa77626026ccdd3e33ae6897590ef54a6f84f8b12984a3469159762b1d25d466" prot="public">
+          <name>CSV_LEADING_SPACES</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="csv_8h_1adfa77626026ccdd3e33ae6897590ef54a07ff8386ee0cf8580a8965f29bb1c7f4" prot="public">
+          <name>CSV_OUT_OF_QUOTES</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="csv_8h_1adfa77626026ccdd3e33ae6897590ef54a9aeb2bc71495eb360899eaaf379a8515" prot="public">
+          <name>CSV_IN_QUOTES</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="csv_8h_1adfa77626026ccdd3e33ae6897590ef54afd8b3c15ad7c0d0cfc78076a1cee0d91" prot="public">
+          <name>CSV_QUOTE_OPENING</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="csv_8h_1adfa77626026ccdd3e33ae6897590ef54a33c96e1b6d9c18a9c3f8b0deffbfdafb" prot="public">
+          <name>CSV_QUOTE_CLOSING</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="csv_8h_1adfa77626026ccdd3e33ae6897590ef54aebc97a1fe90a79ffe25f91bef2f9431d" prot="public">
+          <name>CSV_LINE_BREAKING</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="csv_8h_1adfa77626026ccdd3e33ae6897590ef54adb45199a5248f4630678cf0e7ac6cf46" prot="public">
+          <name>CSV_NEWFIELD</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="csv_8h_1adfa77626026ccdd3e33ae6897590ef54aaf4c98a3c03aa2bd3c3c3066ea1dc60a" prot="public">
+          <name>CSV_END_OF_LAST_LINE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/csv/csv.h" line="79" column="1" bodyfile="/home/tsafin/tarantool/src/lib/csv/csv.h" bodystart="79" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="enum" id="csv_8h_1a719ef60e61e4c63d70713c79118381e9" prot="public" static="no">
+        <name>csv_error_status</name>
+        <enumvalue id="csv_8h_1a719ef60e61e4c63d70713c79118381e9a4168d4986731c28fb347b05b0a047488" prot="public">
+          <name>CSV_ER_OK</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="csv_8h_1a719ef60e61e4c63d70713c79118381e9a60880cdb1d0cd0970c5cc8a27318895b" prot="public">
+          <name>CSV_ER_INVALID</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="csv_8h_1a719ef60e61e4c63d70713c79118381e9a29d3936824bb364cdc64eba26ff180f8" prot="public">
+          <name>CSV_ER_MEMORY_ERROR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/csv/csv.h" line="90" column="1" bodyfile="/home/tsafin/tarantool/src/lib/csv/csv.h" bodystart="90" bodyend="94"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="csv_8h_1a3602e0316865cafb54fee2835c86f278" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* csv_emit_row_t) (void *ctx)</definition>
+        <argsstring>)(void *ctx)</argsstring>
+        <name>csv_emit_row_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/csv/csv.h" line="39" column="1" bodyfile="/home/tsafin/tarantool/src/lib/csv/csv.h" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="csv_8h_1ad1513ec4fd395422a0442c13961478e8" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* csv_emit_field_t) (void *ctx, const char *field, const char *end)</definition>
+        <argsstring>)(void *ctx, const char *field, const char *end)</argsstring>
+        <name>csv_emit_field_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/csv/csv.h" line="40" column="1" bodyfile="/home/tsafin/tarantool/src/lib/csv/csv.h" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="csv_8h_1ad311ce563ebd8d892a8f3a3f453c408c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void csv_create</definition>
+        <argsstring>(struct csv *csv)</argsstring>
+        <name>csv_create</name>
+        <param>
+          <type>struct <ref refid="structcsv" kindref="compound">csv</ref> *</type>
+          <declname>csv</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/csv/csv.h" line="97" column="1" bodyfile="/home/tsafin/tarantool/src/lib/csv/csv.c" bodystart="57" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="csv_8h_1a7f11d39f6650042843a0269cb6d579d9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void csv_destroy</definition>
+        <argsstring>(struct csv *csv)</argsstring>
+        <name>csv_destroy</name>
+        <param>
+          <type>struct <ref refid="structcsv" kindref="compound">csv</ref> *</type>
+          <declname>csv</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/csv/csv.h" line="100" column="1" bodyfile="/home/tsafin/tarantool/src/lib/csv/csv.c" bodystart="68" bodyend="74"/>
+      </memberdef>
+      <memberdef kind="function" id="csv_8h_1ae465bb627f8e6ea4719ef3a26fa14d60" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void csv_setopt</definition>
+        <argsstring>(struct csv *csv, int opt,...)</argsstring>
+        <name>csv_setopt</name>
+        <param>
+          <type>struct <ref refid="structcsv" kindref="compound">csv</ref> *</type>
+          <declname>csv</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>opt</declname>
+        </param>
+        <param>
+          <type>...</type>
+        </param>
+        <briefdescription>
+<para>Set a parser option. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/csv/csv.h" line="106" column="1" bodyfile="/home/tsafin/tarantool/src/lib/csv/csv.c" bodystart="91" bodyend="118"/>
+      </memberdef>
+      <memberdef kind="function" id="csv_8h_1ac29bb107b11cb2c03d3fc69723f9d069" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void csv_parse_chunk</definition>
+        <argsstring>(struct csv *csv, const char *s, const char *end)</argsstring>
+        <name>csv_parse_chunk</name>
+        <param>
+          <type>struct <ref refid="structcsv" kindref="compound">csv</ref> *</type>
+          <declname>csv</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>end</declname>
+        </param>
+        <briefdescription>
+<para><ref refid="structParse" kindref="compound">Parse</ref> input and call emit_row/emit_line. </para>        </briefdescription>
+        <detaileddescription>
+<para>Save tail to inside buffer, next call will concatenate tail and string from args </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/csv/csv.h" line="114" column="1" bodyfile="/home/tsafin/tarantool/src/lib/csv/csv.c" bodystart="275" bodyend="277"/>
+      </memberdef>
+      <memberdef kind="function" id="csv_8h_1a9cf6a9f143b6f870ad9b89cb4beeda0a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void csv_finish_parsing</definition>
+        <argsstring>(struct csv *csv)</argsstring>
+        <name>csv_finish_parsing</name>
+        <param>
+          <type>struct <ref refid="structcsv" kindref="compound">csv</ref> *</type>
+          <declname>csv</declname>
+        </param>
+        <briefdescription>
+<para>emits all remaining symbols from buffer </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/csv/csv.h" line="120" column="1" bodyfile="/home/tsafin/tarantool/src/lib/csv/csv.c" bodystart="280" bodyend="295"/>
+      </memberdef>
+      <memberdef kind="function" id="csv_8h_1ab4da9d190278c5e3623f2dcdf748fb95" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int csv_get_error_status</definition>
+        <argsstring>(struct csv *csv)</argsstring>
+        <name>csv_get_error_status</name>
+        <param>
+          <type>struct <ref refid="structcsv" kindref="compound">csv</ref> *</type>
+          <declname>csv</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>0 is ok </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/csv/csv.h" line="126" column="1" bodyfile="/home/tsafin/tarantool/src/lib/csv/csv.c" bodystart="85" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="csv_8h_1a706294c294cb9f7d8fdba312e30fcabe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void csv_iterator_create</definition>
+        <argsstring>(struct csv_iterator *it, struct csv *csv)</argsstring>
+        <name>csv_iterator_create</name>
+        <param>
+          <type>struct <ref refid="structcsv__iterator" kindref="compound">csv_iterator</ref> *</type>
+          <declname>it</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structcsv" kindref="compound">csv</ref> *</type>
+          <declname>csv</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/csv/csv.h" line="142" column="1" bodyfile="/home/tsafin/tarantool/src/lib/csv/csv.c" bodystart="299" bodyend="303"/>
+      </memberdef>
+      <memberdef kind="function" id="csv_8h_1a9ebbf140c0fa06ba0704bea941b1dc1d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int csv_next</definition>
+        <argsstring>(struct csv_iterator *)</argsstring>
+        <name>csv_next</name>
+        <param>
+          <type>struct <ref refid="structcsv__iterator" kindref="compound">csv_iterator</ref> *</type>
+          <defname>it</defname>
+        </param>
+        <briefdescription>
+<para>Receives next element from csv element is field or end of line. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>iteration state</para></simplesect>
+Receives next element from csv element is field or end of line. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/csv/csv.h" line="149" column="1" bodyfile="/home/tsafin/tarantool/src/lib/csv/csv.c" bodystart="309" bodyend="372"/>
+      </memberdef>
+      <memberdef kind="function" id="csv_8h_1abb0b7c9c8625c1c3faef71d504f40b7c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void csv_feed</definition>
+        <argsstring>(struct csv_iterator *it, const char *buf, size_t buf_len)</argsstring>
+        <name>csv_feed</name>
+        <param>
+          <type>struct <ref refid="structcsv__iterator" kindref="compound">csv_iterator</ref> *</type>
+          <declname>it</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>buf_len</declname>
+        </param>
+        <briefdescription>
+<para>csv_feed delivers buffer to iterator empty buffer means end of iteration </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/csv/csv.h" line="156" column="1" bodyfile="/home/tsafin/tarantool/src/lib/csv/csv.c" bodystart="375" bodyend="379"/>
+      </memberdef>
+      <memberdef kind="function" id="csv_8h_1ad9f5b6a3ab24c172f06435ae87b7a2d9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t csv_escape_field</definition>
+        <argsstring>(struct csv *csv, const char *field, size_t field_len, char *dst, size_t dst_size)</argsstring>
+        <name>csv_escape_field</name>
+        <param>
+          <type>struct <ref refid="structcsv" kindref="compound">csv</ref> *</type>
+          <declname>csv</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>field</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>field_len</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dst_size</declname>
+        </param>
+        <briefdescription>
+<para>csv_escape_field prepares field to out in file. </para>        </briefdescription>
+        <detaileddescription>
+<para>Adds pair quote and if there is comma or linebreak in field, adds surrounding quotes. At worst escaped field will 2 times more symbols than input field. <simplesect kind="return"><para>length of escaped field or -1 if not enough space in buffer. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/csv/csv.h" line="165" column="1" bodyfile="/home/tsafin/tarantool/src/lib/csv/csv.c" bodystart="382" bodyend="411"/>
+      </memberdef>
+      <memberdef kind="function" id="csv_8h_1a86fb3f8ca070f36523ea165666f7718f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>const char *</type>
+        <definition>static const char* csv_iterator_get_field</definition>
+        <argsstring>(struct csv_iterator *it)</argsstring>
+        <name>csv_iterator_get_field</name>
+        <param>
+          <type>struct <ref refid="structcsv__iterator" kindref="compound">csv_iterator</ref> *</type>
+          <declname>it</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/csv/csv.h" line="169" column="1" bodyfile="/home/tsafin/tarantool/src/lib/csv/csv.h" bodystart="169" bodyend="172"/>
+      </memberdef>
+      <memberdef kind="function" id="csv_8h_1ab2461887fc97803c94d9f221a7906916" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t csv_iterator_get_field_len</definition>
+        <argsstring>(struct csv_iterator *it)</argsstring>
+        <name>csv_iterator_get_field_len</name>
+        <param>
+          <type>struct <ref refid="structcsv__iterator" kindref="compound">csv_iterator</ref> *</type>
+          <declname>it</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/csv/csv.h" line="175" column="1" bodyfile="/home/tsafin/tarantool/src/lib/csv/csv.h" bodystart="175" bodyend="178"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LIB_CSV_CSV_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LIB_CSV_CSV_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016<sp/>Tarantool<sp/>AUTHORS:<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdio.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*csv_emit_row_t)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structcrypto__codec_1a0679e347c8fd944c0bd020e802595244" kindref="member">ctx</ref>);</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*csv_emit_field_t)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structcrypto__codec_1a0679e347c8fd944c0bd020e802595244" kindref="member">ctx</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*field,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*end);</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42" refid="structcsv" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcsv" kindref="compound">csv</ref></highlight></codeline>
+<codeline lineno="43"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*emit_ctx;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>csv_emit_row_t<sp/>emit_row;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>csv_emit_field_t<sp/>emit_field;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>delimiter;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>quote_char;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>prev_symbol;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>error_status;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>ending_spaces;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*(*realloc)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">*,<sp/>size_t);</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>state;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*buf;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*bufp;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>buf_len;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>csv_parser_option<sp/>{</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSV_OPT_DELIMITER,</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSV_OPT_QUOTE,</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSV_OPT_REALLOC,</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSV_OPT_EMIT_FIELD,</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSV_OPT_EMIT_ROW,</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSV_OPT_EMIT_CTX</highlight></codeline>
+<codeline lineno="69"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>csv_iteraion_state<sp/>{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSV_IT_OK,</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSV_IT_EOL,</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSV_IT_NEEDMORE,</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSV_IT_EOF,</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSV_IT_ERROR</highlight></codeline>
+<codeline lineno="77"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>csv_parser_state<sp/>{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSV_LEADING_SPACES,</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSV_OUT_OF_QUOTES,</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSV_IN_QUOTES,</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSV_QUOTE_OPENING,</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSV_QUOTE_CLOSING,</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSV_LINE_BREAKING,</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSV_NEWFIELD,</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSV_END_OF_LAST_LINE</highlight></codeline>
+<codeline lineno="88"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>csv_error_status<sp/>{</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSV_ER_OK,</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSV_ER_INVALID,</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSV_ER_MEMORY_ERROR</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal">csv_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcsv" kindref="compound">csv</ref><sp/>*<ref refid="structcsv" kindref="compound">csv</ref>);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal">csv_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>csv<sp/>*csv);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal">csv_setopt(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>csv<sp/>*csv,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>opt,<sp/>...);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal">csv_parse_chunk(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>csv<sp/>*csv,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*s,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*end);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal">csv_finish_parsing(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>csv<sp/>*csv);</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal">csv_get_error_status(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>csv<sp/>*csv);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131" refid="structcsv__iterator" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structcsv__iterator" kindref="compound">csv_iterator</ref><sp/>{</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">csv<sp/>*csv;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*buf_begin;<sp/></highlight><highlight class="comment">//input<sp/>buffer</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*buf_end;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*field;<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//output<sp/>buffer</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>field_len;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal">csv_iterator_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcsv__iterator" kindref="compound">csv_iterator</ref><sp/>*it,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>csv<sp/>*csv);</highlight></codeline>
+<codeline lineno="148"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal">csv_next(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcsv__iterator" kindref="compound">csv_iterator</ref><sp/>*);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal">csv_feed(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcsv__iterator" kindref="compound">csv_iterator</ref><sp/>*it,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>buf_len);</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal">csv_escape_field(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>csv<sp/>*csv,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*field,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>field_len,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*dst,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>dst_size);</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="169"><highlight class="normal">csv_iterator_get_field(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcsv__iterator" kindref="compound">csv_iterator</ref><sp/>*it)</highlight></codeline>
+<codeline lineno="170"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>it-&gt;field;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal">csv_iterator_get_field_len(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structcsv__iterator" kindref="compound">csv_iterator</ref><sp/>*it)</highlight></codeline>
+<codeline lineno="176"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>it-&gt;field_len;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_LIB_CSV_CSV_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/csv/csv.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,1703 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvy__task" kind="struct" language="C++" prot="public">
+    <compoundname>vy_task</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvy__task_1ae4b82938b3fd6d047a7b768595d07dea" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structcmsg" kindref="compound">cmsg</ref></type>
+        <definition>struct cmsg vy_task::cmsg</definition>
+        <argsstring></argsstring>
+        <name>cmsg</name>
+        <briefdescription>
+<para>CBus message used for sending the task to/from a worker thread. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="152" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="160" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__task_1a1de20c330eaa8217d0548c6f77506590" prot="public" static="no" mutable="no">
+        <type>const struct <ref refid="structvy__task__ops" kindref="compound">vy_task_ops</ref> *</type>
+        <definition>const struct vy_task_ops* vy_task::ops</definition>
+        <argsstring></argsstring>
+        <name>ops</name>
+        <briefdescription>
+<para>Virtual method table. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="162" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="162" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__task_1ae5eee1109ede0dc2ce509cea01e6fb33" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__scheduler" kindref="compound">vy_scheduler</ref> *</type>
+        <definition>struct vy_scheduler* vy_task::scheduler</definition>
+        <argsstring></argsstring>
+        <name>scheduler</name>
+        <briefdescription>
+<para>Pointer to the scheduler. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="164" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="164" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__task_1a56c6e0db440c6ac5157003e3baab3de6" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__worker" kindref="compound">vy_worker</ref> *</type>
+        <definition>struct vy_worker* vy_task::worker</definition>
+        <argsstring></argsstring>
+        <name>worker</name>
+        <briefdescription>
+<para>Worker thread this task is assigned to. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="166" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="166" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__task_1a9bab0459cd87449b3d9553cc5c874d47" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfiber" kindref="compound">fiber</ref> *</type>
+        <definition>struct fiber* vy_task::fiber</definition>
+        <argsstring></argsstring>
+        <name>fiber</name>
+        <briefdescription>
+<para>Fiber that is currently executing this task in a worker thread. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="171" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="171" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__task_1a3449d4cbecb907e8b42893ed0e29405b" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double vy_task::start_time</definition>
+        <argsstring></argsstring>
+        <name>start_time</name>
+        <briefdescription>
+<para>Time of the task creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="173" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="173" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__task_1ace10087ace9d120ebc2589921fc43b86" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool vy_task::is_failed</definition>
+        <argsstring></argsstring>
+        <name>is_failed</name>
+        <briefdescription>
+<para>Set if the task failed. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="175" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="175" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__task_1afc6eafb813169713a6243428c38980ba" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structdiag" kindref="compound">diag</ref></type>
+        <definition>struct diag vy_task::diag</definition>
+        <argsstring></argsstring>
+        <name>diag</name>
+        <briefdescription>
+<para>In case of task failure the error is stored here. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="175" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="177" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__task_1aeeddfcdaf44c8ac58982209ef3821f96" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__lsm" kindref="compound">vy_lsm</ref> *</type>
+        <definition>struct vy_lsm* vy_task::lsm</definition>
+        <argsstring></argsstring>
+        <name>lsm</name>
+        <briefdescription>
+<para>LSM tree this task is for. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="179" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="179" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__task_1a2fcc46089da5c102c9a9879fbc729488" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+        <definition>struct key_def* vy_task::cmp_def</definition>
+        <argsstring></argsstring>
+        <name>cmp_def</name>
+        <briefdescription>
+<para>Copies of lsm-&gt;key/cmp_def to protect from multithread read/write on alter. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="184" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="184" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__task_1a8193da22728b57aac4b30656e9c3390b" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+        <definition>struct key_def* vy_task::key_def</definition>
+        <argsstring></argsstring>
+        <name>key_def</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="185" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="185" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__task_1ae7cf488a705c3c3d32e7b0a268147b21" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__range" kindref="compound">vy_range</ref> *</type>
+        <definition>struct vy_range* vy_task::range</definition>
+        <argsstring></argsstring>
+        <name>range</name>
+        <briefdescription>
+<para>Range to compact. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="187" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="187" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__task_1a06e156c547200be978b637061ba949b0" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__run" kindref="compound">vy_run</ref> *</type>
+        <definition>struct vy_run* vy_task::new_run</definition>
+        <argsstring></argsstring>
+        <name>new_run</name>
+        <briefdescription>
+<para>Run written by this task. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="189" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="189" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__task_1a1062febd365d79f9f716fd23bfa111dd" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__stmt__stream" kindref="compound">vy_stmt_stream</ref> *</type>
+        <definition>struct vy_stmt_stream* vy_task::wi</definition>
+        <argsstring></argsstring>
+        <name>wi</name>
+        <briefdescription>
+<para>Write iterator producing statements for the new run. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="191" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="191" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__task_1a75652062753cd8e7b484b328f2f37855" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__slice" kindref="compound">vy_slice</ref> *</type>
+        <definition>struct vy_slice* vy_task::first_slice</definition>
+        <argsstring></argsstring>
+        <name>first_slice</name>
+        <briefdescription>
+<para>First (newest) and last (oldest) slices to compact. </para>        </briefdescription>
+        <detaileddescription>
+<para>While a compaction task is in progress, a new slice can be added to a range by concurrent dump, so we need to remember the slices we are compacting. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="199" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="199" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__task_1a5eede6fd4e5b236d8617f06b8d081968" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__slice" kindref="compound">vy_slice</ref> *</type>
+        <definition>struct vy_slice * vy_task::last_slice</definition>
+        <argsstring></argsstring>
+        <name>last_slice</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="199" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="199" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__task_1ac9e2f2c65fcb402a28699d51f405f4fa" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double vy_task::bloom_fpr</definition>
+        <argsstring></argsstring>
+        <name>bloom_fpr</name>
+        <briefdescription>
+<para>Index options may be modified while a task is in progress so we save them here to safely access them from another thread. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="205" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="205" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__task_1a288525fbb70d4a435ec65f214c266b09" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t vy_task::page_size</definition>
+        <argsstring></argsstring>
+        <name>page_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="206" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="206" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__task_1a9fdaea22974ae95d0fe95377e1364795" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__deferred__delete__handler" kindref="compound">vy_deferred_delete_handler</ref></type>
+        <definition>struct vy_deferred_delete_handler vy_task::deferred_delete_handler</definition>
+        <argsstring></argsstring>
+        <name>deferred_delete_handler</name>
+        <briefdescription>
+<para>Deferred DELETE handler passed to the write iterator. </para>        </briefdescription>
+        <detaileddescription>
+<para>It sends deferred DELETE statements generated during primary index compaction back to tx. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="206" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="212" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__task_1a99d28c6fe3b41ac3acbfd2dcd13cb164" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__deferred__delete__batch" kindref="compound">vy_deferred_delete_batch</ref> *</type>
+        <definition>struct vy_deferred_delete_batch* vy_task::deferred_delete_batch</definition>
+        <argsstring></argsstring>
+        <name>deferred_delete_batch</name>
+        <briefdescription>
+<para>Batch of deferred deletes generated by this task. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="214" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="214" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__task_1adea4acb64c7fb9f85fbc8eaa8a9cc2c6" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int vy_task::deferred_delete_in_progress</definition>
+        <argsstring></argsstring>
+        <name>deferred_delete_in_progress</name>
+        <briefdescription>
+<para>Number of batches of deferred DELETEs sent to tx and not yet processed. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="219" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="219" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__task_1ad09fd42a255087a6a49b040cd6dc33ba" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structstailq__entry" kindref="compound">stailq_entry</ref></type>
+        <definition>struct stailq_entry vy_task::in_processed</definition>
+        <argsstring></argsstring>
+        <name>in_processed</name>
+        <briefdescription>
+<para>Link in <ref refid="structvy__scheduler_1a16b14e5d7430192096255594862d30ee" kindref="member">vy_scheduler::processed_tasks</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="219" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="221" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="15232">
+        <label>vy_stmt_stream_iface</label>
+        <link refid="structvy__stmt__stream__iface"/>
+        <childnode refid="15231" relation="usage">
+          <edgelabel>stop</edgelabel>
+          <edgelabel>close</edgelabel>
+          <edgelabel>next</edgelabel>
+          <edgelabel>start</edgelabel>
+        </childnode>
+      </node>
+      <node id="15225">
+        <label>vy_lsm_stat</label>
+        <link refid="structvy__lsm__stat"/>
+        <childnode refid="15226" relation="usage">
+          <edgelabel>iterator</edgelabel>
+        </childnode>
+        <childnode refid="15227" relation="usage">
+          <edgelabel>iterator</edgelabel>
+        </childnode>
+        <childnode refid="15228" relation="usage">
+          <edgelabel>iterator</edgelabel>
+        </childnode>
+        <childnode refid="15124" relation="usage">
+          <edgelabel>output</edgelabel>
+          <edgelabel>input</edgelabel>
+          <edgelabel>count</edgelabel>
+          <edgelabel>last_level_count</edgelabel>
+          <edgelabel>queue</edgelabel>
+        </childnode>
+        <childnode refid="15229" relation="usage">
+          <edgelabel>latency</edgelabel>
+        </childnode>
+        <childnode refid="15216" relation="usage">
+          <edgelabel>input</edgelabel>
+          <edgelabel>count</edgelabel>
+          <edgelabel>put</edgelabel>
+          <edgelabel>skip</edgelabel>
+          <edgelabel>get</edgelabel>
+        </childnode>
+        <childnode refid="15213" relation="usage">
+          <edgelabel>stmt</edgelabel>
+        </childnode>
+      </node>
+      <node id="15188">
+        <label>serializer_opts</label>
+        <link refid="structserializer__opts"/>
+      </node>
+      <node id="15138">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="15180">
+        <label>json_tree</label>
+        <link refid="structjson__tree"/>
+        <childnode refid="15181" relation="usage">
+          <edgelabel>root</edgelabel>
+        </childnode>
+      </node>
+      <node id="15157">
+        <label>ExprList</label>
+        <link refid="structExprList"/>
+        <childnode refid="15158" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="15168">
+        <label>index_stat</label>
+        <link refid="structindex__stat"/>
+        <childnode refid="15169" relation="usage">
+          <edgelabel>samples</edgelabel>
+        </childnode>
+      </node>
+      <node id="15203">
+        <label>vy_task_ops</label>
+        <link refid="structvy__task__ops"/>
+      </node>
+      <node id="15196">
+        <label>vy_scheduler_stat</label>
+        <link refid="structvy__scheduler__stat"/>
+      </node>
+      <node id="15177">
+        <label>iterator</label>
+        <link refid="structiterator"/>
+        <childnode refid="15174" relation="usage">
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="15218">
+        <label>lsregion</label>
+        <link refid="structlsregion"/>
+        <childnode refid="15219" relation="usage">
+          <edgelabel>cached</edgelabel>
+        </childnode>
+        <childnode refid="15137" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="15141" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="15132">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="15132" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="15223">
+        <label>vy_cache_env</label>
+        <link refid="structvy__cache__env"/>
+        <childnode refid="15134" relation="usage">
+          <edgelabel>cache_node_mempool</edgelabel>
+        </childnode>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>cache_lru</edgelabel>
+        </childnode>
+      </node>
+      <node id="15213">
+        <label>vy_stmt_stat</label>
+        <link refid="structvy__stmt__stat"/>
+      </node>
+      <node id="15185">
+        <label>region</label>
+        <link refid="structregion"/>
+        <childnode refid="15137" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="15140" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="15122">
+        <label>key_part</label>
+        <link refid="structkey__part"/>
+        <childnode refid="15123" relation="usage">
+          <edgelabel>coll</edgelabel>
+        </childnode>
+      </node>
+      <node id="15134">
+        <label>mempool</label>
+        <link refid="structmempool"/>
+        <childnode refid="15135" relation="usage">
+          <edgelabel>spare</edgelabel>
+          <edgelabel>first_hot_slab</edgelabel>
+        </childnode>
+        <childnode refid="15137" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="15139" relation="usage">
+          <edgelabel>link</edgelabel>
+          <edgelabel>delayed</edgelabel>
+        </childnode>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>cold_slabs</edgelabel>
+        </childnode>
+        <childnode refid="15140" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="15169">
+        <label>index_sample</label>
+        <link refid="structindex__sample"/>
+      </node>
+      <node id="15189">
+        <label>session_vtab</label>
+        <link refid="structsession__vtab"/>
+      </node>
+      <node id="15209">
+        <label>vy_run_info</label>
+        <link refid="structvy__run__info"/>
+        <childnode refid="15210" relation="usage">
+          <edgelabel>bloom</edgelabel>
+        </childnode>
+        <childnode refid="15213" relation="usage">
+          <edgelabel>stmt_stat</edgelabel>
+        </childnode>
+      </node>
+      <node id="15172">
+        <label>TriggerStep</label>
+        <link refid="structTriggerStep"/>
+        <childnode refid="15172" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pLast</edgelabel>
+        </childnode>
+        <childnode refid="15153" relation="usage">
+          <edgelabel>pWhere</edgelabel>
+        </childnode>
+        <childnode refid="15164" relation="usage">
+          <edgelabel>pIdList</edgelabel>
+        </childnode>
+        <childnode refid="15159" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="15157" relation="usage">
+          <edgelabel>pExprList</edgelabel>
+        </childnode>
+      </node>
+      <node id="15222">
+        <label>vy_cache</label>
+        <link refid="structvy__cache"/>
+        <childnode refid="15114" relation="usage">
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="15223" relation="usage">
+          <edgelabel>env</edgelabel>
+        </childnode>
+        <childnode refid="15224" relation="usage">
+          <edgelabel>stat</edgelabel>
+        </childnode>
+      </node>
+      <node id="15191">
+        <label>diag</label>
+        <link refid="structdiag"/>
+      </node>
+      <node id="15181">
+        <label>json_token</label>
+        <link refid="structjson__token"/>
+        <childnode refid="15181" relation="usage">
+          <edgelabel>parent</edgelabel>
+          <edgelabel>children</edgelabel>
+        </childnode>
+      </node>
+      <node id="15131">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="15132" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="15228">
+        <label>vy_txw_iterator_stat</label>
+        <link refid="structvy__txw__iterator__stat"/>
+        <childnode refid="15216" relation="usage">
+          <edgelabel>get</edgelabel>
+        </childnode>
+      </node>
+      <node id="15220">
+        <label>histogram</label>
+        <link refid="structhistogram"/>
+        <childnode refid="15221" relation="usage">
+          <edgelabel>buckets</edgelabel>
+        </childnode>
+      </node>
+      <node id="15208">
+        <label>vy_page_info</label>
+        <link refid="structvy__page__info"/>
+      </node>
+      <node id="15116">
+        <label>access</label>
+        <link refid="structaccess"/>
+      </node>
+      <node id="15210">
+        <label>tuple_bloom</label>
+        <link refid="structtuple__bloom"/>
+        <childnode refid="15211" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="15198">
+        <label>vy_worker</label>
+        <link refid="structvy__worker"/>
+        <childnode refid="15199" relation="usage">
+          <edgelabel>deferred_delete_route</edgelabel>
+        </childnode>
+        <childnode refid="15132" relation="usage">
+          <edgelabel>in_idle</edgelabel>
+        </childnode>
+        <childnode refid="15128" relation="usage">
+          <edgelabel>tx_pipe</edgelabel>
+          <edgelabel>worker_pipe</edgelabel>
+        </childnode>
+        <childnode refid="15133" relation="usage">
+          <edgelabel>cord</edgelabel>
+        </childnode>
+        <childnode refid="15109" relation="usage">
+          <edgelabel>task</edgelabel>
+        </childnode>
+        <childnode refid="15197" relation="usage">
+          <edgelabel>pool</edgelabel>
+        </childnode>
+      </node>
+      <node id="15163">
+        <label>SrcList::SrcList_item</label>
+        <link refid="structSrcList_1_1SrcList__item"/>
+        <childnode refid="15149" relation="usage">
+          <edgelabel>space</edgelabel>
+        </childnode>
+        <childnode refid="15153" relation="usage">
+          <edgelabel>pOn</edgelabel>
+        </childnode>
+        <childnode refid="15164" relation="usage">
+          <edgelabel>pUsing</edgelabel>
+        </childnode>
+        <childnode refid="15166" relation="usage">
+          <edgelabel>pIBIndex</edgelabel>
+        </childnode>
+        <childnode refid="15159" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="15157" relation="usage">
+          <edgelabel>pFuncArg</edgelabel>
+        </childnode>
+      </node>
+      <node id="15109">
+        <label>vy_task</label>
+        <link refid="structvy__task"/>
+        <childnode refid="15110" relation="usage">
+          <edgelabel>range</edgelabel>
+        </childnode>
+        <childnode refid="15125" relation="usage">
+          <edgelabel>scheduler</edgelabel>
+        </childnode>
+        <childnode refid="15132" relation="usage">
+          <edgelabel>in_processed</edgelabel>
+        </childnode>
+        <childnode refid="15201" relation="usage">
+          <edgelabel>deferred_delete_handler</edgelabel>
+        </childnode>
+        <childnode refid="15114" relation="usage">
+          <edgelabel>key_def</edgelabel>
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="15203" relation="usage">
+          <edgelabel>ops</edgelabel>
+        </childnode>
+        <childnode refid="15204" relation="usage">
+          <edgelabel>deferred_delete_batch</edgelabel>
+        </childnode>
+        <childnode refid="15145" relation="usage">
+          <edgelabel>fiber</edgelabel>
+        </childnode>
+        <childnode refid="15206" relation="usage">
+          <edgelabel>first_slice</edgelabel>
+          <edgelabel>last_slice</edgelabel>
+        </childnode>
+        <childnode refid="15214" relation="usage">
+          <edgelabel>lsm</edgelabel>
+        </childnode>
+        <childnode refid="15198" relation="usage">
+          <edgelabel>worker</edgelabel>
+        </childnode>
+        <childnode refid="15191" relation="usage">
+          <edgelabel>diag</edgelabel>
+        </childnode>
+        <childnode refid="15231" relation="usage">
+          <edgelabel>wi</edgelabel>
+        </childnode>
+        <childnode refid="15207" relation="usage">
+          <edgelabel>new_run</edgelabel>
+        </childnode>
+        <childnode refid="15200" relation="usage">
+          <edgelabel>cmsg</edgelabel>
+        </childnode>
+      </node>
+      <node id="15161">
+        <label>With::Cte</label>
+        <link refid="structWith_1_1Cte"/>
+        <childnode refid="15159" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="15157" relation="usage">
+          <edgelabel>pCols</edgelabel>
+        </childnode>
+      </node>
+      <node id="15159">
+        <label>Select</label>
+        <link refid="structSelect"/>
+        <childnode refid="15153" relation="usage">
+          <edgelabel>pOffset</edgelabel>
+          <edgelabel>pHaving</edgelabel>
+          <edgelabel>pWhere</edgelabel>
+          <edgelabel>pLimit</edgelabel>
+        </childnode>
+        <childnode refid="15160" relation="usage">
+          <edgelabel>pWith</edgelabel>
+        </childnode>
+        <childnode refid="15159" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pPrior</edgelabel>
+        </childnode>
+        <childnode refid="15162" relation="usage">
+          <edgelabel>pSrc</edgelabel>
+        </childnode>
+        <childnode refid="15157" relation="usage">
+          <edgelabel>pEList</edgelabel>
+          <edgelabel>pOrderBy</edgelabel>
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="15126">
+        <label>vy_run_env</label>
+        <link refid="structvy__run__env"/>
+        <childnode refid="15127" relation="usage">
+          <edgelabel>reader_pool</edgelabel>
+        </childnode>
+        <childnode refid="15134" relation="usage">
+          <edgelabel>read_task_pool</edgelabel>
+        </childnode>
+      </node>
+      <node id="15120">
+        <label>credentials</label>
+        <link refid="structcredentials"/>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>in_user</edgelabel>
+        </childnode>
+      </node>
+      <node id="15148">
+        <label>engine_vtab</label>
+        <link refid="structengine__vtab"/>
+        <childnode refid="15149" relation="usage">
+          <edgelabel>create_space</edgelabel>
+        </childnode>
+      </node>
+      <node id="15149">
+        <label>space</label>
+        <link refid="structspace"/>
+        <childnode refid="15150" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="15147" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="15171" relation="usage">
+          <edgelabel>sql_triggers</edgelabel>
+        </childnode>
+        <childnode refid="15116" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="15173" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="15178" relation="usage">
+          <edgelabel>format</edgelabel>
+        </childnode>
+        <childnode refid="15182" relation="usage">
+          <edgelabel>ck_constraint_trigger</edgelabel>
+        </childnode>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>before_replace</edgelabel>
+          <edgelabel>on_replace</edgelabel>
+          <edgelabel>child_fk_constraint</edgelabel>
+          <edgelabel>memtx_stories</edgelabel>
+          <edgelabel>parent_fk_constraint</edgelabel>
+          <edgelabel>ck_constraint</edgelabel>
+        </childnode>
+        <childnode refid="15183" relation="usage">
+          <edgelabel>sequence</edgelabel>
+        </childnode>
+        <childnode refid="15174" relation="usage">
+          <edgelabel>index_map</edgelabel>
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="15128">
+        <label>cpipe</label>
+        <link refid="structcpipe"/>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>on_flush</edgelabel>
+        </childnode>
+        <childnode refid="15129" relation="usage">
+          <edgelabel>endpoint</edgelabel>
+        </childnode>
+        <childnode refid="15131" relation="usage">
+          <edgelabel>input</edgelabel>
+        </childnode>
+      </node>
+      <node id="15229">
+        <label>latency</label>
+        <link refid="structlatency"/>
+        <childnode refid="15220" relation="usage">
+          <edgelabel>histogram</edgelabel>
+        </childnode>
+      </node>
+      <node id="15227">
+        <label>vy_mem_iterator_stat</label>
+        <link refid="structvy__mem__iterator__stat"/>
+        <childnode refid="15216" relation="usage">
+          <edgelabel>get</edgelabel>
+        </childnode>
+      </node>
+      <node id="15190">
+        <label>clock_stat</label>
+        <link refid="structclock__stat"/>
+      </node>
+      <node id="15212">
+        <label>bloom_block</label>
+        <link refid="structbloom__block"/>
+      </node>
+      <node id="15155">
+        <label>AggInfo::AggInfo_col</label>
+        <link refid="structAggInfo_1_1AggInfo__col"/>
+        <childnode refid="15150" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="15153" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="15199">
+        <label>cmsg_hop</label>
+        <link refid="structcmsg__hop"/>
+        <childnode refid="15128" relation="usage">
+          <edgelabel>pipe</edgelabel>
+        </childnode>
+        <childnode refid="15200" relation="usage">
+          <edgelabel>f</edgelabel>
+        </childnode>
+      </node>
+      <node id="15214">
+        <label>vy_lsm</label>
+        <link refid="structvy__lsm"/>
+        <childnode refid="15167" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+        <childnode refid="15113" relation="usage">
+          <edgelabel>in_compaction</edgelabel>
+          <edgelabel>in_dump</edgelabel>
+        </childnode>
+        <childnode refid="15114" relation="usage">
+          <edgelabel>pk_in_cmp_def</edgelabel>
+          <edgelabel>key_def</edgelabel>
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="15178" relation="usage">
+          <edgelabel>disk_format</edgelabel>
+          <edgelabel>mem_format</edgelabel>
+        </childnode>
+        <childnode refid="15215" relation="usage">
+          <edgelabel>mem</edgelabel>
+        </childnode>
+        <childnode refid="15220" relation="usage">
+          <edgelabel>run_hist</edgelabel>
+        </childnode>
+        <childnode refid="15195" relation="usage">
+          <edgelabel>range_heap</edgelabel>
+        </childnode>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>on_destroy</edgelabel>
+          <edgelabel>runs</edgelabel>
+          <edgelabel>sealed</edgelabel>
+        </childnode>
+        <childnode refid="15214" relation="usage">
+          <edgelabel>pk</edgelabel>
+        </childnode>
+        <childnode refid="15222" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+        <childnode refid="15174" relation="usage">
+          <edgelabel>base</edgelabel>
+        </childnode>
+        <childnode refid="15225" relation="usage">
+          <edgelabel>stat</edgelabel>
+        </childnode>
+        <childnode refid="15230" relation="usage">
+          <edgelabel>env</edgelabel>
+        </childnode>
+      </node>
+      <node id="15175">
+        <label>index_vtab</label>
+        <link refid="structindex__vtab"/>
+        <childnode refid="15176" relation="usage">
+          <edgelabel>create_snapshot_iterator</edgelabel>
+        </childnode>
+        <childnode refid="15177" relation="usage">
+          <edgelabel>create_iterator</edgelabel>
+        </childnode>
+      </node>
+      <node id="15151">
+        <label>tuple_dictionary</label>
+        <link refid="structtuple__dictionary"/>
+      </node>
+      <node id="15153">
+        <label>Expr</label>
+        <link refid="structExpr"/>
+        <childnode refid="15150" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="15154" relation="usage">
+          <edgelabel>pAggInfo</edgelabel>
+        </childnode>
+        <childnode refid="15153" relation="usage">
+          <edgelabel>pRight</edgelabel>
+          <edgelabel>pLeft</edgelabel>
+        </childnode>
+        <childnode refid="15159" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="15157" relation="usage">
+          <edgelabel>pList</edgelabel>
+        </childnode>
+      </node>
+      <node id="15230">
+        <label>vy_lsm_env</label>
+        <link refid="structvy__lsm__env"/>
+        <childnode refid="15111" relation="usage">
+          <edgelabel>empty_key</edgelabel>
+        </childnode>
+        <childnode refid="15134" relation="usage">
+          <edgelabel>history_node_pool</edgelabel>
+        </childnode>
+        <childnode refid="15178" relation="usage">
+          <edgelabel>key_format</edgelabel>
+        </childnode>
+        <childnode refid="15214" relation="usage">
+          <edgelabel>upsert_thresh_cb</edgelabel>
+        </childnode>
+      </node>
+      <node id="15146">
+        <label>txn</label>
+        <link refid="structtxn"/>
+        <childnode refid="15147" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="15132" relation="usage">
+          <edgelabel>in_txn_cache</edgelabel>
+          <edgelabel>sub_stmt_begin</edgelabel>
+        </childnode>
+        <childnode refid="15185" relation="usage">
+          <edgelabel>region</edgelabel>
+        </childnode>
+        <childnode refid="15145" relation="usage">
+          <edgelabel>fiber</edgelabel>
+        </childnode>
+        <childnode refid="15182" relation="usage">
+          <edgelabel>fiber_on_stop</edgelabel>
+          <edgelabel>fiber_on_yield</edgelabel>
+        </childnode>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>on_wal_write</edgelabel>
+          <edgelabel>read_set</edgelabel>
+          <edgelabel>conflict_list</edgelabel>
+          <edgelabel>in_read_view_txs</edgelabel>
+          <edgelabel>savepoints</edgelabel>
+          <edgelabel>conflicted_by_list</edgelabel>
+        </childnode>
+        <childnode refid="15131" relation="usage">
+          <edgelabel>stmts</edgelabel>
+        </childnode>
+      </node>
+      <node id="15226">
+        <label>vy_run_iterator_stat</label>
+        <link refid="structvy__run__iterator__stat"/>
+        <childnode refid="15124" relation="usage">
+          <edgelabel>read</edgelabel>
+        </childnode>
+        <childnode refid="15216" relation="usage">
+          <edgelabel>get</edgelabel>
+        </childnode>
+      </node>
+      <node id="15154">
+        <label>AggInfo</label>
+        <link refid="structAggInfo"/>
+        <childnode refid="15155" relation="usage">
+          <edgelabel>aCol</edgelabel>
+        </childnode>
+        <childnode refid="15156" relation="usage">
+          <edgelabel>aFunc</edgelabel>
+        </childnode>
+        <childnode refid="15157" relation="usage">
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="15215">
+        <label>vy_mem</label>
+        <link refid="structvy__mem"/>
+        <childnode refid="15114" relation="usage">
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="15130" relation="usage">
+          <edgelabel>pin_cond</edgelabel>
+        </childnode>
+        <childnode refid="15178" relation="usage">
+          <edgelabel>format</edgelabel>
+        </childnode>
+        <childnode refid="15216" relation="usage">
+          <edgelabel>count</edgelabel>
+        </childnode>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>in_sealed</edgelabel>
+        </childnode>
+        <childnode refid="15217" relation="usage">
+          <edgelabel>env</edgelabel>
+        </childnode>
+      </node>
+      <node id="15121">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="15111">
+        <label>vy_entry</label>
+        <link refid="structvy__entry"/>
+        <childnode refid="15112" relation="usage">
+          <edgelabel>stmt</edgelabel>
+        </childnode>
+      </node>
+      <node id="15200">
+        <label>cmsg</label>
+        <link refid="structcmsg"/>
+        <childnode refid="15199" relation="usage">
+          <edgelabel>hop</edgelabel>
+          <edgelabel>route</edgelabel>
+        </childnode>
+        <childnode refid="15132" relation="usage">
+          <edgelabel>fifo</edgelabel>
+        </childnode>
+      </node>
+      <node id="15224">
+        <label>vy_cache_stat</label>
+        <link refid="structvy__cache__stat"/>
+        <childnode refid="15216" relation="usage">
+          <edgelabel>evict</edgelabel>
+          <edgelabel>put</edgelabel>
+          <edgelabel>count</edgelabel>
+          <edgelabel>invalidate</edgelabel>
+          <edgelabel>get</edgelabel>
+        </childnode>
+      </node>
+      <node id="15176">
+        <label>snapshot_iterator</label>
+        <link refid="structsnapshot__iterator"/>
+      </node>
+      <node id="15137">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="15138" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="15162">
+        <label>SrcList</label>
+        <link refid="structSrcList"/>
+        <childnode refid="15163" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="15205">
+        <label>vy_deferred_delete_stmt</label>
+        <link refid="structvy__deferred__delete__stmt"/>
+        <childnode refid="15112" relation="usage">
+          <edgelabel>old_stmt</edgelabel>
+          <edgelabel>new_stmt</edgelabel>
+        </childnode>
+      </node>
+      <node id="15193">
+        <label>ipc_msg</label>
+        <link refid="structipc__msg"/>
+      </node>
+      <node id="15184">
+        <label>sequence_def</label>
+        <link refid="structsequence__def"/>
+      </node>
+      <node id="15164">
+        <label>IdList</label>
+        <link refid="structIdList"/>
+        <childnode refid="15165" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="15174">
+        <label>index</label>
+        <link refid="structindex"/>
+        <childnode refid="15147" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="15175" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="15166" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="15183">
+        <label>sequence</label>
+        <link refid="structsequence"/>
+        <childnode refid="15116" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="15184" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="15152">
+        <label>field_def</label>
+        <link refid="structfield__def"/>
+        <childnode refid="15153" relation="usage">
+          <edgelabel>default_value_expr</edgelabel>
+        </childnode>
+      </node>
+      <node id="15114">
+        <label>key_def</label>
+        <link refid="structkey__def"/>
+        <childnode refid="15112" relation="usage">
+          <edgelabel>tuple_hash</edgelabel>
+          <edgelabel>tuple_compare_with_key</edgelabel>
+          <edgelabel>tuple_compare</edgelabel>
+          <edgelabel>tuple_hint</edgelabel>
+          <edgelabel>tuple_extract_key</edgelabel>
+        </childnode>
+        <childnode refid="15114" relation="usage">
+          <edgelabel>key_hash</edgelabel>
+          <edgelabel>tuple_extract_key_raw</edgelabel>
+          <edgelabel>key_hint</edgelabel>
+        </childnode>
+        <childnode refid="15115" relation="usage">
+          <edgelabel>func_index_func</edgelabel>
+        </childnode>
+        <childnode refid="15122" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="15182">
+        <label>trigger</label>
+        <link refid="structtrigger"/>
+        <childnode refid="15182" relation="usage">
+          <edgelabel>run</edgelabel>
+          <edgelabel>destroy</edgelabel>
+        </childnode>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="15112">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="15197">
+        <label>vy_worker_pool</label>
+        <link refid="structvy__worker__pool"/>
+        <childnode refid="15198" relation="usage">
+          <edgelabel>workers</edgelabel>
+        </childnode>
+        <childnode refid="15131" relation="usage">
+          <edgelabel>idle_workers</edgelabel>
+        </childnode>
+      </node>
+      <node id="15124">
+        <label>vy_disk_stmt_counter</label>
+        <link refid="structvy__disk__stmt__counter"/>
+      </node>
+      <node id="15142">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="15166">
+        <label>index_def</label>
+        <link refid="structindex__def"/>
+        <childnode refid="15167" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+        <childnode refid="15114" relation="usage">
+          <edgelabel>key_def</edgelabel>
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="15170">
+        <label>space_opts</label>
+        <link refid="structspace__opts"/>
+      </node>
+      <node id="15113">
+        <label>heap_node</label>
+        <link refid="structheap__node"/>
+      </node>
+      <node id="15135">
+        <label>mslab</label>
+        <link refid="structmslab"/>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>next_in_cold</edgelabel>
+        </childnode>
+        <childnode refid="15136" relation="usage">
+          <edgelabel>slab</edgelabel>
+        </childnode>
+      </node>
+      <node id="15202">
+        <label>vy_deferred_delete_handler_iface</label>
+        <link refid="structvy__deferred__delete__handler__iface"/>
+        <childnode refid="15201" relation="usage">
+          <edgelabel>process</edgelabel>
+          <edgelabel>destroy</edgelabel>
+        </childnode>
+      </node>
+      <node id="15206">
+        <label>vy_slice</label>
+        <link refid="structvy__slice"/>
+        <childnode refid="15111" relation="usage">
+          <edgelabel>begin</edgelabel>
+          <edgelabel>end</edgelabel>
+        </childnode>
+        <childnode refid="15130" relation="usage">
+          <edgelabel>pin_cond</edgelabel>
+        </childnode>
+        <childnode refid="15124" relation="usage">
+          <edgelabel>count</edgelabel>
+        </childnode>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>in_range</edgelabel>
+          <edgelabel>in_join</edgelabel>
+        </childnode>
+        <childnode refid="15207" relation="usage">
+          <edgelabel>run</edgelabel>
+        </childnode>
+      </node>
+      <node id="15115">
+        <label>func</label>
+        <link refid="structfunc"/>
+        <childnode refid="15116" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="15117" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="15118" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="15120" relation="usage">
+          <edgelabel>owner_credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="15117">
+        <label>func_vtab</label>
+        <link refid="structfunc__vtab"/>
+      </node>
+      <node id="15171">
+        <label>sql_trigger</label>
+        <link refid="structsql__trigger"/>
+        <childnode refid="15172" relation="usage">
+          <edgelabel>step_list</edgelabel>
+        </childnode>
+        <childnode refid="15153" relation="usage">
+          <edgelabel>pWhen</edgelabel>
+        </childnode>
+        <childnode refid="15171" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="15164" relation="usage">
+          <edgelabel>pColumns</edgelabel>
+        </childnode>
+      </node>
+      <node id="15201">
+        <label>vy_deferred_delete_handler</label>
+        <link refid="structvy__deferred__delete__handler"/>
+        <childnode refid="15202" relation="usage">
+          <edgelabel>iface</edgelabel>
+        </childnode>
+      </node>
+      <node id="15195">
+        <label>heap_core_structure</label>
+        <link refid="structheap__core__structure"/>
+        <childnode refid="15113" relation="usage">
+          <edgelabel>harr</edgelabel>
+        </childnode>
+      </node>
+      <node id="15219">
+        <label>lslab</label>
+        <link refid="structlslab"/>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+      <node id="15143">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="15141">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="15142" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="15143" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="15119">
+        <label>func_opts</label>
+        <link refid="structfunc__opts"/>
+      </node>
+      <node id="15127">
+        <label>vy_run_reader</label>
+        <link refid="structvy__run__reader"/>
+        <childnode refid="15128" relation="usage">
+          <edgelabel>tx_pipe</edgelabel>
+          <edgelabel>reader_pipe</edgelabel>
+        </childnode>
+        <childnode refid="15133" relation="usage">
+          <edgelabel>cord</edgelabel>
+        </childnode>
+      </node>
+      <node id="15140">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="15137" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="15141" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="15179">
+        <label>tuple_format_vtab</label>
+        <link refid="structtuple__format__vtab"/>
+        <childnode refid="15112" relation="usage">
+          <edgelabel>tuple_new</edgelabel>
+        </childnode>
+      </node>
+      <node id="15178">
+        <label>tuple_format</label>
+        <link refid="structtuple__format"/>
+        <childnode refid="15151" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="15179" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="15180" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+      </node>
+      <node id="15211">
+        <label>bloom</label>
+        <link refid="structbloom"/>
+        <childnode refid="15212" relation="usage">
+          <edgelabel>table</edgelabel>
+        </childnode>
+      </node>
+      <node id="15110">
+        <label>vy_range</label>
+        <link refid="structvy__range"/>
+        <childnode refid="15111" relation="usage">
+          <edgelabel>begin</edgelabel>
+          <edgelabel>end</edgelabel>
+        </childnode>
+        <childnode refid="15113" relation="usage">
+          <edgelabel>heap_node</edgelabel>
+        </childnode>
+        <childnode refid="15114" relation="usage">
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="15124" relation="usage">
+          <edgelabel>compaction_queue</edgelabel>
+          <edgelabel>count</edgelabel>
+        </childnode>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>slices</edgelabel>
+        </childnode>
+      </node>
+      <node id="15118">
+        <label>func_def</label>
+        <link refid="structfunc__def"/>
+        <childnode refid="15119" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="15221">
+        <label>histogram_bucket</label>
+        <link refid="structhistogram__bucket"/>
+      </node>
+      <node id="15160">
+        <label>With</label>
+        <link refid="structWith"/>
+        <childnode refid="15161" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+        <childnode refid="15160" relation="usage">
+          <edgelabel>pOuter</edgelabel>
+        </childnode>
+      </node>
+      <node id="15150">
+        <label>space_def</label>
+        <link refid="structspace__def"/>
+        <childnode refid="15151" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="15152" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+        <childnode refid="15170" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="15147">
+        <label>engine</label>
+        <link refid="structengine"/>
+        <childnode refid="15148" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="15139">
+        <label>lifo</label>
+        <link refid="structlifo"/>
+      </node>
+      <node id="15130">
+        <label>fiber_cond</label>
+        <link refid="structfiber__cond"/>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>waiters</edgelabel>
+        </childnode>
+      </node>
+      <node id="15144">
+        <label>cpu_stat</label>
+        <link refid="structcpu__stat"/>
+      </node>
+      <node id="15165">
+        <label>IdList::IdList_item</label>
+        <link refid="structIdList_1_1IdList__item"/>
+      </node>
+      <node id="15192">
+        <label>ipc_wait_pad</label>
+        <link refid="structipc__wait__pad"/>
+        <childnode refid="15193" relation="usage">
+          <edgelabel>msg</edgelabel>
+        </childnode>
+      </node>
+      <node id="15145">
+        <label>fiber</label>
+        <link refid="structfiber"/>
+        <childnode refid="15146" relation="usage">
+          <edgelabel>txn</edgelabel>
+        </childnode>
+        <childnode refid="15185" relation="usage">
+          <edgelabel>gc</edgelabel>
+        </childnode>
+        <childnode refid="15145" relation="usage">
+          <edgelabel>caller</edgelabel>
+        </childnode>
+        <childnode refid="15120" relation="usage">
+          <edgelabel>credentials</edgelabel>
+        </childnode>
+        <childnode refid="15186" relation="usage">
+          <edgelabel>session</edgelabel>
+        </childnode>
+        <childnode refid="15190" relation="usage">
+          <edgelabel>clock_stat</edgelabel>
+        </childnode>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>wake</edgelabel>
+          <edgelabel>on_stop</edgelabel>
+          <edgelabel>on_yield</edgelabel>
+          <edgelabel>link</edgelabel>
+          <edgelabel>state</edgelabel>
+        </childnode>
+        <childnode refid="15191" relation="usage">
+          <edgelabel>diag</edgelabel>
+        </childnode>
+        <childnode refid="15136" relation="usage">
+          <edgelabel>stack_slab</edgelabel>
+        </childnode>
+        <childnode refid="15192" relation="usage">
+          <edgelabel>wait_pad</edgelabel>
+        </childnode>
+      </node>
+      <node id="15123">
+        <label>coll</label>
+        <link refid="structcoll"/>
+        <childnode refid="15123" relation="usage">
+          <edgelabel>cmp</edgelabel>
+          <edgelabel>hint</edgelabel>
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+      <node id="15204">
+        <label>vy_deferred_delete_batch</label>
+        <link refid="structvy__deferred__delete__batch"/>
+        <childnode refid="15191" relation="usage">
+          <edgelabel>diag</edgelabel>
+        </childnode>
+        <childnode refid="15205" relation="usage">
+          <edgelabel>stmt</edgelabel>
+        </childnode>
+        <childnode refid="15200" relation="usage">
+          <edgelabel>cmsg</edgelabel>
+        </childnode>
+        <childnode refid="15109" relation="usage">
+          <edgelabel>task</edgelabel>
+        </childnode>
+      </node>
+      <node id="15136">
+        <label>slab</label>
+        <link refid="structslab"/>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>next_in_cache</edgelabel>
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+      <node id="15217">
+        <label>vy_mem_env</label>
+        <link refid="structvy__mem__env"/>
+        <childnode refid="15218" relation="usage">
+          <edgelabel>allocator</edgelabel>
+        </childnode>
+        <childnode refid="15142" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="15141" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="15187">
+        <label>session_meta</label>
+        <link refid="structsession__meta"/>
+        <childnode refid="15188" relation="usage">
+          <edgelabel>serializer_opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="15216">
+        <label>vy_stmt_counter</label>
+        <link refid="structvy__stmt__counter"/>
+      </node>
+      <node id="15167">
+        <label>index_opts</label>
+        <link refid="structindex__opts"/>
+        <childnode refid="15168" relation="usage">
+          <edgelabel>stat</edgelabel>
+        </childnode>
+      </node>
+      <node id="15186">
+        <label>session</label>
+        <link refid="structsession"/>
+        <childnode refid="15187" relation="usage">
+          <edgelabel>meta</edgelabel>
+        </childnode>
+        <childnode refid="15189" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="15182" relation="usage">
+          <edgelabel>fiber_on_stop</edgelabel>
+        </childnode>
+        <childnode refid="15120" relation="usage">
+          <edgelabel>credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="15133">
+        <label>cord</label>
+        <link refid="structcord"/>
+        <childnode refid="15134" relation="usage">
+          <edgelabel>fiber_mempool</edgelabel>
+        </childnode>
+        <childnode refid="15144" relation="usage">
+          <edgelabel>cpu_stat</edgelabel>
+        </childnode>
+        <childnode refid="15145" relation="usage">
+          <edgelabel>sched</edgelabel>
+          <edgelabel>fiber</edgelabel>
+        </childnode>
+        <childnode refid="15190" relation="usage">
+          <edgelabel>clock_stat</edgelabel>
+        </childnode>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>dead</edgelabel>
+          <edgelabel>alive</edgelabel>
+          <edgelabel>ready</edgelabel>
+        </childnode>
+        <childnode refid="15140" relation="usage">
+          <edgelabel>slabc</edgelabel>
+        </childnode>
+        <childnode refid="15194" relation="usage">
+          <edgelabel>on_exit</edgelabel>
+        </childnode>
+      </node>
+      <node id="15125">
+        <label>vy_scheduler</label>
+        <link refid="structvy__scheduler"/>
+        <childnode refid="15125" relation="usage">
+          <edgelabel>dump_complete_cb</edgelabel>
+        </childnode>
+        <childnode refid="15126" relation="usage">
+          <edgelabel>run_env</edgelabel>
+        </childnode>
+        <childnode refid="15130" relation="usage">
+          <edgelabel>scheduler_cond</edgelabel>
+          <edgelabel>dump_cond</edgelabel>
+        </childnode>
+        <childnode refid="15145" relation="usage">
+          <edgelabel>scheduler_fiber</edgelabel>
+        </childnode>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>read_views</edgelabel>
+        </childnode>
+        <childnode refid="15195" relation="usage">
+          <edgelabel>compaction_heap</edgelabel>
+          <edgelabel>dump_heap</edgelabel>
+        </childnode>
+        <childnode refid="15191" relation="usage">
+          <edgelabel>diag</edgelabel>
+        </childnode>
+        <childnode refid="15131" relation="usage">
+          <edgelabel>processed_tasks</edgelabel>
+        </childnode>
+        <childnode refid="15196" relation="usage">
+          <edgelabel>stat</edgelabel>
+        </childnode>
+        <childnode refid="15197" relation="usage">
+          <edgelabel>dump_pool</edgelabel>
+          <edgelabel>compaction_pool</edgelabel>
+        </childnode>
+      </node>
+      <node id="15194">
+        <label>cord_on_exit</label>
+        <link refid="structcord__on__exit"/>
+      </node>
+      <node id="15158">
+        <label>ExprList::ExprList_item</label>
+        <link refid="structExprList_1_1ExprList__item"/>
+        <childnode refid="15153" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="15207">
+        <label>vy_run</label>
+        <link refid="structvy__run"/>
+        <childnode refid="15126" relation="usage">
+          <edgelabel>env</edgelabel>
+        </childnode>
+        <childnode refid="15208" relation="usage">
+          <edgelabel>page_info</edgelabel>
+        </childnode>
+        <childnode refid="15124" relation="usage">
+          <edgelabel>count</edgelabel>
+        </childnode>
+        <childnode refid="15209" relation="usage">
+          <edgelabel>info</edgelabel>
+        </childnode>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>in_unused</edgelabel>
+          <edgelabel>in_lsm</edgelabel>
+        </childnode>
+      </node>
+      <node id="15156">
+        <label>AggInfo::AggInfo_func</label>
+        <link refid="structAggInfo_1_1AggInfo__func"/>
+        <childnode refid="15153" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+        <childnode refid="15115" relation="usage">
+          <edgelabel>func</edgelabel>
+        </childnode>
+      </node>
+      <node id="15129">
+        <label>cbus_endpoint</label>
+        <link refid="structcbus__endpoint"/>
+        <childnode refid="15130" relation="usage">
+          <edgelabel>cond</edgelabel>
+        </childnode>
+        <childnode refid="15121" relation="usage">
+          <edgelabel>in_cbus</edgelabel>
+        </childnode>
+        <childnode refid="15131" relation="usage">
+          <edgelabel>output</edgelabel>
+        </childnode>
+      </node>
+      <node id="15173">
+        <label>space_vtab</label>
+        <link refid="structspace__vtab"/>
+        <childnode refid="15174" relation="usage">
+          <edgelabel>create_index</edgelabel>
+        </childnode>
+      </node>
+      <node id="15231">
+        <label>vy_stmt_stream</label>
+        <link refid="structvy__stmt__stream"/>
+        <childnode refid="15232" relation="usage">
+          <edgelabel>iface</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/vy_scheduler.c" line="155" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_scheduler.c" bodystart="155" bodyend="222"/>
+    <listofallmembers>
+      <member refid="structvy__task_1ac9e2f2c65fcb402a28699d51f405f4fa" prot="public" virt="non-virtual"><scope>vy_task</scope><name>bloom_fpr</name></member>
+      <member refid="structvy__task_1a2fcc46089da5c102c9a9879fbc729488" prot="public" virt="non-virtual"><scope>vy_task</scope><name>cmp_def</name></member>
+      <member refid="structvy__task_1ae4b82938b3fd6d047a7b768595d07dea" prot="public" virt="non-virtual"><scope>vy_task</scope><name>cmsg</name></member>
+      <member refid="structvy__task_1a99d28c6fe3b41ac3acbfd2dcd13cb164" prot="public" virt="non-virtual"><scope>vy_task</scope><name>deferred_delete_batch</name></member>
+      <member refid="structvy__task_1a9fdaea22974ae95d0fe95377e1364795" prot="public" virt="non-virtual"><scope>vy_task</scope><name>deferred_delete_handler</name></member>
+      <member refid="structvy__task_1adea4acb64c7fb9f85fbc8eaa8a9cc2c6" prot="public" virt="non-virtual"><scope>vy_task</scope><name>deferred_delete_in_progress</name></member>
+      <member refid="structvy__task_1afc6eafb813169713a6243428c38980ba" prot="public" virt="non-virtual"><scope>vy_task</scope><name>diag</name></member>
+      <member refid="structvy__task_1a9bab0459cd87449b3d9553cc5c874d47" prot="public" virt="non-virtual"><scope>vy_task</scope><name>fiber</name></member>
+      <member refid="structvy__task_1a75652062753cd8e7b484b328f2f37855" prot="public" virt="non-virtual"><scope>vy_task</scope><name>first_slice</name></member>
+      <member refid="structvy__task_1ad09fd42a255087a6a49b040cd6dc33ba" prot="public" virt="non-virtual"><scope>vy_task</scope><name>in_processed</name></member>
+      <member refid="structvy__task_1ace10087ace9d120ebc2589921fc43b86" prot="public" virt="non-virtual"><scope>vy_task</scope><name>is_failed</name></member>
+      <member refid="structvy__task_1a8193da22728b57aac4b30656e9c3390b" prot="public" virt="non-virtual"><scope>vy_task</scope><name>key_def</name></member>
+      <member refid="structvy__task_1a5eede6fd4e5b236d8617f06b8d081968" prot="public" virt="non-virtual"><scope>vy_task</scope><name>last_slice</name></member>
+      <member refid="structvy__task_1aeeddfcdaf44c8ac58982209ef3821f96" prot="public" virt="non-virtual"><scope>vy_task</scope><name>lsm</name></member>
+      <member refid="structvy__task_1a06e156c547200be978b637061ba949b0" prot="public" virt="non-virtual"><scope>vy_task</scope><name>new_run</name></member>
+      <member refid="structvy__task_1a1de20c330eaa8217d0548c6f77506590" prot="public" virt="non-virtual"><scope>vy_task</scope><name>ops</name></member>
+      <member refid="structvy__task_1a288525fbb70d4a435ec65f214c266b09" prot="public" virt="non-virtual"><scope>vy_task</scope><name>page_size</name></member>
+      <member refid="structvy__task_1ae7cf488a705c3c3d32e7b0a268147b21" prot="public" virt="non-virtual"><scope>vy_task</scope><name>range</name></member>
+      <member refid="structvy__task_1ae5eee1109ede0dc2ce509cea01e6fb33" prot="public" virt="non-virtual"><scope>vy_task</scope><name>scheduler</name></member>
+      <member refid="structvy__task_1a3449d4cbecb907e8b42893ed0e29405b" prot="public" virt="non-virtual"><scope>vy_task</scope><name>start_time</name></member>
+      <member refid="structvy__task_1a1062febd365d79f9f716fd23bfa111dd" prot="public" virt="non-virtual"><scope>vy_task</scope><name>wi</name></member>
+      <member refid="structvy__task_1a56c6e0db440c6ac5157003e3baab3de6" prot="public" virt="non-virtual"><scope>vy_task</scope><name>worker</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

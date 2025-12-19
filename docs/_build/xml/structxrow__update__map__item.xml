@@ -1,0 +1,197 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structxrow__update__map__item" kind="struct" language="C++" prot="public">
+    <compoundname>xrow_update_map_item</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structxrow__update__map__item_1a0fd6b54e19f974f5b6cc8e9e50dc55b2" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* xrow_update_map_item::key</definition>
+        <argsstring></argsstring>
+        <name>key</name>
+        <briefdescription>
+<para>Updated key. </para>        </briefdescription>
+        <detaileddescription>
+<para>Can be NULL. In such a case this item contains only an unchanged tail. A key can be nullified if it was removed from the map, or when a map is just created and has no any update yet. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_map.c" line="49" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_map.c" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxrow__update__map__item_1a15d3345dec5d31051badb4eefa2dbefe" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t xrow_update_map_item::key_len</definition>
+        <argsstring></argsstring>
+        <name>key_len</name>
+        <briefdescription>
+<para>Length of <emphasis>key</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_map.c" line="51" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_map.c" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxrow__update__map__item_1af5eba26231a7191e0b058fe8b94b6c5d" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structxrow__update__field" kindref="compound">xrow_update_field</ref></type>
+        <definition>struct xrow_update_field xrow_update_map_item::field</definition>
+        <argsstring></argsstring>
+        <name>field</name>
+        <briefdescription>
+<para>Updated value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_map.c" line="51" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_map.c" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxrow__update__map__item_1a27c610b1696b385f243fb36387f048dd" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structstailq__entry" kindref="compound">stailq_entry</ref></type>
+        <definition>struct stailq_entry xrow_update_map_item::in_items</definition>
+        <argsstring></argsstring>
+        <name>in_items</name>
+        <briefdescription>
+<para>Link in the list of updated map keys. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_map.c" line="51" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_map.c" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxrow__update__map__item_1a4d50b31a28c8f00037e903ea33db0741" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t xrow_update_map_item::tail_size</definition>
+        <argsstring></argsstring>
+        <name>tail_size</name>
+        <briefdescription>
+<para>Size in bytes of unchanged tail data. </para>        </briefdescription>
+        <detaileddescription>
+<para>It goes right after <emphasis>field.data</emphasis>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_map.c" line="60" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_map.c" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Descriptor of one updated key-value pair. </para>    </briefdescription>
+    <detaileddescription>
+<para>Besides updated data it contains a tail with unchanged pairs, just so as not to create a separate object for them, and to be similar with array update items. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="18056">
+        <label>xrow_update_arg_splice</label>
+        <link refid="structxrow__update__arg__splice"/>
+      </node>
+      <node id="18057">
+        <label>xrow_update_op_meta</label>
+        <link refid="structxrow__update__op__meta"/>
+        <childnode refid="18048" relation="usage">
+          <edgelabel>do_op</edgelabel>
+          <edgelabel>store</edgelabel>
+          <edgelabel>read_arg</edgelabel>
+        </childnode>
+      </node>
+      <node id="18046">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="18046" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="18050">
+        <label>xrow_update_arg</label>
+        <link refid="unionxrow__update__arg"/>
+        <childnode refid="18051" relation="usage">
+          <edgelabel>bit</edgelabel>
+        </childnode>
+        <childnode refid="18052" relation="usage">
+          <edgelabel>del</edgelabel>
+        </childnode>
+        <childnode refid="18053" relation="usage">
+          <edgelabel>arith</edgelabel>
+        </childnode>
+        <childnode refid="18055" relation="usage">
+          <edgelabel>set</edgelabel>
+        </childnode>
+        <childnode refid="18056" relation="usage">
+          <edgelabel>splice</edgelabel>
+        </childnode>
+      </node>
+      <node id="18058">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="18046" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="18048">
+        <label>xrow_update_op</label>
+        <link refid="structxrow__update__op"/>
+        <childnode refid="18049" relation="usage">
+          <edgelabel>lexer</edgelabel>
+        </childnode>
+        <childnode refid="18050" relation="usage">
+          <edgelabel>arg</edgelabel>
+        </childnode>
+        <childnode refid="18057" relation="usage">
+          <edgelabel>meta</edgelabel>
+        </childnode>
+      </node>
+      <node id="18049">
+        <label>json_lexer</label>
+        <link refid="structjson__lexer"/>
+      </node>
+      <node id="18047">
+        <label>xrow_update_field</label>
+        <link refid="structxrow__update__field"/>
+        <childnode refid="18048" relation="usage">
+          <edgelabel>op</edgelabel>
+        </childnode>
+        <childnode refid="18058" relation="usage">
+          <edgelabel>items</edgelabel>
+        </childnode>
+        <childnode refid="18047" relation="usage">
+          <edgelabel>next_hop</edgelabel>
+        </childnode>
+      </node>
+      <node id="18053">
+        <label>xrow_update_arg_arith</label>
+        <link refid="structxrow__update__arg__arith"/>
+        <childnode refid="18054" relation="usage">
+          <edgelabel>int96</edgelabel>
+        </childnode>
+      </node>
+      <node id="18051">
+        <label>xrow_update_arg_bit</label>
+        <link refid="structxrow__update__arg__bit"/>
+      </node>
+      <node id="18054">
+        <label>int96_num</label>
+        <link refid="structint96__num"/>
+      </node>
+      <node id="18045">
+        <label>xrow_update_map_item</label>
+        <link refid="structxrow__update__map__item"/>
+        <childnode refid="18046" relation="usage">
+          <edgelabel>in_items</edgelabel>
+        </childnode>
+        <childnode refid="18047" relation="usage">
+          <edgelabel>field</edgelabel>
+        </childnode>
+      </node>
+      <node id="18052">
+        <label>xrow_update_arg_del</label>
+        <link refid="structxrow__update__arg__del"/>
+      </node>
+      <node id="18055">
+        <label>xrow_update_arg_set</label>
+        <link refid="structxrow__update__arg__set"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/xrow_update_map.c" line="42" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_map.c" bodystart="42" bodyend="61"/>
+    <listofallmembers>
+      <member refid="structxrow__update__map__item_1af5eba26231a7191e0b058fe8b94b6c5d" prot="public" virt="non-virtual"><scope>xrow_update_map_item</scope><name>field</name></member>
+      <member refid="structxrow__update__map__item_1a27c610b1696b385f243fb36387f048dd" prot="public" virt="non-virtual"><scope>xrow_update_map_item</scope><name>in_items</name></member>
+      <member refid="structxrow__update__map__item_1a0fd6b54e19f974f5b6cc8e9e50dc55b2" prot="public" virt="non-virtual"><scope>xrow_update_map_item</scope><name>key</name></member>
+      <member refid="structxrow__update__map__item_1a15d3345dec5d31051badb4eefa2dbefe" prot="public" virt="non-virtual"><scope>xrow_update_map_item</scope><name>key_len</name></member>
+      <member refid="structxrow__update__map__item_1a4d50b31a28c8f00037e903ea33db0741" prot="public" virt="non-virtual"><scope>xrow_update_map_item</scope><name>tail_size</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,865 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structengine__vtab" kind="struct" language="C++" prot="public">
+    <compoundname>engine_vtab</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structengine__vtab_1ae535d92d5dd63f7ae113c49618a1c288" prot="public" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* engine_vtab::shutdown) (struct engine *)</definition>
+        <argsstring>)(struct engine *)</argsstring>
+        <name>shutdown</name>
+        <briefdescription>
+<para>Destroy an engine instance. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="72" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1abc16a3d51e42db8abb4a90364e859d8b" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structspace" kindref="compound">space</ref> *(*</type>
+        <definition>struct space*(* engine_vtab::create_space) (struct engine *engine, struct space_def *def, struct rlist *key_list)</definition>
+        <argsstring>)(struct engine *engine, struct space_def *def, struct rlist *key_list)</argsstring>
+        <name>create_space</name>
+        <briefdescription>
+<para>Allocate a new space instance. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="72" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1ae1eb1a9c83aad2c58dfd68f66cfff6b8" prot="public" static="no" mutable="no">
+        <type>int(*</type>
+        <definition>int(* engine_vtab::prepare_join) (struct engine *engine, void **ctx)</definition>
+        <argsstring>)(struct engine *engine, void **ctx)</argsstring>
+        <name>prepare_join</name>
+        <briefdescription>
+<para>Freeze a read view to feed to a new replica. </para>        </briefdescription>
+        <detaileddescription>
+<para>Setup and return a context that will be used on further steps. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="81" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1a03e63c8da8cdc6378b2d8cf45449fab7" prot="public" static="no" mutable="no">
+        <type>int(*</type>
+        <definition>int(* engine_vtab::join) (struct engine *engine, void *ctx, struct xstream *stream)</definition>
+        <argsstring>)(struct engine *engine, void *ctx, struct xstream *stream)</argsstring>
+        <name>join</name>
+        <briefdescription>
+<para>Feed the read view frozen on the previous step to the given stream. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="86" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1a924c1d2bbc02da22371955421cc337d1" prot="public" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* engine_vtab::complete_join) (struct engine *engine, void *ctx)</definition>
+        <argsstring>)(struct engine *engine, void *ctx)</argsstring>
+        <name>complete_join</name>
+        <briefdescription>
+<para>Release the read view and free the context prepared on the first step. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="91" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1ae56fe41b49f695be67aba16b8a6d5fc9" prot="public" static="no" mutable="no">
+        <type>int(*</type>
+        <definition>int(* engine_vtab::begin) (struct engine *, struct txn *)</definition>
+        <argsstring>)(struct engine *, struct txn *)</argsstring>
+        <name>begin</name>
+        <briefdescription>
+<para>Begin a new single or multi-statement transaction. </para>        </briefdescription>
+        <detaileddescription>
+<para>Called on first statement in a transaction, not when a user said <ref refid="structengine__vtab_1ae56fe41b49f695be67aba16b8a6d5fc9" kindref="member">begin()</ref>. Effectively it means that transaction in the engine begins with the first statement. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="99" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1a98f5ee55d00810c1bdd68e34a416523d" prot="public" static="no" mutable="no">
+        <type>int(*</type>
+        <definition>int(* engine_vtab::begin_statement) (struct engine *, struct txn *)</definition>
+        <argsstring>)(struct engine *, struct txn *)</argsstring>
+        <name>begin_statement</name>
+        <briefdescription>
+<para>Begine one statement in existing transaction. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="103" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1a3e212fb78ec4211cfe643ca12ab41fa0" prot="public" static="no" mutable="no">
+        <type>int(*</type>
+        <definition>int(* engine_vtab::prepare) (struct engine *, struct txn *)</definition>
+        <argsstring>)(struct engine *, struct txn *)</argsstring>
+        <name>prepare</name>
+        <briefdescription>
+<para>Called before a WAL write is made to prepare a transaction for commit in the engine. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="108" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1ab52011e6f9e96543250c4d497a3df525" prot="public" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* engine_vtab::commit) (struct engine *, struct txn *)</definition>
+        <argsstring>)(struct engine *, struct txn *)</argsstring>
+        <name>commit</name>
+        <briefdescription>
+<para>End the transaction in the engine, the transaction has been successfully written to the WAL. </para>        </briefdescription>
+        <detaileddescription>
+<para>This method can&apos;t throw: if any error happens here, there is no better option than panic. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="115" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1ab53beb2f8dacf6cf1945614a88e9b198" prot="public" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* engine_vtab::rollback_statement) (struct engine *, struct txn *, struct txn_stmt *)</definition>
+        <argsstring>)(struct engine *, struct txn *, struct txn_stmt *)</argsstring>
+        <name>rollback_statement</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="120" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="120" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1a0396687d3fd63c71a56aaa01caa9a7dd" prot="public" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* engine_vtab::rollback) (struct engine *, struct txn *)</definition>
+        <argsstring>)(struct engine *, struct txn *)</argsstring>
+        <name>rollback</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="125" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1a70d2909c23cd0c62087a4e25a23a7b38" prot="public" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* engine_vtab::switch_to_ro) (struct engine *)</definition>
+        <argsstring>)(struct engine *)</argsstring>
+        <name>switch_to_ro</name>
+        <briefdescription>
+<para>Notify the engine that the instance is about to switch to read-only mode. </para>        </briefdescription>
+        <detaileddescription>
+<para>The engine is supposed to abort all active rw transactions when this method is called. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="131" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="131" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1a6ed65e81857bee788c14ec597d53ab7a" prot="public" static="no" mutable="no">
+        <type>int(*</type>
+        <definition>int(* engine_vtab::bootstrap) (struct engine *)</definition>
+        <argsstring>)(struct engine *)</argsstring>
+        <name>bootstrap</name>
+        <briefdescription>
+<para>Bootstrap an empty data directory. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="135" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="135" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1a0603b6f903c541764a2c67df98c82375" prot="public" static="no" mutable="no">
+        <type>int(*</type>
+        <definition>int(* engine_vtab::begin_initial_recovery) (struct engine *engine, const struct vclock *recovery_vclock)</definition>
+        <argsstring>)(struct engine *engine, const struct vclock *recovery_vclock)</argsstring>
+        <name>begin_initial_recovery</name>
+        <briefdescription>
+<para>Begin initial recovery from checkpoint or dirty disk data. </para>        </briefdescription>
+        <detaileddescription>
+<para>On local recovery  points to the vclock used for assigning LSNs to statements replayed from WAL. On remote recovery, it is set to NULL. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="142" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="142" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1a99bd21b51e719f51cfc8aaeeaee53de6" prot="public" static="no" mutable="no">
+        <type>int(*</type>
+        <definition>int(* engine_vtab::begin_final_recovery) (struct engine *)</definition>
+        <argsstring>)(struct engine *)</argsstring>
+        <name>begin_final_recovery</name>
+        <briefdescription>
+<para>Notify engine about a start of recovering from WALs that could be local WALs during local recovery of WAL catch up durin join on slave side. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="149" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="149" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1a948a266ce13934988cd9600dce95d690" prot="public" static="no" mutable="no">
+        <type>int(*</type>
+        <definition>int(* engine_vtab::end_recovery) (struct engine *)</definition>
+        <argsstring>)(struct engine *)</argsstring>
+        <name>end_recovery</name>
+        <briefdescription>
+<para>Inform the engine about the end of recovery from the binary log. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="154" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="154" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1ae366293d089624ea28976d2cba86c001" prot="public" static="no" mutable="no">
+        <type>int(*</type>
+        <definition>int(* engine_vtab::begin_checkpoint) (struct engine *, bool is_scheduled)</definition>
+        <argsstring>)(struct engine *, bool is_scheduled)</argsstring>
+        <name>begin_checkpoint</name>
+        <briefdescription>
+<para>Begin a two-phase checkpoint creation in this engine (snapshot is a memtx idea of a checkpoint). </para>        </briefdescription>
+        <detaileddescription>
+<para>Must not yield. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="160" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="160" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1a32e5ef2049e0369a4fce996752720dc2" prot="public" static="no" mutable="no">
+        <type>int(*</type>
+        <definition>int(* engine_vtab::wait_checkpoint) (struct engine *, const struct vclock *)</definition>
+        <argsstring>)(struct engine *, const struct vclock *)</argsstring>
+        <name>wait_checkpoint</name>
+        <briefdescription>
+<para>Wait for a checkpoint to complete. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="164" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="164" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1a512eac80291dd0dfdea78796a5b63c0f" prot="public" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* engine_vtab::commit_checkpoint) (struct engine *, const struct vclock *)</definition>
+        <argsstring>)(struct engine *, const struct vclock *)</argsstring>
+        <name>commit_checkpoint</name>
+        <briefdescription>
+<para>All engines prepared their checkpoints, fix up the changes. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="169" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="169" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1aab042166eceee10b2512c14ca2d2256b" prot="public" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* engine_vtab::abort_checkpoint) (struct engine *)</definition>
+        <argsstring>)(struct engine *)</argsstring>
+        <name>abort_checkpoint</name>
+        <briefdescription>
+<para>An error in one of the engines, abort checkpoint. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="173" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="173" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1a5a5ce9c6ab7dbcb382043b3438d57c00" prot="public" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* engine_vtab::collect_garbage) (struct engine *engine, const struct vclock *vclock)</definition>
+        <argsstring>)(struct engine *engine, const struct vclock *vclock)</argsstring>
+        <name>collect_garbage</name>
+        <briefdescription>
+<para>Remove files that are not needed to recover from checkpoint  or newer. </para>        </briefdescription>
+        <detaileddescription>
+<para>If this function returns a non-zero value, garbage collection is aborted, i.e. this method isn&apos;t called for other engines and xlog files aren&apos;t deleted.</para><para>Used to abort garbage collection in case memtx engine fails to delete a snapshot file, because we recover checkpoint list by scanning the snapshot directory. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="186" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="186" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1a2abd4d3740631642e21d76d27c9cc573" prot="public" static="no" mutable="no">
+        <type>int(*</type>
+        <definition>int(* engine_vtab::backup) (struct engine *engine, const struct vclock *vclock, engine_backup_cb cb, void *cb_arg)</definition>
+        <argsstring>)(struct engine *engine, const struct vclock *vclock, engine_backup_cb cb, void *cb_arg)</argsstring>
+        <name>backup</name>
+        <briefdescription>
+<para>Backup callback. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is supposed to call  for each file that needs to be backed up in order to restore from the checkpoint . </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="193" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="193" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1a35425fd7a2b6314d1b978c062bdf67f3" prot="public" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* engine_vtab::memory_stat) (struct engine *, struct engine_memory_stat *)</definition>
+        <argsstring>)(struct engine *, struct engine_memory_stat *)</argsstring>
+        <name>memory_stat</name>
+        <briefdescription>
+<para>Accumulate engine memory statistics. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="198" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="198" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1a2786e30ee5c790a3aff10376c03535f7" prot="public" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* engine_vtab::reset_stat) (struct engine *)</definition>
+        <argsstring>)(struct engine *)</argsstring>
+        <name>reset_stat</name>
+        <briefdescription>
+<para>Reset all incremental statistic counters. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="202" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="202" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structengine__vtab_1a64f23a14bf0edff4731173d59fe07542" prot="public" static="no" mutable="no">
+        <type>int(*</type>
+        <definition>int(* engine_vtab::check_space_def) (struct space_def *)</definition>
+        <argsstring>)(struct space_def *)</argsstring>
+        <name>check_space_def</name>
+        <briefdescription>
+<para>Check definition of a new space for engine-specific limitations. </para>        </briefdescription>
+        <detaileddescription>
+<para>E.g. not all engines support temporary tables. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/engine.h" line="208" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="208" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2973">
+        <label>json_tree</label>
+        <link refid="structjson__tree"/>
+        <childnode refid="2974" relation="usage">
+          <edgelabel>root</edgelabel>
+        </childnode>
+      </node>
+      <node id="2945">
+        <label>ExprList</label>
+        <link refid="structExprList"/>
+        <childnode refid="2946" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="2956">
+        <label>index_stat</label>
+        <link refid="structindex__stat"/>
+        <childnode refid="2957" relation="usage">
+          <edgelabel>samples</edgelabel>
+        </childnode>
+      </node>
+      <node id="2970">
+        <label>iterator</label>
+        <link refid="structiterator"/>
+        <childnode refid="2967" relation="usage">
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="2960">
+        <label>key_part</label>
+        <link refid="structkey__part"/>
+        <childnode refid="2961" relation="usage">
+          <edgelabel>coll</edgelabel>
+        </childnode>
+      </node>
+      <node id="2957">
+        <label>index_sample</label>
+        <link refid="structindex__sample"/>
+      </node>
+      <node id="2965">
+        <label>TriggerStep</label>
+        <link refid="structTriggerStep"/>
+        <childnode refid="2965" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pLast</edgelabel>
+        </childnode>
+        <childnode refid="2934" relation="usage">
+          <edgelabel>pWhere</edgelabel>
+        </childnode>
+        <childnode refid="2952" relation="usage">
+          <edgelabel>pIdList</edgelabel>
+        </childnode>
+        <childnode refid="2947" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="2945" relation="usage">
+          <edgelabel>pExprList</edgelabel>
+        </childnode>
+      </node>
+      <node id="2974">
+        <label>json_token</label>
+        <link refid="structjson__token"/>
+        <childnode refid="2974" relation="usage">
+          <edgelabel>parent</edgelabel>
+          <edgelabel>children</edgelabel>
+        </childnode>
+      </node>
+      <node id="2939">
+        <label>access</label>
+        <link refid="structaccess"/>
+      </node>
+      <node id="2951">
+        <label>SrcList::SrcList_item</label>
+        <link refid="structSrcList_1_1SrcList__item"/>
+        <childnode refid="2930" relation="usage">
+          <edgelabel>space</edgelabel>
+        </childnode>
+        <childnode refid="2934" relation="usage">
+          <edgelabel>pOn</edgelabel>
+        </childnode>
+        <childnode refid="2952" relation="usage">
+          <edgelabel>pUsing</edgelabel>
+        </childnode>
+        <childnode refid="2954" relation="usage">
+          <edgelabel>pIBIndex</edgelabel>
+        </childnode>
+        <childnode refid="2947" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="2945" relation="usage">
+          <edgelabel>pFuncArg</edgelabel>
+        </childnode>
+      </node>
+      <node id="2949">
+        <label>With::Cte</label>
+        <link refid="structWith_1_1Cte"/>
+        <childnode refid="2947" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="2945" relation="usage">
+          <edgelabel>pCols</edgelabel>
+        </childnode>
+      </node>
+      <node id="2947">
+        <label>Select</label>
+        <link refid="structSelect"/>
+        <childnode refid="2934" relation="usage">
+          <edgelabel>pOffset</edgelabel>
+          <edgelabel>pHaving</edgelabel>
+          <edgelabel>pWhere</edgelabel>
+          <edgelabel>pLimit</edgelabel>
+        </childnode>
+        <childnode refid="2948" relation="usage">
+          <edgelabel>pWith</edgelabel>
+        </childnode>
+        <childnode refid="2947" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pPrior</edgelabel>
+        </childnode>
+        <childnode refid="2950" relation="usage">
+          <edgelabel>pSrc</edgelabel>
+        </childnode>
+        <childnode refid="2945" relation="usage">
+          <edgelabel>pEList</edgelabel>
+          <edgelabel>pOrderBy</edgelabel>
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="2943">
+        <label>credentials</label>
+        <link refid="structcredentials"/>
+        <childnode refid="2944" relation="usage">
+          <edgelabel>in_user</edgelabel>
+        </childnode>
+      </node>
+      <node id="2929">
+        <label>engine_vtab</label>
+        <link refid="structengine__vtab"/>
+        <childnode refid="2930" relation="usage">
+          <edgelabel>create_space</edgelabel>
+        </childnode>
+      </node>
+      <node id="2930">
+        <label>space</label>
+        <link refid="structspace"/>
+        <childnode refid="2931" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="2963" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="2964" relation="usage">
+          <edgelabel>sql_triggers</edgelabel>
+        </childnode>
+        <childnode refid="2939" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="2966" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="2971" relation="usage">
+          <edgelabel>format</edgelabel>
+        </childnode>
+        <childnode refid="2975" relation="usage">
+          <edgelabel>ck_constraint_trigger</edgelabel>
+        </childnode>
+        <childnode refid="2944" relation="usage">
+          <edgelabel>before_replace</edgelabel>
+          <edgelabel>on_replace</edgelabel>
+          <edgelabel>child_fk_constraint</edgelabel>
+          <edgelabel>memtx_stories</edgelabel>
+          <edgelabel>parent_fk_constraint</edgelabel>
+          <edgelabel>ck_constraint</edgelabel>
+        </childnode>
+        <childnode refid="2976" relation="usage">
+          <edgelabel>sequence</edgelabel>
+        </childnode>
+        <childnode refid="2967" relation="usage">
+          <edgelabel>index_map</edgelabel>
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="2936">
+        <label>AggInfo::AggInfo_col</label>
+        <link refid="structAggInfo_1_1AggInfo__col"/>
+        <childnode refid="2931" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="2934" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="2968">
+        <label>index_vtab</label>
+        <link refid="structindex__vtab"/>
+        <childnode refid="2969" relation="usage">
+          <edgelabel>create_snapshot_iterator</edgelabel>
+        </childnode>
+        <childnode refid="2970" relation="usage">
+          <edgelabel>create_iterator</edgelabel>
+        </childnode>
+      </node>
+      <node id="2932">
+        <label>tuple_dictionary</label>
+        <link refid="structtuple__dictionary"/>
+      </node>
+      <node id="2934">
+        <label>Expr</label>
+        <link refid="structExpr"/>
+        <childnode refid="2931" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="2935" relation="usage">
+          <edgelabel>pAggInfo</edgelabel>
+        </childnode>
+        <childnode refid="2934" relation="usage">
+          <edgelabel>pRight</edgelabel>
+          <edgelabel>pLeft</edgelabel>
+        </childnode>
+        <childnode refid="2947" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="2945" relation="usage">
+          <edgelabel>pList</edgelabel>
+        </childnode>
+      </node>
+      <node id="2935">
+        <label>AggInfo</label>
+        <link refid="structAggInfo"/>
+        <childnode refid="2936" relation="usage">
+          <edgelabel>aCol</edgelabel>
+        </childnode>
+        <childnode refid="2937" relation="usage">
+          <edgelabel>aFunc</edgelabel>
+        </childnode>
+        <childnode refid="2945" relation="usage">
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="2944">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="2944" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="2969">
+        <label>snapshot_iterator</label>
+        <link refid="structsnapshot__iterator"/>
+      </node>
+      <node id="2950">
+        <label>SrcList</label>
+        <link refid="structSrcList"/>
+        <childnode refid="2951" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="2977">
+        <label>sequence_def</label>
+        <link refid="structsequence__def"/>
+      </node>
+      <node id="2952">
+        <label>IdList</label>
+        <link refid="structIdList"/>
+        <childnode refid="2953" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="2967">
+        <label>index</label>
+        <link refid="structindex"/>
+        <childnode refid="2963" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="2968" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="2954" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="2976">
+        <label>sequence</label>
+        <link refid="structsequence"/>
+        <childnode refid="2939" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="2977" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="2933">
+        <label>field_def</label>
+        <link refid="structfield__def"/>
+        <childnode refid="2934" relation="usage">
+          <edgelabel>default_value_expr</edgelabel>
+        </childnode>
+      </node>
+      <node id="2958">
+        <label>key_def</label>
+        <link refid="structkey__def"/>
+        <childnode refid="2959" relation="usage">
+          <edgelabel>tuple_hash</edgelabel>
+          <edgelabel>tuple_compare_with_key</edgelabel>
+          <edgelabel>tuple_compare</edgelabel>
+          <edgelabel>tuple_hint</edgelabel>
+          <edgelabel>tuple_extract_key</edgelabel>
+        </childnode>
+        <childnode refid="2958" relation="usage">
+          <edgelabel>key_hash</edgelabel>
+          <edgelabel>tuple_extract_key_raw</edgelabel>
+          <edgelabel>key_hint</edgelabel>
+        </childnode>
+        <childnode refid="2938" relation="usage">
+          <edgelabel>func_index_func</edgelabel>
+        </childnode>
+        <childnode refid="2960" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="2975">
+        <label>trigger</label>
+        <link refid="structtrigger"/>
+        <childnode refid="2975" relation="usage">
+          <edgelabel>run</edgelabel>
+          <edgelabel>destroy</edgelabel>
+        </childnode>
+        <childnode refid="2944" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="2959">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="2954">
+        <label>index_def</label>
+        <link refid="structindex__def"/>
+        <childnode refid="2955" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+        <childnode refid="2958" relation="usage">
+          <edgelabel>key_def</edgelabel>
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="2944" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="2962">
+        <label>space_opts</label>
+        <link refid="structspace__opts"/>
+      </node>
+      <node id="2938">
+        <label>func</label>
+        <link refid="structfunc"/>
+        <childnode refid="2939" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="2940" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="2941" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="2943" relation="usage">
+          <edgelabel>owner_credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="2940">
+        <label>func_vtab</label>
+        <link refid="structfunc__vtab"/>
+      </node>
+      <node id="2964">
+        <label>sql_trigger</label>
+        <link refid="structsql__trigger"/>
+        <childnode refid="2965" relation="usage">
+          <edgelabel>step_list</edgelabel>
+        </childnode>
+        <childnode refid="2934" relation="usage">
+          <edgelabel>pWhen</edgelabel>
+        </childnode>
+        <childnode refid="2964" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="2952" relation="usage">
+          <edgelabel>pColumns</edgelabel>
+        </childnode>
+      </node>
+      <node id="2942">
+        <label>func_opts</label>
+        <link refid="structfunc__opts"/>
+      </node>
+      <node id="2972">
+        <label>tuple_format_vtab</label>
+        <link refid="structtuple__format__vtab"/>
+        <childnode refid="2959" relation="usage">
+          <edgelabel>tuple_new</edgelabel>
+        </childnode>
+      </node>
+      <node id="2971">
+        <label>tuple_format</label>
+        <link refid="structtuple__format"/>
+        <childnode refid="2932" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="2972" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="2973" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+      </node>
+      <node id="2941">
+        <label>func_def</label>
+        <link refid="structfunc__def"/>
+        <childnode refid="2942" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="2948">
+        <label>With</label>
+        <link refid="structWith"/>
+        <childnode refid="2949" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+        <childnode refid="2948" relation="usage">
+          <edgelabel>pOuter</edgelabel>
+        </childnode>
+      </node>
+      <node id="2931">
+        <label>space_def</label>
+        <link refid="structspace__def"/>
+        <childnode refid="2932" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="2933" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+        <childnode refid="2962" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="2963">
+        <label>engine</label>
+        <link refid="structengine"/>
+        <childnode refid="2929" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="2944" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="2953">
+        <label>IdList::IdList_item</label>
+        <link refid="structIdList_1_1IdList__item"/>
+      </node>
+      <node id="2961">
+        <label>coll</label>
+        <link refid="structcoll"/>
+        <childnode refid="2961" relation="usage">
+          <edgelabel>cmp</edgelabel>
+          <edgelabel>hint</edgelabel>
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+      <node id="2955">
+        <label>index_opts</label>
+        <link refid="structindex__opts"/>
+        <childnode refid="2956" relation="usage">
+          <edgelabel>stat</edgelabel>
+        </childnode>
+      </node>
+      <node id="2946">
+        <label>ExprList::ExprList_item</label>
+        <link refid="structExprList_1_1ExprList__item"/>
+        <childnode refid="2934" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="2937">
+        <label>AggInfo::AggInfo_func</label>
+        <link refid="structAggInfo_1_1AggInfo__func"/>
+        <childnode refid="2934" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+        <childnode refid="2938" relation="usage">
+          <edgelabel>func</edgelabel>
+        </childnode>
+      </node>
+      <node id="2966">
+        <label>space_vtab</label>
+        <link refid="structspace__vtab"/>
+        <childnode refid="2967" relation="usage">
+          <edgelabel>create_index</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/engine.h" line="70" column="1" bodyfile="/home/tsafin/tarantool/src/box/engine.h" bodystart="70" bodyend="209"/>
+    <listofallmembers>
+      <member refid="structengine__vtab_1aab042166eceee10b2512c14ca2d2256b" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>abort_checkpoint</name></member>
+      <member refid="structengine__vtab_1a2abd4d3740631642e21d76d27c9cc573" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>backup</name></member>
+      <member refid="structengine__vtab_1ae56fe41b49f695be67aba16b8a6d5fc9" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>begin</name></member>
+      <member refid="structengine__vtab_1ae366293d089624ea28976d2cba86c001" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>begin_checkpoint</name></member>
+      <member refid="structengine__vtab_1a99bd21b51e719f51cfc8aaeeaee53de6" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>begin_final_recovery</name></member>
+      <member refid="structengine__vtab_1a0603b6f903c541764a2c67df98c82375" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>begin_initial_recovery</name></member>
+      <member refid="structengine__vtab_1a98f5ee55d00810c1bdd68e34a416523d" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>begin_statement</name></member>
+      <member refid="structengine__vtab_1a6ed65e81857bee788c14ec597d53ab7a" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>bootstrap</name></member>
+      <member refid="structengine__vtab_1a64f23a14bf0edff4731173d59fe07542" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>check_space_def</name></member>
+      <member refid="structengine__vtab_1a5a5ce9c6ab7dbcb382043b3438d57c00" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>collect_garbage</name></member>
+      <member refid="structengine__vtab_1ab52011e6f9e96543250c4d497a3df525" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>commit</name></member>
+      <member refid="structengine__vtab_1a512eac80291dd0dfdea78796a5b63c0f" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>commit_checkpoint</name></member>
+      <member refid="structengine__vtab_1a924c1d2bbc02da22371955421cc337d1" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>complete_join</name></member>
+      <member refid="structengine__vtab_1abc16a3d51e42db8abb4a90364e859d8b" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>create_space</name></member>
+      <member refid="structengine__vtab_1a948a266ce13934988cd9600dce95d690" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>end_recovery</name></member>
+      <member refid="structengine__vtab_1a03e63c8da8cdc6378b2d8cf45449fab7" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>join</name></member>
+      <member refid="structengine__vtab_1a35425fd7a2b6314d1b978c062bdf67f3" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>memory_stat</name></member>
+      <member refid="structengine__vtab_1a3e212fb78ec4211cfe643ca12ab41fa0" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>prepare</name></member>
+      <member refid="structengine__vtab_1ae1eb1a9c83aad2c58dfd68f66cfff6b8" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>prepare_join</name></member>
+      <member refid="structengine__vtab_1a2786e30ee5c790a3aff10376c03535f7" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>reset_stat</name></member>
+      <member refid="structengine__vtab_1a0396687d3fd63c71a56aaa01caa9a7dd" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>rollback</name></member>
+      <member refid="structengine__vtab_1ab53beb2f8dacf6cf1945614a88e9b198" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>rollback_statement</name></member>
+      <member refid="structengine__vtab_1ae535d92d5dd63f7ae113c49618a1c288" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>shutdown</name></member>
+      <member refid="structengine__vtab_1a70d2909c23cd0c62087a4e25a23a7b38" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>switch_to_ro</name></member>
+      <member refid="structengine__vtab_1a32e5ef2049e0369a4fce996752720dc2" prot="public" virt="non-virtual"><scope>engine_vtab</scope><name>wait_checkpoint</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,102 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structcbus" kind="struct" language="C++" prot="public">
+    <compoundname>cbus</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structcbus_1a4493ba7a73dfb194371144cb0387c4db" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrmean" kindref="compound">rmean</ref> *</type>
+        <definition>struct rmean* cbus::stats</definition>
+        <argsstring></argsstring>
+        <name>stats</name>
+        <briefdescription>
+<para>cbus statistics </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.c" line="42" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.c" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcbus_1a1132461d2800e196b8e8af5cbcb7ca4e" prot="public" static="no" mutable="no">
+        <type>pthread_mutex_t</type>
+        <definition>pthread_mutex_t cbus::mutex</definition>
+        <argsstring></argsstring>
+        <name>mutex</name>
+        <briefdescription>
+<para>A mutex to protect bus join. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.c" line="44" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.c" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcbus_1a771adbc1c08a8756f35e0c86e7c1924c" prot="public" static="no" mutable="no">
+        <type>pthread_cond_t</type>
+        <definition>pthread_cond_t cbus::cond</definition>
+        <argsstring></argsstring>
+        <name>cond</name>
+        <briefdescription>
+<para>Condition for synchronized start of the bus. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.c" line="46" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.c" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structcbus_1a28a29fa7bb658102cb33686ce4bad4e7" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist cbus::endpoints</definition>
+        <argsstring></argsstring>
+        <name>endpoints</name>
+        <briefdescription>
+<para>Connected endpoints. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/cbus.c" line="46" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.c" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Cord interconnect. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="987">
+        <label>rmean</label>
+        <link refid="structrmean"/>
+        <childnode refid="988" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+      </node>
+      <node id="989">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="989" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="986">
+        <label>cbus</label>
+        <link refid="structcbus"/>
+        <childnode refid="987" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="989" relation="usage">
+          <edgelabel>endpoints</edgelabel>
+        </childnode>
+      </node>
+      <node id="988">
+        <label>stats</label>
+        <link refid="structstats"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/core/cbus.c" line="40" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/cbus.c" bodystart="40" bodyend="49"/>
+    <listofallmembers>
+      <member refid="structcbus_1a771adbc1c08a8756f35e0c86e7c1924c" prot="public" virt="non-virtual"><scope>cbus</scope><name>cond</name></member>
+      <member refid="structcbus_1a28a29fa7bb658102cb33686ce4bad4e7" prot="public" virt="non-virtual"><scope>cbus</scope><name>endpoints</name></member>
+      <member refid="structcbus_1a1132461d2800e196b8e8af5cbcb7ca4e" prot="public" virt="non-virtual"><scope>cbus</scope><name>mutex</name></member>
+      <member refid="structcbus_1a4493ba7a73dfb194371144cb0387c4db" prot="public" virt="non-virtual"><scope>cbus</scope><name>stats</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

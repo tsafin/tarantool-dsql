@@ -1,0 +1,668 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="assoc_8h" kind="file" language="C++">
+    <compoundname>assoc.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="yes">third_party/PMurHash.h</includes>
+    <includes refid="mhash_8h" local="yes">salad/mhash.h</includes>
+    <includedby refid="alter_8cc" local="yes">/home/tsafin/tarantool/src/box/alter.cc</includedby>
+    <includedby refid="coll__id__cache_8c" local="yes">/home/tsafin/tarantool/src/box/coll_id_cache.c</includedby>
+    <includedby refid="constraint__id_8c" local="yes">/home/tsafin/tarantool/src/box/constraint_id.c</includedby>
+    <includedby refid="execute_8c" local="yes">/home/tsafin/tarantool/src/box/execute.c</includedby>
+    <includedby refid="func_8c" local="yes">/home/tsafin/tarantool/src/box/func.c</includedby>
+    <includedby refid="schema_8cc" local="yes">/home/tsafin/tarantool/src/box/schema.cc</includedby>
+    <includedby refid="session_8cc" local="yes">/home/tsafin/tarantool/src/box/session.cc</includedby>
+    <includedby refid="space_8c" local="yes">/home/tsafin/tarantool/src/box/space.c</includedby>
+    <includedby refid="sql__stmt__cache_8c" local="yes">/home/tsafin/tarantool/src/box/sql_stmt_cache.c</includedby>
+    <includedby refid="user_8cc" local="yes">/home/tsafin/tarantool/src/box/user.cc</includedby>
+    <includedby refid="vy__log_8c" local="yes">/home/tsafin/tarantool/src/box/vy_log.c</includedby>
+    <includedby refid="coll_8c" local="yes">/home/tsafin/tarantool/src/lib/coll/coll.c</includedby>
+    <includedby refid="assoc_8c" local="no">/home/tsafin/tarantool/src/lib/core/assoc.c</includedby>
+    <includedby refid="backtrace_8cc" local="yes">/home/tsafin/tarantool/src/lib/core/backtrace.cc</includedby>
+    <includedby refid="lib_2core_2fiber_8c" local="yes">/home/tsafin/tarantool/src/lib/core/fiber.c</includedby>
+    <includedby refid="lib_2core_2popen_8c" local="yes">/home/tsafin/tarantool/src/lib/core/popen.c</includedby>
+    <includedby refid="lib_2swim_2swim_8c" local="yes">/home/tsafin/tarantool/src/lib/swim/swim.c</includedby>
+    <incdepgraph>
+      <node id="1766">
+        <label>stdint.h</label>
+      </node>
+      <node id="1767">
+        <label>third_party/PMurHash.h</label>
+      </node>
+      <node id="1765">
+        <label>/home/tsafin/tarantool/src/lib/core/assoc.h</label>
+        <link refid="assoc_8h"/>
+        <childnode refid="1766" relation="include">
+        </childnode>
+        <childnode refid="1767" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structmh__i32ptr__node__t" prot="public">mh_i32ptr_node_t</innerclass>
+    <innerclass refid="structmh__i64ptr__node__t" prot="public">mh_i64ptr_node_t</innerclass>
+    <innerclass refid="structmh__strnptr__key__t" prot="public">mh_strnptr_key_t</innerclass>
+    <innerclass refid="structmh__strnptr__node__t" prot="public">mh_strnptr_node_t</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="assoc_8h_1afac7eaeefbd822059fab8aa9adeeb0e6" prot="public" static="no">
+        <name>MH_UNDEF</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="37" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a62c28de86b5d617c72b1729ce2f7140a" prot="public" static="no">
+        <name>mh_name</name>
+        <initializer>_i32</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="45" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a8b88f85ab100851f0e70141e2abb98ca" prot="public" static="no">
+        <name>mh_key_t</name>
+        <initializer>uint32_t</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="46" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1afcad8c682f15e1a5cffcc222d4d5db29" prot="public" static="no">
+        <name>mh_node_t</name>
+        <initializer>uint32_t</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="47" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a33b30ebd2602839e35eec7483a0e7306" prot="public" static="no">
+        <name>mh_arg_t</name>
+        <initializer>void *</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="48" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a1a17e76708ec5391df669872117ab22c" prot="public" static="no">
+        <name>mh_hash</name>
+        <param><defname>a</defname></param>
+        <param><defname>arg</defname></param>
+        <initializer>(*(a))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="49" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="124" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a0cceab23a0a48746a9a1228bcad8cf48" prot="public" static="no">
+        <name>mh_hash_key</name>
+        <param><defname>a</defname></param>
+        <param><defname>arg</defname></param>
+        <initializer>(a)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="50" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a4529a821b842b5b4ca3ae6c4ad70b616" prot="public" static="no">
+        <name>mh_cmp</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <param><defname>arg</defname></param>
+        <initializer>(*(a) != *(b))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="51" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1acb15dd7f011a2a4323b6e7f3ebe9dd65" prot="public" static="no">
+        <name>mh_cmp_key</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <param><defname>arg</defname></param>
+        <initializer>((a) != *(b))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="52" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="128" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a62c28de86b5d617c72b1729ce2f7140a" prot="public" static="no">
+        <name>mh_name</name>
+        <initializer>_i32ptr</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="58" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a8b88f85ab100851f0e70141e2abb98ca" prot="public" static="no">
+        <name>mh_key_t</name>
+        <initializer>uint32_t</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="59" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1afcad8c682f15e1a5cffcc222d4d5db29" prot="public" static="no">
+        <name>mh_node_t</name>
+        <initializer>struct <ref refid="structmh__i32ptr__node__t" kindref="compound">mh_i32ptr_node_t</ref></initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="65" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a33b30ebd2602839e35eec7483a0e7306" prot="public" static="no">
+        <name>mh_arg_t</name>
+        <initializer>void *</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="66" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a1a17e76708ec5391df669872117ab22c" prot="public" static="no">
+        <name>mh_hash</name>
+        <param><defname>a</defname></param>
+        <param><defname>arg</defname></param>
+        <initializer>(a-&gt;key)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="67" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="124" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a0cceab23a0a48746a9a1228bcad8cf48" prot="public" static="no">
+        <name>mh_hash_key</name>
+        <param><defname>a</defname></param>
+        <param><defname>arg</defname></param>
+        <initializer>(a)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="68" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a4529a821b842b5b4ca3ae6c4ad70b616" prot="public" static="no">
+        <name>mh_cmp</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <param><defname>arg</defname></param>
+        <initializer>((a-&gt;key) != (b-&gt;key))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="69" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1acb15dd7f011a2a4323b6e7f3ebe9dd65" prot="public" static="no">
+        <name>mh_cmp_key</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <param><defname>arg</defname></param>
+        <initializer>((a) != (b-&gt;key))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="70" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="128" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a62c28de86b5d617c72b1729ce2f7140a" prot="public" static="no">
+        <name>mh_name</name>
+        <initializer>_i64ptr</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="76" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a8b88f85ab100851f0e70141e2abb98ca" prot="public" static="no">
+        <name>mh_key_t</name>
+        <initializer>uint64_t</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="77" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1afcad8c682f15e1a5cffcc222d4d5db29" prot="public" static="no">
+        <name>mh_node_t</name>
+        <initializer>struct <ref refid="structmh__i64ptr__node__t" kindref="compound">mh_i64ptr_node_t</ref></initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="83" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a33b30ebd2602839e35eec7483a0e7306" prot="public" static="no">
+        <name>mh_arg_t</name>
+        <initializer>void *</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="84" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a1a17e76708ec5391df669872117ab22c" prot="public" static="no">
+        <name>mh_hash</name>
+        <param><defname>a</defname></param>
+        <param><defname>arg</defname></param>
+        <initializer>(a-&gt;key)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="85" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="124" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a0cceab23a0a48746a9a1228bcad8cf48" prot="public" static="no">
+        <name>mh_hash_key</name>
+        <param><defname>a</defname></param>
+        <param><defname>arg</defname></param>
+        <initializer>(a)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="86" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a4529a821b842b5b4ca3ae6c4ad70b616" prot="public" static="no">
+        <name>mh_cmp</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <param><defname>arg</defname></param>
+        <initializer>((a-&gt;key) != (b-&gt;key))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="87" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1acb15dd7f011a2a4323b6e7f3ebe9dd65" prot="public" static="no">
+        <name>mh_cmp_key</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <param><defname>arg</defname></param>
+        <initializer>((a) != (b-&gt;key))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="88" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="128" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a62c28de86b5d617c72b1729ce2f7140a" prot="public" static="no">
+        <name>mh_name</name>
+        <initializer>_strnptr</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="107" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a8b88f85ab100851f0e70141e2abb98ca" prot="public" static="no">
+        <name>mh_key_t</name>
+        <initializer>struct <ref refid="structmh__strnptr__key__t" kindref="compound">mh_strnptr_key_t</ref> *</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="113" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1afcad8c682f15e1a5cffcc222d4d5db29" prot="public" static="no">
+        <name>mh_node_t</name>
+        <initializer>struct <ref refid="structmh__strnptr__node__t" kindref="compound">mh_strnptr_node_t</ref></initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="121" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a33b30ebd2602839e35eec7483a0e7306" prot="public" static="no">
+        <name>mh_arg_t</name>
+        <initializer>void *</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="123" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a1a17e76708ec5391df669872117ab22c" prot="public" static="no">
+        <name>mh_hash</name>
+        <param><defname>a</defname></param>
+        <param><defname>arg</defname></param>
+        <initializer>((a)-&gt;hash)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="124" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="124" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a0cceab23a0a48746a9a1228bcad8cf48" prot="public" static="no">
+        <name>mh_hash_key</name>
+        <param><defname>a</defname></param>
+        <param><defname>arg</defname></param>
+        <initializer>((a)-&gt;hash)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="125" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="125" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1a4529a821b842b5b4ca3ae6c4ad70b616" prot="public" static="no">
+        <name>mh_cmp</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <param><defname>arg</defname></param>
+        <initializer>((a)-&gt;len != (b)-&gt;len || \
+			    strncmp((a)-&gt;str, (b)-&gt;str, (a)-&gt;len))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="126" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="assoc_8h_1acb15dd7f011a2a4323b6e7f3ebe9dd65" prot="public" static="no">
+        <name>mh_cmp_key</name>
+        <param><defname>a</defname></param>
+        <param><defname>b</defname></param>
+        <param><defname>arg</defname></param>
+        <initializer>mh_cmp(a, b, arg)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="128" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="128" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="assoc_8h_1a3d01b665f7e924f5f97fa41f5879c7f7" prot="public" static="no">
+        <name>@172</name>
+        <enumvalue id="assoc_8h_1a3d01b665f7e924f5f97fa41f5879c7f7a525bac948982921c8c9ef1b08440d020" prot="public">
+          <name>MH_STRN_HASH_SEED</name>
+          <initializer>= 13U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="94" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="94" bodyend="96"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="assoc_8h_1a3b891935d145f7c4609006d32e83ddcd" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t mh_strn_hash</definition>
+        <argsstring>(const char *str, size_t len)</argsstring>
+        <name>mh_strn_hash</name>
+        <param>
+          <type>const char *</type>
+          <declname>str</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="99" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="99" bodyend="105"/>
+      </memberdef>
+      <memberdef kind="function" id="assoc_8h_1a41cc0884197e46305611619c117b625b" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>mh_int_t</type>
+        <definition>static mh_int_t mh_strnptr_find_inp</definition>
+        <argsstring>(struct mh_strnptr_t *h, const char *str, size_t len)</argsstring>
+        <name>mh_strnptr_find_inp</name>
+        <param>
+          <type>struct mh_strnptr_t *</type>
+          <declname>h</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>str</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/assoc.h" line="132" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/assoc.h" bodystart="132" bodyend="137"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016<sp/>Tarantool<sp/>AUTHORS:<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!MH_SOURCE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>MH_UNDEF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;third_party/PMurHash.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="43"><highlight class="comment"><sp/>*<sp/>Set:<sp/>(i32)</highlight></codeline>
+<codeline lineno="44"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_name<sp/>_i32</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_key_t<sp/>uint32_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_node_t<sp/>uint32_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_arg_t<sp/>void<sp/>*</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_hash(a,<sp/>arg)<sp/>(*(a))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_hash_key(a,<sp/>arg)<sp/>(a)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_cmp(a,<sp/>b,<sp/>arg)<sp/>(*(a)<sp/>!=<sp/>*(b))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_cmp_key(a,<sp/>b,<sp/>arg)<sp/>((a)<sp/>!=<sp/>*(b))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;salad/mhash.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="56"><highlight class="comment"><sp/>*<sp/>Map:<sp/>(i32)<sp/>=&gt;<sp/>(void<sp/>*)</highlight></codeline>
+<codeline lineno="57"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_name<sp/>_i32ptr</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_key_t<sp/>uint32_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60" refid="structmh__i32ptr__node__t" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmh__i32ptr__node__t" kindref="compound">mh_i32ptr_node_t</ref><sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_key_t<sp/>key;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*val;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_node_t<sp/>struct<sp/>mh_i32ptr_node_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_arg_t<sp/>void<sp/>*</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_hash(a,<sp/>arg)<sp/>(a-&gt;key)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_hash_key(a,<sp/>arg)<sp/>(a)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_cmp(a,<sp/>b,<sp/>arg)<sp/>((a-&gt;key)<sp/>!=<sp/>(b-&gt;key))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_cmp_key(a,<sp/>b,<sp/>arg)<sp/>((a)<sp/>!=<sp/>(b-&gt;key))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;salad/mhash.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="74"><highlight class="comment"><sp/>*<sp/>Map:<sp/>(i64)<sp/>=&gt;<sp/>(void<sp/>*)</highlight></codeline>
+<codeline lineno="75"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_name<sp/>_i64ptr</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_key_t<sp/>uint64_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78" refid="structmh__i64ptr__node__t" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmh__i64ptr__node__t" kindref="compound">mh_i64ptr_node_t</ref><sp/>{</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mh_key_t<sp/>key;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*val;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_node_t<sp/>struct<sp/>mh_i64ptr_node_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_arg_t<sp/>void<sp/>*</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_hash(a,<sp/>arg)<sp/>(a-&gt;key)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_hash_key(a,<sp/>arg)<sp/>(a)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_cmp(a,<sp/>b,<sp/>arg)<sp/>((a-&gt;key)<sp/>!=<sp/>(b-&gt;key))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_cmp_key(a,<sp/>b,<sp/>arg)<sp/>((a)<sp/>!=<sp/>(b-&gt;key))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;salad/mhash.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="92"><highlight class="comment"><sp/>*<sp/>Map:<sp/>(char<sp/>*<sp/>with<sp/>length)<sp/>=&gt;<sp/>(void<sp/>*)</highlight></codeline>
+<codeline lineno="93"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>MH_STRN_HASH_SEED<sp/>=<sp/>13U</highlight></codeline>
+<codeline lineno="96"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t</highlight></codeline>
+<codeline lineno="99"><highlight class="normal">mh_strn_hash(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*str,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>h<sp/>=<sp/>MH_STRN_HASH_SEED;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>carry<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>PMurHash32_Process(&amp;h,<sp/>&amp;carry,<sp/>str,<sp/>len);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>PMurHash32_Result(h,<sp/>carry,<sp/>len);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_name<sp/>_strnptr</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108" refid="structmh__strnptr__key__t" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmh__strnptr__key__t" kindref="compound">mh_strnptr_key_t</ref><sp/>{</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*str;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>hash;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_key_t<sp/>struct<sp/>mh_strnptr_key_t<sp/>*</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115" refid="structmh__strnptr__node__t" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmh__strnptr__node__t" kindref="compound">mh_strnptr_node_t</ref><sp/>{</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*str;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>hash;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*val;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_node_t<sp/>struct<sp/>mh_strnptr_node_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_arg_t<sp/>void<sp/>*</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_hash(a,<sp/>arg)<sp/>((a)-&gt;hash)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_hash_key(a,<sp/>arg)<sp/>((a)-&gt;hash)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_cmp(a,<sp/>b,<sp/>arg)<sp/>((a)-&gt;len<sp/>!=<sp/>(b)-&gt;len<sp/>||<sp/>\</highlight></codeline>
+<codeline lineno="127"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>strncmp((a)-&gt;str,<sp/>(b)-&gt;str,<sp/>(a)-&gt;len))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>mh_cmp_key(a,<sp/>b,<sp/>arg)<sp/>mh_cmp(a,<sp/>b,<sp/>arg)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;salad/mhash.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>mh_int_t</highlight></codeline>
+<codeline lineno="132"><highlight class="normal">mh_strnptr_find_inp(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>mh_strnptr_t<sp/>*h,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*str,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="133"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>hash<sp/>=<sp/>mh_strn_hash(str,<sp/>len);</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structmh__strnptr__key__t" kindref="compound">mh_strnptr_key_t</ref><sp/>key<sp/>=<sp/>{str,<sp/>len,<sp/>hash};</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>mh_strnptr_find(h,<sp/>&amp;key,<sp/>NULL);</highlight></codeline>
+<codeline lineno="137"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/core/assoc.h"/>
+  </compounddef>
+</doxygen>

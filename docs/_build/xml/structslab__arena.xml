@@ -1,0 +1,134 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structslab__arena" kind="struct" language="C++" prot="public">
+    <compoundname>slab_arena</compoundname>
+    <includes local="no">slab_arena.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structslab__arena_1a82039d7fded6f97d848adc27fa2578ad" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structlf__lifo" kindref="compound">lf_lifo</ref></type>
+        <definition>struct lf_lifo slab_arena::cache</definition>
+        <argsstring></argsstring>
+        <name>cache</name>
+        <briefdescription>
+<para>A lock free list of cached slabs. </para>        </briefdescription>
+        <detaileddescription>
+<para>Initially there are no cached slabs, only arena. As slabs are used and returned to arena, the cache is used to recycle them. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" line="176" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structslab__arena_1a5ebc1c2aea7cd242c492896189ec39b2" prot="public" static="no" mutable="no">
+        <type>void *</type>
+        <definition>void* slab_arena::arena</definition>
+        <argsstring></argsstring>
+        <name>arena</name>
+        <briefdescription>
+<para>A preallocated arena of size = prealloc. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" line="88" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" bodystart="88" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structslab__arena_1a7cd4f1e19e23715f0229fde88ae3e173" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t slab_arena::prealloc</definition>
+        <argsstring></argsstring>
+        <name>prealloc</name>
+        <briefdescription>
+<para>How much memory is preallocated during initialization of <ref refid="structslab__arena" kindref="compound">slab_arena</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" line="93" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structslab__arena_1a11cf8f863e44589c6fd10955eebda6cf" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t slab_arena::used</definition>
+        <argsstring></argsstring>
+        <name>used</name>
+        <briefdescription>
+<para>How much memory in the arena has already been initialized for slabs. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" line="98" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structslab__arena_1af6f0dd6d80ff1ae404114beb1bf25a3c" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structquota" kindref="compound">quota</ref> *</type>
+        <definition>struct quota* slab_arena::quota</definition>
+        <argsstring></argsstring>
+        <name>quota</name>
+        <briefdescription>
+<para>An external quota to which we must adhere. </para>        </briefdescription>
+        <detaileddescription>
+<para>A quota exists to set a common limit on two arenas. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" line="103" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structslab__arena_1a6621aef069ea7dcf0452d922981f0799" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t slab_arena::slab_size</definition>
+        <argsstring></argsstring>
+        <name>slab_size</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" line="119" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" bodystart="119" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structslab__arena_1a290132fc1c310f7f9a7c0a7913fedcf0" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int slab_arena::flags</definition>
+        <argsstring></argsstring>
+        <name>flags</name>
+        <briefdescription>
+<para>SLAB_ARENA_ flags for mmap() and madvise() calls. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" line="123" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para><ref refid="structslab__arena" kindref="compound">slab_arena</ref> <ndash/> a source of large aligned blocks of memory. </para>    </briefdescription>
+    <detaileddescription>
+<para>MT-safe. Uses a lock-free LIFO to maintain a cache of used slabs. Uses a lock-free quota to limit allocating memory. Never returns memory to the operating system. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="9032">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="9033">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="9031">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="9032" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="9033" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" line="79" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/slab_arena.h" bodystart="79" bodyend="124"/>
+    <listofallmembers>
+      <member refid="structslab__arena_1a5ebc1c2aea7cd242c492896189ec39b2" prot="public" virt="non-virtual"><scope>slab_arena</scope><name>arena</name></member>
+      <member refid="structslab__arena_1a82039d7fded6f97d848adc27fa2578ad" prot="public" virt="non-virtual"><scope>slab_arena</scope><name>cache</name></member>
+      <member refid="structslab__arena_1a290132fc1c310f7f9a7c0a7913fedcf0" prot="public" virt="non-virtual"><scope>slab_arena</scope><name>flags</name></member>
+      <member refid="structslab__arena_1a7cd4f1e19e23715f0229fde88ae3e173" prot="public" virt="non-virtual"><scope>slab_arena</scope><name>prealloc</name></member>
+      <member refid="structslab__arena_1af6f0dd6d80ff1ae404114beb1bf25a3c" prot="public" virt="non-virtual"><scope>slab_arena</scope><name>quota</name></member>
+      <member refid="structslab__arena_1a6621aef069ea7dcf0452d922981f0799" prot="public" virt="non-virtual"><scope>slab_arena</scope><name>slab_size</name></member>
+      <member refid="structslab__arena_1a11cf8f863e44589c6fd10955eebda6cf" prot="public" virt="non-virtual"><scope>slab_arena</scope><name>used</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

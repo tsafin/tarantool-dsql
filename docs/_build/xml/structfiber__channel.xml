@@ -1,0 +1,125 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structfiber__channel" kind="struct" language="C++" prot="public">
+    <compoundname>fiber_channel</compoundname>
+    <includes local="no">fiber_channel.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structfiber__channel_1a4f93d5d3e1f2067293cd27a251d520de" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t fiber_channel::size</definition>
+        <argsstring></argsstring>
+        <name>size</name>
+        <briefdescription>
+<para>Channel buffer size, if the channel is buffered. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber_channel.h" line="128" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber_channel.h" bodystart="128" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber__channel_1ad640f9554da3aec5dfa43a4b0e07f460" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t fiber_channel::count</definition>
+        <argsstring></argsstring>
+        <name>count</name>
+        <briefdescription>
+<para>The number of messages in the buffer. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber_channel.h" line="130" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber_channel.h" bodystart="130" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber__channel_1ac031eddc4236a4e73e18e65b14f132f1" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist fiber_channel::waiters</definition>
+        <argsstring></argsstring>
+        <name>waiters</name>
+        <briefdescription>
+<para>Readers blocked waiting for messages while the channel buffers is empty and/or there are no writers, or Writers blocked waiting for empty space while the channel buffer is full and/or there are no readers. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber_channel.h" line="130" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber_channel.h" bodystart="137" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber__channel_1a9a40821dac325c3a270b9b0a412b2535" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t fiber_channel::beg</definition>
+        <argsstring></argsstring>
+        <name>beg</name>
+        <briefdescription>
+<para>Ring buffer read position. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber_channel.h" line="139" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber_channel.h" bodystart="139" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber__channel_1abe28ebbb5ef0aa7dde27adf18c8ab13f" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool fiber_channel::is_closed</definition>
+        <argsstring></argsstring>
+        <name>is_closed</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber_channel.h" line="141" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber_channel.h" bodystart="141" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber__channel_1a03f142af877a02e9c8100dd6ee6172cd" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structipc__msg" kindref="compound">ipc_msg</ref> **</type>
+        <definition>struct ipc_msg** fiber_channel::buf</definition>
+        <argsstring></argsstring>
+        <name>buf</name>
+        <briefdescription>
+<para>Channel buffer, if any. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/fiber_channel.h" line="143" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber_channel.h" bodystart="143" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Channel - fiber communication media. </para>    </briefdescription>
+    <detaileddescription>
+<para>A channel is a media to deliver messages between fibers. Any fiber can read or write to/from a channel. Many readers and writers can work with a channel concurrently. A message sent to a channel is ready by the first fiber reading from it. If a channel is empty, the reader blocks and waits for a message. If a channel has no reader, the writer waits for the reader to arrive. If a channel is buffered, i.e. has an associated buffer for messages, it is possible for a writer to &quot;drop&quot; the message in a channel until a writer arrives. In case of multiple readers, messages are delivered in FIFO order. In case of multiple writers, the first writer to come is released of its message first.</para><para>If a channel has a buffer of size N, and the buffer is full (contains N messages), and there is a queue of writers, the moment the first reader arrives and reads the first message from a buffer, the first fiber from the wait queue is awoken, and puts its message to the end of the buffer.</para><para>A channel, once created is &quot;open&quot;. I.e. anyone can read or write to/from a channel. A channel can be closed at any time, in which case, all messages currently buffered in a channel are destroyed, waiting readers or writers awoken with an error.</para><para>Waiting for a message, a reader, or space in a buffer can also return error in case of a wait timeout or cancellation (when the waiting fiber is cancelled).</para><para>Sending a message to a closed channel, as well as reading a message from such channel, always fails.</para><para><heading level="2">Channel memory layout </heading>
+</para><para>Channel structure has a fixed size. If a channel is created with a buffer, the buffer must be allocated in a continuous memory chunk, directly after the channel itself. fiber_channel_memsize() can be used to find out the amount of memory necessary to store a channel, given the desired buffer size. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="3398">
+        <label>fiber_channel</label>
+        <link refid="structfiber__channel"/>
+        <childnode refid="3399" relation="usage">
+          <edgelabel>waiters</edgelabel>
+        </childnode>
+        <childnode refid="3400" relation="usage">
+          <edgelabel>buf</edgelabel>
+        </childnode>
+      </node>
+      <node id="3399">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="3399" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="3400">
+        <label>ipc_msg</label>
+        <link refid="structipc__msg"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/core/fiber_channel.h" line="126" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/fiber_channel.h" bodystart="126" bodyend="144"/>
+    <listofallmembers>
+      <member refid="structfiber__channel_1a9a40821dac325c3a270b9b0a412b2535" prot="public" virt="non-virtual"><scope>fiber_channel</scope><name>beg</name></member>
+      <member refid="structfiber__channel_1a03f142af877a02e9c8100dd6ee6172cd" prot="public" virt="non-virtual"><scope>fiber_channel</scope><name>buf</name></member>
+      <member refid="structfiber__channel_1ad640f9554da3aec5dfa43a4b0e07f460" prot="public" virt="non-virtual"><scope>fiber_channel</scope><name>count</name></member>
+      <member refid="structfiber__channel_1abe28ebbb5ef0aa7dde27adf18c8ab13f" prot="public" virt="non-virtual"><scope>fiber_channel</scope><name>is_closed</name></member>
+      <member refid="structfiber__channel_1a4f93d5d3e1f2067293cd27a251d520de" prot="public" virt="non-virtual"><scope>fiber_channel</scope><name>size</name></member>
+      <member refid="structfiber__channel_1ac031eddc4236a4e73e18e65b14f132f1" prot="public" virt="non-virtual"><scope>fiber_channel</scope><name>waiters</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

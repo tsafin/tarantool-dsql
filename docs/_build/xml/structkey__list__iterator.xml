@@ -1,0 +1,237 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structkey__list__iterator" kind="struct" language="C++" prot="public">
+    <compoundname>key_list_iterator</compoundname>
+    <includes local="no">key_list.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structkey__list__iterator_1a2959426eff94b6d45db83ed88fb4c6aa" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtuple" kindref="compound">tuple</ref> *</type>
+        <definition>struct tuple* key_list_iterator::tuple</definition>
+        <argsstring></argsstring>
+        <name>tuple</name>
+        <briefdescription>
+<para>The tuple to supply to the function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_list.h" line="67" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_list.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structkey__list__iterator_1a8328842fa9ae68c23529a090c3f9b551" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structindex__def" kindref="compound">index_def</ref> *</type>
+        <definition>struct index_def* key_list_iterator::index_def</definition>
+        <argsstring></argsstring>
+        <name>index_def</name>
+        <briefdescription>
+<para>A functional index definition. </para>        </briefdescription>
+        <detaileddescription>
+<para>We&apos;re mostly interested in index_def-&gt;key_def-&gt;func, but also need to know the space and index name to properly report errors. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_list.h" line="73" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_list.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structkey__list__iterator_1a19d1d61eb26e144357bf766745a3c210" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* key_list_iterator::data</definition>
+        <argsstring></argsstring>
+        <name>data</name>
+        <briefdescription>
+<para>The pointer to the current key. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_list.h" line="75" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_list.h" bodystart="75" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structkey__list__iterator_1acfd4c428b35b93985a9e6a433c7e63b9" prot="public" static="no" mutable="no">
+        <type>const char *</type>
+        <definition>const char* key_list_iterator::data_end</definition>
+        <argsstring></argsstring>
+        <name>data_end</name>
+        <briefdescription>
+<para>The pointer to the end of the current key_data. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_list.h" line="77" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_list.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structkey__list__iterator_1a2180884f97a7c6eb33964cf398b0cc9c" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool key_list_iterator::validate</definition>
+        <argsstring></argsstring>
+        <name>validate</name>
+        <briefdescription>
+<para>Whether the iterator must validate processed keys. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_list.h" line="79" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_list.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structkey__list__iterator_1a27efc6167a66e8eac9df6f447fcaf16c" prot="public" static="no" mutable="no">
+        <type>key_list_allocator_t</type>
+        <definition>key_list_allocator_t key_list_iterator::key_allocator</definition>
+        <argsstring></argsstring>
+        <name>key_allocator</name>
+        <briefdescription>
+<para>Allocate a key copy before returning it. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/key_list.h" line="81" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_list.h" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>An iterator over key_data returned by a stored function function. </para>    </briefdescription>
+    <detaileddescription>
+<para>Is used in two contexts: When indexing a new tuple, to validate the key using the provided key definition and copy it to tuple memory if validation succeeds. When deleting an old tuple, to simply go over all keys, without validation or copying. Abstracts out multi-key and single-key functional indexes, i.e. single-key functions simply return a list of keys of size 1. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="4690">
+        <label>index_stat</label>
+        <link refid="structindex__stat"/>
+        <childnode refid="4691" relation="usage">
+          <edgelabel>samples</edgelabel>
+        </childnode>
+      </node>
+      <node id="4700">
+        <label>key_part</label>
+        <link refid="structkey__part"/>
+        <childnode refid="4701" relation="usage">
+          <edgelabel>coll</edgelabel>
+        </childnode>
+      </node>
+      <node id="4691">
+        <label>index_sample</label>
+        <link refid="structindex__sample"/>
+      </node>
+      <node id="4694">
+        <label>access</label>
+        <link refid="structaccess"/>
+      </node>
+      <node id="4698">
+        <label>credentials</label>
+        <link refid="structcredentials"/>
+        <childnode refid="4699" relation="usage">
+          <edgelabel>in_user</edgelabel>
+        </childnode>
+      </node>
+      <node id="4699">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="4699" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="4692">
+        <label>key_def</label>
+        <link refid="structkey__def"/>
+        <childnode refid="4687" relation="usage">
+          <edgelabel>tuple_hash</edgelabel>
+          <edgelabel>tuple_compare_with_key</edgelabel>
+          <edgelabel>tuple_compare</edgelabel>
+          <edgelabel>tuple_hint</edgelabel>
+          <edgelabel>tuple_extract_key</edgelabel>
+        </childnode>
+        <childnode refid="4692" relation="usage">
+          <edgelabel>key_hash</edgelabel>
+          <edgelabel>tuple_extract_key_raw</edgelabel>
+          <edgelabel>key_hint</edgelabel>
+        </childnode>
+        <childnode refid="4693" relation="usage">
+          <edgelabel>func_index_func</edgelabel>
+        </childnode>
+        <childnode refid="4700" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="4687">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="4688">
+        <label>index_def</label>
+        <link refid="structindex__def"/>
+        <childnode refid="4689" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+        <childnode refid="4692" relation="usage">
+          <edgelabel>key_def</edgelabel>
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="4699" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="4693">
+        <label>func</label>
+        <link refid="structfunc"/>
+        <childnode refid="4694" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="4695" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="4696" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="4698" relation="usage">
+          <edgelabel>owner_credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="4695">
+        <label>func_vtab</label>
+        <link refid="structfunc__vtab"/>
+      </node>
+      <node id="4697">
+        <label>func_opts</label>
+        <link refid="structfunc__opts"/>
+      </node>
+      <node id="4696">
+        <label>func_def</label>
+        <link refid="structfunc__def"/>
+        <childnode refid="4697" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="4686">
+        <label>key_list_iterator</label>
+        <link refid="structkey__list__iterator"/>
+        <childnode refid="4687" relation="usage">
+          <edgelabel>tuple</edgelabel>
+          <edgelabel>key_allocator</edgelabel>
+        </childnode>
+        <childnode refid="4688" relation="usage">
+          <edgelabel>index_def</edgelabel>
+        </childnode>
+      </node>
+      <node id="4701">
+        <label>coll</label>
+        <link refid="structcoll"/>
+        <childnode refid="4701" relation="usage">
+          <edgelabel>cmp</edgelabel>
+          <edgelabel>hint</edgelabel>
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+      <node id="4689">
+        <label>index_opts</label>
+        <link refid="structindex__opts"/>
+        <childnode refid="4690" relation="usage">
+          <edgelabel>stat</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/key_list.h" line="65" column="1" bodyfile="/home/tsafin/tarantool/src/box/key_list.h" bodystart="65" bodyend="82"/>
+    <listofallmembers>
+      <member refid="structkey__list__iterator_1a19d1d61eb26e144357bf766745a3c210" prot="public" virt="non-virtual"><scope>key_list_iterator</scope><name>data</name></member>
+      <member refid="structkey__list__iterator_1acfd4c428b35b93985a9e6a433c7e63b9" prot="public" virt="non-virtual"><scope>key_list_iterator</scope><name>data_end</name></member>
+      <member refid="structkey__list__iterator_1a8328842fa9ae68c23529a090c3f9b551" prot="public" virt="non-virtual"><scope>key_list_iterator</scope><name>index_def</name></member>
+      <member refid="structkey__list__iterator_1a27efc6167a66e8eac9df6f447fcaf16c" prot="public" virt="non-virtual"><scope>key_list_iterator</scope><name>key_allocator</name></member>
+      <member refid="structkey__list__iterator_1a2959426eff94b6d45db83ed88fb4c6aa" prot="public" virt="non-virtual"><scope>key_list_iterator</scope><name>tuple</name></member>
+      <member refid="structkey__list__iterator_1a2180884f97a7c6eb33964cf398b0cc9c" prot="public" virt="non-virtual"><scope>key_list_iterator</scope><name>validate</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,131 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="msgpuck_2README_8md" kind="file" language="Markdown">
+    <compoundname>README.md</compoundname>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline><highlight class="normal">MsgPuck</highlight></codeline>
+<codeline><highlight class="normal">=======</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">[![Travis][travis-badge]][travis-url]</highlight></codeline>
+<codeline><highlight class="normal">[![License][license-badge]][license-url]</highlight></codeline>
+<codeline><highlight class="normal">[![RPM<sp/>Packages][rpm-badge]][rpm-url]</highlight></codeline>
+<codeline><highlight class="normal">[![Debian<sp/>Packages][deb-badge]][deb-url]</highlight></codeline>
+<codeline><highlight class="normal">[![Telegram][telegram-badge]][telegram-url]</highlight></codeline>
+<codeline><highlight class="normal">[![Maillist][groups-badge]][groups-url]</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">MsgPuck<sp/>is<sp/>a<sp/>compact<sp/>and<sp/>efficient<sp/>[MessagePack]<sp/>serialization<sp/>library:</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Zero-cost<sp/>abstractions<sp/>and<sp/>zero<sp/>overhead</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Clean<sp/>and<sp/>readable<sp/>C<sp/>code<sp/>ready<sp/>to<sp/>use</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Easy<sp/>to<sp/>incorporate<sp/>into<sp/>your<sp/>project</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Fully<sp/>documented<sp/>and<sp/>covered<sp/>by<sp/>unit<sp/>tests</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>Liberal<sp/>license<sp/>(BSD-2)</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">Status</highlight></codeline>
+<codeline><highlight class="normal">------</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">MsgPuck<sp/>is<sp/>stable,<sp/>which<sp/>means<sp/>it<sp/>have<sp/>been<sp/>used<sp/>in<sp/>production<sp/>without</highlight></codeline>
+<codeline><highlight class="normal">serious<sp/>bugs<sp/>for<sp/>quite<sp/>a<sp/>while<sp/>now.<sp/>The<sp/>library<sp/>is<sp/>fully<sp/>documented<sp/>and</highlight></codeline>
+<codeline><highlight class="normal">covered<sp/>by<sp/>unit<sp/>tests.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">Please<sp/>feel<sp/>free<sp/>to<sp/>file<sp/>a<sp/>ticket<sp/>if<sp/>your<sp/>have<sp/>a<sp/>problem<sp/>or<sp/>a<sp/>question.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">Examples</highlight></codeline>
+<codeline><highlight class="normal">--------</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">**Encoding:**</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>char<sp/>buf[1024];</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>char<sp/>*w<sp/>=<sp/>buf;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>w<sp/>=<sp/>mp_encode_array(w,<sp/>4);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>w<sp/>=<sp/>mp_encode_uint(w,<sp/>10);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>w<sp/>=<sp/>mp_encode_str(w,<sp/>&quot;hello<sp/>world&quot;,<sp/>strlen(&quot;hello<sp/>world&quot;));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>w<sp/>=<sp/>mp_encode_bool(w,<sp/>true);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>w<sp/>=<sp/>mp_encode_double(w,<sp/>3.1415);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">**Validating:**</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>const<sp/>char<sp/>*end<sp/>=<sp/>buf<sp/>+<sp/>xx;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>const<sp/>char<sp/>*b<sp/>=<sp/>buf;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/>rc<sp/>=<sp/>mp_check(&amp;b,<sp/>end);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>assert(rc<sp/>==<sp/>0);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>assert(b<sp/>==<sp/>end);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">**Decoding:**</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>size;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>ival;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>const<sp/>char<sp/>*sval;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>sval_len;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>bool<sp/>bval;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>double<sp/>dval;</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>const<sp/>char<sp/>*r<sp/>=<sp/>buf;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>size<sp/>=<sp/>mp_decode_array(&amp;r);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>/*<sp/>size<sp/>is<sp/>4<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ival<sp/>=<sp/>mp_decode_uint(&amp;r);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>/*<sp/>ival<sp/>is<sp/>10;<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>sval<sp/>=<sp/>mp_decode_str(&amp;r,<sp/>&amp;sval_len);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>/*<sp/>sval<sp/>is<sp/>&quot;hello<sp/>world&quot;,<sp/>sval_len<sp/>is<sp/>strlen(&quot;hello<sp/>world&quot;)<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>bval<sp/>=<sp/>mp_decode_bool(&amp;r);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>/*<sp/>bval<sp/>is<sp/>true<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>dval<sp/>=<sp/>mp_decode_double(&amp;r);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>/*<sp/>dval<sp/>is<sp/>3.1415<sp/>*/</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>assert(r<sp/>==<sp/>w);</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">Usage</highlight></codeline>
+<codeline><highlight class="normal">-----</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">You<sp/>need<sp/>a<sp/>C89+<sp/>or<sp/>C++03+<sp/>compatible<sp/>compiler<sp/>to<sp/>use<sp/>msgpuck.</highlight></codeline>
+<codeline><highlight class="normal">Add<sp/>this<sp/>project<sp/>as<sp/>a<sp/>submodule<sp/>or<sp/>just<sp/>use<sp/>libmsgpuck-dev<sp/>package.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">MsgPuck<sp/>is<sp/>designed<sp/>to<sp/>be<sp/>fully<sp/>embedded<sp/>to<sp/>your<sp/>application<sp/>by<sp/>a<sp/>C/C++</highlight></codeline>
+<codeline><highlight class="normal">compiler.<sp/>However,<sp/>some<sp/>functions<sp/>require<sp/>auxiliary<sp/>static<sp/>tables<sp/>which</highlight></codeline>
+<codeline><highlight class="normal">should<sp/>be<sp/>expanded<sp/>somewhere<sp/>in<sp/>a<sp/>compilation<sp/>unit<sp/>(`*.c`<sp/>or<sp/>`*.cc`<sp/>file).</highlight></codeline>
+<codeline><highlight class="normal">Please<sp/>link<sp/>libmsgpuck.a<sp/>to<sp/>your<sp/>binary<sp/>to<sp/>avoid<sp/>problems<sp/>with<sp/>unresolved</highlight></codeline>
+<codeline><highlight class="normal">symbols.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">See<sp/>Also</highlight></codeline>
+<codeline><highlight class="normal">--------</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>[API<sp/>Documentation](http://rtsisyk.github.io/msgpuck/)</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>[Specification](https://github.com/msgpack/msgpack/blob/master/spec.md)</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>[Tests](test)</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>[Packages](https://tarantool.org/download.html)</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>[Maillist](https://groups.google.com/forum/#!forum/tarantool)</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>[Facebook](http://facebook.com/TarantoolDatabase/)</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>[Telegram<sp/>Chat][telegram-url]</highlight></codeline>
+<codeline><highlight class="normal"><sp/>*<sp/>[Maillist][groups-url]</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">API<sp/>documentation<sp/>can<sp/>be<sp/>also<sp/>generated<sp/>using<sp/>`make<sp/>doc`<sp/>(Doxygen<sp/>is<sp/>required).</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">MsgPuck<sp/>was<sp/>written<sp/>to<sp/>use<sp/>within<sp/>[Tarantool](http://tarantool.org)<sp/>-</highlight></codeline>
+<codeline><highlight class="normal">the<sp/>world&apos;s<sp/>first<sp/>full-featured<sp/>MsgPack-based<sp/>database.</highlight></codeline>
+<codeline></codeline>
+<codeline><highlight class="normal">[MessagePack]:<sp/>https://msgpack.org/</highlight></codeline>
+<codeline><highlight class="normal">[travis-badge]:<sp/>https://api.travis-ci.org/rtsisyk/msgpuck.svg?branch=master</highlight></codeline>
+<codeline><highlight class="normal">[travis-url]:<sp/>https://travis-ci.org/rtsisyk/msgpuck</highlight></codeline>
+<codeline><highlight class="normal">[license-badge]:<sp/>https://img.shields.io/badge/License-BSD--2-lightgray.svg?style=flat</highlight></codeline>
+<codeline><highlight class="normal">[license-url]:<sp/>LICENSE</highlight></codeline>
+<codeline><highlight class="normal">[deb-badge]:<sp/>https://img.shields.io/badge/Packages-Debian-red.svg?style=flat</highlight></codeline>
+<codeline><highlight class="normal">[deb-url]:<sp/>https://packagecloud.io/tarantool/1\_7?filter=debs</highlight></codeline>
+<codeline><highlight class="normal">[rpm-badge]:<sp/>https://img.shields.io/badge/Packages-RPM-blue.svg?style=flat</highlight></codeline>
+<codeline><highlight class="normal">[rpm-url]:<sp/>https://packagecloud.io/tarantool/1\_7?filter=rpms</highlight></codeline>
+<codeline><highlight class="normal">[telegram-badge]:<sp/>https://img.shields.io/badge/Telegram-join%20chat-blue.svg</highlight></codeline>
+<codeline><highlight class="normal">[telegram-url]:<sp/>http://telegram.me/tarantool</highlight></codeline>
+<codeline><highlight class="normal">[groups-badge]:<sp/>https://img.shields.io/badge/Google-Groups-orange.svg</highlight></codeline>
+<codeline><highlight class="normal">[groups-url]:<sp/>https://groups.google.com/forum/#!forum/tarantool</highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/msgpuck/README.md"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,816 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="lsregion_8h" kind="file" language="C++">
+    <compoundname>lsregion.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">assert.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes refid="rlist_8h" local="yes">rlist.h</includes>
+    <includes refid="quota_8h" local="yes">quota.h</includes>
+    <includes refid="slab__cache_8h" local="yes">slab_cache.h</includes>
+    <includedby refid="vy__mem_8h" local="no">/home/tsafin/tarantool/src/box/vy_mem.h</includedby>
+    <includedby refid="vinyl_8c" local="no">/home/tsafin/tarantool/src/box/vinyl.c</includedby>
+    <includedby refid="vy__mem_8c" local="no">/home/tsafin/tarantool/src/box/vy_mem.c</includedby>
+    <includedby refid="vy__stmt_8c" local="no">/home/tsafin/tarantool/src/box/vy_stmt.c</includedby>
+    <includedby refid="small_2lsregion_8c" local="yes">/home/tsafin/tarantool/src/lib/small/small/lsregion.c</includedby>
+    <includedby refid="test_2lsregion_8c" local="no">/home/tsafin/tarantool/src/lib/small/test/lsregion.c</includedby>
+    <incdepgraph>
+      <node id="2303">
+        <label>stdbool.h</label>
+      </node>
+      <node id="2302">
+        <label>assert.h</label>
+      </node>
+      <node id="2301">
+        <label>stdint.h</label>
+      </node>
+      <node id="2300">
+        <label>/home/tsafin/tarantool/src/lib/small/small/lsregion.h</label>
+        <link refid="lsregion_8h"/>
+        <childnode refid="2301" relation="include">
+        </childnode>
+        <childnode refid="2302" relation="include">
+        </childnode>
+        <childnode refid="2303" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structlslab" prot="public">lslab</innerclass>
+    <innerclass refid="structlsregion" prot="public">lsregion</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="lsregion_8h_1a4f88ace729dd8dc510d788afa753f7ef" prot="public" static="no">
+        <name>LSLAB_NOT_USED_ID</name>
+        <initializer>-1</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" line="46" column="9" bodyfile="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="lsregion_8h_1a38b0fc3d5687f40f6cf0f8424b656f7d" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t lslab_sizeof</definition>
+        <argsstring>()</argsstring>
+        <name>lslab_sizeof</name>
+        <briefdescription>
+<para>Aligned size of the struct lslab. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" line="103" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" bodystart="103" bodyend="106"/>
+      </memberdef>
+      <memberdef kind="function" id="lsregion_8h_1ad9b95411fe4d3023c149b4761752ce46" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void lslab_create</definition>
+        <argsstring>(struct lslab *slab, size_t size)</argsstring>
+        <name>lslab_create</name>
+        <param>
+          <type>struct <ref refid="structlslab" kindref="compound">lslab</ref> *</type>
+          <declname>slab</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the lslab object. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" line="110" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" bodystart="110" bodyend="116"/>
+      </memberdef>
+      <memberdef kind="function" id="lsregion_8h_1a5f179f02f3fa5000065762603990d29e" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t lslab_unused</definition>
+        <argsstring>(const struct lslab *slab)</argsstring>
+        <name>lslab_unused</name>
+        <param>
+          <type>const struct <ref refid="structlslab" kindref="compound">lslab</ref> *</type>
+          <declname>slab</declname>
+        </param>
+        <briefdescription>
+<para>Size of the unused part of the slab. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>slab</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Slab container. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>Unsed</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>memory size. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" line="124" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" bodystart="124" bodyend="128"/>
+      </memberdef>
+      <memberdef kind="function" id="lsregion_8h_1a4927c293272f5b449d36d7c24cef9675" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void lslab_use</definition>
+        <argsstring>(struct lslab *slab, size_t size, int64_t id)</argsstring>
+        <name>lslab_use</name>
+        <param>
+          <type>struct <ref refid="structlslab" kindref="compound">lslab</ref> *</type>
+          <declname>slab</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+<para>Update slab statistics and meta according to new allocation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" line="134" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" bodystart="134" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="lsregion_8h_1aa4081ebcae01d364127e6bad6142aea4" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void *</type>
+        <definition>static void* lslab_pos</definition>
+        <argsstring>(struct lslab *slab)</argsstring>
+        <name>lslab_pos</name>
+        <param>
+          <type>struct <ref refid="structlslab" kindref="compound">lslab</ref> *</type>
+          <declname>slab</declname>
+        </param>
+        <briefdescription>
+<para>Pointer to the end of the used part of the slab. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>slab</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Slab container. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>Pointer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>to the unused part of the slab. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" line="148" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" bodystart="148" bodyend="151"/>
+      </memberdef>
+      <memberdef kind="function" id="lsregion_8h_1ac9892097bf8358871aea717c3991bb2d" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void *</type>
+        <definition>static void* lslab_end</definition>
+        <argsstring>(struct lslab *slab)</argsstring>
+        <name>lslab_end</name>
+        <param>
+          <type>struct <ref refid="structlslab" kindref="compound">lslab</ref> *</type>
+          <declname>slab</declname>
+        </param>
+        <briefdescription>
+<para>Pointer to the end of the slab memory. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" line="155" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" bodystart="155" bodyend="158"/>
+      </memberdef>
+      <memberdef kind="function" id="lsregion_8h_1a5eceb8f1c850c32404c8a851b871e197" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void lsregion_create</definition>
+        <argsstring>(struct lsregion *lsregion, struct slab_arena *arena)</argsstring>
+        <name>lsregion_create</name>
+        <param>
+          <type>struct <ref refid="structlsregion" kindref="compound">lsregion</ref> *</type>
+          <declname>lsregion</declname>
+        </param>
+        <param>
+          <type>struct <ref refid="structslab__arena" kindref="compound">slab_arena</ref> *</type>
+          <declname>arena</declname>
+        </param>
+        <briefdescription>
+<para>Initialize log structured allocator. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lsregion</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Allocator object. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>arena</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Slabs arena. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" line="166" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" bodystart="166" bodyend="173"/>
+      </memberdef>
+      <memberdef kind="function" id="lsregion_8h_1a8440710f03b8672af3c89a7844867671" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>void* lsregion_aligned_reserve_slow</definition>
+        <argsstring>(struct lsregion *lsregion, size_t size, size_t alignment, void **unaligned)</argsstring>
+        <name>lsregion_aligned_reserve_slow</name>
+        <param>
+          <type>struct <ref refid="structlsregion" kindref="compound">lsregion</ref> *</type>
+          <declname>lsregion</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>alignment</declname>
+        </param>
+        <param>
+          <type>void **</type>
+          <declname>unaligned</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="see"><para>lsregion_aligned_reserve(). </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" line="177" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/lsregion.c" bodystart="35" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="function" id="lsregion_8h_1a307dbbb1029e078ddf7d03029173899d" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void *</type>
+        <definition>static void* lsregion_aligned_reserve</definition>
+        <argsstring>(struct lsregion *lsregion, size_t size, size_t alignment, void **unaligned)</argsstring>
+        <name>lsregion_aligned_reserve</name>
+        <param>
+          <type>struct <ref refid="structlsregion" kindref="compound">lsregion</ref> *</type>
+          <declname>lsregion</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>alignment</declname>
+        </param>
+        <param>
+          <type>void **</type>
+          <declname>unaligned</declname>
+        </param>
+        <briefdescription>
+<para>Make sure a next allocation of at least <emphasis>size</emphasis> bytes will not fail, and will return the same result as this call, aligned by <emphasis>alignment</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lsregion</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Allocator object. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size to allocate. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>alignment</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte alignment required for the result address. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername direction="out">unaligned</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>When the function succeeds, it returns aligned address, and stores base unaligned address to this variable. That helps to find how many bytes were wasted to make the alignment.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>not</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NULL Success. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Memory error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" line="197" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" bodystart="197" bodyend="213"/>
+      </memberdef>
+      <memberdef kind="function" id="lsregion_8h_1aa7d974481fb9fcbedae85986cf89665f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void *</type>
+        <definition>static void* lsregion_reserve</definition>
+        <argsstring>(struct lsregion *lsregion, size_t size)</argsstring>
+        <name>lsregion_reserve</name>
+        <param>
+          <type>struct <ref refid="structlsregion" kindref="compound">lsregion</ref> *</type>
+          <declname>lsregion</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Make sure a next allocation of at least <emphasis>size</emphasis> bytes will not fail, and will return the same result as this call. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lsregion</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Allocator object. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size to allocate.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>not-NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Success. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Memory error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" line="225" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" bodystart="225" bodyend="231"/>
+      </memberdef>
+      <memberdef kind="function" id="lsregion_8h_1a5b13bdbe805643c3b1568997ce312040" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void *</type>
+        <definition>static void* lsregion_alloc</definition>
+        <argsstring>(struct lsregion *lsregion, size_t size, int64_t id)</argsstring>
+        <name>lsregion_alloc</name>
+        <param>
+          <type>struct <ref refid="structlsregion" kindref="compound">lsregion</ref> *</type>
+          <declname>lsregion</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+<para>Allocate <emphasis>size</emphasis> bytes and associate the allocated block with <emphasis>id</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lsregion</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Allocator object. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size to allocate. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Memory chunk identifier.</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<parameterlist kind="retval"><parameteritem>
+<parameternamelist>
+<parametername>not-NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Success. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>NULL</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Memory error. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" line="244" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" bodystart="244" bodyend="254"/>
+      </memberdef>
+      <memberdef kind="function" id="lsregion_8h_1ab5c07683459b913d367bae2c1967036e" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void *</type>
+        <definition>static void* lsregion_aligned_alloc</definition>
+        <argsstring>(struct lsregion *lsregion, size_t size, size_t alignment, int64_t id)</argsstring>
+        <name>lsregion_aligned_alloc</name>
+        <param>
+          <type>struct <ref refid="structlsregion" kindref="compound">lsregion</ref> *</type>
+          <declname>lsregion</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>alignment</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+<para>The same as normal alloc, but the resulting pointer is aligned by <emphasis>alignment</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" line="261" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" bodystart="261" bodyend="275"/>
+      </memberdef>
+      <memberdef kind="function" id="lsregion_8h_1a29bfdd68a51c7faa24353ac7f360e95f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void lsregion_gc</definition>
+        <argsstring>(struct lsregion *lsregion, int64_t min_id)</argsstring>
+        <name>lsregion_gc</name>
+        <param>
+          <type>struct <ref refid="structlsregion" kindref="compound">lsregion</ref> *</type>
+          <declname>lsregion</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>min_id</declname>
+        </param>
+        <briefdescription>
+<para>Try to free all memory blocks in which the biggest identifier is less or equal then the specified identifier. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lsregion</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Allocator object. </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>min_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Free all memory blocks with max_id &lt;= this parameter. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" line="285" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" bodystart="285" bodyend="316"/>
+      </memberdef>
+      <memberdef kind="function" id="lsregion_8h_1ab0760564c7f906305b978ac31e932ccc" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void lsregion_destroy</definition>
+        <argsstring>(struct lsregion *lsregion)</argsstring>
+        <name>lsregion_destroy</name>
+        <param>
+          <type>struct <ref refid="structlsregion" kindref="compound">lsregion</ref> *</type>
+          <declname>lsregion</declname>
+        </param>
+        <briefdescription>
+<para>Free all resources occupied by the allocator. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lsregion</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Allocator object. </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" line="323" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" bodystart="323" bodyend="329"/>
+      </memberdef>
+      <memberdef kind="function" id="lsregion_8h_1a77d48bdc7d25fb02752f4d63c8329acd" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t lsregion_used</definition>
+        <argsstring>(const struct lsregion *lsregion)</argsstring>
+        <name>lsregion_used</name>
+        <param>
+          <type>const struct <ref refid="structlsregion" kindref="compound">lsregion</ref> *</type>
+          <declname>lsregion</declname>
+        </param>
+        <briefdescription>
+<para>Size of the allocated memory. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" line="333" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" bodystart="333" bodyend="336"/>
+      </memberdef>
+      <memberdef kind="function" id="lsregion_8h_1a2b6d9e8b6323cf1b24011185a8479992" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t lsregion_total</definition>
+        <argsstring>(const struct lsregion *lsregion)</argsstring>
+        <name>lsregion_total</name>
+        <param>
+          <type>const struct <ref refid="structlsregion" kindref="compound">lsregion</ref> *</type>
+          <declname>lsregion</declname>
+        </param>
+        <briefdescription>
+<para>Size of the allocated and reserved memory. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" line="340" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" bodystart="340" bodyend="343"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>INCLUDES_TARANTOOL_LSREGION_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INCLUDES_TARANTOOL_LSREGION_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2016,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;assert.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;rlist.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;quota.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;slab_cache.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LSLAB_NOT_USED_ID<sp/>-1</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52" refid="structlslab" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structlslab" kindref="compound">lslab</ref><sp/>{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>next_in_list;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structlslab_1aa3a45b113cf018ad7877781bb294892d" kindref="member">slab_size</ref>;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structlslab_1a92aa4392fdc00214fc870b03f11396c1" kindref="member">slab_used</ref>;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structlslab_1a1d79fcc2a3ddce6cf63200f3cb15229e" kindref="member">max_id</ref>;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90" refid="structlsregion" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structlsregion" kindref="compound">lsregion</ref><sp/>{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structslab__list" kindref="compound">slab_list</ref><sp/>slabs;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structslab__arena" kindref="compound">slab_arena</ref><sp/>*<ref refid="structslab__arena_1a5ebc1c2aea7cd242c492896189ec39b2" kindref="member">arena</ref>;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structlslab" kindref="compound">lslab</ref><sp/>*cached;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal">lslab_sizeof()</highlight></codeline>
+<codeline lineno="104"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>small_align(</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structlslab" kindref="compound">lslab</ref>),<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(intptr_t));</highlight></codeline>
+<codeline lineno="106"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal">lslab_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structlslab" kindref="compound">lslab</ref><sp/>*<ref refid="structslab" kindref="compound">slab</ref>,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="111"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_create(&amp;slab-&gt;<ref refid="structlslab_1a9deecfa5a24756e9a166e7fc971c8e29" kindref="member">next_in_list</ref>);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slab-&gt;<ref refid="structlslab_1aa3a45b113cf018ad7877781bb294892d" kindref="member">slab_size</ref><sp/>=<sp/>size;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slab-&gt;<ref refid="structlslab_1a92aa4392fdc00214fc870b03f11396c1" kindref="member">slab_used</ref><sp/>=<sp/>lslab_sizeof();</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slab-&gt;<ref refid="structlslab_1a1d79fcc2a3ddce6cf63200f3cb15229e" kindref="member">max_id</ref><sp/>=<sp/>LSLAB_NOT_USED_ID;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal">lslab_unused(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structlslab" kindref="compound">lslab</ref><sp/>*slab)</highlight></codeline>
+<codeline lineno="125"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(slab-&gt;<ref refid="structlslab_1aa3a45b113cf018ad7877781bb294892d" kindref="member">slab_size</ref><sp/>&gt;=<sp/>slab-&gt;<ref refid="structlslab_1a92aa4392fdc00214fc870b03f11396c1" kindref="member">slab_used</ref>);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>slab-&gt;<ref refid="structlslab_1aa3a45b113cf018ad7877781bb294892d" kindref="member">slab_size</ref><sp/>-<sp/>slab-&gt;<ref refid="structlslab_1a92aa4392fdc00214fc870b03f11396c1" kindref="member">slab_used</ref>;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal">lslab_use(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structlslab" kindref="compound">lslab</ref><sp/>*slab,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size,<sp/>int64_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="135"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(size<sp/>&lt;=<sp/>lslab_unused(slab));</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(slab-&gt;<ref refid="structlslab_1a1d79fcc2a3ddce6cf63200f3cb15229e" kindref="member">max_id</ref><sp/>&lt;=<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slab-&gt;<ref refid="structlslab_1a92aa4392fdc00214fc870b03f11396c1" kindref="member">slab_used</ref><sp/>+=<sp/>size;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slab-&gt;<ref refid="structlslab_1a1d79fcc2a3ddce6cf63200f3cb15229e" kindref="member">max_id</ref><sp/>=<sp/>id;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="148"><highlight class="normal">lslab_pos(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structlslab" kindref="compound">lslab</ref><sp/>*slab)</highlight></codeline>
+<codeline lineno="149"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*)<sp/>slab<sp/>+<sp/>slab-&gt;<ref refid="structlslab_1a92aa4392fdc00214fc870b03f11396c1" kindref="member">slab_used</ref>;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="155"><highlight class="normal">lslab_end(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structlslab" kindref="compound">lslab</ref><sp/>*slab)</highlight></codeline>
+<codeline lineno="156"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*)slab<sp/>+<sp/>slab-&gt;<ref refid="structlslab_1aa3a45b113cf018ad7877781bb294892d" kindref="member">slab_size</ref>;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal">lsregion_create(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structlsregion" kindref="compound">lsregion</ref><sp/>*<ref refid="structlsregion" kindref="compound">lsregion</ref>,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structslab__arena" kindref="compound">slab_arena</ref><sp/>*arena)</highlight></codeline>
+<codeline lineno="167"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(arena<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(arena-&gt;slab_size<sp/>&gt;<sp/>lslab_sizeof());</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slab_list_create(&amp;lsregion-&gt;<ref refid="structlsregion_1aee1d705da7a4b99677cae19456c98f0b" kindref="member">slabs</ref>);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lsregion-&gt;<ref refid="structlsregion_1a09bcca8421a1b012851cfc8c3687e93c" kindref="member">arena</ref><sp/>=<sp/>arena;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lsregion-&gt;cached<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="177"><highlight class="normal">lsregion_aligned_reserve_slow(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lsregion<sp/>*lsregion,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size,</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>alignment,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>**unaligned);</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="197"><highlight class="normal">lsregion_aligned_reserve(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lsregion<sp/>*lsregion,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size,</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>alignment,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>**unaligned)</highlight></codeline>
+<codeline lineno="199"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>If<sp/>there<sp/>is<sp/>an<sp/>existing<sp/>slab<sp/>then<sp/>try<sp/>to<sp/>use<sp/>it.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<sp/>rlist_empty(&amp;lsregion-&gt;<ref refid="structlsregion_1aee1d705da7a4b99677cae19456c98f0b" kindref="member">slabs</ref>.slabs))<sp/>{</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structlslab" kindref="compound">lslab</ref><sp/>*slab;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slab<sp/>=<sp/>rlist_last_entry(&amp;lsregion-&gt;<ref refid="structlsregion_1aee1d705da7a4b99677cae19456c98f0b" kindref="member">slabs</ref>.slabs,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structlslab" kindref="compound">lslab</ref>,</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structlslab_1a9deecfa5a24756e9a166e7fc971c8e29" kindref="member">next_in_list</ref>);</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(slab<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*unaligned<sp/>=<sp/>lslab_pos(slab);</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*pos<sp/>=<sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*)small_align((</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)*unaligned,<sp/>alignment);</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*)pos<sp/>+<sp/>size<sp/>&lt;=<sp/>(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*)lslab_end(slab))</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>pos;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>lsregion_aligned_reserve_slow(lsregion,<sp/>size,<sp/>alignment,</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>unaligned);</highlight></codeline>
+<codeline lineno="213"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="224"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="225"><highlight class="normal">lsregion_reserve(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lsregion<sp/>*lsregion,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="226"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*unaligned<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*res<sp/>=<sp/>lsregion_aligned_reserve(lsregion,<sp/>size,<sp/>1,<sp/>&amp;unaligned);</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>assert(res<sp/>==<sp/>NULL<sp/>||<sp/>res<sp/>==<sp/>unaligned);</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>res;</highlight></codeline>
+<codeline lineno="231"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="244"><highlight class="normal">lsregion_alloc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lsregion<sp/>*lsregion,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size,<sp/>int64_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="245"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*res<sp/>=<sp/>lsregion_reserve(lsregion,<sp/>size);</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structlslab" kindref="compound">lslab</ref><sp/>*slab<sp/>=<sp/>rlist_last_entry(&amp;lsregion-&gt;<ref refid="structlsregion_1aee1d705da7a4b99677cae19456c98f0b" kindref="member">slabs</ref>.slabs,</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structlslab" kindref="compound">lslab</ref>,<sp/><ref refid="structlslab_1a9deecfa5a24756e9a166e7fc971c8e29" kindref="member">next_in_list</ref>);</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lslab_use(slab,<sp/>size,<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lsregion-&gt;<ref refid="structlsregion_1aee1d705da7a4b99677cae19456c98f0b" kindref="member">slabs</ref>.<ref refid="structslab__list_1ac501108982f9025d0bddc5cf72a8324c" kindref="member">stats</ref>.used<sp/>+=<sp/>size;</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>res;</highlight></codeline>
+<codeline lineno="254"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight></codeline>
+<codeline lineno="260"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="261"><highlight class="normal">lsregion_aligned_alloc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lsregion<sp/>*lsregion,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>alignment,</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="263"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*unaligned;</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*res<sp/>=<sp/>lsregion_aligned_reserve(lsregion,<sp/>size,<sp/>alignment,</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;unaligned);</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(res<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structlslab" kindref="compound">lslab</ref><sp/>*slab<sp/>=<sp/>rlist_last_entry(&amp;lsregion-&gt;<ref refid="structlsregion_1aee1d705da7a4b99677cae19456c98f0b" kindref="member">slabs</ref>.slabs,</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structlslab" kindref="compound">lslab</ref>,<sp/><ref refid="structlslab_1a9deecfa5a24756e9a166e7fc971c8e29" kindref="member">next_in_list</ref>);</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>size<sp/>+=<sp/>res<sp/>-<sp/>unaligned;</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lslab_use(slab,<sp/>size,<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lsregion-&gt;<ref refid="structlsregion_1aee1d705da7a4b99677cae19456c98f0b" kindref="member">slabs</ref>.<ref refid="structslab__list_1ac501108982f9025d0bddc5cf72a8324c" kindref="member">stats</ref>.used<sp/>+=<sp/>size;</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>res;</highlight></codeline>
+<codeline lineno="275"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"></highlight></codeline>
+<codeline lineno="284"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="285"><highlight class="normal">lsregion_gc(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lsregion<sp/>*lsregion,<sp/>int64_t<sp/>min_id)</highlight></codeline>
+<codeline lineno="286"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structlslab" kindref="compound">lslab</ref><sp/>*slab,<sp/>*next;</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>arena_slab_size<sp/>=<sp/>lsregion-&gt;<ref refid="structlsregion_1a09bcca8421a1b012851cfc8c3687e93c" kindref="member">arena</ref>-&gt;slab_size;</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="290"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>First<sp/>blocks<sp/>are<sp/>the<sp/>oldest<sp/>so<sp/>free<sp/>them<sp/>until</highlight></codeline>
+<codeline lineno="291"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>max_id<sp/>&gt;<sp/>min_id.</highlight></codeline>
+<codeline lineno="292"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_foreach_entry_safe(slab,<sp/>&amp;lsregion-&gt;<ref refid="structlsregion_1aee1d705da7a4b99677cae19456c98f0b" kindref="member">slabs</ref>.slabs,<sp/><ref refid="structlslab_1a9deecfa5a24756e9a166e7fc971c8e29" kindref="member">next_in_list</ref>,</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>next)<sp/>{</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slab-&gt;<ref refid="structlslab_1a1d79fcc2a3ddce6cf63200f3cb15229e" kindref="member">max_id</ref><sp/>&gt;<sp/>min_id)</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rlist_del_entry(slab,<sp/><ref refid="structlslab_1a9deecfa5a24756e9a166e7fc971c8e29" kindref="member">next_in_list</ref>);</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="299"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>lslab_sizeof()<sp/>must<sp/>not<sp/>affect<sp/>the<sp/>used<sp/>bytes</highlight></codeline>
+<codeline lineno="300"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>count.</highlight></codeline>
+<codeline lineno="301"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lsregion-&gt;<ref refid="structlsregion_1aee1d705da7a4b99677cae19456c98f0b" kindref="member">slabs</ref>.<ref refid="structslab__list_1ac501108982f9025d0bddc5cf72a8324c" kindref="member">stats</ref>.used<sp/>-=<sp/>slab-&gt;<ref refid="structlslab_1a92aa4392fdc00214fc870b03f11396c1" kindref="member">slab_used</ref><sp/>-<sp/>lslab_sizeof();</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slab-&gt;<ref refid="structlslab_1aa3a45b113cf018ad7877781bb294892d" kindref="member">slab_size</ref><sp/>&gt;<sp/>arena_slab_size)<sp/>{</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Never<sp/>put<sp/>large<sp/>slabs<sp/>into<sp/>cache<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>quota_release(lsregion-&gt;<ref refid="structlsregion_1a09bcca8421a1b012851cfc8c3687e93c" kindref="member">arena</ref>-&gt;<ref refid="structslab__arena_1af6f0dd6d80ff1ae404114beb1bf25a3c" kindref="member">quota</ref>,<sp/>slab-&gt;<ref refid="structlslab_1aa3a45b113cf018ad7877781bb294892d" kindref="member">slab_size</ref>);</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lsregion-&gt;<ref refid="structlsregion_1aee1d705da7a4b99677cae19456c98f0b" kindref="member">slabs</ref>.<ref refid="structslab__list_1ac501108982f9025d0bddc5cf72a8324c" kindref="member">stats</ref>.total<sp/>-=<sp/>slab-&gt;<ref refid="structlslab_1aa3a45b113cf018ad7877781bb294892d" kindref="member">slab_size</ref>;</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>free(slab);</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(lsregion-&gt;cached<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lsregion-&gt;<ref refid="structlsregion_1aee1d705da7a4b99677cae19456c98f0b" kindref="member">slabs</ref>.<ref refid="structslab__list_1ac501108982f9025d0bddc5cf72a8324c" kindref="member">stats</ref>.total<sp/>-=<sp/>slab-&gt;<ref refid="structlslab_1aa3a45b113cf018ad7877781bb294892d" kindref="member">slab_size</ref>;</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slab_unmap(lsregion-&gt;<ref refid="structlsregion_1a09bcca8421a1b012851cfc8c3687e93c" kindref="member">arena</ref>,<sp/>slab);</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lslab_create(slab,<sp/>slab-&gt;<ref refid="structlslab_1aa3a45b113cf018ad7877781bb294892d" kindref="member">slab_size</ref>);</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lsregion-&gt;cached<sp/>=<sp/>slab;</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="316"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"></highlight></codeline>
+<codeline lineno="322"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="323"><highlight class="normal">lsregion_destroy(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lsregion<sp/>*lsregion)</highlight></codeline>
+<codeline lineno="324"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<sp/>rlist_empty(&amp;lsregion-&gt;<ref refid="structlsregion_1aee1d705da7a4b99677cae19456c98f0b" kindref="member">slabs</ref>.slabs))</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lsregion_gc(lsregion,<sp/>INT64_MAX);</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(lsregion-&gt;cached<sp/>!=<sp/>NULL)</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slab_unmap(lsregion-&gt;<ref refid="structlsregion_1a09bcca8421a1b012851cfc8c3687e93c" kindref="member">arena</ref>,<sp/>lsregion-&gt;cached);</highlight></codeline>
+<codeline lineno="329"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"></highlight></codeline>
+<codeline lineno="332"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="333"><highlight class="normal">lsregion_used(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lsregion<sp/>*lsregion)</highlight></codeline>
+<codeline lineno="334"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>lsregion-&gt;<ref refid="structlsregion_1aee1d705da7a4b99677cae19456c98f0b" kindref="member">slabs</ref>.<ref refid="structslab__list_1ac501108982f9025d0bddc5cf72a8324c" kindref="member">stats</ref>.used;</highlight></codeline>
+<codeline lineno="336"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"></highlight></codeline>
+<codeline lineno="339"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="340"><highlight class="normal">lsregion_total(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>lsregion<sp/>*lsregion)</highlight></codeline>
+<codeline lineno="341"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>lsregion-&gt;<ref refid="structlsregion_1aee1d705da7a4b99677cae19456c98f0b" kindref="member">slabs</ref>.<ref refid="structslab__list_1ac501108982f9025d0bddc5cf72a8324c" kindref="member">stats</ref>.total;</highlight></codeline>
+<codeline lineno="343"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"></highlight></codeline>
+<codeline lineno="345"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="346"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="347"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="348"><highlight class="normal"></highlight></codeline>
+<codeline lineno="349"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/small/small/lsregion.h"/>
+  </compounddef>
+</doxygen>

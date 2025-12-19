@@ -1,0 +1,1314 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="vy__log_8h" kind="file" language="C++">
+    <compoundname>vy_log.h</compoundname>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes refid="string_8h" local="no">string.h</includes>
+    <includes refid="rlist_8h" local="no">small/rlist.h</includes>
+    <includes refid="stailq_8h" local="yes">salad/stailq.h</includes>
+    <includedby refid="vinyl_8c" local="yes">/home/tsafin/tarantool/src/box/vinyl.c</includedby>
+    <includedby refid="vy__log_8c" local="yes">/home/tsafin/tarantool/src/box/vy_log.c</includedby>
+    <includedby refid="vy__lsm_8c" local="yes">/home/tsafin/tarantool/src/box/vy_lsm.c</includedby>
+    <includedby refid="vy__scheduler_8c" local="yes">/home/tsafin/tarantool/src/box/vy_scheduler.c</includedby>
+    <includedby refid="wal_8c" local="yes">/home/tsafin/tarantool/src/box/wal.c</includedby>
+    <incdepgraph>
+      <node id="1291">
+        <label>stdbool.h</label>
+      </node>
+      <node id="1292">
+        <label>stdint.h</label>
+      </node>
+      <node id="1290">
+        <label>/home/tsafin/tarantool/src/box/vy_log.h</label>
+        <link refid="vy__log_8h"/>
+        <childnode refid="1291" relation="include">
+        </childnode>
+        <childnode refid="1292" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structvy__log__record" prot="public">vy_log_record</innerclass>
+    <innerclass refid="structvy__recovery" prot="public">vy_recovery</innerclass>
+    <innerclass refid="structvy__lsm__recovery__info" prot="public">vy_lsm_recovery_info</innerclass>
+    <innerclass refid="structvy__range__recovery__info" prot="public">vy_range_recovery_info</innerclass>
+    <innerclass refid="structvy__run__recovery__info" prot="public">vy_run_recovery_info</innerclass>
+    <innerclass refid="structvy__slice__recovery__info" prot="public">vy_slice_recovery_info</innerclass>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="vy__log_8h_1a11a6996da276890b8a719c2180022ef1" prot="public" static="no">
+        <name>vy_log_record_type</name>
+        <enumvalue id="vy__log_8h_1a11a6996da276890b8a719c2180022ef1a7f8396a6ae86bf2783f1bbc3c136c4be" prot="public">
+          <name>VY_LOG_CREATE_LSM</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+<para>Create a new LSM tree. </para>          </briefdescription>
+          <detaileddescription>
+<para>Requires <ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">vy_log_record::lsm_id</ref>, create_lsn. After rotation, it also stores space_id, index_id, group_id, <ref refid="structkey__def" kindref="compound">key_def</ref>, create_lsn, modify_lsn, dump_lsn. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__log_8h_1a11a6996da276890b8a719c2180022ef1a207b01b2895e73273e76d9e1bbcad02e" prot="public">
+          <name>VY_LOG_DROP_LSM</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+<para>Drop an LSM tree. </para>          </briefdescription>
+          <detaileddescription>
+<para>Requires <ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">vy_log_record::lsm_id</ref>, drop_lsn. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__log_8h_1a11a6996da276890b8a719c2180022ef1aca895e9e9b1bcfec37d6572cc671fd31" prot="public">
+          <name>VY_LOG_INSERT_RANGE</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+<para>Insert a new range into an LSM tree. </para>          </briefdescription>
+          <detaileddescription>
+<para>Requires <ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">vy_log_record::lsm_id</ref>, range_id, begin, end. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__log_8h_1a11a6996da276890b8a719c2180022ef1af84b619347decdfe4215e23b2177bd5f" prot="public">
+          <name>VY_LOG_DELETE_RANGE</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+<para>Delete a vinyl range and all its runs. </para>          </briefdescription>
+          <detaileddescription>
+<para>Requires <ref refid="structvy__log__record_1af2e7dca36fe2bb6524fb937f3081d4fe" kindref="member">vy_log_record::range_id</ref>. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__log_8h_1a11a6996da276890b8a719c2180022ef1adc10fc43bb32c7c3e283d814a0ddb3f9" prot="public">
+          <name>VY_LOG_PREPARE_RUN</name>
+          <initializer>= 4</initializer>
+          <briefdescription>
+<para>Prepare a vinyl run file. </para>          </briefdescription>
+          <detaileddescription>
+<para>Requires <ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">vy_log_record::lsm_id</ref>, run_id.</para><para>Record of this type is written before creating a run file. It is needed to keep track of unfinished due to errors run files so that we could remove them after recovery. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__log_8h_1a11a6996da276890b8a719c2180022ef1a1fb31dfda470ad6e69b9ec3c693b0594" prot="public">
+          <name>VY_LOG_CREATE_RUN</name>
+          <initializer>= 5</initializer>
+          <briefdescription>
+<para>Commit a vinyl run file creation. </para>          </briefdescription>
+          <detaileddescription>
+<para>Requires <ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">vy_log_record::lsm_id</ref>, run_id, dump_lsn, dump_count.</para><para>Written after a run file was successfully created. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__log_8h_1a11a6996da276890b8a719c2180022ef1a3517dc21fd4b7615815df93c6d0030dd" prot="public">
+          <name>VY_LOG_DROP_RUN</name>
+          <initializer>= 6</initializer>
+          <briefdescription>
+<para>Drop a vinyl run. </para>          </briefdescription>
+          <detaileddescription>
+<para>Requires <ref refid="structvy__log__record_1ab65c84bd1ce848e8e30fea1f1bb89086" kindref="member">vy_log_record::run_id</ref>, gc_lsn.</para><para>A record of this type indicates that the run is not in use any more and its files can be safely removed. When the log is recovered from, this only marks the run as deleted, because we still need it for garbage collection. A run is actually freed by VY_LOG_FORGET_RUN. Runs that were deleted, but not &quot;forgotten&quot; are not expunged from the log on rotation. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__log_8h_1a11a6996da276890b8a719c2180022ef1a0a5b711b2acd2f5e2cf675cbe254ae95" prot="public">
+          <name>VY_LOG_FORGET_RUN</name>
+          <initializer>= 7</initializer>
+          <briefdescription>
+<para>Forget a vinyl run. </para>          </briefdescription>
+          <detaileddescription>
+<para>Requires <ref refid="structvy__log__record_1ab65c84bd1ce848e8e30fea1f1bb89086" kindref="member">vy_log_record::run_id</ref>.</para><para>A record of this type is written after all files left from an unused run have been successfully removed. On recovery, this results in freeing all structures associated with the run. Information about &quot;forgotten&quot; runs is not included in the new log on rotation. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__log_8h_1a11a6996da276890b8a719c2180022ef1a435efb84b04b1d5841941714c42a219c" prot="public">
+          <name>VY_LOG_INSERT_SLICE</name>
+          <initializer>= 8</initializer>
+          <briefdescription>
+<para>Insert a run slice into a range. </para>          </briefdescription>
+          <detaileddescription>
+<para>Requires <ref refid="structvy__log__record_1af2e7dca36fe2bb6524fb937f3081d4fe" kindref="member">vy_log_record::range_id</ref>, run_id, slice_id, begin, end. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__log_8h_1a11a6996da276890b8a719c2180022ef1a74acd6ce7b6ecf455f3349baff32bcf8" prot="public">
+          <name>VY_LOG_DELETE_SLICE</name>
+          <initializer>= 9</initializer>
+          <briefdescription>
+<para>Delete a run slice. </para>          </briefdescription>
+          <detaileddescription>
+<para>Requires <ref refid="structvy__log__record_1aa429cdc5da53c047fb573e01a59ebe5d" kindref="member">vy_log_record::slice_id</ref>. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__log_8h_1a11a6996da276890b8a719c2180022ef1a2323af44df82a997848ea288e52743c5" prot="public">
+          <name>VY_LOG_DUMP_LSM</name>
+          <initializer>= 10</initializer>
+          <briefdescription>
+<para>Log LSM tree dump. </para>          </briefdescription>
+          <detaileddescription>
+<para>Used to update max LSN stored on disk. Requires <ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">vy_log_record::lsm_id</ref>, dump_lsn. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__log_8h_1a11a6996da276890b8a719c2180022ef1a20108d8b089a313a7d388ab2f568e1fd" prot="public">
+          <name>VY_LOG_SNAPSHOT</name>
+          <initializer>= 11</initializer>
+          <briefdescription>
+<para>We don&apos;t split vylog into snapshot and log - all records are written to the same file. </para>          </briefdescription>
+          <detaileddescription>
+<para>Since we need to load a consistent view from a given checkpoint (for replication and backup), we write a marker after the last record corresponding to the snapshot. The following record represents the marker.</para><para>See also:  argument of vy_recovery_new(). </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__log_8h_1a11a6996da276890b8a719c2180022ef1af1e8884a3b6571946b30cf8dccdbce09" prot="public">
+          <name>VY_LOG_TRUNCATE_LSM</name>
+          <initializer>= 12</initializer>
+          <briefdescription>
+<para>When we used LSN for identifying LSM trees in vylog, we couldn&apos;t simply recreate an LSM tree on space truncation, because in case the space had more than one LSM tree, we wouldn&apos;t be able to distinguish them after truncation. </para>          </briefdescription>
+          <detaileddescription>
+<para>So we wrote special &apos;truncate&apos; record.</para><para>Now, we assign a unique id to each LSM tree and so we don&apos;t need a special record type for space truncation. If we are recovering from an old vylog, we simply ignore all &apos;truncate&apos; records - this will result in replay of all WAL records written after truncation. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__log_8h_1a11a6996da276890b8a719c2180022ef1acf522e7e43e64f63c56eab949a4a9fba" prot="public">
+          <name>VY_LOG_MODIFY_LSM</name>
+          <initializer>= 13</initializer>
+          <briefdescription>
+<para>Modify key definition of an LSM tree. </para>          </briefdescription>
+          <detaileddescription>
+<para>Requires <ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">vy_log_record::lsm_id</ref>, <ref refid="structkey__def" kindref="compound">key_def</ref>, modify_lsn. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__log_8h_1a11a6996da276890b8a719c2180022ef1af4a7f4d72241bc8a90db0e0a2e06eda1" prot="public">
+          <name>VY_LOG_FORGET_LSM</name>
+          <initializer>= 14</initializer>
+          <briefdescription>
+<para>Forget an LSM tree. </para>          </briefdescription>
+          <detaileddescription>
+<para>Requires <ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">vy_log_record::lsm_id</ref>.</para><para>A record of this type indicates that all objects associated with the given LSM tree have been cleaned up from vylog and so the LSM tree is not needed any longer and can be removed from vylog on the next rotation. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__log_8h_1a11a6996da276890b8a719c2180022ef1a5aad3975929306e1544a6dc518e68d6f" prot="public">
+          <name>VY_LOG_PREPARE_LSM</name>
+          <initializer>= 15</initializer>
+          <briefdescription>
+<para>Prepare a new LSM tree for building. </para>          </briefdescription>
+          <detaileddescription>
+<para>Requires <ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">vy_log_record::lsm_id</ref>, index_id, space_id, group_id, <ref refid="structkey__def" kindref="compound">key_def</ref>.</para><para>Index ALTER operation consists of two stages. First, we build a new LSM tree, checking constraints if necessary. This is done before writing the operation to WAL. Then, provided the first stage succeeded, we commit the LSM tree to the metadata log.</para><para>The following record is used to prepare a new LSM tree for building. Once the index has been built, we write a VY_LOG_CREATE_LSM record to commit it. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__log_8h_1a11a6996da276890b8a719c2180022ef1aa2342b03b4e53d66f87277247c7f5b9f" prot="public">
+          <name>VY_LOG_REBOOTSTRAP</name>
+          <initializer>= 16</initializer>
+          <briefdescription>
+<para>This record denotes the beginning of a rebootstrap section. </para>          </briefdescription>
+          <detaileddescription>
+<para>A rebootstrap section ends either by another record of this type or by VY_LOG_ABORT_REBOOTSTRAP or at the end of the file. All objects created between a VY_LOG_REBOOTSTRAP record and VY_LOG_ABORT_REBOOTSTRAP or another VY_LOG_REBOOTSTRAP are considered to be garbage and marked as dropped on recovery.</para><para>We write a record of this type if a vylog file already exists at bootstrap time, which means we are going to rebootstrap. If rebootstrap succeeds, we rotate the vylog on checkpoint and mark all objects written before the last VY_LOG_REBOOTSTRAP record as dropped in the rotated vylog. If rebootstrap fails, we write VY_LOG_ABORT_REBOOTSTRAP on recovery. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__log_8h_1a11a6996da276890b8a719c2180022ef1a0127d23bab5d8cb293146e05793dbe36" prot="public">
+          <name>VY_LOG_ABORT_REBOOTSTRAP</name>
+          <initializer>= 17</initializer>
+          <briefdescription>
+<para>This record is written on recovery if rebootstrap failed. </para>          </briefdescription>
+          <detaileddescription>
+<para>See also VY_LOG_REBOOTSTRAP. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__log_8h_1a11a6996da276890b8a719c2180022ef1a6c2efc130d9b476ffde79520de504ea8" prot="public">
+          <name>vy_log_record_type_MAX</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Type of a metadata log record. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="65" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="65" bodyend="222"/>
+      </memberdef>
+      <memberdef kind="enum" id="vy__log_8h_1aecd12a18eeb0ee701fc7b0efd5068266" prot="public" static="no">
+        <name>@124</name>
+        <enumvalue id="vy__log_8h_1aecd12a18eeb0ee701fc7b0efd5068266a160683078937655bad9f2c5e191f5e53" prot="public">
+          <name>VY_LOG_GC_LSN_CURRENT</name>
+          <initializer>= -1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Special value of <ref refid="structvy__log__record_1a9e4f542c86930c571bd6d572f6601c17" kindref="member">vy_log_record::gc_lsn</ref> replaced with the signature of the vylog file the record will be written to. </para>        </briefdescription>
+        <detaileddescription>
+<para>We need it so as to make sure we write the current vylog signature (not the previous one) when compaction completion races with vylog rotation. Writing the previous vylog signature would result in premature run file collection. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="232" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="232" bodyend="232"/>
+      </memberdef>
+      <memberdef kind="enum" id="vy__log_8h_1a735c8c351967469f06e9e37800fd8416" prot="public" static="no">
+        <name>vy_recovery_flag</name>
+        <enumvalue id="vy__log_8h_1a735c8c351967469f06e9e37800fd8416acb4644cdc48a3f5df49c12c9d5dcbb11" prot="public">
+          <name>VY_RECOVERY_LOAD_CHECKPOINT</name>
+          <initializer>= 1 &lt;&lt; 0</initializer>
+          <briefdescription>
+<para>Do not load records written to the log after checkpoint, i.e. </para>          </briefdescription>
+          <detaileddescription>
+<para>get a consistent view of vinyl database at the time of the last checkpoint. </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="vy__log_8h_1a735c8c351967469f06e9e37800fd8416a7a071e329e6956dde820d92616df5e99" prot="public">
+          <name>VY_RECOVERY_ABORT_REBOOTSTRAP</name>
+          <initializer>= 1 &lt;&lt; 1</initializer>
+          <briefdescription>
+<para>Consider the last attempt to rebootstrap aborted even if there&apos;s no VY_LOG_ABORT_REBOOTSTRAP record. </para>          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Flags passed to vy_recovery_new(). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="574" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="574" bodyend="586"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="vy__log_8h_1a28608b8f825c75a13f6f4ce52ea2440f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_log_init</definition>
+        <argsstring>(const char *dir)</argsstring>
+        <name>vy_log_init</name>
+        <param>
+          <type>const char *</type>
+          <declname>dir</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="443" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.c" bodystart="759" bodyend="775"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1aaf09880d3a3b4e891fcbf00dcc044201" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_log_free</definition>
+        <argsstring>(void)</argsstring>
+        <name>vy_log_free</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destroy the metadata log. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="449" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.c" bodystart="926" bodyend="935"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1a0b7d7c157412af7ef697a970d563b72d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int vy_log_open</definition>
+        <argsstring>(struct xlog *xlog)</argsstring>
+        <name>vy_log_open</name>
+        <param>
+          <type>struct <ref refid="structxlog" kindref="compound">xlog</ref> *</type>
+          <declname>xlog</declname>
+        </param>
+        <briefdescription>
+<para>Open current <ref refid="structvy__log" kindref="compound">vy_log</ref> file. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="455" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.c" bodystart="938" bodyend="976"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1a6e6289f02d126671f452f4e6b0e128bd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int vy_log_rotate</definition>
+        <argsstring>(const struct vclock *vclock)</argsstring>
+        <name>vy_log_rotate</name>
+        <param>
+          <type>const struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <briefdescription>
+<para>Rotate the metadata log. </para>        </briefdescription>
+        <detaileddescription>
+<para>This function creates a new xlog file in the log directory having vclock  and writes records required to recover active LSM trees. The goal of log rotation is to compact the log file by discarding records cancelling each other and records left from dropped LSM trees.</para><para>Returns 0 on success, -1 on failure. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="468" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.c" bodystart="1141" bodyend="1201"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1a1b8d35c53e39b3f3914e39050e44b319" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_log_collect_garbage</definition>
+        <argsstring>(const struct vclock *vclock)</argsstring>
+        <name>vy_log_collect_garbage</name>
+        <param>
+          <type>const struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <briefdescription>
+<para>Remove metadata log files that are not needed to recover from checkpoint . </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="475" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.c" bodystart="1204" bodyend="1214"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1aa51198fbb74624751c6d734b7d7936dc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>int64_t vy_log_signature</definition>
+        <argsstring>(void)</argsstring>
+        <name>vy_log_signature</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return the signature of the newest vylog to the time. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="481" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.c" bodystart="1217" bodyend="1220"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1a8ce9c14785d7fe95e87bf614f7631e9b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char* vy_log_backup_path</definition>
+        <argsstring>(const struct vclock *vclock)</argsstring>
+        <name>vy_log_backup_path</name>
+        <param>
+          <type>const struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <briefdescription>
+<para>Return the path to the log file that needs to be backed up in order to recover to checkpoint . </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="488" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.c" bodystart="1223" bodyend="1236"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1ad5a1bfaebd3e9579d611d06120b309ee" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>int64_t vy_log_next_id</definition>
+        <argsstring>(void)</argsstring>
+        <name>vy_log_next_id</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Allocate a unique ID for a vinyl object. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="492" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.c" bodystart="979" bodyend="982"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1adaeb2acb9becdafe93ac04d68007b7aa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_log_tx_begin</definition>
+        <argsstring>(void)</argsstring>
+        <name>vy_log_tx_begin</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Begin a transaction in the metadata log. </para>        </briefdescription>
+        <detaileddescription>
+<para>To commit the transaction, call vy_log_tx_commit() or vy_log_tx_try_commit(). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="501" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.c" bodystart="1239" bodyend="1249"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1aeaa403ff008473e97abb174fc9235e15" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int vy_log_tx_commit</definition>
+        <argsstring>(void)</argsstring>
+        <name>vy_log_tx_commit</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Commit a transaction started with vy_log_tx_begin(). </para>        </briefdescription>
+        <detaileddescription>
+<para>This function flushes all buffered records to disk. If it fails, all records of the current transaction are discarded.</para><para>See also vy_log_tx_try_commit().</para><para>Returns 0 on success, -1 on failure. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="514" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.c" bodystart="1252" bodyend="1296"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1aa19f065b5853436a890dd1c9ce725a60" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_log_tx_try_commit</definition>
+        <argsstring>(void)</argsstring>
+        <name>vy_log_tx_try_commit</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Try to commit a transaction started with vy_log_tx_begin(). </para>        </briefdescription>
+        <detaileddescription>
+<para>Similarly to vy_log_tx_commit(), this function tries to write all buffered records to disk, but in case of failure pending records are not expunged from the buffer, so that the next transaction will retry to flush them.</para><para>In contrast to vy_log_tx_commit(), this function doesn&apos;t yield. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="527" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.c" bodystart="1299" bodyend="1311"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1afdbfd0a81d3082c3084ebd4bd967476a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_log_write</definition>
+        <argsstring>(const struct vy_log_record *record)</argsstring>
+        <name>vy_log_write</name>
+        <param>
+          <type>const struct <ref refid="structvy__log__record" kindref="compound">vy_log_record</ref> *</type>
+          <declname>record</declname>
+        </param>
+        <briefdescription>
+<para>Write a record to the metadata log. </para>        </briefdescription>
+        <detaileddescription>
+<para>This function simply appends the record to the internal buffer. It must be called inside a vy_log_tx_begin/commit block, and it is up to vy_log_tx_commit() to actually write the record to disk.</para><para>Returns 0 on success, -1 on failure. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="539" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.c" bodystart="1314" bodyend="1330"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1adb9e6ca7a1401d35e42f14a930de8b08" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int vy_log_bootstrap</definition>
+        <argsstring>(void)</argsstring>
+        <name>vy_log_bootstrap</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Bootstrap <ref refid="structvy__log" kindref="compound">vy_log</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="545" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.c" bodystart="1015" bodyend="1027"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1ad9d42c1f68512c6155a0c829e68cabb3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structvy__recovery" kindref="compound">vy_recovery</ref> *</type>
+        <definition>struct vy_recovery* vy_log_begin_recovery</definition>
+        <argsstring>(const struct vclock *vclock)</argsstring>
+        <name>vy_log_begin_recovery</name>
+        <param>
+          <type>const struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+          <declname>vclock</declname>
+        </param>
+        <briefdescription>
+<para>Prepare the metadata log for recovery from the file having vclock  and return the recovery context. </para>        </briefdescription>
+        <detaileddescription>
+<para>After this function is called, LSM trees may be recovered from the log using <ref refid="structvy__recovery" kindref="compound">vy_recovery</ref> methods. When recovery is complete, one must call vy_log_end_recovery(). After that the recovery context may be deleted with vy_recovery_delete().</para><para>Returns NULL on failure. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="559" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.c" bodystart="1030" bodyend="1102"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1a19aa36d64a8d070b814d3df521ba15c3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int vy_log_end_recovery</definition>
+        <argsstring>(void)</argsstring>
+        <name>vy_log_end_recovery</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Finish recovery from the metadata log. </para>        </briefdescription>
+        <detaileddescription>
+<para>This function destroys the recovery context that was created by vy_log_begin_recovery(), opens the log file for appending, and flushes all records written to the log buffer during recovery.</para><para>Return 0 on success, -1 on failure. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="571" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.c" bodystart="1105" bodyend="1130"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1a05348ff8851d7c26e69e40ea9a058980" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structvy__recovery" kindref="compound">vy_recovery</ref> *</type>
+        <definition>struct vy_recovery* vy_recovery_new</definition>
+        <argsstring>(int64_t signature, int flags)</argsstring>
+        <name>vy_recovery_new</name>
+        <param>
+          <type>int64_t</type>
+          <declname>signature</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <briefdescription>
+<para>Create a recovery context from the metadata log created by checkpoint with the given signature. </para>        </briefdescription>
+        <detaileddescription>
+<para>For valid values of , see vy_recovery_flag.</para><para>Returns NULL on failure. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="597" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.c" bodystart="2427" bodyend="2435"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1ad332847a8e92d3e7590af1442e85bda9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void vy_recovery_delete</definition>
+        <argsstring>(struct vy_recovery *recovery)</argsstring>
+        <name>vy_recovery_delete</name>
+        <param>
+          <type>struct <ref refid="structvy__recovery" kindref="compound">vy_recovery</ref> *</type>
+          <declname>recovery</declname>
+        </param>
+        <briefdescription>
+<para>Free a recovery context created by vy_recovery_new(). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="603" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.c" bodystart="2438" bodyend="2470"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1ab126e44bb3d1770a14558bac9c9928ef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>struct <ref refid="structvy__lsm__recovery__info" kindref="compound">vy_lsm_recovery_info</ref> *</type>
+        <definition>struct vy_lsm_recovery_info* vy_recovery_lsm_by_index_id</definition>
+        <argsstring>(struct vy_recovery *recovery, uint32_t space_id, uint32_t index_id)</argsstring>
+        <name>vy_recovery_lsm_by_index_id</name>
+        <param>
+          <type>struct <ref refid="structvy__recovery" kindref="compound">vy_recovery</ref> *</type>
+          <declname>recovery</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>space_id</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>index_id</declname>
+        </param>
+        <briefdescription>
+<para>Look up the last incarnation of an LSM tree stored in a recovery context. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns NULL if the LSM tree was not found.</para><para>Look up the last incarnation of an LSM tree stored in a recovery context. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="611" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.c" bodystart="1344" bodyend="1353"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1a726f5870322bf1bad86c055d30d0ee04" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_log_record_init</definition>
+        <argsstring>(struct vy_log_record *record)</argsstring>
+        <name>vy_log_record_init</name>
+        <param>
+          <type>struct <ref refid="structvy__log__record" kindref="compound">vy_log_record</ref> *</type>
+          <declname>record</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a log record with default values. </para>        </briefdescription>
+        <detaileddescription>
+<para>Note, a key is only written to the log file if its value is different from default. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="620" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="620" bodyend="623"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1a2a83516deef4340650a43285dd6cee0c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_log_prepare_lsm</definition>
+        <argsstring>(int64_t id, uint32_t space_id, uint32_t index_id, uint32_t group_id, const struct key_def *key_def)</argsstring>
+        <name>vy_log_prepare_lsm</name>
+        <param>
+          <type>int64_t</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>space_id</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>index_id</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>group_id</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>key_def</declname>
+        </param>
+        <briefdescription>
+<para>Helper to log a vinyl LSM tree preparation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="627" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="627" bodyend="639"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1a2d687afa1624389ae0a6540b9546b469" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_log_create_lsm</definition>
+        <argsstring>(int64_t id, int64_t create_lsn)</argsstring>
+        <name>vy_log_create_lsm</name>
+        <param>
+          <type>int64_t</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>create_lsn</declname>
+        </param>
+        <briefdescription>
+<para>Helper to log a vinyl LSM tree creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="643" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="643" bodyend="651"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1a7b760499f8df2486240f34b5317106d7" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_log_modify_lsm</definition>
+        <argsstring>(int64_t id, const struct key_def *key_def, int64_t modify_lsn)</argsstring>
+        <name>vy_log_modify_lsm</name>
+        <param>
+          <type>int64_t</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type>const struct <ref refid="structkey__def" kindref="compound">key_def</ref> *</type>
+          <declname>key_def</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>modify_lsn</declname>
+        </param>
+        <briefdescription>
+<para>Helper to log a vinyl LSM tree modification. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="655" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="655" bodyend="664"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1a58c4ac66f41e4859f45c5e26a53e71bf" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_log_forget_lsm</definition>
+        <argsstring>(int64_t id)</argsstring>
+        <name>vy_log_forget_lsm</name>
+        <param>
+          <type>int64_t</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+<para>Helper to log a vinyl LSM tree cleanup. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="668" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="668" bodyend="675"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1aa75bb245fc157c748ec2867ac3048b8e" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_log_drop_lsm</definition>
+        <argsstring>(int64_t id, int64_t drop_lsn)</argsstring>
+        <name>vy_log_drop_lsm</name>
+        <param>
+          <type>int64_t</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>drop_lsn</declname>
+        </param>
+        <briefdescription>
+<para>Helper to log a vinyl LSM tree drop. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="679" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="679" bodyend="687"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1abfe84c742f70271a7786f72d363f089a" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_log_insert_range</definition>
+        <argsstring>(int64_t lsm_id, int64_t range_id, const char *begin, const char *end)</argsstring>
+        <name>vy_log_insert_range</name>
+        <param>
+          <type>int64_t</type>
+          <declname>lsm_id</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>range_id</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>begin</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>end</declname>
+        </param>
+        <briefdescription>
+<para>Helper to log a vinyl range insertion. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="691" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="691" bodyend="702"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1af728001791b545b88ec2fa1770bc4cbb" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_log_delete_range</definition>
+        <argsstring>(int64_t range_id)</argsstring>
+        <name>vy_log_delete_range</name>
+        <param>
+          <type>int64_t</type>
+          <declname>range_id</declname>
+        </param>
+        <briefdescription>
+<para>Helper to log a vinyl range deletion. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="706" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="706" bodyend="713"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1aed705fb7368b0bd3480fcef041660a66" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_log_prepare_run</definition>
+        <argsstring>(int64_t lsm_id, int64_t run_id)</argsstring>
+        <name>vy_log_prepare_run</name>
+        <param>
+          <type>int64_t</type>
+          <declname>lsm_id</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>run_id</declname>
+        </param>
+        <briefdescription>
+<para>Helper to log a vinyl run file creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="717" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="717" bodyend="725"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1a2001bbe0689a01a4c934107c08ffc629" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_log_create_run</definition>
+        <argsstring>(int64_t lsm_id, int64_t run_id, int64_t dump_lsn, uint32_t dump_count)</argsstring>
+        <name>vy_log_create_run</name>
+        <param>
+          <type>int64_t</type>
+          <declname>lsm_id</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>run_id</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>dump_lsn</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>dump_count</declname>
+        </param>
+        <briefdescription>
+<para>Helper to log a vinyl run creation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="729" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="729" bodyend="740"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1ae44f558a6cf3983e6094335c5c55af19" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_log_drop_run</definition>
+        <argsstring>(int64_t run_id, int64_t gc_lsn)</argsstring>
+        <name>vy_log_drop_run</name>
+        <param>
+          <type>int64_t</type>
+          <declname>run_id</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>gc_lsn</declname>
+        </param>
+        <briefdescription>
+<para>Helper to log a run deletion. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="744" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="744" bodyend="752"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1a04a15c2871bb8907bdb802b944607e7b" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_log_forget_run</definition>
+        <argsstring>(int64_t run_id)</argsstring>
+        <name>vy_log_forget_run</name>
+        <param>
+          <type>int64_t</type>
+          <declname>run_id</declname>
+        </param>
+        <briefdescription>
+<para>Helper to log a run cleanup. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="756" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="756" bodyend="763"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1a591fdb1bded02036f17c4adc7d4223a5" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_log_insert_slice</definition>
+        <argsstring>(int64_t range_id, int64_t run_id, int64_t slice_id, const char *begin, const char *end)</argsstring>
+        <name>vy_log_insert_slice</name>
+        <param>
+          <type>int64_t</type>
+          <declname>range_id</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>run_id</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>slice_id</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>begin</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>end</declname>
+        </param>
+        <briefdescription>
+<para>Helper to log creation of a run slice. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="767" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="767" bodyend="779"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1a7a4b633efdd0027c60f5e845e5ae9ac0" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_log_delete_slice</definition>
+        <argsstring>(int64_t slice_id)</argsstring>
+        <name>vy_log_delete_slice</name>
+        <param>
+          <type>int64_t</type>
+          <declname>slice_id</declname>
+        </param>
+        <briefdescription>
+<para>Helper to log deletion of a run slice. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="783" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="783" bodyend="790"/>
+      </memberdef>
+      <memberdef kind="function" id="vy__log_8h_1a34e1fc5fbdb353c71d975e1162f3a65d" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void vy_log_dump_lsm</definition>
+        <argsstring>(int64_t id, int64_t dump_lsn)</argsstring>
+        <name>vy_log_dump_lsm</name>
+        <param>
+          <type>int64_t</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>dump_lsn</declname>
+        </param>
+        <briefdescription>
+<para>Helper to log LSM tree dump. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="794" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="794" bodyend="802"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>INCLUDES_TARANTOOL_BOX_VY_LOG_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>INCLUDES_TARANTOOL_BOX_VY_LOG_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2010-2017,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>AUTHORS<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>AUTHORS<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;small/rlist.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;salad/stailq.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="42"><highlight class="comment"><sp/>*<sp/>Data<sp/>stored<sp/>in<sp/>vinyl<sp/>is<sp/>organized<sp/>in<sp/>ranges<sp/>and<sp/>runs.</highlight></codeline>
+<codeline lineno="43"><highlight class="comment"><sp/>*<sp/>Runs<sp/>correspond<sp/>to<sp/>data<sp/>files<sp/>written<sp/>to<sp/>disk,<sp/>while</highlight></codeline>
+<codeline lineno="44"><highlight class="comment"><sp/>*<sp/>ranges<sp/>are<sp/>used<sp/>to<sp/>group<sp/>runs<sp/>together.<sp/>Sometimes,<sp/>we</highlight></codeline>
+<codeline lineno="45"><highlight class="comment"><sp/>*<sp/>need<sp/>to<sp/>manipulate<sp/>several<sp/>ranges<sp/>or<sp/>runs<sp/>atomically,</highlight></codeline>
+<codeline lineno="46"><highlight class="comment"><sp/>*<sp/>e.g.<sp/>on<sp/>compaction<sp/>several<sp/>runs<sp/>are<sp/>replaced<sp/>with<sp/>a</highlight></codeline>
+<codeline lineno="47"><highlight class="comment"><sp/>*<sp/>single<sp/>one.<sp/>To<sp/>reflect<sp/>events<sp/>like<sp/>this<sp/>on<sp/>disk<sp/>and<sp/>be</highlight></codeline>
+<codeline lineno="48"><highlight class="comment"><sp/>*<sp/>able<sp/>to<sp/>recover<sp/>to<sp/>a<sp/>consistent<sp/>state<sp/>after<sp/>restart,<sp/>we</highlight></codeline>
+<codeline lineno="49"><highlight class="comment"><sp/>*<sp/>need<sp/>to<sp/>log<sp/>all<sp/>metadata<sp/>changes.<sp/>This<sp/>module<sp/>implements</highlight></codeline>
+<codeline lineno="50"><highlight class="comment"><sp/>*<sp/>the<sp/>infrastructure<sp/>necessary<sp/>for<sp/>such<sp/>logging<sp/>as<sp/>well</highlight></codeline>
+<codeline lineno="51"><highlight class="comment"><sp/>*<sp/>as<sp/>recovery.</highlight></codeline>
+<codeline lineno="52"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structxlog" kindref="compound">xlog</ref>;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvclock" kindref="compound">vclock</ref>;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structkey__def" kindref="compound">key_def</ref>;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structkey__part__def" kindref="compound">key_part_def</ref>;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">mh_i64ptr_t;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>vy_log_record_type<sp/>{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_LOG_CREATE_LSM<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_LOG_DROP_LSM<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>1,</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_LOG_INSERT_RANGE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>2,</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_LOG_DELETE_RANGE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>3,</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_LOG_PREPARE_RUN<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>4,</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_LOG_CREATE_RUN<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>5,</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_LOG_DROP_RUN<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>6,</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_LOG_FORGET_RUN<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>7,</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_LOG_INSERT_SLICE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>8,</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_LOG_DELETE_SLICE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>9,</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_LOG_DUMP_LSM<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>10,</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_LOG_SNAPSHOT<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>11,</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_LOG_TRUNCATE_LSM<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>12,</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_LOG_MODIFY_LSM<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>13,</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_LOG_FORGET_LSM<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>14,</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_LOG_PREPARE_LSM<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>15,</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_LOG_REBOOTSTRAP<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>16,</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_LOG_ABORT_REBOOTSTRAP<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>17,</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_record_type_MAX</highlight></codeline>
+<codeline lineno="222"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight></codeline>
+<codeline lineno="232"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{<sp/>VY_LOG_GC_LSN_CURRENT<sp/>=<sp/>-1<sp/>};</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight></codeline>
+<codeline lineno="235" refid="structvy__log__record" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__log__record" kindref="compound">vy_log_record</ref><sp/>{</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>vy_log_record_type<sp/><ref refid="structvy__log__record_1ab758edcdff3bc2cd35ae521cb5381724" kindref="member">type</ref>;</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">lsm_id</ref>;</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structvy__log__record_1af2e7dca36fe2bb6524fb937f3081d4fe" kindref="member">range_id</ref>;</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structvy__log__record_1ab65c84bd1ce848e8e30fea1f1bb89086" kindref="member">run_id</ref>;</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structvy__log__record_1aa429cdc5da53c047fb573e01a59ebe5d" kindref="member">slice_id</ref>;</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structvy__log__record_1a16c6bc62ebb8246a3bce3e40e166d43d" kindref="member">begin</ref>;</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structvy__log__record_1a558d352e731f10ac937b0123a4dfe8e0" kindref="member">end</ref>;</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__log__record_1ae2c76dc2e0b22746f9f9d36b2cad93a3" kindref="member">index_id</ref>;</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__log__record_1ad933e024768f35c0c08bce0e93ea9997" kindref="member">space_id</ref>;</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__log__record_1a77a4fba582bfdb6dee05c0806125d810" kindref="member">group_id</ref>;</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structkey__def" kindref="compound">key_def</ref><sp/>*<ref refid="structvy__log__record_1a0f7b1ac07049da17e3cdf093b53ddf03" kindref="member">key_def</ref>;</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structkey__part__def" kindref="compound">key_part_def</ref><sp/>*<ref refid="structvy__log__record_1a4ebd424659429d728d2687d84d6cbbe9" kindref="member">key_parts</ref>;</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__log__record_1a2f2b2d457ff47634a9c5b464d6bbeea5" kindref="member">key_part_count</ref>;</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structvy__log__record_1aad3d523afbcb27dd7ddf2de6b3699515" kindref="member">create_lsn</ref>;</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structvy__log__record_1a39c199a7c2ac54e9a73721dc64b59b3c" kindref="member">modify_lsn</ref>;</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structvy__log__record_1a47e93e4dc69b9d6e5cfff5084b3556ff" kindref="member">drop_lsn</ref>;</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structvy__log__record_1aa4602fb777f79bfb22fe13b5a6dc61fc" kindref="member">dump_lsn</ref>;</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structvy__log__record_1a9e4f542c86930c571bd6d572f6601c17" kindref="member">gc_lsn</ref>;</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__log__record_1aa9bf8b5d48ba52e86f403eee80410a5e" kindref="member">dump_count</ref>;</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structstailq__entry" kindref="compound">stailq_entry</ref><sp/>in_tx;</highlight></codeline>
+<codeline lineno="288"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"></highlight></codeline>
+<codeline lineno="291" refid="structvy__recovery" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__recovery" kindref="compound">vy_recovery</ref><sp/>{</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>lsms;</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">mh_i64ptr_t<sp/>*index_id_hash;</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">mh_i64ptr_t<sp/>*lsm_hash;</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">mh_i64ptr_t<sp/>*range_hash;</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">mh_i64ptr_t<sp/>*run_hash;</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">mh_i64ptr_t<sp/>*slice_hash;</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>max_id;</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>in_rebootstrap;</highlight></codeline>
+<codeline lineno="318"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"></highlight></codeline>
+<codeline lineno="321" refid="structvy__lsm__recovery__info" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__lsm__recovery__info" kindref="compound">vy_lsm_recovery_info</ref><sp/>{</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>in_recovery;</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>id;</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__log__record_1ae2c76dc2e0b22746f9f9d36b2cad93a3" kindref="member">index_id</ref>;</highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__log__record_1ad933e024768f35c0c08bce0e93ea9997" kindref="member">space_id</ref>;</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__log__record_1a77a4fba582bfdb6dee05c0806125d810" kindref="member">group_id</ref>;</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structkey__part__def" kindref="compound">key_part_def</ref><sp/>*<ref refid="structvy__log__record_1a4ebd424659429d728d2687d84d6cbbe9" kindref="member">key_parts</ref>;</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__log__record_1a2f2b2d457ff47634a9c5b464d6bbeea5" kindref="member">key_part_count</ref>;</highlight></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structvy__log__record_1aad3d523afbcb27dd7ddf2de6b3699515" kindref="member">create_lsn</ref>;</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structvy__log__record_1a39c199a7c2ac54e9a73721dc64b59b3c" kindref="member">modify_lsn</ref>;</highlight></codeline>
+<codeline lineno="349"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structvy__log__record_1a47e93e4dc69b9d6e5cfff5084b3556ff" kindref="member">drop_lsn</ref>;</highlight></codeline>
+<codeline lineno="351"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structvy__log__record_1aa4602fb777f79bfb22fe13b5a6dc61fc" kindref="member">dump_lsn</ref>;</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>ranges;</highlight></codeline>
+<codeline lineno="362"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>runs;</highlight></codeline>
+<codeline lineno="367"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__lsm__recovery__info" kindref="compound">vy_lsm_recovery_info</ref><sp/>*<ref refid="structvy__lsm__recovery__info_1aee70ad9983318967ec89947c6d1380fa" kindref="member">prepared</ref>;</highlight></codeline>
+<codeline lineno="369"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structvy__lsm__recovery__info_1a7caa05ffc1a1b6a45b20b489f870b3e7" kindref="member">in_rebootstrap</ref>;</highlight></codeline>
+<codeline lineno="370"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="371"><highlight class="normal"></highlight></codeline>
+<codeline lineno="373" refid="structvy__range__recovery__info" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__range__recovery__info" kindref="compound">vy_range_recovery_info</ref><sp/>{</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>in_lsm;</highlight></codeline>
+<codeline lineno="377"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>id;</highlight></codeline>
+<codeline lineno="379"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structvy__log__record_1a16c6bc62ebb8246a3bce3e40e166d43d" kindref="member">begin</ref>;</highlight></codeline>
+<codeline lineno="381"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structvy__log__record_1a558d352e731f10ac937b0123a4dfe8e0" kindref="member">end</ref>;</highlight></codeline>
+<codeline lineno="388"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>slices;</highlight></codeline>
+<codeline lineno="389"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="390"><highlight class="normal"></highlight></codeline>
+<codeline lineno="392" refid="structvy__run__recovery__info" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__run__recovery__info" kindref="compound">vy_run_recovery_info</ref><sp/>{</highlight></codeline>
+<codeline lineno="394"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>in_lsm;</highlight></codeline>
+<codeline lineno="396"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>id;</highlight></codeline>
+<codeline lineno="398"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structvy__log__record_1aa4602fb777f79bfb22fe13b5a6dc61fc" kindref="member">dump_lsn</ref>;</highlight></codeline>
+<codeline lineno="403"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structvy__log__record_1a9e4f542c86930c571bd6d572f6601c17" kindref="member">gc_lsn</ref>;</highlight></codeline>
+<codeline lineno="405"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__log__record_1aa9bf8b5d48ba52e86f403eee80410a5e" kindref="member">dump_count</ref>;</highlight></codeline>
+<codeline lineno="410"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_incomplete;</highlight></codeline>
+<codeline lineno="412"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_dropped;</highlight></codeline>
+<codeline lineno="413"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="414"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>The<sp/>following<sp/>field<sp/>is<sp/>initialized<sp/>to<sp/>NULL<sp/>and</highlight></codeline>
+<codeline lineno="415"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>ignored<sp/>by<sp/>vy_log<sp/>subsystem.<sp/>It<sp/>may<sp/>be<sp/>used<sp/>by</highlight></codeline>
+<codeline lineno="416"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>the<sp/>caller<sp/>to<sp/>store<sp/>some<sp/>extra<sp/>information.</highlight></codeline>
+<codeline lineno="417"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="418"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>During<sp/>recovery,<sp/>we<sp/>store<sp/>a<sp/>pointer<sp/>to<sp/>vy_run</highlight></codeline>
+<codeline lineno="419"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>corresponding<sp/>to<sp/>this<sp/>object.</highlight></codeline>
+<codeline lineno="420"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="421"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data;</highlight></codeline>
+<codeline lineno="422"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="423"><highlight class="normal"></highlight></codeline>
+<codeline lineno="425" refid="structvy__slice__recovery__info" refkind="compound"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__slice__recovery__info" kindref="compound">vy_slice_recovery_info</ref><sp/>{</highlight></codeline>
+<codeline lineno="427"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structrlist" kindref="compound">rlist</ref><sp/>in_range;</highlight></codeline>
+<codeline lineno="429"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>id;</highlight></codeline>
+<codeline lineno="431"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__run__recovery__info" kindref="compound">vy_run_recovery_info</ref><sp/>*run;</highlight></codeline>
+<codeline lineno="433"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structvy__log__record_1a16c6bc62ebb8246a3bce3e40e166d43d" kindref="member">begin</ref>;</highlight></codeline>
+<codeline lineno="435"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structvy__log__record_1a558d352e731f10ac937b0123a4dfe8e0" kindref="member">end</ref>;</highlight></codeline>
+<codeline lineno="436"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="437"><highlight class="normal"></highlight></codeline>
+<codeline lineno="442"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="443"><highlight class="normal">vy_log_init(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*dir);</highlight></codeline>
+<codeline lineno="444"><highlight class="normal"></highlight></codeline>
+<codeline lineno="448"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="449"><highlight class="normal">vy_log_free(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="450"><highlight class="normal"></highlight></codeline>
+<codeline lineno="454"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="455"><highlight class="normal">vy_log_open(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structxlog" kindref="compound">xlog</ref><sp/>*<ref refid="structxlog" kindref="compound">xlog</ref>);</highlight></codeline>
+<codeline lineno="456"><highlight class="normal"></highlight></codeline>
+<codeline lineno="467"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="468"><highlight class="normal">vy_log_rotate(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvclock" kindref="compound">vclock</ref><sp/>*<ref refid="structvclock" kindref="compound">vclock</ref>);</highlight></codeline>
+<codeline lineno="469"><highlight class="normal"></highlight></codeline>
+<codeline lineno="474"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="475"><highlight class="normal">vy_log_collect_garbage(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vclock<sp/>*vclock);</highlight></codeline>
+<codeline lineno="476"><highlight class="normal"></highlight></codeline>
+<codeline lineno="480"><highlight class="normal">int64_t</highlight></codeline>
+<codeline lineno="481"><highlight class="normal">vy_log_signature(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="482"><highlight class="normal"></highlight></codeline>
+<codeline lineno="487"><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="488"><highlight class="normal">vy_log_backup_path(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vclock<sp/>*vclock);</highlight></codeline>
+<codeline lineno="489"><highlight class="normal"></highlight></codeline>
+<codeline lineno="491"><highlight class="normal">int64_t</highlight></codeline>
+<codeline lineno="492"><highlight class="normal">vy_log_next_id(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="493"><highlight class="normal"></highlight></codeline>
+<codeline lineno="500"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="501"><highlight class="normal">vy_log_tx_begin(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="502"><highlight class="normal"></highlight></codeline>
+<codeline lineno="513"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="514"><highlight class="normal">vy_log_tx_commit(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="515"><highlight class="normal"></highlight></codeline>
+<codeline lineno="526"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="527"><highlight class="normal">vy_log_tx_try_commit(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="528"><highlight class="normal"></highlight></codeline>
+<codeline lineno="538"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="539"><highlight class="normal">vy_log_write(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__log__record" kindref="compound">vy_log_record</ref><sp/>*record);</highlight></codeline>
+<codeline lineno="540"><highlight class="normal"></highlight></codeline>
+<codeline lineno="544"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="545"><highlight class="normal">vy_log_bootstrap(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="546"><highlight class="normal"></highlight></codeline>
+<codeline lineno="558"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__recovery" kindref="compound">vy_recovery</ref><sp/>*</highlight></codeline>
+<codeline lineno="559"><highlight class="normal">vy_log_begin_recovery(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>vclock<sp/>*vclock);</highlight></codeline>
+<codeline lineno="560"><highlight class="normal"></highlight></codeline>
+<codeline lineno="570"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="571"><highlight class="normal">vy_log_end_recovery(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="572"><highlight class="normal"></highlight></codeline>
+<codeline lineno="574"><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>vy_recovery_flag<sp/>{</highlight></codeline>
+<codeline lineno="580"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_RECOVERY_LOAD_CHECKPOINT<sp/><sp/><sp/><sp/><sp/>=<sp/>1<sp/>&lt;&lt;<sp/>0,</highlight></codeline>
+<codeline lineno="585"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>VY_RECOVERY_ABORT_REBOOTSTRAP<sp/><sp/><sp/>=<sp/>1<sp/>&lt;&lt;<sp/>1,</highlight></codeline>
+<codeline lineno="586"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="587"><highlight class="normal"></highlight></codeline>
+<codeline lineno="596"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__recovery" kindref="compound">vy_recovery</ref><sp/>*</highlight></codeline>
+<codeline lineno="597"><highlight class="normal">vy_recovery_new(int64_t<sp/>signature,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags);</highlight></codeline>
+<codeline lineno="598"><highlight class="normal"></highlight></codeline>
+<codeline lineno="602"><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="603"><highlight class="normal">vy_recovery_delete(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__recovery" kindref="compound">vy_recovery</ref><sp/>*<ref refid="structrecovery" kindref="compound">recovery</ref>);</highlight></codeline>
+<codeline lineno="604"><highlight class="normal"></highlight></codeline>
+<codeline lineno="610"><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__lsm__recovery__info" kindref="compound">vy_lsm_recovery_info</ref><sp/>*</highlight></codeline>
+<codeline lineno="611"><highlight class="normal">vy_recovery_lsm_by_index_id(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__recovery" kindref="compound">vy_recovery</ref><sp/>*recovery,</highlight></codeline>
+<codeline lineno="612"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__log__record_1ad933e024768f35c0c08bce0e93ea9997" kindref="member">space_id</ref>,<sp/>uint32_t<sp/><ref refid="structvy__log__record_1ae2c76dc2e0b22746f9f9d36b2cad93a3" kindref="member">index_id</ref>);</highlight></codeline>
+<codeline lineno="613"><highlight class="normal"></highlight></codeline>
+<codeline lineno="619"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="620"><highlight class="normal">vy_log_record_init(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structvy__log__record" kindref="compound">vy_log_record</ref><sp/>*record)</highlight></codeline>
+<codeline lineno="621"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="622"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memset(record,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*record));</highlight></codeline>
+<codeline lineno="623"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="624"><highlight class="normal"></highlight></codeline>
+<codeline lineno="626"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="627"><highlight class="normal">vy_log_prepare_lsm(int64_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">,<sp/>uint32_t<sp/>space_id,<sp/>uint32_t<sp/>index_id,</highlight></codeline>
+<codeline lineno="628"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structvy__log__record_1a77a4fba582bfdb6dee05c0806125d810" kindref="member">group_id</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structkey__def" kindref="compound">key_def</ref><sp/>*<ref refid="structkey__def" kindref="compound">key_def</ref>)</highlight></codeline>
+<codeline lineno="629"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="630"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__log__record" kindref="compound">vy_log_record</ref><sp/>record;</highlight></codeline>
+<codeline lineno="631"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_record_init(&amp;record);</highlight></codeline>
+<codeline lineno="632"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1ab758edcdff3bc2cd35ae521cb5381724" kindref="member">type</ref><sp/>=<sp/>VY_LOG_PREPARE_LSM;</highlight></codeline>
+<codeline lineno="633"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">lsm_id</ref><sp/>=<sp/>id;</highlight></codeline>
+<codeline lineno="634"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1ad933e024768f35c0c08bce0e93ea9997" kindref="member">space_id</ref><sp/>=<sp/><ref refid="structvy__log__record_1ad933e024768f35c0c08bce0e93ea9997" kindref="member">space_id</ref>;</highlight></codeline>
+<codeline lineno="635"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1ae2c76dc2e0b22746f9f9d36b2cad93a3" kindref="member">index_id</ref><sp/>=<sp/><ref refid="structvy__log__record_1ae2c76dc2e0b22746f9f9d36b2cad93a3" kindref="member">index_id</ref>;</highlight></codeline>
+<codeline lineno="636"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1a77a4fba582bfdb6dee05c0806125d810" kindref="member">group_id</ref><sp/>=<sp/><ref refid="structvy__log__record_1a77a4fba582bfdb6dee05c0806125d810" kindref="member">group_id</ref>;</highlight></codeline>
+<codeline lineno="637"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1a0f7b1ac07049da17e3cdf093b53ddf03" kindref="member">key_def</ref><sp/>=<sp/><ref refid="structvy__log__record_1a0f7b1ac07049da17e3cdf093b53ddf03" kindref="member">key_def</ref>;</highlight></codeline>
+<codeline lineno="638"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_write(&amp;record);</highlight></codeline>
+<codeline lineno="639"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="640"><highlight class="normal"></highlight></codeline>
+<codeline lineno="642"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="643"><highlight class="normal">vy_log_create_lsm(int64_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">,<sp/>int64_t<sp/><ref refid="structvy__log__record_1aad3d523afbcb27dd7ddf2de6b3699515" kindref="member">create_lsn</ref>)</highlight></codeline>
+<codeline lineno="644"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="645"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__log__record" kindref="compound">vy_log_record</ref><sp/>record;</highlight></codeline>
+<codeline lineno="646"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_record_init(&amp;record);</highlight></codeline>
+<codeline lineno="647"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1ab758edcdff3bc2cd35ae521cb5381724" kindref="member">type</ref><sp/>=<sp/>VY_LOG_CREATE_LSM;</highlight></codeline>
+<codeline lineno="648"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">lsm_id</ref><sp/>=<sp/>id;</highlight></codeline>
+<codeline lineno="649"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1aad3d523afbcb27dd7ddf2de6b3699515" kindref="member">create_lsn</ref><sp/>=<sp/><ref refid="structvy__log__record_1aad3d523afbcb27dd7ddf2de6b3699515" kindref="member">create_lsn</ref>;</highlight></codeline>
+<codeline lineno="650"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_write(&amp;record);</highlight></codeline>
+<codeline lineno="651"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="652"><highlight class="normal"></highlight></codeline>
+<codeline lineno="654"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="655"><highlight class="normal">vy_log_modify_lsm(int64_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>key_def<sp/>*key_def,<sp/>int64_t<sp/><ref refid="structvy__log__record_1a39c199a7c2ac54e9a73721dc64b59b3c" kindref="member">modify_lsn</ref>)</highlight></codeline>
+<codeline lineno="656"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="657"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__log__record" kindref="compound">vy_log_record</ref><sp/>record;</highlight></codeline>
+<codeline lineno="658"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_record_init(&amp;record);</highlight></codeline>
+<codeline lineno="659"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1ab758edcdff3bc2cd35ae521cb5381724" kindref="member">type</ref><sp/>=<sp/>VY_LOG_MODIFY_LSM;</highlight></codeline>
+<codeline lineno="660"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">lsm_id</ref><sp/>=<sp/>id;</highlight></codeline>
+<codeline lineno="661"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1a0f7b1ac07049da17e3cdf093b53ddf03" kindref="member">key_def</ref><sp/>=<sp/><ref refid="structvy__log__record_1a0f7b1ac07049da17e3cdf093b53ddf03" kindref="member">key_def</ref>;</highlight></codeline>
+<codeline lineno="662"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1a39c199a7c2ac54e9a73721dc64b59b3c" kindref="member">modify_lsn</ref><sp/>=<sp/><ref refid="structvy__log__record_1a39c199a7c2ac54e9a73721dc64b59b3c" kindref="member">modify_lsn</ref>;</highlight></codeline>
+<codeline lineno="663"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_write(&amp;record);</highlight></codeline>
+<codeline lineno="664"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="665"><highlight class="normal"></highlight></codeline>
+<codeline lineno="667"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="668"><highlight class="normal">vy_log_forget_lsm(int64_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="669"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="670"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__log__record" kindref="compound">vy_log_record</ref><sp/>record;</highlight></codeline>
+<codeline lineno="671"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_record_init(&amp;record);</highlight></codeline>
+<codeline lineno="672"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1ab758edcdff3bc2cd35ae521cb5381724" kindref="member">type</ref><sp/>=<sp/>VY_LOG_FORGET_LSM;</highlight></codeline>
+<codeline lineno="673"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">lsm_id</ref><sp/>=<sp/>id;</highlight></codeline>
+<codeline lineno="674"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_write(&amp;record);</highlight></codeline>
+<codeline lineno="675"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="676"><highlight class="normal"></highlight></codeline>
+<codeline lineno="678"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="679"><highlight class="normal">vy_log_drop_lsm(int64_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">,<sp/>int64_t<sp/><ref refid="structvy__log__record_1a47e93e4dc69b9d6e5cfff5084b3556ff" kindref="member">drop_lsn</ref>)</highlight></codeline>
+<codeline lineno="680"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="681"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__log__record" kindref="compound">vy_log_record</ref><sp/>record;</highlight></codeline>
+<codeline lineno="682"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_record_init(&amp;record);</highlight></codeline>
+<codeline lineno="683"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1ab758edcdff3bc2cd35ae521cb5381724" kindref="member">type</ref><sp/>=<sp/>VY_LOG_DROP_LSM;</highlight></codeline>
+<codeline lineno="684"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">lsm_id</ref><sp/>=<sp/>id;</highlight></codeline>
+<codeline lineno="685"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1a47e93e4dc69b9d6e5cfff5084b3556ff" kindref="member">drop_lsn</ref><sp/>=<sp/><ref refid="structvy__log__record_1a47e93e4dc69b9d6e5cfff5084b3556ff" kindref="member">drop_lsn</ref>;</highlight></codeline>
+<codeline lineno="686"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_write(&amp;record);</highlight></codeline>
+<codeline lineno="687"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="688"><highlight class="normal"></highlight></codeline>
+<codeline lineno="690"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="691"><highlight class="normal">vy_log_insert_range(int64_t<sp/><ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">lsm_id</ref>,<sp/>int64_t<sp/><ref refid="structvy__log__record_1af2e7dca36fe2bb6524fb937f3081d4fe" kindref="member">range_id</ref>,</highlight></codeline>
+<codeline lineno="692"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structvy__log__record_1a16c6bc62ebb8246a3bce3e40e166d43d" kindref="member">begin</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structvy__log__record_1a558d352e731f10ac937b0123a4dfe8e0" kindref="member">end</ref>)</highlight></codeline>
+<codeline lineno="693"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="694"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__log__record" kindref="compound">vy_log_record</ref><sp/>record;</highlight></codeline>
+<codeline lineno="695"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_record_init(&amp;record);</highlight></codeline>
+<codeline lineno="696"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1ab758edcdff3bc2cd35ae521cb5381724" kindref="member">type</ref><sp/>=<sp/>VY_LOG_INSERT_RANGE;</highlight></codeline>
+<codeline lineno="697"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">lsm_id</ref><sp/>=<sp/><ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">lsm_id</ref>;</highlight></codeline>
+<codeline lineno="698"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1af2e7dca36fe2bb6524fb937f3081d4fe" kindref="member">range_id</ref><sp/>=<sp/><ref refid="structvy__log__record_1af2e7dca36fe2bb6524fb937f3081d4fe" kindref="member">range_id</ref>;</highlight></codeline>
+<codeline lineno="699"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1a16c6bc62ebb8246a3bce3e40e166d43d" kindref="member">begin</ref><sp/>=<sp/><ref refid="structvy__log__record_1a16c6bc62ebb8246a3bce3e40e166d43d" kindref="member">begin</ref>;</highlight></codeline>
+<codeline lineno="700"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1a558d352e731f10ac937b0123a4dfe8e0" kindref="member">end</ref><sp/>=<sp/><ref refid="structvy__log__record_1a558d352e731f10ac937b0123a4dfe8e0" kindref="member">end</ref>;</highlight></codeline>
+<codeline lineno="701"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_write(&amp;record);</highlight></codeline>
+<codeline lineno="702"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="703"><highlight class="normal"></highlight></codeline>
+<codeline lineno="705"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="706"><highlight class="normal">vy_log_delete_range(int64_t<sp/>range_id)</highlight></codeline>
+<codeline lineno="707"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="708"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__log__record" kindref="compound">vy_log_record</ref><sp/>record;</highlight></codeline>
+<codeline lineno="709"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_record_init(&amp;record);</highlight></codeline>
+<codeline lineno="710"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1ab758edcdff3bc2cd35ae521cb5381724" kindref="member">type</ref><sp/>=<sp/>VY_LOG_DELETE_RANGE;</highlight></codeline>
+<codeline lineno="711"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1af2e7dca36fe2bb6524fb937f3081d4fe" kindref="member">range_id</ref><sp/>=<sp/><ref refid="structvy__log__record_1af2e7dca36fe2bb6524fb937f3081d4fe" kindref="member">range_id</ref>;</highlight></codeline>
+<codeline lineno="712"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_write(&amp;record);</highlight></codeline>
+<codeline lineno="713"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="714"><highlight class="normal"></highlight></codeline>
+<codeline lineno="716"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="717"><highlight class="normal">vy_log_prepare_run(int64_t<sp/>lsm_id,<sp/>int64_t<sp/><ref refid="structvy__log__record_1ab65c84bd1ce848e8e30fea1f1bb89086" kindref="member">run_id</ref>)</highlight></codeline>
+<codeline lineno="718"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="719"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__log__record" kindref="compound">vy_log_record</ref><sp/>record;</highlight></codeline>
+<codeline lineno="720"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_record_init(&amp;record);</highlight></codeline>
+<codeline lineno="721"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1ab758edcdff3bc2cd35ae521cb5381724" kindref="member">type</ref><sp/>=<sp/>VY_LOG_PREPARE_RUN;</highlight></codeline>
+<codeline lineno="722"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">lsm_id</ref><sp/>=<sp/><ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">lsm_id</ref>;</highlight></codeline>
+<codeline lineno="723"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1ab65c84bd1ce848e8e30fea1f1bb89086" kindref="member">run_id</ref><sp/>=<sp/><ref refid="structvy__log__record_1ab65c84bd1ce848e8e30fea1f1bb89086" kindref="member">run_id</ref>;</highlight></codeline>
+<codeline lineno="724"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_write(&amp;record);</highlight></codeline>
+<codeline lineno="725"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="726"><highlight class="normal"></highlight></codeline>
+<codeline lineno="728"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="729"><highlight class="normal">vy_log_create_run(int64_t<sp/>lsm_id,<sp/>int64_t<sp/>run_id,</highlight></codeline>
+<codeline lineno="730"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/><ref refid="structvy__log__record_1aa4602fb777f79bfb22fe13b5a6dc61fc" kindref="member">dump_lsn</ref>,<sp/>uint32_t<sp/><ref refid="structvy__log__record_1aa9bf8b5d48ba52e86f403eee80410a5e" kindref="member">dump_count</ref>)</highlight></codeline>
+<codeline lineno="731"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="732"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__log__record" kindref="compound">vy_log_record</ref><sp/>record;</highlight></codeline>
+<codeline lineno="733"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_record_init(&amp;record);</highlight></codeline>
+<codeline lineno="734"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1ab758edcdff3bc2cd35ae521cb5381724" kindref="member">type</ref><sp/>=<sp/>VY_LOG_CREATE_RUN;</highlight></codeline>
+<codeline lineno="735"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">lsm_id</ref><sp/>=<sp/><ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">lsm_id</ref>;</highlight></codeline>
+<codeline lineno="736"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1ab65c84bd1ce848e8e30fea1f1bb89086" kindref="member">run_id</ref><sp/>=<sp/><ref refid="structvy__log__record_1ab65c84bd1ce848e8e30fea1f1bb89086" kindref="member">run_id</ref>;</highlight></codeline>
+<codeline lineno="737"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1aa4602fb777f79bfb22fe13b5a6dc61fc" kindref="member">dump_lsn</ref><sp/>=<sp/><ref refid="structvy__log__record_1aa4602fb777f79bfb22fe13b5a6dc61fc" kindref="member">dump_lsn</ref>;</highlight></codeline>
+<codeline lineno="738"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1aa9bf8b5d48ba52e86f403eee80410a5e" kindref="member">dump_count</ref><sp/>=<sp/><ref refid="structvy__log__record_1aa9bf8b5d48ba52e86f403eee80410a5e" kindref="member">dump_count</ref>;</highlight></codeline>
+<codeline lineno="739"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_write(&amp;record);</highlight></codeline>
+<codeline lineno="740"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="741"><highlight class="normal"></highlight></codeline>
+<codeline lineno="743"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="744"><highlight class="normal">vy_log_drop_run(int64_t<sp/>run_id,<sp/>int64_t<sp/><ref refid="structvy__log__record_1a9e4f542c86930c571bd6d572f6601c17" kindref="member">gc_lsn</ref>)</highlight></codeline>
+<codeline lineno="745"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="746"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__log__record" kindref="compound">vy_log_record</ref><sp/>record;</highlight></codeline>
+<codeline lineno="747"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_record_init(&amp;record);</highlight></codeline>
+<codeline lineno="748"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1ab758edcdff3bc2cd35ae521cb5381724" kindref="member">type</ref><sp/>=<sp/>VY_LOG_DROP_RUN;</highlight></codeline>
+<codeline lineno="749"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1ab65c84bd1ce848e8e30fea1f1bb89086" kindref="member">run_id</ref><sp/>=<sp/><ref refid="structvy__log__record_1ab65c84bd1ce848e8e30fea1f1bb89086" kindref="member">run_id</ref>;</highlight></codeline>
+<codeline lineno="750"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1a9e4f542c86930c571bd6d572f6601c17" kindref="member">gc_lsn</ref><sp/>=<sp/><ref refid="structvy__log__record_1a9e4f542c86930c571bd6d572f6601c17" kindref="member">gc_lsn</ref>;</highlight></codeline>
+<codeline lineno="751"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_write(&amp;record);</highlight></codeline>
+<codeline lineno="752"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="753"><highlight class="normal"></highlight></codeline>
+<codeline lineno="755"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="756"><highlight class="normal">vy_log_forget_run(int64_t<sp/>run_id)</highlight></codeline>
+<codeline lineno="757"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="758"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__log__record" kindref="compound">vy_log_record</ref><sp/>record;</highlight></codeline>
+<codeline lineno="759"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_record_init(&amp;record);</highlight></codeline>
+<codeline lineno="760"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1ab758edcdff3bc2cd35ae521cb5381724" kindref="member">type</ref><sp/>=<sp/>VY_LOG_FORGET_RUN;</highlight></codeline>
+<codeline lineno="761"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1ab65c84bd1ce848e8e30fea1f1bb89086" kindref="member">run_id</ref><sp/>=<sp/><ref refid="structvy__log__record_1ab65c84bd1ce848e8e30fea1f1bb89086" kindref="member">run_id</ref>;</highlight></codeline>
+<codeline lineno="762"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_write(&amp;record);</highlight></codeline>
+<codeline lineno="763"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="764"><highlight class="normal"></highlight></codeline>
+<codeline lineno="766"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="767"><highlight class="normal">vy_log_insert_slice(int64_t<sp/>range_id,<sp/>int64_t<sp/>run_id,<sp/>int64_t<sp/><ref refid="structvy__log__record_1aa429cdc5da53c047fb573e01a59ebe5d" kindref="member">slice_id</ref>,</highlight></codeline>
+<codeline lineno="768"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*begin,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*end)</highlight></codeline>
+<codeline lineno="769"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="770"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__log__record" kindref="compound">vy_log_record</ref><sp/>record;</highlight></codeline>
+<codeline lineno="771"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_record_init(&amp;record);</highlight></codeline>
+<codeline lineno="772"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1ab758edcdff3bc2cd35ae521cb5381724" kindref="member">type</ref><sp/>=<sp/>VY_LOG_INSERT_SLICE;</highlight></codeline>
+<codeline lineno="773"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1af2e7dca36fe2bb6524fb937f3081d4fe" kindref="member">range_id</ref><sp/>=<sp/><ref refid="structvy__log__record_1af2e7dca36fe2bb6524fb937f3081d4fe" kindref="member">range_id</ref>;</highlight></codeline>
+<codeline lineno="774"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1ab65c84bd1ce848e8e30fea1f1bb89086" kindref="member">run_id</ref><sp/>=<sp/><ref refid="structvy__log__record_1ab65c84bd1ce848e8e30fea1f1bb89086" kindref="member">run_id</ref>;</highlight></codeline>
+<codeline lineno="775"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1aa429cdc5da53c047fb573e01a59ebe5d" kindref="member">slice_id</ref><sp/>=<sp/><ref refid="structvy__log__record_1aa429cdc5da53c047fb573e01a59ebe5d" kindref="member">slice_id</ref>;</highlight></codeline>
+<codeline lineno="776"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1a16c6bc62ebb8246a3bce3e40e166d43d" kindref="member">begin</ref><sp/>=<sp/><ref refid="structvy__log__record_1a16c6bc62ebb8246a3bce3e40e166d43d" kindref="member">begin</ref>;</highlight></codeline>
+<codeline lineno="777"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1a558d352e731f10ac937b0123a4dfe8e0" kindref="member">end</ref><sp/>=<sp/><ref refid="structvy__log__record_1a558d352e731f10ac937b0123a4dfe8e0" kindref="member">end</ref>;</highlight></codeline>
+<codeline lineno="778"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_write(&amp;record);</highlight></codeline>
+<codeline lineno="779"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="780"><highlight class="normal"></highlight></codeline>
+<codeline lineno="782"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="783"><highlight class="normal">vy_log_delete_slice(int64_t<sp/>slice_id)</highlight></codeline>
+<codeline lineno="784"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="785"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__log__record" kindref="compound">vy_log_record</ref><sp/>record;</highlight></codeline>
+<codeline lineno="786"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_record_init(&amp;record);</highlight></codeline>
+<codeline lineno="787"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1ab758edcdff3bc2cd35ae521cb5381724" kindref="member">type</ref><sp/>=<sp/>VY_LOG_DELETE_SLICE;</highlight></codeline>
+<codeline lineno="788"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1aa429cdc5da53c047fb573e01a59ebe5d" kindref="member">slice_id</ref><sp/>=<sp/><ref refid="structvy__log__record_1aa429cdc5da53c047fb573e01a59ebe5d" kindref="member">slice_id</ref>;</highlight></codeline>
+<codeline lineno="789"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_write(&amp;record);</highlight></codeline>
+<codeline lineno="790"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="791"><highlight class="normal"></highlight></codeline>
+<codeline lineno="793"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="794"><highlight class="normal">vy_log_dump_lsm(int64_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">,<sp/>int64_t<sp/>dump_lsn)</highlight></codeline>
+<codeline lineno="795"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="796"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structvy__log__record" kindref="compound">vy_log_record</ref><sp/>record;</highlight></codeline>
+<codeline lineno="797"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_record_init(&amp;record);</highlight></codeline>
+<codeline lineno="798"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1ab758edcdff3bc2cd35ae521cb5381724" kindref="member">type</ref><sp/>=<sp/>VY_LOG_DUMP_LSM;</highlight></codeline>
+<codeline lineno="799"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1af872686c47b6215a7b61cb7b4f7f7346" kindref="member">lsm_id</ref><sp/>=<sp/>id;</highlight></codeline>
+<codeline lineno="800"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>record.<ref refid="structvy__log__record_1aa4602fb777f79bfb22fe13b5a6dc61fc" kindref="member">dump_lsn</ref><sp/>=<sp/><ref refid="structvy__log__record_1aa4602fb777f79bfb22fe13b5a6dc61fc" kindref="member">dump_lsn</ref>;</highlight></codeline>
+<codeline lineno="801"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vy_log_write(&amp;record);</highlight></codeline>
+<codeline lineno="802"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="803"><highlight class="normal"></highlight></codeline>
+<codeline lineno="804"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="805"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="806"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="807"><highlight class="normal"></highlight></codeline>
+<codeline lineno="808"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>INCLUDES_TARANTOOL_BOX_VY_LOG_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/box/vy_log.h"/>
+  </compounddef>
+</doxygen>

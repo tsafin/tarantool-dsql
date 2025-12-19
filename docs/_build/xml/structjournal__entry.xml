@@ -1,0 +1,140 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structjournal__entry" kind="struct" language="C++" prot="public">
+    <compoundname>journal_entry</compoundname>
+    <includes local="no">journal.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structjournal__entry_1a148b5b2cd7d3927e579042dd9524aab1" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structstailq__entry" kindref="compound">stailq_entry</ref></type>
+        <definition>struct stailq_entry journal_entry::fifo</definition>
+        <argsstring></argsstring>
+        <name>fifo</name>
+        <briefdescription>
+<para>A helper to include requests into a FIFO queue. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/journal.h" line="204" column="1" bodyfile="/home/tsafin/tarantool/src/box/journal.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structjournal__entry_1ad46b075e2e0fd64a9762560769c64a0e" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t journal_entry::res</definition>
+        <argsstring></argsstring>
+        <name>res</name>
+        <briefdescription>
+<para>On success, contains vclock signature of the committed transaction, on error is -1. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/journal.h" line="61" column="1" bodyfile="/home/tsafin/tarantool/src/box/journal.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structjournal__entry_1a6fab96ea8ba7243b58a2a5afacab551b" prot="public" static="no" mutable="no">
+        <type>void *</type>
+        <definition>void* journal_entry::complete_data</definition>
+        <argsstring></argsstring>
+        <name>complete_data</name>
+        <briefdescription>
+<para>A journal entry completion callback argument. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/journal.h" line="65" column="1" bodyfile="/home/tsafin/tarantool/src/box/journal.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structjournal__entry_1adff94ba75ab69f9d08e98acd27678942" prot="public" static="no" mutable="no">
+        <type>journal_write_async_f</type>
+        <definition>journal_write_async_f journal_entry::write_async_cb</definition>
+        <argsstring></argsstring>
+        <name>write_async_cb</name>
+        <briefdescription>
+<para>Asynchronous write completion function. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/journal.h" line="69" column="1" bodyfile="/home/tsafin/tarantool/src/box/journal.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structjournal__entry_1a433b18e9497a9b42d9253429e142fe96" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t journal_entry::approx_len</definition>
+        <argsstring></argsstring>
+        <name>approx_len</name>
+        <briefdescription>
+<para>Approximate size of this request when encoded. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/journal.h" line="73" column="1" bodyfile="/home/tsafin/tarantool/src/box/journal.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structjournal__entry_1ac7aff54a1e5aecb3bb721070851513e8" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int journal_entry::n_rows</definition>
+        <argsstring></argsstring>
+        <name>n_rows</name>
+        <briefdescription>
+<para>The number of rows in the request. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/journal.h" line="77" column="1" bodyfile="/home/tsafin/tarantool/src/box/journal.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structjournal__entry_1a49d4f3067184c4b8ad78bad64d32118a" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structxrow__header" kindref="compound">xrow_header</ref> *</type>
+        <definition>struct xrow_header* journal_entry::rows[]</definition>
+        <argsstring>[]</argsstring>
+        <name>rows</name>
+        <briefdescription>
+<para>The rows. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/journal.h" line="81" column="1" bodyfile="/home/tsafin/tarantool/src/box/journal.h" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>An entry for an abstract journal. </para>    </briefdescription>
+    <detaileddescription>
+<para>Simply put, a write ahead log request.</para><para>In case of synchronous replication, this request will travel first to a Raft leader before going to the local WAL. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="4664">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="4664" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="4663">
+        <label>journal_entry</label>
+        <link refid="structjournal__entry"/>
+        <childnode refid="4664" relation="usage">
+          <edgelabel>fifo</edgelabel>
+        </childnode>
+        <childnode refid="4663" relation="usage">
+          <edgelabel>write_async_cb</edgelabel>
+        </childnode>
+        <childnode refid="4665" relation="usage">
+          <edgelabel>rows</edgelabel>
+        </childnode>
+      </node>
+      <node id="4665">
+        <label>xrow_header</label>
+        <link refid="structxrow__header"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/journal.h" line="54" column="1" bodyfile="/home/tsafin/tarantool/src/box/journal.h" bodystart="54" bodyend="82"/>
+    <listofallmembers>
+      <member refid="structjournal__entry_1a433b18e9497a9b42d9253429e142fe96" prot="public" virt="non-virtual"><scope>journal_entry</scope><name>approx_len</name></member>
+      <member refid="structjournal__entry_1a6fab96ea8ba7243b58a2a5afacab551b" prot="public" virt="non-virtual"><scope>journal_entry</scope><name>complete_data</name></member>
+      <member refid="structjournal__entry_1a148b5b2cd7d3927e579042dd9524aab1" prot="public" virt="non-virtual"><scope>journal_entry</scope><name>fifo</name></member>
+      <member refid="structjournal__entry_1ac7aff54a1e5aecb3bb721070851513e8" prot="public" virt="non-virtual"><scope>journal_entry</scope><name>n_rows</name></member>
+      <member refid="structjournal__entry_1ad46b075e2e0fd64a9762560769c64a0e" prot="public" virt="non-virtual"><scope>journal_entry</scope><name>res</name></member>
+      <member refid="structjournal__entry_1a49d4f3067184c4b8ad78bad64d32118a" prot="public" virt="non-virtual"><scope>journal_entry</scope><name>rows</name></member>
+      <member refid="structjournal__entry_1adff94ba75ab69f9d08e98acd27678942" prot="public" virt="non-virtual"><scope>journal_entry</scope><name>write_async_cb</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

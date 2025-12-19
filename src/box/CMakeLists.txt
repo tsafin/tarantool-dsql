@@ -143,6 +143,7 @@ set(sql_sources
     sql/vdbe_ops_index.c
     sql/vdbe_ops_modify.c
     sql/vdbe_ops_inline_simple.c
+    sql/vdbe_ops_inline_medium_1.c
     sql/vdbe_dispatch_validate.c
     sql/vdbe_dispatch_wrapper.c
     sql/vdbe_helpers.c

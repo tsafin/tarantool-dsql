@@ -1,0 +1,203 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structerror" kind="struct" language="C++" prot="public">
+    <compoundname>error</compoundname>
+    <includes local="no">diag.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structerror_1a84449498a90b34c2df96e4c18b381246" prot="public" static="no" mutable="no">
+        <type>error_f</type>
+        <definition>error_f error::destroy</definition>
+        <argsstring></argsstring>
+        <name>destroy</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="70" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="70" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structerror_1a6d7431913bf5e804eb28b472974c7729" prot="public" static="no" mutable="no">
+        <type>error_f</type>
+        <definition>error_f error::raise</definition>
+        <argsstring></argsstring>
+        <name>raise</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="71" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structerror_1af8afaa2dc0fb3e71f67de45120a1d292" prot="public" static="no" mutable="no">
+        <type>error_f</type>
+        <definition>error_f error::log</definition>
+        <argsstring></argsstring>
+        <name>log</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="72" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structerror_1a65ba2aa6221e98317973ec396e0abb4d" prot="public" static="no" mutable="no">
+        <type>const struct <ref refid="structtype__info" kindref="compound">type_info</ref> *</type>
+        <definition>const struct type_info* error::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="73" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structerror_1a319af5bba5317dc3e56b9f461c2d7310" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t error::refs</definition>
+        <argsstring></argsstring>
+        <name>refs</name>
+        <briefdescription>
+<para>Reference counting is basically required since instances of this structure are available in Lua as well (as cdata with overloaded fields and methods by the means of introspection). </para>        </briefdescription>
+        <detaileddescription>
+<para>Thus, it may turn out that Lua&apos;s GC attempts at releasing object meanwhile it is still used in C internals or vice versa. For details see luaT_pusherror(). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="83" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structerror_1a17ae8a6c5dee9a7aa850f2a5812f8f04" prot="public" static="no" mutable="no">
+        <type>int</type>
+        <definition>int error::saved_errno</definition>
+        <argsstring></argsstring>
+        <name>saved_errno</name>
+        <briefdescription>
+<para>Errno at the moment of the error creation. </para>        </briefdescription>
+        <detaileddescription>
+<para>If the error is not related to the standard library, then it is 0. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="89" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structerror_1a7807cfe98b57d74e45e71fea9f0b35e0" prot="public" static="no" mutable="no">
+        <type>unsigned</type>
+        <definition>unsigned error::line</definition>
+        <argsstring></argsstring>
+        <name>line</name>
+        <briefdescription>
+<para>Line number. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="91" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structerror_1a37a41fe17645c10d1163a5371b9efada" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char error::file[DIAG_FILENAME_MAX]</definition>
+        <argsstring>[DIAG_FILENAME_MAX]</argsstring>
+        <name>file</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="93" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structerror_1ad756f52fce8a253f1d107ae96b5e2fbe" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char error::errmsg[DIAG_ERRMSG_MAX]</definition>
+        <argsstring>[DIAG_ERRMSG_MAX]</argsstring>
+        <name>errmsg</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="95" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structerror_1a309e0f9558c08b1371d33cc1b6804cc0" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+        <definition>struct error* error::cause</definition>
+        <argsstring></argsstring>
+        <name>cause</name>
+        <briefdescription>
+<para>Link to the cause and effect of given error. </para>        </briefdescription>
+        <detaileddescription>
+<para>The cause creates the effect: e1 = box.error.new({code = 0, reason = &apos;e1&apos;}) e2 = box.error.new({code = 0, reason = &apos;e2&apos;}) e1:set_prev(e2) <ndash/> Now e2 is the cause of e1 and e1 is the effect of e2. Only cause keeps reference to avoid cyclic dependence. RLIST implementation is not really suitable here since it is organized as circular list. In such a case it is impossible to start an iteration from any node and finish at the logical end of the list. Double-linked list is required to allow deletion from the middle of the list. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="111" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structerror_1a33b891628cf821f0520084662a307ece" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structerror" kindref="compound">error</ref> *</type>
+        <definition>struct error* error::effect</definition>
+        <argsstring></argsstring>
+        <name>effect</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="112" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Error diagnostics needs to be equally usable in C and C++ code. </para>    </briefdescription>
+    <detaileddescription>
+<para>This is why there is a common infrastructure for errors.</para><para>Any error or warning or note is represented by an instance of struct error.</para><para>struct error has the most common members, but more importantly it has a type descriptor, which makes it possible to work with C++ exceptions and extra members via reflection, in pure C.</para><para>(destroy) is there to gracefully delete C++ exceptions from C. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="2987">
+        <label>type_info</label>
+        <link refid="structtype__info"/>
+        <childnode refid="2988" relation="usage">
+          <edgelabel>methods</edgelabel>
+        </childnode>
+        <childnode refid="2987" relation="usage">
+          <edgelabel>parent</edgelabel>
+        </childnode>
+      </node>
+      <node id="2986">
+        <label>error</label>
+        <link refid="structerror"/>
+        <childnode refid="2987" relation="usage">
+          <edgelabel>type</edgelabel>
+        </childnode>
+        <childnode refid="2986" relation="usage">
+          <edgelabel>effect</edgelabel>
+          <edgelabel>cause</edgelabel>
+          <edgelabel>raise</edgelabel>
+          <edgelabel>log</edgelabel>
+          <edgelabel>destroy</edgelabel>
+        </childnode>
+      </node>
+      <node id="2988">
+        <label>method_info</label>
+        <link refid="structmethod__info"/>
+        <childnode refid="2987" relation="usage">
+          <edgelabel>owner</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/core/diag.h" line="69" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/diag.h" bodystart="69" bodyend="113"/>
+    <listofallmembers>
+      <member refid="structerror_1a309e0f9558c08b1371d33cc1b6804cc0" prot="public" virt="non-virtual"><scope>error</scope><name>cause</name></member>
+      <member refid="structerror_1a84449498a90b34c2df96e4c18b381246" prot="public" virt="non-virtual"><scope>error</scope><name>destroy</name></member>
+      <member refid="structerror_1a33b891628cf821f0520084662a307ece" prot="public" virt="non-virtual"><scope>error</scope><name>effect</name></member>
+      <member refid="structerror_1ad756f52fce8a253f1d107ae96b5e2fbe" prot="public" virt="non-virtual"><scope>error</scope><name>errmsg</name></member>
+      <member refid="structerror_1a37a41fe17645c10d1163a5371b9efada" prot="public" virt="non-virtual"><scope>error</scope><name>file</name></member>
+      <member refid="structerror_1a7807cfe98b57d74e45e71fea9f0b35e0" prot="public" virt="non-virtual"><scope>error</scope><name>line</name></member>
+      <member refid="structerror_1af8afaa2dc0fb3e71f67de45120a1d292" prot="public" virt="non-virtual"><scope>error</scope><name>log</name></member>
+      <member refid="structerror_1a6d7431913bf5e804eb28b472974c7729" prot="public" virt="non-virtual"><scope>error</scope><name>raise</name></member>
+      <member refid="structerror_1a319af5bba5317dc3e56b9f461c2d7310" prot="public" virt="non-virtual"><scope>error</scope><name>refs</name></member>
+      <member refid="structerror_1a17ae8a6c5dee9a7aa850f2a5812f8f04" prot="public" virt="non-virtual"><scope>error</scope><name>saved_errno</name></member>
+      <member refid="structerror_1a65ba2aa6221e98317973ec396e0abb4d" prot="public" virt="non-virtual"><scope>error</scope><name>type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

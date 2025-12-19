@@ -1,0 +1,120 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structlsregion" kind="struct" language="C++" prot="public">
+    <compoundname>lsregion</compoundname>
+    <includes local="no">lsregion.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structlsregion_1aee1d705da7a4b99677cae19456c98f0b" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structslab__list" kindref="compound">slab_list</ref></type>
+        <definition>struct slab_list lsregion::slabs</definition>
+        <argsstring></argsstring>
+        <name>slabs</name>
+        <briefdescription>
+<para>List of memory slabs and the statistics. </para>        </briefdescription>
+        <detaileddescription>
+<para>The older a slab is, the closer it is placed to front of the list. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" line="67" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlsregion_1a09bcca8421a1b012851cfc8c3687e93c" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structslab__arena" kindref="compound">slab_arena</ref> *</type>
+        <definition>struct slab_arena* lsregion::arena</definition>
+        <argsstring></argsstring>
+        <name>arena</name>
+        <briefdescription>
+<para>Slabs arena - source for memory slabs. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" line="97" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structlsregion_1acc99f992609de32c4584a1afc61cb019" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structlslab" kindref="compound">lslab</ref> *</type>
+        <definition>struct lslab* lsregion::cached</definition>
+        <argsstring></argsstring>
+        <name>cached</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" line="98" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Log structured allocator treats memory as a sequentially written log. </para>    </briefdescription>
+    <detaileddescription>
+<para>It allows to allocate memory chunks of any size, but does not support free() of an individual chunk. Instead, each chunk, when allocated, needs to be identified with an id. It is assumed that ids are nondecreasing. The chunks are stored in equally-sized slabs, obtained from slab arena. To free memory, the allocator requires an oldest id before which all memory could be discarded. Upon free, it returns all slabs containing chunks with smaller ids to the slab arena.</para><para>id_i &lt;= id_(i + 1) *----<mdash/>* *----<mdash/>* *----<mdash/>* *----<mdash/>* | slab |<ndash/>&gt;| slab |<ndash/>&gt;| slab |<ndash/>&gt; <ndash/>&gt;| slab | *----<mdash/>* *----<mdash/>* *----<mdash/>* *----<mdash/>* &lt;= id1 &lt;= id2 | &lt;= id3 &lt;= idN | truncate with id in [id2, id3) deletes from this position. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="4811">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="4807">
+        <label>lsregion</label>
+        <link refid="structlsregion"/>
+        <childnode refid="4808" relation="usage">
+          <edgelabel>cached</edgelabel>
+        </childnode>
+        <childnode refid="4810" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="4812" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="4809">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="4809" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="4810">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="4811" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="4809" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="4813">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="4808">
+        <label>lslab</label>
+        <link refid="structlslab"/>
+        <childnode refid="4809" relation="usage">
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+      <node id="4814">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="4812">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="4813" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="4814" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" line="90" column="1" bodyfile="/home/tsafin/tarantool/src/lib/small/small/lsregion.h" bodystart="90" bodyend="99"/>
+    <listofallmembers>
+      <member refid="structlsregion_1a09bcca8421a1b012851cfc8c3687e93c" prot="public" virt="non-virtual"><scope>lsregion</scope><name>arena</name></member>
+      <member refid="structlsregion_1acc99f992609de32c4584a1afc61cb019" prot="public" virt="non-virtual"><scope>lsregion</scope><name>cached</name></member>
+      <member refid="structlsregion_1aee1d705da7a4b99677cae19456c98f0b" prot="public" virt="non-virtual"><scope>lsregion</scope><name>slabs</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

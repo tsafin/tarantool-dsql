@@ -1,0 +1,161 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structhasher__signature" kind="struct" language="C++" prot="public">
+    <compoundname>hasher_signature</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structhasher__signature_1a7fff814fe09e7005dd9c0543b0302f47" prot="public" static="no" mutable="no">
+        <type>key_hash_t</type>
+        <definition>key_hash_t hasher_signature::kf</definition>
+        <argsstring></argsstring>
+        <name>kf</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_hash.cc" line="193" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_hash.cc" bodystart="193" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhasher__signature_1a90fd8bf18573b49f44dda9f4e731a21b" prot="public" static="no" mutable="no">
+        <type>tuple_hash_t</type>
+        <definition>tuple_hash_t hasher_signature::tf</definition>
+        <argsstring></argsstring>
+        <name>tf</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_hash.cc" line="194" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_hash.cc" bodystart="194" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structhasher__signature_1a45ed6fbfedfa5afd9829811f6b6c5cdb" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t hasher_signature::p[64]</definition>
+        <argsstring>[64]</argsstring>
+        <name>p</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/tuple_hash.cc" line="195" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_hash.cc" bodystart="195" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="4041">
+        <label>key_part</label>
+        <link refid="structkey__part"/>
+        <childnode refid="4042" relation="usage">
+          <edgelabel>coll</edgelabel>
+        </childnode>
+      </node>
+      <node id="4035">
+        <label>access</label>
+        <link refid="structaccess"/>
+      </node>
+      <node id="4031">
+        <label>hasher_signature</label>
+        <link refid="structhasher__signature"/>
+        <childnode refid="4032" relation="usage">
+          <edgelabel>tf</edgelabel>
+        </childnode>
+        <childnode refid="4033" relation="usage">
+          <edgelabel>kf</edgelabel>
+        </childnode>
+      </node>
+      <node id="4039">
+        <label>credentials</label>
+        <link refid="structcredentials"/>
+        <childnode refid="4040" relation="usage">
+          <edgelabel>in_user</edgelabel>
+        </childnode>
+      </node>
+      <node id="4040">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="4040" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="4033">
+        <label>key_def</label>
+        <link refid="structkey__def"/>
+        <childnode refid="4032" relation="usage">
+          <edgelabel>tuple_hash</edgelabel>
+          <edgelabel>tuple_compare_with_key</edgelabel>
+          <edgelabel>tuple_compare</edgelabel>
+          <edgelabel>tuple_hint</edgelabel>
+          <edgelabel>tuple_extract_key</edgelabel>
+        </childnode>
+        <childnode refid="4033" relation="usage">
+          <edgelabel>key_hash</edgelabel>
+          <edgelabel>tuple_extract_key_raw</edgelabel>
+          <edgelabel>key_hint</edgelabel>
+        </childnode>
+        <childnode refid="4034" relation="usage">
+          <edgelabel>func_index_func</edgelabel>
+        </childnode>
+        <childnode refid="4041" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="4032">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="4034">
+        <label>func</label>
+        <link refid="structfunc"/>
+        <childnode refid="4035" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="4036" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="4037" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="4039" relation="usage">
+          <edgelabel>owner_credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="4036">
+        <label>func_vtab</label>
+        <link refid="structfunc__vtab"/>
+      </node>
+      <node id="4038">
+        <label>func_opts</label>
+        <link refid="structfunc__opts"/>
+      </node>
+      <node id="4037">
+        <label>func_def</label>
+        <link refid="structfunc__def"/>
+        <childnode refid="4038" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="4042">
+        <label>coll</label>
+        <link refid="structcoll"/>
+        <childnode refid="4042" relation="usage">
+          <edgelabel>cmp</edgelabel>
+          <edgelabel>hint</edgelabel>
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/tuple_hash.cc" line="192" column="1" bodyfile="/home/tsafin/tarantool/src/box/tuple_hash.cc" bodystart="192" bodyend="196"/>
+    <listofallmembers>
+      <member refid="structhasher__signature_1a7fff814fe09e7005dd9c0543b0302f47" prot="public" virt="non-virtual"><scope>hasher_signature</scope><name>kf</name></member>
+      <member refid="structhasher__signature_1a45ed6fbfedfa5afd9829811f6b6c5cdb" prot="public" virt="non-virtual"><scope>hasher_signature</scope><name>p</name></member>
+      <member refid="structhasher__signature_1a90fd8bf18573b49f44dda9f4e731a21b" prot="public" virt="non-virtual"><scope>hasher_signature</scope><name>tf</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

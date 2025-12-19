@@ -1,0 +1,145 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvy__run__recovery__info" kind="struct" language="C++" prot="public">
+    <compoundname>vy_run_recovery_info</compoundname>
+    <includes local="no">vy_log.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvy__run__recovery__info_1af176d3673b3a180f5ee1fb8f73fce37c" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist vy_run_recovery_info::in_lsm</definition>
+        <argsstring></argsstring>
+        <name>in_lsm</name>
+        <briefdescription>
+<para>Link in <ref refid="structvy__lsm__recovery__info_1ab3ba7b13f8d8e89334b2248526d58d27" kindref="member">vy_lsm_recovery_info::runs</ref>. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="381" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="394" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__recovery__info_1a78ef16affbcb3701cbdb218a3bd7cc1b" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t vy_run_recovery_info::id</definition>
+        <argsstring></argsstring>
+        <name>id</name>
+        <briefdescription>
+<para>ID of the run. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="396" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="396" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__recovery__info_1a60a31e77095eb8ae1c25e0165b337a4c" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t vy_run_recovery_info::dump_lsn</definition>
+        <argsstring></argsstring>
+        <name>dump_lsn</name>
+        <briefdescription>
+<para>Max LSN stored on disk. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="398" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="398" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__recovery__info_1adeed4b87589f8ef9b3690f97b7c96336" prot="public" static="no" mutable="no">
+        <type>int64_t</type>
+        <definition>int64_t vy_run_recovery_info::gc_lsn</definition>
+        <argsstring></argsstring>
+        <name>gc_lsn</name>
+        <briefdescription>
+<para>For deleted runs: LSN of the last checkpoint that uses this run. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="403" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="403" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__recovery__info_1ac9be4f6df8b85400dca0f7c3e9665652" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t vy_run_recovery_info::dump_count</definition>
+        <argsstring></argsstring>
+        <name>dump_count</name>
+        <briefdescription>
+<para>Number of dumps it took to create the run. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="405" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="405" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__recovery__info_1a863711e24daa2118af073f58f25dfa8c" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool vy_run_recovery_info::is_incomplete</definition>
+        <argsstring></argsstring>
+        <name>is_incomplete</name>
+        <briefdescription>
+<para>True if the run was not committed (there&apos;s VY_LOG_PREPARE_RUN, but no VY_LOG_CREATE_RUN). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="410" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="410" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__recovery__info_1a562dca28e1ece910aa046c063438e707" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool vy_run_recovery_info::is_dropped</definition>
+        <argsstring></argsstring>
+        <name>is_dropped</name>
+        <briefdescription>
+<para>True if the run was dropped (VY_LOG_DROP_RUN). </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="412" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="412" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__run__recovery__info_1ae8667e6fa4af96e68e0d59c105a7862f" prot="public" static="no" mutable="no">
+        <type>void *</type>
+        <definition>void* vy_run_recovery_info::data</definition>
+        <argsstring></argsstring>
+        <name>data</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="421" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="421" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Run info stored in a recovery context. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="14456">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="14456" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="14455">
+        <label>vy_run_recovery_info</label>
+        <link refid="structvy__run__recovery__info"/>
+        <childnode refid="14456" relation="usage">
+          <edgelabel>in_lsm</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/vy_log.h" line="392" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_log.h" bodystart="392" bodyend="422"/>
+    <listofallmembers>
+      <member refid="structvy__run__recovery__info_1ae8667e6fa4af96e68e0d59c105a7862f" prot="public" virt="non-virtual"><scope>vy_run_recovery_info</scope><name>data</name></member>
+      <member refid="structvy__run__recovery__info_1ac9be4f6df8b85400dca0f7c3e9665652" prot="public" virt="non-virtual"><scope>vy_run_recovery_info</scope><name>dump_count</name></member>
+      <member refid="structvy__run__recovery__info_1a60a31e77095eb8ae1c25e0165b337a4c" prot="public" virt="non-virtual"><scope>vy_run_recovery_info</scope><name>dump_lsn</name></member>
+      <member refid="structvy__run__recovery__info_1adeed4b87589f8ef9b3690f97b7c96336" prot="public" virt="non-virtual"><scope>vy_run_recovery_info</scope><name>gc_lsn</name></member>
+      <member refid="structvy__run__recovery__info_1a78ef16affbcb3701cbdb218a3bd7cc1b" prot="public" virt="non-virtual"><scope>vy_run_recovery_info</scope><name>id</name></member>
+      <member refid="structvy__run__recovery__info_1af176d3673b3a180f5ee1fb8f73fce37c" prot="public" virt="non-virtual"><scope>vy_run_recovery_info</scope><name>in_lsm</name></member>
+      <member refid="structvy__run__recovery__info_1a562dca28e1ece910aa046c063438e707" prot="public" virt="non-virtual"><scope>vy_run_recovery_info</scope><name>is_dropped</name></member>
+      <member refid="structvy__run__recovery__info_1a863711e24daa2118af073f58f25dfa8c" prot="public" virt="non-virtual"><scope>vy_run_recovery_info</scope><name>is_incomplete</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

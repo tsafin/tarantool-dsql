@@ -1,0 +1,1057 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structswim" kind="struct" language="C++" prot="public">
+    <compoundname>swim</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structswim_1a3c675e52b0c27be33a0bef6c1adbe947" prot="public" static="no" mutable="no">
+        <type>struct mh_swim_table_t *</type>
+        <definition>struct mh_swim_table_t* swim::members</definition>
+        <argsstring></argsstring>
+        <name>members</name>
+        <briefdescription>
+<para>Global hash of all known members of the cluster. </para>        </briefdescription>
+        <detaileddescription>
+<para><ref refid="structHash" kindref="compound">Hash</ref> key is UUID, value is a struct member, describing a remote instance. Discovered members live here until they are detected as dead - in such a case they are removed from the hash after a while. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="462" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="462" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim_1af07883488d0f185c5cb26cc196a256a0" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structswim__member" kindref="compound">swim_member</ref> *</type>
+        <definition>struct swim_member* swim::self</definition>
+        <argsstring></argsstring>
+        <name>self</name>
+        <briefdescription>
+<para>This node. </para>        </briefdescription>
+        <detaileddescription>
+<para>Is used to not send messages to self, it&apos;s meaningless. Also to refute false gossips about self status. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="468" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="468" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim_1a8d1d70f5c39724a6be2432eb80422b86" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structswim__scheduler" kindref="compound">swim_scheduler</ref></type>
+        <definition>struct swim_scheduler swim::scheduler</definition>
+        <argsstring></argsstring>
+        <name>scheduler</name>
+        <briefdescription>
+<para>Scheduler of output requests, receiver of incoming ones. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="468" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="473" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim_1acb22908a61c858cc85847a2a9eb6b7c3" prot="public" static="no" mutable="no">
+        <type>mh_int_t</type>
+        <definition>mh_int_t swim::iterator</definition>
+        <argsstring></argsstring>
+        <name>iterator</name>
+        <briefdescription>
+<para>An offset of this instance in the hash table. </para>        </briefdescription>
+        <detaileddescription>
+<para>Is used to iterate in the hash table starting from this swim instance. Such iteration is unstable between yields (i.e. member positions may change when the table is resized after an incoming event), but still is useful for a fast non-yielding scan of the member table starting from this instance. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="483" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="483" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim_1a19298d83f985bf155cd7aacfdea347ba" prot="public" static="no" mutable="no">
+        <type><ref refid="structheap__core__structure" kindref="compound">heap_t</ref></type>
+        <definition>heap_t swim::wait_ack_heap</definition>
+        <argsstring></argsstring>
+        <name>wait_ack_heap</name>
+        <briefdescription>
+<para>Failure detection component. </para>        </briefdescription>
+        <detaileddescription>
+<para>A heap of members waiting for an ACK. A member is added to the queue when a ping is sent, and is removed from the queue when an ACK is received or a timeout expires. The heap is sorted by ping deadline in ascending order (bottom is farther in the future, top is closer to now or is in the past). </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="496" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="496" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim_1ac28fc4d6c7019b62d3a14be44bb694cf" prot="public" static="no" mutable="no">
+        <type>struct ev_timer</type>
+        <definition>struct ev_timer swim::wait_ack_tick</definition>
+        <argsstring></argsstring>
+        <name>wait_ack_tick</name>
+        <briefdescription>
+<para>Generator of ack checking events. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="496" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="498" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim_1ae4b06b1711ede91ef845d1dfead30310" prot="public" static="no" mutable="no">
+        <type>enum swim_gc_mode</type>
+        <definition>enum swim_gc_mode swim::gc_mode</definition>
+        <argsstring></argsstring>
+        <name>gc_mode</name>
+        <briefdescription>
+<para>GC state saying how to remove dead members. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="496" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="500" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim_1aba08b130c64dc1c66089b4c9f59fbd86" prot="public" static="no" mutable="no">
+        <type>uint64_t</type>
+        <definition>uint64_t swim::initial_generation</definition>
+        <argsstring></argsstring>
+        <name>initial_generation</name>
+        <briefdescription>
+<para>Generation of that instance is set when the latter is created. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is actual only until the instance is configured. After that the instance can learn a bigger own generation from other members. Despite meaning in fact a wrong usage of SWIM generations, it is still possible. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="509" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="509" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim_1aa8f9bf1f55ea02dc541446aefde7ba03" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist swim::dissemination_queue</definition>
+        <argsstring></argsstring>
+        <name>dissemination_queue</name>
+        <briefdescription>
+<para>Dissemination component. </para>        </briefdescription>
+        <detaileddescription>
+<para>Queue of all members which have dissemination information. A member is added to the queue whenever any of its attributes changes, and stays in the queue as long as the event TTD is non-zero. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="509" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="520" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim_1ab73f224290f30a4693756d0504e36ee6" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structstailq" kindref="compound">stailq</ref></type>
+        <definition>struct stailq swim::event_queue</definition>
+        <argsstring></argsstring>
+        <name>event_queue</name>
+        <briefdescription>
+<para>Queue of updated, new, and dropped members to deliver the events to triggers. </para>        </briefdescription>
+        <detaileddescription>
+<para>Dropped members are also kept here until they are handled by a trigger. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="509" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="526" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim_1a9271c655a3fdf0324fb506a5f76812fa" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist swim::on_member_event</definition>
+        <argsstring></argsstring>
+        <name>on_member_event</name>
+        <briefdescription>
+<para>List of triggers to call on each new, dropped, and updated member. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="509" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="531" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim_1a7da081a633068eb5d87bcbe9065520b5" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist swim::round_queue</definition>
+        <argsstring></argsstring>
+        <name>round_queue</name>
+        <briefdescription>
+<para>Members to which a message should be sent next during this round. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="509" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="536" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim_1a70be9023519e0b42c0725c6375cf231a" prot="public" static="no" mutable="no">
+        <type>struct ev_timer</type>
+        <definition>struct ev_timer swim::round_tick</definition>
+        <argsstring></argsstring>
+        <name>round_tick</name>
+        <briefdescription>
+<para>Generator of round step events. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="509" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="538" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim_1afd97fa80bebf4e418e49810f0a6a2d37" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structswim__member" kindref="compound">swim_member</ref> **</type>
+        <definition>struct swim_member** swim::shuffled</definition>
+        <argsstring></argsstring>
+        <name>shuffled</name>
+        <briefdescription>
+<para>Preallocated buffer to store shuffled members here at the beginning of each round. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="543" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="543" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim_1ac01a5618300d9fcddb8a97ceca65904f" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structfiber" kindref="compound">fiber</ref> *</type>
+        <definition>struct fiber* swim::event_handler</definition>
+        <argsstring></argsstring>
+        <name>event_handler</name>
+        <briefdescription>
+<para>Fiber to serve member event triggers. </para>        </briefdescription>
+        <detaileddescription>
+<para>This task is being done in a separate fiber, because user triggers can yield and libev callbacks, processing member events, are not allowed to yield. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="550" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="550" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structswim_1a909a8bc5893aa8fb6087a0d9e7de72e0" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structswim__task" kindref="compound">swim_task</ref></type>
+        <definition>struct swim_task swim::round_step_task</definition>
+        <argsstring></argsstring>
+        <name>round_step_task</name>
+        <briefdescription>
+<para>Single round step task. </para>        </briefdescription>
+        <detaileddescription>
+<para>It is impossible to have multiple round steps in the same SWIM instance at the same time, so it is single and preallocated per SWIM instance. Note, that the task&apos;s packet once built at the beginning of a round is reused during the round without rebuilding on each step. But packet rebuild can be triggered by any update of any member.</para><para>Keep this structure at the bottom - it is huge and should not split other attributes into different cache lines. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="550" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="564" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>SWIM instance. </para>    </briefdescription>
+    <detaileddescription>
+<para>Stores configuration, manages periodical tasks, rounds. Each member has an object of this type on its host, while on others it is represented as a struct <ref refid="structswim__member" kindref="compound">swim_member</ref> object. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="10394">
+        <label>serializer_opts</label>
+        <link refid="structserializer__opts"/>
+      </node>
+      <node id="10386">
+        <label>small_stats</label>
+        <link refid="structsmall__stats"/>
+      </node>
+      <node id="10379">
+        <label>json_tree</label>
+        <link refid="structjson__tree"/>
+        <childnode refid="10380" relation="usage">
+          <edgelabel>root</edgelabel>
+        </childnode>
+      </node>
+      <node id="10352">
+        <label>ExprList</label>
+        <link refid="structExprList"/>
+        <childnode refid="10353" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="10363">
+        <label>index_stat</label>
+        <link refid="structindex__stat"/>
+        <childnode refid="10364" relation="usage">
+          <edgelabel>samples</edgelabel>
+        </childnode>
+      </node>
+      <node id="10376">
+        <label>iterator</label>
+        <link refid="structiterator"/>
+        <childnode refid="10373" relation="usage">
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="10330">
+        <label>stailq_entry</label>
+        <link refid="structstailq__entry"/>
+        <childnode refid="10330" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="10404">
+        <label>swim_transport</label>
+        <link refid="structswim__transport"/>
+      </node>
+      <node id="10384">
+        <label>region</label>
+        <link refid="structregion"/>
+        <childnode refid="10385" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+        <childnode refid="10387" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="10367">
+        <label>key_part</label>
+        <link refid="structkey__part"/>
+        <childnode refid="10368" relation="usage">
+          <edgelabel>coll</edgelabel>
+        </childnode>
+      </node>
+      <node id="10402">
+        <label>swim_scheduler</label>
+        <link refid="structswim__scheduler"/>
+        <childnode refid="10403" relation="usage">
+          <edgelabel>codec</edgelabel>
+        </childnode>
+        <childnode refid="10331" relation="usage">
+          <edgelabel>queue_output</edgelabel>
+        </childnode>
+        <childnode refid="10402" relation="usage">
+          <edgelabel>on_input</edgelabel>
+        </childnode>
+        <childnode refid="10404" relation="usage">
+          <edgelabel>transport</edgelabel>
+        </childnode>
+      </node>
+      <node id="10364">
+        <label>index_sample</label>
+        <link refid="structindex__sample"/>
+      </node>
+      <node id="10395">
+        <label>session_vtab</label>
+        <link refid="structsession__vtab"/>
+      </node>
+      <node id="10371">
+        <label>TriggerStep</label>
+        <link refid="structTriggerStep"/>
+        <childnode refid="10371" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pLast</edgelabel>
+        </childnode>
+        <childnode refid="10342" relation="usage">
+          <edgelabel>pWhere</edgelabel>
+        </childnode>
+        <childnode refid="10359" relation="usage">
+          <edgelabel>pIdList</edgelabel>
+        </childnode>
+        <childnode refid="10354" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="10352" relation="usage">
+          <edgelabel>pExprList</edgelabel>
+        </childnode>
+      </node>
+      <node id="10397">
+        <label>diag</label>
+        <link refid="structdiag"/>
+      </node>
+      <node id="10380">
+        <label>json_token</label>
+        <link refid="structjson__token"/>
+        <childnode refid="10380" relation="usage">
+          <edgelabel>parent</edgelabel>
+          <edgelabel>children</edgelabel>
+        </childnode>
+      </node>
+      <node id="10391">
+        <label>stailq</label>
+        <link refid="structstailq"/>
+        <childnode refid="10330" relation="usage">
+          <edgelabel>last</edgelabel>
+          <edgelabel>first</edgelabel>
+        </childnode>
+      </node>
+      <node id="10326">
+        <label>swim_member</label>
+        <link refid="structswim__member"/>
+        <childnode refid="10327" relation="usage">
+          <edgelabel>incarnation</edgelabel>
+        </childnode>
+        <childnode refid="10328" relation="usage">
+          <edgelabel>uuid</edgelabel>
+        </childnode>
+        <childnode refid="10329" relation="usage">
+          <edgelabel>in_wait_ack_heap</edgelabel>
+        </childnode>
+        <childnode refid="10330" relation="usage">
+          <edgelabel>in_event_queue</edgelabel>
+        </childnode>
+        <childnode refid="10331" relation="usage">
+          <edgelabel>in_dissemination_queue</edgelabel>
+          <edgelabel>in_round_queue</edgelabel>
+        </childnode>
+        <childnode refid="10332" relation="usage">
+          <edgelabel>ping_task</edgelabel>
+          <edgelabel>ack_task</edgelabel>
+        </childnode>
+      </node>
+      <node id="10347">
+        <label>access</label>
+        <link refid="structaccess"/>
+      </node>
+      <node id="10358">
+        <label>SrcList::SrcList_item</label>
+        <link refid="structSrcList_1_1SrcList__item"/>
+        <childnode refid="10338" relation="usage">
+          <edgelabel>space</edgelabel>
+        </childnode>
+        <childnode refid="10342" relation="usage">
+          <edgelabel>pOn</edgelabel>
+        </childnode>
+        <childnode refid="10359" relation="usage">
+          <edgelabel>pUsing</edgelabel>
+        </childnode>
+        <childnode refid="10361" relation="usage">
+          <edgelabel>pIBIndex</edgelabel>
+        </childnode>
+        <childnode refid="10354" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="10352" relation="usage">
+          <edgelabel>pFuncArg</edgelabel>
+        </childnode>
+      </node>
+      <node id="10356">
+        <label>With::Cte</label>
+        <link refid="structWith_1_1Cte"/>
+        <childnode refid="10354" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="10352" relation="usage">
+          <edgelabel>pCols</edgelabel>
+        </childnode>
+      </node>
+      <node id="10354">
+        <label>Select</label>
+        <link refid="structSelect"/>
+        <childnode refid="10342" relation="usage">
+          <edgelabel>pOffset</edgelabel>
+          <edgelabel>pHaving</edgelabel>
+          <edgelabel>pWhere</edgelabel>
+          <edgelabel>pLimit</edgelabel>
+        </childnode>
+        <childnode refid="10355" relation="usage">
+          <edgelabel>pWith</edgelabel>
+        </childnode>
+        <childnode refid="10354" relation="usage">
+          <edgelabel>pNext</edgelabel>
+          <edgelabel>pPrior</edgelabel>
+        </childnode>
+        <childnode refid="10357" relation="usage">
+          <edgelabel>pSrc</edgelabel>
+        </childnode>
+        <childnode refid="10352" relation="usage">
+          <edgelabel>pEList</edgelabel>
+          <edgelabel>pOrderBy</edgelabel>
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="10351">
+        <label>credentials</label>
+        <link refid="structcredentials"/>
+        <childnode refid="10331" relation="usage">
+          <edgelabel>in_user</edgelabel>
+        </childnode>
+      </node>
+      <node id="10337">
+        <label>engine_vtab</label>
+        <link refid="structengine__vtab"/>
+        <childnode refid="10338" relation="usage">
+          <edgelabel>create_space</edgelabel>
+        </childnode>
+      </node>
+      <node id="10338">
+        <label>space</label>
+        <link refid="structspace"/>
+        <childnode refid="10339" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="10336" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="10370" relation="usage">
+          <edgelabel>sql_triggers</edgelabel>
+        </childnode>
+        <childnode refid="10347" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="10372" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="10377" relation="usage">
+          <edgelabel>format</edgelabel>
+        </childnode>
+        <childnode refid="10381" relation="usage">
+          <edgelabel>ck_constraint_trigger</edgelabel>
+        </childnode>
+        <childnode refid="10331" relation="usage">
+          <edgelabel>before_replace</edgelabel>
+          <edgelabel>on_replace</edgelabel>
+          <edgelabel>child_fk_constraint</edgelabel>
+          <edgelabel>memtx_stories</edgelabel>
+          <edgelabel>parent_fk_constraint</edgelabel>
+          <edgelabel>ck_constraint</edgelabel>
+        </childnode>
+        <childnode refid="10382" relation="usage">
+          <edgelabel>sequence</edgelabel>
+        </childnode>
+        <childnode refid="10373" relation="usage">
+          <edgelabel>index_map</edgelabel>
+          <edgelabel>index</edgelabel>
+        </childnode>
+      </node>
+      <node id="10396">
+        <label>clock_stat</label>
+        <link refid="structclock__stat"/>
+      </node>
+      <node id="10344">
+        <label>AggInfo::AggInfo_col</label>
+        <link refid="structAggInfo_1_1AggInfo__col"/>
+        <childnode refid="10339" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="10342" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="10374">
+        <label>index_vtab</label>
+        <link refid="structindex__vtab"/>
+        <childnode refid="10375" relation="usage">
+          <edgelabel>create_snapshot_iterator</edgelabel>
+        </childnode>
+        <childnode refid="10376" relation="usage">
+          <edgelabel>create_iterator</edgelabel>
+        </childnode>
+      </node>
+      <node id="10340">
+        <label>tuple_dictionary</label>
+        <link refid="structtuple__dictionary"/>
+      </node>
+      <node id="10342">
+        <label>Expr</label>
+        <link refid="structExpr"/>
+        <childnode refid="10339" relation="usage">
+          <edgelabel>space_def</edgelabel>
+        </childnode>
+        <childnode refid="10343" relation="usage">
+          <edgelabel>pAggInfo</edgelabel>
+        </childnode>
+        <childnode refid="10342" relation="usage">
+          <edgelabel>pRight</edgelabel>
+          <edgelabel>pLeft</edgelabel>
+        </childnode>
+        <childnode refid="10354" relation="usage">
+          <edgelabel>pSelect</edgelabel>
+        </childnode>
+        <childnode refid="10352" relation="usage">
+          <edgelabel>pList</edgelabel>
+        </childnode>
+      </node>
+      <node id="10335">
+        <label>txn</label>
+        <link refid="structtxn"/>
+        <childnode refid="10336" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="10330" relation="usage">
+          <edgelabel>in_txn_cache</edgelabel>
+          <edgelabel>sub_stmt_begin</edgelabel>
+        </childnode>
+        <childnode refid="10384" relation="usage">
+          <edgelabel>region</edgelabel>
+        </childnode>
+        <childnode refid="10334" relation="usage">
+          <edgelabel>fiber</edgelabel>
+        </childnode>
+        <childnode refid="10381" relation="usage">
+          <edgelabel>fiber_on_stop</edgelabel>
+          <edgelabel>fiber_on_yield</edgelabel>
+        </childnode>
+        <childnode refid="10331" relation="usage">
+          <edgelabel>on_wal_write</edgelabel>
+          <edgelabel>read_set</edgelabel>
+          <edgelabel>conflict_list</edgelabel>
+          <edgelabel>in_read_view_txs</edgelabel>
+          <edgelabel>savepoints</edgelabel>
+          <edgelabel>conflicted_by_list</edgelabel>
+        </childnode>
+        <childnode refid="10391" relation="usage">
+          <edgelabel>stmts</edgelabel>
+        </childnode>
+      </node>
+      <node id="10343">
+        <label>AggInfo</label>
+        <link refid="structAggInfo"/>
+        <childnode refid="10344" relation="usage">
+          <edgelabel>aCol</edgelabel>
+        </childnode>
+        <childnode refid="10345" relation="usage">
+          <edgelabel>aFunc</edgelabel>
+        </childnode>
+        <childnode refid="10352" relation="usage">
+          <edgelabel>pGroupBy</edgelabel>
+        </childnode>
+      </node>
+      <node id="10403">
+        <label>crypto_codec</label>
+        <link refid="structcrypto__codec"/>
+      </node>
+      <node id="10331">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="10331" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="10375">
+        <label>snapshot_iterator</label>
+        <link refid="structsnapshot__iterator"/>
+      </node>
+      <node id="10385">
+        <label>slab_list</label>
+        <link refid="structslab__list"/>
+        <childnode refid="10386" relation="usage">
+          <edgelabel>stats</edgelabel>
+        </childnode>
+        <childnode refid="10331" relation="usage">
+          <edgelabel>slabs</edgelabel>
+        </childnode>
+      </node>
+      <node id="10357">
+        <label>SrcList</label>
+        <link refid="structSrcList"/>
+        <childnode refid="10358" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="10400">
+        <label>ipc_msg</label>
+        <link refid="structipc__msg"/>
+      </node>
+      <node id="10383">
+        <label>sequence_def</label>
+        <link refid="structsequence__def"/>
+      </node>
+      <node id="10359">
+        <label>IdList</label>
+        <link refid="structIdList"/>
+        <childnode refid="10360" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+      </node>
+      <node id="10373">
+        <label>index</label>
+        <link refid="structindex"/>
+        <childnode refid="10336" relation="usage">
+          <edgelabel>engine</edgelabel>
+        </childnode>
+        <childnode refid="10374" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="10361" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="10382">
+        <label>sequence</label>
+        <link refid="structsequence"/>
+        <childnode refid="10347" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="10383" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+      </node>
+      <node id="10341">
+        <label>field_def</label>
+        <link refid="structfield__def"/>
+        <childnode refid="10342" relation="usage">
+          <edgelabel>default_value_expr</edgelabel>
+        </childnode>
+      </node>
+      <node id="10365">
+        <label>key_def</label>
+        <link refid="structkey__def"/>
+        <childnode refid="10366" relation="usage">
+          <edgelabel>tuple_hash</edgelabel>
+          <edgelabel>tuple_compare_with_key</edgelabel>
+          <edgelabel>tuple_compare</edgelabel>
+          <edgelabel>tuple_hint</edgelabel>
+          <edgelabel>tuple_extract_key</edgelabel>
+        </childnode>
+        <childnode refid="10365" relation="usage">
+          <edgelabel>key_hash</edgelabel>
+          <edgelabel>tuple_extract_key_raw</edgelabel>
+          <edgelabel>key_hint</edgelabel>
+        </childnode>
+        <childnode refid="10346" relation="usage">
+          <edgelabel>func_index_func</edgelabel>
+        </childnode>
+        <childnode refid="10367" relation="usage">
+          <edgelabel>parts</edgelabel>
+        </childnode>
+      </node>
+      <node id="10381">
+        <label>trigger</label>
+        <link refid="structtrigger"/>
+        <childnode refid="10381" relation="usage">
+          <edgelabel>run</edgelabel>
+          <edgelabel>destroy</edgelabel>
+        </childnode>
+        <childnode refid="10331" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="10366">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="10389">
+        <label>quota</label>
+        <link refid="structquota"/>
+      </node>
+      <node id="10361">
+        <label>index_def</label>
+        <link refid="structindex__def"/>
+        <childnode refid="10362" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+        <childnode refid="10365" relation="usage">
+          <edgelabel>key_def</edgelabel>
+          <edgelabel>cmp_def</edgelabel>
+        </childnode>
+        <childnode refid="10331" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="10369">
+        <label>space_opts</label>
+        <link refid="structspace__opts"/>
+      </node>
+      <node id="10329">
+        <label>heap_node</label>
+        <link refid="structheap__node"/>
+      </node>
+      <node id="10346">
+        <label>func</label>
+        <link refid="structfunc"/>
+        <childnode refid="10347" relation="usage">
+          <edgelabel>access</edgelabel>
+        </childnode>
+        <childnode refid="10348" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="10349" relation="usage">
+          <edgelabel>def</edgelabel>
+        </childnode>
+        <childnode refid="10351" relation="usage">
+          <edgelabel>owner_credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="10348">
+        <label>func_vtab</label>
+        <link refid="structfunc__vtab"/>
+      </node>
+      <node id="10370">
+        <label>sql_trigger</label>
+        <link refid="structsql__trigger"/>
+        <childnode refid="10371" relation="usage">
+          <edgelabel>step_list</edgelabel>
+        </childnode>
+        <childnode refid="10342" relation="usage">
+          <edgelabel>pWhen</edgelabel>
+        </childnode>
+        <childnode refid="10370" relation="usage">
+          <edgelabel>next</edgelabel>
+        </childnode>
+        <childnode refid="10359" relation="usage">
+          <edgelabel>pColumns</edgelabel>
+        </childnode>
+      </node>
+      <node id="10401">
+        <label>heap_core_structure</label>
+        <link refid="structheap__core__structure"/>
+        <childnode refid="10329" relation="usage">
+          <edgelabel>harr</edgelabel>
+        </childnode>
+      </node>
+      <node id="10390">
+        <label>lf_lifo</label>
+        <link refid="structlf__lifo"/>
+      </node>
+      <node id="10388">
+        <label>slab_arena</label>
+        <link refid="structslab__arena"/>
+        <childnode refid="10389" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="10390" relation="usage">
+          <edgelabel>cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="10350">
+        <label>func_opts</label>
+        <link refid="structfunc__opts"/>
+      </node>
+      <node id="10387">
+        <label>slab_cache</label>
+        <link refid="structslab__cache"/>
+        <childnode refid="10385" relation="usage">
+          <edgelabel>orders</edgelabel>
+          <edgelabel>allocated</edgelabel>
+        </childnode>
+        <childnode refid="10388" relation="usage">
+          <edgelabel>arena</edgelabel>
+        </childnode>
+      </node>
+      <node id="10378">
+        <label>tuple_format_vtab</label>
+        <link refid="structtuple__format__vtab"/>
+        <childnode refid="10366" relation="usage">
+          <edgelabel>tuple_new</edgelabel>
+        </childnode>
+      </node>
+      <node id="10377">
+        <label>tuple_format</label>
+        <link refid="structtuple__format"/>
+        <childnode refid="10340" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="10378" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="10379" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+      </node>
+      <node id="10349">
+        <label>func_def</label>
+        <link refid="structfunc__def"/>
+        <childnode refid="10350" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="10327">
+        <label>swim_incarnation</label>
+        <link refid="structswim__incarnation"/>
+      </node>
+      <node id="10355">
+        <label>With</label>
+        <link refid="structWith"/>
+        <childnode refid="10356" relation="usage">
+          <edgelabel>a</edgelabel>
+        </childnode>
+        <childnode refid="10355" relation="usage">
+          <edgelabel>pOuter</edgelabel>
+        </childnode>
+      </node>
+      <node id="10339">
+        <label>space_def</label>
+        <link refid="structspace__def"/>
+        <childnode refid="10340" relation="usage">
+          <edgelabel>dict</edgelabel>
+        </childnode>
+        <childnode refid="10341" relation="usage">
+          <edgelabel>fields</edgelabel>
+        </childnode>
+        <childnode refid="10369" relation="usage">
+          <edgelabel>opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="10332">
+        <label>swim_task</label>
+        <link refid="structswim__task"/>
+        <childnode refid="10333" relation="usage">
+          <edgelabel>packet</edgelabel>
+        </childnode>
+        <childnode refid="10328" relation="usage">
+          <edgelabel>uuid</edgelabel>
+        </childnode>
+        <childnode refid="10330" relation="usage">
+          <edgelabel>in_pool</edgelabel>
+        </childnode>
+        <childnode refid="10326" relation="usage">
+          <edgelabel>member</edgelabel>
+        </childnode>
+        <childnode refid="10331" relation="usage">
+          <edgelabel>in_queue_output</edgelabel>
+        </childnode>
+        <childnode refid="10332" relation="usage">
+          <edgelabel>complete</edgelabel>
+          <edgelabel>cancel</edgelabel>
+        </childnode>
+      </node>
+      <node id="10336">
+        <label>engine</label>
+        <link refid="structengine"/>
+        <childnode refid="10337" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="10331" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+      <node id="10325">
+        <label>swim</label>
+        <link refid="structswim"/>
+        <childnode refid="10326" relation="usage">
+          <edgelabel>shuffled</edgelabel>
+          <edgelabel>self</edgelabel>
+        </childnode>
+        <childnode refid="10334" relation="usage">
+          <edgelabel>event_handler</edgelabel>
+        </childnode>
+        <childnode refid="10331" relation="usage">
+          <edgelabel>on_member_event</edgelabel>
+          <edgelabel>round_queue</edgelabel>
+          <edgelabel>dissemination_queue</edgelabel>
+        </childnode>
+        <childnode refid="10401" relation="usage">
+          <edgelabel>wait_ack_heap</edgelabel>
+        </childnode>
+        <childnode refid="10332" relation="usage">
+          <edgelabel>round_step_task</edgelabel>
+        </childnode>
+        <childnode refid="10391" relation="usage">
+          <edgelabel>event_queue</edgelabel>
+        </childnode>
+        <childnode refid="10402" relation="usage">
+          <edgelabel>scheduler</edgelabel>
+        </childnode>
+      </node>
+      <node id="10328">
+        <label>tt_uuid</label>
+        <link refid="structtt__uuid"/>
+      </node>
+      <node id="10360">
+        <label>IdList::IdList_item</label>
+        <link refid="structIdList_1_1IdList__item"/>
+      </node>
+      <node id="10399">
+        <label>ipc_wait_pad</label>
+        <link refid="structipc__wait__pad"/>
+        <childnode refid="10400" relation="usage">
+          <edgelabel>msg</edgelabel>
+        </childnode>
+      </node>
+      <node id="10368">
+        <label>coll</label>
+        <link refid="structcoll"/>
+        <childnode refid="10368" relation="usage">
+          <edgelabel>cmp</edgelabel>
+          <edgelabel>hint</edgelabel>
+          <edgelabel>hash</edgelabel>
+        </childnode>
+      </node>
+      <node id="10334">
+        <label>fiber</label>
+        <link refid="structfiber"/>
+        <childnode refid="10335" relation="usage">
+          <edgelabel>txn</edgelabel>
+        </childnode>
+        <childnode refid="10384" relation="usage">
+          <edgelabel>gc</edgelabel>
+        </childnode>
+        <childnode refid="10334" relation="usage">
+          <edgelabel>caller</edgelabel>
+        </childnode>
+        <childnode refid="10351" relation="usage">
+          <edgelabel>credentials</edgelabel>
+        </childnode>
+        <childnode refid="10392" relation="usage">
+          <edgelabel>session</edgelabel>
+        </childnode>
+        <childnode refid="10396" relation="usage">
+          <edgelabel>clock_stat</edgelabel>
+        </childnode>
+        <childnode refid="10331" relation="usage">
+          <edgelabel>wake</edgelabel>
+          <edgelabel>on_stop</edgelabel>
+          <edgelabel>on_yield</edgelabel>
+          <edgelabel>link</edgelabel>
+          <edgelabel>state</edgelabel>
+        </childnode>
+        <childnode refid="10397" relation="usage">
+          <edgelabel>diag</edgelabel>
+        </childnode>
+        <childnode refid="10398" relation="usage">
+          <edgelabel>stack_slab</edgelabel>
+        </childnode>
+        <childnode refid="10399" relation="usage">
+          <edgelabel>wait_pad</edgelabel>
+        </childnode>
+      </node>
+      <node id="10398">
+        <label>slab</label>
+        <link refid="structslab"/>
+        <childnode refid="10331" relation="usage">
+          <edgelabel>next_in_cache</edgelabel>
+          <edgelabel>next_in_list</edgelabel>
+        </childnode>
+      </node>
+      <node id="10393">
+        <label>session_meta</label>
+        <link refid="structsession__meta"/>
+        <childnode refid="10394" relation="usage">
+          <edgelabel>serializer_opts</edgelabel>
+        </childnode>
+      </node>
+      <node id="10362">
+        <label>index_opts</label>
+        <link refid="structindex__opts"/>
+        <childnode refid="10363" relation="usage">
+          <edgelabel>stat</edgelabel>
+        </childnode>
+      </node>
+      <node id="10392">
+        <label>session</label>
+        <link refid="structsession"/>
+        <childnode refid="10393" relation="usage">
+          <edgelabel>meta</edgelabel>
+        </childnode>
+        <childnode refid="10395" relation="usage">
+          <edgelabel>vtab</edgelabel>
+        </childnode>
+        <childnode refid="10381" relation="usage">
+          <edgelabel>fiber_on_stop</edgelabel>
+        </childnode>
+        <childnode refid="10351" relation="usage">
+          <edgelabel>credentials</edgelabel>
+        </childnode>
+      </node>
+      <node id="10353">
+        <label>ExprList::ExprList_item</label>
+        <link refid="structExprList_1_1ExprList__item"/>
+        <childnode refid="10342" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+      </node>
+      <node id="10333">
+        <label>swim_packet</label>
+        <link refid="structswim__packet"/>
+      </node>
+      <node id="10345">
+        <label>AggInfo::AggInfo_func</label>
+        <link refid="structAggInfo_1_1AggInfo__func"/>
+        <childnode refid="10342" relation="usage">
+          <edgelabel>pExpr</edgelabel>
+        </childnode>
+        <childnode refid="10346" relation="usage">
+          <edgelabel>func</edgelabel>
+        </childnode>
+      </node>
+      <node id="10372">
+        <label>space_vtab</label>
+        <link refid="structspace__vtab"/>
+        <childnode refid="10373" relation="usage">
+          <edgelabel>create_index</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/lib/swim/swim.c" line="454" column="1" bodyfile="/home/tsafin/tarantool/src/lib/swim/swim.c" bodystart="454" bodyend="565"/>
+    <listofallmembers>
+      <member refid="structswim_1aa8f9bf1f55ea02dc541446aefde7ba03" prot="public" virt="non-virtual"><scope>swim</scope><name>dissemination_queue</name></member>
+      <member refid="structswim_1ac01a5618300d9fcddb8a97ceca65904f" prot="public" virt="non-virtual"><scope>swim</scope><name>event_handler</name></member>
+      <member refid="structswim_1ab73f224290f30a4693756d0504e36ee6" prot="public" virt="non-virtual"><scope>swim</scope><name>event_queue</name></member>
+      <member refid="structswim_1ae4b06b1711ede91ef845d1dfead30310" prot="public" virt="non-virtual"><scope>swim</scope><name>gc_mode</name></member>
+      <member refid="structswim_1aba08b130c64dc1c66089b4c9f59fbd86" prot="public" virt="non-virtual"><scope>swim</scope><name>initial_generation</name></member>
+      <member refid="structswim_1acb22908a61c858cc85847a2a9eb6b7c3" prot="public" virt="non-virtual"><scope>swim</scope><name>iterator</name></member>
+      <member refid="structswim_1a3c675e52b0c27be33a0bef6c1adbe947" prot="public" virt="non-virtual"><scope>swim</scope><name>members</name></member>
+      <member refid="structswim_1a9271c655a3fdf0324fb506a5f76812fa" prot="public" virt="non-virtual"><scope>swim</scope><name>on_member_event</name></member>
+      <member refid="structswim_1a7da081a633068eb5d87bcbe9065520b5" prot="public" virt="non-virtual"><scope>swim</scope><name>round_queue</name></member>
+      <member refid="structswim_1a909a8bc5893aa8fb6087a0d9e7de72e0" prot="public" virt="non-virtual"><scope>swim</scope><name>round_step_task</name></member>
+      <member refid="structswim_1a70be9023519e0b42c0725c6375cf231a" prot="public" virt="non-virtual"><scope>swim</scope><name>round_tick</name></member>
+      <member refid="structswim_1a8d1d70f5c39724a6be2432eb80422b86" prot="public" virt="non-virtual"><scope>swim</scope><name>scheduler</name></member>
+      <member refid="structswim_1af07883488d0f185c5cb26cc196a256a0" prot="public" virt="non-virtual"><scope>swim</scope><name>self</name></member>
+      <member refid="structswim_1afd97fa80bebf4e418e49810f0a6a2d37" prot="public" virt="non-virtual"><scope>swim</scope><name>shuffled</name></member>
+      <member refid="structswim_1a19298d83f985bf155cd7aacfdea347ba" prot="public" virt="non-virtual"><scope>swim</scope><name>wait_ack_heap</name></member>
+      <member refid="structswim_1ac28fc4d6c7019b62d3a14be44bb694cf" prot="public" virt="non-virtual"><scope>swim</scope><name>wait_ack_tick</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,946 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="lib_2core_2decimal_8h" kind="file" language="C++">
+    <compoundname>decimal.h</compoundname>
+    <includes local="yes">third_party/decNumber/decNumber.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="serialize__lua_8c" local="yes">/home/tsafin/tarantool/src/box/lua/serialize_lua.c</includedby>
+    <includedby refid="tuple__compare_8cc" local="yes">/home/tsafin/tarantool/src/box/tuple_compare.cc</includedby>
+    <includedby refid="utils_8h" local="yes">/home/tsafin/tarantool/src/lua/utils.h</includedby>
+    <includedby refid="lib_2core_2decimal_8c" local="yes">/home/tsafin/tarantool/src/lib/core/decimal.c</includedby>
+    <includedby refid="mp__decimal_8h" local="yes">/home/tsafin/tarantool/src/lib/core/mp_decimal.h</includedby>
+    <includedby refid="mp__decimal_8c" local="yes">/home/tsafin/tarantool/src/lib/core/mp_decimal.c</includedby>
+    <includedby refid="lua_2decimal_8c" local="yes">/home/tsafin/tarantool/src/lua/decimal.c</includedby>
+    <includedby refid="lua_2decimal_8h" local="yes">/home/tsafin/tarantool/src/lua/decimal.h</includedby>
+    <includedby refid="lua_2msgpack_8c" local="yes">/home/tsafin/tarantool/src/lua/msgpack.c</includedby>
+    <incdepgraph>
+      <node id="1847">
+        <label>stdbool.h</label>
+      </node>
+      <node id="1846">
+        <label>stdint.h</label>
+      </node>
+      <node id="1844">
+        <label>/home/tsafin/tarantool/src/lib/core/decimal.h</label>
+        <link refid="lib_2core_2decimal_8h"/>
+        <childnode refid="1845" relation="include">
+        </childnode>
+        <childnode refid="1846" relation="include">
+        </childnode>
+        <childnode refid="1847" relation="include">
+        </childnode>
+      </node>
+      <node id="1845">
+        <label>third_party/decNumber/decNumber.h</label>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="lib_2core_2decimal_8h_1a87d38f141960d46b9817efdf8a919ef2" prot="public" static="no">
+        <name>DECIMAL_MAX_DIGITS</name>
+        <initializer>38</initializer>
+        <briefdescription>
+<para>Maximum decimal digigts taken by a decimal representation. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="35" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.h" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="lib_2core_2decimal_8h_1a8bbe43228966b6a87f4c8780bf115b49" prot="public" static="no">
+        <name>DECNUMDIGITS</name>
+        <initializer>DECIMAL_MAX_DIGITS</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="36" column="9" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.h" bodystart="36" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="lib_2core_2decimal_8h_1adebf513566e1d9be2abe12564173558a" prot="public" static="no">
+        <type>decNumber</type>
+        <definition>typedef decNumber decimal_t</definition>
+        <argsstring></argsstring>
+        <name>decimal_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="45" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a03975032193cb04404f80ae4b207f918" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int decimal_precision</definition>
+        <argsstring>(const decimal_t *dec)</argsstring>
+        <name>decimal_precision</name>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>dec</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>decimal precision, i.e. the amount of decimal digits in its representation. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="53" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="96" bodyend="99"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a09ae918ceb094fcc46ce5e0dc66bdcd5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int decimal_scale</definition>
+        <argsstring>(const decimal_t *dec)</argsstring>
+        <name>decimal_scale</name>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>dec</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>decimal scale, i.e. the number of decimal digits after the decimal separator. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="61" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="101" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a050959e6e2f1863a4cb3b710767e0ef5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* decimal_zero</definition>
+        <argsstring>(decimal_t *dec)</argsstring>
+        <name>decimal_zero</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>dec</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a zero decimal number. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="67" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="106" bodyend="110"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1ab88fd6f00cd49c337b0b1dcd272c849a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool decimal_is_int</definition>
+        <argsstring>(decimal_t *dec)</argsstring>
+        <name>decimal_is_int</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>dec</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>true if the fractional part of the number is 0, false otherwise. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="74" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="113" bodyend="116"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a467de04e2f9567447ae0e79f610399c5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* decimal_from_string</definition>
+        <argsstring>(decimal_t *dec, const char *str)</argsstring>
+        <name>decimal_from_string</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>dec</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>str</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a decimal with a value from the string. </para>        </briefdescription>
+        <detaileddescription>
+<para>If the number is less, than 10^DECIMAL_MAX_DIGITS, but has excess digits in fractional part, it will be rounded.</para><para><simplesect kind="return"><para>NULL if string is invalid or the number is too big (&gt;= 10^DECIMAL_MAX_DIGITS) </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="86" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="119" bodyend="127"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a563576873fedd5f1b42f09a8fc98c773" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* strtodec</definition>
+        <argsstring>(decimal_t *dec, const char *str, const char **endptr)</argsstring>
+        <name>strtodec</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>dec</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>str</declname>
+        </param>
+        <param>
+          <type>const char **</type>
+          <declname>endptr</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a decimal with a value from the valid beginning of the string. </para>        </briefdescription>
+        <detaileddescription>
+<para>If <emphasis>endptr</emphasis> is not NULL, store the address of the first invalid character in *endptr.</para><para>If the number is less, than 10^DECIMAL_MAX_DIGITS, but has excess digits in fractional part, it will be rounded.</para><para><simplesect kind="return"><para>NULL if string is invalid or the number is too big (&gt;= 10^DECIMAL_MAX_DIGITS) </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="101" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="130" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a02651529a0445dd9ee8e43d69ad35d3b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* decimal_from_double</definition>
+        <argsstring>(decimal_t *dec, double d)</argsstring>
+        <name>decimal_from_double</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>dec</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>d</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a decimal from double. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>NULL is double is NaN or Infinity, or is greater than 10^DECIMAL_MAX_DIGITS. <emphasis>dec</emphasis> otherwise. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="111" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="138" bodyend="153"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a23f15aeb154bbf3b5e55eef9799fb7b5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* decimal_from_int64</definition>
+        <argsstring>(decimal_t *dec, int64_t num)</argsstring>
+        <name>decimal_from_int64</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>dec</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>num</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a decimal with an integer value. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="117" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="156" bodyend="159"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a9e6c71cff1de33089a04b1c4efac6817" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* decimal_from_uint64</definition>
+        <argsstring>(decimal_t *dec, uint64_t num)</argsstring>
+        <name>decimal_from_uint64</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>dec</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>num</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="121" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="162" bodyend="165"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1ab4e2a70f76974b9eae4e7eb7875fe51c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char* decimal_to_string</definition>
+        <argsstring>(const decimal_t *dec)</argsstring>
+        <name>decimal_to_string</name>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>dec</declname>
+        </param>
+        <briefdescription>
+<para>Write the decimal to a string. </para>        </briefdescription>
+        <detaileddescription>
+<para>Returns a statically allocated buffer containing the decimal representation. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="129" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="168" bodyend="176"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a8a46712fc260c2b1dbe6e757bcc994ab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const decimal_t *</type>
+        <definition>const decimal_t* decimal_to_int64</definition>
+        <argsstring>(const decimal_t *dec, int64_t *num)</argsstring>
+        <name>decimal_to_int64</name>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>dec</declname>
+        </param>
+        <param>
+          <type>int64_t *</type>
+          <declname>num</declname>
+        </param>
+        <briefdescription>
+<para>Convert a given decimal to int64_t. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername direction="out">num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>- the result </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>NULL if <emphasis>dec</emphasis> doesn&apos;t fit into int64_t </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="137" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="198" bodyend="205"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a6c93fd818661ea461c20231d9d04e7cc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const decimal_t *</type>
+        <definition>const decimal_t* decimal_to_uint64</definition>
+        <argsstring>(const decimal_t *dec, uint64_t *num)</argsstring>
+        <name>decimal_to_uint64</name>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>dec</declname>
+        </param>
+        <param>
+          <type>uint64_t *</type>
+          <declname>num</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="see"><para>decimal_to_int64 </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="141" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="208" bodyend="215"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a5e7f50dfcb9025e69e93ebc273681cfe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int decimal_compare</definition>
+        <argsstring>(const decimal_t *lhs, const decimal_t *rhs)</argsstring>
+        <name>decimal_compare</name>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>lhs</declname>
+        </param>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+<para>Compare 2 decimal values. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>-1, lhs &lt; rhs, 0, lhs = rhs, 1, lhs &gt; rhs </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="150" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="218" bodyend="225"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a33dc6defa80e4ff71dec41f7f006d08b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* decimal_round</definition>
+        <argsstring>(decimal_t *dec, int scale)</argsstring>
+        <name>decimal_round</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>dec</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>scale</declname>
+        </param>
+        <briefdescription>
+<para>Round a given decimal to have not more than scale digits after the decimal point. </para>        </briefdescription>
+        <detaileddescription>
+<para>If scale if greater than current dec scale, do nothing. Scale must be in range [0, DECIMAL_MAX_DIGITS]</para><para><simplesect kind="return"><para>NULL, scale is out of bounds. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="162" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="253" bodyend="256"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a19a03642cd99f89e44c03923cba729c6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* decimal_floor</definition>
+        <argsstring>(decimal_t *dec, int scale)</argsstring>
+        <name>decimal_floor</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>dec</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>scale</declname>
+        </param>
+        <briefdescription>
+<para>Round a decimal towards zero. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="see"><para>decimal_round </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="169" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="259" bodyend="262"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a610e69fcf040cb6590f2589665ce632d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* decimal_trim</definition>
+        <argsstring>(decimal_t *dec)</argsstring>
+        <name>decimal_trim</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>dec</declname>
+        </param>
+        <briefdescription>
+<para>Remove trailing zeros from the fractional part of a number. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para><emphasis>dec</emphasis> with trimmed fractional zeros. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="176" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="265" bodyend="272"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a085584ba20795f6ff50928e67298d30a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* decimal_rescale</definition>
+        <argsstring>(decimal_t *dec, int scale)</argsstring>
+        <name>decimal_rescale</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>dec</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>scale</declname>
+        </param>
+        <briefdescription>
+<para>Set scale of <emphasis>dec</emphasis> to <emphasis>scale</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para>If <emphasis>scale</emphasis> is &lt; than scale(<emphasis>dec</emphasis>), performs decimal_round(). Otherwise appends a sufficient amount of trailing fractional zeros. <simplesect kind="return"><para>NULL, scale &lt; 0 or too big. </para></simplesect>
+<simplesect kind="return"><para><emphasis>dec</emphasis> with set scale. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="188" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="275" bodyend="290"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1ad1acb9d4542cc764ff41ca5e24447aa3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* decimal_remainder</definition>
+        <argsstring>(decimal_t *res, const decimal_t *lhs, const decimal_t *rhs)</argsstring>
+        <name>decimal_remainder</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>res</declname>
+        </param>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>lhs</declname>
+        </param>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+<para>res is set to the remainder of dividing lhs by rhs. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="194" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="293" bodyend="297"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1ab478ba8c5a0f779c3c8e352615089a94" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* decimal_abs</definition>
+        <argsstring>(decimal_t *res, const decimal_t *dec)</argsstring>
+        <name>decimal_abs</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>res</declname>
+        </param>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>dec</declname>
+        </param>
+        <briefdescription>
+<para>res is set to the absolute value of dec decimal_abs(&amp;a, &amp;a) is allowed. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="201" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="300" bodyend="305"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a87bf244f68fbabe3a14989fee9c7f51e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* decimal_minus</definition>
+        <argsstring>(decimal_t *res, const decimal_t *dec)</argsstring>
+        <name>decimal_minus</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>res</declname>
+        </param>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>dec</declname>
+        </param>
+        <briefdescription>
+<para>res is set to -dec. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="205" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="308" bodyend="313"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1adbb9693d235825863938b3220ed1f656" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* decimal_add</definition>
+        <argsstring>(decimal_t *res, const decimal_t *lhs, const decimal_t *rhs)</argsstring>
+        <name>decimal_add</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>res</declname>
+        </param>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>lhs</declname>
+        </param>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="213" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="316" bodyend="320"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1adea3a155f52239f012fe90ffbaa8ba09" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* decimal_sub</definition>
+        <argsstring>(decimal_t *res, const decimal_t *lhs, const decimal_t *rhs)</argsstring>
+        <name>decimal_sub</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>res</declname>
+        </param>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>lhs</declname>
+        </param>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="216" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="323" bodyend="328"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a0ad125091ddf30b51cebe660300ed709" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* decimal_mul</definition>
+        <argsstring>(decimal_t *res, const decimal_t *lhs, const decimal_t *rhs)</argsstring>
+        <name>decimal_mul</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>res</declname>
+        </param>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>lhs</declname>
+        </param>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="219" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="331" bodyend="336"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1aa1da0665547f7a4b0c7171795fb5cf39" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* decimal_div</definition>
+        <argsstring>(decimal_t *res, const decimal_t *lhs, const decimal_t *rhs)</argsstring>
+        <name>decimal_div</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>res</declname>
+        </param>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>lhs</declname>
+        </param>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="222" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="339" bodyend="344"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a38026003ccabe0f76e27cc0e9fbbf03e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* decimal_log10</definition>
+        <argsstring>(decimal_t *res, const decimal_t *lhs)</argsstring>
+        <name>decimal_log10</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>res</declname>
+        </param>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>lhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="231" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="347" bodyend="352"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a1c21aae47bc417c901f325b42fbbc8ec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* decimal_ln</definition>
+        <argsstring>(decimal_t *res, const decimal_t *lhs)</argsstring>
+        <name>decimal_ln</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>res</declname>
+        </param>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>lhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="234" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="355" bodyend="383"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a094f2d805fc6571f30172c19156b309a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* decimal_pow</definition>
+        <argsstring>(decimal_t *res, const decimal_t *lhs, const decimal_t *rhs)</argsstring>
+        <name>decimal_pow</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>res</declname>
+        </param>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>lhs</declname>
+        </param>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>rhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="237" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="386" bodyend="391"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a374e87fa272fd4f52b2974d1eadce1e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* decimal_exp</definition>
+        <argsstring>(decimal_t *res, const decimal_t *lhs)</argsstring>
+        <name>decimal_exp</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>res</declname>
+        </param>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>lhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="240" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="394" bodyend="399"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1af5f9cbcd8d87a5de7c5c9c853b667ea9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* decimal_sqrt</definition>
+        <argsstring>(decimal_t *res, const decimal_t *lhs)</argsstring>
+        <name>decimal_sqrt</name>
+        <param>
+          <type>decimal_t *</type>
+          <declname>res</declname>
+        </param>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>lhs</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="243" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="402" bodyend="407"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a16b3625c311d7014d94df2d5709eacb7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t decimal_len</definition>
+        <argsstring>(const decimal_t *dec)</argsstring>
+        <name>decimal_len</name>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>dec</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>The length in bytes decimal packed representation will take. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="247" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="410" bodyend="416"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1a0e1a72a38d4536970a337a46ef4ba59b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>char *</type>
+        <definition>char* decimal_pack</definition>
+        <argsstring>(char *data, const decimal_t *dec)</argsstring>
+        <name>decimal_pack</name>
+        <param>
+          <type>char *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>const decimal_t *</type>
+          <declname>dec</declname>
+        </param>
+        <briefdescription>
+<para>Convert a decimal <emphasis>dec</emphasis> to its packed representation. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>data + decimal_len(dec); </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="255" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="419" bodyend="436"/>
+      </memberdef>
+      <memberdef kind="function" id="lib_2core_2decimal_8h_1ae0165f9af21fa58cfb8b45e376f2b2df" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>decimal_t *</type>
+        <definition>decimal_t* decimal_unpack</definition>
+        <argsstring>(const char **data, uint32_t len, decimal_t *dec)</argsstring>
+        <name>decimal_unpack</name>
+        <param>
+          <type>const char **</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type>decimal_t *</type>
+          <declname>dec</declname>
+        </param>
+        <briefdescription>
+<para>Using a packed representation of size <emphasis>len</emphasis> pointed to by *data, unpack it to <emphasis>dec</emphasis>. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="post"><para>*data = *data + decimal_len(dec);</para></simplesect>
+<simplesect kind="return"><para>NULL if value encoding is incorrect dec otherwise. </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/lib/core/decimal.h" line="267" column="1" bodyfile="/home/tsafin/tarantool/src/lib/core/decimal.c" bodystart="439" bodyend="467"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>TARANTOOL_LIB_CORE_DECIMAL_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>TARANTOOL_LIB_CORE_DECIMAL_H_INCLUDED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>Copyright<sp/>2019,<sp/>Tarantool<sp/>AUTHORS,<sp/>please<sp/>see<sp/>AUTHORS<sp/>file.</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/>Redistribution<sp/>and<sp/>use<sp/>in<sp/>source<sp/>and<sp/>binary<sp/>forms,<sp/>with<sp/>or</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/>without<sp/>modification,<sp/>are<sp/>permitted<sp/>provided<sp/>that<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/>conditions<sp/>are<sp/>met:</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>1.<sp/>Redistributions<sp/>of<sp/>source<sp/>code<sp/>must<sp/>retain<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>following<sp/>disclaimer.</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>2.<sp/>Redistributions<sp/>in<sp/>binary<sp/>form<sp/>must<sp/>reproduce<sp/>the<sp/>above</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>copyright<sp/>notice,<sp/>this<sp/>list<sp/>of<sp/>conditions<sp/>and<sp/>the<sp/>following</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>disclaimer<sp/>in<sp/>the<sp/>documentation<sp/>and/or<sp/>other<sp/>materials</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>provided<sp/>with<sp/>the<sp/>distribution.</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/>THIS<sp/>SOFTWARE<sp/>IS<sp/>PROVIDED<sp/>BY<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>``AS<sp/>IS&apos;&apos;<sp/>AND</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>ANY<sp/>EXPRESS<sp/>OR<sp/>IMPLIED<sp/>WARRANTIES,<sp/>INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>TO,<sp/>THE<sp/>IMPLIED<sp/>WARRANTIES<sp/>OF<sp/>MERCHANTABILITY<sp/>AND<sp/>FITNESS<sp/>FOR</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>A<sp/>PARTICULAR<sp/>PURPOSE<sp/>ARE<sp/>DISCLAIMED.<sp/>IN<sp/>NO<sp/>EVENT<sp/>SHALL</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*<sp/>&lt;COPYRIGHT<sp/>HOLDER&gt;<sp/>OR<sp/>CONTRIBUTORS<sp/>BE<sp/>LIABLE<sp/>FOR<sp/>ANY<sp/>DIRECT,</highlight></codeline>
+<codeline lineno="24"><highlight class="comment"><sp/>*<sp/>INDIRECT,<sp/>INCIDENTAL,<sp/>SPECIAL,<sp/>EXEMPLARY,<sp/>OR<sp/>CONSEQUENTIAL</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/>*<sp/>DAMAGES<sp/>(INCLUDING,<sp/>BUT<sp/>NOT<sp/>LIMITED<sp/>TO,<sp/>PROCUREMENT<sp/>OF</highlight></codeline>
+<codeline lineno="26"><highlight class="comment"><sp/>*<sp/>SUBSTITUTE<sp/>GOODS<sp/>OR<sp/>SERVICES;<sp/>LOSS<sp/>OF<sp/>USE,<sp/>DATA,<sp/>OR<sp/>PROFITS;<sp/>OR</highlight></codeline>
+<codeline lineno="27"><highlight class="comment"><sp/>*<sp/>BUSINESS<sp/>INTERRUPTION)<sp/>HOWEVER<sp/>CAUSED<sp/>AND<sp/>ON<sp/>ANY<sp/>THEORY<sp/>OF</highlight></codeline>
+<codeline lineno="28"><highlight class="comment"><sp/>*<sp/>LIABILITY,<sp/>WHETHER<sp/>IN<sp/>CONTRACT,<sp/>STRICT<sp/>LIABILITY,<sp/>OR<sp/>TORT</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/>*<sp/>(INCLUDING<sp/>NEGLIGENCE<sp/>OR<sp/>OTHERWISE)<sp/>ARISING<sp/>IN<sp/>ANY<sp/>WAY<sp/>OUT<sp/>OF</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/>*<sp/>THE<sp/>USE<sp/>OF<sp/>THIS<sp/>SOFTWARE,<sp/>EVEN<sp/>IF<sp/>ADVISED<sp/>OF<sp/>THE<sp/>POSSIBILITY<sp/>OF</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/>*<sp/>SUCH<sp/>DAMAGE.</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="preprocessor">#define<sp/>DECIMAL_MAX_DIGITS<sp/>38</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>DECNUMDIGITS<sp/>DECIMAL_MAX_DIGITS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;third_party/decNumber/decNumber.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>decNumber<sp/>decimal_t;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal">decimal_precision(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*dec);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal">decimal_scale(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*dec);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="67"><highlight class="normal">decimal_zero(decimal_t<sp/>*dec);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="keywordtype">bool</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal">decimal_is_int(decimal_t<sp/>*dec);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="86"><highlight class="normal">decimal_from_string(decimal_t<sp/>*dec,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*str);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="101"><highlight class="normal">strtodec(decimal_t<sp/>*dec,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*str,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**endptr);</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="111"><highlight class="normal">decimal_from_double(decimal_t<sp/>*dec,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>d);</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="117"><highlight class="normal">decimal_from_int64(decimal_t<sp/>*dec,<sp/>int64_t<sp/>num);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="121"><highlight class="normal">decimal_from_uint64(decimal_t<sp/>*dec,<sp/>uint64_t<sp/>num);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="129"><highlight class="normal">decimal_to_string(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*dec);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="137"><highlight class="normal">decimal_to_int64(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*dec,<sp/>int64_t<sp/>*num);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="141"><highlight class="normal">decimal_to_uint64(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*dec,<sp/>uint64_t<sp/>*num);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="keywordtype">int</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal">decimal_compare(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*lhs,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*rhs);</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="162"><highlight class="normal">decimal_round(decimal_t<sp/>*dec,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>scale);</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="169"><highlight class="normal">decimal_floor(decimal_t<sp/>*dec,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>scale);</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="176"><highlight class="normal">decimal_trim(decimal_t<sp/>*dec);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="188"><highlight class="normal">decimal_rescale(decimal_t<sp/>*dec,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>scale);</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="194"><highlight class="normal">decimal_remainder(decimal_t<sp/>*res,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*lhs,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*rhs);</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight></codeline>
+<codeline lineno="200"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="201"><highlight class="normal">decimal_abs(decimal_t<sp/>*res,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*dec);</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="205"><highlight class="normal">decimal_minus(decimal_t<sp/>*res,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*dec);</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="208"><highlight class="comment"><sp/>*<sp/>Arithmetic<sp/>ops:<sp/>add,<sp/>subtract,<sp/>multiply<sp/>and<sp/>divide.</highlight></codeline>
+<codeline lineno="209"><highlight class="comment"><sp/>*<sp/>Return<sp/>result<sp/>pointer<sp/>on<sp/>success,<sp/>NULL<sp/>on<sp/>an<sp/>error<sp/>(overflow).</highlight></codeline>
+<codeline lineno="210"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="213"><highlight class="normal">decimal_add(decimal_t<sp/>*res,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*lhs,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*rhs);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="216"><highlight class="normal">decimal_sub(decimal_t<sp/>*res,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*lhs,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*rhs);</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="219"><highlight class="normal">decimal_mul(decimal_t<sp/>*res,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*lhs,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*rhs);</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="222"><highlight class="normal">decimal_div(decimal_t<sp/>*res,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*lhs,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*rhs);</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="225"><highlight class="comment"><sp/>*<sp/>log10,<sp/>ln,<sp/>pow,<sp/>exp,<sp/>sqrt.</highlight></codeline>
+<codeline lineno="226"><highlight class="comment"><sp/>*<sp/>Calculate<sp/>the<sp/>appropriate<sp/>function<sp/>with<sp/>maximum<sp/>precision</highlight></codeline>
+<codeline lineno="227"><highlight class="comment"><sp/>*<sp/>(DECIMAL_MAX_DIGITS)</highlight></codeline>
+<codeline lineno="228"><highlight class="comment"><sp/>*<sp/>Return<sp/>result<sp/>pointer<sp/>on<sp/>success,<sp/>NULL<sp/>on<sp/>an<sp/>error<sp/>(overflow).</highlight></codeline>
+<codeline lineno="229"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="231"><highlight class="normal">decimal_log10(decimal_t<sp/>*res,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*lhs);</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight></codeline>
+<codeline lineno="233"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="234"><highlight class="normal">decimal_ln(decimal_t<sp/>*res,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*lhs);</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="237"><highlight class="normal">decimal_pow(decimal_t<sp/>*res,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*lhs,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*rhs);</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight></codeline>
+<codeline lineno="239"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="240"><highlight class="normal">decimal_exp(decimal_t<sp/>*res,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*lhs);</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="243"><highlight class="normal">decimal_sqrt(decimal_t<sp/>*res,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*lhs);</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="normal">uint32_t</highlight></codeline>
+<codeline lineno="247"><highlight class="normal">decimal_len(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*dec);</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"></highlight></codeline>
+<codeline lineno="254"><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
+<codeline lineno="255"><highlight class="normal">decimal_pack(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>decimal_t<sp/>*dec);</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="normal">decimal_t<sp/>*</highlight></codeline>
+<codeline lineno="267"><highlight class="normal">decimal_unpack(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**data,<sp/>uint32_t<sp/>len,<sp/>decimal_t<sp/>*dec);</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"></highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__cplusplus)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="270"><highlight class="normal">}<sp/></highlight><highlight class="comment">/*<sp/>extern<sp/>&quot;C&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>defined(__cplusplus)<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal"></highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>TARANTOOL_LIB_CORE_DECIMAL_H_INCLUDED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="/home/tsafin/tarantool/src/lib/core/decimal.h"/>
+  </compounddef>
+</doxygen>

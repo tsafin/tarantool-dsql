@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structrecovery__journal" kind="struct" language="C++" prot="public">
+    <compoundname>recovery_journal</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structrecovery__journal_1ad57a5de4306709a8202df72a1dabd816" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structjournal" kindref="compound">journal</ref></type>
+        <definition>struct journal recovery_journal::base</definition>
+        <argsstring></argsstring>
+        <name>base</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/box.cc" line="342" column="1" bodyfile="/home/tsafin/tarantool/src/box/box.cc" bodystart="352" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structrecovery__journal_1a9e245113ab87c367f96a3ed03ad5633b" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvclock" kindref="compound">vclock</ref> *</type>
+        <definition>struct vclock* recovery_journal::vclock</definition>
+        <argsstring></argsstring>
+        <name>vclock</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/box.cc" line="353" column="1" bodyfile="/home/tsafin/tarantool/src/box/box.cc" bodystart="353" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A stub used in txn_commit() during local recovery. </para>    </briefdescription>
+    <detaileddescription>
+<para>We &quot;replay&quot; transactions during local recovery, with WAL turned off. Since each transaction attempts to write itself to WAL at commit, we need an implementation which would fake WAL write. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="7873">
+        <label>recovery_journal</label>
+        <link refid="structrecovery__journal"/>
+        <childnode refid="7874" relation="usage">
+          <edgelabel>vclock</edgelabel>
+        </childnode>
+        <childnode refid="7875" relation="usage">
+          <edgelabel>base</edgelabel>
+        </childnode>
+      </node>
+      <node id="7874">
+        <label>vclock</label>
+        <link refid="structvclock"/>
+      </node>
+      <node id="7875">
+        <label>journal</label>
+        <link refid="structjournal"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/box.cc" line="351" column="1" bodyfile="/home/tsafin/tarantool/src/box/box.cc" bodystart="351" bodyend="354"/>
+    <listofallmembers>
+      <member refid="structrecovery__journal_1ad57a5de4306709a8202df72a1dabd816" prot="public" virt="non-virtual"><scope>recovery_journal</scope><name>base</name></member>
+      <member refid="structrecovery__journal_1a9e245113ab87c367f96a3ed03ad5633b" prot="public" virt="non-virtual"><scope>recovery_journal</scope><name>vclock</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

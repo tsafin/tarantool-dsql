@@ -1,0 +1,114 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structxrow__update__arg__arith" kind="struct" language="C++" prot="public">
+    <compoundname>xrow_update_arg_arith</compoundname>
+    <includes local="no">xrow_update_field.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structxrow__update__arg__arith_1a3719c984d9845b29985e4ad3ae6cb0a8" prot="public" static="no" mutable="no">
+        <type>enum xrow_update_arith_type</type>
+        <definition>enum xrow_update_arith_type xrow_update_arg_arith::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="70" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxrow__update__arg__arith_1adf4fd6c1f3eca9937e80fa50d0e552b9" prot="public" static="no" mutable="no">
+        <type>double</type>
+        <definition>double xrow_update_arg_arith::dbl</definition>
+        <argsstring></argsstring>
+        <name>dbl</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="108" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxrow__update__arg__arith_1a0f370f52320096828723910c1ab6e714" prot="public" static="no" mutable="no">
+        <type>float</type>
+        <definition>float xrow_update_arg_arith::flt</definition>
+        <argsstring></argsstring>
+        <name>flt</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="109" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="109" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxrow__update__arg__arith_1ae21a75125babf1d9e039001cf72a780a" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structint96__num" kindref="compound">int96_num</ref></type>
+        <definition>struct int96_num xrow_update_arg_arith::int96</definition>
+        <argsstring></argsstring>
+        <name>int96</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="109" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="110" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxrow__update__arg__arith_1a0dd4c8f3273b76972cc3d5468ff301f4" prot="public" static="no" mutable="no">
+        <type>decimal_t</type>
+        <definition>decimal_t xrow_update_arg_arith::dec</definition>
+        <argsstring></argsstring>
+        <name>dec</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="111" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structxrow__update__arg__arith_1a283ebe9858e589339b2ef6f7926a0f4e" prot="public" static="no" mutable="no">
+        <type>union xrow_update_arg_arith::@149</type>
+        <definition>union xrow_update_arg_arith::@149 xrow_update_arg_arith::@150</definition>
+        <argsstring></argsstring>
+        <name>@150</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="112" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Argument (left and right) and result of ADD, SUBTRACT. </para>    </briefdescription>
+    <detaileddescription>
+<para>To perform an arithmetic operation, update first loads left and right arguments into corresponding value objects, then performs arithmetics on types of arguments, thus calculating the type of the result, and then performs the requested operation according to the calculated type rules.</para><para>The rules are as follows:<itemizedlist>
+<listitem><para>when one of the argument types is double, the result is double;</para></listitem><listitem><para>when one of the argument types is float, the result is float;</para></listitem><listitem><para>when one of the arguments is a decimal, the result is decimal too;</para></listitem><listitem><para>for integer arguments, the result type code depends on the range in which falls the result of the operation. If the result is in negative range, it&apos;s MP_INT, otherwise it&apos;s MP_UINT. If the result is out of bounds of (-2^63, 2^64), an exception is raised for overflow. </para></listitem></itemizedlist>
+</para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="18005">
+        <label>xrow_update_arg_arith</label>
+        <link refid="structxrow__update__arg__arith"/>
+        <childnode refid="18006" relation="usage">
+          <edgelabel>int96</edgelabel>
+        </childnode>
+      </node>
+      <node id="18006">
+        <label>int96_num</label>
+        <link refid="structint96__num"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/xrow_update_field.h" line="105" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow_update_field.h" bodystart="105" bodyend="113"/>
+    <listofallmembers>
+      <member refid="structxrow__update__arg__arith_1adf4fd6c1f3eca9937e80fa50d0e552b9" prot="public" virt="non-virtual"><scope>xrow_update_arg_arith</scope><name>dbl</name></member>
+      <member refid="structxrow__update__arg__arith_1a0dd4c8f3273b76972cc3d5468ff301f4" prot="public" virt="non-virtual"><scope>xrow_update_arg_arith</scope><name>dec</name></member>
+      <member refid="structxrow__update__arg__arith_1a0f370f52320096828723910c1ab6e714" prot="public" virt="non-virtual"><scope>xrow_update_arg_arith</scope><name>flt</name></member>
+      <member refid="structxrow__update__arg__arith_1ae21a75125babf1d9e039001cf72a780a" prot="public" virt="non-virtual"><scope>xrow_update_arg_arith</scope><name>int96</name></member>
+      <member refid="structxrow__update__arg__arith_1a3719c984d9845b29985e4ad3ae6cb0a8" prot="public" virt="non-virtual"><scope>xrow_update_arg_arith</scope><name>type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

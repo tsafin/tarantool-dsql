@@ -1,0 +1,243 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvy__regulator" kind="struct" language="C++" prot="public">
+    <compoundname>vy_regulator</compoundname>
+    <includes local="no">vy_regulator.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvy__regulator_1a87e1d10c6e60ad3c7297ae9b80b8d6cc" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__quota" kindref="compound">vy_quota</ref> *</type>
+        <definition>struct vy_quota* vy_regulator::quota</definition>
+        <argsstring></argsstring>
+        <name>quota</name>
+        <briefdescription>
+<para>Pointer to a quota object that is used to control memory usage. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_regulator.h" line="61" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_regulator.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__regulator_1a3b65179f94fc24c9e64370b955f000e7" prot="public" static="no" mutable="no">
+        <type>vy_trigger_dump_f</type>
+        <definition>vy_trigger_dump_f vy_regulator::trigger_dump_cb</definition>
+        <argsstring></argsstring>
+        <name>trigger_dump_cb</name>
+        <briefdescription>
+<para>Called when the regulator detects that memory usage exceeds the computed watermark. </para>        </briefdescription>
+        <detaileddescription>
+<para>Supposed to trigger memory dump and return 0 on success, -1 on failure. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_regulator.h" line="67" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_regulator.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__regulator_1a8ce07a9660b678df9444daa07d2694a2" prot="public" static="no" mutable="no">
+        <type>ev_timer</type>
+        <definition>ev_timer vy_regulator::timer</definition>
+        <argsstring></argsstring>
+        <name>timer</name>
+        <briefdescription>
+<para>Periodic timer that updates the memory watermark basing on accumulated statistics. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_regulator.h" line="72" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_regulator.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__regulator_1a33a4874b17ef3a5a1f839da9cc4aa041" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t vy_regulator::write_rate</definition>
+        <argsstring></argsstring>
+        <name>write_rate</name>
+        <briefdescription>
+<para>Average rate at which transactions are writing to the database, in bytes per second. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_regulator.h" line="77" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_regulator.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__regulator_1a2ce50e5b4adfea3833def1e58a85534d" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t vy_regulator::write_rate_max</definition>
+        <argsstring></argsstring>
+        <name>write_rate_max</name>
+        <briefdescription>
+<para>Max write rate observed since the last time when memory dump was triggered, in bytes per second. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_regulator.h" line="82" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_regulator.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__regulator_1a38050e61449917e3bd4acb89ea7ff83d" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t vy_regulator::quota_used_last</definition>
+        <argsstring></argsstring>
+        <name>quota_used_last</name>
+        <briefdescription>
+<para>Amount of memory that was used when the timer was executed last time. </para>        </briefdescription>
+        <detaileddescription>
+<para>Needed to update . </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_regulator.h" line="87" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_regulator.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__regulator_1a2942563f5bd619babfb281eccc6468c7" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t vy_regulator::dump_bandwidth</definition>
+        <argsstring></argsstring>
+        <name>dump_bandwidth</name>
+        <briefdescription>
+<para>Current dump bandwidth estimate, in bytes per second. </para>        </briefdescription>
+        <detaileddescription>
+<para>See  for more details. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_regulator.h" line="92" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_regulator.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__regulator_1a98ead6eb157b82c03426746e69704189" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structhistogram" kindref="compound">histogram</ref> *</type>
+        <definition>struct histogram* vy_regulator::dump_bandwidth_hist</definition>
+        <argsstring></argsstring>
+        <name>dump_bandwidth_hist</name>
+        <briefdescription>
+<para>Dump bandwidth is needed for calculating the watermark. </para>        </briefdescription>
+        <detaileddescription>
+<para>The higher the bandwidth, the later we can start dumping w/o suffering from transaction throttling. So we want to be very conservative about estimating the bandwidth.</para><para>To make sure we don&apos;t overestimate it, we maintain a histogram of all observed measurements and assume the bandwidth to be equal to the 10th percentile, i.e. the best result among 10% worst measurements. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_regulator.h" line="104" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_regulator.h" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__regulator_1afcd078221d605dd4cdeab1cc506e1a0d" prot="public" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t vy_regulator::dump_watermark</definition>
+        <argsstring></argsstring>
+        <name>dump_watermark</name>
+        <briefdescription>
+<para>Memory watermark. </para>        </briefdescription>
+        <detaileddescription>
+<para>Exceeding it does not result in throttling new transactions, but it does trigger background memory reclaim. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_regulator.h" line="110" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_regulator.h" bodystart="110" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__regulator_1aacd2b14565ee4a7b55a04f177576e160" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool vy_regulator::dump_in_progress</definition>
+        <argsstring></argsstring>
+        <name>dump_in_progress</name>
+        <briefdescription>
+<para>Set if the last triggered memory dump hasn&apos;t completed yet, i.e. </para>        </briefdescription>
+        <detaileddescription>
+<para><ref refid="structvy__regulator_1a3b65179f94fc24c9e64370b955f000e7" kindref="member">trigger_dump_cb()</ref> was successfully invoked, but vy_regulator_dump_complete() hasn&apos;t been called yet. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_regulator.h" line="116" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_regulator.h" bodystart="116" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__regulator_1abf187ec7966db6c3eadefcdbad445ea0" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__scheduler__stat" kindref="compound">vy_scheduler_stat</ref></type>
+        <definition>struct vy_scheduler_stat vy_regulator::sched_stat_last</definition>
+        <argsstring></argsstring>
+        <name>sched_stat_last</name>
+        <briefdescription>
+<para>Snapshot of scheduler statistics taken at the time of the last rate limit update. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_regulator.h" line="116" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_regulator.h" bodystart="121" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__regulator_1a8e6ba9601752f46de1a0ff049eac9bd4" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__scheduler__stat" kindref="compound">vy_scheduler_stat</ref></type>
+        <definition>struct vy_scheduler_stat vy_regulator::sched_stat_recent</definition>
+        <argsstring></argsstring>
+        <name>sched_stat_recent</name>
+        <briefdescription>
+<para>Scheduler statistics for the most recent few dumps. </para>        </briefdescription>
+        <detaileddescription>
+<para>Used for calculating the rate limit. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_regulator.h" line="116" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_regulator.h" bodystart="126" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The regulator is supposed to keep track of vinyl memory usage and dump/compaction progress and adjust transaction write rate accordingly. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="14094">
+        <label>vy_scheduler_stat</label>
+        <link refid="structvy__scheduler__stat"/>
+      </node>
+      <node id="14092">
+        <label>histogram</label>
+        <link refid="structhistogram"/>
+        <childnode refid="14093" relation="usage">
+          <edgelabel>buckets</edgelabel>
+        </childnode>
+      </node>
+      <node id="14090">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="14090" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="14091">
+        <label>vy_rate_limit</label>
+        <link refid="structvy__rate__limit"/>
+      </node>
+      <node id="14089">
+        <label>vy_quota</label>
+        <link refid="structvy__quota"/>
+        <childnode refid="14089" relation="usage">
+          <edgelabel>quota_exceeded_cb</edgelabel>
+        </childnode>
+        <childnode refid="14090" relation="usage">
+          <edgelabel>wait_queue</edgelabel>
+        </childnode>
+        <childnode refid="14091" relation="usage">
+          <edgelabel>rate_limit</edgelabel>
+        </childnode>
+      </node>
+      <node id="14093">
+        <label>histogram_bucket</label>
+        <link refid="structhistogram__bucket"/>
+      </node>
+      <node id="14088">
+        <label>vy_regulator</label>
+        <link refid="structvy__regulator"/>
+        <childnode refid="14089" relation="usage">
+          <edgelabel>quota</edgelabel>
+        </childnode>
+        <childnode refid="14092" relation="usage">
+          <edgelabel>dump_bandwidth_hist</edgelabel>
+        </childnode>
+        <childnode refid="14088" relation="usage">
+          <edgelabel>trigger_dump_cb</edgelabel>
+        </childnode>
+        <childnode refid="14094" relation="usage">
+          <edgelabel>sched_stat_last</edgelabel>
+          <edgelabel>sched_stat_recent</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/vy_regulator.h" line="56" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_regulator.h" bodystart="56" bodyend="127"/>
+    <listofallmembers>
+      <member refid="structvy__regulator_1a2942563f5bd619babfb281eccc6468c7" prot="public" virt="non-virtual"><scope>vy_regulator</scope><name>dump_bandwidth</name></member>
+      <member refid="structvy__regulator_1a98ead6eb157b82c03426746e69704189" prot="public" virt="non-virtual"><scope>vy_regulator</scope><name>dump_bandwidth_hist</name></member>
+      <member refid="structvy__regulator_1aacd2b14565ee4a7b55a04f177576e160" prot="public" virt="non-virtual"><scope>vy_regulator</scope><name>dump_in_progress</name></member>
+      <member refid="structvy__regulator_1afcd078221d605dd4cdeab1cc506e1a0d" prot="public" virt="non-virtual"><scope>vy_regulator</scope><name>dump_watermark</name></member>
+      <member refid="structvy__regulator_1a87e1d10c6e60ad3c7297ae9b80b8d6cc" prot="public" virt="non-virtual"><scope>vy_regulator</scope><name>quota</name></member>
+      <member refid="structvy__regulator_1a38050e61449917e3bd4acb89ea7ff83d" prot="public" virt="non-virtual"><scope>vy_regulator</scope><name>quota_used_last</name></member>
+      <member refid="structvy__regulator_1abf187ec7966db6c3eadefcdbad445ea0" prot="public" virt="non-virtual"><scope>vy_regulator</scope><name>sched_stat_last</name></member>
+      <member refid="structvy__regulator_1a8e6ba9601752f46de1a0ff049eac9bd4" prot="public" virt="non-virtual"><scope>vy_regulator</scope><name>sched_stat_recent</name></member>
+      <member refid="structvy__regulator_1a8ce07a9660b678df9444daa07d2694a2" prot="public" virt="non-virtual"><scope>vy_regulator</scope><name>timer</name></member>
+      <member refid="structvy__regulator_1a3b65179f94fc24c9e64370b955f000e7" prot="public" virt="non-virtual"><scope>vy_regulator</scope><name>trigger_dump_cb</name></member>
+      <member refid="structvy__regulator_1a33a4874b17ef3a5a1f839da9cc4aa041" prot="public" virt="non-virtual"><scope>vy_regulator</scope><name>write_rate</name></member>
+      <member refid="structvy__regulator_1a2ce50e5b4adfea3833def1e58a85534d" prot="public" virt="non-virtual"><scope>vy_regulator</scope><name>write_rate_max</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structgreeting" kind="struct" language="C++" prot="public">
+    <compoundname>greeting</compoundname>
+    <includes local="no">xrow.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structgreeting_1a54f9327fa2bacfe5c855db5f04c5472a" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t greeting::version_id</definition>
+        <argsstring></argsstring>
+        <name>version_id</name>
+        <briefdescription>
+<para>Peer version id. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow.h" line="711" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow.h" bodystart="711" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structgreeting_1ae877100b4f9a07be9b22ef4dac6e86b3" prot="public" static="no" mutable="no">
+        <type>uint32_t</type>
+        <definition>uint32_t greeting::salt_len</definition>
+        <argsstring></argsstring>
+        <name>salt_len</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow.h" line="712" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow.h" bodystart="712" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structgreeting_1aed27e3ea32b68a7740881ac454fed9cc" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char greeting::protocol[GREETING_PROTOCOL_LEN_MAX+1]</definition>
+        <argsstring>[GREETING_PROTOCOL_LEN_MAX+1]</argsstring>
+        <name>protocol</name>
+        <briefdescription>
+<para>Peer protocol - Binary or Console. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow.h" line="714" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow.h" bodystart="714" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structgreeting_1a89d759dbcc888a4c2184d8faddfb7230" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structtt__uuid" kindref="compound">tt_uuid</ref></type>
+        <definition>struct tt_uuid greeting::uuid</definition>
+        <argsstring></argsstring>
+        <name>uuid</name>
+        <briefdescription>
+<para>Peer instance uuid. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow.h" line="714" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow.h" bodystart="716" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structgreeting_1a00e1ff870bd45f6053dca06916d83c41" prot="public" static="no" mutable="no">
+        <type>char</type>
+        <definition>char greeting::salt[GREETING_SALT_LEN_MAX]</definition>
+        <argsstring>[GREETING_SALT_LEN_MAX]</argsstring>
+        <name>salt</name>
+        <briefdescription>
+<para>Random salt. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/xrow.h" line="718" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow.h" bodystart="718" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The server sends a greeting into a newly established socket, regardless of the socket protocol. </para>    </briefdescription>
+    <detaileddescription>
+<para>This allows the connected client identify the protocol, server version and instance uuid. The greeting also contains a random salt which can be used to encode a password. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="3905">
+        <label>greeting</label>
+        <link refid="structgreeting"/>
+        <childnode refid="3906" relation="usage">
+          <edgelabel>uuid</edgelabel>
+        </childnode>
+      </node>
+      <node id="3906">
+        <label>tt_uuid</label>
+        <link refid="structtt__uuid"/>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/xrow.h" line="709" column="1" bodyfile="/home/tsafin/tarantool/src/box/xrow.h" bodystart="709" bodyend="719"/>
+    <listofallmembers>
+      <member refid="structgreeting_1aed27e3ea32b68a7740881ac454fed9cc" prot="public" virt="non-virtual"><scope>greeting</scope><name>protocol</name></member>
+      <member refid="structgreeting_1a00e1ff870bd45f6053dca06916d83c41" prot="public" virt="non-virtual"><scope>greeting</scope><name>salt</name></member>
+      <member refid="structgreeting_1ae877100b4f9a07be9b22ef4dac6e86b3" prot="public" virt="non-virtual"><scope>greeting</scope><name>salt_len</name></member>
+      <member refid="structgreeting_1a89d759dbcc888a4c2184d8faddfb7230" prot="public" virt="non-virtual"><scope>greeting</scope><name>uuid</name></member>
+      <member refid="structgreeting_1a54f9327fa2bacfe5c855db5f04c5472a" prot="public" virt="non-virtual"><scope>greeting</scope><name>version_id</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

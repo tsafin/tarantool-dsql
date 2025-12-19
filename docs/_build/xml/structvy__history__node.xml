@@ -1,0 +1,89 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.13">
+  <compounddef id="structvy__history__node" kind="struct" language="C++" prot="public">
+    <compoundname>vy_history_node</compoundname>
+    <includes local="no">vy_history.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structvy__history__node_1a65aac9de407b74577b5744fd8cef1c9c" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structrlist" kindref="compound">rlist</ref></type>
+        <definition>struct rlist vy_history_node::link</definition>
+        <argsstring></argsstring>
+        <name>link</name>
+        <briefdescription>
+<para>Link in a history list. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_history.h" line="55" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_history.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__history__node_1a6904c216f7542d7977d9bffc969f2ee0" prot="public" static="no" mutable="no">
+        <type>struct <ref refid="structvy__entry" kindref="compound">vy_entry</ref></type>
+        <definition>struct vy_entry vy_history_node::entry</definition>
+        <argsstring></argsstring>
+        <name>entry</name>
+        <briefdescription>
+<para>History statement. </para>        </briefdescription>
+        <detaileddescription>
+<para>Referenced if  is set. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_history.h" line="55" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_history.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structvy__history__node_1a533548a9c8ee6a48d19d539bce42b627" prot="public" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool vy_history_node::is_refable</definition>
+        <argsstring></argsstring>
+        <name>is_refable</name>
+        <briefdescription>
+<para>Set if the statement stored in this node is refable, i.e. </para>        </briefdescription>
+        <detaileddescription>
+<para>has a reference counter that can be incremented to pin the statement in memory. Refable statements are referenced by the history. It is a responsibility of the user of the history to track lifetime of unrefable statements.</para><para>Note, we need to store this flag here, because by the time we clean up a history list, unrefable statements stored in it might have been deleted, thus making vy_stmt_is_refable() unusable. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/tsafin/tarantool/src/box/vy_history.h" line="77" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_history.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Key history node. </para>    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="13126">
+        <label>rlist</label>
+        <link refid="structrlist"/>
+        <childnode refid="13126" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+      <node id="13124">
+        <label>vy_entry</label>
+        <link refid="structvy__entry"/>
+        <childnode refid="13125" relation="usage">
+          <edgelabel>stmt</edgelabel>
+        </childnode>
+      </node>
+      <node id="13125">
+        <label>tuple</label>
+        <link refid="structtuple"/>
+      </node>
+      <node id="13123">
+        <label>vy_history_node</label>
+        <link refid="structvy__history__node"/>
+        <childnode refid="13124" relation="usage">
+          <edgelabel>entry</edgelabel>
+        </childnode>
+        <childnode refid="13126" relation="usage">
+          <edgelabel>link</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/home/tsafin/tarantool/src/box/vy_history.h" line="59" column="1" bodyfile="/home/tsafin/tarantool/src/box/vy_history.h" bodystart="59" bodyend="78"/>
+    <listofallmembers>
+      <member refid="structvy__history__node_1a6904c216f7542d7977d9bffc969f2ee0" prot="public" virt="non-virtual"><scope>vy_history_node</scope><name>entry</name></member>
+      <member refid="structvy__history__node_1a533548a9c8ee6a48d19d539bce42b627" prot="public" virt="non-virtual"><scope>vy_history_node</scope><name>is_refable</name></member>
+      <member refid="structvy__history__node_1a65aac9de407b74577b5744fd8cef1c9c" prot="public" virt="non-virtual"><scope>vy_history_node</scope><name>link</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>
