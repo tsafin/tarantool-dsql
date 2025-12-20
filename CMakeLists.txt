@@ -823,6 +823,7 @@ set(ABORT_ON_LEAK_DEFAULT ${TEST_BUILD})
 option(ABORT_ON_LEAK "Abort if memory leak is found." ${ABORT_ON_LEAK_DEFAULT})
 
 option(ENABLE_VDBE_GOTO_DISPATCH "Enable SQL vdbe goto dispatch." OFF)
+option(VDBE_USE_GENERATED_DISPATCH "Use generated VDBE dispatcher" ON)
 
 #
 # tarantool info summary (used in server version output)
@@ -870,7 +871,8 @@ set(options PACKAGE VERSION BUILD C_COMPILER CXX_COMPILER C_FLAGS CXX_FLAGS
     ENABLE_BUNDLED_MSGPUCK
     ENABLE_BUNDLED_LIBUNWIND
     ENABLE_FEEDBACK_DAEMON
-    ENABLE_VDBE_GOTO_DISPATCH)
+    ENABLE_VDBE_GOTO_DISPATCH
+    VDBE_USE_GENERATED_DISPATCH)
 foreach(option IN LISTS options)
     if (NOT DEFINED ${option})
         set(value "${TARANTOOL_${option}}")
