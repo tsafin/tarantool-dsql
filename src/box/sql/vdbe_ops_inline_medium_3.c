@@ -28,7 +28,9 @@
 #include "sqlInt.h"
 #include "mem.h"
 #include "vdbeInt.h"
+#include "tarantoolInt.h"
 #include "box/txn.h"
+#include "box/box.h"
 
 /*
  * Opcode: TRANSACTIONCOMMIT - Commit current transaction
@@ -205,6 +207,8 @@ vdbe_op_dropfieldforeignkey_inline(Vdbe *p, Op *pOp, Mem *aMem)
 int
 vdbe_op_genspaceid_inline(Vdbe *p, Op *pOp, Mem *aMem)
 {
+	(void)aMem;
+
 	Mem *pOut;
 	uint32_t u;
 

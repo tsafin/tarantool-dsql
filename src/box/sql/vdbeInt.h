@@ -61,6 +61,9 @@ typedef struct VdbeSorter VdbeSorter;
 #define CURTYPE_SORTER      1
 #define CURTYPE_PSEUDO      2
 
+/* Check if a cursor is a sorter type */
+#define isSorter(x) ((x)->eCurType==CURTYPE_SORTER)
+
 /*
  * A VdbeCursor is an superclass (a wrapper) for various cursor objects:
  *

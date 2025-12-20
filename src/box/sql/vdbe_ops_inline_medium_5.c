@@ -26,6 +26,8 @@
 #include "mem.h"
 #include "vdbeInt.h"
 #include "vdbe_helpers.h"
+#include "box/space_cache.h"
+#include "box/box.h"
 
 /*
  * Opcode: SHOWCREATETTABLE P1 P2 * * *
@@ -150,6 +152,7 @@ vdbe_op_clear_inline(Vdbe *p, Op *pOp, Mem *aMem)
 	uint32_t space_id;
 	struct space *space;
 
+	(void)p;
 	(void)aMem;
 
 	assert(pOp->p1 > 0);

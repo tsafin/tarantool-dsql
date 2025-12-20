@@ -23,7 +23,6 @@
 #include "vdbeInt.h"
 #include "vdbe_helpers.h"
 #include "tarantoolInt.h"
-#include "space_cache.h"
 
 /*
  * Opcode: SEQUENCETEST P1 P2 * * *
