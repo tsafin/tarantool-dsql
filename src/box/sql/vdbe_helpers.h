@@ -29,6 +29,7 @@ extern "C" {
  */
 struct Vdbe;
 struct Mem;
+struct VdbeCursor;
 
 /**
  * Helper function: sqlVdbeMemAboutToChange
@@ -65,6 +66,24 @@ void sqlVdbeMemAboutToChange(struct Vdbe *pVdbe, struct Mem *pMem);
  *   Pointer to the initialized Mem register
  */
 struct Mem * vdbe_prepare_null_out(struct Vdbe *v, int n);
+
+/**
+ * Helper function: allocateCursor
+ *
+ * Allocate a new VdbeCursor structure for the VDBE.
+ * Each cursor maintains position information for table/index access.
+ *
+ * Arguments:
+ *   p - The VDBE instance
+ *   iCur - Cursor index to allocate
+ *   nField - Number of fields in the table/index
+ *   eCurType - Type of cursor (CURTYPE_TARANTOOL, CURTYPE_SORTER, etc.)
+ *
+ * Returns:
+ *   Pointer to the allocated VdbeCursor, or NULL if allocation failed
+ */
+struct VdbeCursor * allocateCursor(struct Vdbe *p, int iCur, int nField,
+	unsigned char eCurType);
 
 #if defined(__cplusplus)
 }

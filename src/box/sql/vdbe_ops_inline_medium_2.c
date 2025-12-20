@@ -21,6 +21,7 @@
 #include "mem.h"
 #include "vdbeInt.h"
 #include "box/space.h"
+#include "box/space_cache.h"
 
 /*
  * Opcode: DECIMAL - Load decimal constant
@@ -128,6 +129,7 @@ vdbe_op_sequence_inline(Vdbe *p, Op *pOp, Mem *aMem)
 int
 vdbe_op_openspace_inline(Vdbe *p, Op *pOp, Mem *aMem)
 {
+	(void)p;
 	(void)aMem;
 
 	struct space *space;

@@ -22,6 +22,8 @@
 #include "sqlInt.h"
 #include "mem.h"
 #include "vdbeInt.h"
+#include "vdbe_helpers.h"
+#include "tarantoolInt.h"
 
 /*
  * Opcode: SHIFTLEFT P1 P2 P3 * *
@@ -275,6 +277,7 @@ vdbe_op_getitem_inline(Vdbe *p, Op *pOp, Mem *aMem)
 
 	/* Calculate output register: P3 + count */
 	value = &aMem[pOp->p3 + count];
+	(void)value;
 
 	/* Check if the container (P2) is NULL */
 	if (mem_is_null(&aMem[pOp->p2])) {
