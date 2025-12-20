@@ -28,8 +28,13 @@
  * Status: ENABLED - Phase 5.3.5 complete
  * Phase 5.3 infrastructure complete and ready for integration
  * Phase 5.4: Integrate dispatcher selection into sqlVdbeExec()
+ *
+ * Note: This flag is now set via CMake (-DVDBE_USE_GENERATED_DISPATCH=1)
+ * for proper build configuration management
  */
-#define VDBE_USE_GENERATED_DISPATCH
+#if !defined(VDBE_USE_GENERATED_DISPATCH)
+/* #define VDBE_USE_GENERATED_DISPATCH */
+#endif
 
 /*
  * VDBE_PARALLEL_VALIDATION: Run both dispatchers and compare results
