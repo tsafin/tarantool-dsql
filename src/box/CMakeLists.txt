@@ -397,6 +397,10 @@ if (ENABLE_VDBE_GOTO_DISPATCH)
   add_definitions(-DSQL_USE_GOTO=1)
 endif()
 
+if (VDBE_USE_GENERATED_DISPATCH)
+  add_definitions(-DVDBE_USE_GENERATED_DISPATCH=1)
+endif()
+
 set(EXT_SRC_DIR ${PROJECT_SOURCE_DIR}/extra)
 set(EXT_BIN_DIR ${PROJECT_BINARY_DIR}/extra)
 set(SQL_SRC_DIR ${PROJECT_SOURCE_DIR}/src/box/sql)
