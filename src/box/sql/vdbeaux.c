@@ -437,6 +437,27 @@ sqlVdbeRunOnlyOnce(Vdbe * p)
  * script numbers the opcodes correctly.  Changes to this routine must be
  * coordinated with changes to mkopcodeh.sh.
  */
+static inline bool
+vdbe_opcode_is_jump(u8 opcode)
+{
+	switch (opcode) {
+	case OP_IdxGE:
+	case OP_IdxGT:
+	case OP_IdxLE:
+	case OP_IdxLT:
+	case OP_Found:
+	case OP_NotFound:
+	case OP_NoConflict:
+	case OP_SeekGE:
+	case OP_SeekGT:
+	case OP_SeekLE:
+	case OP_SeekLT:
+		return true;
+	default:
+		return false;
+	}
+}
+
 static void
 resolveP2Values(Vdbe * p)
 {
@@ -471,8 +492,8 @@ resolveP2Values(Vdbe * p)
 					break;
 				}
 			}
-			if ((sqlOpcodeProperty[pOp->opcode] & OPFLG_JUMP) !=
-			    0 && pOp->p2 < 0) {
+			if (((sqlOpcodeProperty[pOp->opcode] & OPFLG_JUMP) != 0 ||
+			     vdbe_opcode_is_jump(pOp->opcode)) && pOp->p2 < 0) {
 				assert(ADDR(pOp->p2) < pParse->nLabel);
 				pOp->p2 = aLabel[ADDR(pOp->p2)];
 			}

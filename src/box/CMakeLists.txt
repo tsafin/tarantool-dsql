@@ -415,11 +415,12 @@ set(VDBE_GEN_C ${VDBE_GEN_DIR}/vdbe_dispatch_generated.c)
 set(VDBE_GEN_H ${VDBE_GEN_DIR}/vdbe_opcodes_generated.h)
 
 # Generate VDBE opcode sources from DSL
+# Regenerate when opcodes.h changes (after mkopcodeh.sh runs) to keep IDs in sync
 add_custom_command(
     OUTPUT ${VDBE_GEN_C} ${VDBE_GEN_H}
     COMMAND ${CMAKE_COMMAND} -E make_directory ${VDBE_GEN_DIR}
     COMMAND python3 ${VDBE_CODEGEN} --in ${VDBE_DSL} --out ${VDBE_GEN_DIR}
-    DEPENDS ${VDBE_CODEGEN} ${VDBE_DSL}
+    DEPENDS ${VDBE_CODEGEN} ${VDBE_DSL} ${SQL_BIN_DIR}/opcodes.h
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
     COMMENT "Generating VDBE opcode headers and dispatch from DSL"
 )

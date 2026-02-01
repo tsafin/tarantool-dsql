@@ -7,7 +7,7 @@
   - OUT3
   doc: String concatenation r[P3]=r[P1]+r[P2]
 - name: OP_Cast
-  id: 68
+  id: 69
   handler_type: external
   flags:
   - IN1
@@ -43,7 +43,7 @@
   - OUT3
   doc: Aggregate finalize accum=r[P1]
 - name: OP_ResultRow
-  id: 63
+  id: 64
   handler_type: external
   flags:
   - IN1
@@ -65,21 +65,21 @@
   - OUT2
   doc: Get complete row data r[P2]=data
 - name: OP_Rewind
-  id: 42
+  id: 43
   handler_type: external
   flags:
   - IN1
   - JUMP
   doc: Rewind cursor to first row
 - name: OP_Last
-  id: 39
+  id: 40
   handler_type: external
   flags:
   - IN1
   - JUMP
   doc: Position cursor to last row
 - name: OP_Next
-  id: 6
+  id: 8
   handler_type: external
   flags:
   - IN1
@@ -115,7 +115,7 @@
   - JUMP
   doc: Seek to LE key position key=r[P3@P4]
 - name: OP_SeekGT
-  id: 36
+  id: 37
   handler_type: external
   flags:
   - IN1
@@ -123,7 +123,7 @@
   - JUMP
   doc: Seek to GT key position key=r[P3@P4]
 - name: OP_SeekGE
-  id: 37
+  id: 38
   handler_type: external
   flags:
   - IN1
@@ -131,7 +131,7 @@
   - JUMP
   doc: Seek to GE key position key=r[P3@P4]
 - name: OP_SeekLT
-  id: 35
+  id: 36
   handler_type: external
   flags:
   - IN1
@@ -139,7 +139,7 @@
   - JUMP
   doc: Seek to LT key position key=r[P3@P4]
 - name: OP_IdxGE
-  id: 43
+  id: 44
   handler_type: external
   flags:
   - IN1
@@ -171,7 +171,7 @@
   - JUMP
   doc: Index comparison LT key=r[P3@P4]
 - name: OP_Found
-  id: 38
+  id: 39
   handler_type: external
   flags:
   - IN1
@@ -290,7 +290,7 @@
   - OUT3
   doc: Modulo r[P3]=r[P2]%r[P1]
 - name: OP_Eq
-  id: 17
+  id: 14
   handler_type: external
   flags:
   - IN1
@@ -306,7 +306,7 @@
   - JUMP
   doc: Not equal comparison if r[P3]!=r[P1] goto P2
 - name: OP_Lt
-  id: 30
+  id: 17
   handler_type: external
   flags:
   - IN1
@@ -338,7 +338,7 @@
   - JUMP
   doc: Greater or equal comparison if r[P3]>=r[P1] goto P2
 - name: OP_And
-  id: 74
+  id: 6
   handler_type: external
   flags:
   - IN1
@@ -384,19 +384,19 @@
   - OUT2
   doc: Bitwise NOT r[P1]= ~r[P1]
 - name: OP_Integer
-  id: 53
+  id: 54
   handler_type: external
   flags:
   - OUT2
   doc: Load integer constant r[P2]=P1
 - name: OP_Bool
-  id: 54
+  id: 55
   handler_type: external
   flags:
   - OUT2
   doc: Load boolean constant r[P2]=P1
 - name: OP_Int64
-  id: 55
+  id: 56
   handler_type: external
   flags:
   - OUT2
@@ -408,59 +408,59 @@
   - OUT2
   doc: Load floating point r[P2]=P4
 - name: OP_String
-  id: 56
+  id: 57
   handler_type: external
   flags:
   - OUT2
   doc: Load string r[P2]='P4' (len=P1)
 - name: OP_Null
-  id: 57
+  id: 58
   handler_type: external
   flags:
   - OUT2
   - OUT3
   doc: Load NULL r[P2..P3]=NULL
 - name: OP_Blob
-  id: 58
+  id: 59
   handler_type: external
   flags:
   - OUT2
   doc: Load blob r[P2]=P4 (len=P1, subtype=P3)
 - name: OP_Variable
-  id: 59
+  id: 60
   handler_type: external
   flags:
   - OUT2
   doc: Load parameter r[P2]=parameter(P1,P4)
 - name: OP_Move
-  id: 60
+  id: 61
   handler_type: external
   flags:
   - IN1
   - OUT2
   doc: Move register r[P2@P3]=r[P1@P3]
 - name: OP_Copy
-  id: 61
+  id: 62
   handler_type: external
   flags:
   - IN1
   - OUT2
   doc: Copy registers r[P2@P3+1]=r[P1@P3+1]
 - name: OP_SCopy
-  id: 62
+  id: 63
   handler_type: external
   flags:
   - IN1
   - OUT2
   doc: Copy single register r[P2]=r[P1]
 - name: OP_Goto
-  id: 8
+  id: 9
   handler_type: control_flow
   flags:
   - JUMP
   doc: Unconditional jump to P2
 - name: OP_Jump
-  id: 32
+  id: 33
   handler_type: control_flow
   flags:
   - JUMP
@@ -473,32 +473,32 @@
   - JUMP
   doc: Jump if r[P1] is true
 - name: OP_IfNot
-  id: 34
+  id: 35
   handler_type: control_flow
   flags:
   - IN1
   - JUMP
   doc: Jump if r[P1] is false
 - name: OP_Once
-  id: 33
+  id: 34
   handler_type: control_flow
   flags:
   - JUMP
   doc: Execute body once
 - name: OP_Gosub
-  id: 10
+  id: 11
   handler_type: control_flow
   flags:
   - JUMP
   doc: Subroutine call
 - name: OP_Return
-  id: 50
+  id: 51
   handler_type: control_flow
   flags:
   - IN1
   doc: Return from subroutine
 - name: OP_InitCoroutine
-  id: 11
+  id: 12
   handler_type: control_flow
   flags:
   - IN1
@@ -506,14 +506,14 @@
   - JUMP
   doc: Initialize coroutine
 - name: OP_Yield
-  id: 12
+  id: 30
   handler_type: control_flow
   flags:
   - IN1
   - JUMP
   doc: Yield from coroutine
 - name: OP_EndCoroutine
-  id: 51
+  id: 52
   handler_type: control_flow
   flags:
   - IN1
@@ -525,46 +525,46 @@
   - JUMP
   doc: Jump if comparison was not equal
 - name: OP_MustBeInt
-  id: 14
+  id: 32
   handler_type: control_flow
   flags:
   - IN1
   - JUMP
   doc: Assert operand is integer
 - name: OP_IfPos
-  id: 45
+  id: 46
   handler_type: control_flow
   flags:
   - IN1
   - JUMP
   doc: If r[P1]>0 then r[P1]-=P3, goto P2
 - name: OP_IfNotZero
-  id: 46
+  id: 47
   handler_type: control_flow
   flags:
   - IN1
   - JUMP
   doc: If r[P1]!=0 then r[P1]--, goto P2
 - name: OP_DecrJumpZero
-  id: 47
+  id: 49
   handler_type: control_flow
   flags:
   - IN1
   - JUMP
   doc: If (--r[P1])==0 goto P2
 - name: OP_SetDiag
-  id: 9
+  id: 10
   handler_type: control_flow
   flags:
   - JUMP
   doc: Set diagnostic and jump
 - name: OP_Halt
-  id: 52
+  id: 53
   handler_type: control_flow
   flags: []
   doc: Stop execution
 - name: OP_Init
-  id: 49
+  id: 50
   handler_type: control_flow
   flags:
   - JUMP
@@ -597,13 +597,13 @@
     \n\tif (P1 > SQL_MAX_LENGTH)\n\t\tgoto too_big;\n\tassert(rc == 0);\n\t/* Fall through to the next case, OP_String */\n\
     #ifndef SQL_USE_GOTO\n\tFALLTHROUGH;\n#endif /* SQL_USE_GOTO */"
 - name: OP_SkipLoad
-  id: 64
+  id: 65
   handler_type: inline
   flags: []
   doc: Skip load
   inline_code: "if (P1) {\n\t\tmem_set_bool(&aMem[P1], false);"
 - name: OP_BuiltinFunction
-  id: 65
+  id: 66
   handler_type: inline
   flags:
   - IN1
@@ -614,7 +614,7 @@
     pOut = vdbe_prepare_null_out(p, P3);\n\tif (pCtx->pOut != pOut)\n\t\tpCtx->pOut = pOut;\n\n#ifdef SQL_DEBUG\n\tfor(int\
     \ i = 0; i < argc; i++) {\n\t\tassert(memIsValid(&aMem[P2 + i]));\n\t\tREGISTER_TRACE(p, P2 + i, &aMem[P2 + i]);"
 - name: OP_FunctionByName
-  id: 66
+  id: 67
   handler_type: inline
   flags:
   - IN1
@@ -624,7 +624,7 @@
   inline_code: "assert(pOp->p4type == P4_DYNAMIC);\n\tstruct func *func = func_by_name(pOp->p4.z, strlen(pOp->p4.z));\n\t\
     if (unlikely(func == NULL)) {\n\t\tdiag_set(ClientError, ER_NO_SUCH_FUNCTION, pOp->p4.z);\n\t\tgoto abort_due_to_error;"
 - name: OP_AddImm
-  id: 67
+  id: 68
   handler_type: inline
   flags:
   - IN1
@@ -632,7 +632,7 @@
   inline_code: "/* in1 */\n\tpIn1 = &aMem[P1];\n\tmemAboutToChange(p, pIn1);\n\tassert(mem_is_uint(pIn1) && P2 >= 0);\n\t\
     pIn1->u.u += P2;\n\tDISPATCH();"
 - name: OP_Array
-  id: 69
+  id: 70
   handler_type: inline
   flags:
   - OUT2
@@ -641,7 +641,7 @@
     \tchar *val = mem_encode_array(&aMem[P3], P1, &size, region);\n\tif (val == NULL || mem_copy_array(pOut, val, size) !=\
     \ 0) {\n\t\tregion_truncate(region, svp);\n\t\tgoto abort_due_to_error;"
 - name: OP_Map
-  id: 70
+  id: 71
   handler_type: inline
   flags:
   - OUT2
@@ -650,7 +650,7 @@
     \tchar *val = mem_encode_map(&aMem[P3], P1, &size, region);\n\tif (val == NULL || mem_copy_map(pOut, val, size) != 0)\
     \ {\n\t\tregion_truncate(region, svp);\n\t\tgoto abort_due_to_error;"
 - name: OP_Getitem
-  id: 71
+  id: 72
   handler_type: inline
   flags:
   - IN1
@@ -660,13 +660,13 @@
   inline_code: "int count = P1;\n\tassert(count > 0);\n\tstruct Mem *value = &aMem[P3 + count];\n\tif (mem_is_null(value))\
     \ {\n\t\tdiag_set(ClientError, ER_SQL_EXECUTE, \"Selecting is not \"\n\t\t\t \"possible from NULL\");\n\t\tgoto abort_due_to_error;"
 - name: OP_Permutation
-  id: 72
+  id: 73
   handler_type: inline
   flags: []
   doc: Permutation
   inline_code: "assert(pOp->p4type == P4_INTARRAY);\n\tassert(pOp->p4.ai);\n\taPermute = pOp->p4.ai + 1;\n\tDISPATCH();"
 - name: OP_Compare
-  id: 73
+  id: 74
   handler_type: inline
   flags:
   - IN1
@@ -1064,7 +1064,7 @@
   inline_code: "/* same as TK_DECIMAL, out2 */\n\tpOut = vdbe_prepare_null_out(p, P2);\n\tmem_set_dec(pOut, pOp->p4.dec);\n\
     \tDISPATCH();"
 - name: OP_Program
-  id: 44
+  id: 45
   handler_type: inline
   flags:
   - JUMP
@@ -1083,7 +1083,7 @@
     \ pProgram->token;\n\t\tfor(pFrame=p->pFrame; pFrame && pFrame->token!=t; pFrame=pFrame->pParent);\n\t\tif (pFrame) {\n\
     \t\t\tDISPATCH();"
 - name: OP_Sort
-  id: 41
+  id: 42
   handler_type: inline
   flags:
   - IN1
@@ -1092,7 +1092,7 @@
   inline_code: "/* jump */\n#ifdef SQL_TEST\n\tsql_sort_count++;\n\tsql_search_count--;\n#endif\n\t/* Fall through into OP_Rewind\
     \ */\n#ifndef SQL_USE_GOTO\n\tFALLTHROUGH;\n#endif /* SQL_USE_GOTO */"
 - name: OP_SorterSort
-  id: 40
+  id: 41
   handler_type: inline
   flags:
   - IN1
