@@ -17,6 +17,7 @@
 #include "vdbe_ops.h"
 #include "vdbe_dispatch.h"
 #include "vdbe_dispatch_interface.h"
+#include "box/error.h"
 
 /* Forward declarations */
 void vdbe_trace(Vdbe *p, Op *pOrigOp, int rc, Mem *aMem);
@@ -177,9 +178,9 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	/* For debugging/tracing */
 #ifdef SQL_DEBUG
 	VdbeOp *pOrigOp;
-#else
-	(void)p;  /* Suppress unused parameter warning when not debugging */
 #endif
+
+	assert(p != NULL);
 
 	/* Parameter shortcuts (from vdbe.c) */
 #define P1 pOp->p1
@@ -199,6 +200,8 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	/* Main execution loop - Phase 5.5: Loop-based dispatcher */
 	while (pc < nOp) {
 		pOp = &aOp[pc];
+		int op = pOp->opcode;
+		int cur_pc = pc;
 
 		/* Debug tracing */
 #ifdef SQL_DEBUG
@@ -218,35 +221,35 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		case OP_Add: {
 			int handler_rc = vdbe_op_add(p, pOp, aMem);
 			if (handler_rc < 0) { rc = -1; break; }
-			if (handler_rc == 1) { pc = P2 - 1; continue; }
+			if (handler_rc == 1) { pc = P2; continue; }
 			pc++; continue;
 		}
 
 		case OP_Subtract: {
 			int handler_rc = vdbe_op_sub(p, pOp, aMem);
 			if (handler_rc < 0) { rc = -1; break; }
-			if (handler_rc == 1) { pc = P2 - 1; continue; }
+			if (handler_rc == 1) { pc = P2; continue; }
 			pc++; continue;
 		}
 
 		case OP_Multiply: {
 			int handler_rc = vdbe_op_multiply(p, pOp, aMem);
 			if (handler_rc < 0) { rc = -1; break; }
-			if (handler_rc == 1) { pc = P2 - 1; continue; }
+			if (handler_rc == 1) { pc = P2; continue; }
 			pc++; continue;
 		}
 
 		case OP_Divide: {
 			int handler_rc = vdbe_op_divide(p, pOp, aMem);
 			if (handler_rc < 0) { rc = -1; break; }
-			if (handler_rc == 1) { pc = P2 - 1; continue; }
+			if (handler_rc == 1) { pc = P2; continue; }
 			pc++; continue;
 		}
 
 		case OP_Remainder: {
 			int handler_rc = vdbe_op_remainder(p, pOp, aMem);
 			if (handler_rc < 0) { rc = -1; break; }
-			if (handler_rc == 1) { pc = P2 - 1; continue; }
+			if (handler_rc == 1) { pc = P2; continue; }
 			pc++; continue;
 		}
 
@@ -272,20 +275,64 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 			continue;
 		}
 
+		case OP_SetDiag: {
+			/* Set diagnostic and optionally jump */
+			box_error_set(__FILE__, __LINE__, P1, pOp->p4.z);
+			if (P2 != 0) {
+				pc = P2;
+			} else {
+				pc++;
+			}
+			continue;
+		}
+
+		case OP_Init: {
+			/* Initialize program and jump to P2 */
+			char *zTrace;
+			int i;
+			struct sql *db = sql_get();
+			assert(pOp == p->aOp);
+			if (p->pFrame == NULL && sql_vdbe_prepare(p) != 0) {
+				rc = -1;
+				break;
+			}
+
+			if ((db->mTrace & SQL_TRACE_STMT) != 0 && !p->doingRerun &&
+			    (zTrace = (pOp->p4.z ? pOp->p4.z : p->zSql)) != 0) {
+				(void)db->xTrace(SQL_TRACE_STMT, db->pTraceArg, p, zTrace);
+			}
+#ifdef SQL_DEBUG
+			if ((p->sql_flags & SQL_SqlTrace) != 0 &&
+			    (zTrace = (pOp->p4.z ? pOp->p4.z : p->zSql)) != 0)
+				sqlDebugPrintf("SQL-trace: %s\n", zTrace);
+#endif /* SQL_DEBUG */
+			assert(P2 > 0);
+			if (P1 >= sqlGlobalConfig.iOnceResetThreshold) {
+				for (i = 1; i < p->nOp; i++) {
+					if (p->aOp[i].opcode == OP_Once)
+						p->aOp[i].p1 = 0;
+				}
+				P1 = 0;
+			}
+			P1++;
+			pc = P2;
+			continue;
+		}
+
 		case OP_Goto: {
 			/* Unconditional jump */
-			pc = P2 - 1;
+			pc = P2;
 			continue;
 		}
 
 		case OP_Jump: {
 			/* Conditional jump based on p->iCompare */
 			if (p->iCompare < 0) {
-				pc = P1 - 1;
+				pc = P1;
 			} else if (p->iCompare == 0) {
-				pc = P2 - 1;
+				pc = P2;
 			} else {
-				pc = P3 - 1;
+				pc = P3;
 			}
 			continue;
 		}
@@ -299,6 +346,7 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 			}
 			if (handler_rc == 1) {
 				/* Return SQL_ROW to caller */
+				pc = p->pc;
 				rc = SQL_ROW;
 				break;
 			}
@@ -307,16 +355,39 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		}
 
 		case OP_Halt: {
-			/* Halt execution */
-			if (P1 != 0) {
-				rc = -1;
-				break;
+			/* Halt execution - mirror inline dispatcher semantics */
+			VdbeFrame *pFrame;
+			int pcx;
+			assert(P1 == 0 || !diag_is_empty(diag_get()));
+
+			pcx = pc;
+			if (P1 == 0 && p->pFrame != NULL) {
+				/* Halt sub-program and return control to parent frame. */
+				pFrame = p->pFrame;
+				p->pFrame = pFrame->pParent;
+				p->nFrame--;
+				sqlVdbeSetChanges(p->nChange);
+				pcx = sqlVdbeFrameRestore(pFrame);
+				if (P2 == ON_CONFLICT_ACTION_IGNORE) {
+					/* Jump to P2 of calling OP_Program. */
+					pcx = p->aOp[pcx].p2 - 1;
+				}
+				aOp = p->aOp;
+				aMem = p->aMem;
+				nOp = p->nOp;
+				pc = pcx + 1;
+				continue;
 			}
-			rc = SQL_DONE;
+			if (P1 != 0)
+				p->is_aborted = true;
+			p->errorAction = (u8)P2;
+			p->pc = pcx;
+			sqlVdbeHalt(p);
+			rc = p->is_aborted ? -1 : SQL_DONE;
 			break;
 		}
 
-		/* ====================================================================
+	/* ====================================================================
 	 * SIMPLE INLINE OPCODES (Phase 5.6a - 10 opcodes < 100 chars)
 	 * These are refactored inline opcodes that work as handler functions
 	 * ====================================================================
@@ -355,7 +426,7 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		/* Jump if not null */
 		int handler_rc = vdbe_op_notnull_inline(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }
-		if (handler_rc == 1) { pc = P2 - 1; continue; }
+		if (handler_rc == 1) { pc = P2; continue; }
 		pc++; continue;
 	}
 
@@ -383,7 +454,7 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		/* Test for NULL and jump if true */
 		int handler_rc = vdbe_op_isnull_inline(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }
-		if (handler_rc == 1) { pc = P2 - 1; continue; }
+		if (handler_rc == 1) { pc = P2; continue; }
 		pc++; continue;
 	}
 
@@ -544,7 +615,7 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		/* Test sequence counter, jump if zero */
 		int handler_rc = vdbe_op_sequencetest_inline(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }
-		if (handler_rc > 0) { pc = pOp->p2; continue; }  /* Jump to P2 */
+		if (handler_rc > 0) { pc = P2; continue; }  /* Jump to P2 */
 		pc++; continue;
 	}
 	case OP_Fetch: {
@@ -606,13 +677,25 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 
 	/* Noop for unassigned opcodes */
 		default: {
-			pc++;
-			continue;
+			fprintf(stderr,
+				"Generated dispatcher unhandled opcode: pc=%d op=%s\n",
+				pc, sqlOpcodeName(pOp->opcode));
+			diag_set(ClientError, ER_SQL_EXECUTE,
+				"Unhandled VDBE opcode: %s", sqlOpcodeName(pOp->opcode));
+			rc = -1;
+			break;
 		}
 		}
 
 		/* Exit loop on error or special return code */
 		if (rc != 0) {
+			if (rc < 0 && diag_is_empty(diag_get())) {
+				fprintf(stderr,
+					"Generated dispatcher error without diag: pc=%d op=%s\n",
+					cur_pc, sqlOpcodeName(op));
+				diag_set(ClientError, ER_SQL_EXECUTE,
+					 "VDBE error without diagnostics");
+			}
 			break;
 		}
 	}
