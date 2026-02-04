@@ -308,6 +308,14 @@ struct Vdbe {
 	uint32_t sql_flags;
 	/* Anonymous savepoint for aborts only */
 	struct txn_savepoint *anonymous_savepoint;
+#ifdef ENABLE_SQL_JIT
+	/** JIT-compiled function pointer (null if not compiled) */
+	void *jit_func;
+	/** LLVM module reference for JIT-compiled code */
+	void *jit_module;
+	/** Non-zero if this VDBE has been JIT-compiled */
+	int jit_compiled;
+#endif
 };
 
 /*
@@ -395,7 +403,7 @@ struct region;
 static inline void
 set_encode_error(void *error_ctx)
 {
-	*(bool *)error_ctx = true;
+	*(Bool *)error_ctx = 1;
 }
 
 /* Include helper functions for VDBE opcodes */

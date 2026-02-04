@@ -1,0 +1,55 @@
+/*
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
+ * Copyright 2010-2026, Tarantool AUTHORS, please see AUTHORS file.
+ */
+
+/*
+ * Interface for VDBE JIT compiler.
+ * Provides functions to initialize, compile, and manage JIT-compiled VDBE programs.
+ */
+
+#pragma once
+
+struct Vdbe;
+
+/**
+ * Initialize the JIT compiler subsystem.
+ * Must be called before any other JIT functions.
+ * 
+ * @return 0 on success, -1 on error
+ */
+int
+vdbe_jit_init(void);
+
+/**
+ * Compile a VDBE program into native code using JIT.
+ * 
+ * @param p  VDBE program to compile
+ * @return 0 on success, -1 on error
+ */
+int
+vdbe_jit_compile(struct Vdbe *p);
+
+/**
+ * Clean up JIT resources for a VDBE program.
+ * 
+ * @param p  VDBE program to clean up
+ */
+void
+vdbe_jit_cleanup(struct Vdbe *p);
+
+/**
+ * Shut down the JIT compiler subsystem.
+ * Releases all JIT resources.
+ */
+void
+vdbe_jit_shutdown(void);
+
+/**
+ * Check if JIT compilation is available and enabled.
+ * 
+ * @return 1 if JIT is available and enabled in configuration, 0 otherwise
+ */
+int
+vdbe_jit_is_enabled(void);

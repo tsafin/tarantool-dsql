@@ -163,6 +163,60 @@ set(sql_sources
     sql/whereexpr.c
 )
 
+# Add JIT source file only when JIT is enabled
+if(ENABLE_SQL_JIT)
+    list(APPEND sql_sources sql/vdbe_jit.c)
+endif()
+
+#
+# SQL JIT: Generate LLVM bitcode for handler files
+#
+if(ENABLE_SQL_JIT)
+    # List of handler files to compile to bitcode
+    set(sql_jit_handlers
+        sql/vdbe_ops_arith.c
+        sql/vdbe_ops_compare.c
+        sql/vdbe_ops_logical.c
+        sql/vdbe_ops_data.c
+        sql/vdbe_ops_cursor_data.c
+        sql/vdbe_ops_index.c
+        sql/vdbe_ops_string.c
+        sql/vdbe_ops_type.c
+    )
+    
+    set(sql_jit_bitcode_files)
+    
+    # Generate bitcode for each handler file
+    foreach(handler_source ${sql_jit_handlers})
+        get_filename_component(handler_name ${handler_source} NAME_WE)
+        set(bitcode_file "${PROJECT_BINARY_DIR}/src/box/${handler_name}.bc")
+        
+        add_custom_command(
+            OUTPUT ${bitcode_file}
+            COMMAND clang 
+                -emit-llvm -c -O2
+                -I${PROJECT_SOURCE_DIR}/src
+                -I${PROJECT_SOURCE_DIR}/src/box
+                -I${PROJECT_BINARY_DIR}/src/box/sql
+                -I${PROJECT_BINARY_DIR}/src/box
+                ${LLVM_DEFINITIONS}
+                ${PROJECT_SOURCE_DIR}/src/box/${handler_source}
+                -o ${bitcode_file}
+            DEPENDS ${PROJECT_SOURCE_DIR}/src/box/${handler_source}
+            COMMENT "Generating LLVM bitcode for ${handler_name}"
+        )
+        
+        list(APPEND sql_jit_bitcode_files ${bitcode_file})
+    endforeach()
+    
+    # Create target for all bitcode files
+    add_custom_target(sql_jit_bitcode ALL
+        DEPENDS ${sql_jit_bitcode_files}
+    )
+    
+    message(STATUS "SQL JIT: Will generate bitcode for ${sql_jit_handlers}")
+endif()
+
 add_custom_target(box_generate_lua_sources
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/src/box
     DEPENDS ${lua_sources})
@@ -428,6 +482,14 @@ add_custom_command(
 add_custom_target(vdbe_codegen DEPENDS ${VDBE_GEN_C} ${VDBE_GEN_H})
 include_directories(${SQL_SRC_DIR}/generated)
 
+#
+# SQL JIT: Install bitcode files
+#
+if(ENABLE_SQL_JIT)
+    install(FILES ${sql_jit_bitcode_files}
+            DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/tarantool/sql_handlers)
+endif()
+
 # Generated dispatch code is included directly in vdbe.c, not compiled separately
 # (Phase 5.3: kept in build for reference, will be integrated into vdbe.c)
 # list(APPEND sql_sources ${VDBE_GEN_C})
@@ -474,5 +536,10 @@ add_custom_command(OUTPUT ${SQL_BIN_DIR}/dispatchtable.h
 
 target_link_libraries(box box_error tuple stat xrow xlog vclock crc32 raft
                       node_name ${common_libraries})
+
+# Link LLVM libraries when SQL JIT is enabled
+if(ENABLE_SQL_JIT)
+    target_link_libraries(box ${LLVM_LIBS})
+endif()
 
 add_dependencies(box build_bundled_libs generate_sql_files)
