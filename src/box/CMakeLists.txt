@@ -196,9 +196,26 @@ if(ENABLE_SQL_JIT)
             COMMAND clang 
                 -emit-llvm -c -O2
                 -I${PROJECT_SOURCE_DIR}/src
+                -I${PROJECT_SOURCE_DIR}/src/lib
+                -I${PROJECT_SOURCE_DIR}/src/lib/core
+                -I${PROJECT_SOURCE_DIR}/src/lib/small/include
+                -I${PROJECT_SOURCE_DIR}/src/lib/small/third_party
+                -I${PROJECT_SOURCE_DIR}/src/lib/msgpuck
                 -I${PROJECT_SOURCE_DIR}/src/box
-                -I${PROJECT_BINARY_DIR}/src/box/sql
+                -I${PROJECT_SOURCE_DIR}/third_party
+                -I${PROJECT_SOURCE_DIR}/third_party/coro
+                -I${PROJECT_SOURCE_DIR}/third_party/luajit/src
+                -I${PROJECT_SOURCE_DIR}/third_party/xxHash
+                -I${PROJECT_SOURCE_DIR}/third_party/zstd/lib
+                -I${PROJECT_SOURCE_DIR}/third_party/zstd/lib/common
+                -I${PROJECT_SOURCE_DIR}/third_party/libutil_freebsd
+                -I${PROJECT_BINARY_DIR}/src
                 -I${PROJECT_BINARY_DIR}/src/box
+                -I${PROJECT_BINARY_DIR}/src/box/sql
+                -I${PROJECT_BINARY_DIR}/src/lib/small/small/include
+                -I${PROJECT_BINARY_DIR}/third_party
+                -I${PROJECT_BINARY_DIR}/third_party/luajit/src
+                -I${PROJECT_BINARY_DIR}/third_party/decNumber
                 ${LLVM_DEFINITIONS}
                 ${PROJECT_SOURCE_DIR}/src/box/${handler_source}
                 -o ${bitcode_file}
