@@ -1,0 +1,75 @@
+===============================================================================
+VDBE DISPATCHER MICRO-BENCHMARK
+===============================================================================
+Timestamp:       2026-02-05 00:03:14
+Tarantool:       3.1.0-entrypoint-203-gdf6468418d
+Dispatcher Mode: old
+Configuration:   3 warmup + 10 measurement runs, 1000 iterations/run
+===============================================================================
+
+[TEST] Arithmetic Mix (arithmetic)
+  Mean:   0.044559 s (±0.002973)
+  Median: 0.044711 s
+  Range:  0.038582 - 0.048665 s
+
+[TEST] Bitwise Operations (bitwise)
+  Mean:   0.029979 s (±0.005227)
+  Median: 0.030657 s
+  Range:  0.019512 - 0.038941 s
+
+[TEST] Comparison Operations (comparison)
+  Mean:   0.019552 s (±0.003074)
+  Median: 0.019578 s
+  Range:  0.013831 - 0.024917 s
+
+[TEST] Data Loading (data)
+  Mean:   0.031087 s (±0.002844)
+  Median: 0.031055 s
+  Range:  0.027030 - 0.037581 s
+
+[TEST] Insert Operations (insert)
+  Mean:   0.007516 s (±0.001482)
+  Median: 0.007950 s
+  Range:  0.004694 - 0.010160 s
+
+[TEST] Index Seek (index)
+  Mean:   0.030358 s (±0.003072)
+  Median: 0.029967 s
+  Range:  0.026578 - 0.036942 s
+
+[TEST] Aggregate Functions (aggregate)
+  Mean:   0.020677 s (±0.002253)
+  Median: 0.021134 s
+  Range:  0.016240 - 0.023558 s
+
+[TEST] Table Scan (cursor)
+  Mean:   0.009733 s (±0.002222)
+  Median: 0.009878 s
+  Range:  0.006406 - 0.012718 s
+
+[TEST] Mixed Operations (mixed)
+  Mean:   0.181415 s (±0.005330)
+  Median: 0.183160 s
+  Range:  0.174492 - 0.189933 s
+
+==============================================================================
+SUMMARY
+==============================================================================
+
+Total benchmark time: 0.375 seconds
+
+By category:
+  aggregate:      1 tests, 0.021 seconds
+  comparison:     1 tests, 0.020 seconds
+  arithmetic:     1 tests, 0.045 seconds
+  data:           1 tests, 0.031 seconds
+  index:          1 tests, 0.030 seconds
+  mixed:          1 tests, 0.181 seconds
+  bitwise:        1 tests, 0.030 seconds
+  cursor:         1 tests, 0.010 seconds
+  insert:         1 tests, 0.008 seconds
+
+==============================================================================
+JSON OUTPUT (for analysis)
+==============================================================================
+{"metadata":{"timestamp":"2026-02-05 00:03:14","warmup_runs":3,"measure_runs":10,"tarantool_version":"3.1.0-entrypoint-203-gdf6468418d","dispatcher_mode":"old","iterations":1000},"tests":[{"stats":{"max":0.048665403002815,"mean":0.044558830700043,"median":0.04471058800118,"runs":10,"min":0.038581533000979,"stddev":0.002973252570054},"category":"arithmetic","description":"Tests Add, Subtract, Multiply, Divide, Remainder opcodes","name":"Arithmetic Mix","iterations":1000},{"stats":{"max":0.038941440998315,"mean":0.029979075999654,"median":0.030656642997201,"runs":10,"min":0.019511841001076,"stddev":0.0052266771261784},"category":"bitwise","description":"Tests BitAnd, BitOr, ShiftLeft, ShiftRight opcodes","name":"Bitwise Operations","iterations":1000},{"stats":{"max":0.024917252998421,"mean":0.019551703599427,"median":0.019578271996579,"runs":10,"min":0.013831057000061,"stddev":0.0030736097277807},"category":"comparison","description":"Tests Eq, Ne, Lt, Le, Gt, Ge opcodes via WHERE clauses","name":"Comparison Operations","iterations":1000},{"stats":{"max":0.037581399999908,"mean":0.031087255199964,"median":0.0310550159993,"runs":10,"min":0.027030494002247,"stddev":0.0028443315635056},"category":"data","description":"Tests Integer, String, Null, Move, Copy opcodes","name":"Data Loading","iterations":1000},{"stats":{"max":0.010160046000237,"mean":0.0075163074998272,"median":0.0079504679997626,"runs":10,"min":0.0046939290004957,"stddev":0.0014820308001732},"category":"insert","description":"Tests Insert path with MakeRecord, ResultRow opcodes","name":"Insert Operations","iterations":1000},{"stats":{"max":0.03694237399759,"mean":0.030357501500112,"median":0.029966870002681,"runs":10,"min":0.026577672997519,"stddev":0.0030722690341084},"category":"index","description":"Tests SeekGE, Found, IdxInsert opcodes via indexed queries","name":"Index Seek","iterations":1000},{"stats":{"max":0.023557928001537,"mean":0.02067692549972,"median":0.021134455997526,"runs":10,"min":0.016240009001194,"stddev":0.0022525472778175},"category":"aggregate","description":"Tests AggStep, AggFinal opcodes via COUNT, SUM","name":"Aggregate Functions","iterations":1000},{"stats":{"max":0.012717964000331,"mean":0.0097332155997719,"median":0.0098780629996327,"runs":10,"min":0.0064064309990499,"stddev":0.0022220800241067},"category":"cursor","description":"Tests OpenRead, Rewind, Next, Column opcodes via full scan","name":"Table Scan","iterations":1000},{"stats":{"max":0.18993329699879,"mean":0.1814150047001,"median":0.18316008400143,"runs":10,"min":0.17449234799642,"stddev":0.0053303956141583},"category":"mixed","description":"Realistic mix of SELECT, INSERT, UPDATE operations","name":"Mixed Operations","iterations":1000}]}
