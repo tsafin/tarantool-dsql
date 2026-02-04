@@ -44,8 +44,13 @@
 - [x] Fixed bool type issues (use int for C compatibility, Bool for vdbeInt.h)
 - [x] Successfully built with ENABLE_SQL_JIT=ON using LLVM 11
 
-**Step 3 - NEXT**: Generate JIT function by linking handler IR
-- Implement actual JIT compilation logic in vdbe_jit_compile()
-- Load handler bitcode modules from installation directory
-- Link and inline handler functions based on opcode analysis
-- Apply LLVM optimization passes and compile to native code
+**Step 3 - IN PROGRESS**: Generate JIT function by linking handler IR
+- [x] Phase 1: Basic JIT compilation infrastructure
+  - Created LLVM module and function for each VDBE program
+  - Implemented JIT function signature: int(struct Vdbe *, int start_pc)
+  - Added module verification and compilation to native code
+  - Minimal implementation returns -1 (execution complete) for testing
+- [ ] Phase 2: Opcode analysis and classification (jitable/callable/unsupported)
+- [ ] Phase 3: Load and link handler bitcode modules
+- [ ] Phase 4: Clone and inline jitable operations
+- [ ] Phase 5: Apply LLVM optimization passes

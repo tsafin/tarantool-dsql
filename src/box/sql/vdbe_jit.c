@@ -32,6 +32,13 @@
 #include <llvm-c/Transforms/Scalar.h>
 #include <llvm-c/Transforms/Utils.h>
 #include <llvm-c/OrcBindings.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+
+/* Function type for JIT-compiled VDBE execution */
+typedef int (*VdbeJitFunc)(struct Vdbe *p, int start_pc);
 
 /*
  * Global JIT state - initialized once at startup
@@ -95,10 +102,28 @@ vdbe_jit_init(void)
 	}
 
 	/*
-	 * TODO: Load bitcode files from installation directory.
-	 * Path: ${CMAKE_INSTALL_DATAROOTDIR}/tarantool/sql_handlers/
-	 * For now, leave modules uninitialized - will be implemented in next iteration.
+	 * Load bitcode files from build directory.
+	 * In production, these would be in: ${CMAKE_INSTALL_DATAROOTDIR}/tarantool/sql_handlers/
+	 * For now, loading is deferred - modules initialized as NULL.
+	 * 
+	 * TODO: Implement actual bitcode loading:
+	 * for (int i = 0; i < count; i++) {
+	 *     char path[PATH_MAX];
+	 *     snprintf(path, sizeof(path), "%s/sql_handlers/%s",
+	 *              CMAKE_INSTALL_DATAROOTDIR, handler_bitcode_files[i]);
+	 *     LLVMMemoryBufferRef mem_buf;
+	 *     if (LLVMCreateMemoryBufferWithContentsOfFile(path, &mem_buf, &error_msg) != 0) {
+	 *         // Handle error
+	 *     }
+	 *     if (LLVMParseBitcode2(mem_buf, &jit_state.handler_modules[i]) != 0) {
+	 *         // Handle error
+	 *     }
+	 *     LLVMDisposeMemoryBuffer(mem_buf);
+	 * }
 	 */
+	for (int i = 0; i < count; i++) {
+		jit_state.handler_modules[i] = NULL;
+	}
 	
 	char *error_msg = NULL;
 	LLVMLinkInMCJIT();
@@ -135,21 +160,98 @@ vdbe_jit_compile(struct Vdbe *p)
 			return -1;
 	}
 
+	/* Don't compile empty programs */
+	if (p->nOp == 0) {
+		p->jit_compiled = 0;
+		p->jit_func = NULL;
+		p->jit_module = NULL;
+		return 0;
+	}
+
 	/*
-	 * TODO: Implement JIT compilation logic (Step 3 of plan)
-	 * 1. Create LLVM function: i32 @vdbe_jit_exec_%d(ptr %vdbe_ptr, i32 %start_pc)
-	 * 2. Scan p->aOp[] and classify opcodes (jitable/callable/unsupported)
-	 * 3. For jitable opcodes: clone handler from bitcode and inline
-	 * 4. For callable opcodes: emit call instruction
-	 * 5. For unsupported: emit return instruction
-	 * 6. Apply LLVM optimization passes
-	 * 7. Compile to native code and store in p->jit_func
+	 * Step 3 Implementation - Phase 1: Basic infrastructure
+	 * 
+	 * For now, we just create a minimal LLVM module and function
+	 * to validate the compilation pipeline. Full implementation
+	 * of handler linking and inlining will follow in subsequent phases.
+	 * 
+	 * The JIT-compiled function has signature:
+	 *   int vdbe_jit_exec(struct Vdbe *p, int start_pc)
+	 * 
+	 * It returns:
+	 *   >= 0: PC value where execution should continue in interpreter
+	 *   -1: Execution completed successfully
+	 *   < -1: Error occurred
 	 */
 
-	/* Mark as not compiled for now */
-	p->jit_compiled = 0;
-	p->jit_func = NULL;
-	p->jit_module = NULL;
+	/* Create a new module for this VDBE program */
+	char module_name[64];
+	snprintf(module_name, sizeof(module_name), "vdbe_jit_%p", (void *)p);
+	LLVMModuleRef module = LLVMModuleCreateWithName(module_name);
+	if (module == NULL) {
+		diag_set(ClientError, ER_SQL_EXECUTE,
+			 "Failed to create LLVM module for JIT compilation");
+		return -1;
+	}
+
+	/* Create function type: int(struct Vdbe *, int) */
+	LLVMTypeRef param_types[2] = {
+		LLVMPointerType(LLVMInt8Type(), 0),  /* struct Vdbe * (as opaque pointer) */
+		LLVMInt32Type()                       /* int start_pc */
+	};
+	LLVMTypeRef func_type = LLVMFunctionType(LLVMInt32Type(), param_types, 2, 0);
+
+	/* Create the JIT function */
+	char func_name[64];
+	snprintf(func_name, sizeof(func_name), "vdbe_jit_exec_%p", (void *)p);
+	LLVMValueRef func = LLVMAddFunction(module, func_name, func_type);
+	LLVMSetFunctionCallConv(func, LLVMCCallConv);
+
+	/* Create entry basic block */
+	LLVMBasicBlockRef entry_block = LLVMAppendBasicBlock(func, "entry");
+	LLVMBuilderRef builder = LLVMCreateBuilder();
+	LLVMPositionBuilderAtEnd(builder, entry_block);
+
+	/*
+	 * Phase 1: Minimal implementation - just return -1 (execution complete)
+	 * TODO Phase 2: Analyze opcodes and generate IR for each
+	 * TODO Phase 3: Link handler functions from bitcode modules
+	 * TODO Phase 4: Inline jitable operations
+	 * TODO Phase 5: Apply optimization passes
+	 */
+
+	/* For now: return -1 to indicate execution completed */
+	LLVMBuildRet(builder, LLVMConstInt(LLVMInt32Type(), -1, 0));
+	LLVMDisposeBuilder(builder);
+
+	/* Verify the module */
+	char *error_msg = NULL;
+	if (LLVMVerifyModule(module, LLVMReturnStatusAction, &error_msg) != 0) {
+		diag_set(ClientError, ER_SQL_EXECUTE,
+			 tt_sprintf("JIT module verification failed: %s", error_msg));
+		LLVMDisposeMessage(error_msg);
+		LLVMDisposeModule(module);
+		return -1;
+	}
+
+	/* Add module to execution engine */
+	LLVMModuleRef old_module;
+	LLVMGetExecutionEngineTargetMachine(jit_state.engine);
+	LLVMAddModule(jit_state.engine, module);
+
+	/* Get pointer to compiled function */
+	uint64_t func_addr = LLVMGetFunctionAddress(jit_state.engine, func_name);
+	if (func_addr == 0) {
+		diag_set(ClientError, ER_SQL_EXECUTE,
+			 "Failed to get JIT function address");
+		/* Module is owned by engine, will be cleaned up */
+		return -1;
+	}
+
+	/* Store JIT compilation results */
+	p->jit_func = (void *)(uintptr_t)func_addr;
+	p->jit_module = module;
+	p->jit_compiled = 1;
 
 	return 0;
 }
@@ -163,8 +265,11 @@ vdbe_jit_compile(struct Vdbe *p)
 void
 vdbe_jit_cleanup(struct Vdbe *p)
 {
+	/*
+	 * Note: jit_module is owned by the execution engine after LLVMAddModule,
+	 * so we don't dispose it here. The engine will clean it up on shutdown.
+	 */
 	if (p->jit_module != NULL) {
-		LLVMDisposeModule((LLVMModuleRef)p->jit_module);
 		p->jit_module = NULL;
 	}
 	p->jit_func = NULL;
