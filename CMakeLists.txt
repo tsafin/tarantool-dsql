@@ -765,6 +765,59 @@ include (cmake/package.cmake)
 #
 include (cmake/rpm.cmake)
 
+#
+# SQL JIT and VDBE dispatch options (must be before add_subdirectory(src))
+#
+option(ENABLE_VDBE_GOTO_DISPATCH "Enable SQL vdbe goto dispatch." OFF)
+option(VDBE_USE_GENERATED_DISPATCH "Use generated VDBE dispatcher" ON)
+option(ENABLE_SQL_JIT "Enable SQL JIT compilation using LLVM" OFF)
+
+#
+# LLVM for SQL JIT
+#
+if(ENABLE_SQL_JIT)
+    find_package(LLVM REQUIRED CONFIG)
+    message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+    message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+
+    # Check LLVM version (minimum 11 for development, 12+ recommended)
+    if(LLVM_VERSION_MAJOR LESS 11)
+        message(FATAL_ERROR "LLVM version 11 or higher is required for SQL JIT, found ${LLVM_VERSION_MAJOR}.${LLVM_VERSION_MINOR}")
+    endif()
+
+    if(LLVM_VERSION_MAJOR LESS 12)
+        message(WARNING "LLVM version 12 or higher is recommended for SQL JIT, found ${LLVM_VERSION_MAJOR}.${LLVM_VERSION_MINOR}. Some features may not work correctly.")
+    endif()
+
+    # Add LLVM definitions and include directories
+    add_definitions(${LLVM_DEFINITIONS})
+    include_directories(${LLVM_INCLUDE_DIRS})
+
+    # Determine native target based on CMAKE_SYSTEM_PROCESSOR
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|amd64|AMD64")
+        set(LLVM_NATIVE_TARGET "X86")
+    elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64")
+        set(LLVM_NATIVE_TARGET "AArch64")
+    elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm")
+        set(LLVM_NATIVE_TARGET "ARM")
+    elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "ppc64")
+        set(LLVM_NATIVE_TARGET "PowerPC")
+    else()
+        message(FATAL_ERROR "Unsupported architecture for SQL JIT: ${CMAKE_SYSTEM_PROCESSOR}")
+    endif()
+
+    # Find required LLVM components
+    llvm_map_components_to_libnames(LLVM_LIBS
+        Core Support OrcJIT ExecutionEngine MCJIT RuntimeDyld
+        Analysis BitReader Linker
+        ScalarOpts InstCombine TransformUtils IPO
+        ${LLVM_NATIVE_TARGET}
+    )
+
+    message(STATUS "LLVM native target: ${LLVM_NATIVE_TARGET}")
+    message(STATUS "LLVM libraries: ${LLVM_LIBS}")
+endif()
+
 add_subdirectory(src)
 add_subdirectory(extra)
 add_subdirectory(test)
@@ -821,54 +874,6 @@ endif()
 option(TEST_BUILD "Use defaults suited for tests" OFF)
 set(ABORT_ON_LEAK_DEFAULT ${TEST_BUILD})
 option(ABORT_ON_LEAK "Abort if memory leak is found." ${ABORT_ON_LEAK_DEFAULT})
-
-option(ENABLE_VDBE_GOTO_DISPATCH "Enable SQL vdbe goto dispatch." OFF)
-option(VDBE_USE_GENERATED_DISPATCH "Use generated VDBE dispatcher" ON)
-option(ENABLE_SQL_JIT "Enable SQL JIT compilation using LLVM" OFF)
-
-#
-# LLVM for SQL JIT
-#
-if(ENABLE_SQL_JIT)
-    find_package(LLVM REQUIRED CONFIG)
-    message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-    message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
-    
-    # Check LLVM version (minimum 11 for development, 12+ recommended for production)
-    if(LLVM_VERSION_MAJOR LESS 11)
-        message(FATAL_ERROR "LLVM version 11 or higher is required for SQL JIT, found ${LLVM_VERSION_MAJOR}.${LLVM_VERSION_MINOR}")
-    endif()
-    
-    if(LLVM_VERSION_MAJOR LESS 12)
-        message(WARNING "LLVM version 12 or higher is recommended for SQL JIT, found ${LLVM_VERSION_MAJOR}.${LLVM_VERSION_MINOR}. Some features may not work correctly.")
-    endif()
-    
-    # Add LLVM definitions and include directories
-    add_definitions(${LLVM_DEFINITIONS})
-    include_directories(${LLVM_INCLUDE_DIRS})
-    
-    # Determine native target based on CMAKE_SYSTEM_PROCESSOR
-    if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|amd64|AMD64")
-        set(LLVM_NATIVE_TARGET "X86")
-    elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64")
-        set(LLVM_NATIVE_TARGET "AArch64")
-    elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm")
-        set(LLVM_NATIVE_TARGET "ARM")
-    elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "ppc64")
-        set(LLVM_NATIVE_TARGET "PowerPC")
-    else()
-        message(FATAL_ERROR "Unsupported architecture for SQL JIT: ${CMAKE_SYSTEM_PROCESSOR}")
-    endif()
-    
-    # Find required LLVM components
-    llvm_map_components_to_libnames(LLVM_LIBS 
-        Core Support OrcJIT ExecutionEngine RuntimeDyld
-        ${LLVM_NATIVE_TARGET}
-    )
-    
-    message(STATUS "LLVM native target: ${LLVM_NATIVE_TARGET}")
-    message(STATUS "LLVM libraries: ${LLVM_LIBS}")
-endif()
 
 #
 # tarantool info summary (used in server version output)

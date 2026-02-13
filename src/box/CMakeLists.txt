@@ -554,9 +554,13 @@ add_custom_command(OUTPUT ${SQL_BIN_DIR}/dispatchtable.h
 target_link_libraries(box box_error tuple stat xrow xlog vclock crc32 raft
                       node_name ${common_libraries})
 
-# Link LLVM libraries when SQL JIT is enabled
+# Link LLVM libraries and set JIT compile definitions
 if(ENABLE_SQL_JIT)
-    target_link_libraries(box ${LLVM_LIBS})
+    target_link_libraries(box PUBLIC ${LLVM_LIBS})
+    target_compile_definitions(box PRIVATE
+        ENABLE_SQL_JIT
+        SQL_JIT_BITCODE_DIR="${PROJECT_BINARY_DIR}/src/box"
+    )
 endif()
 
 add_dependencies(box build_bundled_libs generate_sql_files)

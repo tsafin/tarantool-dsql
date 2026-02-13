@@ -409,6 +409,9 @@ else ()
                           salad symbols -Wl,--no-whole-archive
                           ${common_libraries}
                           ${generic_libraries})
+    if(ENABLE_SQL_JIT)
+        target_link_libraries(tarantool ${LLVM_LIBS})
+    endif()
     set_target_properties(tarantool PROPERTIES
         LINK_FLAGS "-Wl,--dynamic-list,${exports_file}")
     # CMake 3.3 and below, for historical reasons, always linked
