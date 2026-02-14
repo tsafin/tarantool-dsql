@@ -3673,6 +3673,9 @@ case OP_OffsetLimit: {
 		diag_set(ClientError, ER_SQL_EXECUTE, "sum of LIMIT and OFFSET "
 			"values should not result in integer overflow");
 		goto abort_due_to_error;
+	}
+	mem_set_uint(pOut, x);
+	DISPATCH();
     break;
 }
 
@@ -3703,6 +3706,45 @@ case OP_SetSession: {
 	if (sid < 0) {
 		diag_set(ClientError, ER_NO_SUCH_SESSION_SETTING, setting_name);
 		goto abort_due_to_error;
+	}
+	pIn1 = &aMem[P1];
+	struct session_setting *setting = &session_settings[sid];
+	switch (setting->field_type) {
+	case FIELD_TYPE_BOOLEAN: {
+		if (!mem_is_bool(pIn1))
+			goto invalid_type;
+		bool value = pIn1->u.b;
+		size_t size = mp_sizeof_bool(value);
+		char *mp_value = (char *) static_alloc(size);
+		mp_encode_bool(mp_value, value);
+		if (setting->set(sid, mp_value) != 0)
+			goto abort_due_to_error;
+		break;
+	}
+	case FIELD_TYPE_STRING: {
+		if (!mem_is_str(pIn1))
+			goto invalid_type;
+		const char *str = pIn1->z;
+		uint32_t size = mp_sizeof_str(pIn1->n);
+		char *mp_value = (char *) static_alloc(size);
+		if (mp_value == NULL) {
+			diag_set(OutOfMemory, size, "static_alloc", "mp_value");
+			goto abort_due_to_error;
+		}
+		mp_encode_str(mp_value, str, pIn1->n);
+		if (setting->set(sid, mp_value) != 0)
+			goto abort_due_to_error;
+		break;
+	}
+	default:
+	invalid_type:
+		diag_set(ClientError, ER_SESSION_SETTING_INVALID_VALUE,
+			 session_setting_strs[sid],
+			 field_type_strs[setting->field_type]);
+		goto abort_due_to_error;
+	}
+	p->nChange++;
+	DISPATCH();
     break;
 }
 
