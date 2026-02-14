@@ -486,7 +486,7 @@ lbox_execute(struct lua_State *L)
 					 &fiber()->gc) != 0)
 			goto error;
 	}
-	port_dump_lua(&port, L, PORT_DUMP_LUA_MODE_TABLE);
+	port_sql_dump_lua(&port, L, PORT_DUMP_LUA_MODE_TABLE);
 	port_destroy(&port);
 	region_truncate(&fiber()->gc, region_svp);
 	return 1;
@@ -512,7 +512,7 @@ lbox_prepare(struct lua_State *L)
 	const char *sql = lua_tolstring(L, 1, &length);
 	if (sql_prepare(sql, length, &port) != 0)
 		return luaT_push_nil_and_error(L);
-	port_dump_lua(&port, L, PORT_DUMP_LUA_MODE_TABLE);
+	port_sql_dump_lua(&port, L, PORT_DUMP_LUA_MODE_TABLE);
 	port_destroy(&port);
 	return 1;
 }
