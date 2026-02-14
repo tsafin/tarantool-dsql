@@ -101,6 +101,15 @@ int vdbe_op_makerecord(Vdbe *p, Op *pOp, Mem *aMem)
 	assert(pOp->p3 < pOp->p1 || pOp->p3 >= pOp->p1 + pOp->p2);
 	Mem *pOut = vdbe_prepare_null_out(p, pOp->p3);
 
+	/* Initialize any uninitialized registers to NULL before encoding.
+	 * This handles bytecode patterns (e.g., CREATE TABLE) where not all
+	 * fields are explicitly set but need to be encoded into a record. */
+	for (int i = 0; i < nField; i++) {
+		if (pData0[i].type == MEM_TYPE_INVALID) {
+			mem_set_null(&pData0[i]);
+		}
+	}
+
 	struct region *region = &fiber()->gc;
 	size_t used = region_used(region);
 	uint32_t tuple_size;
