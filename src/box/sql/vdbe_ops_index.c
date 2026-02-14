@@ -220,11 +220,14 @@ vdbe_op_found_notfound_noconflict(Vdbe *p, Op *pOp, Mem *aMem)
 		r.key_def = pC->key_def;
 		r.nField = (u16)pOp->p4.i;
 		r.aMem = pIn3;
-#ifdef SQL_DEBUG
-		for(ii = 0; ii < r.nField; ii++) {
-			assert(memIsValid(&r.aMem[ii]));
+		/* Initialize uninitialized registers to NULL. This handles cases where the
+		 * bytecode generator creates OP_NoConflict with unpacked records but doesn't
+		 * initialize all key fields (e.g., some CREATE TABLE operations). */
+		for (ii = 0; ii < r.nField; ii++) {
+			if (r.aMem[ii].type == MEM_TYPE_INVALID) {
+				mem_set_null(&r.aMem[ii]);
+			}
 		}
-#endif
 		pIdxKey = &r;
 		pFree = 0;
 	} else {
