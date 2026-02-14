@@ -45,6 +45,9 @@
 #include "vdbeInt.h"
 #include "tarantoolInt.h"
 #include "box/execute.h"
+#ifdef ENABLE_SQL_JIT
+#include "vdbe_jit.h"
+#endif
 
 /*
  * Create a new virtual database engine.
@@ -1485,6 +1488,14 @@ sqlVdbeMakeReady(Vdbe * p,	/* The VDBE */
 	}
 	memset(p->apCsr, 0, nCursor * sizeof(VdbeCursor *));
 	sqlVdbeRewind(p);
+#ifdef ENABLE_SQL_JIT
+	/*
+	 * Step 4: Try to JIT-compile the VDBE program at PREPARE time.
+	 * Compilation failure is not fatal - we fall back to the interpreter.
+	 */
+	if (vdbe_jit_is_enabled())
+		vdbe_jit_compile(p);
+#endif
 }
 
 void
@@ -1993,6 +2004,9 @@ sqlVdbeFinalize(Vdbe * p)
 static void
 sqlVdbeClearObject(struct Vdbe *p)
 {
+#ifdef ENABLE_SQL_JIT
+	vdbe_jit_cleanup(p);
+#endif
 	SubProgram *pSub, *pNext;
 	vdbe_metadata_delete(p);
 	for (pSub = p->pProgram; pSub; pSub = pNext) {

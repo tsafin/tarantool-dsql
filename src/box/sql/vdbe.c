@@ -63,6 +63,9 @@
 /* Dispatcher interface for Phase 5.4 integration */
 #include "vdbe_dispatch_interface.h"
 #include "vdbe_helpers.h"
+#ifdef ENABLE_SQL_JIT
+#include "vdbe_jit.h"
+#endif
 
 /*
  * We use computed-goto-based dispatch only within compilers supporting goto by
@@ -305,6 +308,34 @@ int sqlVdbeExec(Vdbe *p)
 		}
 		if ((p->sql_flags & SQL_VdbeTrace) != 0)
 			printf("VDBE Trace:\n");
+	}
+#endif
+
+#ifdef ENABLE_SQL_JIT
+	/*
+	 * Step 4: Try JIT-compiled execution first.
+	 *
+	 * If this VDBE program has been JIT-compiled, invoke the native
+	 * code. The JIT function returns:
+	 *   >= 0: PC of first unsupported opcode, fall back to interpreter
+	 *   -1:   execution complete (all opcodes handled by JIT)
+	 */
+	if (p->jit_compiled && p->jit_func != NULL) {
+		int jit_rc = ((int (*)(struct Vdbe *, int))p->jit_func)(
+			p, p->pc);
+		if (jit_rc < 0) {
+			/*
+			 * JIT handled everything. Return SQL_DONE since
+			 * the program completed without hitting ResultRow.
+			 */
+			rc = SQL_DONE;
+			goto vdbe_return;
+		}
+		/*
+		 * JIT hit an unsupported opcode at jit_rc.
+		 * Continue with the interpreter from that PC.
+		 */
+		p->pc = jit_rc;
 	}
 #endif
 
