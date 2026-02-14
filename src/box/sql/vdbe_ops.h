@@ -19,6 +19,7 @@ int vdbe_op_bool(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_int64(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_real(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_string(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_string8(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_null(Vdbe *p, Op *pOp, Mem *aMem);
 /* Blob / variable / copy/move opcodes */
 int vdbe_op_blob(Vdbe *p, Op *pOp, Mem *aMem);
