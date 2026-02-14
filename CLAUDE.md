@@ -34,6 +34,17 @@
 
 - Always run `box.cfg{}` before any `box.execute` operations.
 - Always call `os.exit(rc)` at the end of the script to exit the event loop.
+
+## Debugging Assertions
+
+When encountering an assertion failure:
+1. **First attempt**: Quick code examination in the immediate area where assertion fires
+2. **If that doesn't find the root cause**: Use debugger to get full stack trace
+   - Run with `gdb -batch -ex run -ex "bt full" --args ./src/tarantool <script>`
+   - Full backtrace often reveals the real problem is several levels up the call stack
+   - Don't assume the assertion location is the root cause - it's usually a symptom
+   - Example: assertion in OP_NoConflict handler may actually be caused by uninitialized registers in OP_MakeRecord from bad bytecode generation
+
 ## SQL JIT Implementation (Feb 5, 2026)
 
 ### CMake Build System
