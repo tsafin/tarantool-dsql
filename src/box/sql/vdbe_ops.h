@@ -67,6 +67,7 @@ int vdbe_op_seek_le_ge(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_idx_compare(Vdbe *p, Op *pOp, Mem *aMem);  /* IdxGE/GT/LE/LT */
 int vdbe_op_found_notfound_noconflict(Vdbe *p, Op *pOp, Mem *aMem);  /* Found/NotFound/NoConflict */
 int vdbe_op_idx_insert_replace(Vdbe *p, Op *pOp, Mem *aMem);  /* IdxInsert/IdxReplace */
+int vdbe_op_iteratoropen(Vdbe *p, Op *pOp, Mem *aMem);  /* IteratorOpen */
 /* Data modification opcodes */
 int vdbe_op_delete(Vdbe *p, Op *pOp, Mem *aMem);  /* Delete */
 int vdbe_op_update(Vdbe *p, Op *pOp, Mem *aMem);  /* Update */

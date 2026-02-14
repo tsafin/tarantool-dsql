@@ -18,10 +18,6 @@
 #include "vdbe_dispatch.h"
 #include "vdbe_dispatch_interface.h"
 #include "box/error.h"
-#include "box/schema.h"
-#include "box/space.h"
-#include "cursor.h"
-#include "vdbe_helpers.h"
 
 /* Forward declarations */
 void vdbe_trace(Vdbe *p, Op *pOrigOp, int rc, Mem *aMem);
@@ -881,42 +877,8 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 
 	/* Iterator operations */
 	case OP_IteratorOpen: {
-		/* Complete IteratorOpen implementation with cursor allocation */
-		struct VdbeCursor *cur = p->apCsr[P1];
-		if (box_schema_version() != p->schema_ver &&
-		    (pOp->p5 & OPFLAG_SYSTEMSP) == 0) {
-			p->expired = 1;
-			diag_set(ClientError, ER_SQL_EXECUTE, "schema version has "
-				 "changed: need to re-compile SQL statement");
-			rc = -1;
-			break;
-		}
-		struct space *space = aMem[P3].u.p;
-		assert(space != NULL);
-		if (access_check_space(space, PRIV_R) != 0) {
-			rc = -1;
-			break;
-		}
-
-		struct index *index = space_index(space, P2);
-		assert(index != NULL);
-		assert(P1 >= 0);
-		cur = allocateCursor(p, P1,
-				     space->def->exact_field_count == 0 ?
-				     space->def->field_count :
-				     space->def->exact_field_count,
-				     CURTYPE_TARANTOOL);
-		if (cur == NULL) {
-			rc = -1;
-			break;
-		}
-		struct BtCursor *bt_cur = cur->uc.pCursor;
-		bt_cur->curFlags |= space->def->id == 0 ? BTCF_TEphemCursor :
-					BTCF_TaCursor;
-		bt_cur->space = space;
-		bt_cur->index = index;
-		bt_cur->eState = CURSOR_INVALID;
-		/* Key info still contains sorter order and collation. */
+		int handler_rc = vdbe_op_iteratoropen(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
 		pc++; continue;
 	}
 	case OP_Rewind: {

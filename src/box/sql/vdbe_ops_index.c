@@ -24,6 +24,10 @@
 #include "mem.h"
 #include "vdbe_ops.h"
 #include "box/error.h"
+#include "box/schema.h"
+#include "box/space.h"
+#include "cursor.h"
+#include "vdbe_helpers.h"
 #include "tarantoolInt.h"
 #include "box/sequence.h"
 
@@ -345,4 +349,62 @@ vdbe_op_idx_insert_replace(Vdbe *p, Op *pOp, Mem *aMem)
 			return VDBE_INDEX_ERROR;
 	}
 	return VDBE_INDEX_CONTINUE;
+}
+
+/*
+ * OP_IteratorOpen handler
+ * Opens an iterator cursor for a space and index
+ *
+ * P1: Cursor number to allocate
+ * P2: Index id
+ * P3: Register containing space pointer
+ * P5: Flags (OPFLAG_SYSTEMSP)
+ *
+ * Return values:
+ * - 0: Success
+ * - -1: Error occurred
+ */
+int
+vdbe_op_iteratoropen(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	/* Check schema version for non-system spaces */
+	if (box_schema_version() != p->schema_ver &&
+	    (pOp->p5 & OPFLAG_SYSTEMSP) == 0) {
+		p->expired = 1;
+		diag_set(ClientError, ER_SQL_EXECUTE, "schema version has "
+			 "changed: need to re-compile SQL statement");
+		return -1;
+	}
+
+	/* Get space from register P3 */
+	struct space *space = aMem[pOp->p3].u.p;
+	assert(space != NULL);
+
+	/* Check read access permissions */
+	if (access_check_space(space, PRIV_R) != 0)
+		return -1;
+
+	/* Get index from space */
+	struct index *index = space_index(space, pOp->p2);
+	assert(index != NULL);
+	assert(pOp->p1 >= 0);
+
+	/* Allocate cursor */
+	struct VdbeCursor *cur = allocateCursor(p, pOp->p1,
+				     space->def->exact_field_count == 0 ?
+				     space->def->field_count :
+				     space->def->exact_field_count,
+				     CURTYPE_TARANTOOL);
+	if (cur == NULL)
+		return -1;
+
+	/* Set up cursor fields */
+	struct BtCursor *bt_cur = cur->uc.pCursor;
+	bt_cur->curFlags |= space->def->id == 0 ? BTCF_TEphemCursor :
+				BTCF_TaCursor;
+	bt_cur->space = space;
+	bt_cur->index = index;
+	bt_cur->eState = CURSOR_INVALID;
+
+	return 0;
 }
