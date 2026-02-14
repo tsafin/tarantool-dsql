@@ -931,6 +931,7 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		int handler_rc = vdbe_op_seek_le_ge(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }
 		if (handler_rc == 1) { pc = P2; continue; }
+		if (handler_rc == 2) { pc += 2; continue; }  /* Skip next opcode (OP_IdxLT/GT) */
 		pc++; continue;
 	}
 
@@ -1038,12 +1039,8 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	 * execution should continue with inline dispatcher from current PC.
 	 */
 		default: {
-			fprintf(stderr,
-				"Generated dispatcher unhandled opcode: pc=%d op=%s - falling back to inline\n",
-				pc, sqlOpcodeName(pOp->opcode));
-			/* Update PC for inline dispatcher continuation */
+			/* Unhandled opcode - fall back to inline dispatcher */
 			p->pc = pc;
-			/* Return special code to trigger inline dispatcher */
 			return SQL_FALLBACK_TO_INLINE;
 		}
 		}

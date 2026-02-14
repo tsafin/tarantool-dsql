@@ -417,6 +417,9 @@ vdbe_op_iteratoropen(Vdbe *p, Op *pOp, Mem *aMem)
 	bt_cur->index = index;
 	bt_cur->eState = CURSOR_INVALID;
 
+	/* Set key_def for cursor operations (seek, etc.) */
+	cur->key_def = index->def->key_def;
+
 	return 0;
 }
 
