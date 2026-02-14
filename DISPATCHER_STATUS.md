@@ -64,12 +64,19 @@ Successfully added:
 - Generated dispatcher now successfully handles OP_NoConflict without fallback message
 - No more "Generated dispatcher unhandled opcode: pc=X op=NoConflict" messages
 
-**SELECT Result Investigation**:
-- All SELECT queries consistently return nil
-- CREATE TABLE and INSERT also return nil (correct for DDL/DML in Tarantool)
-- No errors or exceptions (pcall status is true)
-- Likely Tarantool-specific behavior or environment issue, not dispatcher-related
-- Tables created via CREATE TABLE are not appearing in box.space (separate system issue)
+**SELECT Result Investigation - CRITICAL BUG FOUND**:
+- All box.execute() calls return nil (CREATE TABLE, INSERT, SELECT all return nil)
+- box.prepare() CORRECTLY returns a table with stmt_id, param_count, etc.
+- Root cause: Function name mismatch - `port_dump_lua()` vs `port_sql_dump_lua()`
+- **FIX APPLIED**: Changed lbox_execute and lbox_prepare to call `port_sql_dump_lua()`
+- **ISSUE PERSISTS**: box.execute still returns nil even after fix!
+  - lbox_prepare uses DML_PREPARE format → works (returns table)
+  - lbox_execute uses DML_EXECUTE format → broken (returns nil)
+  - Both formats have case handlers in port_sql_dump_lua (lines 177-209 and 185-209)
+- **Likely cause**: DML_EXECUTE handler creates table but doesn't push it correctly, OR
+  - port_sql_dump_lua is not being called for DML_EXECUTE, OR
+  - Lua stack is being corrupted somewhere in the execution path
+- Requires deeper investigation of Lua stack manipulation in lbox_execute flow
 
 ### Known Issues
 **Investigation needed**: SELECT queries return nil (consistent across all queries, may be Tarantool environment/version behavior)
