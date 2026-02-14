@@ -66,3 +66,24 @@
   - Module-level passes: function inlining, global DCE, instcombine, CFG simplification
   - Added LLVM components: Analysis, BitReader, Linker, ScalarOpts, InstCombine, TransformUtils, IPO, MCJIT
 - [x] Fixed CMake: moved LLVM setup before add_subdirectory(src) so LLVM_LIBS is available at link time
+
+**Step 4 - COMPLETED**: Integrate JIT into VDBE execution loop
+- [x] Call vdbe_jit_compile() in sqlVdbeMakeReady() at PREPARE time
+  - Compilation happens once per prepared statement
+  - Failure is non-fatal; interpreter used as fallback
+- [x] Invoke JIT function in sqlVdbeExec() before dispatcher
+  - JIT executes from p->pc until unsupported opcode
+  - Returns PC of unsupported opcode for interpreter continuation
+  - Returns -1 if all opcodes handled (returns SQL_DONE)
+- [x] Clean up JIT resources in sqlVdbeClearObject()
+  - Called when VDBE is finalized
+- [x] Mark OP_ResultRow as UNSUPPORTED (requires special SQL_ROW return handling)
+- [x] Add vdbe_jit.h includes to vdbe.c and vdbeaux.c
+
+**BLOCKER - Generated Dispatcher Incomplete**:
+- Generated dispatcher (VDBE_USE_GENERATED_DISPATCH=ON) only handles 52 of 176 opcodes
+- Missing critical opcodes: OP_TTransaction, OP_Column, OP_Copy, OP_Cast, and 120+ others
+- Causes table operations (CREATE/INSERT/SELECT) to fail with "unhandled opcode" error
+- This affects both JIT testing and normal SQL execution
+- **MUST complete dispatcher before proceeding with JIT Step 5**
+- See vdbe_dispatch_wrapper.c line 214 switch statement - needs ~124 more case blocks
