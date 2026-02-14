@@ -220,13 +220,21 @@ vdbe_op_found_notfound_noconflict(Vdbe *p, Op *pOp, Mem *aMem)
 		r.key_def = pC->key_def;
 		r.nField = (u16)pOp->p4.i;
 		r.aMem = pIn3;
-		/* Initialize uninitialized registers to NULL. This handles cases where the
-		 * bytecode generator creates OP_NoConflict with unpacked records but doesn't
-		 * initialize all key fields (e.g., some CREATE TABLE operations). */
+		/* Check if all key registers are uninitialized.
+		 * This can happen when bytecode uses OP_NoConflict with unpacked
+		 * records but doesn't initialize all key fields. For OP_NoConflict,
+		 * a NULL key never conflicts, so we can safely jump. */
+		int all_invalid = 1;
 		for (ii = 0; ii < r.nField; ii++) {
-			if (r.aMem[ii].type == MEM_TYPE_INVALID) {
-				mem_set_null(&r.aMem[ii]);
+			if (r.aMem[ii].type != MEM_TYPE_INVALID) {
+				all_invalid = 0;
+				break;
 			}
+		}
+		if (all_invalid && pOp->opcode == OP_NoConflict) {
+			pC->cacheStatus = CACHE_STALE;
+			pC->nullRow = 1;
+			return 1;  /* Jump to P2 - NULL keys never conflict */
 		}
 		pIdxKey = &r;
 		pFree = 0;
