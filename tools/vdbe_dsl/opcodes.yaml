@@ -589,13 +589,10 @@
     \    /* jump */\n\tif (p->apCsr[P1] == 0) {\n\t\tDISPATCH();"
 - name: OP_String8
   id: 48
-  handler_type: inline
+  handler_type: external
   flags:
   - OUT2
   doc: Load C string r[P2]='P4'
-  inline_code: "/* same as TK_STRING, out2 */\n\tassert(pOp->p4.z!=0);\n\tpOp->opcode = OP_String;\n\tP1 = sqlStrlen30(pOp->p4.z);\n\
-    \n\tif (P1 > SQL_MAX_LENGTH)\n\t\tgoto too_big;\n\tassert(rc == 0);\n\t/* Fall through to the next case, OP_String */\n\
-    #ifndef SQL_USE_GOTO\n\tFALLTHROUGH;\n#endif /* SQL_USE_GOTO */"
 - name: OP_SkipLoad
   id: 65
   handler_type: inline

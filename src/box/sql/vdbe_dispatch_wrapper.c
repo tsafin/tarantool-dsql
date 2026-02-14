@@ -645,7 +645,7 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	}
 	case OP_String8: {
 		/* Load C string constant with auto-length calculation */
-		int handler_rc = vdbe_op_string8_inline(p, pOp, aMem);
+		int handler_rc = vdbe_op_string8(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }
 		pc++; continue;
 	}

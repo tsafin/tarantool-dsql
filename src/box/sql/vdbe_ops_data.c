@@ -85,6 +85,30 @@ int vdbe_op_string(Vdbe *p, Op *pOp, Mem *aMem)
 	return 0;
 }
 
+/* Opcode: String8 P2 * * P4 *
+ * Synopsis: r[P2]='P4'
+ *
+ * Load the UTF-8 string value P4 into register P2. P4 is obtained from
+ * a string literal. The string length is calculated and stored in P1.
+ * This is a variant of OP_String that auto-calculates the length.
+ */
+int vdbe_op_string8(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	(void)aMem;
+	assert(pOp->p4.z != NULL);
+
+	/* Calculate string length */
+	int len = sqlStrlen30(pOp->p4.z);
+	if (len > SQL_MAX_LENGTH)
+		return -1;
+
+	/* Use the string opcode to set the register */
+	Mem *pOut = vdbe_prepare_null_out(p, pOp->p2);
+	mem_set_str0_static(pOut, pOp->p4.z);
+	UPDATE_MAX_BLOBSIZE(pOut);
+	return 0;
+}
+
 /* Opcode: Null P1 P2 P3 * *
  * Synopsis: r[P2..P3]=NULL
  *
