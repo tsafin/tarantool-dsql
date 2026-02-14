@@ -16,7 +16,9 @@
 ## Running Tarantool Executable
 
 - **CRITICAL**: Always run `src/tarantool` from within the build directory
-- **Always clean *.snap files before running**: `rm -f *.snap` to avoid state from previous runs
+- **Always clean *.snap and *.xlog files before running**: `rm -f *.snap *.xlog` to avoid state from previous runs
+  - *.snap files contain database snapshots
+  - *.xlog files contain transaction logs (write-ahead log)
 - The tarantool executable expects to run from the build root, not the source root
 
 ## Lua Test Scripts (Tarantool)
