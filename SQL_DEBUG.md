@@ -1,0 +1,328 @@
+# SQL Debug Facilities - VDBE Tracing and Listing
+
+This document describes how to enable and use Tarantool's SQL debugging facilities for bytecode inspection and execution tracing.
+
+## Overview
+
+The SQL debugging facilities are controlled by several bit flags in the `sql_flags` field:
+
+| Flag | Value | Purpose |
+|------|-------|---------|
+| `SQL_VdbeTrace` | 0x00000001 | Trace VDBE execution (opcode-by-opcode) |
+| `SQL_SqlTrace` | 0x00000200 | Print SQL statement as it executes |
+| `SQL_VdbeListing` | 0x00000400 | Print complete VDBE program bytecode listing |
+
+These flags control whether debug output is printed to stdout during SQL statement compilation and execution.
+
+## How Flags Are Applied
+
+The `sql_flags` field is managed in three layers:
+
+1. **Session Level**: Stored in `struct session::sql_flags`
+   - Set via `SET SESSION` SQL commands
+   - Persists for all SQL statements in the session
+   - Controls what flags are passed to statement compiler
+
+2. **Parser Level**: Stored in `struct Parse::sql_flags`
+   - Set during `sql_parser_create()` from session flags
+   - Controls whether debug output is generated during parsing
+   - Propagated to VDBE during compilation
+
+3. **VDBE Level**: Stored in `struct Vdbe::sql_flags`
+   - Set during VDBE creation from parser flags
+   - Controls whether debug output is printed during execution
+   - Checked at start of `sqlVdbeExec()` to print listings
+
+## Method 1: Session Settings (Runtime)
+
+### Via SQL SET SESSION
+
+Set debugging flags for the current session using session settings:
+
+```sql
+-- Enable VDBE debug listing and tracing
+SET SESSION 'sql_vdbe_debug' = true;
+
+-- Enable just sequential scan debugging
+SET SESSION 'sql_seq_scan' = true;
+
+-- Enable parser debug output
+SET SESSION 'sql_parser_debug' = true;
+
+-- Enable SELECT statement debug output
+SET SESSION 'sql_select_debug' = true;
+```
+
+### Mapping to Bit Flags
+
+The session settings map to SQL flag combinations defined in `src/box/sql/build.c`:
+
+```c
+// sql_vdbe_debug maps to:
+SQL_SqlTrace | SQL_VdbeListing | SQL_VdbeTrace
+
+// sql_parser_debug maps to:
+SQL_SqlTrace | PARSER_TRACE_FLAG
+
+// sql_select_debug maps to:
+SQL_SqlTrace | SQL_SelectTrace | SQL_WhereTrace
+```
+
+### How It Works
+
+1. User executes: `SET SESSION 'sql_vdbe_debug' = true`
+2. SQL compiler generates `OP_SetSession` opcode
+3. During VDBE execution, `OP_SetSession` opcode handler:
+   - Looks up session setting by name
+   - Calls `sql_session_setting_set(sid, mp_value)`
+   - Handler sets bits in `current_session()->sql_flags`
+4. Next SQL statement compiled in same session:
+   - Parser created with `sql_parser_create(&parser, current_session()->sql_flags)`
+   - Flags propagated to VDBE
+   - Debug output printed during execution
+
+### Important: Session-First Requirement
+
+**The SET SESSION statement must execute BEFORE subsequent statements to take effect.**
+
+For testing, this means:
+
+```lua
+-- Correct: SET SESSION executes first
+box.execute("SET SESSION 'sql_vdbe_debug' = true")
+-- Subsequent statements now have debug output
+box.execute("SELECT * FROM table")
+
+-- Incorrect: Debug flags not yet set for CREATE TABLE
+box.execute("CREATE TABLE t(id INTEGER PRIMARY KEY)")
+box.execute("SET SESSION 'sql_vdbe_debug' = true")
+```
+
+## Method 2: Code-Level Debugging (Compile-Time)
+
+### Via SQL_DEBUG Conditional Compilation
+
+The `vdbe.c` file contains `#ifdef SQL_DEBUG` blocks that control debug output:
+
+```c
+#ifdef SQL_DEBUG
+if (p->pc == 0 &&
+    (p->sql_flags & (SQL_VdbeListing|SQL_VdbeEQP|SQL_VdbeTrace)) != 0) {
+    int i;
+    sqlVdbePrintSql(p);
+    if ((p->sql_flags & SQL_VdbeListing) != 0) {
+        printf("VDBE Program Listing:\n");
+        for(i=0; i<p->nOp; i++) {
+            sqlVdbePrintOp(stdout, i, &aOp[i]);
+        }
+    }
+    // ... more debug output ...
+}
+#endif
+```
+
+**Note**: This code is **only compiled if SQL_DEBUG is defined at build time**. The build system defines this via CMake for Debug builds.
+
+## Debug Output Types
+
+### VDBE Program Listing (SQL_VdbeListing)
+
+**When Printed**: At start of `sqlVdbeExec()` if `p->pc == 0` and `SQL_VdbeListing` flag set
+
+**Output Format**:
+```
+VDBE Program Listing:
+  0 Init              1  13  0  0  -1  00
+  1 String8           0  3  0  0  -1  00
+  2 OpenSpace         1  3  0  0  -1  00
+ ...
+```
+
+**What It Shows**:
+- Complete bytecode program before execution
+- All opcodes with their operands (P1, P2, P3, P4)
+- Full view of what the compiler generated
+- **Useful for**: Understanding what bytecode was generated for a SQL statement
+
+### VDBE Execution Trace (SQL_VdbeTrace)
+
+**When Printed**: During opcode execution in inline dispatcher
+
+**Output Format**:
+```
+[opcode execution trace - printed during DISPATCH macro]
+```
+
+**What It Shows**:
+- Step-by-step execution of each opcode
+- Timing and state information
+- Register values before/after opcode
+
+**Useful for**: Debugging why opcodes execute in unexpected order
+
+### SQL Statement Trace (SQL_SqlTrace)
+
+**When Printed**: Before VDBE execution and at various compiler stages
+
+**Output Format**:
+```
+[SQL statement being traced]
+```
+
+**Useful for**: Verifying which SQL statements are being compiled
+
+## Dispatcher Architecture Impact
+
+### Generated Dispatcher (VDBE_USE_GENERATED_DISPATCH=ON)
+
+- Falls back to inline dispatcher for unhandled opcodes
+- Debug output goes through inline dispatcher DISPATCH macro
+- May not capture all output in hybrid mode
+
+### Inline Dispatcher (VDBE_USE_GENERATED_DISPATCH=OFF)
+
+- All opcodes go through same DISPATCH macro
+- Consistent debug output capture
+- Simpler tracing
+
+### Recommendation for Debugging
+
+**Use inline dispatcher for cleaner debug output**:
+
+```bash
+cmake -DVDBE_USE_GENERATED_DISPATCH=OFF ..
+make -j tarantool
+```
+
+## Testing Strategy
+
+### Complete Debug Test Flow
+
+```lua
+#!/usr/bin/env tarantool
+
+box.cfg{}
+
+-- Step 1: Enable debugging for subsequent statements
+box.execute("SET SESSION 'sql_vdbe_debug' = true")
+
+-- Step 2: Execute SQL - should show VDBE listing + trace
+box.execute("CREATE TABLE t(id INTEGER PRIMARY KEY, val TEXT)")
+box.execute("INSERT INTO t VALUES (1, 'test')")
+box.execute("SELECT * FROM t")
+
+os.exit(0)
+```
+
+### Expected Debug Output
+
+When running with SQL_DEBUG enabled and sql_vdbe_debug=true:
+
+1. **SET SESSION statement execution** (no listing, sets flags)
+2. **CREATE TABLE**: VDBE listing printed to stdout
+3. **INSERT**: VDBE listing printed to stdout
+4. **SELECT**: VDBE listing printed to stdout
+
+Each listing shows the complete bytecode program generated by the compiler.
+
+## Checking if Flags Are Set
+
+### At Session Level
+
+Check current session flags via C code:
+
+```c
+struct session *session = current_session();
+uint32_t flags = session->sql_flags;
+bool vdbe_debug = (flags & (SQL_VdbeListing | SQL_VdbeTrace)) != 0;
+```
+
+### Verify Setting Applied
+
+After `SET SESSION`, subsequent SQL statements inherit the flags through this chain:
+
+1. `sql_parser_create(parser, current_session()->sql_flags)`
+2. `v->sql_flags = pParse->sql_flags`
+3. Checked in `sqlVdbeExec()` at line ~295
+
+## Common Issues and Solutions
+
+### Debug Output Not Appearing
+
+**Symptom**: `SET SESSION 'sql_vdbe_debug' = true` executes but subsequent statements show no debug output
+
+**Causes**:
+1. **SQL_DEBUG not compiled in**: Rebuild with CMake debug mode
+2. **Flags set after statements**: SET SESSION must execute FIRST
+3. **Wrong dispatcher mode**: Generated dispatcher may suppress output
+4. **Output redirected**: stdout might be captured elsewhere
+
+**Solutions**:
+- Verify SQL_DEBUG is defined: Check build flags
+- Reorder statements: SET SESSION before queries
+- Use inline dispatcher: `cmake -DVDBE_USE_GENERATED_DISPATCH=OFF`
+- Check stdout capture: Verify output not redirected
+
+### OP_SetSession Not Appearing in Bytecode
+
+**Symptom**: `SET SESSION` statement doesn't generate `OP_SetSession` opcode
+
+**Causes**:
+1. SQL compiler optimization removed it
+2. Setting not recognized by compiler
+
+**Solution**:
+- Use valid session setting names (from session_setting_strs array)
+- Valid names: `sql_vdbe_debug`, `sql_seq_scan`, `sql_parser_debug`, `sql_select_debug`
+
+## Implementation Details
+
+### Key Files
+
+- `src/box/sql/vdbe.c`: Main VDBE executor, contains SQL_DEBUG blocks
+- `src/box/sql/build.c`: Session setting implementation, OP_SetSession handler
+- `src/box/session_settings.c`: Session setting registration
+- `src/box/session_settings.h`: Session setting definitions
+
+### Relevant Structures
+
+```c
+// Session flags
+struct session {
+    uint32_t sql_flags;  // Bit flags for SQL debugging
+};
+
+// VDBE flags
+struct Vdbe {
+    uint32_t sql_flags;  // Copied from parser
+};
+
+// Parser flags
+struct Parse {
+    uint32_t sql_flags;  // Copied from session at parse time
+};
+```
+
+### Flag Constants
+
+Defined in `src/box/sql/sqlInt.h`:
+
+```c
+#define SQL_VdbeTrace      0x00000001  // VDBE execution trace
+#define SQL_SqlTrace       0x00000200  // SQL execution trace
+#define SQL_VdbeListing    0x00000400  // VDBE program listing
+```
+
+## Future Improvements
+
+1. **Bytecode Caching**: Cache compiled bytecode to avoid recompilation
+2. **Selective Tracing**: Trace only specific opcodes (currently all-or-nothing)
+3. **Performance Profiling**: Integration with timing measurements
+4. **Format Options**: JSON/structured output in addition to text
+5. **Dispatcher-Agnostic Output**: Ensure consistent output regardless of dispatcher mode
+
+## References
+
+- VDBE Architecture: See VDBE_REFACTORING.md
+- Opcode Reference: See opcodes.h for all opcode definitions
+- Dispatcher Implementation: See vdbe_dispatch_wrapper.c and vdbe.c

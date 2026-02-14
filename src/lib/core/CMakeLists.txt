@@ -6,7 +6,7 @@ set(core_sources
     clock.c
     fiber.c
     cxx_abi.cc
-    backtrace.c
+    backtrace_stub.c
     cbus.c
     fiber_pool.c
     fiber_cond.c

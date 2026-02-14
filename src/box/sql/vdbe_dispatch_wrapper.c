@@ -170,6 +170,7 @@ vdbe_exec_parallel_validation(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 int
 vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 {
+	fprintf(stderr, "[GENERATED DISPATCHER ENTRY] pc=%d nOp=%d\n", p->pc, p->nOp);
 	int rc = 0;                    /* Value to return */
 	int pc = p->pc;                /* Current program counter (0-based) */
 	int nOp = p->nOp;             /* Number of operations */
@@ -214,6 +215,8 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		pOrigOp = pOp;
 		vdbe_trace(p, pOrigOp, rc, aMem);
 #endif
+
+		fprintf(stderr, "[GENERATED DISPATCHER OPCODE] pc=%d opcode=%s (%d)\n", pc, sqlOpcodeName(op), op);
 
 		/* Dispatch on opcode */
 		switch (pOp->opcode) {
@@ -1045,6 +1048,8 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	 */
 		default: {
 			/* Unhandled opcode - fall back to inline dispatcher */
+			fprintf(stderr, "[GENERATED DISPATCHER FALLBACK] opcode=%s pc=%d\n",
+				sqlOpcodeName(pOp->opcode), pc);
 			p->pc = pc;
 			return SQL_FALLBACK_TO_INLINE;
 		}

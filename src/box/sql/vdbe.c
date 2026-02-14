@@ -274,6 +274,7 @@ vdbe_add_new_autoinc_id(struct Vdbe *vdbe, int64_t id)
  */
 int sqlVdbeExec(Vdbe *p)
 {
+	fprintf(stderr, "[VDBEEXEC ENTRY] nOp=%d pc=%d\n", p->nOp, p->pc);
 	int rc = 0;        /* Value to return */
 	Op *aOp = p->aOp;          /* Copy of p->aOp */
 	Mem *aMem = p->aMem;       /* Copy of p->aMem */
@@ -342,11 +343,16 @@ int sqlVdbeExec(Vdbe *p)
 #ifdef VDBE_USE_GENERATED_DISPATCH
 	/* Phase 5.4: Execute selected dispatcher instead of inline loop */
 	VdbeDispatcher dispatcher = vdbe_get_dispatcher();
+	fprintf(stderr, "[SQLVDBEEXEC] Dispatcher selected, calling dispatcher(p, aOp, aMem)\n");
 	rc = dispatcher(p, aOp, aMem);
+	fprintf(stderr, "[SQLVDBEEXEC] Dispatcher returned rc=%d, SQL_FALLBACK_TO_INLINE=%d\n", rc, SQL_FALLBACK_TO_INLINE);
 	/* Check if generated dispatcher requested fallback to inline */
-	if (rc != SQL_FALLBACK_TO_INLINE)
+	if (rc != SQL_FALLBACK_TO_INLINE) {
+		fprintf(stderr, "[SQLVDBEEXEC] Dispatcher completed successfully, returning to caller\n");
 		goto vdbe_return;
+	}
 	/* Fall through to inline dispatcher for unhandled opcodes */
+	fprintf(stderr, "[SQLVDBEEXEC] Dispatcher requested fallback, using inline dispatcher\n");
 	rc = 0;  /* Reset rc for inline dispatcher */
 #endif
 	/* Original inline dispatcher - always compiled for fallback support */
@@ -405,6 +411,8 @@ int sqlVdbeExec(Vdbe *p)
 #define DISPATCH() do {                       	  \
 	vdbe_trace(p, pOrigOp, rc, aMem);         \
 	pOp++;                                    \
+	fprintf(stderr, "[INLINE DISPATCHER NEXT] pc=%ld opcode=%s (%d)\n", \
+		(long)(pOp - aOp), sqlOpcodeName(pOp->opcode), pOp->opcode); \
 	assert(rc == 0);                          \
 	assert(pOp >= aOp && pOp < &aOp[p->nOp]); \
 	/*nVmStep++;*/                            \
@@ -417,6 +425,8 @@ int sqlVdbeExec(Vdbe *p)
 
 #define DISPATCH() do {                       	  \
 	pOp++;                                    \
+	fprintf(stderr, "[INLINE DISPATCHER NEXT] pc=%ld opcode=%s (%d)\n", \
+		(long)(pOp - aOp), sqlOpcodeName(pOp->opcode), pOp->opcode); \
 	assert(rc == 0);                          \
 	assert(pOp >= aOp && pOp < &aOp[p->nOp]); \
 	/*nVmStep++;*/                            \
@@ -449,6 +459,9 @@ int sqlVdbeExec(Vdbe *p)
 #if defined(SQL_DEBUG) || defined(VDBE_PROFILE)
 	pOrigOp = pOp;
 #endif
+
+	fprintf(stderr, "[INLINE DISPATCHER ENTRY] pc=%ld (pOp=%p), opcode=%s (%d)\n",
+		(long)(pOp - aOp), pOp, sqlOpcodeName(pOp->opcode), pOp->opcode);
 
 	SWITCH(pOp->opcode) {
 
@@ -3417,6 +3430,7 @@ EXECUTE(OP_IfPos,(P1,P2,P3)): {        /* jump, in1 */
  * error is raised.
  */
 EXECUTE(OP_OffsetLimit,(P1,P2,P3)): {    /* in1, out2, in3 */
+	fprintf(stderr, "[INLINE DISPATCHER] OP_OffsetLimit called\n");
 	pIn1 = &aMem[P1];
 	pIn3 = &aMem[P3];
 	pOut = vdbe_prepare_null_out(p, P2);
@@ -3601,6 +3615,7 @@ EXECUTE(OP_GenSpaceid,(P1)): {
  * setting being updated, P1 is the register holding a value.
  */
 EXECUTE(OP_SetSession,(P1,P4)): {
+	fprintf(stderr, "[INLINE DISPATCHER] OP_SetSession called\n");
 	assert(pOp->p4type == P4_DYNAMIC);
 	const char *setting_name = pOp->p4.z;
 	int sid = session_setting_find(setting_name);
