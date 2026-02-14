@@ -955,16 +955,13 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		if (handler_rc < 0) { rc = -1; break; }
 		pc++; continue;
 	}
-	/* TODO: OP_NoConflict disabled - memIsValid assertion failure affects both dispatchers
-	 * This is an existing bug, not specific to generated dispatcher */
-	/*
+	/* OP_NoConflict - Index conflict check (re-enabled after fixing wrapper) */
 	case OP_NoConflict: {
-		int handler_rc = vdbe_op_found_notfound_noconflict(p, pOp, aMem);
+		int handler_rc = vdbe_op_noconflict(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }
 		if (handler_rc == 1) { pc = P2; continue; }
 		pc++; continue;
 	}
-	*/
 
 	/* System space operations */
 	case OP_SInsert: {

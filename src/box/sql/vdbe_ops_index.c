@@ -419,3 +419,13 @@ vdbe_op_iteratoropen(Vdbe *p, Op *pOp, Mem *aMem)
 
 	return 0;
 }
+
+/* Wrapper for OP_NoConflict to call the composite handler.
+ * The generated dispatcher expects vdbe_op_noconflict, but we use
+ * a composite handler for Found/NotFound/NoConflict operations.
+ */
+int
+vdbe_op_noconflict(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_found_notfound_noconflict(p, pOp, aMem);
+}
