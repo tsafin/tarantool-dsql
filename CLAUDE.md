@@ -2,6 +2,15 @@
 
 ## Git Operations
 
+### Commit Messages
+- Write practical, factual commit messages describing what was actually done
+- No emoji symbols in commit messages
+- No "Co-Authored-By:" footer
+- Avoid exaggerations and advertising language
+- Focus on technical implementation details and actual changes
+- Example: "sql: fix OP_NoConflict register initialization" vs "sql: fix OP_NoConflict bug ✅"
+
+### File Staging
 - **NEVER use `git add -A` or `git add .`** - Always specify explicit file names/paths
 - Always use `git add <filename>` or `git add <path/to/file>` for clarity and safety
 - This prevents accidentally staging unwanted files (IDE settings, build artifacts, etc.)
