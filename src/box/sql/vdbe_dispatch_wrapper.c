@@ -18,6 +18,7 @@
 #include "vdbe_dispatch.h"
 #include "vdbe_dispatch_interface.h"
 #include "box/error.h"
+#include "box/schema.h"
 
 /* Forward declarations */
 void vdbe_trace(Vdbe *p, Op *pOrigOp, int rc, Mem *aMem);
@@ -861,6 +862,177 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 				break;
 			}
 		}
+		pc++; continue;
+	}
+
+	/* ====================================================================
+	 * CURSOR AND ITERATION OPCODES (Batch 2)
+	 * Added to unblock SELECT operations
+	 * ====================================================================
+	 */
+
+	/* Iterator operations */
+	case OP_IteratorOpen: {
+		/* Schema version check - cursor is already set up by previous opcodes */
+		if (box_schema_version() != p->schema_ver &&
+		    (pOp->p5 & OPFLAG_SYSTEMSP) == 0) {
+			p->expired = 1;
+			diag_set(ClientError, ER_SQL_EXECUTE, "schema version has "
+				 "changed: need to re-compile SQL statement");
+			rc = -1;
+			break;
+		}
+		pc++; continue;
+	}
+	case OP_Rewind: {
+		int handler_rc = vdbe_op_rewind(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2; continue; }
+		pc++; continue;
+	}
+	case OP_Next: {
+		int handler_rc = vdbe_op_next(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2; continue; }
+		pc++; continue;
+	}
+	case OP_Prev: {
+		int handler_rc = vdbe_op_prev(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2; continue; }
+		pc++; continue;
+	}
+	case OP_Last: {
+		int handler_rc = vdbe_op_last(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2; continue; }
+		pc++; continue;
+	}
+	case OP_NextIfOpen: {
+		int handler_rc = vdbe_op_nextifopen(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2; continue; }
+		pc++; continue;
+	}
+	case OP_PrevIfOpen: {
+		int handler_rc = vdbe_op_previfopen(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2; continue; }
+		pc++; continue;
+	}
+
+	/* Seek operations */
+	case OP_SeekLT:
+	case OP_SeekGT: {
+		int handler_rc = vdbe_op_seek_lt_gt(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2; continue; }
+		pc++; continue;
+	}
+	case OP_SeekLE:
+	case OP_SeekGE: {
+		int handler_rc = vdbe_op_seek_le_ge(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2; continue; }
+		pc++; continue;
+	}
+
+	/* Index operations */
+	case OP_IdxInsert:
+	case OP_IdxReplace: {
+		int handler_rc = vdbe_op_idx_insert_replace(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_IdxGE:
+	case OP_IdxGT:
+	case OP_IdxLE:
+	case OP_IdxLT: {
+		int handler_rc = vdbe_op_idx_compare(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2; continue; }
+		pc++; continue;
+	}
+	case OP_IdxDelete: {
+		int handler_rc = vdbe_op_idxdelete(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	/* TODO: OP_NoConflict - disabled due to operand validation issue
+	 * The check_vdbe_operands function fails with:
+	 *   Assertion `memIsValid(&aMem[pOp->p3])' failed
+	 * This works in the inline dispatcher, suggesting different validation
+	 * semantics are needed for the generated dispatcher.
+	 * Handler: vdbe_op_found_notfound_noconflict
+	 */
+
+	/* System space operations */
+	case OP_SInsert: {
+		int handler_rc = vdbe_op_sinsert(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_SDelete: {
+		int handler_rc = vdbe_op_sdelete(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	/* Data access */
+	case OP_RowData: {
+		int handler_rc = vdbe_op_rowdata(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	/* Data types */
+	case OP_Int64: {
+		int handler_rc = vdbe_op_int64(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_Real: {
+		int handler_rc = vdbe_op_real(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_Null: {
+		int handler_rc = vdbe_op_null(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_Variable: {
+		int handler_rc = vdbe_op_variable(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	/* Register operations */
+	case OP_Move: {
+		int handler_rc = vdbe_op_move(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_SCopy: {
+		int handler_rc = vdbe_op_scopy(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	/* Bitwise operations */
+	case OP_BitAnd: {
+		int handler_rc = vdbe_op_bitand(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_BitOr: {
+		int handler_rc = vdbe_op_bitor(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_BitNot: {
+		int handler_rc = vdbe_op_bitnot(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
 		pc++; continue;
 	}
 

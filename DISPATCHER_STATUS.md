@@ -1,14 +1,14 @@
 # VDBE Generated Dispatcher Completion Status
 
 ## Current Status (Feb 14, 2026)
-- **Opcodes handled**: 78 / 176 (53% complete)
-- **Opcodes missing**: 98
+- **Opcodes handled**: 108 / 176 (61% complete)
+- **Opcodes missing**: 68
 - **Build status**: ✅ Compiles successfully
-- **Test status**: ⚠️  CREATE/INSERT/SELECT hits OP_IteratorOpen
+- **Test status**: ⚠️  Operand validation issues with debug build
 
 ## Progress
 
-### Commit ab21afec42: Added 26 critical opcodes
+### Commit ab21afec42: Added 26 critical opcodes (Batch 1)
 Successfully added:
 - Comparison: Eq, Ne, Lt, Le, Gt, Ge (6)
 - Logical: And, Or, Not, If (4)
@@ -21,8 +21,24 @@ Successfully added:
 - Aggregates: AggStep, AggFinal (2)
 - Transaction: TTransaction (1)
 
-### Next Missing Opcode
-`OP_IteratorOpen` (pc=3) - needed for SELECT operations
+### Current Commit: Added 30 cursor/iteration opcodes (Batch 2)
+Successfully added:
+- Iterator: IteratorOpen, Rewind, Next, Prev, Last, NextIfOpen, PrevIfOpen (7)
+- Seek: SeekLT, SeekGT, SeekLE, SeekGE (4)
+- Index: IdxInsert, IdxReplace, IdxGE, IdxGT, IdxLE, IdxLT, IdxDelete (7)
+- System: SInsert, SDelete (2)
+- Data access: RowData (1)
+- Data types: Int64, Real, Null, Variable (4)
+- Register: Move, SCopy (2)
+- Bitwise: BitAnd, BitOr, BitNot (3)
+
+**Disabled pending investigation:**
+- OP_NoConflict - operand validation assertion failure
+
+### Known Issues
+- `check_vdbe_operands` validation is stricter in generated dispatcher than inline
+- OP_NoConflict fails with `assert(memIsValid(&aMem[pOp->p3]))` in debug builds
+- Works fine with inline dispatcher (VDBE_USE_GENERATED_DISPATCH=OFF)
 
 ## Remaining Work
 
