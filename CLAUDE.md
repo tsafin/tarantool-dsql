@@ -13,6 +13,12 @@
 - This is essential after modifying src/box/sql/* files or any source that affects the executable
 - `make box` is useful only for checking if the library compiles, but won't update the binary
 
+## Running Tarantool Executable
+
+- **CRITICAL**: Always run `src/tarantool` from within the build directory
+- **Always clean *.snap files before running**: `rm -f *.snap` to avoid state from previous runs
+- The tarantool executable expects to run from the build root, not the source root
+
 ## Lua Test Scripts (Tarantool)
 
 - Always run `box.cfg{}` before any `box.execute` operations.
@@ -81,15 +87,21 @@
 - [x] Add vdbe_jit.h includes to vdbe.c and vdbeaux.c
 
 **Generated Dispatcher Status (Feb 14, 2026)**:
-- Currently handles 78 of 176 opcodes (53% complete) - up from 52 (30%)
-- Added 26 critical opcodes in commit ab21afec42
+- Currently handles 108 of 176 opcodes (61% complete) - up from 52 (30%)
+- Batch 1 (commit ab21afec42): Added 26 critical opcodes
   - Comparison: Eq, Ne, Lt, Le, Gt, Ge
   - Logical: And, Or, Not, If
   - Data ops: Bool, Blob, Copy, Cast, ApplyType, Concat
   - Cursor: Column, MakeRecord, Found, NotFound
   - Modification: Delete, Update, AggStep, AggFinal
   - Transaction: TTransaction (inline implementation)
-- Progress: CREATE TABLE/INSERT now proceed further (hits OP_IteratorOpen instead of OP_TTransaction)
-- Still need 98 more opcodes for full coverage
-- Next critical: OP_IteratorOpen, OP_Insert, OP_SInsert, OP_IdxInsert
+- Batch 2 (current): Added 30 cursor/iteration opcodes
+  - Iterator: IteratorOpen, Rewind, Next, Prev, Last, NextIfOpen, PrevIfOpen
+  - Seek: SeekLT, SeekGT, SeekLE, SeekGE
+  - Index: IdxInsert, IdxReplace, IdxGE, IdxGT, IdxLE, IdxLT, IdxDelete
+  - System: SInsert, SDelete, RowData
+  - Data types: Int64, Real, Null, Variable, Move, SCopy
+  - Bitwise: BitAnd, BitOr, BitNot
+- **Known Issue**: OP_NoConflict disabled - operand validation differs between generated/inline dispatchers
+- Still need 68 more opcodes for full coverage
 - See DISPATCHER_STATUS.md for detailed tracking
