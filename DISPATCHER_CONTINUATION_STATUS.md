@@ -1,16 +1,16 @@
-# VDBE Dispatcher Status - Feb 14, 2026
+# VDBE Dispatcher Status - Feb 14, 2026 (Updated after OP_Compare)
 
 ## Current Achievement
-- **Implemented:** 108 of 176 opcodes (61%)
-- **Remaining:** 68 opcodes (39%)
+- **Implemented:** 109 of 176 opcodes (61.9%)
+- **Remaining:** 67 opcodes (38.1%)
   - 24 placeholder opcodes (OP_NotUsed_140-173) - don't need implementation
-  - 44 real opcodes needing work
+  - 43 real opcodes needing work
 
 ## Implemented Opcode Coverage
 
 ### Fully Implemented Categories
 ✅ **Arithmetic:** Add, Subtract, Multiply, Divide, Remainder, Modulo
-✅ **Comparison:** Eq, Ne, Lt, Le, Gt, Ge  
+✅ **Comparison:** Eq, Ne, Lt, Le, Gt, Ge, Compare
 ✅ **Logical:** And, Or, Not
 ✅ **Data Loading:** Null, Bool, Int64, Real, String, Blob, Variable, Constant
 ✅ **Data Movement:** Copy, SCopy, Move, Cast
@@ -30,7 +30,6 @@
 ### Priority Groups
 
 **HIGH - Common Operations (recommend implementing next)**
-- OP_Compare - Field comparison (used in WHERE clauses)
 - OP_Gosub / OP_Return - Subroutine calls
 - OP_SetSession - Session settings (used for sql_seq_scan!)
 - OP_OffsetLimit - OFFSET/LIMIT operations
@@ -67,8 +66,8 @@
 ## Recommendations for Next Steps
 
 ### Option 1: Continue Implementation (Moderate Effort)
-Implement high-priority opcodes: Compare, SetSession, OffsetLimit
-- **Benefits:** Better handling of common operations
+Implement high-priority opcodes: SetSession, OffsetLimit, Gosub/Return
+- **Benefits:** Better handling of common operations (OP_Compare just completed!)
 - **Effort:** Medium (each requires careful extraction and testing)
 - **Timeline:** 2-3 more sessions
 
@@ -89,7 +88,7 @@ Implement high-priority opcodes: Compare, SetSession, OffsetLimit
 - **Timeline:** 2 sessions
 
 ### Option 4: Documentation and Testing (Low Effort, High Maintenance Value)
-- Create comprehensive test suite for all 108 implemented opcodes
+- Create comprehensive test suite for all 109 implemented opcodes
 - Document each opcode's behavior and edge cases
 - Create performance benchmarks showing dispatcher vs inline vs JIT
 - **Benefits:** Future maintenance, confidence in correctness
