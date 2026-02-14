@@ -80,10 +80,16 @@
 - [x] Mark OP_ResultRow as UNSUPPORTED (requires special SQL_ROW return handling)
 - [x] Add vdbe_jit.h includes to vdbe.c and vdbeaux.c
 
-**BLOCKER - Generated Dispatcher Incomplete**:
-- Generated dispatcher (VDBE_USE_GENERATED_DISPATCH=ON) only handles 52 of 176 opcodes
-- Missing critical opcodes: OP_TTransaction, OP_Column, OP_Copy, OP_Cast, and 120+ others
-- Causes table operations (CREATE/INSERT/SELECT) to fail with "unhandled opcode" error
-- This affects both JIT testing and normal SQL execution
-- **MUST complete dispatcher before proceeding with JIT Step 5**
-- See vdbe_dispatch_wrapper.c line 214 switch statement - needs ~124 more case blocks
+**Generated Dispatcher Status (Feb 14, 2026)**:
+- Currently handles 78 of 176 opcodes (53% complete) - up from 52 (30%)
+- Added 26 critical opcodes in commit ab21afec42
+  - Comparison: Eq, Ne, Lt, Le, Gt, Ge
+  - Logical: And, Or, Not, If
+  - Data ops: Bool, Blob, Copy, Cast, ApplyType, Concat
+  - Cursor: Column, MakeRecord, Found, NotFound
+  - Modification: Delete, Update, AggStep, AggFinal
+  - Transaction: TTransaction (inline implementation)
+- Progress: CREATE TABLE/INSERT now proceed further (hits OP_IteratorOpen instead of OP_TTransaction)
+- Still need 98 more opcodes for full coverage
+- Next critical: OP_IteratorOpen, OP_Insert, OP_SInsert, OP_IdxInsert
+- See DISPATCHER_STATUS.md for detailed tracking
