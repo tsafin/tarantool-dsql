@@ -112,10 +112,14 @@ vdbe_op_notnull_inline(Vdbe *p, Op *pOp, Mem *aMem)
 int
 vdbe_op_permutation_inline(Vdbe *p, Op *pOp, Mem *aMem)
 {
-	(void)p;
-	(void)pOp;
 	(void)aMem;
 
-	/* Permutation is typically handled during result setup */
+	/* Set up permutation array for OP_Compare */
+	assert(pOp->p4type == P4_INTARRAY);
+	assert(pOp->p4.ai);
+
+	/* p4.ai[0] is the array length, actual permutation starts at p4.ai + 1 */
+	p->aPermute = pOp->p4.ai + 1;
+
 	return 0;
 }

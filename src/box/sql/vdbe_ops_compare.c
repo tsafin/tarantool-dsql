@@ -245,3 +245,77 @@ int vdbe_op_ge(Vdbe *p, Op *pOp, Mem *aMem)
 
 	return result ? VDBE_CMP_JUMP : VDBE_CMP_CONTINUE;
 }
+
+/* OP_Compare: r[P1@P3] <-> r[P2@P3]
+ *
+ * Compare P3 consecutive registers starting at P1 with P3 consecutive
+ * registers starting at P2. Store the comparison result in p->iCompare.
+ *
+ * The comparison is done element by element using the key definition in P4.
+ * If OPFLAG_PERMUTE is set in P5, the comparison uses a permutation array
+ * that was set by OP_Permutation (stored in p->aPermute).
+ *
+ * Returns:
+ * - 0: comparison complete, continue to next opcode
+ * - -1: error occurred
+ */
+int vdbe_op_compare(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	if ((pOp->p5 & OPFLAG_PERMUTE) == 0)
+		p->aPermute = 0;
+
+	int n = pOp->p3;
+	assert(pOp->p4type == P4_KEYINFO);
+	assert(n > 0);
+	int p1 = pOp->p1;
+	int p2 = pOp->p2;
+
+	struct key_def *def = sql_key_info_to_key_def(pOp->p4.key_info);
+	if (def == NULL)
+		return VDBE_CMP_ERROR;
+
+#if SQL_DEBUG
+	if (p->aPermute) {
+		int mx = 0;
+		for(uint32_t k = 0; k < (uint32_t)n; k++)
+			if (p->aPermute[k] > mx)
+				mx = p->aPermute[k];
+		assert(p1>0 && p1+mx<=(p->nMem+1 - p->nCursor)+1);
+		assert(p2>0 && p2+mx<=(p->nMem+1 - p->nCursor)+1);
+	} else {
+		assert(p1>0 && p1+n<=(p->nMem+1 - p->nCursor)+1);
+		assert(p2>0 && p2+n<=(p->nMem+1 - p->nCursor)+1);
+	}
+#endif /* SQL_DEBUG */
+
+	for(int i = 0; i < n; i++) {
+		int idx = p->aPermute ? p->aPermute[i] : i;
+		assert(memIsValid(&aMem[p1+idx]));
+		assert(memIsValid(&aMem[p2+idx]));
+		REGISTER_TRACE(p, p1+idx, &aMem[p1+idx]);
+		REGISTER_TRACE(p, p2+idx, &aMem[p2+idx]);
+		assert(i < (int)def->part_count);
+		struct coll *coll = def->parts[i].coll;
+		bool is_rev = def->parts[i].sort_order == SORT_ORDER_DESC;
+		struct Mem *a = &aMem[p1+idx];
+		struct Mem *b = &aMem[p2+idx];
+		if (!mem_is_comparable(a)) {
+			diag_set(ClientError, ER_SQL_TYPE_MISMATCH, mem_str(a),
+				 "comparable type");
+			return VDBE_CMP_ERROR;
+		}
+		if (!mem_is_comparable(b)) {
+			diag_set(ClientError, ER_SQL_TYPE_MISMATCH, mem_str(b),
+				 "comparable type");
+			return VDBE_CMP_ERROR;
+		}
+		p->iCompare = mem_cmp_scalar(a, b, coll);
+		if (p->iCompare) {
+			if (is_rev)
+				p->iCompare = -p->iCompare;
+			break;
+		}
+	}
+	p->aPermute = 0;
+	return VDBE_CMP_CONTINUE;
+}

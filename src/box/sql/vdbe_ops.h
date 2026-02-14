@@ -34,6 +34,7 @@ int vdbe_op_lt(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_le(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_gt(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_ge(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_compare(Vdbe *p, Op *pOp, Mem *aMem);  /* Compare multiple fields */
 /* Logical and bitwise opcodes */
 int vdbe_op_and(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_or(Vdbe *p, Op *pOp, Mem *aMem);
