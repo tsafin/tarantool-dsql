@@ -343,9 +343,13 @@ int sqlVdbeExec(Vdbe *p)
 	/* Phase 5.4: Execute selected dispatcher instead of inline loop */
 	VdbeDispatcher dispatcher = vdbe_get_dispatcher();
 	rc = dispatcher(p, aOp, aMem);
-	goto vdbe_return;
-#else
-	/* Original inline dispatcher - fallback mode */
+	/* Check if generated dispatcher requested fallback to inline */
+	if (rc != SQL_FALLBACK_TO_INLINE)
+		goto vdbe_return;
+	/* Fall through to inline dispatcher for unhandled opcodes */
+	rc = 0;  /* Reset rc for inline dispatcher */
+#endif
+	/* Original inline dispatcher - always compiled for fallback support */
 	Op *pOp = aOp;             /* Current operation */
 #if defined(SQL_DEBUG)
 	Op *pOrigOp;               /* Value of pOp at the top of the loop */
@@ -422,11 +426,9 @@ int sqlVdbeExec(Vdbe *p)
 #endif /* SQL_DEBUG */
 
 #ifdef SQL_USE_GOTO
-#ifndef VDBE_USE_GENERATED_DISPATCH
 
 #include "dispatchtable.h"
 
-#endif /* VDBE_USE_GENERATED_DISPATCH */
 #endif /* SQL_USE_GOTO */
 
 	pOp = &aOp[p->pc];
@@ -438,7 +440,10 @@ int sqlVdbeExec(Vdbe *p)
 	//nVmStep++;
 
 #ifdef SQL_DEBUG
-	check_vdbe_operands(p, pOp, aOp, aMem);
+	/* Only check first opcode when starting from beginning.
+	 * Skip when continuing from fallback (p->pc != initial value) */
+	if (pOp == aOp)
+		check_vdbe_operands(p, pOp, aOp, aMem);
 #endif /* SQL_DEBUG */
 
 #if defined(SQL_DEBUG) || defined(VDBE_PROFILE)
@@ -3682,7 +3687,6 @@ EXECUTE(OP_Explain,()): {
  * restored.
  ****************************************************************************/
 	}
-#endif /* VDBE_USE_GENERATED_DISPATCH */
 
 	/* If we reach this point, it means that execution is finished with
 	 * an error of some kind.

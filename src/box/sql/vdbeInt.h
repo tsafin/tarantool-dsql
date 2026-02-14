@@ -327,6 +327,13 @@ struct Vdbe {
 #define VDBE_MAGIC_RESET    0x48fa9f76	/* Reset and ready to run again */
 #define VDBE_MAGIC_DEAD     0x5606c3c8	/* The VDBE has been deallocated */
 
+/*
+ * Special return code for generated dispatcher to signal fallback needed
+ * When generated dispatcher encounters unhandled opcode, it returns this
+ * code to indicate that inline dispatcher should continue from p->pc.
+ */
+#define SQL_FALLBACK_TO_INLINE  99
+
 /**
  * Close a VDBE cursor and release all the resources that cursor happens to
  * hold.

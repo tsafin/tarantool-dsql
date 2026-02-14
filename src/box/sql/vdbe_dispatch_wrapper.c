@@ -1036,17 +1036,18 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		pc++; continue;
 	}
 
-	/* Fallback to inline dispatcher for unhandled opcodes */
+	/* Fallback to inline dispatcher for unhandled opcodes
+	 * Return SQL_FALLBACK_TO_INLINE special code to signal that
+	 * execution should continue with inline dispatcher from current PC.
+	 */
 		default: {
 			fprintf(stderr,
-				"Generated dispatcher unhandled opcode: pc=%d op=%s - falling back to inline dispatcher\n",
+				"Generated dispatcher unhandled opcode: pc=%d op=%s - falling back to inline\n",
 				pc, sqlOpcodeName(pOp->opcode));
-			/* Update program counter for continuation */
+			/* Update PC for inline dispatcher continuation */
 			p->pc = pc;
-			/* Call inline dispatcher to handle remaining opcodes */
-			rc = vdbe_exec_old_dispatcher(p, aOp, aMem);
-			/* Inline dispatcher handled the rest, return its result */
-			return rc;
+			/* Return special code to trigger inline dispatcher */
+			return SQL_FALLBACK_TO_INLINE;
 		}
 		}
 
