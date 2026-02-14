@@ -675,6 +675,195 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		pc++; continue;
 	}
 
+	/* ====================================================================
+	 * CRITICAL OPCODES FOR TABLE OPERATIONS
+	 * Added to unblock CREATE/INSERT/SELECT operations
+	 * ====================================================================
+	 */
+
+	/* Comparison operators */
+	case OP_Eq: {
+		int handler_rc = vdbe_op_eq(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2; continue; }
+		pc++; continue;
+	}
+	case OP_Ne: {
+		int handler_rc = vdbe_op_ne(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2; continue; }
+		pc++; continue;
+	}
+	case OP_Lt: {
+		int handler_rc = vdbe_op_lt(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2; continue; }
+		pc++; continue;
+	}
+	case OP_Le: {
+		int handler_rc = vdbe_op_le(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2; continue; }
+		pc++; continue;
+	}
+	case OP_Gt: {
+		int handler_rc = vdbe_op_gt(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2; continue; }
+		pc++; continue;
+	}
+	case OP_Ge: {
+		int handler_rc = vdbe_op_ge(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2; continue; }
+		pc++; continue;
+	}
+
+	/* Logical operators */
+	case OP_And: {
+		int handler_rc = vdbe_op_and(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_Or: {
+		int handler_rc = vdbe_op_or(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_Not: {
+		int handler_rc = vdbe_op_not(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_If: {
+		/* Jump if register is true */
+		Mem *pIn1 = &aMem[P1];
+		int c;
+		if (mem_is_null(pIn1)) {
+			c = P3;
+		} else if (mem_is_bool(pIn1)) {
+			c = pIn1->u.b;
+		} else {
+			diag_set(ClientError, ER_SQL_TYPE_MISMATCH,
+				 mem_str(pIn1), "boolean");
+			rc = -1;
+			break;
+		}
+		if (c) {
+			pc = P2;
+		} else {
+			pc++;
+		}
+		continue;
+	}
+
+	/* Data/constants */
+	case OP_Bool: {
+		int handler_rc = vdbe_op_bool(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_Blob: {
+		int handler_rc = vdbe_op_blob(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	/* Register operations */
+	case OP_Copy: {
+		int handler_rc = vdbe_op_copy(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	/* Type operations */
+	case OP_Cast: {
+		int handler_rc = vdbe_op_cast(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_ApplyType: {
+		int handler_rc = vdbe_op_applytype(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_Concat: {
+		int handler_rc = vdbe_op_concat(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	/* Cursor data access */
+	case OP_Column: {
+		int handler_rc = vdbe_op_column(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_MakeRecord: {
+		int handler_rc = vdbe_op_makerecord(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	/* Cursor seek operations */
+	case OP_Found: {
+		int handler_rc = vdbe_op_found_notfound_noconflict(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2; continue; }
+		pc++; continue;
+	}
+	case OP_NotFound: {
+		int handler_rc = vdbe_op_found_notfound_noconflict(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2; continue; }
+		pc++; continue;
+	}
+
+	/* Data modification */
+	case OP_Delete: {
+		int handler_rc = vdbe_op_delete(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_Update: {
+		int handler_rc = vdbe_op_update(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	/* Aggregates */
+	case OP_AggStep: {
+		int handler_rc = vdbe_op_aggstep(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_AggFinal: {
+		int handler_rc = vdbe_op_aggfinal(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	/* Transaction operations - inline implementations */
+	case OP_TTransaction: {
+		/*
+		 * Start Tarantool's transaction, if there is no active
+		 * transactions. Otherwise, create anonymous savepoint.
+		 */
+		if (!box_txn()) {
+			if (txn_begin() == NULL) {
+				rc = -1;
+				break;
+			}
+		} else {
+			p->anonymous_savepoint = txn_savepoint_new(in_txn(), NULL);
+			if (p->anonymous_savepoint == NULL) {
+				rc = -1;
+				break;
+			}
+		}
+		pc++; continue;
+	}
+
 	/* Noop for unassigned opcodes */
 		default: {
 			fprintf(stderr,
