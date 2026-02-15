@@ -28,18 +28,18 @@ static const void * const dispatch_table[] = {
     &&Exec_OP_NextIfOpen, /* 3 */
     &&Exec_OP_Prev, /* 4 */
     &&Exec_OP_Or, /* 5 */
-    &&Exec_OP_Next, /* 6 */
+    &&Exec_OP_And, /* 6 */
     &&Exec_OP_Not, /* 7 */
-    &&Exec_OP_Goto, /* 8 */
-    &&Exec_OP_SetDiag, /* 9 */
-    &&Exec_OP_Gosub, /* 10 */
-    &&Exec_OP_InitCoroutine, /* 11 */
-    &&Exec_OP_Yield, /* 12 */
+    &&Exec_OP_Next, /* 8 */
+    &&Exec_OP_Goto, /* 9 */
+    &&Exec_OP_SetDiag, /* 10 */
+    &&Exec_OP_Gosub, /* 11 */
+    &&Exec_OP_InitCoroutine, /* 12 */
     &&Exec_OP_Ne, /* 13 */
-    &&Exec_OP_MustBeInt, /* 14 */
+    &&Exec_OP_Eq, /* 14 */
     &&Exec_OP_Gt, /* 15 */
     &&Exec_OP_Le, /* 16 */
-    &&Exec_OP_Eq, /* 17 */
+    &&Exec_OP_Lt, /* 17 */
     &&Exec_OP_Ge, /* 18 */
     &&Exec_OP_ElseNotEq, /* 19 */
     &&Exec_OP_BitAnd, /* 20 */
@@ -52,51 +52,51 @@ static const void * const dispatch_table[] = {
     &&Exec_OP_Divide, /* 27 */
     &&Exec_OP_Remainder, /* 28 */
     &&Exec_OP_Concat, /* 29 */
-    &&Exec_OP_Lt, /* 30 */
+    &&Exec_OP_Yield, /* 30 */
     &&Exec_OP_BitNot, /* 31 */
-    &&Exec_OP_Jump, /* 32 */
-    &&Exec_OP_Once, /* 33 */
-    &&Exec_OP_IfNot, /* 34 */
-    &&Exec_OP_SeekLT, /* 35 */
-    &&Exec_OP_SeekGT, /* 36 */
-    &&Exec_OP_SeekGE, /* 37 */
-    &&Exec_OP_Found, /* 38 */
-    &&Exec_OP_Last, /* 39 */
-    &&Exec_OP_SorterSort, /* 40 */
-    &&Exec_OP_Sort, /* 41 */
-    &&Exec_OP_Rewind, /* 42 */
-    &&Exec_OP_IdxGE, /* 43 */
-    &&Exec_OP_Program, /* 44 */
-    &&Exec_OP_IfPos, /* 45 */
-    &&Exec_OP_IfNotZero, /* 46 */
-    &&Exec_OP_DecrJumpZero, /* 47 */
+    &&Exec_OP_MustBeInt, /* 32 */
+    &&Exec_OP_Jump, /* 33 */
+    &&Exec_OP_Once, /* 34 */
+    &&Exec_OP_IfNot, /* 35 */
+    &&Exec_OP_SeekLT, /* 36 */
+    &&Exec_OP_SeekGT, /* 37 */
+    &&Exec_OP_SeekGE, /* 38 */
+    &&Exec_OP_Found, /* 39 */
+    &&Exec_OP_Last, /* 40 */
+    &&Exec_OP_SorterSort, /* 41 */
+    &&Exec_OP_Sort, /* 42 */
+    &&Exec_OP_Rewind, /* 43 */
+    &&Exec_OP_IdxGE, /* 44 */
+    &&Exec_OP_Program, /* 45 */
+    &&Exec_OP_IfPos, /* 46 */
+    &&Exec_OP_IfNotZero, /* 47 */
     &&Exec_OP_String8, /* 48 */
-    &&Exec_OP_Init, /* 49 */
-    &&Exec_OP_Return, /* 50 */
-    &&Exec_OP_EndCoroutine, /* 51 */
-    &&Exec_OP_Halt, /* 52 */
-    &&Exec_OP_Integer, /* 53 */
-    &&Exec_OP_Bool, /* 54 */
-    &&Exec_OP_Int64, /* 55 */
-    &&Exec_OP_String, /* 56 */
-    &&Exec_OP_Null, /* 57 */
-    &&Exec_OP_Blob, /* 58 */
-    &&Exec_OP_Variable, /* 59 */
-    &&Exec_OP_Move, /* 60 */
-    &&Exec_OP_Copy, /* 61 */
-    &&Exec_OP_SCopy, /* 62 */
-    &&Exec_OP_ResultRow, /* 63 */
-    &&Exec_OP_SkipLoad, /* 64 */
-    &&Exec_OP_BuiltinFunction, /* 65 */
-    &&Exec_OP_FunctionByName, /* 66 */
-    &&Exec_OP_AddImm, /* 67 */
-    &&Exec_OP_Cast, /* 68 */
-    &&Exec_OP_Array, /* 69 */
-    &&Exec_OP_Map, /* 70 */
-    &&Exec_OP_Getitem, /* 71 */
-    &&Exec_OP_Permutation, /* 72 */
-    &&Exec_OP_Compare, /* 73 */
-    &&Exec_OP_And, /* 74 */
+    &&Exec_OP_DecrJumpZero, /* 49 */
+    &&Exec_OP_Init, /* 50 */
+    &&Exec_OP_Return, /* 51 */
+    &&Exec_OP_EndCoroutine, /* 52 */
+    &&Exec_OP_Halt, /* 53 */
+    &&Exec_OP_Integer, /* 54 */
+    &&Exec_OP_Bool, /* 55 */
+    &&Exec_OP_Int64, /* 56 */
+    &&Exec_OP_String, /* 57 */
+    &&Exec_OP_Null, /* 58 */
+    &&Exec_OP_Blob, /* 59 */
+    &&Exec_OP_Variable, /* 60 */
+    &&Exec_OP_Move, /* 61 */
+    &&Exec_OP_Copy, /* 62 */
+    &&Exec_OP_SCopy, /* 63 */
+    &&Exec_OP_ResultRow, /* 64 */
+    &&Exec_OP_SkipLoad, /* 65 */
+    &&Exec_OP_BuiltinFunction, /* 66 */
+    &&Exec_OP_FunctionByName, /* 67 */
+    &&Exec_OP_AddImm, /* 68 */
+    &&Exec_OP_Cast, /* 69 */
+    &&Exec_OP_Array, /* 70 */
+    &&Exec_OP_Map, /* 71 */
+    &&Exec_OP_Getitem, /* 72 */
+    &&Exec_OP_Permutation, /* 73 */
+    &&Exec_OP_Compare, /* 74 */
     &&Exec_OP_If, /* 75 */
     &&Exec_OP_Column, /* 76 */
     &&Exec_OP_FetchByName, /* 77 */
@@ -1260,18 +1260,16 @@ EXECUTE(OP_PrevIfOpen,(P1,P2,P3,P4)):    /* jump */
 
 Exec_OP_String8: {
     /* Opcode: STRING8 - Load C string r[P2]='P4' */
-    /* same as TK_STRING, out2 */
-	assert(pOp->p4.z!=0);
-	pOp->opcode = OP_String;
-	P1 = sqlStrlen30(pOp->p4.z);
-
-	if (P1 > SQL_MAX_LENGTH)
-		goto too_big;
-	assert(rc == 0);
-	/* Fall through to the next case, OP_String */
-#ifndef SQL_USE_GOTO
-	FALLTHROUGH;
-#endif /* SQL_USE_GOTO */
+    int handler_rc = vdbe_op_string8(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        /* Special return value handling (jump or SQL_ROW) */
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        /* For comparison ops, jump to P2 */
+        JUMP_P2();
+    }
     DISPATCH();
 }
 
@@ -1894,21 +1892,17 @@ Exec_OP_Param: {
 }
 
 Exec_OP_OffsetLimit: {
-    /* Opcode: OFFSETLIMIT - Calculate offset limit */
-    /* in1, out2, in3 */
-	pIn1 = &aMem[P1];
-	pIn3 = &aMem[P3];
-	pOut = vdbe_prepare_null_out(p, P2);
-
-	assert(mem_is_uint(pIn1));
-	assert(mem_is_uint(pIn3));
-	uint64_t x = pIn1->u.u;
-	uint64_t rhs = pIn3->u.u;
-	bool unused;
-	if (sql_add_int(x, false, rhs, false, (int64_t *) &x, &unused) != 0) {
-		diag_set(ClientError, ER_SQL_EXECUTE, "sum of LIMIT and OFFSET "
-			"values should not result in integer overflow");
-		goto abort_due_to_error;
+    /* Opcode: OFFSETLIMIT - Calculate offset limit (r[P2]=r[P1]+r[P3]) */
+    int handler_rc = vdbe_op_offsetlimit(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        /* Special return value handling (jump or SQL_ROW) */
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        /* For comparison ops, jump to P2 */
+        JUMP_P2();
+    }
     DISPATCH();
 }
 
@@ -3024,18 +3018,14 @@ EXECUTE(OP_PrevIfOpen,(P1,P2,P3,P4)):    /* jump */
 
 case OP_String8: {
     /* STRING8 - Load C string r[P2]='P4' */
-    /* same as TK_STRING, out2 */
-	assert(pOp->p4.z!=0);
-	pOp->opcode = OP_String;
-	P1 = sqlStrlen30(pOp->p4.z);
-
-	if (P1 > SQL_MAX_LENGTH)
-		goto too_big;
-	assert(rc == 0);
-	/* Fall through to the next case, OP_String */
-#ifndef SQL_USE_GOTO
-	FALLTHROUGH;
-#endif /* SQL_USE_GOTO */
+    int handler_rc = vdbe_op_string8(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        goto jump_to_p2;
+    }
     break;
 }
 
@@ -3658,24 +3648,15 @@ case OP_Param: {
 }
 
 case OP_OffsetLimit: {
-    /* OFFSETLIMIT - Calculate offset limit */
-    /* in1, out2, in3 */
-	pIn1 = &aMem[P1];
-	pIn3 = &aMem[P3];
-	pOut = vdbe_prepare_null_out(p, P2);
-
-	assert(mem_is_uint(pIn1));
-	assert(mem_is_uint(pIn3));
-	uint64_t x = pIn1->u.u;
-	uint64_t rhs = pIn3->u.u;
-	bool unused;
-	if (sql_add_int(x, false, rhs, false, (int64_t *) &x, &unused) != 0) {
-		diag_set(ClientError, ER_SQL_EXECUTE, "sum of LIMIT and OFFSET "
-			"values should not result in integer overflow");
-		goto abort_due_to_error;
-	}
-	mem_set_uint(pOut, x);
-	DISPATCH();
+    /* OFFSETLIMIT - Calculate offset limit (r[P2]=r[P1]+r[P3]) */
+    int handler_rc = vdbe_op_offsetlimit(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        goto jump_to_p2;
+    }
     break;
 }
 
@@ -3706,45 +3687,6 @@ case OP_SetSession: {
 	if (sid < 0) {
 		diag_set(ClientError, ER_NO_SUCH_SESSION_SETTING, setting_name);
 		goto abort_due_to_error;
-	}
-	pIn1 = &aMem[P1];
-	struct session_setting *setting = &session_settings[sid];
-	switch (setting->field_type) {
-	case FIELD_TYPE_BOOLEAN: {
-		if (!mem_is_bool(pIn1))
-			goto invalid_type;
-		bool value = pIn1->u.b;
-		size_t size = mp_sizeof_bool(value);
-		char *mp_value = (char *) static_alloc(size);
-		mp_encode_bool(mp_value, value);
-		if (setting->set(sid, mp_value) != 0)
-			goto abort_due_to_error;
-		break;
-	}
-	case FIELD_TYPE_STRING: {
-		if (!mem_is_str(pIn1))
-			goto invalid_type;
-		const char *str = pIn1->z;
-		uint32_t size = mp_sizeof_str(pIn1->n);
-		char *mp_value = (char *) static_alloc(size);
-		if (mp_value == NULL) {
-			diag_set(OutOfMemory, size, "static_alloc", "mp_value");
-			goto abort_due_to_error;
-		}
-		mp_encode_str(mp_value, str, pIn1->n);
-		if (setting->set(sid, mp_value) != 0)
-			goto abort_due_to_error;
-		break;
-	}
-	default:
-	invalid_type:
-		diag_set(ClientError, ER_SESSION_SETTING_INVALID_VALUE,
-			 session_setting_strs[sid],
-			 field_type_strs[setting->field_type]);
-		goto abort_due_to_error;
-	}
-	p->nChange++;
-	DISPATCH();
     break;
 }
 

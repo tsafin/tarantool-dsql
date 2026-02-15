@@ -6,7 +6,6 @@ set(core_sources
     clock.c
     fiber.c
     cxx_abi.cc
-    backtrace_stub.c
     cbus.c
     fiber_pool.c
     fiber_cond.c
@@ -50,8 +49,11 @@ set(core_sources
     mp_ctx.c
 )
 
+# Backtrace support - choose implementation based on ENABLE_BACKTRACE
 if (ENABLE_BACKTRACE)
-    list(APPEND core_sources  proc_name_cache.cc)
+    list(APPEND core_sources  backtrace.c proc_name_cache.cc)
+else()
+    list(APPEND core_sources  backtrace_stub.c)
 endif()
 
 if(ENABLE_TUPLE_COMPRESSION)

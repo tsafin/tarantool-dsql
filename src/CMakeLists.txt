@@ -213,7 +213,6 @@ set (server_sources
      lua/swim.c
      lua/decimal.c
      lua/uri.c
-     lua/backtrace.c
      lua/builtin_modcache.c
      lua/tweaks.c
      lua/xml.c
@@ -223,6 +222,12 @@ set (server_sources
      ${PROJECT_SOURCE_DIR}/third_party/lua-cjson/strbuf.c
      ${COMPRESS_MODULE_SOURCES}
 )
+
+# Include backtrace support if enabled
+if(ENABLE_BACKTRACE)
+    list(APPEND server_sources
+        lua/backtrace.c)
+endif()
 
 if(EMBED_LUAZLIB)
     list(APPEND server_sources
