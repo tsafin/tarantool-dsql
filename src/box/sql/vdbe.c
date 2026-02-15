@@ -287,6 +287,8 @@ int sqlVdbeExec(Vdbe *p)
 	assert(p->explain==0);
 	p->pResultSet = 0;
 #ifdef SQL_DEBUG
+	fprintf(stderr, "[DEBUG] p->pc=%d, p->sql_flags=0x%x, SQL_VdbeListing=0x%x\n",
+	        p->pc, p->sql_flags, SQL_VdbeListing);
 	if (p->pc == 0 &&
 	    (p->sql_flags & (SQL_VdbeListing|SQL_VdbeEQP|SQL_VdbeTrace)) != 0) {
 		int i;

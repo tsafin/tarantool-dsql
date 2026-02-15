@@ -36,6 +36,7 @@
  */
 #include "sqlInt.h"
 #include "tarantoolInt.h"
+#include "vdbeInt.h"
 #include "box/space.h"
 #include "box/session.h"
 
@@ -45,7 +46,9 @@ sql_stmt_compile(const char *zSql, int nBytes, struct Vdbe *pReprepare,
 {
 	int rc = 0;	/* Result code */
 	Parse sParse;		/* Parsing context */
-	sql_parser_create(&sParse, current_session()->sql_flags);
+	uint32_t session_flags = current_session()->sql_flags;
+	fprintf(stderr, "[COMPILE] SQL: %.50s... flags=0x%x\n", zSql, session_flags);
+	sql_parser_create(&sParse, session_flags);
 	sParse.pReprepare = pReprepare;
 	*ppStmt = NULL;
 
@@ -148,6 +151,10 @@ sql_stmt_compile(const char *zSql, int nBytes, struct Vdbe *pReprepare,
 		assert(!(*ppStmt));
 	} else {
 		*ppStmt = sParse.pVdbe;
+		/* Copy sql_flags from Parser to Vdbe so that debug flags
+		 * (SQL_VdbeListing, SQL_VdbeTrace, etc.) are propagated */
+		if (*ppStmt != NULL)
+			(*ppStmt)->sql_flags = sParse.sql_flags;
 	}
 
 	/* Delete any TriggerPrg structures allocated while parsing this statement. */

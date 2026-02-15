@@ -3637,6 +3637,8 @@ sql_set_boolean_option(int id, bool value)
 	struct sql_option_metadata *option =
 		&sql_session_opts[id - SESSION_SETTING_SQL_BEGIN];
 	assert(option->field_type == FIELD_TYPE_BOOLEAN);
+	fprintf(stderr, "[SET_BOOL_OPT] id=%d, value=%d, mask=0x%x, before=0x%x\n",
+	        id, value, option->mask, session->sql_flags);
 #ifdef NDEBUG
 	if ((session->sql_flags & SQL_SqlTrace) == 0) {
 		if (value)
@@ -3649,6 +3651,7 @@ sql_set_boolean_option(int id, bool value)
 		session->sql_flags |= option->mask;
 	else
 		session->sql_flags &= ~option->mask;
+	fprintf(stderr, "[SET_BOOL_OPT] after=0x%x\n", session->sql_flags);
 	if (id == SESSION_SETTING_SQL_PARSER_DEBUG) {
 		if (value)
 			sqlParserTrace(stdout, "parser: ");
