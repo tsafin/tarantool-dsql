@@ -220,3 +220,29 @@ vdbe_op_seek_le_ge(Vdbe *p, Op *pOp, Mem *aMem)
 		return VDBE_SEEK_SKIP;
 	return VDBE_SEEK_CONTINUE;
 }
+
+/* Wrapper functions for generated dispatcher */
+
+int
+vdbe_op_seeklt(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_seek_lt_gt(p, pOp, aMem);
+}
+
+int
+vdbe_op_seekgt(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_seek_lt_gt(p, pOp, aMem);
+}
+
+int
+vdbe_op_seekle(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_seek_le_ge(p, pOp, aMem);
+}
+
+int
+vdbe_op_seekge(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_seek_le_ge(p, pOp, aMem);
+}

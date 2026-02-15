@@ -68,6 +68,11 @@ int vdbe_op_previfopen(Vdbe *p, Op *pOp, Mem *aMem);
 /* Cursor seek opcodes - return 2 for skip next opcode (SEEKEQ) */
 int vdbe_op_seek_lt_gt(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_seek_le_ge(Vdbe *p, Op *pOp, Mem *aMem);
+/* Wrapper functions for generated dispatcher */
+int vdbe_op_seeklt(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_seekgt(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_seekle(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_seekge(Vdbe *p, Op *pOp, Mem *aMem);
 /* Index operation opcodes */
 int vdbe_op_idx_compare(Vdbe *p, Op *pOp, Mem *aMem);  /* IdxGE/GT/LE/LT */
 int vdbe_op_found_notfound_noconflict(Vdbe *p, Op *pOp, Mem *aMem);  /* Found/NotFound/NoConflict */
