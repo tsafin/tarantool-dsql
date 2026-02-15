@@ -211,7 +211,13 @@ vdbe_op_sinsert(Vdbe *p, Op *pOp, Mem *aMem)
 	assert(space != NULL);
 	assert(space_is_system(space));
 	assert(p->errorAction == ON_CONFLICT_ACTION_ABORT);
-	if (tarantoolsqlInsert(space, pIn2->z, pIn2->z + pIn2->n) != 0)
+
+	/* Tuple memory protection (copy from region to heap) is now handled
+	 * inside tarantoolsqlInsert, so callers don't need to worry about it.
+	 */
+	int rc = tarantoolsqlInsert(space, pIn2->z, pIn2->z + pIn2->n);
+
+	if (rc != 0)
 		return -1;
 	if (pOp->p5 & OPFLAG_NCHANGE)
 		p->nChange++;

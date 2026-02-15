@@ -446,13 +446,42 @@ insertOrReplace(struct space *space, const char *tuple, const char *tuple_end,
 int tarantoolsqlInsert(struct space *space, const char *tuple,
 			   const char *tuple_end)
 {
-	return insertOrReplace(space, tuple, tuple_end, IPROTO_INSERT);
+	/* Copy tuple from region to heap to prevent region memory reuse from
+	 * overwriting tuple data during validation. The tuple is initially encoded
+	 * into gc region, but when insertOrReplace -> box_process1 calls
+	 * memtx_tuple_new_raw_impl, it needs to validate the tuple while potentially
+	 * allocating more from the region. This can cause the region to be reused,
+	 * overwriting the original tuple data. By copying to heap, we ensure the
+	 * tuple data is safe throughout validation and tuple creation.
+	 * See commit 90ff1131d5 for similar fix in Lua API.
+	 */
+	uint32_t tuple_size = tuple_end - tuple;
+	char *tuple_copy = malloc(tuple_size);
+	if (tuple_copy == NULL)
+		return -1;
+	memcpy(tuple_copy, tuple, tuple_size);
+
+	int rc = insertOrReplace(space, tuple_copy, tuple_copy + tuple_size,
+				 IPROTO_INSERT);
+	free(tuple_copy);
+	return rc;
 }
 
 int tarantoolsqlReplace(struct space *space, const char *tuple,
 			    const char *tuple_end)
 {
-	return insertOrReplace(space, tuple, tuple_end, IPROTO_REPLACE);
+	/* Copy tuple from region to heap to prevent region memory reuse during
+	 * validation, same as tarantoolsqlInsert. */
+	uint32_t tuple_size = tuple_end - tuple;
+	char *tuple_copy = malloc(tuple_size);
+	if (tuple_copy == NULL)
+		return -1;
+	memcpy(tuple_copy, tuple, tuple_size);
+
+	int rc = insertOrReplace(space, tuple_copy, tuple_copy + tuple_size,
+				 IPROTO_REPLACE);
+	free(tuple_copy);
+	return rc;
 }
 
 /*
