@@ -341,13 +341,15 @@ int sqlVdbeExec(Vdbe *p)
 
 #ifdef VDBE_USE_GENERATED_DISPATCH
 	/* Phase 5.4: Execute selected dispatcher instead of inline loop */
-	VdbeDispatcher dispatcher = vdbe_get_dispatcher();
-	rc = dispatcher(p, aOp, aMem);
-	/* Check if generated dispatcher requested fallback to inline */
-	if (rc != SQL_FALLBACK_TO_INLINE)
-		goto vdbe_return;
-	/* Fall through to inline dispatcher for unhandled opcodes */
-	rc = 0;  /* Reset rc for inline dispatcher */
+	if (vdbe_get_dispatcher_mode() != VDBE_DISPATCH_OLD) {
+		VdbeDispatcher dispatcher = vdbe_get_dispatcher();
+		rc = dispatcher(p, aOp, aMem);
+		/* Check if generated dispatcher requested fallback to inline */
+		if (rc != SQL_FALLBACK_TO_INLINE)
+			goto vdbe_return;
+		/* Fall through to inline dispatcher for unhandled opcodes */
+		rc = 0;  /* Reset rc for inline dispatcher */
+	}
 #endif
 	/* Original inline dispatcher - always compiled for fallback support */
 	Op *pOp = aOp;             /* Current operation */

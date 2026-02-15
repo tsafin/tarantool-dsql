@@ -3230,18 +3230,15 @@ mem_encode_array(const struct Mem *mems, uint32_t count, uint32_t *size,
 	mpstream_encode_array(&stream, count);
 	for (const struct Mem *mem = mems; mem < mems + count; mem++)
 		mem_to_mpstream(mem, &stream);
-	/* NOTE: Do NOT call mpstream_flush() because it corrupts stream.buf
-	 * by setting buf = pos, which breaks subsequent code that needs buf
-	 * to point to the start of the data. Instead, calculate size directly
-	 * from stream.pos - stream.buf, and let the region handle cleanup. */
+	mpstream_flush(&stream);
 	if (is_error) {
 		region_truncate(region, used);
 		diag_set(OutOfMemory, stream.pos - stream.buf,
-			 "mpstream encoding error", "stream");
+			 "mpstream_flush", "stream");
 		return NULL;
 	}
-	*size = stream.pos - stream.buf;
-	char *array = stream.buf;
+	*size = region_used(region) - used;
+	char *array = xregion_join(region, *size);
 	mp_tuple_assert(array, array + *size);
 	return array;
 }

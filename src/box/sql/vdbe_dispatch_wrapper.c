@@ -199,6 +199,17 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	assert(p->magic == VDBE_MAGIC_RUN);
 
 #ifdef SQL_DEBUG
+	if (pc == 0 &&
+	    (p->sql_flags & (SQL_VdbeListing|SQL_VdbeTrace)) != 0) {
+		sqlVdbePrintSql(p);
+		if ((p->sql_flags & SQL_VdbeListing) != 0) {
+			printf("VDBE Program Listing:\n");
+			for (int i = 0; i < nOp; i++)
+				sqlVdbePrintOp(stdout, i, &aOp[i]);
+		}
+		if ((p->sql_flags & SQL_VdbeTrace) != 0)
+			printf("VDBE Trace:\n");
+	}
 	/* Check operands of first instruction before entering loop */
 	pOp = &aOp[pc];
 	check_vdbe_operands(p, pOp, aOp, aMem);
@@ -1038,6 +1049,13 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	}
 	case OP_BitNot: {
 		int handler_rc = vdbe_op_bitnot(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	/* LIMIT/OFFSET */
+	case OP_OffsetLimit: {
+		int handler_rc = vdbe_op_offsetlimit(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }
 		pc++; continue;
 	}
