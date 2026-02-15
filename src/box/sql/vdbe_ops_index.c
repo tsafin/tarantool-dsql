@@ -216,14 +216,31 @@ vdbe_op_found_notfound_noconflict(Vdbe *p, Op *pOp, Mem *aMem)
 	pIn3 = &aMem[pOp->p3];
 	assert(pC->eCurType == CURTYPE_TARANTOOL);
 	assert(pC->uc.pCursor != 0);
+
+	/* Early exit if key register is uninitialized.
+	 * This prevents crashes from invalid mem_encode_array operations. */
+	if (pIn3->type == MEM_TYPE_INVALID) {
+		if (pOp->opcode == OP_NoConflict) {
+			pC->cacheStatus = CACHE_STALE;
+			pC->nullRow = 1;
+			return 1;  /* NULL key never conflicts */
+		} else {
+			/* Found/NotFound with invalid key registers is an error */
+			diag_set(ClientError, ER_LOADING, "OP_%s with uninitialized key register",
+				 pOp->opcode == OP_NotFound ? "NotFound" : "Found");
+			return VDBE_INDEX_ERROR;
+		}
+	}
+
 	if (pOp->p4.i > 0) {
 		r.key_def = pC->key_def;
 		r.nField = (u16)pOp->p4.i;
 		r.aMem = pIn3;
 		/* Check if all key registers are uninitialized.
-		 * This can happen when bytecode uses OP_NoConflict with unpacked
-		 * records but doesn't initialize all key fields. For OP_NoConflict,
-		 * a NULL key never conflicts, so we can safely jump. */
+		 * This can happen when bytecode uses OP_Found/OP_NotFound/OP_NoConflict
+		 * with unpacked records but doesn't initialize all key fields.
+		 * For OP_NoConflict, a NULL key never conflicts, so we jump.
+		 * For OP_Found/OP_NotFound with uninitialized keys, return error. */
 		int all_invalid = 1;
 		for (ii = 0; ii < r.nField; ii++) {
 			if (r.aMem[ii].type != MEM_TYPE_INVALID) {
@@ -231,10 +248,17 @@ vdbe_op_found_notfound_noconflict(Vdbe *p, Op *pOp, Mem *aMem)
 				break;
 			}
 		}
-		if (all_invalid && pOp->opcode == OP_NoConflict) {
-			pC->cacheStatus = CACHE_STALE;
-			pC->nullRow = 1;
-			return 1;  /* Jump to P2 - NULL keys never conflict */
+		if (all_invalid) {
+			if (pOp->opcode == OP_NoConflict) {
+				pC->cacheStatus = CACHE_STALE;
+				pC->nullRow = 1;
+				return 1;  /* Jump to P2 - NULL keys never conflict */
+			} else {
+				/* Found/NotFound with uninitialized keys is an error */
+				diag_set(ClientError, ER_LOADING, "OP_%s with uninitialized key registers",
+					 pOp->opcode == OP_NotFound ? "NotFound" : "Found");
+				return VDBE_INDEX_ERROR;
+			}
 		}
 		pIdxKey = &r;
 		pFree = 0;
