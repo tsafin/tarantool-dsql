@@ -47,7 +47,6 @@ sql_stmt_compile(const char *zSql, int nBytes, struct Vdbe *pReprepare,
 	int rc = 0;	/* Result code */
 	Parse sParse;		/* Parsing context */
 	uint32_t session_flags = current_session()->sql_flags;
-	fprintf(stderr, "[COMPILE] SQL: %.50s... flags=0x%x\n", zSql, session_flags);
 	sql_parser_create(&sParse, session_flags);
 	sParse.pReprepare = pReprepare;
 	*ppStmt = NULL;

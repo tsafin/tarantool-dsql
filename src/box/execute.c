@@ -44,6 +44,7 @@
 #include "port.h"
 #include "tuple.h"
 #include "sql/vdbe.h"
+#include "sql/vdbeInt.h"
 #include "box/lua/execute.h"
 #include "box/sql_stmt_cache.h"
 #include "session.h"
@@ -271,7 +272,8 @@ sql_prepare_and_execute(const char *sql, int len, const struct sql_bind *bind,
 			struct region *region)
 {
 	struct Vdbe *stmt;
-	if (sql_stmt_compile(sql, len, NULL, &stmt, NULL) != 0)
+	int compile_rc = sql_stmt_compile(sql, len, NULL, &stmt, NULL);
+	if (compile_rc != 0)
 		return -1;
 	assert(stmt != NULL);
 	enum sql_serialization_format format = sql_column_count(stmt) > 0 ?
