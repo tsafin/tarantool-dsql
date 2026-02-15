@@ -5,6 +5,27 @@
 #include "vdbe_ops.h"
 #include "vdbe_debug.h"
 
+/* Opcode: MustBeInt P1 P2 * * *
+ *
+ * Force the value in register P1 to be an integer.  If the value
+ * in P1 is not an integer and cannot be converted into an integer
+ * without data loss, then jump immediately to P2, or if P2==0
+ * raise an ER_SQL_TYPE_MISMATCH error.
+ */
+int vdbe_op_mustbeint(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	(void)p;
+	Mem *pIn1 = &aMem[pOp->p1];
+	if (mem_to_int_precise(pIn1) != 0) {
+		if (pOp->p2 != 0)
+			return 1;  /* Jump to P2 */
+		diag_set(ClientError, ER_SQL_TYPE_MISMATCH,
+			 mem_str(pIn1), "integer");
+		return -1;  /* Error */
+	}
+	return 0;  /* Continue */
+}
+
 /* Opcode: Cast P1 P2 * * *
  * Synopsis: type(r[P1])
  *

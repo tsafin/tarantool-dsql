@@ -1892,17 +1892,21 @@ Exec_OP_Param: {
 }
 
 Exec_OP_OffsetLimit: {
-    /* Opcode: OFFSETLIMIT - Calculate offset limit (r[P2]=r[P1]+r[P3]) */
-    int handler_rc = vdbe_op_offsetlimit(p, pOp, aMem);
-    if (handler_rc < 0)
-        goto abort_due_to_error;
-    if (handler_rc == 1) {
-        /* Special return value handling (jump or SQL_ROW) */
-        if (pOp->opcode == OP_ResultRow)
-            goto done_returning_row;
-        /* For comparison ops, jump to P2 */
-        JUMP_P2();
-    }
+    /* Opcode: OFFSETLIMIT - Calculate offset limit */
+    /* in1, out2, in3 */
+	pIn1 = &aMem[P1];
+	pIn3 = &aMem[P3];
+	pOut = vdbe_prepare_null_out(p, P2);
+
+	assert(mem_is_uint(pIn1));
+	assert(mem_is_uint(pIn3));
+	uint64_t x = pIn1->u.u;
+	uint64_t rhs = pIn3->u.u;
+	bool unused;
+	if (sql_add_int(x, false, rhs, false, (int64_t *) &x, &unused) != 0) {
+		diag_set(ClientError, ER_SQL_EXECUTE, "sum of LIMIT and OFFSET "
+			"values should not result in integer overflow");
+		goto abort_due_to_error;
     DISPATCH();
 }
 
@@ -3648,15 +3652,21 @@ case OP_Param: {
 }
 
 case OP_OffsetLimit: {
-    /* OFFSETLIMIT - Calculate offset limit (r[P2]=r[P1]+r[P3]) */
-    int handler_rc = vdbe_op_offsetlimit(p, pOp, aMem);
-    if (handler_rc < 0)
-        goto abort_due_to_error;
-    if (handler_rc == 1) {
-        if (pOp->opcode == OP_ResultRow)
-            goto done_returning_row;
-        goto jump_to_p2;
-    }
+    /* OFFSETLIMIT - Calculate offset limit */
+    /* in1, out2, in3 */
+	pIn1 = &aMem[P1];
+	pIn3 = &aMem[P3];
+	pOut = vdbe_prepare_null_out(p, P2);
+
+	assert(mem_is_uint(pIn1));
+	assert(mem_is_uint(pIn3));
+	uint64_t x = pIn1->u.u;
+	uint64_t rhs = pIn3->u.u;
+	bool unused;
+	if (sql_add_int(x, false, rhs, false, (int64_t *) &x, &unused) != 0) {
+		diag_set(ClientError, ER_SQL_EXECUTE, "sum of LIMIT and OFFSET "
+			"values should not result in integer overflow");
+		goto abort_due_to_error;
     break;
 }
 

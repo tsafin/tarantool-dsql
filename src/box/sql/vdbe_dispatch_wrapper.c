@@ -801,6 +801,12 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	}
 
 	/* Type operations */
+	case OP_MustBeInt: {
+		int handler_rc = vdbe_op_mustbeint(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2; continue; }
+		pc++; continue;
+	}
 	case OP_Cast: {
 		int handler_rc = vdbe_op_cast(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }

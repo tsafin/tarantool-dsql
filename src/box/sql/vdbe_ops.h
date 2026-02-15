@@ -47,6 +47,7 @@ int vdbe_op_offsetlimit(Vdbe *p, Op *pOp, Mem *aMem);
 /* String opcodes */
 int vdbe_op_concat(Vdbe *p, Op *pOp, Mem *aMem);
 /* Type conversion opcodes */
+int vdbe_op_mustbeint(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_cast(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_applytype(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_makerecord(Vdbe *p, Op *pOp, Mem *aMem);
