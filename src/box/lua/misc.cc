@@ -69,9 +69,21 @@ lbox_encode_tuple_on_gc(lua_State *L, int idx, size_t *p_len)
 		region_truncate(gc, used);
 		return NULL;
 	}
-	mpstream_flush(&stream);
-	*p_len = region_used(gc) - used;
-	return (char *)xregion_join(gc, *p_len);
+	/* NOTE: CRITICAL BUG FIX (SAME AS mem_encode_array)
+	 * Do NOT call mpstream_flush() here! The flush sets stream.buf = stream.pos,
+	 * which corrupts the buffer pointer. After flush, buf points to the END of
+	 * encoded data, not the beginning. When xregion_join later calculates
+	 * region_used() - used, it gets the size correctly, but xregion_join then
+	 * tries to return the LAST size bytes from the region.
+	 * Since mpstream is already writing to the region, the "last size bytes"
+	 * are uninitialized space AFTER the actual data!
+	 *
+	 * Solution: Calculate size directly from stream.pos - stream.buf BEFORE flush,
+	 * then use stream.buf directly (don't call flush or xregion_join).
+	 * The encoded data is already in the region and stream.buf still points to it.
+	 */
+	*p_len = (size_t)(stream.pos - stream.buf);
+	return stream.buf;
 }
 
 int
