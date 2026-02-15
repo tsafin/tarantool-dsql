@@ -3230,15 +3230,27 @@ mem_encode_array(const struct Mem *mems, uint32_t count, uint32_t *size,
 	mpstream_encode_array(&stream, count);
 	for (const struct Mem *mem = mems; mem < mems + count; mem++)
 		mem_to_mpstream(mem, &stream);
-	mpstream_flush(&stream);
+	/* NOTE: CRITICAL BUG FIX
+	 * Do NOT call mpstream_flush() here! The flush sets stream.buf = stream.pos,
+	 * which corrupts the buffer pointer. After flush, buf points to the END of
+	 * encoded data, not the beginning. When xregion_join later calculates
+	 * region_used() - used, it gets the size correctly, but xregion_join then
+	 * tries to return the LAST size bytes from the region.
+	 * Since mpstream_flush already appended the data to the region,
+	 * the "last size bytes" are uninitialized space AFTER the actual data!
+	 *
+	 * Solution: Calculate size directly from stream.pos - stream.buf BEFORE flush,
+	 * then use stream.buf directly (don't call flush or xregion_join).
+	 * The encoded data is already in the region and stream.buf still points to it.
+	 */
 	if (is_error) {
 		region_truncate(region, used);
 		diag_set(OutOfMemory, stream.pos - stream.buf,
-			 "mpstream_flush", "stream");
+			 "mpstream encoding error", "stream");
 		return NULL;
 	}
-	*size = region_used(region) - used;
-	char *array = xregion_join(region, *size);
+	*size = (uint32_t)(stream.pos - stream.buf);
+	char *array = stream.buf;
 	mp_tuple_assert(array, array + *size);
 	return array;
 }
