@@ -381,9 +381,9 @@ memtx_engine_recover_snapshot_row(struct xrow_header *row,
 		return -1;
 	}
 	struct request request;
-	RegionGuard region_guard(&fiber()->gc);
 	if (xrow_decode_dml(row, &request, dml_request_key_map(row->type)) != 0)
 		return -1;
+	RegionGuard region_guard(&fiber()->gc);
 	bool is_system_space_request = space_id_is_system(request.space_id);
 	if (snapshot_recovery_state_update(state, is_system_space_request) != 0)
 		return -1;

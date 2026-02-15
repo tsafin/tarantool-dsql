@@ -52,14 +52,24 @@ lbox_insert(lua_State *L)
 
 	uint32_t space_id = lua_tonumber(L, 1);
 	size_t tuple_len;
-	size_t region_svp = region_used(&fiber()->gc);
 	const char *tuple = lbox_encode_tuple_on_gc(L, 2, &tuple_len);
 	if (tuple == NULL)
 		return luaT_error(L);
 
+	/* Copy tuple data to heap to protect from region reuse during validation.
+	 * The tuple is initially encoded into gc region, but when box_insert calls
+	 * memtx_tuple_new_raw_impl, it needs to validate the tuple while potentially
+	 * allocating more from the region. This can cause the region to be reused,
+	 * overwriting the original tuple data. By copying to heap, we ensure the
+	 * tuple data is safe throughout validation and tuple creation. */
+	char *tuple_copy = malloc(tuple_len);
+	if (tuple_copy == NULL)
+		return luaL_error(L, "Out of memory");
+	memcpy(tuple_copy, tuple, tuple_len);
+
 	struct tuple *result;
-	int rc = box_insert(space_id, tuple, tuple + tuple_len, &result);
-	region_truncate(&fiber()->gc, region_svp);
+	int rc = box_insert(space_id, tuple_copy, tuple_copy + tuple_len, &result);
+	free(tuple_copy);
 	return rc == 0 ? luaT_pushtupleornil(L, result) : luaT_error(L);
 }
 
@@ -71,14 +81,21 @@ lbox_replace(lua_State *L)
 
 	uint32_t space_id = lua_tonumber(L, 1);
 	size_t tuple_len;
-	size_t region_svp = region_used(&fiber()->gc);
 	const char *tuple = lbox_encode_tuple_on_gc(L, 2, &tuple_len);
 	if (tuple == NULL)
 		return luaT_error(L);
 
+	/* Copy tuple data to heap to protect from region reuse during validation.
+	 * Same issue as lbox_insert: tuple is initially in gc region but needs
+	 * protection from region reuse during memtx_tuple_new_raw_impl validation. */
+	char *tuple_copy = malloc(tuple_len);
+	if (tuple_copy == NULL)
+		return luaL_error(L, "Out of memory");
+	memcpy(tuple_copy, tuple, tuple_len);
+
 	struct tuple *result;
-	int rc = box_replace(space_id, tuple, tuple + tuple_len, &result);
-	region_truncate(&fiber()->gc, region_svp);
+	int rc = box_replace(space_id, tuple_copy, tuple_copy + tuple_len, &result);
+	free(tuple_copy);
 	return rc == 0 ? luaT_pushtupleornil(L, result) : luaT_error(L);
 }
 
