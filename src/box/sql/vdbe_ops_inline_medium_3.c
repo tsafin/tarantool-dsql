@@ -5,7 +5,10 @@
  * This file contains wrapper functions for medium-complexity inline opcodes
  * extracted from vdbe.c and refactored to work in the generated dispatcher.
  *
- * Opcodes in this file (6 opcodes, 100-180 chars):
+ * Opcodes in this file (9 opcodes, 100-180 chars):
+ * - OP_Savepoint: Manage savepoints (BEGIN/RELEASE/ROLLBACK)
+ * - OP_TransactionBegin: Start new transaction
+ * - OP_TransactionRollback: Rollback current transaction
  * - OP_TransactionCommit: Commit current transaction
  * - OP_DropTupleCheck: Drop tuple-level check constraint
  * - OP_DropTupleForeignKey: Drop tuple-level foreign key constraint
@@ -20,7 +23,13 @@
  * - sql_tuple_foreign_key_drop(): SQL constraint helper
  * - sql_field_check_drop(): SQL constraint helper
  * - sql_field_foreign_key_drop(): SQL constraint helper
+ * - txn_begin(): Start new transaction
  * - txn_commit(): Transaction commit operation
+ * - txn_savepoint_new(): Create new savepoint
+ * - txn_savepoint_by_name(): Find savepoint by name
+ * - txn_savepoint_release(): Release savepoint
+ * - box_txn_rollback(): Rollback transaction
+ * - box_txn_rollback_to_savepoint(): Rollback to savepoint
  * - in_txn(): Get current transaction
  * - box_generate_space_id(): Generate space ID from box module
  */
@@ -33,11 +42,133 @@
 #include "box/box.h"
 
 /*
+ * Opcode: SAVEPOINT - Manage savepoints (BEGIN/RELEASE/ROLLBACK)
+ *
+ * Manage savepoints within a transaction. P1 specifies the operation:
+ * SAVEPOINT_BEGIN (1) - Create new savepoint with name in P4
+ * SAVEPOINT_RELEASE (2) - Release savepoint with name in P4
+ * SAVEPOINT_ROLLBACK (3) - Rollback to savepoint with name in P4
+ *
+ * Preconditions:
+ * - Must be in a transaction (ER_NO_TRANSACTION if not)
+ * - P1 must be valid savepoint operation (SAVEPOINT_BEGIN/RELEASE/ROLLBACK)
+ * - P4 must point to savepoint name (null-terminated string)
+ * - P3 optional: alternate savepoint name register for old names
+ */
+int
+vdbe_op_savepoint_inline(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	int p1;
+	char *zName;
+	struct txn *txn;
+
+	(void)p;  /* Not used - savepoint doesn't modify Vdbe state */
+
+	txn = in_txn();
+
+	if (txn == NULL) {
+		diag_set(ClientError, ER_NO_TRANSACTION);
+		return -1;
+	}
+
+	p1 = pOp->p1;
+	zName = pOp->p4.z;
+
+	/* Validate savepoint operation type */
+	assert(p1 == SAVEPOINT_BEGIN || p1 == SAVEPOINT_RELEASE ||
+	       p1 == SAVEPOINT_ROLLBACK);
+	assert(rlist_empty(&txn->savepoints) || box_txn());
+
+	if (p1 == SAVEPOINT_BEGIN) {
+		/* Create new savepoint - name stored in txn, we just need to create it */
+		if (txn_savepoint_new(txn, zName) == NULL)
+			return -1;
+	} else {
+		/* Find the named savepoint. If not found, try alternate name in P3 */
+		struct txn_savepoint *sv = txn_savepoint_by_name(txn, zName);
+		if (sv == NULL && pOp->p3 > 0) {
+			struct Mem *old_name = &aMem[pOp->p3];
+			sv = txn_savepoint_by_name(txn, old_name->z);
+		}
+		if (sv == NULL) {
+			diag_set(ClientError, ER_NO_SUCH_SAVEPOINT);
+			return -1;
+		}
+
+		if (p1 == SAVEPOINT_RELEASE) {
+			txn_savepoint_release(sv);
+		} else {
+			assert(p1 == SAVEPOINT_ROLLBACK);
+			if (box_txn_rollback_to_savepoint(sv) != 0)
+				return -1;
+		}
+	}
+
+	return 0;  /* Continue to next instruction */
+}
+
+/*
+ * Opcode: TRANSACTIONBEGIN - Start new transaction
+ *
+ * Begin a new Tarantool transaction. Only valid if not already in
+ * a transaction. If already in a transaction, raises ER_ACTIVE_TRANSACTION.
+ *
+ * Side effects:
+ * - Sets p->auto_commit = false (disables auto-commit mode)
+ */
+int
+vdbe_op_transactionbegin_inline(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	(void)pOp;
+	(void)aMem;
+
+	if (in_txn()) {
+		diag_set(ClientError, ER_ACTIVE_TRANSACTION);
+		return -1;
+	}
+
+	if (txn_begin() == NULL)
+		return -1;
+
+	p->auto_commit = false;
+
+	return 0;  /* Continue to next instruction */
+}
+
+/*
+ * Opcode: TRANSACTIONROLLBACK - Rollback current transaction
+ *
+ * Rollback the current transaction. Only valid if in a transaction.
+ * If not in a transaction, raises ER_SQL_EXECUTE error.
+ *
+ * Preconditions:
+ * - Must be in a transaction (error if not via box_txn())
+ */
+int
+vdbe_op_transactionrollback_inline(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	(void)p;
+	(void)pOp;
+	(void)aMem;
+
+	if (box_txn()) {
+		if (box_txn_rollback() != 0)
+			return -1;
+	} else {
+		diag_set(ClientError, ER_SQL_EXECUTE, "cannot rollback - no "\
+			 "transaction is active");
+		return -1;
+	}
+
+	return 0;  /* Continue to next instruction */
+}
+
+/*
  * Opcode: TRANSACTIONCOMMIT - Commit current transaction
  *
  * Commit the current transaction. If the current transaction is NULL (not
  * in a transaction), this operation does nothing. If the commit fails,
- * go to abort_due_to_error.
+ * return -1 (error).
  *
  * Transaction management must happen correctly for data consistency.
  */

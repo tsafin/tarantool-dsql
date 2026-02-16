@@ -412,6 +412,13 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	 * ====================================================================
 	 */
 
+	case OP_Savepoint: {
+		/* Manage savepoints: CREATE/RELEASE/ROLLBACK */
+		int handler_rc = vdbe_op_savepoint_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
 	case OP_Noop: {
 		/* No operation */
 		int handler_rc = vdbe_op_noop_inline(p, pOp, aMem);
@@ -484,9 +491,23 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		pc++; continue;
 	}
 
+	case OP_TransactionBegin: {
+		/* Start new transaction */
+		int handler_rc = vdbe_op_transactionbegin_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
 	case OP_TransactionCommit: {
 		/* Commit current transaction */
 		int handler_rc = vdbe_op_transactioncommit_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_TransactionRollback: {
+		/* Rollback current transaction */
+		int handler_rc = vdbe_op_transactionrollback_inline(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }
 		pc++; continue;
 	}

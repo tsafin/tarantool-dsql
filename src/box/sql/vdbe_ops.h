@@ -98,6 +98,9 @@ int vdbe_op_isnull_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* IsNull */
 /* Medium complexity inline opcode handlers - Phase 5.6c */
 int vdbe_op_addimm_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* AddImm */
 /* Medium complexity inline opcode handlers - Phase 5.6d */
+int vdbe_op_savepoint_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Savepoint */
+int vdbe_op_transactionbegin_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* TransactionBegin */
+int vdbe_op_transactionrollback_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* TransactionRollback */
 int vdbe_op_transactioncommit_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* TransactionCommit */
 int vdbe_op_droptuplecheckundidocheck_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* DropTupleCheck */
 int vdbe_op_droptupleforeignkey_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* DropTupleForeignKey */
