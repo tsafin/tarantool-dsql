@@ -915,9 +915,6 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	case OP_Next: {
 		int handler_rc = vdbe_op_next(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }
-		VdbeCursor *pC = p->apCsr[P1];
-		pC->cacheStatus = CACHE_STALE;
-		pC->nullRow = (handler_rc != 0);  /* Set nullRow if no more rows */
 		if (handler_rc == 0) {  /* 0 = more rows, jump to P2 to process them */
 			pc = P2;
 			continue;
@@ -927,9 +924,6 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	case OP_Prev: {
 		int handler_rc = vdbe_op_prev(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }
-		VdbeCursor *pC = p->apCsr[P1];
-		pC->cacheStatus = CACHE_STALE;
-		pC->nullRow = (handler_rc != 0);
 		if (handler_rc == 0) { pc = P2; continue; }
 		pc++; continue;
 	}
@@ -944,21 +938,17 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	case OP_NextIfOpen: {
 		int handler_rc = vdbe_op_nextifopen(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }
-		if (p->apCsr[P1] != NULL) {
-			VdbeCursor *pC = p->apCsr[P1];
-			pC->cacheStatus = CACHE_STALE;
-		}
-		if (handler_rc == 1) { pc = P2; continue; }
+		/* NextIfOpen delegates to Next, which returns 0=more rows, 1=no more rows.
+		 * Jump to P2 when cursor successfully advances (handler_rc == 0). */
+		if (handler_rc == 0) { pc = P2; continue; }
 		pc++; continue;
 	}
 	case OP_PrevIfOpen: {
 		int handler_rc = vdbe_op_previfopen(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }
-		if (p->apCsr[P1] != NULL) {
-			VdbeCursor *pC = p->apCsr[P1];
-			pC->cacheStatus = CACHE_STALE;
-		}
-		if (handler_rc == 1) { pc = P2; continue; }
+		/* PrevIfOpen delegates to Prev, which returns 0=more rows, 1=no more rows.
+		 * Jump to P2 when cursor successfully advances (handler_rc == 0). */
+		if (handler_rc == 0) { pc = P2; continue; }
 		pc++; continue;
 	}
 
