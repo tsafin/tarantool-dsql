@@ -136,6 +136,13 @@ int vdbe_op_count_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Count */
 int vdbe_op_builtinfunction(Vdbe *p, Op *pOp, Mem *aMem);  /* BuiltinFunction */
 int vdbe_op_functionbyname(Vdbe *p, Op *pOp, Mem *aMem);  /* FunctionByName */
 int vdbe_op_setsession(Vdbe *p, Op *pOp, Mem *aMem);  /* SetSession */
+/* Sorter/ephemeral table opcodes */
+int vdbe_op_sorteropen(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterOpen */
+int vdbe_op_sorterinsert(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterInsert */
+int vdbe_op_sorternext(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterNext */
+int vdbe_op_sorterdata(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterData */
+int vdbe_op_sortercompare(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterCompare */
+int vdbe_op_sortersort(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterSort */
 /* Control flow opcodes - reserved for dispatcher refactoring
  * See vdbe_ops_control.c for extraction plan.
  * These remain in vdbe.c for now due to PC manipulation complexity. */

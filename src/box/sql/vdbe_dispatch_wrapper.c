@@ -899,6 +899,50 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		pc++; continue;
 	}
 
+	/* Sorter/ephemeral table opcodes */
+	case OP_SorterOpen: {
+		/* Open a sorter cursor for sorting operations */
+		int handler_rc = vdbe_op_sorteropen(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_SorterInsert: {
+		/* Insert a record into the sorter */
+		int handler_rc = vdbe_op_sorterinsert(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_SorterNext: {
+		/* Advance to next sorter record, jump to P2 if more rows */
+		int handler_rc = vdbe_op_sorternext(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 0) {  /* 0 = more rows, jump to P2 to process them */
+			pc = P2;
+			continue;
+		}
+		pc++; continue;
+	}
+	case OP_SorterData: {
+		/* Extract current sorter data into a register */
+		int handler_rc = vdbe_op_sorterdata(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_SorterCompare: {
+		/* Compare current sorter key with key in register, jump to P2 if different */
+		int handler_rc = vdbe_op_sortercompare(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2; continue; }  /* Jump if different */
+		pc++; continue;
+	}
+	case OP_SorterSort: {
+		/* Sort the sorter and rewind to beginning, jump to P2 if empty */
+		int handler_rc = vdbe_op_sortersort(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2; continue; }  /* Jump if empty */
+		pc++; continue;
+	}
+
 	/* Transaction operations - inline implementations */
 	case OP_TTransaction: {
 		/*

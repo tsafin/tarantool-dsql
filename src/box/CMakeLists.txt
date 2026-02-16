@@ -144,6 +144,7 @@ set(sql_sources
     sql/vdbe_ops_index.c
     sql/vdbe_ops_modify.c
     sql/vdbe_ops_limit.c
+    sql/vdbe_ops_sorter.c
     sql/vdbe_ops_inline_simple.c
     sql/vdbe_ops_inline_medium_1.c
     sql/vdbe_ops_inline_medium_2.c
