@@ -240,35 +240,35 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		case OP_Add: {
 			int handler_rc = vdbe_op_add(p, pOp, aMem);
 			if (handler_rc < 0) { rc = -1; break; }
-			if (handler_rc == 1) { pc = P2; continue; }
+			/* Add P1 P2 P3: r[P3]=r[P1]+r[P2], no jump (P2 is input register) */
 			pc++; continue;
 		}
 
 		case OP_Subtract: {
 			int handler_rc = vdbe_op_sub(p, pOp, aMem);
 			if (handler_rc < 0) { rc = -1; break; }
-			if (handler_rc == 1) { pc = P2; continue; }
+			/* Subtract P1 P2 P3: r[P3]=r[P2]-r[P1], no jump (P2 is input register) */
 			pc++; continue;
 		}
 
 		case OP_Multiply: {
 			int handler_rc = vdbe_op_multiply(p, pOp, aMem);
 			if (handler_rc < 0) { rc = -1; break; }
-			if (handler_rc == 1) { pc = P2; continue; }
+			/* Multiply P1 P2 P3: r[P3]=r[P1]*r[P2], no jump (P2 is input register) */
 			pc++; continue;
 		}
 
 		case OP_Divide: {
 			int handler_rc = vdbe_op_divide(p, pOp, aMem);
 			if (handler_rc < 0) { rc = -1; break; }
-			if (handler_rc == 1) { pc = P2; continue; }
+			/* Divide P1 P2 P3: r[P3]=r[P2]/r[P1], no jump (P2 is input register) */
 			pc++; continue;
 		}
 
 		case OP_Remainder: {
 			int handler_rc = vdbe_op_remainder(p, pOp, aMem);
 			if (handler_rc < 0) { rc = -1; break; }
-			if (handler_rc == 1) { pc = P2; continue; }
+			/* Remainder P1 P2 P3: r[P3]=r[P2]%r[P1], no jump (P2 is input register) */
 			pc++; continue;
 		}
 
