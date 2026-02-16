@@ -915,30 +915,49 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	case OP_Next: {
 		int handler_rc = vdbe_op_next(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }
-		if (handler_rc == 1) { pc = P2; continue; }
+		VdbeCursor *pC = p->apCsr[P1];
+		pC->cacheStatus = CACHE_STALE;
+		pC->nullRow = (handler_rc != 0);  /* Set nullRow if no more rows */
+		if (handler_rc == 0) {  /* 0 = more rows, jump to P2 to process them */
+			pc = P2;
+			continue;
+		}
 		pc++; continue;
 	}
 	case OP_Prev: {
 		int handler_rc = vdbe_op_prev(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }
-		if (handler_rc == 1) { pc = P2; continue; }
+		VdbeCursor *pC = p->apCsr[P1];
+		pC->cacheStatus = CACHE_STALE;
+		pC->nullRow = (handler_rc != 0);
+		if (handler_rc == 0) { pc = P2; continue; }
 		pc++; continue;
 	}
 	case OP_Last: {
 		int handler_rc = vdbe_op_last(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }
+		VdbeCursor *pC = p->apCsr[P1];
+		pC->cacheStatus = CACHE_STALE;
 		if (handler_rc == 1) { pc = P2; continue; }
 		pc++; continue;
 	}
 	case OP_NextIfOpen: {
 		int handler_rc = vdbe_op_nextifopen(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }
+		if (p->apCsr[P1] != NULL) {
+			VdbeCursor *pC = p->apCsr[P1];
+			pC->cacheStatus = CACHE_STALE;
+		}
 		if (handler_rc == 1) { pc = P2; continue; }
 		pc++; continue;
 	}
 	case OP_PrevIfOpen: {
 		int handler_rc = vdbe_op_previfopen(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }
+		if (p->apCsr[P1] != NULL) {
+			VdbeCursor *pC = p->apCsr[P1];
+			pC->cacheStatus = CACHE_STALE;
+		}
 		if (handler_rc == 1) { pc = P2; continue; }
 		pc++; continue;
 	}
@@ -948,6 +967,8 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	case OP_SeekGT: {
 		int handler_rc = vdbe_op_seek_lt_gt(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }
+		VdbeCursor *pC = p->apCsr[P1];
+		pC->cacheStatus = CACHE_STALE;
 		if (handler_rc == 1) { pc = P2; continue; }
 		pc++; continue;
 	}
@@ -955,6 +976,8 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	case OP_SeekGE: {
 		int handler_rc = vdbe_op_seek_le_ge(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }
+		VdbeCursor *pC = p->apCsr[P1];
+		pC->cacheStatus = CACHE_STALE;
 		if (handler_rc == 1) { pc = P2; continue; }
 		if (handler_rc == 2) { pc += 2; continue; }  /* Skip next opcode (OP_IdxLT/GT) */
 		pc++; continue;
