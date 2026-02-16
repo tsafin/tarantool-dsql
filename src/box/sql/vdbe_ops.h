@@ -132,6 +132,10 @@ int vdbe_op_map_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Map */
 int vdbe_op_getitem_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Getitem */
 int vdbe_op_openpseudo_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* OpenPseudo */
 int vdbe_op_count_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Count */
+/* Function and session control opcodes */
+int vdbe_op_builtinfunction(Vdbe *p, Op *pOp, Mem *aMem);  /* BuiltinFunction */
+int vdbe_op_functionbyname(Vdbe *p, Op *pOp, Mem *aMem);  /* FunctionByName */
+int vdbe_op_setsession(Vdbe *p, Op *pOp, Mem *aMem);  /* SetSession */
 /* Control flow opcodes - reserved for dispatcher refactoring
  * See vdbe_ops_control.c for extraction plan.
  * These remain in vdbe.c for now due to PC manipulation complexity. */

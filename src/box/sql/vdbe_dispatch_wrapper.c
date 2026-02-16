@@ -873,6 +873,32 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		pc++; continue;
 	}
 
+	/* ====================================================================
+	 * FUNCTION AND SESSION CONTROL OPCODES
+	 * ====================================================================
+	 */
+
+	case OP_BuiltinFunction: {
+		/* Call built-in SQL function */
+		int handler_rc = vdbe_op_builtinfunction(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_FunctionByName: {
+		/* Call user-defined function by name */
+		int handler_rc = vdbe_op_functionbyname(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	case OP_SetSession: {
+		/* Set session variable or setting */
+		int handler_rc = vdbe_op_setsession(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
 	/* Transaction operations - inline implementations */
 	case OP_TTransaction: {
 		/*
