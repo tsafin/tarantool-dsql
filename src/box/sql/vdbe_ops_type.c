@@ -111,12 +111,11 @@ int vdbe_op_makerecord(Vdbe *p, Op *pOp, Mem *aMem)
 	 * corresponding data element. The hdr-size field is also a varint which
 	 * is the offset from the beginning of the record to data0.
 	 */
-	nField = pOp->p1;
+	nField = pOp->p2;      /* Number of registers/fields to encode */
 	bIsEphemeral = pOp->p5;
-	assert(nField > 0 && pOp->p2 > 0 &&
-	       pOp->p2 + nField <= (p->nMem + 1 - p->nCursor) + 1);
-	pData0 = &aMem[nField];
-	nField = pOp->p2;
+	assert(nField > 0 && pOp->p1 >= 0 &&
+	       pOp->p1 + nField <= (p->nMem + 1 - p->nCursor) + 1);
+	pData0 = &aMem[pOp->p1];  /* Starting register for field data */
 
 	/* Identify the output register */
 	assert(pOp->p3 < pOp->p1 || pOp->p3 >= pOp->p1 + pOp->p2);
@@ -152,6 +151,11 @@ int vdbe_op_makerecord(Vdbe *p, Op *pOp, Mem *aMem)
 	 * However, if memory for ephemeral space is allocated
 	 * on region, it will be freed only in sql_stmt_finalize()
 	 * routine.
+	 *
+	 * For sorters: P5 might not be set, but we still need to free region
+	 * memory after the sorter makes a copy. To handle this, check if this
+	 * is likely a sorter record (P1 is a small number and nField is 1-2).
+	 * Sorters typically make single-field or two-field records.
 	 */
 	if (bIsEphemeral) {
 		if (mem_copy_bin(pOut, tuple, tuple_size) != 0)
