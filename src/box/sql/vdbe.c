@@ -372,6 +372,7 @@ int sqlVdbeExec(Vdbe *p)
 #define SWITCH(opcode)  goto *dispatch_table[opcode];
 #define JUMP_P2()	do { \
 				pOp = &aOp[P2 - 1]; \
+				rc = 0; \
 				DISPATCH(); \
 			} while (0)
 

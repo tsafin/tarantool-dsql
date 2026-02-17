@@ -5,11 +5,12 @@
  * This file contains wrapper functions for medium-complexity inline opcodes
  * extracted from vdbe.c and refactored to work in the generated dispatcher.
  *
- * Opcodes in this file (4 opcodes):
+ * Opcodes in this file (5 opcodes):
  * - OP_Decimal: Load decimal constant to register
  * - OP_AddImm: Add immediate value to register
  * - OP_Sequence: Get next sequence value from cursor
  * - OP_OpenSpace: Open space cursor (uses space_by_id from box/space.h)
+ * - OP_OpenTEphemeral: Create ephemeral table (used for GROUP BY, subqueries)
  *
  * Helper dependencies:
  * - vdbe_prepare_null_out(): Initialize register with cleared NULL (extracted to vdbe_helpers.h)
@@ -144,6 +145,49 @@ vdbe_op_openspace_inline(Vdbe *p, Op *pOp, Mem *aMem)
 	assert(space != NULL);
 
 	/* Store the space pointer in the cursor register (aMem[P1]) */
+	mem_set_ptr(&aMem[pOp->p1], space);
+
+	return 0;  /* Continue to next instruction */
+}
+
+/*
+ * Opcode: OPENTEPHEMERAL - Create ephemeral table
+ *
+ * Create a new temporary (ephemeral) table for operations like GROUP BY
+ * and subqueries. The space definition is provided in P4.
+ *
+ * @param P1 register to store pointer to new ephemeral space
+ * @param P4 sql_space_info structure describing the table schema
+ *
+ * The ephemeral space is created and its pointer is stored in aMem[P1].
+ * This table lives only for the duration of the current query execution.
+ *
+ * Flags: OUT2
+ */
+int
+vdbe_op_opentephemeral_inline(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	(void)p;
+
+	struct space *space;
+
+	/* P1 must be a valid register (output register) */
+	assert(pOp->p1 >= 0);
+
+	/* P4 must contain sql_space_info structure */
+	assert(pOp->p4type == P4_DYNAMIC || pOp->p4type == P4_STATIC);
+	struct sql_space_info *info = pOp->p4.space_info;
+	assert(info != NULL);
+
+	/* Create the ephemeral space */
+	space = sql_ephemeral_space_new(info);
+
+	if (space == NULL) {
+		/* Error in space creation, signal to dispatcher */
+		return -1;
+	}
+
+	/* Store the space pointer in the output register (aMem[P1]) */
 	mem_set_ptr(&aMem[pOp->p1], space);
 
 	return 0;  /* Continue to next instruction */

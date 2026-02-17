@@ -123,6 +123,7 @@ int vdbe_op_param_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Param */
 /* Medium complexity inline opcode handlers - Phase 5.6g */
 int vdbe_op_decimal_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Decimal */
 int vdbe_op_openspace_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* OpenSpace */
+int vdbe_op_opentephemeral_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* OpenTEphemeral */
 int vdbe_op_sequence_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Sequence */
 int vdbe_op_sequencetest_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* SequenceTest */
 int vdbe_op_fetch_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Fetch */

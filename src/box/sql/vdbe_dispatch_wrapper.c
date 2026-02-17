@@ -645,6 +645,12 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		if (handler_rc < 0) { rc = -1; break; }
 		pc++; continue;
 	}
+	case OP_OpenTEphemeral: {
+		/* Create ephemeral table for GROUP BY, subqueries, etc. */
+		int handler_rc = vdbe_op_opentephemeral_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
 	case OP_Sequence: {
 		/* Get sequence counter value and increment */
 		int handler_rc = vdbe_op_sequence_inline(p, pOp, aMem);
