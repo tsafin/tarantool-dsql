@@ -54,10 +54,11 @@ vdbe_op_once_inline(Vdbe *p, Op *pOp, Mem *aMem)
 	if (p->aOp[0].p1 == pOp->p1) {
 		/* Flag is set, so jump to P2 */
 		return 1;  /* Signal jump to P2 */
+	} else {
+		/* Flag is not set, set it now for next execution */
+		pOp->p1 = p->aOp[0].p1;
+		return 0;  /* Continue to next instruction */
 	}
-
-	/* Flag is not set, continue to next instruction */
-	return 0;
 }
 
 /*
