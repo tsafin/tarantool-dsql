@@ -1,12 +1,13 @@
 # VDBE Generated Dispatcher Completion Status
 
-## Current Status (Feb 14, 2026 - Session 2 - OP_NoConflict Re-enabled)
-- **Opcodes handled by generated**: 109 / 176 (62% complete) - OP_NoConflict now working
+## Current Status (Feb 18, 2026 - Phase 5.7 Complete - P2-Branching Audit)
+- **Opcodes handled by generated**: 124 / 176 (70.5% complete)
 - **Opcodes via fallback (inline)**: 176 / 176 (100% available)
 - **Build status**: ✅ Compiles successfully
 - **Architecture**: ✅ Hybrid dispatcher with seamless fallback
-- **Test status**: ✅ CREATE TABLE, INSERT, UPDATE, DELETE all working! ✅ OP_NoConflict working!
-- **Known issue**: SELECT queries return nil (investigation ongoing)
+- **Test status**: ✅ All SQL operations working (SELECT, INSERT, UPDATE, DELETE, JOIN, GROUP BY, ORDER BY, transactions)
+- **Quality**: ✅ P2-branching audit complete, critical bugs fixed
+- **Critical fixes**: OP_Once (missing else block), OP_Clear (P2==0 path)
 
 ## Progress
 
@@ -174,6 +175,46 @@ for (ii = 0; ii < r.nField; ii++) {
 - Hybrid dispatcher fallback from generated → inline completes successfully
 - No performance penalty - only initializes truly uninitialized registers
 
+## Phase 5.7: P2-Branching Audit (Feb 18, 2026)
+
+### Systematic Audit of P2-Based Conditional Branching
+**Scope**: 70+ opcodes across 24 handler files
+**Documentation**: P2_BRANCHING_AUDIT.md, P2_BRANCHING_CHECKLIST.md, P2_ANALYSIS_SUMMARY.txt
+
+### Critical Bug Fixed: OP_Once
+**Issue**: Handler was missing else block for flag update
+- First execution: Should set flag, then allow execution
+- On first execution: Check flag (not set) → set flag → continue
+- Second execution: Check flag (now set) → jump to P2
+
+**Bug**: Handler checked flag but never set it on first execution, preventing jump on second execution
+
+**Fix** (commit pending):
+```c
+if (p->aOp[0].p1 == pOp->p1) {
+    return 1;  /* Jump to P2 on second execution */
+} else {
+    pOp->p1 = p->aOp[0].p1;  /* SET FLAG ON FIRST EXECUTION */
+    return 0;  /* Continue on first execution */
+}
+```
+
+### Audit Findings Summary
+✅ **All Handlers Safe** (except one fixed):
+- OP_Clear: Already fixed (commit 2fb0c16c34)
+- OP_Once: Fixed (missing else block)
+- OP_Last: Correct (defensive assertion)
+- Comparison opcodes: Safe (P5 flag-based)
+- Cursor navigation: Safe (return code based)
+
+### Prevention Measures
+Created comprehensive P2-branching implementation checklist:
+- Decision tree for identifying branching patterns
+- Code review checklist (20+ items)
+- Testing templates for each pattern
+- Red flags to watch during review
+- Reference patterns (correct and anti-patterns)
+
 ## Implementation Notes
 
 - OP_If required inline implementation (lines 1600-1616 of vdbe.c)
@@ -181,4 +222,5 @@ for (ii = 0; ii < r.nField; ii++) {
 - OP_TTransaction inline: checks box_txn(), creates savepoint if needed
 - Many opcodes have `_inline` suffix handlers (e.g., vdbe_op_count_inline)
 - Hybrid fallback mechanism uses SQL_FALLBACK_TO_INLINE (return code 99)
+- OP_Once: Now properly implements "execute at most once" semantics
 

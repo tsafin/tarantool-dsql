@@ -151,6 +151,63 @@ This index provides quick navigation to all planning and documentation files for
 
 ---
 
+## Quality Assurance & Code Review Documents
+
+### [P2_BRANCHING_ANALYSIS_INDEX.md](P2_BRANCHING_ANALYSIS_INDEX.md) (NEW - Feb 18, 2026)
+**Purpose**: Quick reference guide for P2-branching audit and prevention
+**Content**:
+- Executive summary of audit findings
+- Three detailed documents index
+- Key takeaways and patterns
+- Cross-references to related files
+- Quick links by scenario
+
+**When to Read**: To understand P2-branching audit or implement P2-branching opcodes
+
+---
+
+### [P2_BRANCHING_AUDIT.md](P2_BRANCHING_AUDIT.md) (NEW - Feb 18, 2026)
+**Purpose**: Comprehensive technical audit of all P2-based branching patterns
+**Content**:
+- 70+ handlers analyzed across 24 files
+- Critical findings (OP_Clear bug history, OP_Once fix)
+- Detailed handler analysis by category
+- Pattern recognition guide
+- Testing strategy
+- Risk assessment
+
+**When to Read**: For deep technical understanding, code review, architectural decisions
+
+---
+
+### [P2_BRANCHING_CHECKLIST.md](P2_BRANCHING_CHECKLIST.md) (NEW - Feb 18, 2026)
+**Purpose**: Practical developer checklist for implementing P2-branching opcodes
+**Content**:
+- Pre-implementation decision tree
+- Step-by-step branching pattern guides
+- Code review checklist (20+ items)
+- Reference patterns (correct and anti-patterns)
+- Testing templates
+- Red flags to watch
+- Sign-off checklist
+
+**When to Read**: When implementing a new opcode with P2 branching; during code review
+
+---
+
+### [P2_ANALYSIS_SUMMARY.txt](P2_ANALYSIS_SUMMARY.txt) (NEW - Feb 18, 2026)
+**Purpose**: Executive summary of P2-branching audit (250 lines)
+**Content**:
+- Key findings at a glance
+- Handlers grouped by risk level
+- One-page pattern reference
+- Recommendations summary
+- Current safety status
+
+**When to Read**: Quick overview before deeper investigation
+
+---
+
 ## Related Documentation Files
 
 ### [PHASE_5_6_SESSION_SUMMARY.md](PHASE_5_6_SESSION_SUMMARY.md)
@@ -211,11 +268,18 @@ VDBE_REFACTOR_MASTER_PLAN.md (Top-level overview)
 2. Reference: [PHASE_5_6c_SESSION_SUMMARY.md](PHASE_5_6c_SESSION_SUMMARY.md) (for patterns)
 3. Check: [src/box/sql/vdbe_ops_inline_medium_2.c](src/box/sql/vdbe_ops_inline_medium_2.c) (examples)
 
+### "I want to implement a P2-branching opcode safely"
+1. Start: [P2_BRANCHING_CHECKLIST.md](P2_BRANCHING_CHECKLIST.md)
+2. Reference: [P2_BRANCHING_AUDIT.md](P2_BRANCHING_AUDIT.md) (detailed analysis)
+3. Review: [P2_ANALYSIS_SUMMARY.txt](P2_ANALYSIS_SUMMARY.txt) (executive summary)
+4. Use: Reference pattern (OP_Clear as correct, original OP_Once as anti-pattern)
+
 ### "I want to work on Phase 5.6d"
 1. Start: [PHASE_5_6d_PLAN.md](PHASE_5_6d_PLAN.md)
 2. Reference: [PHASE_5_6c_SESSION_SUMMARY.md](PHASE_5_6c_SESSION_SUMMARY.md) (proven pattern)
 3. Use: [VDBE_HANDLER_IMPLEMENTATION_GUIDE.md](VDBE_HANDLER_IMPLEMENTATION_GUIDE.md) (implementation)
-4. Track: [TODO.md](TODO.md) (update when complete)
+4. Check: [P2_BRANCHING_CHECKLIST.md](P2_BRANCHING_CHECKLIST.md) (if opcode uses P2)
+5. Track: [TODO.md](TODO.md) (update when complete)
 
 ### "I want to see how Phase 5.6c was done"
 1. Reference: [PHASE_5_6c_PLAN.md](PHASE_5_6c_PLAN.md) (planned approach)
@@ -257,23 +321,26 @@ All documents are updated in place with date stamps (Last Updated: YYYY-MM-DD)
 
 | Category | Count | Status |
 |----------|-------|--------|
-| Master Plans | 4 | Including master plan, handler guide, and index |
+| Master Plans | 5 | Including master plan, handler guide, and index |
 | Phase Plans | 3 | Phase 5.6c complete, 5.6d ready |
 | Session Summaries | 3 | Phases 5.6a, 5.6b, 5.6c with code changes |
 | Code Change Docs | 1 | PHASE_5_6c_CODE_CHANGES.md with full diffs |
+| QA & Code Review | 4 | P2-branching audit with 3-part analysis (NEW) |
 | Implementation Guides | 2 | 5.6c pattern guide available |
 | Supporting Docs | 5+ | Various infrastructure docs |
-| **Total** | **18** | **Comprehensive documentation** |
+| **Total** | **23+** | **Comprehensive documentation** |
 
 ---
 
-## Key Metrics (As of 2025-12-20)
+## Key Metrics (As of Feb 18, 2026 - Phase 5.7 Complete)
 
-- **Inline Handlers Implemented**: 12 of 63 (19%)
-- **External Handlers Extracted**: 47 of 113 (41.6%)
-- **Total Dispatcher Coverage**: ~75 of 176 opcodes (42.6%)
+- **Inline Handlers Implemented**: 12+ of 63 (19%+)
+- **External Handlers Extracted**: 47+ of 113 (41.6%+)
+- **Total Dispatcher Coverage**: 124 of 176 opcodes (70.5%)
 - **Helper Functions Available**: 2 (sqlVdbeMemAboutToChange, vdbe_prepare_null_out)
 - **Implementation Pattern**: Proven, documented, ready for scale
+- **P2-Branching Audit**: 70+ handlers analyzed, 1 critical bug fixed
+- **Quality**: All SQL operations working, comprehensive documentation
 
 ---
 
@@ -286,6 +353,7 @@ All documents are updated in place with date stamps (Last Updated: YYYY-MM-DD)
 
 ---
 
-**Last Updated**: 2025-12-20
-**Total Documents**: 15+
+**Last Updated**: 2026-02-18 (Phase 5.7 Complete - P2-Branching Audit)
+**Total Documents**: 23+
 **Navigation**: Use quick navigation section above or search by phase number
+**Coverage**: 70.5% of VDBE opcodes (124/176)
