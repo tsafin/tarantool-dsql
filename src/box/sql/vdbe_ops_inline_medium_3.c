@@ -127,8 +127,10 @@ vdbe_op_transactionbegin_inline(Vdbe *p, Op *pOp, Mem *aMem)
 		return -1;
 	}
 
-	if (txn_begin() == NULL)
+	struct txn *txn = txn_begin();
+	if (txn == NULL) {
 		return -1;
+	}
 
 	p->auto_commit = false;
 
@@ -152,8 +154,10 @@ vdbe_op_transactionrollback_inline(Vdbe *p, Op *pOp, Mem *aMem)
 	(void)aMem;
 
 	if (box_txn()) {
-		if (box_txn_rollback() != 0)
+		int rc = box_txn_rollback();
+		if (rc != 0) {
 			return -1;
+		}
 	} else {
 		diag_set(ClientError, ER_SQL_EXECUTE, "cannot rollback - no "\
 			 "transaction is active");

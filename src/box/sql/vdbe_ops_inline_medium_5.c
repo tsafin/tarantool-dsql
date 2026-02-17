@@ -26,6 +26,7 @@
 #include "mem.h"
 #include "vdbeInt.h"
 #include "vdbe_helpers.h"
+#include "tarantoolInt.h"
 #include "box/space_cache.h"
 #include "box/box.h"
 
@@ -152,7 +153,6 @@ vdbe_op_clear_inline(Vdbe *p, Op *pOp, Mem *aMem)
 	uint32_t space_id;
 	struct space *space;
 
-	(void)p;
 	(void)aMem;
 
 	assert(pOp->p1 > 0);
@@ -161,8 +161,19 @@ vdbe_op_clear_inline(Vdbe *p, Op *pOp, Mem *aMem)
 	assert(space != NULL);
 
 	if (pOp->p2 > 0) {
+		/* Fast truncate path (TRUNCATE TABLE) */
 		if (box_truncate(space_id) != 0) {
 			return -1;  /* Error: truncate failed */
+		}
+	} else {
+		/* Normal clear path (DELETE FROM table) - track changes */
+		uint32_t tuple_count;
+		if (tarantoolsqlClearTable(space, &tuple_count) != 0) {
+			return -1;  /* Error: clear table failed */
+		}
+		/* Track row changes if OPFLAG_NCHANGE is set */
+		if ((pOp->p5 & OPFLAG_NCHANGE) != 0) {
+			p->nChange += tuple_count;
 		}
 	}
 
