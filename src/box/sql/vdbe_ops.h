@@ -147,8 +147,21 @@ int vdbe_op_sorternext(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterNext */
 int vdbe_op_sorterdata(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterData */
 int vdbe_op_sortercompare(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterCompare */
 int vdbe_op_sortersort(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterSort */
-/* Control flow opcodes - reserved for dispatcher refactoring
- * See vdbe_ops_control.c for extraction plan.
- * These remain in vdbe.c for now due to PC manipulation complexity. */
+/* Phase 5.8: Remaining opcodes - misc data, DDL, and field access */
+int vdbe_op_elsenoteq_inline(Vdbe *p, Op *pOp, Mem *aMem);          /* ElseNotEq */
+int vdbe_op_resetcount_inline(Vdbe *p, Op *pOp, Mem *aMem);         /* ResetCount */
+int vdbe_op_fcopy_inline(Vdbe *p, Op *pOp, Mem *aMem);              /* FCopy */
+int vdbe_op_fetchbyname_inline(Vdbe *p, Op *pOp, Mem *aMem);        /* FetchByName */
+int vdbe_op_nextsystemspaceid_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* NextSystemSpaceId */
+int vdbe_op_nextidephemeral_inline(Vdbe *p, Op *pOp, Mem *aMem);    /* NextIdEphemeral */
+int vdbe_op_createforeignkey_inline(Vdbe *p, Op *pOp, Mem *aMem);   /* CreateForeignKey */
+int vdbe_op_createcheck_inline(Vdbe *p, Op *pOp, Mem *aMem);        /* CreateCheck */
+int vdbe_op_addfuncdefault_inline(Vdbe *p, Op *pOp, Mem *aMem);     /* AddFuncDefault */
+int vdbe_op_checkviewreferences_inline(Vdbe *p, Op *pOp, Mem *aMem);/* CheckViewReferences */
+int vdbe_op_loadanalysis_inline(Vdbe *p, Op *pOp, Mem *aMem);       /* LoadAnalysis */
+int vdbe_op_renametable_inline(Vdbe *p, Op *pOp, Mem *aMem);        /* RenameTable */
+/* Coroutine opcodes (Gosub/Return/Yield/InitCoroutine/EndCoroutine) are
+ * implemented inline in vdbe_dispatch_wrapper.c - they need direct pc/aOp access.
+ * OP_Program remains as fallback - too complex (VdbeFrame setup). */
 
 #endif /* SRC_BOX_SQL_VDBE_OPS_H */

@@ -1182,6 +1182,133 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		pc++; continue;
 	}
 
+	/* ====================================================================
+	 * PHASE 5.8: REMAINING OPCODES
+	 * Coroutines (inline), misc data, and DDL opcodes
+	 * ====================================================================
+	 */
+
+	/* Coroutine opcodes - implemented inline because they manipulate pc/aOp */
+	case OP_Gosub: {
+		assert(P1 > 0 && P1 <= (p->nMem + 1 - p->nCursor));
+		Mem *pIn1_gs = &aMem[P1];
+		assert(VdbeMemDynamic(pIn1_gs) == 0);
+		/* Store the current Gosub PC in P1 register, then jump to P2 */
+		mem_set_uint(pIn1_gs, pc);
+		pc = P2;
+		continue;
+	}
+
+	case OP_Return: {
+		/* Jump to the instruction after the Gosub that called us */
+		Mem *pIn1_ret = &aMem[P1];
+		assert(mem_is_uint(pIn1_ret));
+		pc = (int)pIn1_ret->u.u + 1;
+		mem_set_invalid(pIn1_ret);
+		continue;
+	}
+
+	case OP_InitCoroutine: {
+		assert(P1 > 0 && P1 <= (p->nMem + 1 - p->nCursor));
+		assert(P2 >= 0 && P2 < p->nOp);
+		assert(P3 > 0 && P3 < p->nOp);
+		Mem *pOut_ic = &aMem[P1];
+		assert(!VdbeMemDynamic(pOut_ic));
+		/* Store P3-1 so that Yield will advance to P3 */
+		mem_set_uint(pOut_ic, P3 - 1);
+		/* If P2 !=0, skip over the coroutine body to P2 */
+		pc = P2 ? P2 : pc + 1;
+		continue;
+	}
+
+	case OP_EndCoroutine: {
+		Mem *pIn1_ec = &aMem[P1];
+		assert(mem_is_uint(pIn1_ec));
+		assert(pIn1_ec->u.u < (uint64_t)p->nOp);
+		/* P1 holds the pc of the Yield that called us; jump to its P2 */
+		VdbeOp *pCaller_ec = &aOp[pIn1_ec->u.u];
+		assert(pCaller_ec->opcode == OP_Yield);
+		assert(pCaller_ec->p2 >= 0 && pCaller_ec->p2 < p->nOp);
+		pc = pCaller_ec->p2;
+		mem_set_invalid(pIn1_ec);
+		continue;
+	}
+
+	case OP_Yield: {
+		Mem *pIn1_y = &aMem[P1];
+		assert(VdbeMemDynamic(pIn1_y) == 0);
+		/* Swap current pc with stored coroutine address */
+		int pcDest = (int)pIn1_y->u.u;
+		mem_set_uint(pIn1_y, pc);
+		pc = pcDest + 1;
+		continue;
+	}
+
+	/* Misc data opcodes */
+	case OP_ElseNotEq: {
+		/* Jump to P2 if comparison result != 0 */
+		int handler_rc = vdbe_op_elsenoteq_inline(p, pOp, aMem);
+		if (handler_rc == 1) { pc = P2; } else { pc++; }
+		continue;
+	}
+	case OP_ResetCount: {
+		int handler_rc = vdbe_op_resetcount_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_FCopy: {
+		int handler_rc = vdbe_op_fcopy_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_FetchByName: {
+		int handler_rc = vdbe_op_fetchbyname_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_NextSystemSpaceId: {
+		int handler_rc = vdbe_op_nextsystemspaceid_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_NextIdEphemeral: {
+		int handler_rc = vdbe_op_nextidephemeral_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
+	/* DDL opcodes */
+	case OP_CreateForeignKey: {
+		int handler_rc = vdbe_op_createforeignkey_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_CreateCheck: {
+		int handler_rc = vdbe_op_createcheck_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_AddFuncDefault: {
+		int handler_rc = vdbe_op_addfuncdefault_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_CheckViewReferences: {
+		int handler_rc = vdbe_op_checkviewreferences_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_LoadAnalysis: {
+		int handler_rc = vdbe_op_loadanalysis_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+	case OP_RenameTable: {
+		int handler_rc = vdbe_op_renametable_inline(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		pc++; continue;
+	}
+
 	/* Fallback to inline dispatcher for unhandled opcodes
 	 * Return SQL_FALLBACK_TO_INLINE special code to signal that
 	 * execution should continue with inline dispatcher from current PC.
