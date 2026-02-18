@@ -108,22 +108,17 @@ When encountering an assertion failure:
 - [x] Mark OP_ResultRow as UNSUPPORTED (requires special SQL_ROW return handling)
 - [x] Add vdbe_jit.h includes to vdbe.c and vdbeaux.c
 
-**Generated Dispatcher Status (Feb 14, 2026)**:
-- Currently handles 108 of 176 opcodes (61% complete) - up from 52 (30%)
-- Batch 1 (commit ab21afec42): Added 26 critical opcodes
-  - Comparison: Eq, Ne, Lt, Le, Gt, Ge
-  - Logical: And, Or, Not, If
-  - Data ops: Bool, Blob, Copy, Cast, ApplyType, Concat
-  - Cursor: Column, MakeRecord, Found, NotFound
-  - Modification: Delete, Update, AggStep, AggFinal
-  - Transaction: TTransaction (inline implementation)
-- Batch 2 (current): Added 30 cursor/iteration opcodes
-  - Iterator: IteratorOpen, Rewind, Next, Prev, Last, NextIfOpen, PrevIfOpen
-  - Seek: SeekLT, SeekGT, SeekLE, SeekGE
-  - Index: IdxInsert, IdxReplace, IdxGE, IdxGT, IdxLE, IdxLT, IdxDelete
-  - System: SInsert, SDelete, RowData
-  - Data types: Int64, Real, Null, Variable, Move, SCopy
-  - Bitwise: BitAnd, BitOr, BitNot
-- **Known Issue**: OP_NoConflict disabled - operand validation differs between generated/inline dispatchers
-- Still need 68 more opcodes for full coverage
-- See DISPATCHER_STATUS.md for detailed tracking
+**Generated Dispatcher Status (Feb 18, 2026)**:
+- Currently handles **141 of 142 opcodes (99.3%)** — only OP_Program remains as intentional fallback
+- Phase 5.8 (commit f8cd200b34): Added final 17 opcodes
+  - Misc: ElseNotEq, ResetCount, FCopy, FetchByName, NextIdEphemeral, NextSystemSpaceId
+  - Coroutines (inline in dispatcher): Gosub, Return, Yield, InitCoroutine, EndCoroutine
+  - DDL: CreateForeignKey, CreateCheck, AddFuncDefault, CheckViewReferences, LoadAnalysis, RenameTable
+- Phase 5.9 unit verification (Feb 18, 2026): **45/45 tests pass, both dispatchers produce identical output**
+  - Test file: `test_phase58.lua` in build root
+- OP_Program left as fallback (complex VdbeFrame sub-program execution, used only inside triggers)
+- Key behavioral notes:
+  - CHECK/FK constraints defined in DDL but not enforced at SQL layer in this build
+  - ANALYZE, CREATE/DROP SEQUENCE return `nil` result from `box.execute` (not an error)
+  - `./src/tarantool - << EOF` stdin/heredoc mode unreliable — always use file-based `.lua` scripts
+- See `DISPATCHER_STATUS.md` for full opcode-by-opcode tracking
