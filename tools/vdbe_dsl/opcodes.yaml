@@ -6,12 +6,14 @@
   - IN2
   - OUT3
   doc: String concatenation r[P3]=r[P1]+r[P2]
+
 - name: OP_Cast
   id: 69
   handler_type: external
   flags:
   - IN1
   doc: Explicit type cast r[P1]
+
 - name: OP_ApplyType
   id: 79
   handler_type: external
@@ -19,6 +21,7 @@
   - IN1
   - IN2
   doc: Apply type checking r[P1@P2]
+
 - name: OP_MakeRecord
   id: 80
   handler_type: external
@@ -27,6 +30,7 @@
   - IN2
   - OUT3
   doc: Create msgpack record r[P3]=mkrec(r[P1@P2])
+
 - name: OP_AggStep
   id: 132
   handler_type: external
@@ -35,6 +39,7 @@
   - IN2
   - IN3
   doc: Aggregate step accum=r[P3] step(r[P2@P1])
+
 - name: OP_AggFinal
   id: 133
   handler_type: external
@@ -42,6 +47,7 @@
   - IN1
   - OUT3
   doc: Aggregate finalize accum=r[P1]
+
 - name: OP_ResultRow
   id: 64
   handler_type: external
@@ -49,6 +55,7 @@
   - IN1
   - IN2
   doc: Return result row output=r[P1@P2]
+
 - name: OP_Column
   id: 76
   handler_type: external
@@ -57,6 +64,7 @@
   - IN2
   - OUT3
   doc: Extract column from cursor r[P3]=PX
+
 - name: OP_RowData
   id: 112
   handler_type: external
@@ -64,6 +72,7 @@
   - IN1
   - OUT2
   doc: Get complete row data r[P2]=data
+
 - name: OP_Rewind
   id: 43
   handler_type: external
@@ -71,6 +80,7 @@
   - IN1
   - JUMP
   doc: Rewind cursor to first row
+
 - name: OP_Last
   id: 40
   handler_type: external
@@ -78,6 +88,7 @@
   - IN1
   - JUMP
   doc: Position cursor to last row
+
 - name: OP_Next
   id: 8
   handler_type: external
@@ -85,6 +96,7 @@
   - IN1
   - JUMP
   doc: Advance cursor to next row
+
 - name: OP_NextIfOpen
   id: 3
   handler_type: external
@@ -92,6 +104,7 @@
   - IN1
   - JUMP
   doc: Advance cursor if open
+
 - name: OP_Prev
   id: 4
   handler_type: external
@@ -99,6 +112,7 @@
   - IN1
   - JUMP
   doc: Move cursor to previous row
+
 - name: OP_PrevIfOpen
   id: 2
   handler_type: external
@@ -106,6 +120,7 @@
   - IN1
   - JUMP
   doc: Move cursor to previous row if open
+
 - name: OP_SeekLE
   id: 101
   handler_type: external
@@ -114,6 +129,7 @@
   - IN3
   - JUMP
   doc: Seek to LE key position key=r[P3@P4]
+
 - name: OP_SeekGT
   id: 37
   handler_type: external
@@ -122,6 +138,7 @@
   - IN3
   - JUMP
   doc: Seek to GT key position key=r[P3@P4]
+
 - name: OP_SeekGE
   id: 38
   handler_type: external
@@ -130,6 +147,7 @@
   - IN3
   - JUMP
   doc: Seek to GE key position key=r[P3@P4]
+
 - name: OP_SeekLT
   id: 36
   handler_type: external
@@ -138,6 +156,7 @@
   - IN3
   - JUMP
   doc: Seek to LT key position key=r[P3@P4]
+
 - name: OP_IdxGE
   id: 44
   handler_type: external
@@ -146,6 +165,7 @@
   - IN3
   - JUMP
   doc: Index comparison GE key=r[P3@P4]
+
 - name: OP_IdxGT
   id: 122
   handler_type: external
@@ -154,6 +174,7 @@
   - IN3
   - JUMP
   doc: Index comparison GT key=r[P3@P4]
+
 - name: OP_IdxLE
   id: 121
   handler_type: external
@@ -162,6 +183,7 @@
   - IN3
   - JUMP
   doc: Index comparison LE key=r[P3@P4]
+
 - name: OP_IdxLT
   id: 125
   handler_type: external
@@ -170,6 +192,7 @@
   - IN3
   - JUMP
   doc: Index comparison LT key=r[P3@P4]
+
 - name: OP_Found
   id: 39
   handler_type: external
@@ -178,6 +201,7 @@
   - IN3
   - JUMP
   doc: Index lookup - exact match key=r[P3@P4]
+
 - name: OP_NotFound
   id: 103
   handler_type: external
@@ -186,6 +210,7 @@
   - IN3
   - JUMP
   doc: Index lookup - not found key=r[P3@P4]
+
 - name: OP_NoConflict
   id: 102
   handler_type: external
@@ -194,6 +219,7 @@
   - IN3
   - JUMP
   doc: Index conflict check key=r[P3@P4]
+
 - name: OP_IdxInsert
   id: 116
   handler_type: external
@@ -202,6 +228,7 @@
   - IN2
   - IN3
   doc: Insert index entry key=r[P1]
+
 - name: OP_IdxReplace
   id: 115
   handler_type: external
@@ -210,6 +237,7 @@
   - IN2
   - IN3
   doc: Replace index entry key=r[P1]
+
 - name: OP_Delete
   id: 108
   handler_type: external
@@ -217,6 +245,7 @@
   - IN1
   - IN2
   doc: Delete record from table key=r[P1]
+
 - name: OP_Update
   id: 117
   handler_type: external
@@ -225,6 +254,7 @@
   - IN2
   - IN3
   doc: Update record in table key=r[P1]
+
 - name: OP_SInsert
   id: 118
   handler_type: external
@@ -233,6 +263,7 @@
   - IN2
   - IN3
   doc: Insert into system space space id = P1, key = r[P2]
+
 - name: OP_SDelete
   id: 119
   handler_type: external
@@ -241,6 +272,7 @@
   - IN2
   - IN3
   doc: Delete from system space space id = P1, key = r[P2]
+
 - name: OP_IdxDelete
   id: 120
   handler_type: external
@@ -249,6 +281,7 @@
   - IN2
   - IN3
   doc: Delete index entry key=r[P2@P3]
+
 - name: OP_Add
   id: 24
   handler_type: external
@@ -257,6 +290,7 @@
   - IN2
   - OUT3
   doc: Addition r[P3]=r[P1]+r[P2]
+
 - name: OP_Subtract
   id: 25
   handler_type: external
@@ -265,6 +299,7 @@
   - IN2
   - OUT3
   doc: Subtraction r[P3]=r[P2]-r[P1]
+
 - name: OP_Multiply
   id: 26
   handler_type: external
@@ -273,6 +308,7 @@
   - IN2
   - OUT3
   doc: Multiplication r[P3]=r[P1]*r[P2]
+
 - name: OP_Divide
   id: 27
   handler_type: external
@@ -281,6 +317,7 @@
   - IN2
   - OUT3
   doc: Division r[P3]=r[P2]/r[P1]
+
 - name: OP_Remainder
   id: 28
   handler_type: external
@@ -289,6 +326,7 @@
   - IN2
   - OUT3
   doc: Modulo r[P3]=r[P2]%r[P1]
+
 - name: OP_Eq
   id: 14
   handler_type: external
@@ -297,6 +335,7 @@
   - IN3
   - JUMP
   doc: Equality comparison if r[P3]==r[P1] goto P2
+
 - name: OP_Ne
   id: 13
   handler_type: external
@@ -305,6 +344,7 @@
   - IN3
   - JUMP
   doc: Not equal comparison if r[P3]!=r[P1] goto P2
+
 - name: OP_Lt
   id: 17
   handler_type: external
@@ -313,6 +353,7 @@
   - IN3
   - JUMP
   doc: Less than comparison if r[P3]<r[P1] goto P2
+
 - name: OP_Le
   id: 16
   handler_type: external
@@ -321,6 +362,7 @@
   - IN3
   - JUMP
   doc: Less or equal comparison if r[P3]<=r[P1] goto P2
+
 - name: OP_Gt
   id: 15
   handler_type: external
@@ -329,6 +371,7 @@
   - IN3
   - JUMP
   doc: Greater than comparison if r[P3]>r[P1] goto P2
+
 - name: OP_Ge
   id: 18
   handler_type: external
@@ -337,6 +380,7 @@
   - IN3
   - JUMP
   doc: Greater or equal comparison if r[P3]>=r[P1] goto P2
+
 - name: OP_And
   id: 6
   handler_type: external
@@ -345,6 +389,7 @@
   - IN2
   - OUT3
   doc: Logical AND r[P3]=(r[P1] && r[P2])
+
 - name: OP_Or
   id: 5
   handler_type: external
@@ -353,6 +398,7 @@
   - IN2
   - OUT3
   doc: Logical OR r[P3]=(r[P1] || r[P2])
+
 - name: OP_Not
   id: 7
   handler_type: external
@@ -360,6 +406,7 @@
   - IN1
   - OUT2
   doc: Logical NOT r[P2]= !r[P1]
+
 - name: OP_BitAnd
   id: 20
   handler_type: external
@@ -368,6 +415,7 @@
   - IN2
   - OUT3
   doc: Bitwise AND r[P3]=r[P1]&r[P2]
+
 - name: OP_BitOr
   id: 21
   handler_type: external
@@ -376,6 +424,7 @@
   - IN2
   - OUT3
   doc: Bitwise OR r[P3]=r[P1]|r[P2]
+
 - name: OP_BitNot
   id: 31
   handler_type: external
@@ -383,36 +432,42 @@
   - IN1
   - OUT2
   doc: Bitwise NOT r[P1]= ~r[P1]
+
 - name: OP_Integer
   id: 54
   handler_type: external
   flags:
   - OUT2
   doc: Load integer constant r[P2]=P1
+
 - name: OP_Bool
   id: 55
   handler_type: external
   flags:
   - OUT2
   doc: Load boolean constant r[P2]=P1
+
 - name: OP_Int64
   id: 56
   handler_type: external
   flags:
   - OUT2
   doc: Load 64-bit integer r[P2]=P4
+
 - name: OP_Real
   id: 123
   handler_type: external
   flags:
   - OUT2
   doc: Load floating point r[P2]=P4
+
 - name: OP_String
   id: 57
   handler_type: external
   flags:
   - OUT2
   doc: Load string r[P2]='P4' (len=P1)
+
 - name: OP_Null
   id: 58
   handler_type: external
@@ -420,18 +475,21 @@
   - OUT2
   - OUT3
   doc: Load NULL r[P2..P3]=NULL
+
 - name: OP_Blob
   id: 59
   handler_type: external
   flags:
   - OUT2
   doc: Load blob r[P2]=P4 (len=P1, subtype=P3)
+
 - name: OP_Variable
   id: 60
   handler_type: external
   flags:
   - OUT2
   doc: Load parameter r[P2]=parameter(P1,P4)
+
 - name: OP_Move
   id: 61
   handler_type: external
@@ -439,6 +497,7 @@
   - IN1
   - OUT2
   doc: Move register r[P2@P3]=r[P1@P3]
+
 - name: OP_Copy
   id: 62
   handler_type: external
@@ -446,6 +505,7 @@
   - IN1
   - OUT2
   doc: Copy registers r[P2@P3+1]=r[P1@P3+1]
+
 - name: OP_SCopy
   id: 63
   handler_type: external
@@ -453,18 +513,21 @@
   - IN1
   - OUT2
   doc: Copy single register r[P2]=r[P1]
+
 - name: OP_Goto
   id: 9
   handler_type: control_flow
   flags:
   - JUMP
   doc: Unconditional jump to P2
+
 - name: OP_Jump
   id: 33
   handler_type: control_flow
   flags:
   - JUMP
   doc: Jump based on condition
+
 - name: OP_If
   id: 75
   handler_type: control_flow
@@ -472,6 +535,7 @@
   - IN1
   - JUMP
   doc: Jump if r[P1] is true
+
 - name: OP_IfNot
   id: 35
   handler_type: external_inline
@@ -479,24 +543,28 @@
   - IN1
   - JUMP
   doc: Jump if r[P1] is false
+
 - name: OP_Once
   id: 34
   handler_type: external_inline
   flags:
   - JUMP
   doc: Execute body once
+
 - name: OP_Gosub
   id: 11
   handler_type: control_flow
   flags:
   - JUMP
   doc: Subroutine call
+
 - name: OP_Return
   id: 51
   handler_type: control_flow
   flags:
   - IN1
   doc: Return from subroutine
+
 - name: OP_InitCoroutine
   id: 12
   handler_type: control_flow
@@ -505,6 +573,7 @@
   - OUT2
   - JUMP
   doc: Initialize coroutine
+
 - name: OP_Yield
   id: 30
   handler_type: control_flow
@@ -512,18 +581,21 @@
   - IN1
   - JUMP
   doc: Yield from coroutine
+
 - name: OP_EndCoroutine
   id: 52
   handler_type: control_flow
   flags:
   - IN1
   doc: End coroutine
+
 - name: OP_ElseNotEq
   id: 19
   handler_type: external_inline
   flags:
   - JUMP
   doc: Jump if comparison was not equal
+
 - name: OP_MustBeInt
   id: 32
   handler_type: control_flow
@@ -531,6 +603,7 @@
   - IN1
   - JUMP
   doc: Assert operand is integer
+
 - name: OP_IfPos
   id: 46
   handler_type: external_inline
@@ -538,6 +611,7 @@
   - IN1
   - JUMP
   doc: If r[P1]>0 then r[P1]-=P3, goto P2
+
 - name: OP_IfNotZero
   id: 47
   handler_type: external_inline
@@ -545,6 +619,7 @@
   - IN1
   - JUMP
   doc: If r[P1]!=0 then r[P1]--, goto P2
+
 - name: OP_DecrJumpZero
   id: 49
   handler_type: external_inline
@@ -552,49 +627,70 @@
   - IN1
   - JUMP
   doc: If (--r[P1])==0 goto P2
+
 - name: OP_SetDiag
   id: 10
   handler_type: control_flow
   flags:
   - JUMP
   doc: Set diagnostic and jump
+
 - name: OP_Halt
   id: 53
   handler_type: control_flow
   flags: []
   doc: Stop execution
+
 - name: OP_Init
   id: 50
   handler_type: control_flow
   flags:
   - JUMP
   doc: Start execution at P2
+
 - name: OP_Savepoint
   id: 0
   handler_type: external_inline
   flags: []
   doc: Savepoint handling
+
 - name: OP_SorterNext
   id: 1
   handler_type: inline
   flags:
   - JUMP
   doc: Sorter next row
-  inline_code: "/* jump */\n\tVdbeCursor *pC = p->apCsr[P1];\n\tassert(isSorter(pC));\n\tint res = 0;\n\tif (sqlVdbeSorterNext(pC,\
-    \ &res) != 0)\n\t\tgoto abort_due_to_error;\n\tgoto next_tail;\n\n/* Opcode: PrevIfOpen P1 P2 P3 P4 P5\n *\n * This opcode\
-    \ works just like Prev except that if cursor P1 is not\n * open it behaves a no-op.\n */\nEXECUTE(OP_PrevIfOpen,(P1,P2,P3,P4)):\
-    \    /* jump */\n\tif (p->apCsr[P1] == 0) {\n\t\tDISPATCH();"
+  inline_code: |-
+    /* jump */
+    	VdbeCursor *pC = p->apCsr[P1];
+    	assert(isSorter(pC));
+    	int res = 0;
+    	if (sqlVdbeSorterNext(pC, &res) != 0)
+    		goto abort_due_to_error;
+    	goto next_tail;
+
+    /* Opcode: PrevIfOpen P1 P2 P3 P4 P5
+     *
+     * This opcode works just like Prev except that if cursor P1 is not
+     * open it behaves a no-op.
+     */
+    EXECUTE(OP_PrevIfOpen,(P1,P2,P3,P4)):    /* jump */
+    	if (p->apCsr[P1] == 0) {
+    		DISPATCH();
+
 - name: OP_String8
   id: 48
   handler_type: external
   flags:
   - OUT2
   doc: Load C string r[P2]='P4'
+
 - name: OP_SkipLoad
   id: 65
   handler_type: external_inline
   flags: []
   doc: Skip load
+
 - name: OP_BuiltinFunction
   id: 66
   handler_type: inline
@@ -603,9 +699,22 @@
   - IN2
   - OUT3
   doc: Call builtin function
-  inline_code: "int argc = P1;\n\tsql_context *pCtx;\n\n\tassert(pOp->p4type == P4_FUNCCTX);\n\tpCtx = pOp->p4.pCtx;\n\n\t\
-    pOut = vdbe_prepare_null_out(p, P3);\n\tif (pCtx->pOut != pOut)\n\t\tpCtx->pOut = pOut;\n\n#ifdef SQL_DEBUG\n\tfor(int\
-    \ i = 0; i < argc; i++) {\n\t\tassert(memIsValid(&aMem[P2 + i]));\n\t\tREGISTER_TRACE(p, P2 + i, &aMem[P2 + i]);"
+  inline_code: |-
+    int argc = P1;
+    	sql_context *pCtx;
+
+    	assert(pOp->p4type == P4_FUNCCTX);
+    	pCtx = pOp->p4.pCtx;
+
+    	pOut = vdbe_prepare_null_out(p, P3);
+    	if (pCtx->pOut != pOut)
+    		pCtx->pOut = pOut;
+
+    #ifdef SQL_DEBUG
+    	for(int i = 0; i < argc; i++) {
+    		assert(memIsValid(&aMem[P2 + i]));
+    		REGISTER_TRACE(p, P2 + i, &aMem[P2 + i]);
+
 - name: OP_FunctionByName
   id: 67
   handler_type: inline
@@ -614,26 +723,34 @@
   - IN2
   - OUT3
   doc: Call function by name
-  inline_code: "assert(pOp->p4type == P4_DYNAMIC);\n\tstruct func *func = func_by_name(pOp->p4.z, strlen(pOp->p4.z));\n\t\
-    if (unlikely(func == NULL)) {\n\t\tdiag_set(ClientError, ER_NO_SUCH_FUNCTION, pOp->p4.z);\n\t\tgoto abort_due_to_error;"
+  inline_code: |-
+    assert(pOp->p4type == P4_DYNAMIC);
+    	struct func *func = func_by_name(pOp->p4.z, strlen(pOp->p4.z));
+    	if (unlikely(func == NULL)) {
+    		diag_set(ClientError, ER_NO_SUCH_FUNCTION, pOp->p4.z);
+    		goto abort_due_to_error;
+
 - name: OP_AddImm
   id: 68
   handler_type: external_inline
   flags:
   - IN1
   doc: Add immediate r[P1]=r[P1]+P2
+
 - name: OP_Array
   id: 70
   handler_type: external_inline
   flags:
   - OUT2
   doc: Create array
+
 - name: OP_Map
   id: 71
   handler_type: external_inline
   flags:
   - OUT2
   doc: Create map
+
 - name: OP_Getitem
   id: 72
   handler_type: external_inline
@@ -642,12 +759,18 @@
   - IN2
   - OUT3
   doc: Get array/map item
+
 - name: OP_Permutation
   id: 73
   handler_type: inline
   flags: []
   doc: Permutation
-  inline_code: "assert(pOp->p4type == P4_INTARRAY);\n\tassert(pOp->p4.ai);\n\taPermute = pOp->p4.ai + 1;\n\tDISPATCH();"
+  inline_code: |-
+    assert(pOp->p4type == P4_INTARRAY);
+    	assert(pOp->p4.ai);
+    	aPermute = pOp->p4.ai + 1;
+    	DISPATCH();
+
 - name: OP_Compare
   id: 74
   handler_type: inline
@@ -655,11 +778,28 @@
   - IN1
   - IN2
   doc: Compare registers
-  inline_code: "if ((pOp->p5 & OPFLAG_PERMUTE) == 0)\n\t\taPermute = 0;\n\n\tint n = P3;\n\tassert(pOp->p4type == P4_KEYINFO);\n\
-    \tassert(n > 0);\n\tint p1 = P1;\n\tint p2 = P2;\n\n\tstruct key_def *def = sql_key_info_to_key_def(pOp->p4.key_info);\n\
-    \tif (def == NULL)\n\t\tgoto abort_due_to_error;\n#if SQL_DEBUG\n\tif (aPermute) {\n\t\tint mx = 0;\n\t\tfor(uint32_t\
-    \ k = 0; k < (uint32_t)n; k++)\n\t\t\tif (aPermute[k] > mx)\n\t\t\t\tmx = aPermute[k];\n\t\tassert(p1>0 && p1+mx<=(p->nMem+1\
-    \ - p->nCursor)+1);\n\t\tassert(p2>0 && p2+mx<=(p->nMem+1 - p->nCursor)+1);"
+  inline_code: |-
+    if ((pOp->p5 & OPFLAG_PERMUTE) == 0)
+    		aPermute = 0;
+
+    	int n = P3;
+    	assert(pOp->p4type == P4_KEYINFO);
+    	assert(n > 0);
+    	int p1 = P1;
+    	int p2 = P2;
+
+    	struct key_def *def = sql_key_info_to_key_def(pOp->p4.key_info);
+    	if (def == NULL)
+    		goto abort_due_to_error;
+    #if SQL_DEBUG
+    	if (aPermute) {
+    		int mx = 0;
+    		for(uint32_t k = 0; k < (uint32_t)n; k++)
+    			if (aPermute[k] > mx)
+    				mx = aPermute[k];
+    		assert(p1>0 && p1+mx<=(p->nMem+1 - p->nCursor)+1);
+    		assert(p2>0 && p2+mx<=(p->nMem+1 - p->nCursor)+1);
+
 - name: OP_FetchByName
   id: 77
   handler_type: external_inline
@@ -667,6 +807,7 @@
   - IN1
   - OUT3
   doc: Fetch by name
+
 - name: OP_Fetch
   id: 78
   handler_type: external_inline
@@ -674,123 +815,168 @@
   - IN1
   - OUT3
   doc: Fetch record
+
 - name: OP_Count
   id: 81
   handler_type: external_inline
   flags:
   - OUT2
   doc: Count records
+
 - name: OP_CreateForeignKey
   id: 82
   handler_type: external_inline
   flags: []
   doc: Create foreign key constraint
+
 - name: OP_CreateCheck
   id: 83
   handler_type: external_inline
   flags: []
   doc: Create check constraint
+
 - name: OP_DropTupleForeignKey
   id: 84
   handler_type: external_inline
   flags: []
   doc: Drop tuple foreign key
+
 - name: OP_DropTupleCheck
   id: 85
   handler_type: inline
   flags: []
   doc: Drop tuple check
-  inline_code: "assert(P1 >= 0 && pOp->p4.z != NULL);\n\tif (sql_tuple_check_drop(P1, pOp->p4.z) != 0)\n\t\tgoto abort_due_to_error;\n\
-    \tassert(p->nChange == 0);\n\tp->nChange = 1;\n\tDISPATCH();"
+  inline_code: |-
+    assert(P1 >= 0 && pOp->p4.z != NULL);
+    	if (sql_tuple_check_drop(P1, pOp->p4.z) != 0)
+    		goto abort_due_to_error;
+    	assert(p->nChange == 0);
+    	p->nChange = 1;
+    	DISPATCH();
+
 - name: OP_DropFieldForeignKey
   id: 86
   handler_type: external_inline
   flags: []
   doc: Drop field foreign key
+
 - name: OP_DropFieldCheck
   id: 87
   handler_type: external_inline
   flags: []
   doc: Drop field check
+
 - name: OP_AddFuncDefault
   id: 88
   handler_type: external_inline
   flags: []
   doc: Add function as default
+
 - name: OP_CheckViewReferences
   id: 89
   handler_type: external_inline
   flags:
   - IN1
   doc: Check view references
+
 - name: OP_TransactionBegin
   id: 90
   handler_type: external_inline
   flags: []
   doc: Begin transaction
+
 - name: OP_TransactionCommit
   id: 91
   handler_type: external_inline
   flags: []
   doc: Commit transaction
+
 - name: OP_TransactionRollback
   id: 92
   handler_type: external_inline
   flags: []
   doc: Rollback transaction
+
 - name: OP_TTransaction
   id: 93
   handler_type: inline
   flags: []
   doc: Tarantool transaction
-  inline_code: "if (!box_txn()) {\n\t\tif (txn_begin() == NULL)\n\t\t\tgoto abort_due_to_error;"
+  inline_code: |-
+    if (!box_txn()) {
+    		if (txn_begin() == NULL)
+    			goto abort_due_to_error;
+
 - name: OP_IteratorOpen
   id: 94
   handler_type: inline
   flags:
   - IN3
   doc: Open iterator
-  inline_code: "struct VdbeCursor *cur = p->apCsr[P1];\n\tif (box_schema_version() != p->schema_ver &&\n\t    (pOp->p5 & OPFLAG_SYSTEMSP)\
-    \ == 0) {\n\t\tp->expired = 1;\n\t\tdiag_set(ClientError, ER_SQL_EXECUTE, \"schema version has \"\\\n\t\t\t \"changed:\
-    \ need to re-compile SQL statement\");\n\t\tgoto abort_due_to_error;"
+  inline_code: |-
+    struct VdbeCursor *cur = p->apCsr[P1];
+    	if (box_schema_version() != p->schema_ver &&
+    	    (pOp->p5 & OPFLAG_SYSTEMSP) == 0) {
+    		p->expired = 1;
+    		diag_set(ClientError, ER_SQL_EXECUTE, "schema version has "\
+    			 "changed: need to re-compile SQL statement");
+    		goto abort_due_to_error;
+
 - name: OP_OpenSpace
   id: 95
   handler_type: external_inline
   flags:
   - IN3
   doc: Open space cursor
+
 - name: OP_OpenTEphemeral
   id: 96
   handler_type: external_inline
   flags: []
   doc: Open temporary table
+
 - name: OP_SorterOpen
   id: 97
   handler_type: inline
   flags: []
   doc: Open sorter
-  inline_code: "VdbeCursor *pCx;\n\n\tassert(P1 >= 0);\n\tassert(P2 >= 0);\n\tstruct key_def *def = sql_key_info_to_key_def(pOp->p4.key_info);\n\
-    \tif (def == NULL)\n\t\tgoto abort_due_to_error;\n\tpCx = allocateCursor(p, P1, P2, CURTYPE_SORTER);\n\tif (pCx == NULL)\n\
-    \t\tgoto abort_due_to_error;\n\tpCx->key_def = def;\n\tif (sqlVdbeSorterInit(pCx) != 0)\n\t\tgoto abort_due_to_error;\n\
-    \tDISPATCH();"
+  inline_code: |-
+    VdbeCursor *pCx;
+
+    	assert(P1 >= 0);
+    	assert(P2 >= 0);
+    	struct key_def *def = sql_key_info_to_key_def(pOp->p4.key_info);
+    	if (def == NULL)
+    		goto abort_due_to_error;
+    	pCx = allocateCursor(p, P1, P2, CURTYPE_SORTER);
+    	if (pCx == NULL)
+    		goto abort_due_to_error;
+    	pCx->key_def = def;
+    	if (sqlVdbeSorterInit(pCx) != 0)
+    		goto abort_due_to_error;
+    	DISPATCH();
+
 - name: OP_SequenceTest
   id: 98
   handler_type: external_inline
   flags:
   - JUMP
   doc: Test sequence counter
+
 - name: OP_OpenPseudo
   id: 99
   handler_type: external_inline
   flags:
   - OUT2
   doc: Open pseudo-cursor
+
 - name: OP_Close
   id: 100
   handler_type: external_inline
   flags:
   - IN1
   doc: Close cursor
+
 - name: OP_Sequence
   id: 104
   handler_type: external_inline
@@ -798,6 +984,7 @@
   - IN1
   - OUT2
   doc: Get sequence value
+
 - name: OP_NextSystemSpaceId
   id: 105
   handler_type: external_inline
@@ -805,6 +992,7 @@
   - IN1
   - OUT2
   doc: Get next system space ID
+
 - name: OP_NextIdEphemeral
   id: 106
   handler_type: external_inline
@@ -812,6 +1000,7 @@
   - IN1
   - OUT2
   doc: Get next ephemeral ID
+
 - name: OP_FCopy
   id: 107
   handler_type: external_inline
@@ -819,11 +1008,13 @@
   - IN1
   - OUT2
   doc: Frame copy
+
 - name: OP_ResetCount
   id: 109
   handler_type: external_inline
   flags: []
   doc: Reset counter
+
 - name: OP_SorterCompare
   id: 110
   handler_type: inline
@@ -832,9 +1023,21 @@
   - IN3
   - JUMP
   doc: Sorter comparison
-  inline_code: "VdbeCursor *pC;\n\tint res;\n\tint nKeyCol;\n\n\tpC = p->apCsr[P1];\n\tassert(isSorter(pC));\n\tassert(pOp->p4type\
-    \ == P4_INT32);\n\tpIn3 = &aMem[P3];\n\tnKeyCol = pOp->p4.i;\n\tif (sqlVdbeSorterCompare(pC, pIn3, nKeyCol, &res) != 0)\n\
-    \t\tgoto abort_due_to_error;\n\tif (res) JUMP_P2();\n\tDISPATCH();"
+  inline_code: |-
+    VdbeCursor *pC;
+    	int res;
+    	int nKeyCol;
+
+    	pC = p->apCsr[P1];
+    	assert(isSorter(pC));
+    	assert(pOp->p4type == P4_INT32);
+    	pIn3 = &aMem[P3];
+    	nKeyCol = pOp->p4.i;
+    	if (sqlVdbeSorterCompare(pC, pIn3, nKeyCol, &res) != 0)
+    		goto abort_due_to_error;
+    	if (res) JUMP_P2();
+    	DISPATCH();
+
 - name: OP_SorterData
   id: 111
   handler_type: inline
@@ -842,15 +1045,26 @@
   - IN1
   - OUT2
   doc: Get sorter data
-  inline_code: "VdbeCursor *pC;\n\n\tpOut = vdbe_prepare_null_out(p, P2);\n\tpC = p->apCsr[P1];\n\tassert(isSorter(pC));\n\
-    \tif (sqlVdbeSorterRowkey(pC, pOut) != 0)\n\t\tgoto abort_due_to_error;\n\tassert(mem_is_bin(pOut));\n\tassert(P1 >= 0\
-    \ && P1 < p->nCursor);\n\tp->apCsr[P3]->cacheStatus = CACHE_STALE;\n\tDISPATCH();"
+  inline_code: |-
+    VdbeCursor *pC;
+
+    	pOut = vdbe_prepare_null_out(p, P2);
+    	pC = p->apCsr[P1];
+    	assert(isSorter(pC));
+    	if (sqlVdbeSorterRowkey(pC, pOut) != 0)
+    		goto abort_due_to_error;
+    	assert(mem_is_bin(pOut));
+    	assert(P1 >= 0 && P1 < p->nCursor);
+    	p->apCsr[P3]->cacheStatus = CACHE_STALE;
+    	DISPATCH();
+
 - name: OP_NullRow
   id: 113
   handler_type: external_inline
   flags:
   - IN1
   doc: Null row marker
+
 - name: OP_SorterInsert
   id: 114
   handler_type: inline
@@ -858,37 +1072,51 @@
   - IN1
   - IN2
   doc: Insert into sorter
-  inline_code: "/* in2 */\n\tassert(P1 >= 0 && P1 < p->nCursor);\n\tstruct VdbeCursor *cursor = p->apCsr[P1];\n\tassert(cursor\
-    \ != NULL);\n\tassert(isSorter(cursor));\n\tpIn2 = &aMem[P2];\n\tassert(mem_is_bin(pIn2));\n\tif (sqlVdbeSorterWrite(cursor,\
-    \ pIn2) != 0)\n\t\tgoto abort_due_to_error;\n\tDISPATCH();"
+  inline_code: |-
+    /* in2 */
+    	assert(P1 >= 0 && P1 < p->nCursor);
+    	struct VdbeCursor *cursor = p->apCsr[P1];
+    	assert(cursor != NULL);
+    	assert(isSorter(cursor));
+    	pIn2 = &aMem[P2];
+    	assert(mem_is_bin(pIn2));
+    	if (sqlVdbeSorterWrite(cursor, pIn2) != 0)
+    		goto abort_due_to_error;
+    	DISPATCH();
+
 - name: OP_Clear
   id: 126
   handler_type: external_inline
   flags:
   - IN1
   doc: Clear space
+
 - name: OP_ResetSorter
   id: 127
   handler_type: external_inline
   flags:
   - IN1
   doc: Reset sorter
+
 - name: OP_RenameTable
   id: 128
   handler_type: external_inline
   flags: []
   doc: Rename table
+
 - name: OP_LoadAnalysis
   id: 129
   handler_type: external_inline
   flags: []
   doc: Load analysis
+
 - name: OP_Param
   id: 130
   handler_type: external_inline
   flags:
   - OUT2
   doc: Load parameter
+
 - name: OP_OffsetLimit
   id: 131
   handler_type: inline
@@ -897,15 +1125,28 @@
   - IN3
   - OUT2
   doc: Calculate offset limit
-  inline_code: "/* in1, out2, in3 */\n\tpIn1 = &aMem[P1];\n\tpIn3 = &aMem[P3];\n\tpOut = vdbe_prepare_null_out(p, P2);\n\n\
-    \tassert(mem_is_uint(pIn1));\n\tassert(mem_is_uint(pIn3));\n\tuint64_t x = pIn1->u.u;\n\tuint64_t rhs = pIn3->u.u;\n\t\
-    bool unused;\n\tif (sql_add_int(x, false, rhs, false, (int64_t *) &x, &unused) != 0) {\n\t\tdiag_set(ClientError, ER_SQL_EXECUTE,\
-    \ \"sum of LIMIT and OFFSET \"\n\t\t\t\"values should not result in integer overflow\");\n\t\tgoto abort_due_to_error;"
+  inline_code: |-
+    /* in1, out2, in3 */
+    	pIn1 = &aMem[P1];
+    	pIn3 = &aMem[P3];
+    	pOut = vdbe_prepare_null_out(p, P2);
+
+    	assert(mem_is_uint(pIn1));
+    	assert(mem_is_uint(pIn3));
+    	uint64_t x = pIn1->u.u;
+    	uint64_t rhs = pIn3->u.u;
+    	bool unused;
+    	if (sql_add_int(x, false, rhs, false, (int64_t *) &x, &unused) != 0) {
+    		diag_set(ClientError, ER_SQL_EXECUTE, "sum of LIMIT and OFFSET "
+    			"values should not result in integer overflow");
+    		goto abort_due_to_error;
+
 - name: OP_Expire
   id: 134
   handler_type: external_inline
   flags: []
   doc: Expire entry
+
 - name: OP_GenSpaceid
   id: 135
   handler_type: external_inline
@@ -913,13 +1154,20 @@
   - IN1
   - OUT2
   doc: Generate space ID
+
 - name: OP_SetSession
   id: 136
   handler_type: inline
   flags: []
   doc: Set session
-  inline_code: "assert(pOp->p4type == P4_DYNAMIC);\n\tconst char *setting_name = pOp->p4.z;\n\tint sid = session_setting_find(setting_name);\n\
-    \tif (sid < 0) {\n\t\tdiag_set(ClientError, ER_NO_SUCH_SESSION_SETTING, setting_name);\n\t\tgoto abort_due_to_error;"
+  inline_code: |-
+    assert(pOp->p4type == P4_DYNAMIC);
+    	const char *setting_name = pOp->p4.z;
+    	int sid = session_setting_find(setting_name);
+    	if (sid < 0) {
+    		diag_set(ClientError, ER_NO_SUCH_SESSION_SETTING, setting_name);
+    		goto abort_due_to_error;
+
 - name: OP_ShowCreateTable
   id: 137
   handler_type: inline
@@ -927,18 +1175,24 @@
   - IN1
   - OUT2
   doc: Show create table
-  inline_code: "struct Mem *ret = &aMem[P2];\n\tstruct Mem *err = &aMem[P2 + 1];\n\tsql_show_create_table(aMem[P1].u.i, ret,\
-    \ err);\n\tDISPATCH();"
+  inline_code: |-
+    struct Mem *ret = &aMem[P2];
+    	struct Mem *err = &aMem[P2 + 1];
+    	sql_show_create_table(aMem[P1].u.i, ret, err);
+    	DISPATCH();
+
 - name: OP_Noop
   id: 138
   handler_type: external_inline
   flags: []
   doc: No operation
+
 - name: OP_Explain
   id: 139
   handler_type: external_inline
   flags: []
   doc: Explain query
+
 - name: OP_IsNull
   id: 174
   handler_type: external_inline
@@ -946,6 +1200,7 @@
   - IN1
   - JUMP
   doc: Test for NULL
+
 - name: OP_NotNull
   id: 175
   handler_type: external_inline
@@ -953,21 +1208,30 @@
   - IN1
   - JUMP
   doc: Test for not NULL
+
 - name: OP_Decimal
   id: 124
   handler_type: external_inline
   flags:
   - OUT2
   doc: Load decimal r[P2]=P4
+
 - name: OP_Program
   id: 45
   handler_type: inline
   flags:
   - JUMP
   doc: Execute program
-  inline_code: "/* jump */\n\tint rc = op_program_enter(p, pOp, aMem, aOp);\n\tif\
-    \ (rc < 0) DISPATCH();\n\tif (rc > 0) goto abort_due_to_error;\n\taMem = p->aMem;\n\
-    \taOp = p->aOp;\n\tpOp = &aOp[-1];\n\tDISPATCH();"
+  inline_code: |-
+    /* jump */
+    	int rc = op_program_enter(p, pOp, aMem, aOp);
+    	if (rc < 0) DISPATCH();
+    	if (rc > 0) goto abort_due_to_error;
+    	aMem = p->aMem;
+    	aOp = p->aOp;
+    	pOp = &aOp[-1];
+    	DISPATCH();
+
 - name: OP_Sort
   id: 42
   handler_type: external_inline
@@ -975,6 +1239,7 @@
   - IN1
   - JUMP
   doc: Sort records
+
 - name: OP_SorterSort
   id: 41
   handler_type: inline
@@ -982,8 +1247,17 @@
   - IN1
   - JUMP
   doc: Sort sorter
-  inline_code: "/* jump */\n#ifdef SQL_TEST\n\tsql_sort_count++;\n\tsql_search_count--;\n#endif\n\t/* Fall through into OP_Rewind\
-    \ */\n#ifndef SQL_USE_GOTO\n\tFALLTHROUGH;\n#endif /* SQL_USE_GOTO */"
+  inline_code: |-
+    /* jump */
+    #ifdef SQL_TEST
+    	sql_sort_count++;
+    	sql_search_count--;
+    #endif
+    	/* Fall through into OP_Rewind */
+    #ifndef SQL_USE_GOTO
+    	FALLTHROUGH;
+    #endif /* SQL_USE_GOTO */
+
 - name: OP_ShiftLeft
   id: 22
   handler_type: external_inline
@@ -992,6 +1266,7 @@
   - IN2
   - OUT3
   doc: Bitwise left shift
+
 - name: OP_ShiftRight
   id: 23
   handler_type: external_inline
