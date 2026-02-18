@@ -40,7 +40,8 @@ FLAG_BITS = {
 # Handler types and their dispatch strategy
 HANDLER_TYPES = {
     'external': 'Call external handler function',
-    'inline': 'Inline opcode implementation',
+    'external_inline': 'Call extracted _inline handler function',
+    'inline': 'Inline opcode implementation (dispatcher-state-touching)',
     'fallthrough': 'Shared fallthrough case (no break)',
     'control_flow': 'Control flow operation (deferred to Phase 6)',
 }
@@ -182,6 +183,13 @@ def gen_dispatch_c_goto(opcodes, header_name='vdbe_opcodes_generated.h'):
             lines.append('        /* For comparison ops, jump to P2 */')
             lines.append('        JUMP_P2();')
             lines.append('    }')
+        elif handler_type == 'external_inline':
+            lines.append('    int handler_rc = vdbe_op_%s_inline(p, pOp, aMem);' % handler_name)
+            lines.append('    if (handler_rc < 0)')
+            lines.append('        goto abort_due_to_error;')
+            lines.append('    if (handler_rc == 1) {')
+            lines.append('        JUMP_P2();')
+            lines.append('    }')
         elif handler_type == 'inline':
             inline_code = op.get('inline_code', '')
             if inline_code:
@@ -224,6 +232,13 @@ def gen_dispatch_c_switch(opcodes, header_name='vdbe_opcodes_generated.h'):
             lines.append('            goto done_returning_row;')
             lines.append('        goto jump_to_p2;')
             lines.append('    }')
+            lines.append('    break;')
+        elif handler_type == 'external_inline':
+            lines.append('    int handler_rc = vdbe_op_%s_inline(p, pOp, aMem);' % handler_name)
+            lines.append('    if (handler_rc < 0)')
+            lines.append('        goto abort_due_to_error;')
+            lines.append('    if (handler_rc == 1)')
+            lines.append('        goto jump_to_p2;')
             lines.append('    break;')
         elif handler_type == 'inline':
             inline_code = op.get('inline_code', '')

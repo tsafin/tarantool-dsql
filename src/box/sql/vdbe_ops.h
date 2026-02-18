@@ -162,6 +162,8 @@ int vdbe_op_loadanalysis_inline(Vdbe *p, Op *pOp, Mem *aMem);       /* LoadAnaly
 int vdbe_op_renametable_inline(Vdbe *p, Op *pOp, Mem *aMem);        /* RenameTable */
 /* Coroutine opcodes (Gosub/Return/Yield/InitCoroutine/EndCoroutine) are
  * implemented inline in vdbe_dispatch_wrapper.c - they need direct pc/aOp access.
- * OP_Program remains as fallback - too complex (VdbeFrame setup). */
+ * OP_Program is fully implemented in the generated dispatcher (142/142 opcodes).
+ * The JIT still marks OP_Program as JIT_MODE_UNSUPPORTED and falls back to the
+ * dispatcher, since JIT pre-bakes aOp/aMem offsets which OP_Program swaps out. */
 
 #endif /* SRC_BOX_SQL_VDBE_OPS_H */

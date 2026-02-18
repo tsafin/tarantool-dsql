@@ -109,14 +109,14 @@ When encountering an assertion failure:
 - [x] Add vdbe_jit.h includes to vdbe.c and vdbeaux.c
 
 **Generated Dispatcher Status (Feb 18, 2026)**:
-- Currently handles **141 of 142 opcodes (99.3%)** — only OP_Program remains as intentional fallback
+- Currently handles **141 of 142 opcodes (99.3%)** in JIT — only OP_Program remains as JIT fallback
 - Phase 5.8 (commit f8cd200b34): Added final 17 opcodes
   - Misc: ElseNotEq, ResetCount, FCopy, FetchByName, NextIdEphemeral, NextSystemSpaceId
   - Coroutines (inline in dispatcher): Gosub, Return, Yield, InitCoroutine, EndCoroutine
   - DDL: CreateForeignKey, CreateCheck, AddFuncDefault, CheckViewReferences, LoadAnalysis, RenameTable
 - Phase 5.9 unit verification (Feb 18, 2026): **45/45 tests pass, both dispatchers produce identical output**
   - Test file: `test_phase58.lua` in build root
-- OP_Program left as fallback (complex VdbeFrame sub-program execution, used only inside triggers)
+- OP_Program: JIT falls back to generated dispatcher (which now handles it fully, 142/142). JIT cannot inline it because JIT pre-bakes aOp/aMem pointer offsets — OP_Program swaps both out at runtime to execute a trigger sub-program.
 - Key behavioral notes:
   - CHECK/FK constraints defined in DDL but not enforced at SQL layer in this build
   - ANALYZE, CREATE/DROP SEQUENCE return `nil` result from `box.execute` (not an error)

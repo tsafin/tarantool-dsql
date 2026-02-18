@@ -23,7 +23,7 @@
  * are implemented inline in vdbe_dispatch_wrapper.c because they require
  * direct pc/aOp manipulation in the dispatcher loop.
  *
- * OP_Program (trigger sub-programs) remains as fallback to the original
+ * OP_Program (trigger sub-programs) is handled by the generated dispatcher;
  * dispatcher due to its VdbeFrame setup complexity.
  */
 

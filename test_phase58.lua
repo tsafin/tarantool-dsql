@@ -176,6 +176,110 @@ check("CREATE SEQUENCE ok", r ~= nil and e == nil, e, nil)
 r, e = exec("DROP SEQUENCE seq1")
 check("DROP SEQUENCE ok", r ~= nil and e == nil, e, nil)
 
+print("\n=== 14. OP_Program: trigger sub-programs ===")
+-- Clean up any leftovers
+pcall(box.execute, "DROP TRIGGER IF EXISTS trg_prog_before")
+pcall(box.execute, "DROP TRIGGER IF EXISTS trg_prog_after")
+pcall(box.execute, "DROP TABLE IF EXISTS t_trig_log")
+pcall(box.execute, "DROP TABLE IF EXISTS t_trig_main")
+
+r, e = exec("CREATE TABLE t_trig_main (id INT PRIMARY KEY, val TEXT)")
+check("prog: create t_trig_main", r ~= nil, e, nil)
+r, e = exec("CREATE TABLE t_trig_log (id INT PRIMARY KEY, msg TEXT)")
+check("prog: create t_trig_log", r ~= nil, e, nil)
+
+-- BEFORE INSERT: block rows where val = 'blocked' via RAISE(IGNORE)
+r, e = exec([[
+    CREATE TRIGGER trg_prog_before
+    BEFORE INSERT ON t_trig_main
+    FOR EACH ROW BEGIN
+        SELECT RAISE(IGNORE) WHERE NEW.val = 'blocked';
+    END
+]])
+check("prog: create before trigger", r ~= nil, e, nil)
+
+-- AFTER INSERT: log every successful insert
+r, e = exec([[
+    CREATE TRIGGER trg_prog_after
+    AFTER INSERT ON t_trig_main
+    FOR EACH ROW BEGIN
+        INSERT INTO t_trig_log VALUES (NEW.id, 'inserted:' || NEW.val);
+    END
+]])
+check("prog: create after trigger", r ~= nil, e, nil)
+
+-- Normal insert fires AFTER trigger
+r, e = exec("INSERT INTO t_trig_main VALUES (1, 'hello')")
+check("prog: insert row 1", r ~= nil, e, nil)
+r, e = exec("SELECT msg FROM t_trig_log WHERE id = 1")
+check("prog: after trigger logged row 1", r ~= nil and r.rows[1][1] == 'inserted:hello',
+      r and r.rows[1][1], 'inserted:hello')
+
+-- RAISE(IGNORE) blocks insert; AFTER trigger must NOT fire
+r, e = exec("INSERT INTO t_trig_main VALUES (2, 'blocked')")
+check("prog: blocked insert no error", r ~= nil, e, nil)
+r, e = exec("SELECT * FROM t_trig_main WHERE id = 2")
+check("prog: blocked row absent from main", r ~= nil and #r.rows == 0, r and #r.rows, 0)
+r, e = exec("SELECT COUNT(*) FROM t_trig_log")
+check("prog: log still has 1 row after RAISE(IGNORE)", r ~= nil and r.rows[1][1] == 1,
+      r and r.rows[1][1], 1)
+
+-- Multiple successful inserts all logged
+exec("INSERT INTO t_trig_main VALUES (3, 'world')")
+exec("INSERT INTO t_trig_main VALUES (4, 'foo')")
+r, e = exec("SELECT COUNT(*) FROM t_trig_log")
+check("prog: log has 3 rows after 3 successes", r ~= nil and r.rows[1][1] == 3,
+      r and r.rows[1][1], 3)
+r, e = exec("SELECT id FROM t_trig_main ORDER BY id")
+check("prog: main has ids 1,3,4 only",
+      r ~= nil and #r.rows == 3 and r.rows[1][1]==1 and r.rows[2][1]==3 and r.rows[3][1]==4,
+      r and table.concat({r.rows[1] and r.rows[1][1], r.rows[2] and r.rows[2][1],
+                           r.rows[3] and r.rows[3][1]}, ','), '1,3,4')
+
+print("\n=== 15. OP_IfPos: LIMIT / OFFSET ===")
+-- OP_IfPos drives LIMIT/OFFSET; was silently no-op in control_flow mode
+pcall(box.execute, "DROP TABLE IF EXISTS t_lim")
+r, e = exec("CREATE TABLE t_lim (id INT PRIMARY KEY, v INT)")
+check("lim: create table", r ~= nil, e, nil)
+for i = 1, 10 do exec("INSERT INTO t_lim VALUES ("..i..", "..(i*10)..")") end
+
+-- OFFSET 2 skips id 1,2 (v=10,20); LIMIT 3 gives v=30,40,50
+r, e = exec("SELECT v FROM t_lim ORDER BY id LIMIT 3 OFFSET 2")
+check("lim: row count = 3", r ~= nil and #r.rows == 3, r and #r.rows, 3)
+check("lim: first row v=30", r ~= nil and r.rows[1][1] == 30, r and r.rows[1][1], 30)
+check("lim: last  row v=50", r ~= nil and r.rows[3][1] == 50, r and r.rows[3][1], 50)
+
+-- LIMIT without OFFSET
+r, e = exec("SELECT v FROM t_lim ORDER BY id LIMIT 2")
+check("lim: LIMIT 2 count", r ~= nil and #r.rows == 2, r and #r.rows, 2)
+check("lim: LIMIT 2 first v=10", r ~= nil and r.rows[1][1] == 10, r and r.rows[1][1], 10)
+
+-- OFFSET past end → empty
+r, e = exec("SELECT v FROM t_lim ORDER BY id LIMIT 5 OFFSET 100")
+check("lim: OFFSET past end = 0 rows", r ~= nil and #r.rows == 0, r and #r.rows, 0)
+
+print("\n=== 16. OP_Once / OP_DecrJumpZero: DISTINCT ===")
+-- OP_Once initialises the DISTINCT sorter exactly once per query
+-- OP_DecrJumpZero drives the loop counter
+pcall(box.execute, "DROP TABLE IF EXISTS t_dist")
+r, e = exec("CREATE TABLE t_dist (id INT PRIMARY KEY, grp INT)")
+check("dist: create table", r ~= nil, e, nil)
+-- Insert duplicates: ids 1..6, grp repeats 1,2,3,1,2,3
+for i, g in ipairs({1,2,3,1,2,3}) do
+    exec("INSERT INTO t_dist VALUES ("..i..", "..g..")")
+end
+
+r, e = exec("SELECT DISTINCT grp FROM t_dist ORDER BY grp")
+check("dist: 3 distinct groups", r ~= nil and #r.rows == 3, r and #r.rows, 3)
+check("dist: grp[1]=1", r ~= nil and r.rows[1][1] == 1, r and r.rows[1][1], 1)
+check("dist: grp[2]=2", r ~= nil and r.rows[2][1] == 2, r and r.rows[2][1], 2)
+check("dist: grp[3]=3", r ~= nil and r.rows[3][1] == 3, r and r.rows[3][1], 3)
+
+-- DISTINCT with LIMIT
+r, e = exec("SELECT DISTINCT grp FROM t_dist ORDER BY grp LIMIT 2")
+check("dist: DISTINCT+LIMIT 2 rows", r ~= nil and #r.rows == 2, r and #r.rows, 2)
+check("dist: DISTINCT+LIMIT last=2", r ~= nil and r.rows[2][1] == 2, r and r.rows[2][1], 2)
+
 print(string.format("\n=== Summary: PASSED=%d  FAILED=%d  TOTAL=%d ===",
       ok_count, fail_count, ok_count + fail_count))
 if fail_count > 0 then
