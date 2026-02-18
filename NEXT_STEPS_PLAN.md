@@ -1,21 +1,41 @@
-# VDBE Refactoring - Next Steps Plan (Feb 18, 2026)
+# VDBE Refactoring - Next Steps Plan
 
 **Created**: February 18, 2026
-**Updated**: February 18, 2026 (Phase 5.8 + 5.9 verification complete)
-**Coverage**: 141/142 opcodes (99.3%) — only OP_Program remains as intentional fallback
-**Status**: Ready for Phase 5.10 (full Tarantool SQL test suite regression run)
+**Updated**: February 19, 2026
+**Interpreter dispatcher coverage**: 142/142 opcodes (100%) — generated, not yet default
+**JIT coverage**: 141/142 opcodes — OP_Program falls back to generated dispatcher
+**Test suite**: 70/70 tests pass (`test_phase58.lua`)
+**Status**: Generated dispatcher validated; next is activating it as default
+
+---
+
+## Architecture Clarification (Feb 19, 2026)
+
+There are **two independent tracks**:
+
+### Track 1: DSL-based Generated Threaded Interpreter
+- Input: `tools/vdbe_dsl/opcodes.yaml` + `tools/vdbe_codegen.py`
+- Output: `src/box/sql/generated/vdbe_dispatch_generated.c` + `vdbe_opcodes_generated.h`
+- Build: `make vdbe_codegen` (CMake target with proper dependency tracking)
+- **This is a conventional threaded/switch interpreter dispatcher, NOT a JIT**
+- Status: 142/142 opcodes, NOT yet the default execution path
+
+### Track 2: LLVM JIT (`vdbe_jit.c`)
+- Compiles VDBE programs to native code at prepare time using LLVM OrcJIT
+- Completely separate from the interpreter dispatcher
+- Status: Incomplete
 
 ---
 
 ## Executive Summary
 
-The VDBE refactoring project has achieved **99.3% dispatcher coverage (141/142 opcodes)**.
-Phases 5.1–5.8 are complete. Phase 5.9 unit verification passed 45/45 tests across both
-dispatchers with identical output. The only remaining fallback opcode is OP_Program (trigger
-sub-program execution — intentionally deferred due to complexity).
+The generated threaded interpreter dispatcher now covers **142/142 opcodes (100%)**.
+The `external_inline` handler type was added to `vdbe_codegen.py` (Feb 19, 2026).
+70/70 unit tests pass. The generated dispatcher is fully validated but **not yet the
+default execution path** — `VDBE_USE_GENERATED_DISPATCH` in `vdbe_dispatch.h` is
+still commented out and the old inline dispatcher in `vdbe.c` remains primary.
 
-**Immediate Action**: Phase 5.10 — run the full Tarantool SQL regression test suite with
-`VDBE_DISPATCHER=generated` and compare against `VDBE_DISPATCHER=original`.
+**Immediate Action**: Activate generated dispatcher as default, run regression tests.
 
 ---
 
@@ -115,11 +135,11 @@ The 37 inline handler functions cover far more than the 12 documented.
 
 ---
 
-### Phase 5.9: Unit Opcode Verification — ✅ DONE (Feb 18, 2026)
+### Phase 5.9: Unit Opcode Verification — ✅ DONE (updated Feb 19, 2026)
 
-**Result**: 45/45 tests pass, both dispatchers produce **identical output**.
+**Result**: 70/70 tests pass (45 original + 25 added Feb 19).
 
-**Test file**: `test_phase58.lua` — covers all 17 newly-added Phase 5.8 opcodes:
+**Test file**: `test_phase58.lua` — covers Phase 5.8 opcodes plus new sections:
 - Gosub/Return: GROUP BY sort subroutine
 - InitCoroutine/Yield/EndCoroutine: UNION ALL + INSERT…SELECT
 - ElseNotEq: DISTINCT ORDER BY
@@ -133,56 +153,72 @@ The 37 inline handler functions cover far more than the 12 documented.
 - LoadAnalysis: ANALYZE (no-op stub)
 - NextSystemSpaceId: CREATE SEQUENCE
 
-**Also verified**: Behavioral notes recorded —
+**Added Feb 19** (sections 14–16 in test_phase58.lua):
+- Section 14: OP_Program — trigger sub-programs, RAISE(IGNORE), AFTER trigger logging
+- Section 15: OP_IfPos — LIMIT/OFFSET handling
+- Section 16: OP_Once/OP_DecrJumpZero — DISTINCT queries
+
+**Also verified**: Behavioral notes —
 - CHECK/FK constraints defined but not enforced at SQL layer (silent insert succeeds)
 - ANALYZE returns `nil` result (not an error) — DDL-style statement
 - CREATE/DROP SEQUENCE returns `nil` result (same)
 
 ---
 
-### Phase 5.10: Full Tarantool SQL Test Suite — ⬜ NEXT
-**Duration**: 2-3 days
-**Goal**: Verify generated dispatcher passes all existing SQL regression tests
+### Phase 5.9b: DSL Cleanup — ✅ DONE (Feb 19, 2026)
+
+- Added `external_inline` handler type to `vdbe_codegen.py`
+  - Calls `vdbe_op_<name>_inline(p, pOp, aMem)`, handles rc: <0=error, 1=jump P2, 0=continue
+  - Both goto and switch dispatch paths updated
+- Removed accidentally committed `tools/vdbe_dsl/opcodes.yaml.bak` (commit f0c808daac)
+- Added `*.bak` to `.gitignore`
+- Regenerated `vdbe_dispatch_generated.c` + `vdbe_opcodes_generated.h`
+- Build verified clean, 70/70 tests pass
+
+---
+
+### Phase 5.10: Activate Generated Dispatcher as Default — ⬜ NEXT (interpreter track)
+**Duration**: 1-2 days
+**Goal**: Make generated dispatcher the primary execution path
 
 **Tasks**:
-1. Run Tarantool SQL test suite with `VDBE_DISPATCHER=original` (baseline)
-2. Run same suite with `VDBE_DISPATCHER=generated`
-3. Use `VDBE_DISPATCHER=parallel` for any differences
-4. Fix any handler bugs found
-5. Performance benchmark: target <2% regression
+1. Enable `VDBE_USE_GENERATED_DISPATCH` in `src/box/sql/vdbe_dispatch.h`
+2. Build with `make tarantool`, verify 70/70 tests still pass
+3. Run Tarantool SQL test suite as regression baseline
+4. Fix any failures (use `VDBE_DISPATCHER=parallel` for per-opcode diff)
+5. Benchmark on TPC-H queries (requires Release build: `-O2`/`-O3`)
 
 ---
 
-### Phase 5.11: Cutover Decision
+### Phase 5.11: Clean Up Remaining `inline` Stubs
+**Duration**: 1-2 days
+**Goal**: Remove raw `inline_code` blobs from opcodes.yaml
+
+9 opcodes still use `handler_type: inline`:
+OP_OffsetLimit, OP_SetSession, OP_ShowCreateTable, OP_SorterSort, OP_Program,
+OP_Compare, OP_Permutation, OP_TTransaction, OP_IteratorOpen/OP_SorterOpen.
+Extract each to a `_inline` C handler, switch to `external_inline`.
+
+---
+
+### Phase 5.12: Remove Old Dispatcher from vdbe.c
 **Duration**: 1 day
-**Goal**: Decide whether to make generated dispatcher default
-
-**Decision criteria**:
-- 100% test pass rate with generated dispatcher → proceed to cutover
-- <2% performance regression → proceed to cutover
-- If any criteria fail → fix and re-test
-
----
-
-### Phase 5.12: Cleanup (after cutover)
-- Remove old inline dispatcher from vdbe.c
-- Archive/remove code generator shell scripts
-- Finalize documentation
+**Goal**: Delete the large inline switch/goto block in vdbe.c
+Only safe after generated dispatcher is default and regression tests pass.
 
 ---
 
 ## Parallel Investigation Threads
 
-### Thread A: Full Regression Testing
-**Priority**: HIGH (validates dispatcher correctness)
-**Status**: Unblocked — Phase 5.8 + 5.9 complete, all unit tests pass
+### Thread A: Activate + Regression Testing
+**Priority**: HIGH
+**Status**: Unblocked — 142/142 opcodes, 70/70 unit tests pass
 
 **Steps**:
-1. Run full SQL test suite with `VDBE_DISPATCHER=original` to collect baseline pass/fail counts
-2. Run same suite with `VDBE_DISPATCHER=generated`
-3. Run with `VDBE_DISPATCHER=parallel` to get per-opcode diff on any failures
-4. For each failure: trace to specific opcode, fix handler, re-test
-5. Document pass rates in test report
+1. Enable `VDBE_USE_GENERATED_DISPATCH` in `vdbe_dispatch.h`
+2. Run full SQL test suite with generated dispatcher as default
+3. Use `VDBE_DISPATCHER=parallel` to isolate any per-opcode diffs
+4. Fix failures, then benchmark (Release build required)
 
 **Expected Completion**: 1-2 days
 
@@ -240,89 +276,74 @@ confirm which of the 18 to prioritize vs. leave as fallback.
 - [ ] No assertion failures or memory issues
 
 ### Full Project Success (Phase 5.11+)
-- [ ] 141/142 opcodes handled (done — pending cutover decision)
-- [ ] <2% performance regression
+- [x] 142/142 opcodes handled (done)
+- [ ] Generated dispatcher is default execution path
+- [ ] <2% performance regression (measured on Release build)
 - [ ] Full test suite passing
-- [ ] All P2-branching patterns verified
-- [ ] Documentation complete for future developers
+- [ ] Old dispatcher removed from vdbe.c
 
 ---
 
 ## Risk Assessment
 
-### Medium Risk - Monitor
-1. **Coroutine opcodes** - OP_Gosub/Return/Yield require PC manipulation through handler return path
-   - Mitigation: Design handler to update `pc` struct field; test with triggers/views
-   - Impact: Generated dispatcher reliability
-
-2. **DDL opcodes** - OP_RenameTable, OP_LoadAnalysis may require significant refactoring
-   - Mitigation: Implement or accept fallback depending on test failures
-   - Impact: May remain at 97% rather than 100%
-
-### Low Risk - Expected and Planned
-1. **Incremental implementation** - Some opcodes deferred
-   - Mitigation: Hybrid fallback handles all opcodes
-   - Impact: Fallback overhead for rare opcodes
+### Low Risk - Monitor
+1. **Regression failures** — generated dispatcher may expose subtle behavior differences
+   vs old dispatcher on edge-case SQL; use `VDBE_DISPATCHER=parallel` to isolate
+2. **OP_Program inline stubs** — complex VdbeFrame setup; safe to leave as `inline` in DSL
+   since it works correctly via `op_program_enter()`; extract to `_inline` handler later
 
 ---
 
-## Timeline Estimate (Updated Feb 18, 2026)
+## Timeline Estimate (Updated Feb 19, 2026)
 
 | Phase | Duration | Status | Expected Completion |
 |-------|----------|--------|---------------------|
 | 5.8 (17 remaining opcodes) | — | ✅ Done | Feb 18 |
-| 5.9 (Unit opcode verification) | — | ✅ Done | Feb 18 |
-| 5.10 (Full SQL test suite) | 2-3 days | ⬜ Next | Feb 20-21 |
-| 5.11 (Cutover Decision) | 1 day | ⬜ | Feb 22 |
-| 5.12 (Cleanup) | 1-2 days | ⬜ | Feb 23-24 |
-| **Total remaining** | **~4-6 days** | | **~Feb 24** |
+| 5.9 (Unit verification, 45→70 tests) | — | ✅ Done | Feb 19 |
+| 5.9b (DSL cleanup, external_inline) | — | ✅ Done | Feb 19 |
+| 5.10 (Activate as default + regress) | 1-2 days | ⬜ Next | Feb 20-21 |
+| 5.11 (Clean up inline stubs) | 1-2 days | ⬜ | Feb 22-23 |
+| 5.12 (Remove old dispatcher) | 1 day | ⬜ | Feb 24 |
+| **Total remaining** | **~3-5 days** | | **~Feb 24** |
 
 **Critical Path**: Full SQL regression suite → fix any failures → cutover decision → cleanup
 
 ---
 
-## Long-term Strategy (Phase 5.10+)
+## Long-term Strategy
 
-### Phase 5.10: Cutover Decision
-- Decision: Make generated dispatcher default? Retire old dispatcher?
-- Depends on Phase 5.9 results
-- If 100% test pass + <2% regression: Go ahead
-- If issues remain: Continue with hybrid mode
-
-### Phase 5.11: Cleanup
+### After Phase 5.10 (generated dispatcher active by default)
 - Remove old inline dispatcher from vdbe.c
-- Delete shell script generators
-- Finalize documentation
-- Archive code generator outputs
+- Extract remaining `inline` stubs to `_inline` C handlers
+- Clean up `vdbe_dispatch_wrapper.c` scaffolding
 
-### Phase 5.12+: Optimization
-- Profile generated dispatcher
-- Optimize hot paths (likely comparison opcodes)
-- Consider computed-goto for switch-based handlers
-- Add performance benchmarking to test suite
+### Benchmarking (requires Release build)
+- Rebuild with `CMAKE_BUILD_TYPE=Release`
+- Compare generated dispatcher vs old dispatcher on TPC-H queries
+- Compare LLVM JIT vs generated dispatcher on TPC-H queries
 
 ---
 
-## Documentation to Create
+## Documentation
 
-### Required
-1. PHASE_5_8_SESSION_SUMMARY.md - After implementing remaining 18 opcodes
-2. TEST_SUITE_VALIDATION_REPORT.md - After Phase 5.9
+### Already done
+- `DISPATCHER_STATUS.md` — opcode-by-opcode tracking
+- `CLAUDE.md` — two-track architecture, build notes, remaining work
+- `test_phase58.lua` — 70-test regression suite
 
-### Optional (Reference)
-1. PERFORMANCE_PROFILING.md - Benchmark results after cutover
-2. HYBRID_DISPATCHER_EVALUATION.md - When ready to decide on Phase 5.10 cutover
+### Optional future
+- `PERFORMANCE_PROFILING.md` — benchmark results after Release build
 
 ---
 
 ## Immediate Next Steps
 
-### Must Do (Phase 5.10 — full SQL test suite):
-1. [ ] Locate test runner: `test/sql/` directory + `test-run.py`
-2. [ ] Run `VDBE_DISPATCHER=original ./test-run.py suite/sql` → capture baseline
-3. [ ] Run `VDBE_DISPATCHER=generated ./test-run.py suite/sql` → compare
+### Must Do (Phase 5.10 — activate generated dispatcher):
+1. [ ] Enable `VDBE_USE_GENERATED_DISPATCH` in `src/box/sql/vdbe_dispatch.h`
+2. [ ] Build with `make tarantool`, verify 70/70 tests still pass
+3. [ ] Run Tarantool SQL test suite (test/sql/ + test-run.py) as regression baseline
 4. [ ] Fix any failures (use `VDBE_DISPATCHER=parallel` for per-opcode diff)
-5. [ ] Run performance benchmark (TPC-H queries or similar)
+5. [ ] Benchmark generated vs old dispatcher on TPC-H queries (need Release build)
 
 ### Should Do:
 1. [ ] `VDBE_DISPATCHER=parallel` smoke-run on the tpch benchmark queries
@@ -344,18 +365,18 @@ confirm which of the 18 to prioritize vs. leave as fallback.
 
 ## Conclusion
 
-The VDBE refactoring project has reached **87.3% coverage (124/142 opcodes)** with solid architectural foundations. The next 7-10 days should focus on:
+The generated threaded interpreter dispatcher covers **142/142 opcodes (100%)**, with 70/70 unit tests passing. The remaining work is:
 
-1. **Run full Tarantool SQL regression suite** (Phase 5.10) — start immediately
-2. **Cutover decision** after validation (Phase 5.11)
-3. **Cleanup and optimization** once dispatcher is default (Phase 5.12+)
+1. **Activate generated dispatcher as default** (Phase 5.10) — flip the switch, run regression tests
+2. **Clean up inline stubs** in opcodes.yaml (Phase 5.11) — extract to `_inline` C handlers
+3. **Remove old dispatcher from vdbe.c** (Phase 5.12) — after default switch stable
+4. **Benchmark** — requires Release build (`-O2`/`-O3`); current Debug build is not meaningful
 
-The project has achieved 99.3% coverage (141/142). The remaining work is validation and
-cutover — no more implementation needed unless the full test suite surfaces OP_Program failures.
+Note: LLVM JIT (Track 2) is a separate track — benchmarking it also requires Release build.
 
 ---
 
-**Created**: 2026-02-18  
-**Updated**: 2026-02-18 (Phase 5.8 + Phase 5.9 unit verification complete; 141/142 opcodes)  
-**Next Review**: After Phase 5.10 full test suite run (Feb 21)  
-**Success Criteria**: Full Tarantool SQL test suite passes 100% with generated dispatcher
+**Created**: 2026-02-18
+**Updated**: 2026-02-19 (142/142 opcodes, 70/70 tests, external_inline type added, .bak removed)
+**Next Review**: After Phase 5.10 activation + regression run
+**Success Criteria**: Full Tarantool SQL test suite passes 100% with generated dispatcher as default

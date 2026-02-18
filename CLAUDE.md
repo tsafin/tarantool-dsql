@@ -45,9 +45,64 @@ When encountering an assertion failure:
    - Don't assume the assertion location is the root cause - it's usually a symptom
    - Example: assertion in OP_NoConflict handler may actually be caused by uninitialized registers in OP_MakeRecord from bad bytecode generation
 
-## SQL JIT Implementation (Feb 5, 2026)
+## VS Code Terminal Notes
 
-### CMake Build System
+- VS Code sets `GIT_PAGER=cat` in its integrated terminal, overriding `core.pager`
+- Environment variables take precedence over all git config settings for pager
+- To restore paging in VS Code terminal: `unset GIT_PAGER` (or add to ~/.bashrc)
+
+## VDBE Work: Two Independent Tracks
+
+### Track 1: Generated Threaded Interpreter Dispatcher (DSL-based)
+
+This track is about generating the opcode dispatch loop from a YAML DSL
+(`tools/vdbe_dsl/opcodes.yaml`) using `tools/vdbe_codegen.py`. The generator
+produces `src/box/sql/generated/vdbe_dispatch_generated.c` and
+`src/box/sql/generated/vdbe_opcodes_generated.h`.
+
+**This is NOT the JIT.** It produces a conventional threaded/switch interpreter.
+
+#### DSL Build Target
+- Use `make vdbe_codegen` (NOT `python3 tools/vdbe_codegen.py ...` directly)
+- CMake target defined in `src/box/CMakeLists.txt` with proper DEPENDS on:
+  - `tools/vdbe_dsl/opcodes.yaml`
+  - `tools/vdbe_codegen.py`
+  - `src/box/sql/opcodes.h` (for opcode ID sync)
+- Touching opcodes.yaml triggers automatic regeneration on next build
+
+#### Handler Types in DSL
+- `external`: call external handler function (returns rc)
+- `external_inline`: call `vdbe_op_<name>_inline(p, pOp, aMem)` — rc<0 = error, rc=1 = jump P2, rc=0 = continue
+- `inline`: embed dispatcher-state-touching code directly (uses `aOp`, `pc` etc.)
+- `fallthrough`: shared fallthrough case, no break
+- `control_flow`: deferred to future phase
+
+#### Current Status (Feb 19, 2026)
+- **142/142 opcodes** covered in the generated dispatcher (100%)
+- **70/70 tests pass** (`test_phase58.lua` in build root)
+- Generated dispatcher is built and validated but **NOT yet the default execution path**
+  - `VDBE_USE_GENERATED_DISPATCH` in `vdbe_dispatch.h` is still commented out
+  - Old inline dispatcher in `vdbe.c` remains primary
+  - Runtime switching via `VDBE_DISPATCHER` env var: `old|generated|parallel|auto`
+- opcodes.yaml.bak was accidentally committed in fc4ed97ef6, removed in f0c808daac
+
+#### Remaining Work (Interpreter Track)
+1. **Activate generated dispatcher as default** — flip `VDBE_USE_GENERATED_DISPATCH` on
+2. **Clean up `inline` stubs** — 9 opcodes still have partial `inline_code` blobs:
+   OP_OffsetLimit, OP_SetSession, OP_ShowCreateTable, OP_SorterSort, OP_Program,
+   OP_Compare, OP_Permutation, OP_TTransaction, OP_IteratorOpen, OP_SorterOpen etc.
+   Extract to proper `_inline` C handlers, switch to `external_inline`
+3. **Remove old dispatcher from vdbe.c** after default switch is stable
+4. **Benchmark** generated vs old dispatcher on TPC-H queries
+
+---
+
+### Track 2: LLVM JIT (vdbe_jit.c)
+
+Compiles VDBE programs to native code at prepare time using LLVM OrcJIT.
+Completely separate from the interpreter dispatcher above.
+
+#### CMake Build System
 
 - Added `ENABLE_SQL_JIT` option in main CMakeLists.txt (default: OFF)
 - When enabled, requires LLVM 11+ (12+ recommended) with OrcJIT components
@@ -56,7 +111,7 @@ When encountering an assertion failure:
 - Build requires: LLVM development packages (llvm-11-dev or higher on Debian/Ubuntu)
 - Fixed compiler compatibility: gnu-alignof-expression warning now only for Clang
 
-### Implementation Status
+#### Implementation Status
 
 **Step 1 - COMPLETED**: Capture handler IR at build time
 - [x] CMake option ENABLE_SQL_JIT added
@@ -64,7 +119,7 @@ When encountering an assertion failure:
 - [x] Bitcode generation commands for 8 handler files
 - [x] Installation rules for .bc files
 
-**Step 2 - COMPLETED**: Add JIT compiler infrastructure  
+**Step 2 - COMPLETED**: Add JIT compiler infrastructure
 - [x] Created src/box/sql/vdbe_jit.c with LLVM C API wrappers
 - [x] Created src/box/sql/vdbe_jit.h with public API declarations
 - [x] Added JIT fields to struct Vdbe: jit_func, jit_module, jit_compiled (int types for C compatibility)
@@ -73,52 +128,31 @@ When encountering an assertion failure:
 - [x] Successfully built with ENABLE_SQL_JIT=ON using LLVM 11
 
 **Step 3 - COMPLETED**: Generate JIT function by linking handler IR
-- [x] Phase 1: Basic JIT compilation infrastructure
-  - Created LLVM module and function for each VDBE program
-  - Implemented JIT function signature: int(struct Vdbe *, int start_pc)
-  - Added module verification and compilation to native code
-  - Minimal implementation returns -1 (execution complete) for testing
-- [x] Phase 2: Opcode analysis and classification (jitable/callable/unsupported)
-  - Opcode classification table (JIT_MODE_INLINE/CALL/UNSUPPORTED)
-  - Opcode handler name mapping table
-  - Scan program to decide if JIT compilation is worthwhile
-- [x] Phase 3: Load and link handler bitcode modules
-  - Clone and link all handler .bc modules into JIT module
-  - Handler functions available by name for call generation
-- [x] Phase 4: Compute actual pOp and aMem pointers for handler calls
-  - Use offsetof(struct Vdbe, aOp/aMem) and sizeof(Op) constants
-  - LLVM GEP/Load to compute &p->aOp[i] and p->aMem at runtime
-  - Pass actual pointers to handler functions instead of NULL
-- [x] Phase 5: Apply LLVM optimization passes
-  - Per-function passes: mem2reg, instcombine, reassociate, GVN, CFG simplification
-  - Module-level passes: function inlining, global DCE, instcombine, CFG simplification
-  - Added LLVM components: Analysis, BitReader, Linker, ScalarOpts, InstCombine, TransformUtils, IPO, MCJIT
+- [x] Phase 1-5: Basic infra, opcode classification, bitcode linking, pointer computation, LLVM optimization passes
 - [x] Fixed CMake: moved LLVM setup before add_subdirectory(src) so LLVM_LIBS is available at link time
 
 **Step 4 - COMPLETED**: Integrate JIT into VDBE execution loop
-- [x] Call vdbe_jit_compile() in sqlVdbeMakeReady() at PREPARE time
-  - Compilation happens once per prepared statement
-  - Failure is non-fatal; interpreter used as fallback
-- [x] Invoke JIT function in sqlVdbeExec() before dispatcher
-  - JIT executes from p->pc until unsupported opcode
-  - Returns PC of unsupported opcode for interpreter continuation
-  - Returns -1 if all opcodes handled (returns SQL_DONE)
+- [x] Call vdbe_jit_compile() in sqlVdbeMakeReady() at PREPARE time (failure non-fatal)
+- [x] Invoke JIT function in sqlVdbeExec() before dispatcher; returns PC of unsupported opcode
 - [x] Clean up JIT resources in sqlVdbeClearObject()
-  - Called when VDBE is finalized
 - [x] Mark OP_ResultRow as UNSUPPORTED (requires special SQL_ROW return handling)
-- [x] Add vdbe_jit.h includes to vdbe.c and vdbeaux.c
 
-**Generated Dispatcher Status (Feb 18, 2026)**:
-- Currently handles **141 of 142 opcodes (99.3%)** in JIT — only OP_Program remains as JIT fallback
-- Phase 5.8 (commit f8cd200b34): Added final 17 opcodes
-  - Misc: ElseNotEq, ResetCount, FCopy, FetchByName, NextIdEphemeral, NextSystemSpaceId
-  - Coroutines (inline in dispatcher): Gosub, Return, Yield, InitCoroutine, EndCoroutine
-  - DDL: CreateForeignKey, CreateCheck, AddFuncDefault, CheckViewReferences, LoadAnalysis, RenameTable
-- Phase 5.9 unit verification (Feb 18, 2026): **45/45 tests pass, both dispatchers produce identical output**
-  - Test file: `test_phase58.lua` in build root
-- OP_Program: JIT falls back to generated dispatcher (which now handles it fully, 142/142). JIT cannot inline it because JIT pre-bakes aOp/aMem pointer offsets — OP_Program swaps both out at runtime to execute a trigger sub-program.
-- Key behavioral notes:
-  - CHECK/FK constraints defined in DDL but not enforced at SQL layer in this build
-  - ANALYZE, CREATE/DROP SEQUENCE return `nil` result from `box.execute` (not an error)
-  - `./src/tarantool - << EOF` stdin/heredoc mode unreliable — always use file-based `.lua` scripts
+#### JIT Dispatcher Coverage (Feb 19, 2026)
+- **141/142 opcodes** handled by JIT — OP_Program is JIT_MODE_UNSUPPORTED
+- OP_Program falls back to generated dispatcher (which handles it fully, 142/142)
+- JIT cannot inline OP_Program: JIT pre-bakes aOp/aMem pointer offsets at compile
+  time; OP_Program swaps both out at runtime for VdbeFrame sub-program execution
+- Phase 5.8 (commit f8cd200b34): Added final 17 opcodes including coroutines and DDL
+- Phase 5.9 (Feb 18, 2026): **45/45 tests pass**
+
+#### JIT Remaining Work
+1. **Benchmark** — real performance comparison requires Release build (`-O2`/`-O3`);
+   current build is Debug (`-O0`), meaningless for JIT vs interpreter comparison
+2. **OP_Program JIT support** — requires dynamic aOp/aMem tracking instead of
+   pre-baked offsets; significant vdbe_jit.c architectural change
+
+#### Key Behavioral Notes
+- CHECK/FK constraints defined in DDL but not enforced at SQL layer in this build
+- ANALYZE, CREATE/DROP SEQUENCE return `nil` result from `box.execute` (not an error)
+- `./src/tarantool - << EOF` stdin/heredoc mode unreliable — always use file-based `.lua` scripts
 - See `DISPATCHER_STATUS.md` for full opcode-by-opcode tracking
