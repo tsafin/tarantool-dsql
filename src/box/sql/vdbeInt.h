@@ -357,6 +357,7 @@ const char *sqlOpcodeName(int);
 int sqlVdbeCloseStatement(Vdbe *, int);
 void sqlVdbeFrameDelete(VdbeFrame *);
 int sqlVdbeFrameRestore(VdbeFrame *);
+int op_program_enter(Vdbe *p, Op *pOp, Mem *aMem, Op *aOp);
 
 /**
  * Initialize the temporary index cursor just opened as a sorter cursor.

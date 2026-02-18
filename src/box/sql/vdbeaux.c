@@ -1557,6 +1557,101 @@ sqlVdbeFrameRestore(VdbeFrame * pFrame)
 }
 
 /*
+ * Prepare frame state for OP_Program execution.
+ *
+ * Called from the OP_Program inline stub.  Performs all the heavy work:
+ * recursive-trigger guard, frame allocation/reuse, and frame push.
+ * After a successful return (0) the caller must refresh its loop-local
+ * aMem / aOp / pOp from p->aMem and p->aOp.
+ *
+ * Returns:
+ *   -1  skip – DISPATCH() immediately (recursive trigger suppressed or
+ *              ignoreRaised is set)
+ *    0  success – caller should update aMem/aOp/pOp then DISPATCH()
+ *    1  error   – diag is already set, goto abort_due_to_error
+ */
+int
+op_program_enter(Vdbe *p, Op *pOp, Mem *aMem, Op *aOp)
+{
+	SubProgram *pProgram = pOp->p4.pProgram;
+	Mem *pRt = &aMem[pOp->p3];
+	assert(pProgram->nOp > 0);
+
+	/* Recursive-trigger guard. */
+	if (pOp->p5) {
+		void *t = pProgram->token;
+		VdbeFrame *pFrame;
+		for (pFrame = p->pFrame;
+		     pFrame && pFrame->token != t;
+		     pFrame = pFrame->pParent)
+			;
+		if (pFrame)
+			return -1;
+	}
+
+	if (p->ignoreRaised > 0)
+		return -1;
+
+	if (p->nFrame >= SQL_MAX_TRIGGER_DEPTH) {
+		diag_set(ClientError, ER_SQL_EXECUTE,
+			 "too many levels of trigger recursion");
+		return 1;
+	}
+
+	VdbeFrame *pFrame;
+	if (!mem_is_frame(pRt)) {
+		int nMem = pProgram->nMem + pProgram->nCsr;
+		assert(nMem > 0);
+		if (pProgram->nCsr == 0)
+			nMem++;
+		int nByte = ROUND8(sizeof(VdbeFrame))
+			+ nMem * sizeof(Mem)
+			+ pProgram->nCsr * sizeof(VdbeCursor *);
+		pFrame = sql_xmalloc0(nByte);
+		mem_set_frame(pRt, pFrame);
+
+		pFrame->v         = p;
+		pFrame->nChildMem = nMem;
+		pFrame->nChildCsr = pProgram->nCsr;
+		pFrame->pc        = (int)(pOp - aOp);
+		pFrame->aMem      = p->aMem;
+		pFrame->nMem      = p->nMem;
+		pFrame->apCsr     = p->apCsr;
+		pFrame->nCursor   = p->nCursor;
+		pFrame->aOp       = p->aOp;
+		pFrame->nOp       = p->nOp;
+		pFrame->token     = pProgram->token;
+
+		Mem *pEnd = &VdbeFrameMem(pFrame)[pFrame->nChildMem];
+		for (Mem *pMem = VdbeFrameMem(pFrame); pMem != pEnd; pMem++) {
+			mem_create(pMem);
+			mem_set_invalid(pMem);
+		}
+	} else {
+		pFrame = pRt->u.pFrame;
+		assert(pProgram->nMem + pProgram->nCsr == pFrame->nChildMem ||
+		       (pProgram->nCsr == 0 &&
+			pProgram->nMem + 1 == pFrame->nChildMem));
+		assert(pProgram->nCsr == pFrame->nChildCsr);
+		assert((int)(pOp - aOp) == pFrame->pc);
+	}
+
+	p->nFrame++;
+	pFrame->pParent  = p->pFrame;
+	pFrame->nChange  = p->nChange;
+	pFrame->nDbChange = sql_get()->nChange;
+	p->nChange  = 0;
+	p->pFrame   = pFrame;
+	p->aMem     = VdbeFrameMem(pFrame);
+	p->nMem     = pFrame->nChildMem;
+	p->nCursor  = (u16)pFrame->nChildCsr;
+	p->apCsr    = (VdbeCursor **)&p->aMem[p->nMem];
+	p->aOp      = pProgram->aOp;
+	p->nOp      = pProgram->nOp;
+	return 0;
+}
+
+/*
  * Close top frame cursors.
  *
  */
