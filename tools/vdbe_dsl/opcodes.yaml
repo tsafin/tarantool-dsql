@@ -656,27 +656,10 @@
 
 - name: OP_SorterNext
   id: 1
-  handler_type: inline
+  handler_type: external
   flags:
   - JUMP
   doc: Sorter next row
-  inline_code: |-
-    /* jump */
-    	VdbeCursor *pC = p->apCsr[P1];
-    	assert(isSorter(pC));
-    	int res = 0;
-    	if (sqlVdbeSorterNext(pC, &res) != 0)
-    		goto abort_due_to_error;
-    	goto next_tail;
-
-    /* Opcode: PrevIfOpen P1 P2 P3 P4 P5
-     *
-     * This opcode works just like Prev except that if cursor P1 is not
-     * open it behaves a no-op.
-     */
-    EXECUTE(OP_PrevIfOpen,(P1,P2,P3,P4)):    /* jump */
-    	if (p->apCsr[P1] == 0) {
-    		DISPATCH();
 
 - name: OP_String8
   id: 48
@@ -693,42 +676,21 @@
 
 - name: OP_BuiltinFunction
   id: 66
-  handler_type: inline
+  handler_type: external
   flags:
   - IN1
   - IN2
   - OUT3
   doc: Call builtin function
-  inline_code: |-
-    int argc = P1;
-    	sql_context *pCtx;
-
-    	assert(pOp->p4type == P4_FUNCCTX);
-    	pCtx = pOp->p4.pCtx;
-
-    	pOut = vdbe_prepare_null_out(p, P3);
-    	if (pCtx->pOut != pOut)
-    		pCtx->pOut = pOut;
-
-    #ifdef SQL_DEBUG
-    	for(int i = 0; i < argc; i++) {
-    		assert(memIsValid(&aMem[P2 + i]));
-    		REGISTER_TRACE(p, P2 + i, &aMem[P2 + i]);
 
 - name: OP_FunctionByName
   id: 67
-  handler_type: inline
+  handler_type: external
   flags:
   - IN1
   - IN2
   - OUT3
   doc: Call function by name
-  inline_code: |-
-    assert(pOp->p4type == P4_DYNAMIC);
-    	struct func *func = func_by_name(pOp->p4.z, strlen(pOp->p4.z));
-    	if (unlikely(func == NULL)) {
-    		diag_set(ClientError, ER_NO_SUCH_FUNCTION, pOp->p4.z);
-    		goto abort_due_to_error;
 
 - name: OP_AddImm
   id: 68
@@ -762,43 +724,17 @@
 
 - name: OP_Permutation
   id: 73
-  handler_type: inline
+  handler_type: external_inline
   flags: []
   doc: Permutation
-  inline_code: |-
-    assert(pOp->p4type == P4_INTARRAY);
-    	assert(pOp->p4.ai);
-    	aPermute = pOp->p4.ai + 1;
-    	DISPATCH();
 
 - name: OP_Compare
   id: 74
-  handler_type: inline
+  handler_type: external
   flags:
   - IN1
   - IN2
   doc: Compare registers
-  inline_code: |-
-    if ((pOp->p5 & OPFLAG_PERMUTE) == 0)
-    		aPermute = 0;
-
-    	int n = P3;
-    	assert(pOp->p4type == P4_KEYINFO);
-    	assert(n > 0);
-    	int p1 = P1;
-    	int p2 = P2;
-
-    	struct key_def *def = sql_key_info_to_key_def(pOp->p4.key_info);
-    	if (def == NULL)
-    		goto abort_due_to_error;
-    #if SQL_DEBUG
-    	if (aPermute) {
-    		int mx = 0;
-    		for(uint32_t k = 0; k < (uint32_t)n; k++)
-    			if (aPermute[k] > mx)
-    				mx = aPermute[k];
-    		assert(p1>0 && p1+mx<=(p->nMem+1 - p->nCursor)+1);
-    		assert(p2>0 && p2+mx<=(p->nMem+1 - p->nCursor)+1);
 
 - name: OP_FetchByName
   id: 77
@@ -843,16 +779,9 @@
 
 - name: OP_DropTupleCheck
   id: 85
-  handler_type: inline
+  handler_type: external_inline
   flags: []
   doc: Drop tuple check
-  inline_code: |-
-    assert(P1 >= 0 && pOp->p4.z != NULL);
-    	if (sql_tuple_check_drop(P1, pOp->p4.z) != 0)
-    		goto abort_due_to_error;
-    	assert(p->nChange == 0);
-    	p->nChange = 1;
-    	DISPATCH();
 
 - name: OP_DropFieldForeignKey
   id: 86
@@ -899,28 +828,16 @@
 
 - name: OP_TTransaction
   id: 93
-  handler_type: inline
+  handler_type: external_inline
   flags: []
   doc: Tarantool transaction
-  inline_code: |-
-    if (!box_txn()) {
-    		if (txn_begin() == NULL)
-    			goto abort_due_to_error;
 
 - name: OP_IteratorOpen
   id: 94
-  handler_type: inline
+  handler_type: external
   flags:
   - IN3
   doc: Open iterator
-  inline_code: |-
-    struct VdbeCursor *cur = p->apCsr[P1];
-    	if (box_schema_version() != p->schema_ver &&
-    	    (pOp->p5 & OPFLAG_SYSTEMSP) == 0) {
-    		p->expired = 1;
-    		diag_set(ClientError, ER_SQL_EXECUTE, "schema version has "\
-    			 "changed: need to re-compile SQL statement");
-    		goto abort_due_to_error;
 
 - name: OP_OpenSpace
   id: 95
@@ -937,24 +854,9 @@
 
 - name: OP_SorterOpen
   id: 97
-  handler_type: inline
+  handler_type: external
   flags: []
   doc: Open sorter
-  inline_code: |-
-    VdbeCursor *pCx;
-
-    	assert(P1 >= 0);
-    	assert(P2 >= 0);
-    	struct key_def *def = sql_key_info_to_key_def(pOp->p4.key_info);
-    	if (def == NULL)
-    		goto abort_due_to_error;
-    	pCx = allocateCursor(p, P1, P2, CURTYPE_SORTER);
-    	if (pCx == NULL)
-    		goto abort_due_to_error;
-    	pCx->key_def = def;
-    	if (sqlVdbeSorterInit(pCx) != 0)
-    		goto abort_due_to_error;
-    	DISPATCH();
 
 - name: OP_SequenceTest
   id: 98
@@ -1017,46 +919,20 @@
 
 - name: OP_SorterCompare
   id: 110
-  handler_type: inline
+  handler_type: external
   flags:
   - IN1
   - IN3
   - JUMP
   doc: Sorter comparison
-  inline_code: |-
-    VdbeCursor *pC;
-    	int res;
-    	int nKeyCol;
-
-    	pC = p->apCsr[P1];
-    	assert(isSorter(pC));
-    	assert(pOp->p4type == P4_INT32);
-    	pIn3 = &aMem[P3];
-    	nKeyCol = pOp->p4.i;
-    	if (sqlVdbeSorterCompare(pC, pIn3, nKeyCol, &res) != 0)
-    		goto abort_due_to_error;
-    	if (res) JUMP_P2();
-    	DISPATCH();
 
 - name: OP_SorterData
   id: 111
-  handler_type: inline
+  handler_type: external
   flags:
   - IN1
   - OUT2
   doc: Get sorter data
-  inline_code: |-
-    VdbeCursor *pC;
-
-    	pOut = vdbe_prepare_null_out(p, P2);
-    	pC = p->apCsr[P1];
-    	assert(isSorter(pC));
-    	if (sqlVdbeSorterRowkey(pC, pOut) != 0)
-    		goto abort_due_to_error;
-    	assert(mem_is_bin(pOut));
-    	assert(P1 >= 0 && P1 < p->nCursor);
-    	p->apCsr[P3]->cacheStatus = CACHE_STALE;
-    	DISPATCH();
 
 - name: OP_NullRow
   id: 113
@@ -1067,22 +943,11 @@
 
 - name: OP_SorterInsert
   id: 114
-  handler_type: inline
+  handler_type: external
   flags:
   - IN1
   - IN2
   doc: Insert into sorter
-  inline_code: |-
-    /* in2 */
-    	assert(P1 >= 0 && P1 < p->nCursor);
-    	struct VdbeCursor *cursor = p->apCsr[P1];
-    	assert(cursor != NULL);
-    	assert(isSorter(cursor));
-    	pIn2 = &aMem[P2];
-    	assert(mem_is_bin(pIn2));
-    	if (sqlVdbeSorterWrite(cursor, pIn2) != 0)
-    		goto abort_due_to_error;
-    	DISPATCH();
 
 - name: OP_Clear
   id: 126
@@ -1119,27 +984,12 @@
 
 - name: OP_OffsetLimit
   id: 131
-  handler_type: inline
+  handler_type: external
   flags:
   - IN1
   - IN3
   - OUT2
   doc: Calculate offset limit
-  inline_code: |-
-    /* in1, out2, in3 */
-    	pIn1 = &aMem[P1];
-    	pIn3 = &aMem[P3];
-    	pOut = vdbe_prepare_null_out(p, P2);
-
-    	assert(mem_is_uint(pIn1));
-    	assert(mem_is_uint(pIn3));
-    	uint64_t x = pIn1->u.u;
-    	uint64_t rhs = pIn3->u.u;
-    	bool unused;
-    	if (sql_add_int(x, false, rhs, false, (int64_t *) &x, &unused) != 0) {
-    		diag_set(ClientError, ER_SQL_EXECUTE, "sum of LIMIT and OFFSET "
-    			"values should not result in integer overflow");
-    		goto abort_due_to_error;
 
 - name: OP_Expire
   id: 134
@@ -1157,29 +1007,17 @@
 
 - name: OP_SetSession
   id: 136
-  handler_type: inline
+  handler_type: external
   flags: []
   doc: Set session
-  inline_code: |-
-    assert(pOp->p4type == P4_DYNAMIC);
-    	const char *setting_name = pOp->p4.z;
-    	int sid = session_setting_find(setting_name);
-    	if (sid < 0) {
-    		diag_set(ClientError, ER_NO_SUCH_SESSION_SETTING, setting_name);
-    		goto abort_due_to_error;
 
 - name: OP_ShowCreateTable
   id: 137
-  handler_type: inline
+  handler_type: external_inline
   flags:
   - IN1
   - OUT2
   doc: Show create table
-  inline_code: |-
-    struct Mem *ret = &aMem[P2];
-    	struct Mem *err = &aMem[P2 + 1];
-    	sql_show_create_table(aMem[P1].u.i, ret, err);
-    	DISPATCH();
 
 - name: OP_Noop
   id: 138
@@ -1242,21 +1080,11 @@
 
 - name: OP_SorterSort
   id: 41
-  handler_type: inline
+  handler_type: external
   flags:
   - IN1
   - JUMP
   doc: Sort sorter
-  inline_code: |-
-    /* jump */
-    #ifdef SQL_TEST
-    	sql_sort_count++;
-    	sql_search_count--;
-    #endif
-    	/* Fall through into OP_Rewind */
-    #ifndef SQL_USE_GOTO
-    	FALLTHROUGH;
-    #endif /* SQL_USE_GOTO */
 
 - name: OP_ShiftLeft
   id: 22

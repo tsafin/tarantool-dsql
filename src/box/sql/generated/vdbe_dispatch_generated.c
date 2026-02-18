@@ -1267,22 +1267,16 @@ Exec_OP_Savepoint: {
 
 Exec_OP_SorterNext: {
     /* Opcode: SORTERNEXT - Sorter next row */
-    /* jump */
-	VdbeCursor *pC = p->apCsr[P1];
-	assert(isSorter(pC));
-	int res = 0;
-	if (sqlVdbeSorterNext(pC, &res) != 0)
-		goto abort_due_to_error;
-	goto next_tail;
-
-/* Opcode: PrevIfOpen P1 P2 P3 P4 P5
- *
- * This opcode works just like Prev except that if cursor P1 is not
- * open it behaves a no-op.
- */
-EXECUTE(OP_PrevIfOpen,(P1,P2,P3,P4)):    /* jump */
-	if (p->apCsr[P1] == 0) {
-		DISPATCH();
+    int handler_rc = vdbe_op_sorternext(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        /* Special return value handling (jump or SQL_ROW) */
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        /* For comparison ops, jump to P2 */
+        JUMP_P2();
+    }
     DISPATCH();
 }
 
@@ -1314,30 +1308,31 @@ Exec_OP_SkipLoad: {
 
 Exec_OP_BuiltinFunction: {
     /* Opcode: BUILTINFUNCTION - Call builtin function */
-    int argc = P1;
-	sql_context *pCtx;
-
-	assert(pOp->p4type == P4_FUNCCTX);
-	pCtx = pOp->p4.pCtx;
-
-	pOut = vdbe_prepare_null_out(p, P3);
-	if (pCtx->pOut != pOut)
-		pCtx->pOut = pOut;
-
-#ifdef SQL_DEBUG
-	for(int i = 0; i < argc; i++) {
-		assert(memIsValid(&aMem[P2 + i]));
-		REGISTER_TRACE(p, P2 + i, &aMem[P2 + i]);
+    int handler_rc = vdbe_op_builtinfunction(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        /* Special return value handling (jump or SQL_ROW) */
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        /* For comparison ops, jump to P2 */
+        JUMP_P2();
+    }
     DISPATCH();
 }
 
 Exec_OP_FunctionByName: {
     /* Opcode: FUNCTIONBYNAME - Call function by name */
-    assert(pOp->p4type == P4_DYNAMIC);
-	struct func *func = func_by_name(pOp->p4.z, strlen(pOp->p4.z));
-	if (unlikely(func == NULL)) {
-		diag_set(ClientError, ER_NO_SUCH_FUNCTION, pOp->p4.z);
-		goto abort_due_to_error;
+    int handler_rc = vdbe_op_functionbyname(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        /* Special return value handling (jump or SQL_ROW) */
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        /* For comparison ops, jump to P2 */
+        JUMP_P2();
+    }
     DISPATCH();
 }
 
@@ -1387,35 +1382,27 @@ Exec_OP_Getitem: {
 
 Exec_OP_Permutation: {
     /* Opcode: PERMUTATION - Permutation */
-    assert(pOp->p4type == P4_INTARRAY);
-	assert(pOp->p4.ai);
-	aPermute = pOp->p4.ai + 1;
-	DISPATCH();
+    int handler_rc = vdbe_op_permutation_inline(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        JUMP_P2();
+    }
     DISPATCH();
 }
 
 Exec_OP_Compare: {
     /* Opcode: COMPARE - Compare registers */
-    if ((pOp->p5 & OPFLAG_PERMUTE) == 0)
-		aPermute = 0;
-
-	int n = P3;
-	assert(pOp->p4type == P4_KEYINFO);
-	assert(n > 0);
-	int p1 = P1;
-	int p2 = P2;
-
-	struct key_def *def = sql_key_info_to_key_def(pOp->p4.key_info);
-	if (def == NULL)
-		goto abort_due_to_error;
-#if SQL_DEBUG
-	if (aPermute) {
-		int mx = 0;
-		for(uint32_t k = 0; k < (uint32_t)n; k++)
-			if (aPermute[k] > mx)
-				mx = aPermute[k];
-		assert(p1>0 && p1+mx<=(p->nMem+1 - p->nCursor)+1);
-		assert(p2>0 && p2+mx<=(p->nMem+1 - p->nCursor)+1);
+    int handler_rc = vdbe_op_compare(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        /* Special return value handling (jump or SQL_ROW) */
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        /* For comparison ops, jump to P2 */
+        JUMP_P2();
+    }
     DISPATCH();
 }
 
@@ -1487,12 +1474,12 @@ Exec_OP_DropTupleForeignKey: {
 
 Exec_OP_DropTupleCheck: {
     /* Opcode: DROPTUPLECHECK - Drop tuple check */
-    assert(P1 >= 0 && pOp->p4.z != NULL);
-	if (sql_tuple_check_drop(P1, pOp->p4.z) != 0)
-		goto abort_due_to_error;
-	assert(p->nChange == 0);
-	p->nChange = 1;
-	DISPATCH();
+    int handler_rc = vdbe_op_droptuplecheck_inline(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        JUMP_P2();
+    }
     DISPATCH();
 }
 
@@ -1575,21 +1562,27 @@ Exec_OP_TransactionRollback: {
 
 Exec_OP_TTransaction: {
     /* Opcode: TTRANSACTION - Tarantool transaction */
-    if (!box_txn()) {
-		if (txn_begin() == NULL)
-			goto abort_due_to_error;
+    int handler_rc = vdbe_op_ttransaction_inline(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        JUMP_P2();
+    }
     DISPATCH();
 }
 
 Exec_OP_IteratorOpen: {
     /* Opcode: ITERATOROPEN - Open iterator */
-    struct VdbeCursor *cur = p->apCsr[P1];
-	if (box_schema_version() != p->schema_ver &&
-	    (pOp->p5 & OPFLAG_SYSTEMSP) == 0) {
-		p->expired = 1;
-		diag_set(ClientError, ER_SQL_EXECUTE, "schema version has "\
-			 "changed: need to re-compile SQL statement");
-		goto abort_due_to_error;
+    int handler_rc = vdbe_op_iteratoropen(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        /* Special return value handling (jump or SQL_ROW) */
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        /* For comparison ops, jump to P2 */
+        JUMP_P2();
+    }
     DISPATCH();
 }
 
@@ -1617,20 +1610,16 @@ Exec_OP_OpenTEphemeral: {
 
 Exec_OP_SorterOpen: {
     /* Opcode: SORTEROPEN - Open sorter */
-    VdbeCursor *pCx;
-
-	assert(P1 >= 0);
-	assert(P2 >= 0);
-	struct key_def *def = sql_key_info_to_key_def(pOp->p4.key_info);
-	if (def == NULL)
-		goto abort_due_to_error;
-	pCx = allocateCursor(p, P1, P2, CURTYPE_SORTER);
-	if (pCx == NULL)
-		goto abort_due_to_error;
-	pCx->key_def = def;
-	if (sqlVdbeSorterInit(pCx) != 0)
-		goto abort_due_to_error;
-	DISPATCH();
+    int handler_rc = vdbe_op_sorteropen(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        /* Special return value handling (jump or SQL_ROW) */
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        /* For comparison ops, jump to P2 */
+        JUMP_P2();
+    }
     DISPATCH();
 }
 
@@ -1724,35 +1713,31 @@ Exec_OP_ResetCount: {
 
 Exec_OP_SorterCompare: {
     /* Opcode: SORTERCOMPARE - Sorter comparison */
-    VdbeCursor *pC;
-	int res;
-	int nKeyCol;
-
-	pC = p->apCsr[P1];
-	assert(isSorter(pC));
-	assert(pOp->p4type == P4_INT32);
-	pIn3 = &aMem[P3];
-	nKeyCol = pOp->p4.i;
-	if (sqlVdbeSorterCompare(pC, pIn3, nKeyCol, &res) != 0)
-		goto abort_due_to_error;
-	if (res) JUMP_P2();
-	DISPATCH();
+    int handler_rc = vdbe_op_sortercompare(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        /* Special return value handling (jump or SQL_ROW) */
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        /* For comparison ops, jump to P2 */
+        JUMP_P2();
+    }
     DISPATCH();
 }
 
 Exec_OP_SorterData: {
     /* Opcode: SORTERDATA - Get sorter data */
-    VdbeCursor *pC;
-
-	pOut = vdbe_prepare_null_out(p, P2);
-	pC = p->apCsr[P1];
-	assert(isSorter(pC));
-	if (sqlVdbeSorterRowkey(pC, pOut) != 0)
-		goto abort_due_to_error;
-	assert(mem_is_bin(pOut));
-	assert(P1 >= 0 && P1 < p->nCursor);
-	p->apCsr[P3]->cacheStatus = CACHE_STALE;
-	DISPATCH();
+    int handler_rc = vdbe_op_sorterdata(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        /* Special return value handling (jump or SQL_ROW) */
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        /* For comparison ops, jump to P2 */
+        JUMP_P2();
+    }
     DISPATCH();
 }
 
@@ -1769,16 +1754,16 @@ Exec_OP_NullRow: {
 
 Exec_OP_SorterInsert: {
     /* Opcode: SORTERINSERT - Insert into sorter */
-    /* in2 */
-	assert(P1 >= 0 && P1 < p->nCursor);
-	struct VdbeCursor *cursor = p->apCsr[P1];
-	assert(cursor != NULL);
-	assert(isSorter(cursor));
-	pIn2 = &aMem[P2];
-	assert(mem_is_bin(pIn2));
-	if (sqlVdbeSorterWrite(cursor, pIn2) != 0)
-		goto abort_due_to_error;
-	DISPATCH();
+    int handler_rc = vdbe_op_sorterinsert(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        /* Special return value handling (jump or SQL_ROW) */
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        /* For comparison ops, jump to P2 */
+        JUMP_P2();
+    }
     DISPATCH();
 }
 
@@ -1839,20 +1824,16 @@ Exec_OP_Param: {
 
 Exec_OP_OffsetLimit: {
     /* Opcode: OFFSETLIMIT - Calculate offset limit */
-    /* in1, out2, in3 */
-	pIn1 = &aMem[P1];
-	pIn3 = &aMem[P3];
-	pOut = vdbe_prepare_null_out(p, P2);
-
-	assert(mem_is_uint(pIn1));
-	assert(mem_is_uint(pIn3));
-	uint64_t x = pIn1->u.u;
-	uint64_t rhs = pIn3->u.u;
-	bool unused;
-	if (sql_add_int(x, false, rhs, false, (int64_t *) &x, &unused) != 0) {
-		diag_set(ClientError, ER_SQL_EXECUTE, "sum of LIMIT and OFFSET "
-			"values should not result in integer overflow");
-		goto abort_due_to_error;
+    int handler_rc = vdbe_op_offsetlimit(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        /* Special return value handling (jump or SQL_ROW) */
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        /* For comparison ops, jump to P2 */
+        JUMP_P2();
+    }
     DISPATCH();
 }
 
@@ -1880,21 +1861,27 @@ Exec_OP_GenSpaceid: {
 
 Exec_OP_SetSession: {
     /* Opcode: SETSESSION - Set session */
-    assert(pOp->p4type == P4_DYNAMIC);
-	const char *setting_name = pOp->p4.z;
-	int sid = session_setting_find(setting_name);
-	if (sid < 0) {
-		diag_set(ClientError, ER_NO_SUCH_SESSION_SETTING, setting_name);
-		goto abort_due_to_error;
+    int handler_rc = vdbe_op_setsession(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        /* Special return value handling (jump or SQL_ROW) */
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        /* For comparison ops, jump to P2 */
+        JUMP_P2();
+    }
     DISPATCH();
 }
 
 Exec_OP_ShowCreateTable: {
     /* Opcode: SHOWCREATETABLE - Show create table */
-    struct Mem *ret = &aMem[P2];
-	struct Mem *err = &aMem[P2 + 1];
-	sql_show_create_table(aMem[P1].u.i, ret, err);
-	DISPATCH();
+    int handler_rc = vdbe_op_showcreatetable_inline(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        JUMP_P2();
+    }
     DISPATCH();
 }
 
@@ -1979,15 +1966,16 @@ Exec_OP_Sort: {
 
 Exec_OP_SorterSort: {
     /* Opcode: SORTERSORT - Sort sorter */
-    /* jump */
-#ifdef SQL_TEST
-	sql_sort_count++;
-	sql_search_count--;
-#endif
-	/* Fall through into OP_Rewind */
-#ifndef SQL_USE_GOTO
-	FALLTHROUGH;
-#endif /* SQL_USE_GOTO */
+    int handler_rc = vdbe_op_sortersort(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        /* Special return value handling (jump or SQL_ROW) */
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        /* For comparison ops, jump to P2 */
+        JUMP_P2();
+    }
     DISPATCH();
 }
 
@@ -2956,22 +2944,14 @@ case OP_Savepoint: {
 
 case OP_SorterNext: {
     /* SORTERNEXT - Sorter next row */
-    /* jump */
-	VdbeCursor *pC = p->apCsr[P1];
-	assert(isSorter(pC));
-	int res = 0;
-	if (sqlVdbeSorterNext(pC, &res) != 0)
-		goto abort_due_to_error;
-	goto next_tail;
-
-/* Opcode: PrevIfOpen P1 P2 P3 P4 P5
- *
- * This opcode works just like Prev except that if cursor P1 is not
- * open it behaves a no-op.
- */
-EXECUTE(OP_PrevIfOpen,(P1,P2,P3,P4)):    /* jump */
-	if (p->apCsr[P1] == 0) {
-		DISPATCH();
+    int handler_rc = vdbe_op_sorternext(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        goto jump_to_p2;
+    }
     break;
 }
 
@@ -3000,30 +2980,27 @@ case OP_SkipLoad: {
 
 case OP_BuiltinFunction: {
     /* BUILTINFUNCTION - Call builtin function */
-    int argc = P1;
-	sql_context *pCtx;
-
-	assert(pOp->p4type == P4_FUNCCTX);
-	pCtx = pOp->p4.pCtx;
-
-	pOut = vdbe_prepare_null_out(p, P3);
-	if (pCtx->pOut != pOut)
-		pCtx->pOut = pOut;
-
-#ifdef SQL_DEBUG
-	for(int i = 0; i < argc; i++) {
-		assert(memIsValid(&aMem[P2 + i]));
-		REGISTER_TRACE(p, P2 + i, &aMem[P2 + i]);
+    int handler_rc = vdbe_op_builtinfunction(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        goto jump_to_p2;
+    }
     break;
 }
 
 case OP_FunctionByName: {
     /* FUNCTIONBYNAME - Call function by name */
-    assert(pOp->p4type == P4_DYNAMIC);
-	struct func *func = func_by_name(pOp->p4.z, strlen(pOp->p4.z));
-	if (unlikely(func == NULL)) {
-		diag_set(ClientError, ER_NO_SUCH_FUNCTION, pOp->p4.z);
-		goto abort_due_to_error;
+    int handler_rc = vdbe_op_functionbyname(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        goto jump_to_p2;
+    }
     break;
 }
 
@@ -3069,35 +3046,24 @@ case OP_Getitem: {
 
 case OP_Permutation: {
     /* PERMUTATION - Permutation */
-    assert(pOp->p4type == P4_INTARRAY);
-	assert(pOp->p4.ai);
-	aPermute = pOp->p4.ai + 1;
-	DISPATCH();
+    int handler_rc = vdbe_op_permutation_inline(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1)
+        goto jump_to_p2;
     break;
 }
 
 case OP_Compare: {
     /* COMPARE - Compare registers */
-    if ((pOp->p5 & OPFLAG_PERMUTE) == 0)
-		aPermute = 0;
-
-	int n = P3;
-	assert(pOp->p4type == P4_KEYINFO);
-	assert(n > 0);
-	int p1 = P1;
-	int p2 = P2;
-
-	struct key_def *def = sql_key_info_to_key_def(pOp->p4.key_info);
-	if (def == NULL)
-		goto abort_due_to_error;
-#if SQL_DEBUG
-	if (aPermute) {
-		int mx = 0;
-		for(uint32_t k = 0; k < (uint32_t)n; k++)
-			if (aPermute[k] > mx)
-				mx = aPermute[k];
-		assert(p1>0 && p1+mx<=(p->nMem+1 - p->nCursor)+1);
-		assert(p2>0 && p2+mx<=(p->nMem+1 - p->nCursor)+1);
+    int handler_rc = vdbe_op_compare(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        goto jump_to_p2;
+    }
     break;
 }
 
@@ -3163,12 +3129,11 @@ case OP_DropTupleForeignKey: {
 
 case OP_DropTupleCheck: {
     /* DROPTUPLECHECK - Drop tuple check */
-    assert(P1 >= 0 && pOp->p4.z != NULL);
-	if (sql_tuple_check_drop(P1, pOp->p4.z) != 0)
-		goto abort_due_to_error;
-	assert(p->nChange == 0);
-	p->nChange = 1;
-	DISPATCH();
+    int handler_rc = vdbe_op_droptuplecheck_inline(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1)
+        goto jump_to_p2;
     break;
 }
 
@@ -3244,21 +3209,24 @@ case OP_TransactionRollback: {
 
 case OP_TTransaction: {
     /* TTRANSACTION - Tarantool transaction */
-    if (!box_txn()) {
-		if (txn_begin() == NULL)
-			goto abort_due_to_error;
+    int handler_rc = vdbe_op_ttransaction_inline(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1)
+        goto jump_to_p2;
     break;
 }
 
 case OP_IteratorOpen: {
     /* ITERATOROPEN - Open iterator */
-    struct VdbeCursor *cur = p->apCsr[P1];
-	if (box_schema_version() != p->schema_ver &&
-	    (pOp->p5 & OPFLAG_SYSTEMSP) == 0) {
-		p->expired = 1;
-		diag_set(ClientError, ER_SQL_EXECUTE, "schema version has "\
-			 "changed: need to re-compile SQL statement");
-		goto abort_due_to_error;
+    int handler_rc = vdbe_op_iteratoropen(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        goto jump_to_p2;
+    }
     break;
 }
 
@@ -3284,20 +3252,14 @@ case OP_OpenTEphemeral: {
 
 case OP_SorterOpen: {
     /* SORTEROPEN - Open sorter */
-    VdbeCursor *pCx;
-
-	assert(P1 >= 0);
-	assert(P2 >= 0);
-	struct key_def *def = sql_key_info_to_key_def(pOp->p4.key_info);
-	if (def == NULL)
-		goto abort_due_to_error;
-	pCx = allocateCursor(p, P1, P2, CURTYPE_SORTER);
-	if (pCx == NULL)
-		goto abort_due_to_error;
-	pCx->key_def = def;
-	if (sqlVdbeSorterInit(pCx) != 0)
-		goto abort_due_to_error;
-	DISPATCH();
+    int handler_rc = vdbe_op_sorteropen(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        goto jump_to_p2;
+    }
     break;
 }
 
@@ -3383,35 +3345,27 @@ case OP_ResetCount: {
 
 case OP_SorterCompare: {
     /* SORTERCOMPARE - Sorter comparison */
-    VdbeCursor *pC;
-	int res;
-	int nKeyCol;
-
-	pC = p->apCsr[P1];
-	assert(isSorter(pC));
-	assert(pOp->p4type == P4_INT32);
-	pIn3 = &aMem[P3];
-	nKeyCol = pOp->p4.i;
-	if (sqlVdbeSorterCompare(pC, pIn3, nKeyCol, &res) != 0)
-		goto abort_due_to_error;
-	if (res) JUMP_P2();
-	DISPATCH();
+    int handler_rc = vdbe_op_sortercompare(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        goto jump_to_p2;
+    }
     break;
 }
 
 case OP_SorterData: {
     /* SORTERDATA - Get sorter data */
-    VdbeCursor *pC;
-
-	pOut = vdbe_prepare_null_out(p, P2);
-	pC = p->apCsr[P1];
-	assert(isSorter(pC));
-	if (sqlVdbeSorterRowkey(pC, pOut) != 0)
-		goto abort_due_to_error;
-	assert(mem_is_bin(pOut));
-	assert(P1 >= 0 && P1 < p->nCursor);
-	p->apCsr[P3]->cacheStatus = CACHE_STALE;
-	DISPATCH();
+    int handler_rc = vdbe_op_sorterdata(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        goto jump_to_p2;
+    }
     break;
 }
 
@@ -3427,16 +3381,14 @@ case OP_NullRow: {
 
 case OP_SorterInsert: {
     /* SORTERINSERT - Insert into sorter */
-    /* in2 */
-	assert(P1 >= 0 && P1 < p->nCursor);
-	struct VdbeCursor *cursor = p->apCsr[P1];
-	assert(cursor != NULL);
-	assert(isSorter(cursor));
-	pIn2 = &aMem[P2];
-	assert(mem_is_bin(pIn2));
-	if (sqlVdbeSorterWrite(cursor, pIn2) != 0)
-		goto abort_due_to_error;
-	DISPATCH();
+    int handler_rc = vdbe_op_sorterinsert(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        goto jump_to_p2;
+    }
     break;
 }
 
@@ -3492,20 +3444,14 @@ case OP_Param: {
 
 case OP_OffsetLimit: {
     /* OFFSETLIMIT - Calculate offset limit */
-    /* in1, out2, in3 */
-	pIn1 = &aMem[P1];
-	pIn3 = &aMem[P3];
-	pOut = vdbe_prepare_null_out(p, P2);
-
-	assert(mem_is_uint(pIn1));
-	assert(mem_is_uint(pIn3));
-	uint64_t x = pIn1->u.u;
-	uint64_t rhs = pIn3->u.u;
-	bool unused;
-	if (sql_add_int(x, false, rhs, false, (int64_t *) &x, &unused) != 0) {
-		diag_set(ClientError, ER_SQL_EXECUTE, "sum of LIMIT and OFFSET "
-			"values should not result in integer overflow");
-		goto abort_due_to_error;
+    int handler_rc = vdbe_op_offsetlimit(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        goto jump_to_p2;
+    }
     break;
 }
 
@@ -3531,21 +3477,24 @@ case OP_GenSpaceid: {
 
 case OP_SetSession: {
     /* SETSESSION - Set session */
-    assert(pOp->p4type == P4_DYNAMIC);
-	const char *setting_name = pOp->p4.z;
-	int sid = session_setting_find(setting_name);
-	if (sid < 0) {
-		diag_set(ClientError, ER_NO_SUCH_SESSION_SETTING, setting_name);
-		goto abort_due_to_error;
+    int handler_rc = vdbe_op_setsession(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        goto jump_to_p2;
+    }
     break;
 }
 
 case OP_ShowCreateTable: {
     /* SHOWCREATETABLE - Show create table */
-    struct Mem *ret = &aMem[P2];
-	struct Mem *err = &aMem[P2 + 1];
-	sql_show_create_table(aMem[P1].u.i, ret, err);
-	DISPATCH();
+    int handler_rc = vdbe_op_showcreatetable_inline(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1)
+        goto jump_to_p2;
     break;
 }
 
@@ -3624,15 +3573,14 @@ case OP_Sort: {
 
 case OP_SorterSort: {
     /* SORTERSORT - Sort sorter */
-    /* jump */
-#ifdef SQL_TEST
-	sql_sort_count++;
-	sql_search_count--;
-#endif
-	/* Fall through into OP_Rewind */
-#ifndef SQL_USE_GOTO
-	FALLTHROUGH;
-#endif /* SQL_USE_GOTO */
+    int handler_rc = vdbe_op_sortersort(p, pOp, aMem);
+    if (handler_rc < 0)
+        goto abort_due_to_error;
+    if (handler_rc == 1) {
+        if (pOp->opcode == OP_ResultRow)
+            goto done_returning_row;
+        goto jump_to_p2;
+    }
     break;
 }
 
