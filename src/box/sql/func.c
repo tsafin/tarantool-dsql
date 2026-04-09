@@ -2480,7 +2480,11 @@ func_sql_expr_call(struct func *func, struct port *args, struct port *ret)
 
 	struct region *region = &fiber()->gc;
 	size_t svp = region_used(region);
-	port_sql_create(ret, stmt, DQL_EXECUTE, false);
+	/*
+	 * SQL_EXPR functions return a regular function result, not an SQL
+	 * response object with metadata/SQL_INFO wrappers.
+	 */
+	port_c_create(ret);
 	/*
 	 * Currently, SQL EXPR functions can only be called in a tuple or field
 	 * constraint. If the format is NULL then it is a field constraint,

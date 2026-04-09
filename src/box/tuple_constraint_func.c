@@ -101,13 +101,43 @@ tuple_constraint_call_func(const struct tuple_constraint *constr,
 					   &in_port, &out_port);
 	port_destroy(&in_port);
 	if (rc == 0) {
-		uint32_t ret_size;
-		const char *ret = port_get_msgpack(&out_port, &ret_size);
-		assert(mp_typeof(*ret) == MP_ARRAY);
-		uint32_t ret_count = mp_decode_array(&ret);
-		if (ret_count < 1 || mp_typeof(*ret) != MP_BOOL ||
-		    mp_decode_bool(&ret) != true)
-			rc = -1;
+		/*
+		 * SQL_EXPR constraint functions return a single scalar value in a
+		 * C port entry. Decoding it directly avoids the generic
+		 * port_get_msgpack() wrapping path, which is intended for SQL/IPROTO
+		 * result objects rather than internal constraint evaluation.
+		 */
+		if (constr->func_cache_holder.func->def->language ==
+		    FUNC_LANGUAGE_SQL_EXPR) {
+			struct port_c *port = (struct port_c *)&out_port;
+			if (port->size < 1 || port->first == NULL) {
+				rc = -1;
+			} else {
+				struct port_c_entry *pe = port->first;
+				const char *ret;
+				if (pe->mp_size == 0) {
+					ret = tuple_data(pe->tuple);
+					assert(mp_typeof(*ret) == MP_ARRAY);
+					uint32_t ret_count = mp_decode_array(&ret);
+					if (ret_count < 1 || mp_typeof(*ret) != MP_BOOL ||
+					    mp_decode_bool(&ret) != true)
+						rc = -1;
+				} else {
+					const char *ret = pe->mp;
+					if (mp_typeof(*ret) != MP_BOOL ||
+					    !mp_decode_bool(&ret))
+						rc = -1;
+				}
+			}
+		} else {
+			uint32_t ret_size;
+			const char *ret = port_get_msgpack(&out_port, &ret_size);
+			assert(mp_typeof(*ret) == MP_ARRAY);
+			uint32_t ret_count = mp_decode_array(&ret);
+			if (ret_count < 1 || mp_typeof(*ret) != MP_BOOL ||
+			    mp_decode_bool(&ret) != true)
+				rc = -1;
+		}
 		port_destroy(&out_port);
 	} else {
 		diag_log();
