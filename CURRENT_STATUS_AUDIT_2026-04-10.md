@@ -35,8 +35,8 @@ What exists in code:
   `src/box/sql/vdbe_dispatch_wrapper.c`.
 - Runtime dispatcher mode selection exists via `VDBE_DISPATCHER` with
   `old|generated|parallel|auto`.
-- The code still contains debug `fprintf(stderr, ...)` traces in the generated
-  dispatcher.
+- The unconditional generated-dispatcher `fprintf(stderr, ...)` tracing has
+  been removed locally.
 
 Important implication:
 
@@ -50,7 +50,8 @@ validation yet.
 
 Verified behavior in code:
 
-- `vdbe_exec_parallel_validation()` calls `sqlVdbeExec(p)` twice.
+- `vdbe_exec_parallel_validation()` now fails fast with a diagnostic instead of
+  recursing through `sqlVdbeExec()` twice.
 - `vdbe_validate_state()` compares only return codes.
 - It does not compare register state, cursor state, result rows, side effects,
   or per-opcode state transitions.
@@ -178,13 +179,14 @@ Observed result:
 
 - Same functional result as old dispatcher on this smoke test: all checks
   passed.
-- The run emitted extensive generated-dispatcher debug traces to stderr.
+- No unconditional generated-dispatcher trace spam was emitted by the rebuilt
+  binary.
 
 Conclusion:
 
 - On this smoke test, generated matches old.
-- Generated dispatcher still has noisy debug logging and should not be treated
-  as release-clean.
+- The obvious stderr noise issue is fixed locally, but that alone does not make
+  the generated dispatcher release-ready.
 
 ### 5. Parallel mode
 

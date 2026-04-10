@@ -47,8 +47,8 @@ int vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem);
 
 /*
  * Parallel validation dispatcher - Phase 5.3.4
- * Runs both dispatchers and compares results
- * Validates <2% performance regression and identical behavior
+ * Placeholder entry point for future dispatcher equivalence validation.
+ * The current implementation fails fast instead of attempting unsafe recursion.
  */
 int vdbe_exec_parallel_validation(struct Vdbe *p, VdbeOp *aOp, Mem *aMem);
 
@@ -78,13 +78,10 @@ int vdbe_set_dispatcher_mode(VdbeDispatchMode mode);
 
 /*
  * Get the active dispatcher function
- * Returns the appropriate dispatcher based on configuration
- * Phase 5.3.4: Supports parallel validation mode
+ * Returns the appropriate dispatcher based on configuration.
  *
- * Note: For now, always use compile-time dispatcher selection
- * to avoid potential initialization issues with getenv() calls.
- * Runtime mode selection via vdbe_set_dispatcher_mode() is available
- * for testing, but the default dispatcher is determined at compile time.
+ * The default dispatcher is determined at compile time. Runtime mode selection
+ * remains available for testing and audit runs.
  */
 static inline VdbeDispatcher
 vdbe_get_dispatcher(void)

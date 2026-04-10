@@ -1,12 +1,12 @@
 /*
  * VDBE Dispatcher Wrapper
  * Phase 5.3 - Provides unified interface for old and generated dispatchers
- * Phase 5.3.4 - Parallel validation testing framework
+ * Phase 5.3.4 - Dispatcher mode selection scaffolding
  *
  * This file implements wrapper functions that allow both the old inline
  * dispatcher and the generated dispatcher to be called through a common interface.
  * It also provides dispatcher mode management for runtime selection and parallel
- * validation testing.
+ * validation scaffolding.
  */
 
 #include <stdlib.h>
@@ -84,7 +84,7 @@ vdbe_set_dispatcher_mode(VdbeDispatchMode mode)
  * structure (p->aOp and p->aMem).
  *
  * This design allows both old and generated dispatchers to be called through
- * the same interface, enabling parallel validation testing in Phase 5.3.4.
+ * the same interface.
  */
 int
 vdbe_exec_old_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
@@ -101,11 +101,9 @@ vdbe_exec_old_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 /*
  * Phase 5.3.4: Parallel validation execution wrapper
  *
- * This function implements the parallel validation mode where both dispatchers
- * are run and their results are compared. It validates:
- * - Return codes match between dispatchers
- * - Execution traces are consistent
- * - Performance doesn't regress by >2%
+ * This function is the runtime entry point for the experimental parallel mode.
+ * A true lock-step validator is not implemented yet, because it needs isolated
+ * execution state for both engines and a meaningful state comparison.
  *
  * Used when VDBE_DISPATCH_PARALLEL mode is enabled.
  */
@@ -157,7 +155,6 @@ vdbe_exec_parallel_validation(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 int
 vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 {
-	fprintf(stderr, "[GENERATED DISPATCHER ENTRY] pc=%d nOp=%d\n", p->pc, p->nOp);
 	int rc = 0;                    /* Value to return */
 	int pc = p->pc;                /* Current program counter (0-based) */
 	int nOp = p->nOp;             /* Number of operations */
@@ -205,16 +202,12 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	/* Main execution loop - Phase 5.5: Loop-based dispatcher */
 	while (pc < nOp) {
 		pOp = &aOp[pc];
-		int op = pOp->opcode;
-		int cur_pc = pc;
 
 		/* Debug tracing (before opcode execution) */
 #ifdef SQL_DEBUG
 		pOrigOp = pOp;
 		vdbe_trace(p, pOrigOp, rc, aMem);
 #endif
-
-		fprintf(stderr, "[GENERATED DISPATCHER OPCODE] pc=%d opcode=%s (%d)\n", pc, sqlOpcodeName(op), op);
 
 		/* Dispatch on opcode */
 		switch (pOp->opcode) {
@@ -1302,8 +1295,6 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	 */
 		default: {
 			/* Unhandled opcode - fall back to inline dispatcher */
-			fprintf(stderr, "[GENERATED DISPATCHER FALLBACK] opcode=%s pc=%d\n",
-				sqlOpcodeName(pOp->opcode), pc);
 			p->pc = pc;
 			return SQL_FALLBACK_TO_INLINE;
 		}
@@ -1312,9 +1303,6 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		/* Exit loop on error or special return code */
 		if (rc != 0) {
 			if (rc < 0 && diag_is_empty(diag_get())) {
-				fprintf(stderr,
-					"Generated dispatcher error without diag: pc=%d op=%s\n",
-					cur_pc, sqlOpcodeName(op));
 				diag_set(ClientError, ER_SQL_EXECUTE,
 					 "VDBE error without diagnostics");
 			}

@@ -217,11 +217,12 @@ All planned handler extraction phases have been successfully completed:
 - Entire inline dispatcher loop wrapped in conditional compilation
 - Build succeeds with both VDBE_USE_GENERATED_DISPATCH enabled and disabled
 
-**Earlier**: Phase 5.3 Complete ✓ (2025-12-19)
+**Earlier**: Phase 5.3 Largely Complete (with open validation work)
 - Generated dispatcher is callable and testable
-- Parallel validation framework ready
+- Runtime mode selection exists
+- `parallel` validation remains a scaffold, not a usable lock-step harness
 - VDBE_USE_GENERATED_DISPATCH flag enabled
-- All 7 sub-phases completed successfully
+- Unconditional generated-dispatcher stderr tracing removed
 
 **Ready for**: Phase 5.6 - Expand dispatcher with remaining opcodes
 
@@ -557,7 +558,7 @@ EXECUTE(OP_Xxx,(P1,P2)): {
   - Both old and generated dispatchers now callable through common interface
   - Verified compilation: vdbe_dispatch_wrapper.c compiles successfully
   - **Commit**: 1c8a16be20
-- **Phase 5.3.4** (2025-12-19): Parallel validation testing infrastructure
+- **Phase 5.3.4** (2025-12-19): Parallel validation entry point and scaffolding
   - Implemented runtime dispatcher selection via VDBE_DISPATCHER env var
   - Added VdbeDispatchMode enum with 4 modes (auto/old/generated/parallel)
   - Created vdbe_exec_parallel_validation() for dual execution
