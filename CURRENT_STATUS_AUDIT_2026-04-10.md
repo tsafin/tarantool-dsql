@@ -41,7 +41,13 @@ What exists in code:
 Important implication:
 
 - The generated dispatcher is integrated and callable.
-- It is not clean enough yet to be considered production-ready.
+- A verified external old/generated equivalence harness now exists in
+  `tools/verify_dispatchers_equivalence.lua` and
+  `tools/verify_dispatchers_equivalence.sh`.
+- That harness found a real generated-dispatch regression in `OP_SkipLoad`,
+  which is now fixed locally.
+- The interpreter track is materially further along than the earlier audit
+  snapshot, but it still lacks regular-suite and fuzz integration.
 
 ### "Parallel validation" status
 
@@ -58,9 +64,10 @@ Verified behavior in code:
 
 Current conclusion:
 
-- There is a validation framework skeleton.
-- There is no real dispatcher-equivalence harness yet.
-- Any claim of "lock-step validated" should be treated as not yet proven.
+- The in-process validation framework is still only a skeleton.
+- There is now a working external dispatcher-equivalence harness.
+- Any claim of in-process "lock-step validated" should still be treated as not
+  yet proven.
 
 ### JIT track
 
@@ -188,7 +195,38 @@ Conclusion:
 - The obvious stderr noise issue is fixed locally, but that alone does not make
   the generated dispatcher release-ready.
 
-### 5. Parallel mode
+### 5. External old/generated equivalence harness
+
+New scripts added during this audit:
+
+- `tools/verify_dispatchers_equivalence.lua`
+- `tools/verify_dispatchers_equivalence.sh`
+
+Verified command:
+
+```bash
+bash tools/verify_dispatchers_equivalence.sh
+```
+
+Observed result after fixing `OP_SkipLoad`:
+
+- `Dispatcher equivalence verified`
+
+What this harness does:
+
+- runs the same deterministic SQL workload in fresh temp directories;
+- executes it once with `VDBE_DISPATCHER=old` and once with
+  `VDBE_DISPATCHER=generated`;
+- captures canonical JSON traces for each step;
+- compares step-by-step results outside the process.
+
+Important note:
+
+- This is the current supported equivalence gate.
+- It is not the same thing as the still-unimplemented in-process `parallel`
+  mode.
+
+### 6. Parallel mode
 
 Command:
 
@@ -213,7 +251,7 @@ Conclusion:
 - This is consistent with the source audit: the mode is still a scaffold, not a
   finished equivalence harness.
 
-### 6. Stable CHECK-constraint repro in old mode
+### 7. Stable CHECK-constraint repro in old mode
 
 Command pattern:
 
@@ -250,7 +288,7 @@ CREATE TABLE t_ck (id INT PRIMARY KEY, score INT, CHECK(score >= 0));
 INSERT INTO t_ck VALUES (1, 100);
 ```
 
-### 7. GDB backtrace summary for the CHECK crash
+### 8. GDB backtrace summary for the CHECK crash
 
 Using `gdb` on the minimal repro in `VDBE_DISPATCHER=old`, the assertion stack
 shows:
@@ -299,7 +337,8 @@ Root cause and current status:
 
 - No verified integration of dispatcher mode matrix into the regular SQL test
   suites.
-- No real lock-step old/generated validator.
+- No in-process lock-step old/generated validator.
+- No broad regular-suite integration of the new external equivalence harness.
 - No dispatcher-specific fuzzing matrix across `old`, `generated`, and `JIT`.
 - No verified JIT-enabled regression run in this audit.
 - No verified Release-build performance numbers in this audit.
@@ -348,14 +387,17 @@ Status:
 - Buildable in the existing local non-JIT build tree: yes.
 - Integrated into execution path: yes.
 - Runnable for basic operations: yes.
+- `test_phase58.lua` in `old` and `generated`: yes.
+- External old/generated equivalence harness: yes.
 - Stable enough to declare complete: no.
 
 Why not complete yet:
 
-- baseline SELECT / `box.execute()` regression reproduces even in old mode;
-- `test_phase58.lua` currently aborts;
-- parallel mode is not a real validation harness and currently crashes;
-- generated dispatcher still contains debug stderr output.
+- the in-process `parallel` mode is still not a real validator;
+- the new equivalence harness covers only a targeted deterministic workload, not
+  a broader regular test matrix;
+- no dispatcher-mode fuzzing or wider regular-suite coverage has been added yet;
+- JIT-enabled parity testing still has not been completed.
 
 ### LLVM JIT refactor
 
@@ -374,11 +416,10 @@ Why not complete yet:
 
 ## Immediate Recommendations
 
-1. Fix the baseline SELECT/`box.execute()` regression first.
-2. Replace fake parallel validation with a real old/generated comparison
-   harness.
-3. Make `test_phase58.lua` a reliable gate again before using it as a status
-   signal.
-4. Complete one clean JIT-enabled build and then run the same smoke/regression
+1. Add the external old/generated equivalence harness to a broader SQL test
+   subset.
+2. Decide whether to keep `parallel` as a fail-fast placeholder or remove it
+   until a true in-process validator exists.
+3. Complete one clean JIT-enabled build and then run the same smoke/regression
    matrix against it.
-5. Delay performance claims until a Release build and stable test matrix exist.
+4. Delay performance claims until a Release build and stable test matrix exist.

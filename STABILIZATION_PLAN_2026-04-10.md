@@ -65,9 +65,12 @@ Current Phase 0 status:
 - The CHECK-constraint crash has been fixed locally.
 - The simple dispatcher smoke script and the `test_phase58.lua` matrix now pass
   in both `old` and `generated` modes.
-- The remaining interpreter-track blockers are now validation quality
-  (`parallel` is still not a real equivalence harness) and generated-dispatcher
-  debug noise.
+- The generated-dispatcher stderr trace noise has been removed locally.
+- A real external old/generated comparison harness now exists and passes.
+- That harness found and helped fix a real generated-dispatch bug in
+  `OP_SkipLoad`.
+- The remaining interpreter-track blocker is broader validation coverage, not
+  the original baseline crash.
 
 ## Phase 1 - Interpreter Refactor Stabilization
 
@@ -91,10 +94,9 @@ Real lock-step validation must compare at least:
 - final `p->pc`;
 - selected register state and cursor invariants where practical.
 
-3. Run the smoke matrix in all modes:
+3. Run the smoke matrix in supported modes:
    - `old`
    - `generated`
-   - `parallel`
 4. Run a targeted SQL regression subset in both `old` and `generated`.
 5. Add dispatcher-mode coverage to at least one regular test entrypoint so the
    work is no longer validated only by ad hoc scripts.
@@ -111,8 +113,8 @@ Real lock-step validation must compare at least:
 ### Exit criteria
 
 - `old` and `generated` both pass the agreed SQL regression subset.
-- `parallel` mode runs without crash.
-- `parallel` mode reports zero functional differences on the target matrix.
+- The supported old/generated comparison harness reports zero functional
+  differences on the target matrix.
 - Generated dispatcher is free of debug stderr noise.
 
 ## Phase 2 - Complete LLVM JIT Build Integration

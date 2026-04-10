@@ -123,7 +123,8 @@ vdbe_exec_parallel_validation(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	(void)aMem;
 	assert(p != NULL);
 	diag_set(ClientError, ER_SQL_EXECUTE,
-		 "VDBE_DISPATCHER=parallel is not implemented safely yet");
+		 "VDBE_DISPATCHER=parallel is not implemented safely yet; "
+		 "use tools/verify_dispatchers_equivalence.sh");
 	return -1;
 }
 

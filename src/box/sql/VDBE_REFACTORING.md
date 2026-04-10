@@ -221,6 +221,11 @@ All planned handler extraction phases have been successfully completed:
 - Generated dispatcher is callable and testable
 - Runtime mode selection exists
 - `parallel` validation remains a scaffold, not a usable lock-step harness
+- External equivalence validation now exists via
+  `tools/verify_dispatchers_equivalence.lua` and
+  `tools/verify_dispatchers_equivalence.sh`
+- The external harness found and validated the fix for an `OP_SkipLoad`
+  generated-dispatch bug affecting aggregate queries
 - VDBE_USE_GENERATED_DISPATCH flag enabled
 - Unconditional generated-dispatcher stderr tracing removed
 

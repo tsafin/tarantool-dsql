@@ -60,10 +60,8 @@ int
 vdbe_op_skipload_inline(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	(void)p;
-	(void)pOp;
-	(void)aMem;
-
-	/* Not typically executed during normal VDBE execution */
+	if (pOp->p1 != 0)
+		mem_set_bool(&aMem[pOp->p1], false);
 	return 0;
 }
 
