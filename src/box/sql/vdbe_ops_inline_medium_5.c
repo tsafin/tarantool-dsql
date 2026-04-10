@@ -89,6 +89,11 @@ vdbe_op_resetsorter_inline(Vdbe *p, Op *pOp, Mem *aMem)
 
 	if (isSorter(pC)) {
 		sqlVdbeSorterReset(pC->uc.pSorter);
+	} else {
+		assert(pC->eCurType == CURTYPE_TARANTOOL);
+		assert(pC->uc.pCursor->curFlags & BTCF_TEphemCursor);
+		if (tarantoolsqlEphemeralClearTable(pC->uc.pCursor) != 0)
+			return -1;
 	}
 
 	return 0;  /* Continue to next instruction */
@@ -99,8 +104,9 @@ vdbe_op_resetsorter_inline(Vdbe *p, Op *pOp, Mem *aMem)
  * Synopsis: sort P1 in order, generate sort counter, fall-through to REWIND
  *
  * This opcode is a no-op except in test harness mode where it updates
- * sort and search counters. In normal execution, control falls through to
- * the next opcode (which should typically be OP_Rewind).
+ * sort and search counters. In the original interpreter it then falls
+ * through into OP_Rewind using the same Op, so the dispatcher must invoke
+ * rewind semantics after this helper returns.
  *
  * The actual sorting is performed by cursor P1 when it's a sorter cursor.
  * This opcode just signals that a sort operation has been requested.
@@ -124,13 +130,7 @@ vdbe_op_sort_inline(Vdbe *p, Op *pOp, Mem *aMem)
 	sql_search_count--;
 #endif
 
-	/*
-	 * In the original code, this falls through to OP_Rewind.
-	 * Since we're not using goto semantics, we'll just return
-	 * and let the dispatcher continue naturally.
-	 */
-
-	return 0;  /* Continue to next instruction (falls through) */
+	return 0;
 }
 
 /*

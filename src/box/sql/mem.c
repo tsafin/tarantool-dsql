@@ -3198,59 +3198,111 @@ mem_to_mpstream(const struct Mem *var, struct mpstream *stream)
 	}
 }
 
+static uint32_t
+mem_mp_size(const struct Mem *mem)
+{
+	assert(memIsValid(mem));
+	switch (mem->type) {
+	case MEM_TYPE_NULL:
+		return mp_sizeof_nil();
+	case MEM_TYPE_STR:
+		return mp_sizeof_str(mem->n);
+	case MEM_TYPE_INT:
+		return mp_sizeof_int(mem->u.i);
+	case MEM_TYPE_UINT:
+		return mp_sizeof_uint(mem->u.u);
+	case MEM_TYPE_DOUBLE:
+		return mp_sizeof_double(mem->u.r);
+	case MEM_TYPE_BIN:
+		return mp_sizeof_bin(mem->n);
+	case MEM_TYPE_ARRAY:
+	case MEM_TYPE_MAP:
+		return mem->n;
+	case MEM_TYPE_BOOL:
+		return mp_sizeof_bool(mem->u.b);
+	case MEM_TYPE_UUID:
+		return mp_sizeof_uuid();
+	case MEM_TYPE_DEC:
+		return mp_sizeof_decimal(&mem->u.d);
+	case MEM_TYPE_DATETIME:
+		return mp_sizeof_datetime(&mem->u.dt);
+	case MEM_TYPE_INTERVAL:
+		return mp_sizeof_interval(&mem->u.itv);
+	default:
+		unreachable();
+	}
+}
+
+static char *
+mem_to_mp_buf(const struct Mem *mem, char *buf)
+{
+	assert(memIsValid(mem));
+	switch (mem->type) {
+	case MEM_TYPE_NULL:
+		return mp_encode_nil(buf);
+	case MEM_TYPE_STR:
+		return mp_encode_str(buf, mem->z, mem->n);
+	case MEM_TYPE_INT:
+		return mp_encode_int(buf, mem->u.i);
+	case MEM_TYPE_UINT:
+		return mp_encode_uint(buf, mem->u.u);
+	case MEM_TYPE_DOUBLE:
+		return mp_encode_double(buf, mem->u.r);
+	case MEM_TYPE_BIN: {
+		char *pos = mp_encode_binl(buf, mem->n);
+		memcpy(pos, mem->z, mem->n);
+		return pos + mem->n;
+	}
+	case MEM_TYPE_ARRAY:
+	case MEM_TYPE_MAP:
+		memcpy(buf, mem->z, mem->n);
+		return buf + mem->n;
+	case MEM_TYPE_BOOL:
+		return mp_encode_bool(buf, mem->u.b);
+	case MEM_TYPE_UUID:
+		return mp_encode_uuid(buf, &mem->u.uuid);
+	case MEM_TYPE_DEC:
+		return mp_encode_decimal(buf, &mem->u.d);
+	case MEM_TYPE_DATETIME:
+		return mp_encode_datetime(buf, &mem->u.dt);
+	case MEM_TYPE_INTERVAL:
+		return mp_encode_interval(buf, &mem->u.itv);
+	default:
+		unreachable();
+	}
+}
+
 char *
 mem_to_mp(const struct Mem *mem, uint32_t *size, struct region *region)
 {
-	size_t used = region_used(region);
-	bool is_error = false;
-	struct mpstream stream;
-	mpstream_init(&stream, region, region_reserve_cb, region_alloc_cb,
-		      set_encode_error, &is_error);
-	mem_to_mpstream(mem, &stream);
-	mpstream_flush(&stream);
-	if (is_error) {
-		region_truncate(region, used);
-		diag_set(OutOfMemory, stream.pos - stream.buf,
-			 "mpstream_flush", "stream");
+	*size = mem_mp_size(mem);
+	char *data = region_alloc(region, *size);
+	if (data == NULL) {
+		diag_set(OutOfMemory, *size, "region_alloc", "mem_to_mp");
 		return NULL;
 	}
-	*size = region_used(region) - used;
-	return xregion_join(region, *size);
+	char *end = mem_to_mp_buf(mem, data);
+	assert((uint32_t)(end - data) == *size);
+	return data;
 }
 
 char *
 mem_encode_array(const struct Mem *mems, uint32_t count, uint32_t *size,
 		 struct region *region)
 {
-	size_t used = region_used(region);
-	bool is_error = false;
-	struct mpstream stream;
-	mpstream_init(&stream, region, region_reserve_cb, region_alloc_cb,
-		      set_encode_error, &is_error);
-	mpstream_encode_array(&stream, count);
+	uint32_t total = mp_sizeof_array(count);
 	for (const struct Mem *mem = mems; mem < mems + count; mem++)
-		mem_to_mpstream(mem, &stream);
-	/* NOTE: CRITICAL BUG FIX
-	 * Do NOT call mpstream_flush() here! The flush sets stream.buf = stream.pos,
-	 * which corrupts the buffer pointer. After flush, buf points to the END of
-	 * encoded data, not the beginning. When xregion_join later calculates
-	 * region_used() - used, it gets the size correctly, but xregion_join then
-	 * tries to return the LAST size bytes from the region.
-	 * Since mpstream_flush already appended the data to the region,
-	 * the "last size bytes" are uninitialized space AFTER the actual data!
-	 *
-	 * Solution: Calculate size directly from stream.pos - stream.buf BEFORE flush,
-	 * then use stream.buf directly (don't call flush or xregion_join).
-	 * The encoded data is already in the region and stream.buf still points to it.
-	 */
-	if (is_error) {
-		region_truncate(region, used);
-		diag_set(OutOfMemory, stream.pos - stream.buf,
-			 "mpstream encoding error", "stream");
+		total += mem_mp_size(mem);
+	char *array = region_alloc(region, total);
+	if (array == NULL) {
+		diag_set(OutOfMemory, total, "region_alloc", "mem_encode_array");
 		return NULL;
 	}
-	*size = (uint32_t)(stream.pos - stream.buf);
-	char *array = stream.buf;
+	char *pos = mp_encode_array(array, count);
+	for (const struct Mem *mem = mems; mem < mems + count; mem++)
+		pos = mem_to_mp_buf(mem, pos);
+	*size = total;
+	assert((uint32_t)(pos - array) == total);
 	mp_tuple_assert(array, array + *size);
 	return array;
 }
@@ -3259,12 +3311,7 @@ char *
 mem_encode_map(const struct Mem *mems, uint32_t count, uint32_t *size,
 	       struct region *region)
 {
-	size_t used = region_used(region);
-	bool is_error = false;
-	struct mpstream stream;
-	mpstream_init(&stream, region, region_reserve_cb, region_alloc_cb,
-		      set_encode_error, &is_error);
-	mpstream_encode_map(&stream, count);
+	uint32_t total = mp_sizeof_map(count);
 	for (uint32_t i = 0; i < count; ++i) {
 		const struct Mem *key = &mems[2 * i];
 		const struct Mem *value = &mems[2 * i + 1];
@@ -3275,19 +3322,24 @@ mem_encode_map(const struct Mem *mems, uint32_t count, uint32_t *size,
 				 mem_str(key), "integer, string or uuid");
 			goto error;
 		}
-		mem_to_mpstream(key, &stream);
-		mem_to_mpstream(value, &stream);
+		total += mem_mp_size(key) + mem_mp_size(value);
 	}
-	mpstream_flush(&stream);
-	if (is_error) {
-		diag_set(OutOfMemory, stream.pos - stream.buf,
-			 "mpstream_flush", "stream");
+	char *map = region_alloc(region, total);
+	if (map == NULL) {
+		diag_set(OutOfMemory, total, "region_alloc", "mem_encode_map");
 		goto error;
 	}
-	*size = region_used(region) - used;
-	return xregion_join(region, *size);
+	char *pos = mp_encode_map(map, count);
+	for (uint32_t i = 0; i < count; ++i) {
+		const struct Mem *key = &mems[2 * i];
+		const struct Mem *value = &mems[2 * i + 1];
+		pos = mem_to_mp_buf(key, pos);
+		pos = mem_to_mp_buf(value, pos);
+	}
+	*size = total;
+	assert((uint32_t)(pos - map) == total);
+	return map;
 error:
-	region_truncate(region, used);
 	return NULL;
 }
 
@@ -3440,22 +3492,8 @@ static const char *
 port_vdbemem_get_msgpack(struct port *base, uint32_t *size)
 {
 	struct port_vdbemem *port = (struct port_vdbemem *) base;
-	struct region *region = &fiber()->gc;
-	size_t region_svp = region_used(region);
-	bool is_error = false;
-	struct mpstream stream;
-	mpstream_init(&stream, region, region_reserve_cb, region_alloc_cb,
-		      set_encode_error, &is_error);
-	mpstream_encode_array(&stream, port->mem_count);
-	for (uint32_t i = 0; i < port->mem_count && !is_error; i++)
-		mem_to_mpstream((struct Mem *)port->mem + i, &stream);
-	mpstream_flush(&stream);
-	*size = region_used(region) - region_svp;
-	if (is_error) {
-		diag_set(OutOfMemory, *size, "region", "ret");
-		return NULL;
-	}
-	return xregion_join(region, *size);
+	return mem_encode_array((struct Mem *)port->mem, port->mem_count,
+				size, &fiber()->gc);
 }
 
 static const struct port_vtab port_vdbemem_vtab;

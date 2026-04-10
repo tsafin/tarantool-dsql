@@ -595,9 +595,17 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	}
 
 	case OP_Sort: {
-		/* Sort records (test harness) */
+		/*
+		 * OP_Sort is not a standalone no-op: in the original interpreter
+		 * it falls through into OP_Rewind after updating SQL_TEST counters.
+		 * Preserve that behavior here so sorter cursors are positioned for
+		 * the following loop.
+		 */
 		int handler_rc = vdbe_op_sort_inline(p, pOp, aMem);
 		if (handler_rc < 0) { rc = -1; break; }
+		handler_rc = vdbe_op_rewind(p, pOp, aMem);
+		if (handler_rc < 0) { rc = -1; break; }
+		if (handler_rc == 1) { pc = P2; continue; }
 		pc++; continue;
 	}
 
