@@ -5,9 +5,9 @@
 ]]
 
 box.cfg{
-    listen = 0,
     memtx_memory = 268435456,
 }
+box.execute([[SET SESSION "sql_seq_scan" = true;]])
 
 print("=== Dual Dispatcher Verification - SQL Test Suite ===")
 print("Timestamp: " .. os.date("%Y-%m-%d %H:%M:%S"))
@@ -46,7 +46,7 @@ local select_count = 0
 
 if pcall(function()
     local result = box.execute("SELECT * FROM test_basic")
-    select_count = result:len()
+    select_count = #result.rows
     select_ok = true
 end) then
     print("  ✓ SELECT successful (" .. select_count .. " rows)")
@@ -61,7 +61,7 @@ local where_count = 0
 
 if pcall(function()
     local result = box.execute("SELECT * FROM test_basic WHERE value > 250")
-    where_count = result:len()
+    where_count = #result.rows
     where_ok = true
 end) then
     print("  ✓ SELECT WHERE successful (" .. where_count .. " rows)")
@@ -76,7 +76,7 @@ local total_count = 0
 
 if pcall(function()
     local result = box.execute("SELECT COUNT(*) FROM test_basic")
-    total_count = result[1][1]
+    total_count = result.rows[1][1]
     count_ok = true
 end) then
     print("  ✓ SELECT COUNT successful (count=" .. total_count .. ")")
@@ -91,7 +91,7 @@ local arith_count = 0
 
 if pcall(function()
     local result = box.execute("SELECT id, value * 2 as doubled FROM test_basic LIMIT 5")
-    arith_count = result:len()
+    arith_count = #result.rows
     arith_ok = true
 end) then
     print("  ✓ SELECT arithmetic successful (" .. arith_count .. " rows with expressions)")
@@ -132,7 +132,7 @@ local verify_count = 0
 
 if pcall(function()
     local result = box.execute("SELECT COUNT(*) FROM test_basic")
-    verify_count = result[1][1]
+    verify_count = result.rows[1][1]
     verify_ok = true
 end) then
     print("  ✓ Verification successful (remaining rows: " .. verify_count .. ")")

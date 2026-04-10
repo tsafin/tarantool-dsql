@@ -112,34 +112,21 @@ vdbe_exec_old_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 int
 vdbe_exec_parallel_validation(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 {
-	int rc_old, rc_gen;
-
-	/* Suppress unused parameter warnings */
+	/*
+	 * The original scaffold called sqlVdbeExec() twice. With
+	 * VDBE_DISPATCHER=parallel that immediately re-enters dispatcher
+	 * selection and recurses back into this function, eventually causing
+	 * stack corruption.
+	 *
+	 * A real lock-step validator needs isolated execution state for the old
+	 * and generated engines, so fail explicitly instead of crashing.
+	 */
 	(void)aOp;
 	(void)aMem;
-
 	assert(p != NULL);
-
-	/* Phase 5.3.4: Run old dispatcher first */
-	rc_old = sqlVdbeExec(p);
-
-	/* For now, both dispatchers do the same thing.
-	 * This validates the test infrastructure is working.
-	 * Once Phase 5.3.3.2 implements the actual generated dispatcher,
-	 * this will compare two different implementations.
-	 *
-	 * TODO Phase 5.3.3.2: Replace with actual generated dispatcher
-	 * - vdbe_exec_generated_dispatcher will have real implementation
-	 * - Parallel validation will compare old vs. generated
-	 * - Both must produce identical results
-	 */
-	rc_gen = sqlVdbeExec(p);
-
-	/* Validate results match */
-	vdbe_validate_state(p, NULL, rc_old, rc_gen);
-
-	/* Return old dispatcher result (both should be identical) */
-	return rc_old;
+	diag_set(ClientError, ER_SQL_EXECUTE,
+		 "VDBE_DISPATCHER=parallel is not implemented safely yet");
+	return -1;
 }
 
 /*
