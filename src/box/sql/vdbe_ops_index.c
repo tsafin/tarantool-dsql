@@ -99,12 +99,17 @@ vdbe_op_idx_compare(Vdbe *p, Op *pOp, Mem *aMem)
 	assert(pOp->p4type == P4_INT32);
 	r.key_def = pC->key_def;
 	r.nField = (u16)pOp->p4.i;
-	if (pOp->opcode < OP_IdxLT) {
-		assert(pOp->opcode == OP_IdxLE || pOp->opcode == OP_IdxGT);
+	switch (pOp->opcode) {
+	case OP_IdxLE:
+	case OP_IdxGT:
 		r.default_rc = -1;
-	} else {
-		assert(pOp->opcode == OP_IdxGE || pOp->opcode == OP_IdxLT);
+		break;
+	case OP_IdxGE:
+	case OP_IdxLT:
 		r.default_rc = 0;
+		break;
+	default:
+		unreachable();
 	}
 	r.aMem = &aMem[pOp->p3];
 #ifdef SQL_DEBUG
@@ -115,14 +120,17 @@ vdbe_op_idx_compare(Vdbe *p, Op *pOp, Mem *aMem)
 	}
 #endif
 	int res = tarantoolsqlIdxKeyCompare(pC->uc.pCursor, &r);
-	assert((OP_IdxLE & 1) == (OP_IdxLT & 1) &&
-		(OP_IdxGE & 1) == (OP_IdxGT & 1));
-	if ((pOp->opcode & 1) == (OP_IdxLT & 1)) {
-		assert(pOp->opcode == OP_IdxLE || pOp->opcode == OP_IdxLT);
+	switch (pOp->opcode) {
+	case OP_IdxLE:
+	case OP_IdxLT:
 		res = -res;
-	} else {
-		assert(pOp->opcode == OP_IdxGE || pOp->opcode == OP_IdxGT);
+		break;
+	case OP_IdxGE:
+	case OP_IdxGT:
 		res++;
+		break;
+	default:
+		unreachable();
 	}
 	if (res > 0)
 		return VDBE_INDEX_JUMP;

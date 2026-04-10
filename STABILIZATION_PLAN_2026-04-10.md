@@ -97,6 +97,7 @@ Real lock-step validation must compare at least:
 3. Run the smoke matrix in supported modes:
    - `old`
    - `generated`
+   - use `tools/verify_dispatcher_baseline.sh` as the baseline entrypoint
 4. Run a targeted SQL regression subset in both `old` and `generated`.
 5. Add dispatcher-mode coverage to at least one regular test entrypoint so the
    work is no longer validated only by ad hoc scripts.
@@ -105,6 +106,7 @@ Real lock-step validation must compare at least:
 
 - `tools/verify_dispatchers_simple.lua`
 - `test_phase58.lua`
+- `tools/verify_dispatcher_sql_subset.sh`
 - representative tests from:
   - `test/sql`
   - `test/sql-tap`

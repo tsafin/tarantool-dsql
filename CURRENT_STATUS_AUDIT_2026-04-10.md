@@ -127,9 +127,11 @@ Observed result after the tuple-constraint fix:
 Conclusion:
 
 - `test_phase58.lua` is now usable again as a targeted regression gate for this
-  work.
+   work.
 - The previous blocker was real, shared by both dispatcher modes, and is now
   fixed locally.
+- This check is now part of the scripted baseline matrix in
+  `tools/verify_dispatcher_baseline.sh`.
 
 ### 3. Direct SQL probe under old dispatcher
 
@@ -194,6 +196,7 @@ Conclusion:
 - On this smoke test, generated matches old.
 - The obvious stderr noise issue is fixed locally, but that alone does not make
   the generated dispatcher release-ready.
+- This smoke check is now part of `tools/verify_dispatcher_baseline.sh`.
 
 ### 5. External old/generated equivalence harness
 
@@ -225,6 +228,41 @@ Important note:
 - This is the current supported equivalence gate.
 - It is not the same thing as the still-unimplemented in-process `parallel`
   mode.
+- It is also included in `tools/verify_dispatcher_baseline.sh`, so the current
+  supported old/generated matrix has a single entrypoint.
+
+### 5a. Representative SQL TAP subset
+
+Verified follow-up run against the rebuilt binary with explicit `test-run.py`
+paths and isolated vardirs:
+
+- `sql-tap/select1.test.lua`
+- `sql-tap/check.test.lua`
+- `sql-tap/trigger1.test.lua`
+- `sql-tap/limit.test.lua`
+- `sql-tap/join.test.lua`
+- `sql-tap/join2.test.lua`
+- `sql-tap/join3.test.lua`
+- `sql-tap/orderby1.test.lua`
+- `sql-tap/orderby2.test.lua`
+- `sql-tap/distinct.test.lua`
+- `sql-tap/subselect.test.lua`
+- `sql-tap/where2.test.lua`
+- `sql-tap/where3.test.lua`
+
+Observed result after fixing generated-dispatch error-path issues:
+
+- `VDBE_DISPATCHER=old`: passes
+- `VDBE_DISPATCHER=generated`: passes
+
+Operational note:
+
+- `test-run.py` must be pointed explicitly at `build/src/tarantool`; otherwise
+  it may pick up a stale `src/tarantool` binary from the source tree.
+- Old/generated suite runs must use separate `--vardir` values; concurrent runs
+  against the default vardir can produce WAL lock false failures.
+- The scripted entrypoint for this subset is now
+  `tools/verify_dispatcher_sql_subset.sh`.
 
 ### 6. Parallel mode
 
@@ -250,6 +288,8 @@ Conclusion:
 - Parallel mode is not stable enough to use as a validation gate.
 - This is consistent with the source audit: the mode is still a scaffold, not a
   finished equivalence harness.
+- The scripted baseline treats `VDBE_DISPATCHER=parallel` as an expected
+  failure/placeholder check rather than as a passing validation mode.
 
 ### 7. Stable CHECK-constraint repro in old mode
 
@@ -337,6 +377,9 @@ Root cause and current status:
 
 - No verified integration of dispatcher mode matrix into the regular SQL test
   suites.
+- A small scripted regular-suite subset now exists via
+  `tools/verify_dispatcher_sql_subset.sh`, but broad suite coverage is still not
+  in place.
 - No in-process lock-step old/generated validator.
 - No broad regular-suite integration of the new external equivalence harness.
 - No dispatcher-specific fuzzing matrix across `old`, `generated`, and `JIT`.
@@ -394,8 +437,8 @@ Status:
 Why not complete yet:
 
 - the in-process `parallel` mode is still not a real validator;
-- the new equivalence harness covers only a targeted deterministic workload, not
-  a broader regular test matrix;
+- the new equivalence harness plus scripted SQL TAP subset improve confidence,
+  but still do not cover a broad regular test matrix;
 - no dispatcher-mode fuzzing or wider regular-suite coverage has been added yet;
 - JIT-enabled parity testing still has not been completed.
 

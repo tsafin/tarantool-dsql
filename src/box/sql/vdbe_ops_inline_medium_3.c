@@ -170,9 +170,8 @@ vdbe_op_transactionrollback_inline(Vdbe *p, Op *pOp, Mem *aMem)
 /*
  * Opcode: TRANSACTIONCOMMIT - Commit current transaction
  *
- * Commit the current transaction. If the current transaction is NULL (not
- * in a transaction), this operation does nothing. If the commit fails,
- * return -1 (error).
+ * Commit the current transaction. If there is no active transaction, raise
+ * ER_SQL_EXECUTE. If the commit fails, return -1 (error).
  *
  * Transaction management must happen correctly for data consistency.
  */
@@ -190,6 +189,10 @@ vdbe_op_transactioncommit_inline(Vdbe *p, Op *pOp, Mem *aMem)
 			/* Transaction commit failed - return error */
 			return -1;
 		}
+	} else {
+		diag_set(ClientError, ER_SQL_EXECUTE, "cannot commit - no "
+			 "transaction is active");
+		return -1;
 	}
 
 	return 0;  /* Continue to next instruction */

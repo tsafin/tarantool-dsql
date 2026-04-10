@@ -191,6 +191,15 @@ vdbe_op_sortercompare(Vdbe *p, Op *pOp, Mem *aMem)
 int
 vdbe_op_sortersort(Vdbe *p, Op *pOp, Mem *aMem)
 {
+	(void)p;
+	(void)pOp;
+	(void)aMem;
+#ifdef SQL_TEST
+	extern int sql_sort_count;
+	extern int sql_search_count;
+	sql_sort_count++;
+	sql_search_count--;
+#endif
 	/* Delegate to the standard Rewind handler which handles sorters */
 	return vdbe_op_rewind(p, pOp, aMem);
 }

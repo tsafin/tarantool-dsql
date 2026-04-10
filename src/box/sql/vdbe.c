@@ -344,6 +344,8 @@ int sqlVdbeExec(Vdbe *p)
 	if (vdbe_get_dispatcher_mode() != VDBE_DISPATCH_OLD) {
 		VdbeDispatcher dispatcher = vdbe_get_dispatcher();
 		rc = dispatcher(p, aOp, aMem);
+		if (rc < 0)
+			goto abort_due_to_error;
 		/* Check if generated dispatcher requested fallback to inline */
 		if (rc != SQL_FALLBACK_TO_INLINE)
 			goto vdbe_return;
