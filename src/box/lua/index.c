@@ -115,14 +115,36 @@ lbox_index_update(lua_State *L)
 	const char *key = lbox_encode_tuple_on_gc(L, 3, &key_len);
 	if (key == NULL)
 		goto cleanup;
+	char *key_copy = malloc(key_len);
+	if (key_copy == NULL)
+		return luaL_error(L, "Out of memory");
+	memcpy(key_copy, key, key_len);
 	size_t ops_len;
 	const char *ops = lbox_encode_tuple_on_gc(L, 4, &ops_len);
-	if (ops == NULL)
+	if (ops == NULL) {
+		free(key_copy);
 		goto cleanup;
+	}
+
+	/*
+	 * Protect both encoded arguments from region reuse during update
+	 * validation. key and ops are initially encoded into fiber gc region,
+	 * but box_update() may allocate while validating them and overwrite the
+	 * original buffers.
+	 */
+	char *ops_copy = malloc(ops_len);
+	if (ops_copy == NULL) {
+		free(ops_copy);
+		free(key_copy);
+		return luaL_error(L, "Out of memory");
+	}
+	memcpy(ops_copy, ops, ops_len);
 
 	struct tuple *result;
-	rc = box_update(space_id, index_id, key, key + key_len,
-			ops, ops + ops_len, 1, &result);
+	rc = box_update(space_id, index_id, key_copy, key_copy + key_len,
+			ops_copy, ops_copy + ops_len, 1, &result);
+	free(key_copy);
+	free(ops_copy);
 cleanup:
 	region_truncate(&fiber()->gc, region_svp);
 	return rc == 0 ? luaT_pushtupleornil(L, result) : luaT_error(L);
@@ -143,14 +165,34 @@ lbox_upsert(lua_State *L)
 	const char *tuple = lbox_encode_tuple_on_gc(L, 2, &tuple_len);
 	if (tuple == NULL)
 		goto cleanup;
+	char *tuple_copy = malloc(tuple_len);
+	if (tuple_copy == NULL)
+		return luaL_error(L, "Out of memory");
+	memcpy(tuple_copy, tuple, tuple_len);
 	size_t ops_len;
 	const char *ops = lbox_encode_tuple_on_gc(L, 3, &ops_len);
-	if (ops == NULL)
+	if (ops == NULL) {
+		free(tuple_copy);
 		goto cleanup;
+	}
+
+	/*
+	 * tuple and ops are encoded on the gc region. Copy them to heap before
+	 * box_upsert() so validation can't clobber either buffer via region reuse.
+	 */
+	char *ops_copy = malloc(ops_len);
+	if (ops_copy == NULL) {
+		free(ops_copy);
+		free(tuple_copy);
+		return luaL_error(L, "Out of memory");
+	}
+	memcpy(ops_copy, ops, ops_len);
 
 	struct tuple *result;
-	rc = box_upsert(space_id, 0, tuple, tuple + tuple_len,
-			ops, ops + ops_len, 1, &result);
+	rc = box_upsert(space_id, 0, tuple_copy, tuple_copy + tuple_len,
+			ops_copy, ops_copy + ops_len, 1, &result);
+	free(tuple_copy);
+	free(ops_copy);
 cleanup:
 	region_truncate(&fiber()->gc, region_svp);
 	return rc == 0 ? luaT_pushtupleornil(L, result) : luaT_error(L);
