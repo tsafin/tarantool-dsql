@@ -62,28 +62,34 @@ lbox_encode_tuple_on_gc(lua_State *L, int idx, size_t *p_len)
 {
 	struct region *gc = &fiber()->gc;
 	size_t used = region_used(gc);
+	region_on_alloc_f on_alloc_cb = gc->on_alloc_cb;
+	region_on_truncate_f on_truncate_cb = gc->on_truncate_cb;
+	void *cb_arg = gc->cb_arg;
+	/*
+	 * mpstream encodes into reserved region memory and finalizes it via
+	 * region_alloc()/region_join(). The fiber GC allocation callback
+	 * records backtraces on the same region, so keep it disabled while the
+	 * encoded tuple is still being materialized there.
+	 */
+	region_set_callbacks(gc, NULL, NULL, NULL);
 	struct mpstream stream;
 	mpstream_init(&stream, gc, region_reserve_cb, region_alloc_cb,
 			luamp_error, L);
 	if (luamp_encode_tuple(L, luaL_msgpack_default, &stream, idx) != 0) {
+		region_set_callbacks(gc, on_alloc_cb, on_truncate_cb, cb_arg);
 		region_truncate(gc, used);
 		return NULL;
 	}
-	/* NOTE: CRITICAL BUG FIX (SAME AS mem_encode_array)
-	 * Do NOT call mpstream_flush() here! The flush sets stream.buf = stream.pos,
-	 * which corrupts the buffer pointer. After flush, buf points to the END of
-	 * encoded data, not the beginning. When xregion_join later calculates
-	 * region_used() - used, it gets the size correctly, but xregion_join then
-	 * tries to return the LAST size bytes from the region.
-	 * Since mpstream is already writing to the region, the "last size bytes"
-	 * are uninitialized space AFTER the actual data!
-	 *
-	 * Solution: Calculate size directly from stream.pos - stream.buf BEFORE flush,
-	 * then use stream.buf directly (don't call flush or xregion_join).
-	 * The encoded data is already in the region and stream.buf still points to it.
-	 */
-	*p_len = (size_t)(stream.pos - stream.buf);
-	return stream.buf;
+	mpstream_flush(&stream);
+	*p_len = region_used(gc) - used;
+	char *tuple = (char *)region_join(gc, *p_len);
+	region_set_callbacks(gc, on_alloc_cb, on_truncate_cb, cb_arg);
+	if (tuple == NULL) {
+		diag_set(OutOfMemory, *p_len, "region", "tuple data");
+		region_truncate(gc, used);
+		return NULL;
+	}
+	return tuple;
 }
 
 int
