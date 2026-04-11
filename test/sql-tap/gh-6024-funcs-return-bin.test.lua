@@ -1,6 +1,14 @@
 #!/usr/bin/env tarantool
 local build_path = os.getenv("BUILDDIR")
-package.cpath = build_path..'/test/sql-tap/?.so;'..build_path..'/test/sql-tap/?.dylib;'..package.cpath
+local fio = require('fio')
+local source_dir = fio.dirname(debug.getinfo(1, 'S').source:sub(2))
+local module_cpath = source_dir..'/?.so;'..source_dir..'/?.dylib;'
+if build_path ~= nil then
+    module_cpath = module_cpath..
+                   build_path..'/test/sql-tap/?.so;'..
+                   build_path..'/test/sql-tap/?.dylib;'
+end
+package.cpath = module_cpath..package.cpath
 
 local test = require("sqltester")
 test:plan(5)

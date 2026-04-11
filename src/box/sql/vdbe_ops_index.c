@@ -451,6 +451,8 @@ vdbe_op_iteratoropen(Vdbe *p, Op *pOp, Mem *aMem)
 
 	/* Set key_def for cursor operations (seek, etc.) */
 	cur->key_def = index->def->key_def;
+	cur->nullRow = 1;
+	bt_cur->hints = pOp->p5 & OPFLAG_SEEKEQ;
 
 	return 0;
 }

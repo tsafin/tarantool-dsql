@@ -2707,8 +2707,11 @@ EXECUTE(OP_NullRow,(P1)): {
  * the cursor.
  */
 EXECUTE(OP_Last,(P1,P2,P3)): {        /* jump */
-	if (vdbe_op_last(p, pOp, aMem))
+	int res = 0;
+	if ((res = vdbe_op_last(p, pOp, aMem)) < 0)
 		goto abort_due_to_error;
+	if (res == 1)
+		JUMP_P2();
 	DISPATCH();
 }
 

@@ -444,6 +444,7 @@ static inline bool
 vdbe_opcode_is_jump(u8 opcode)
 {
 	switch (opcode) {
+	case OP_If:
 	case OP_IdxGE:
 	case OP_IdxGT:
 	case OP_IdxLE:

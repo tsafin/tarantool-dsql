@@ -160,8 +160,9 @@ int vdbe_op_next(Vdbe *p, Op *pOp, Mem *aMem)
 	assert(pOp->p4.xAdvance == sqlCursorNext);
 
 	/* The Next opcode is only used after SeekGT, SeekGE, and Rewind. */
-	assert(pC->seekOp == OP_SeekGT || pC->seekOp == OP_SeekGE
-	       || pC->seekOp == OP_Rewind || pC->seekOp == OP_Found);
+	assert(pC->uc.pCursor->eState == CURSOR_INVALID ||
+	       pC->seekOp == OP_SeekGT || pC->seekOp == OP_SeekGE ||
+	       pC->seekOp == OP_Rewind || pC->seekOp == OP_Found);
 
 	if (pOp->p4.xAdvance(pC->uc.pCursor, &res) != 0)
 		return -1;
@@ -231,8 +232,9 @@ int vdbe_op_prev(Vdbe *p, Op *pOp, Mem *aMem)
 	assert(pOp->p4.xAdvance == sqlCursorPrevious);
 
 	/* The Prev opcode is only used after SeekLT, SeekLE, and Last. */
-	assert(pC->seekOp == OP_SeekLT || pC->seekOp == OP_SeekLE
-	       || pC->seekOp == OP_Last);
+	assert(pC->uc.pCursor->eState == CURSOR_INVALID ||
+	       pC->seekOp == OP_SeekLT || pC->seekOp == OP_SeekLE ||
+	       pC->seekOp == OP_Last);
 
 	if (pOp->p4.xAdvance(pC->uc.pCursor, &res) != 0)
 		return -1;

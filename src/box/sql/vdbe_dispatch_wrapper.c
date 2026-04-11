@@ -23,6 +23,10 @@
 void vdbe_trace(Vdbe *p, Op *pOrigOp, int rc, Mem *aMem);
 void check_vdbe_operands(Vdbe *p, Op *pOp, Op *aOp, Mem *aMem);
 
+#ifdef SQL_TEST
+extern int sql_search_count;
+#endif
+
 /* Global dispatcher mode (Phase 5.3.4) */
 static VdbeDispatchMode vdbe_dispatcher_mode = VDBE_DISPATCH_AUTO;
 static int vdbe_dispatcher_mode_initialized = 0;
@@ -1005,6 +1009,9 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		pC->cacheStatus = CACHE_STALE;
 		pC->nullRow = (handler_rc != 0);  /* Set nullRow if no more rows */
 		if (handler_rc == 0) {  /* 0 = more rows, jump to P2 to process them */
+#ifdef SQL_TEST
+			sql_search_count++;
+#endif
 			pc = P2;
 			continue;
 		}
@@ -1016,7 +1023,13 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		VdbeCursor *pC = p->apCsr[P1];
 		pC->cacheStatus = CACHE_STALE;
 		pC->nullRow = (handler_rc != 0);
-		if (handler_rc == 0) { pc = P2; continue; }
+		if (handler_rc == 0) {
+#ifdef SQL_TEST
+			sql_search_count++;
+#endif
+			pc = P2;
+			continue;
+		}
 		pc++; continue;
 	}
 	case OP_Last: {
@@ -1035,7 +1048,13 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		pC->nullRow = (handler_rc != 0);
 		/* NextIfOpen delegates to Next, which returns 0=more rows, 1=no more rows.
 		 * Jump to P2 when cursor successfully advances (handler_rc == 0). */
-		if (handler_rc == 0) { pc = P2; continue; }
+		if (handler_rc == 0) {
+#ifdef SQL_TEST
+			sql_search_count++;
+#endif
+			pc = P2;
+			continue;
+		}
 		pc++; continue;
 	}
 	case OP_PrevIfOpen: {
@@ -1046,7 +1065,13 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		pC->nullRow = (handler_rc != 0);
 		/* PrevIfOpen delegates to Prev, which returns 0=more rows, 1=no more rows.
 		 * Jump to P2 when cursor successfully advances (handler_rc == 0). */
-		if (handler_rc == 0) { pc = P2; continue; }
+		if (handler_rc == 0) {
+#ifdef SQL_TEST
+			sql_search_count++;
+#endif
+			pc = P2;
+			continue;
+		}
 		pc++; continue;
 	}
 
