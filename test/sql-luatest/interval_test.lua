@@ -205,8 +205,15 @@ end
 g.test_interval_13_1 = function()
     g.server:exec(function()
         local build_path = os.getenv("BUILDDIR")
-        package.cpath = build_path..'/test/sql-luatest/?.so;'..
-                        build_path..'/test/sql-luatest/?.dylib;'..package.cpath
+        local fio = require('fio')
+        local source_dir = fio.dirname(debug.getinfo(1, 'S').source:sub(2))
+        local module_cpath = source_dir..'/?.so;'..source_dir..'/?.dylib;'
+        if build_path ~= nil then
+            module_cpath = module_cpath..
+                           build_path..'/test/sql-luatest/?.so;'..
+                           build_path..'/test/sql-luatest/?.dylib;'
+        end
+        package.cpath = module_cpath..package.cpath
         local func = {language = 'C', returns = 'boolean', param_list = {'any'},
                       exports = {'SQL'}}
         box.schema.func.create('sql_interval.is_interval', func);
@@ -223,8 +230,15 @@ end
 g.test_interval_13_2 = function()
     g.server:exec(function()
         local build_path = os.getenv("BUILDDIR")
-        package.cpath = build_path..'/test/sql-luatest/?.so;'..
-                        build_path..'/test/sql-luatest/?.dylib;'..package.cpath
+        local fio = require('fio')
+        local source_dir = fio.dirname(debug.getinfo(1, 'S').source:sub(2))
+        local module_cpath = source_dir..'/?.so;'..source_dir..'/?.dylib;'
+        if build_path ~= nil then
+            module_cpath = module_cpath..
+                           build_path..'/test/sql-luatest/?.so;'..
+                           build_path..'/test/sql-luatest/?.dylib;'
+        end
+        package.cpath = module_cpath..package.cpath
         local func = {language = 'C', returns = 'interval',
                       param_list = {'interval'}, exports = {'SQL'}}
         box.schema.func.create('sql_interval.ret_interval', func);

@@ -247,17 +247,15 @@ vdbe_op_map_inline(Vdbe *p, Op *pOp, Mem *aMem)
 
 /*
  * Opcode: GETITEM P1 P2 P3 * *
- * Synopsis: r[P3+P1]=r[P2][r[P3+P1+1]]
+ * Synopsis: r[P2]=value[P3@P1]
  *
- * Extract an element from an array or map. The container is in register P2,
- * and the index/key is derived from the P1 register count. The result is
- * stored in register P3+P1 (calculated as P3 + count).
+ * Get an element from the value in register P3[P1] using values in
+ * registers P3, ... P3 + (P1 - 1).
  *
  * Preconditions:
  * - P1 must contain a valid count (> 0)
- * - P2 must contain a valid array or map value
- * - P3 must contain the base register for indexing
- * - P3+P1 must be a valid output register
+ * - P2 must be a valid output register
+ * - P3 + P1 must contain a valid source value
  *
  * Return value:
  * - 0: Normal completion
@@ -267,29 +265,31 @@ int
 vdbe_op_getitem_inline(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	int count;
+	struct Mem *keys;
+	struct Mem *pOut;
 	struct Mem *value;
-
 	(void)p;
 
-	/* Get the register count from P1 */
 	count = pOp->p1;
 	assert(count > 0);
-
-	/* Calculate output register: P3 + count */
 	value = &aMem[pOp->p3 + count];
-	(void)value;
-
-	/* Check if the container (P2) is NULL */
-	if (mem_is_null(&aMem[pOp->p2])) {
+	if (mem_is_null(value)) {
 		diag_set(ClientError, ER_SQL_EXECUTE,
 			"Selecting is not possible from NULL");
 		return -1;
 	}
+	if (mem_is_any(value) || !mem_is_container(value)) {
+		diag_set(ClientError, ER_SQL_TYPE_MISMATCH, mem_str(value),
+			 "map or array");
+		return -1;
+	}
 
-	/* TODO: Extract actual element from array/map at calculated index */
-	/* This is a placeholder for the actual extraction logic */
+	pOut = &aMem[pOp->p2];
+	keys = &aMem[pOp->p3];
+	if (mem_getitem(value, keys, count, pOut) != 0)
+		return -1;
 
-	return 0;  /* Continue to next instruction */
+	return 0;
 }
 
 /*
