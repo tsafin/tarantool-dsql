@@ -320,8 +320,10 @@ int sqlVdbeExec(Vdbe *p)
 	 *   >= 0: PC of first unsupported opcode, fall back to interpreter
 	 *   -1:   execution complete (all opcodes handled by JIT)
 	 */
-	if (p->jit_compiled && p->jit_func != NULL &&
-	    p->pc >= 0 && p->pc < p->nOp) {
+	int jit_entry_pc = p->pc;
+	if (jit_entry_pc == 0 && p->jit_compiled && p->jit_func != NULL &&
+	    p->pc >= 0 && p->pc < p->nOp &&
+	    p->aOp[p->pc].opcode == OP_TTransaction) {
 		for (int jit_cf_steps = 0; jit_cf_steps < p->nOp; jit_cf_steps++) {
 			Op *jit_op = &p->aOp[p->pc];
 			if (jit_op->opcode == OP_Init) {
