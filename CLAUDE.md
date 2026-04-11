@@ -35,6 +35,26 @@
 - Always run `box.cfg{}` before any `box.execute` operations.
 - Always call `os.exit(rc)` at the end of the script to exit the event loop.
 
+## SQL Test Running
+
+- Use `python3 test/test-run.py --builddir /absolute/path/to/build --suite sql` for the `test/sql/` suite.
+- Use `python3 test/test-run.py --builddir /absolute/path/to/build --suite sql-tap` for the `test/sql-tap/` suite.
+- Use `python3 test/test-run.py --builddir /absolute/path/to/build --suite sql-luatest` for the `test/sql-luatest/` suite.
+- For focused debugging, add a pattern: `-p <test-name>` (for example `--suite sql-tap -p select1.test.lua`).
+- Always pass `--builddir` explicitly when checking JIT or alternate builds, otherwise `test-run.py` may pick the wrong executable.
+- SQL TAP harness enables `sql_seq_scan`; keep it enabled for SQL debugging unless a test explicitly checks the opposite behavior.
+
+## Standalone Lua Debug Scripts
+
+- For standalone repro/debug scripts, run tarantool from the build directory:
+  `cd <builddir> && rm -f *.snap *.xlog && ./src/tarantool /absolute/path/to/script.lua`
+- For direct `test/sql-tap/*.test.lua` runs outside `test-run.py`, extend `LUA_PATH` so harness helpers resolve:
+  `cd test/sql-tap && LUA_PATH='./?.lua;./lua/?.lua;;' <builddir>/src/tarantool <test>.test.lua`
+- If the TAP file also needs tokenizer/helpers copied by the harness, prefer `test-run.py`; direct execution is best for quick focused debugging after reproducing the environment it expects.
+- When debugging the generated dispatcher or JIT, add the runtime selector explicitly, for example:
+  `cd <builddir> && rm -f *.snap *.xlog && VDBE_DISPATCHER=generated SQL_JIT_ENABLE=1 ./src/tarantool /absolute/path/to/script.lua`
+- Use standalone scripts for fast repros outside the test harness; use `test-run.py` when you need suite setup, result checking, or memtx/vinyl coverage.
+
 ## Debugging Assertions
 
 When encountering an assertion failure:

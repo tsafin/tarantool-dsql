@@ -51,6 +51,8 @@ enum {
 	VDBE_OFFSET_AOP = offsetof(struct Vdbe, aOp),
 	/** Byte offset of aMem field within struct Vdbe. */
 	VDBE_OFFSET_AMEM = offsetof(struct Vdbe, aMem),
+	/** Byte offset of pc field within struct Vdbe. */
+	VDBE_OFFSET_PC = offsetof(struct Vdbe, pc),
 	/** Size of a single VdbeOp (Op) structure in bytes. */
 	VDBE_SIZEOF_OP = sizeof(Op),
 };
@@ -148,18 +150,18 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_BuiltinFunction] = JIT_MODE_CALL,
 	[OP_FunctionByName] = JIT_MODE_CALL,
 	[OP_AddImm] = JIT_MODE_INLINE,       /* Arithmetic */
-	[OP_Cast] = JIT_MODE_CALL,
+	[OP_Cast] = JIT_MODE_UNSUPPORTED,
 	[OP_Array] = JIT_MODE_CALL,
 	[OP_Map] = JIT_MODE_CALL,
 	[OP_Getitem] = JIT_MODE_CALL,
 	[OP_Permutation] = JIT_MODE_UNSUPPORTED,
 	[OP_Compare] = JIT_MODE_CALL,
 	[OP_If] = JIT_MODE_UNSUPPORTED,      /* Control flow */
-	[OP_Column] = JIT_MODE_CALL,         /* I/O operation */
+	[OP_Column] = JIT_MODE_UNSUPPORTED,
 	[OP_FetchByName] = JIT_MODE_CALL,
 	[OP_Fetch] = JIT_MODE_CALL,
-	[OP_ApplyType] = JIT_MODE_CALL,
-	[OP_MakeRecord] = JIT_MODE_CALL,
+	[OP_ApplyType] = JIT_MODE_UNSUPPORTED,
+	[OP_MakeRecord] = JIT_MODE_UNSUPPORTED,
 	[OP_Count] = JIT_MODE_CALL,
 	[OP_CreateForeignKey] = JIT_MODE_UNSUPPORTED,
 	[OP_CreateCheck] = JIT_MODE_UNSUPPORTED,
@@ -191,7 +193,7 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_ResetCount] = JIT_MODE_CALL,
 	[OP_SorterCompare] = JIT_MODE_CALL,
 	[OP_SorterData] = JIT_MODE_CALL,
-	[OP_RowData] = JIT_MODE_CALL,
+	[OP_RowData] = JIT_MODE_UNSUPPORTED,
 	[OP_NullRow] = JIT_MODE_CALL,
 	[OP_SorterInsert] = JIT_MODE_CALL,
 	[OP_IdxReplace] = JIT_MODE_CALL,
@@ -572,6 +574,33 @@ jit_array_element_ptr(LLVMBuilderRef builder, LLVMValueRef base_ptr,
 }
 
 /**
+ * Emit LLVM IR to store an int field in struct Vdbe through an opaque i8 *.
+ *
+ * Equivalent to: *(int *)((char *)base_ptr + offset) = value
+ *
+ * @param builder   LLVM IR builder
+ * @param base_ptr  LLVM value of type i8*
+ * @param offset    Byte offset of the int field
+ * @param value     Integer value to store
+ */
+static void
+jit_store_int_field(LLVMBuilderRef builder, LLVMValueRef base_ptr,
+		       int offset, int value)
+{
+	LLVMValueRef offset_val =
+		LLVMConstInt(LLVMInt32Type(), (unsigned)offset, 0);
+	LLVMValueRef field_addr =
+		LLVMBuildGEP(builder, base_ptr, &offset_val, 1, "field_addr");
+	LLVMTypeRef int_ptr_type = LLVMPointerType(LLVMInt32Type(), 0);
+	LLVMValueRef field_ptr =
+		LLVMBuildBitCast(builder, field_addr, int_ptr_type,
+				 "field_ptr");
+	LLVMBuildStore(builder,
+		       LLVMConstInt(LLVMInt32Type(), (unsigned)value, 0),
+		       field_ptr);
+}
+
+/**
  * Link all handler bitcode modules into the JIT module.
  *
  * Clones each loaded handler module and links it into the destination
@@ -787,11 +816,12 @@ vdbe_jit_compile(struct Vdbe *p)
 	 *
 	 * Handler return convention:
 	 *   0  = success, continue to next opcode
-	 *   1  = branch taken (comparison jumped), continue to next
+	 *   1  = jump to P2
 	 *  -1  = error occurred
 	 */
 	for (int i = 0; i < p->nOp; i++) {
 		LLVMPositionBuilderAtEnd(builder, op_blocks[i]);
+		jit_store_int_field(builder, param_vdbe, VDBE_OFFSET_PC, i);
 
 		VdbeOp *pOp = &p->aOp[i];
 		int opcode = pOp->opcode;
@@ -801,6 +831,15 @@ vdbe_jit_compile(struct Vdbe *p)
 		    opcode < (int)(sizeof(opcode_jit_modes) /
 				   sizeof(opcode_jit_modes[0])))
 			mode = opcode_jit_modes[opcode];
+
+		if (opcode == OP_Init || opcode == OP_Goto) {
+			if (pOp->p2 >= 0 && pOp->p2 < p->nOp)
+				LLVMBuildBr(builder, op_blocks[pOp->p2]);
+			else
+				LLVMBuildRet(builder,
+					     LLVMConstInt(LLVMInt32Type(), i, 0));
+			continue;
+		}
 
 		const char *handler_name = jit_handler_name_for_opcode(opcode);
 
@@ -871,25 +910,42 @@ vdbe_jit_compile(struct Vdbe *p)
 		/*
 		 * Check handler return value:
 		 *   rc < 0  → error, return rc
-		 *   rc >= 0 → continue to next opcode
+		 *   rc == 1 → jump to P2
+		 *   rc == 0 → continue to next opcode
 		 */
 		LLVMValueRef is_error =
 			LLVMBuildICmp(builder, LLVMIntSLT, ret_val,
 				      LLVMConstInt(LLVMInt32Type(), 0, 0),
 				      "is_error");
+		LLVMValueRef is_jump =
+			LLVMBuildICmp(builder, LLVMIntEQ, ret_val,
+				      LLVMConstInt(LLVMInt32Type(), 1, 0),
+				      "is_jump");
 
 		LLVMBasicBlockRef next_bb;
 		if (i + 1 < p->nOp)
 			next_bb = op_blocks[i + 1];
 		else
 			next_bb = exit_bb;
+		LLVMBasicBlockRef jump_bb = NULL;
+		if (pOp->p2 >= 0 && pOp->p2 < p->nOp)
+			jump_bb = op_blocks[pOp->p2];
+		else
+			jump_bb = next_bb;
 
 		char err_bb_name[32];
 		snprintf(err_bb_name, sizeof(err_bb_name), "err_%d", i);
 		LLVMBasicBlockRef err_bb =
 			LLVMAppendBasicBlock(jit_func, err_bb_name);
+		char cont_bb_name[32];
+		snprintf(cont_bb_name, sizeof(cont_bb_name), "cont_%d", i);
+		LLVMBasicBlockRef cont_bb =
+			LLVMAppendBasicBlock(jit_func, cont_bb_name);
 
-		LLVMBuildCondBr(builder, is_error, err_bb, next_bb);
+		LLVMBuildCondBr(builder, is_error, err_bb, cont_bb);
+
+		LLVMPositionBuilderAtEnd(builder, cont_bb);
+		LLVMBuildCondBr(builder, is_jump, jump_bb, next_bb);
 
 		/* Error block: return the error code */
 		LLVMPositionBuilderAtEnd(builder, err_bb);

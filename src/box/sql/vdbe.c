@@ -320,7 +320,8 @@ int sqlVdbeExec(Vdbe *p)
 	 *   >= 0: PC of first unsupported opcode, fall back to interpreter
 	 *   -1:   execution complete (all opcodes handled by JIT)
 	 */
-	if (p->jit_compiled && p->jit_func != NULL) {
+	if (p->jit_compiled && p->jit_func != NULL &&
+	    p->pc >= 0 && p->pc < p->nOp) {
 		int jit_rc = ((int (*)(struct Vdbe *, int))p->jit_func)(
 			p, p->pc);
 		if (jit_rc < 0) {
@@ -335,7 +336,12 @@ int sqlVdbeExec(Vdbe *p)
 		 * JIT hit an unsupported opcode at jit_rc.
 		 * Continue with the interpreter from that PC.
 		 */
-		assert(jit_rc < p->nOp);
+		if (jit_rc >= p->nOp) {
+			say_debug("JIT: invalid fallback pc=%d (nOp=%d), "
+				  "resuming at current pc=%d",
+				  jit_rc, p->nOp, p->pc);
+			jit_rc = p->pc;
+		}
 		say_debug("JIT: fallback to interpreter at pc=%d opcode=%s",
 			  jit_rc, sqlOpcodeName(p->aOp[jit_rc].opcode));
 		p->pc = jit_rc;
