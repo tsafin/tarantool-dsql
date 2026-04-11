@@ -322,6 +322,43 @@ int sqlVdbeExec(Vdbe *p)
 	 */
 	if (p->jit_compiled && p->jit_func != NULL &&
 	    p->pc >= 0 && p->pc < p->nOp) {
+		for (int jit_cf_steps = 0; jit_cf_steps < p->nOp; jit_cf_steps++) {
+			Op *jit_op = &p->aOp[p->pc];
+			if (jit_op->opcode == OP_Init) {
+				int i;
+				if (sql_vdbe_prepare(p) != 0) {
+					rc = -1;
+					goto abort_due_to_error;
+				}
+				assert(p->pc == 0);
+				assert(jit_op == p->aOp);
+				if (jit_op->p1 >= sqlGlobalConfig.iOnceResetThreshold) {
+					for (i = 1; i < p->nOp; i++) {
+						if (p->aOp[i].opcode == OP_Once)
+							p->aOp[i].p1 = 0;
+					}
+					jit_op->p1 = 0;
+				}
+				jit_op->p1++;
+				if (jit_op->p2 < 0 || jit_op->p2 >= p->nOp)
+					break;
+				p->pc = jit_op->p2;
+				continue;
+			}
+			if (jit_op->opcode == OP_Goto) {
+				if (jit_op->p2 < 0 || jit_op->p2 >= p->nOp)
+					break;
+				p->pc = jit_op->p2;
+				continue;
+			}
+			break;
+		}
+		if (p->pc < 0 || p->pc >= p->nOp) {
+			rc = SQL_DONE;
+			goto vdbe_return;
+		}
+		say_debug("JIT: enter at pc=%d opcode=%s",
+			  p->pc, sqlOpcodeName(p->aOp[p->pc].opcode));
 		int jit_rc = ((int (*)(struct Vdbe *, int))p->jit_func)(
 			p, p->pc);
 		if (jit_rc < 0) {

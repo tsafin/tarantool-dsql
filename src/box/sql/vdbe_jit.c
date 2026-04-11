@@ -221,8 +221,8 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_ShowCreateTable] = JIT_MODE_CALL,
 	[OP_Noop] = JIT_MODE_INLINE,         /* No-op can be inlined */
 	[OP_Explain] = JIT_MODE_UNSUPPORTED,
-	[OP_IsNull] = JIT_MODE_INLINE,       /* Null check */
-	[OP_NotNull] = JIT_MODE_INLINE,      /* Null check */
+	[OP_IsNull] = JIT_MODE_UNSUPPORTED,
+	[OP_NotNull] = JIT_MODE_UNSUPPORTED,
 };
 
 /*
@@ -832,7 +832,45 @@ vdbe_jit_compile(struct Vdbe *p)
 				   sizeof(opcode_jit_modes[0])))
 			mode = opcode_jit_modes[opcode];
 
-		if (opcode == OP_Init || opcode == OP_Goto) {
+		if (opcode == OP_Init) {
+			LLVMTypeRef prep_arg_types[1] = {
+				LLVMPointerType(LLVMInt8Type(), 0)
+			};
+			LLVMTypeRef prep_type =
+				LLVMFunctionType(LLVMInt32Type(),
+						 prep_arg_types, 1, 0);
+			LLVMValueRef prep_fn =
+				LLVMGetNamedFunction(module, "sql_vdbe_prepare");
+			if (prep_fn == NULL)
+				prep_fn = LLVMAddFunction(module,
+							  "sql_vdbe_prepare",
+							  prep_type);
+			LLVMValueRef prep_args[1] = {param_vdbe};
+			LLVMValueRef prep_rc =
+				LLVMBuildCall(builder, prep_fn, prep_args, 1,
+					      "init_rc");
+			LLVMValueRef prep_failed =
+				LLVMBuildICmp(builder, LLVMIntNE, prep_rc,
+					      LLVMConstInt(LLVMInt32Type(), 0, 0),
+					      "prep_failed");
+			LLVMBasicBlockRef init_err_bb =
+				LLVMAppendBasicBlock(jit_func, "init_err");
+			LLVMBasicBlockRef init_ok_bb =
+				LLVMAppendBasicBlock(jit_func, "init_ok");
+			LLVMBuildCondBr(builder, prep_failed, init_err_bb,
+					init_ok_bb);
+			LLVMPositionBuilderAtEnd(builder, init_err_bb);
+			LLVMBuildRet(builder, prep_rc);
+			LLVMPositionBuilderAtEnd(builder, init_ok_bb);
+			if (pOp->p2 >= 0 && pOp->p2 < p->nOp)
+				LLVMBuildBr(builder, op_blocks[pOp->p2]);
+			else
+				LLVMBuildRet(builder,
+					     LLVMConstInt(LLVMInt32Type(), i, 0));
+			continue;
+		}
+
+		if (opcode == OP_Goto) {
 			if (pOp->p2 >= 0 && pOp->p2 < p->nOp)
 				LLVMBuildBr(builder, op_blocks[pOp->p2]);
 			else
