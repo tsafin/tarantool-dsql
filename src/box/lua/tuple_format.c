@@ -62,16 +62,32 @@ lbox_tuple_format_new(struct lua_State *L)
 	assert((1 <= top && 2 >= top) && lua_istable(L, 1));
 	struct region *region = &fiber()->gc;
 	size_t region_svp = region_used(region);
+	region_on_alloc_f on_alloc_cb = region->on_alloc_cb;
+	region_on_truncate_f on_truncate_cb = region->on_truncate_cb;
+	void *cb_arg = region->cb_arg;
+	/*
+	 * Format data is materialized on the fiber GC region via mpstream and
+	 * then joined into a contiguous buffer. Suspend GC-region callbacks
+	 * while the buffer is still being committed there.
+	 */
+	region_set_callbacks(region, NULL, NULL, NULL);
 	struct mpstream stream;
 	mpstream_init(&stream, region, region_reserve_cb, region_alloc_cb,
 		      luamp_error, L);
 	if (luamp_encode(L, luaL_msgpack_default, &stream, 1) != 0) {
+		region_set_callbacks(region, on_alloc_cb, on_truncate_cb, cb_arg);
 		region_truncate(region, region_svp);
 		return luaT_error(L);
 	}
 	mpstream_flush(&stream);
 	size_t format_data_len = region_used(region) - region_svp;
-	const char *format_data = xregion_join(region, format_data_len);
+	const char *format_data = region_join(region, format_data_len);
+	region_set_callbacks(region, on_alloc_cb, on_truncate_cb, cb_arg);
+	if (format_data == NULL) {
+		diag_set(OutOfMemory, format_data_len, "region", "format data");
+		region_truncate(region, region_svp);
+		return luaT_error(L);
+	}
 	bool names_only = lua_toboolean(L, 2);
 	/*
 	 * Tuple formats are reusable. It means that runtime_tuple_format_new
