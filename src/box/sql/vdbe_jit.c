@@ -304,6 +304,17 @@ static const char *handler_bitcode_files[] = {
 	NULL
 };
 
+enum jit_handler_module {
+	JIT_MODULE_ARITH = 0,
+	JIT_MODULE_COMPARE,
+	JIT_MODULE_LOGICAL,
+	JIT_MODULE_DATA,
+	JIT_MODULE_CURSOR_DATA,
+	JIT_MODULE_INDEX,
+	JIT_MODULE_STRING,
+	JIT_MODULE_TYPE,
+};
+
 /**
  * Load a single bitcode file into an LLVM module.
  *
@@ -455,6 +466,58 @@ jit_handler_name_for_opcode(int opcode)
 	return opcode_handler_names[opcode];
 }
 
+static int
+jit_module_index_for_opcode(int opcode)
+{
+	switch (opcode) {
+	case OP_Add:
+	case OP_Subtract:
+	case OP_Multiply:
+	case OP_Divide:
+	case OP_Remainder:
+	case OP_Noop:
+		return JIT_MODULE_ARITH;
+	case OP_Ne:
+	case OP_Eq:
+	case OP_Gt:
+	case OP_Le:
+	case OP_Lt:
+	case OP_Ge:
+		return JIT_MODULE_COMPARE;
+	case OP_Or:
+	case OP_And:
+	case OP_Not:
+	case OP_BitAnd:
+	case OP_BitOr:
+	case OP_BitNot:
+		return JIT_MODULE_LOGICAL;
+	case OP_Integer:
+	case OP_Bool:
+	case OP_Int64:
+	case OP_Real:
+	case OP_String:
+	case OP_Null:
+	case OP_Blob:
+	case OP_Variable:
+	case OP_Move:
+	case OP_Copy:
+	case OP_SCopy:
+		return JIT_MODULE_DATA;
+	case OP_ResultRow:
+	case OP_Column:
+	case OP_RowData:
+		return JIT_MODULE_CURSOR_DATA;
+	case OP_Concat:
+		return JIT_MODULE_STRING;
+	case OP_Cast:
+	case OP_ApplyType:
+	case OP_MakeRecord:
+		return JIT_MODULE_TYPE;
+	default:
+		return -1;
+	}
+}
+
 /**
  * Emit LLVM IR to load a pointer field from a struct at a given
  * byte offset. Returns an i8* value.
@@ -519,12 +582,11 @@ jit_array_element_ptr(LLVMBuilderRef builder, LLVMValueRef base_ptr,
  * @return 0 on success, -1 on error
  */
 static int
-jit_link_handler_modules(LLVMModuleRef dest)
+jit_link_handler_modules(LLVMModuleRef dest, const bool *needed_modules)
 {
 	for (int i = 0; i < jit_state.module_count; i++) {
-		if (jit_state.handler_modules[i] == NULL)
+		if (!needed_modules[i] || jit_state.handler_modules[i] == NULL)
 			continue;
-
 		LLVMModuleRef clone = jit_clone_handler_module(i);
 		if (clone == NULL) {
 			say_warn("JIT: failed to clone handler module %s",
@@ -632,7 +694,20 @@ vdbe_jit_compile(struct Vdbe *p)
 	 * they can be referenced by the JIT-generated dispatch code.
 	 */
 	if (jit_state.modules_loaded > 0) {
-		if (jit_link_handler_modules(module) != 0) {
+		bool needed_modules[jit_state.module_count];
+		memset(needed_modules, 0, sizeof(needed_modules));
+		for (int i = 0; i < p->nOp; i++) {
+			int opcode = p->aOp[i].opcode;
+			const char *handler_name =
+				jit_handler_name_for_opcode(opcode);
+			if (handler_name == NULL ||
+			    opcode_jit_modes[opcode] == JIT_MODE_UNSUPPORTED)
+				continue;
+			int module_idx = jit_module_index_for_opcode(opcode);
+			if (module_idx >= 0 && module_idx < jit_state.module_count)
+				needed_modules[module_idx] = true;
+		}
+		if (jit_link_handler_modules(module, needed_modules) != 0) {
 			say_warn("JIT: handler module linking failed, "
 				 "falling back to stub");
 			LLVMDisposeModule(module);
@@ -776,10 +851,18 @@ vdbe_jit_compile(struct Vdbe *p)
 		LLVMValueRef aMem_ptr =
 			jit_load_ptr_field(builder, param_vdbe,
 					   VDBE_OFFSET_AMEM, "aMem");
+		LLVMTypeRef handler_type =
+			LLVMGetElementType(LLVMTypeOf(handler_fn));
+		assert(LLVMCountParamTypes(handler_type) == 3);
+		LLVMTypeRef handler_param_types[3];
+		LLVMGetParamTypes(handler_type, handler_param_types);
 		LLVMValueRef call_args[3] = {
-			param_vdbe,
-			pOp_ptr,
-			aMem_ptr,
+			LLVMBuildBitCast(builder, param_vdbe,
+					 handler_param_types[0], "vdbe_arg"),
+			LLVMBuildBitCast(builder, pOp_ptr,
+					 handler_param_types[1], "pOp_arg"),
+			LLVMBuildBitCast(builder, aMem_ptr,
+					 handler_param_types[2], "aMem_arg"),
 		};
 		LLVMValueRef ret_val =
 			LLVMBuildCall(builder, handler_fn, call_args, 3,
@@ -889,6 +972,9 @@ vdbe_jit_compile(struct Vdbe *p)
 	p->jit_func = (void *)(uintptr_t)func_addr;
 	p->jit_module = module;
 	p->jit_compiled = 1;
+	say_debug("JIT: compiled VDBE %p (%d ops: %d inline, %d call, %d unsupported)",
+		  (void *)p, p->nOp, inline_count, call_count,
+		  unsupported_count);
 
 	free(op_blocks);
 	return 0;
@@ -950,10 +1036,24 @@ vdbe_jit_shutdown(void)
 int
 vdbe_jit_is_enabled(void)
 {
-	/*
-	 * TODO: Check box.cfg{sql = {jit = {enable = false}}} setting
-	 * For now, return 0 (disabled by default for safety)
-	 */
+	char env[16];
+	const char *value = getenv_safe("SQL_JIT_ENABLE", env, sizeof(env));
+	if (value == NULL)
+		return 0;
+	static const char *const true_values[] = {
+		"1", "true", "yes", "on", NULL
+	};
+	static const char *const false_values[] = {
+		"0", "false", "no", "off", NULL
+	};
+	if (strindex(true_values, value, lengthof(true_values)) !=
+	    lengthof(true_values))
+		return 1;
+	if (strindex(false_values, value, lengthof(false_values)) !=
+	    lengthof(false_values))
+		return 0;
+	say_warn("Ignoring SQL_JIT_ENABLE=%s: expected one of "
+		 "0/1/false/true/no/yes/off/on", value);
 	return 0;
 }
 

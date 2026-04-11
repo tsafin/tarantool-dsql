@@ -417,8 +417,13 @@ else ()
     if(ENABLE_SQL_JIT)
         target_link_libraries(tarantool ${LLVM_LIBS})
     endif()
+    set(tarantool_link_flags "-Wl,--dynamic-list,${exports_file}")
+    if(ENABLE_SQL_JIT)
+        set(tarantool_link_flags
+            "${tarantool_link_flags} -Wl,--export-dynamic")
+    endif()
     set_target_properties(tarantool PROPERTIES
-        LINK_FLAGS "-Wl,--dynamic-list,${exports_file}")
+        LINK_FLAGS "${tarantool_link_flags}")
     # CMake 3.3 and below, for historical reasons, always linked
     # executables on some platforms with flags like -rdynamic to
     # export symbols from the executables for use by any plugins

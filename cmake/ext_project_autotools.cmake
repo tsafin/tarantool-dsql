@@ -60,13 +60,15 @@ function(ext_project_autotools name)
         )
     endif()
 
-    list_add_prefix(ARGS_BYPRODUCTS "${ARGS_DIR}/" byproducts)
+    set(autotools_source_dir "${PROJECT_SOURCE_DIR}/${ARGS_DIR}")
+    set(autotools_build_dir "${PROJECT_BINARY_DIR}/${ARGS_DIR}")
+    list_add_prefix(ARGS_BYPRODUCTS "${autotools_build_dir}/" byproducts)
 
-    file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/${ARGS_DIR})
+    file(MAKE_DIRECTORY ${autotools_build_dir})
 
     add_custom_command(
-        OUTPUT ${PROJECT_SOURCE_DIR}/${ARGS_DIR}/configure
-        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/${ARGS_DIR}
+        OUTPUT ${autotools_source_dir}/configure
+        WORKING_DIRECTORY ${autotools_source_dir}
         COMMAND
             autoreconf -i
         COMMAND
@@ -78,10 +80,10 @@ function(ext_project_autotools name)
     )
 
     add_custom_command(
-        OUTPUT ${ARGS_DIR}/Makefile
-        WORKING_DIRECTORY ${ARGS_DIR}
-        COMMAND ${PROJECT_SOURCE_DIR}/${ARGS_DIR}/configure ${ARGS_CONFIGURE}
-        DEPENDS ${ARGS_DIR}/configure
+        OUTPUT ${autotools_build_dir}/Makefile
+        WORKING_DIRECTORY ${autotools_build_dir}
+        COMMAND ${autotools_source_dir}/configure ${ARGS_CONFIGURE}
+        DEPENDS ${autotools_source_dir}/configure
     )
 
     # Some *.in files are products of *.am files and some are not. For the
@@ -89,14 +91,14 @@ function(ext_project_autotools name)
     # overkill. We only need to run config.status.
     add_custom_command(
         OUTPUT
-            ${ARGS_DIR}/config.log
-        WORKING_DIRECTORY ${ARGS_DIR}
+            ${autotools_build_dir}/config.log
+        WORKING_DIRECTORY ${autotools_build_dir}
         COMMAND ./config.status
         DEPENDS
             ${config_files_in}
             # This dependency reflects dependency on config.status.
             # config.status and Makefile are both updated on configure run.
-            ${ARGS_DIR}/Makefile
+            ${autotools_build_dir}/Makefile
     )
 
     ProcessorCount(nproc)
@@ -107,12 +109,12 @@ function(ext_project_autotools name)
     endif()
 
     add_custom_target(${name}
-        WORKING_DIRECTORY ${ARGS_DIR}
+        WORKING_DIRECTORY ${autotools_build_dir}
         COMMAND
             ${make}
         DEPENDS
-            ${ARGS_DIR}/Makefile
-            ${ARGS_DIR}/config.log
+            ${autotools_build_dir}/Makefile
+            ${autotools_build_dir}/config.log
         BYPRODUCTS
             ${byproducts}
     )

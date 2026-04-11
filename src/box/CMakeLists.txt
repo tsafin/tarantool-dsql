@@ -177,6 +177,12 @@ endif()
 #
 if(ENABLE_SQL_JIT)
     # List of handler files to compile to bitcode
+    set(sql_jit_handler_defs
+        -DSQL_TEST=1
+    )
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        list(APPEND sql_jit_handler_defs -DSQL_DEBUG=1)
+    endif()
     set(sql_jit_handlers
         sql/vdbe_ops_arith.c
         sql/vdbe_ops_compare.c
@@ -199,6 +205,8 @@ if(ENABLE_SQL_JIT)
             OUTPUT ${bitcode_file}
             COMMAND clang 
                 -emit-llvm -c -O2
+                -fno-emulated-tls
+                ${sql_jit_handler_defs}
                 -I${PROJECT_SOURCE_DIR}/src
                 -I${PROJECT_SOURCE_DIR}/src/lib
                 -I${PROJECT_SOURCE_DIR}/src/lib/core
@@ -568,3 +576,6 @@ if(ENABLE_SQL_JIT)
 endif()
 
 add_dependencies(box build_bundled_libs generate_sql_files)
+if(ENABLE_SQL_JIT)
+    add_dependencies(box sql_jit_bitcode)
+endif()

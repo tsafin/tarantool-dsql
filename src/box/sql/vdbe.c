@@ -335,6 +335,9 @@ int sqlVdbeExec(Vdbe *p)
 		 * JIT hit an unsupported opcode at jit_rc.
 		 * Continue with the interpreter from that PC.
 		 */
+		assert(jit_rc < p->nOp);
+		say_debug("JIT: fallback to interpreter at pc=%d opcode=%s",
+			  jit_rc, sqlOpcodeName(p->aOp[jit_rc].opcode));
 		p->pc = jit_rc;
 	}
 #endif
