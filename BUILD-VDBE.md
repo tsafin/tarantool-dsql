@@ -2,20 +2,20 @@
 
 ## Quick Build Commands
 
-For VDBE development, we only need to build the core components, not the full test suite.
+For VDBE development, prefer building the executable you are going to run.
 
-### From the `build/` directory:
+### From the build directory:
 
 ```bash
-# Build just the box library (contains all VDBE code)
-make box -j12
+# Rebuild the executable after SQL/VDBE changes
+make tarantool -j12
 
-# Build the server library
-make server -j12
+# Optional: rebuild only the static SQL/box library to check compilation
+make box -j12
 
 # Clean and rebuild VDBE files specifically
 rm -f src/box/CMakeFiles/box.dir/sql/vdbe*.c.o
-make box -j12
+make tarantool -j12
 ```
 
 ### Verify VDBE compilation:
@@ -44,6 +44,47 @@ touch ../src/box/sql/vdbe.c
 make box -j12 2>&1 | grep vdbe.c
 ```
 
+## SQL/JIT profiling build notes
+
+Debug builds now enable:
+
+- `SQL_DEBUG=1`
+- `SQL_VDBE_OP_PROFILE=1`
+
+This means `box.stat.sql()` includes per-opcode interpreter/JIT counters and
+accumulated microsecond timings by default in Debug builds. Release builds keep
+opcode profiling off unless `SQL_VDBE_OP_PROFILE` is defined explicitly.
+
+### JIT debug build example
+
+```bash
+cmake -S . -B build-jit-debug2 \
+      -DCMAKE_BUILD_TYPE=Debug \
+      -DENABLE_SQL_JIT=ON
+cmake --build build-jit-debug2 --target tarantool
+```
+
+### Quick stats probe
+
+```bash
+cd build-jit-debug2
+rm -f *.snap *.xlog
+SQL_JIT_ENABLE=1 ./src/tarantool /absolute/path/to/probe.lua
+```
+
+Inside `probe.lua`, inspect:
+
+```lua
+local stats = box.stat.sql()
+print(require('yaml').encode(stats))
+```
+
+Relevant fields:
+
+- aggregate counters such as `sql_interpreter_step_count` and `sql_jit_exec_count`
+- `interpreter_opcode_profile.count/time_us`
+- `jit_opcode_profile.count/time_us`
+
 ## Why Not `make -j12` (All Targets)?
 
 The full build includes test targets that have pre-existing issues:
@@ -71,6 +112,5 @@ Key settings:
 
 ## Build Status
 
-✅ **All VDBE components build successfully with zero warnings**
-
-Last verified: 2024-12-14
+- For SQL/VDBE changes, `make tarantool` is the reliable target because `make box`
+  does not refresh the runnable binary.

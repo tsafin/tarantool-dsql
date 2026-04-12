@@ -1,6 +1,8 @@
 # SQL Debug Facilities - VDBE Tracing and Listing
 
-This document describes how to enable and use Tarantool's SQL debugging facilities for bytecode inspection and execution tracing.
+This document describes how to enable and use Tarantool's SQL debugging
+facilities for bytecode inspection, execution tracing, and runtime opcode
+profiling.
 
 ## Overview
 
@@ -121,7 +123,85 @@ if (p->pc == 0 &&
 #endif
 ```
 
-**Note**: This code is **only compiled if SQL_DEBUG is defined at build time**. The build system defines this via CMake for Debug builds.
+**Note**: This code is **only compiled if SQL_DEBUG is defined at build time**.
+The build system defines this via CMake for Debug builds.
+
+## Opcode Profiling via `box.stat.sql()`
+
+### Compile-time switch
+
+Per-opcode profiling is controlled by `SQL_VDBE_OP_PROFILE`.
+
+- **Debug builds**: enabled by default in `src/box/CMakeLists.txt`
+- **Release builds**: disabled by default
+
+The intent is to keep the per-op timing/counter overhead out of normal release
+builds while making it available automatically in debug/JIT verification work.
+
+### What it exposes
+
+`box.stat.sql()` always returns the generic SQL counters. When
+`SQL_VDBE_OP_PROFILE` is enabled it also returns:
+
+```lua
+{
+  sql_opcode_profile_enabled = 1,
+  interpreter_opcode_profile = {
+    count = { Add = 1, SeekGE = 1, ResultRow = 1, ... },
+    time_us = { Add = 0, SeekGE = 3, ResultRow = 0, ... },
+  },
+  jit_opcode_profile = {
+    count = { Add = 4, Integer = 2, ... },
+    time_us = { Add = 1, Integer = 0, ... },
+  },
+}
+```
+
+The values in `time_us` are accumulated microseconds measured with
+`fiber_clock64()`.
+
+### Coverage
+
+Interpreter profiling covers both execution engines:
+
+1. the old inline dispatcher in `src/box/sql/vdbe.c`;
+2. the generated loop dispatcher in `src/box/sql/vdbe_dispatch_wrapper.c`.
+
+JIT profiling is emitted from LLVM-generated blocks in `src/box/sql/vdbe_jit.c`.
+
+### Important interpretation note
+
+The JIT opcode tables move only when native execution actually begins.
+
+So this combination:
+
+```lua
+sql_jit_exec_count == 0
+jit_opcode_profile.count == {}
+```
+
+does **not** mean the instrumentation is broken. It means the current runtime
+guards kept the statement on the interpreter path, so only interpreter opcode
+tables advanced.
+
+### Typical workflow
+
+```bash
+cd build-jit-debug2
+rm -f *.snap *.xlog
+SQL_JIT_ENABLE=1 VDBE_DISPATCHER=generated ./src/tarantool /absolute/path/to/probe.lua
+```
+
+Example probe:
+
+```lua
+box.cfg{}
+box.execute([[CREATE TABLE t (id INT PRIMARY KEY, a INT);]])
+box.execute([[INSERT INTO t VALUES (1, 10), (2, 20), (3, 30);]])
+box.execute([[SELECT a + 1 FROM t WHERE id = 2;]])
+print(require('yaml').encode(box.stat.sql()))
+os.exit(0)
+```
 
 ## Debug Output Types
 

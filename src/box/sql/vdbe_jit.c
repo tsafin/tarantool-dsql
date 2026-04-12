@@ -41,6 +41,10 @@
 #include <stddef.h>
 #include <limits.h>
 
+extern int64_t sql_jit_step_count;
+extern int64_t sql_jit_compile_count;
+extern int64_t sql_jit_compile_success_count;
+
 /*
  * Struct layout constants computed at compile time.
  * These allow the JIT to generate correct pointer arithmetic
@@ -600,6 +604,70 @@ jit_store_int_field(LLVMBuilderRef builder, LLVMValueRef base_ptr,
 		       field_ptr);
 }
 
+static void
+jit_increment_global_i64(LLVMModuleRef module, LLVMBuilderRef builder,
+			  const char *name)
+{
+	LLVMValueRef global = LLVMGetNamedGlobal(module, name);
+	if (global == NULL) {
+		global = LLVMAddGlobal(module, LLVMInt64Type(), name);
+		LLVMSetLinkage(global, LLVMExternalLinkage);
+	}
+	LLVMValueRef value = LLVMBuildLoad(builder, global, "stat_val");
+	LLVMValueRef next = LLVMBuildAdd(builder, value,
+					  LLVMConstInt(LLVMInt64Type(), 1, 0),
+					  "stat_next");
+	LLVMBuildStore(builder, next, global);
+}
+
+static LLVMValueRef
+jit_get_i64_function(LLVMModuleRef module, const char *name)
+{
+	LLVMValueRef fn = LLVMGetNamedFunction(module, name);
+	if (fn != NULL)
+		return fn;
+	LLVMTypeRef fn_type = LLVMFunctionType(LLVMInt64Type(), NULL, 0, 0);
+	return LLVMAddFunction(module, name, fn_type);
+}
+
+static LLVMValueRef
+jit_get_profile_record_function(LLVMModuleRef module)
+{
+	LLVMValueRef fn =
+		LLVMGetNamedFunction(module, "sql_vdbe_opcode_profile_record_jit");
+	if (fn != NULL)
+		return fn;
+	LLVMTypeRef arg_types[2] = {LLVMInt32Type(), LLVMInt64Type()};
+	LLVMTypeRef fn_type = LLVMFunctionType(LLVMVoidType(), arg_types, 2, 0);
+	return LLVMAddFunction(module, "sql_vdbe_opcode_profile_record_jit",
+			       fn_type);
+}
+
+static void
+jit_emit_profile_record(LLVMModuleRef module, LLVMBuilderRef builder, int opcode,
+			  LLVMValueRef start_us)
+{
+	jit_increment_global_i64(module, builder, "sql_jit_step_count");
+#if SQL_VDBE_OP_PROFILE
+	LLVMValueRef now_fn = jit_get_i64_function(module, "fiber_clock64");
+	LLVMValueRef now_us =
+		LLVMBuildCall(builder, now_fn, NULL, 0, "jit_profile_now");
+	LLVMValueRef elapsed_us =
+		LLVMBuildSub(builder, now_us, start_us, "jit_profile_elapsed");
+	LLVMValueRef record_fn = jit_get_profile_record_function(module);
+	LLVMValueRef record_args[2] = {
+		LLVMConstInt(LLVMInt32Type(), (uint64_t)opcode, 0),
+		elapsed_us,
+	};
+	LLVMBuildCall(builder, record_fn, record_args, 2, "");
+#else
+	(void)module;
+	(void)builder;
+	(void)opcode;
+	(void)start_us;
+#endif
+}
+
 /**
  * Link all handler bitcode modules into the JIT module.
  *
@@ -662,6 +730,7 @@ vdbe_jit_compile(struct Vdbe *p)
 		p->jit_module = NULL;
 		return 0;
 	}
+	sql_jit_compile_count++;
 
 	/*
 	 * Phase 2: Analyze VDBE program opcodes.
@@ -826,6 +895,7 @@ vdbe_jit_compile(struct Vdbe *p)
 		VdbeOp *pOp = &p->aOp[i];
 		int opcode = pOp->opcode;
 		enum vdbe_jit_mode mode = JIT_MODE_UNSUPPORTED;
+		LLVMValueRef profile_start_us = NULL;
 
 		if (opcode >= 0 &&
 		    opcode < (int)(sizeof(opcode_jit_modes) /
@@ -833,6 +903,13 @@ vdbe_jit_compile(struct Vdbe *p)
 			mode = opcode_jit_modes[opcode];
 
 		if (opcode == OP_Init) {
+#if SQL_VDBE_OP_PROFILE
+			profile_start_us = LLVMBuildCall(builder,
+				jit_get_i64_function(module, "fiber_clock64"),
+				NULL, 0, "jit_profile_start");
+#else
+			profile_start_us = LLVMConstInt(LLVMInt64Type(), 0, 0);
+#endif
 			LLVMTypeRef prep_arg_types[1] = {
 				LLVMPointerType(LLVMInt8Type(), 0)
 			};
@@ -860,8 +937,12 @@ vdbe_jit_compile(struct Vdbe *p)
 			LLVMBuildCondBr(builder, prep_failed, init_err_bb,
 					init_ok_bb);
 			LLVMPositionBuilderAtEnd(builder, init_err_bb);
+			jit_emit_profile_record(module, builder, opcode,
+						profile_start_us);
 			LLVMBuildRet(builder, prep_rc);
 			LLVMPositionBuilderAtEnd(builder, init_ok_bb);
+			jit_emit_profile_record(module, builder, opcode,
+						profile_start_us);
 			if (pOp->p2 >= 0 && pOp->p2 < p->nOp)
 				LLVMBuildBr(builder, op_blocks[pOp->p2]);
 			else
@@ -871,6 +952,15 @@ vdbe_jit_compile(struct Vdbe *p)
 		}
 
 		if (opcode == OP_Goto) {
+#if SQL_VDBE_OP_PROFILE
+			profile_start_us = LLVMBuildCall(builder,
+				jit_get_i64_function(module, "fiber_clock64"),
+				NULL, 0, "jit_profile_start");
+#else
+			profile_start_us = LLVMConstInt(LLVMInt64Type(), 0, 0);
+#endif
+			jit_emit_profile_record(module, builder, opcode,
+						profile_start_us);
 			if (pOp->p2 >= 0 && pOp->p2 < p->nOp)
 				LLVMBuildBr(builder, op_blocks[pOp->p2]);
 			else
@@ -907,6 +997,13 @@ vdbe_jit_compile(struct Vdbe *p)
 				     LLVMConstInt(LLVMInt32Type(), i, 0));
 			continue;
 		}
+#if SQL_VDBE_OP_PROFILE
+		profile_start_us = LLVMBuildCall(builder,
+			jit_get_i64_function(module, "fiber_clock64"),
+			NULL, 0, "jit_profile_start");
+#else
+		profile_start_us = LLVMConstInt(LLVMInt64Type(), 0, 0);
+#endif
 
 		/*
 		 * Compute pointers to p->aOp[i] and p->aMem.
@@ -983,10 +1080,14 @@ vdbe_jit_compile(struct Vdbe *p)
 		LLVMBuildCondBr(builder, is_error, err_bb, cont_bb);
 
 		LLVMPositionBuilderAtEnd(builder, cont_bb);
+		jit_emit_profile_record(module, builder, opcode,
+					profile_start_us);
 		LLVMBuildCondBr(builder, is_jump, jump_bb, next_bb);
 
 		/* Error block: return the error code */
 		LLVMPositionBuilderAtEnd(builder, err_bb);
+		jit_emit_profile_record(module, builder, opcode,
+					profile_start_us);
 		LLVMBuildRet(builder, ret_val);
 	}
 
@@ -1066,6 +1167,7 @@ vdbe_jit_compile(struct Vdbe *p)
 	p->jit_func = (void *)(uintptr_t)func_addr;
 	p->jit_module = module;
 	p->jit_compiled = 1;
+	sql_jit_compile_success_count++;
 	say_debug("JIT: compiled VDBE %p (%d ops: %d inline, %d call, %d unsupported)",
 		  (void *)p, p->nOp, inline_count, call_count,
 		  unsupported_count);

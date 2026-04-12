@@ -44,6 +44,8 @@
 #include "box/txn.h"
 #include "box/tuple.h"
 #include "box/port.h"
+#include "fiber.h"
+#include "info/info.h"
 #include "sqlInt.h"
 #include "mem.h"
 #include "vdbeInt.h"
@@ -145,6 +147,101 @@ int sql_sort_count = 0;
  */
 #ifdef SQL_TEST
 int sql_found_count = 0;
+#endif
+
+int64_t sql_interpreter_step_count = 0;
+int64_t sql_jit_step_count = 0;
+int64_t sql_jit_compile_count = 0;
+int64_t sql_jit_compile_success_count = 0;
+int64_t sql_jit_exec_count = 0;
+int64_t sql_jit_full_run_count = 0;
+int64_t sql_jit_fallback_count = 0;
+int64_t sql_jit_resume_skip_count = 0;
+int64_t sql_jit_guard_skip_count = 0;
+
+#if SQL_VDBE_OP_PROFILE
+static int64_t sql_interpreter_opcode_count[SQL_VDBE_OP_PROFILE_SIZE];
+static int64_t sql_interpreter_opcode_time_us[SQL_VDBE_OP_PROFILE_SIZE];
+static int64_t sql_jit_opcode_count[SQL_VDBE_OP_PROFILE_SIZE];
+static int64_t sql_jit_opcode_time_us[SQL_VDBE_OP_PROFILE_SIZE];
+
+static inline void
+sql_vdbe_opcode_profile_record(int64_t *count, int64_t *time_us, int opcode,
+			       int64_t elapsed_us)
+{
+	if (opcode < 0 || opcode >= SQL_VDBE_OP_PROFILE_SIZE)
+		return;
+	if (elapsed_us < 0)
+		elapsed_us = 0;
+	count[opcode]++;
+	time_us[opcode] += elapsed_us;
+}
+
+void
+sql_vdbe_opcode_profile_record_interpreter(int opcode, int64_t elapsed_us)
+{
+	sql_vdbe_opcode_profile_record(sql_interpreter_opcode_count,
+				       sql_interpreter_opcode_time_us, opcode,
+				       elapsed_us);
+}
+
+void
+sql_vdbe_opcode_profile_record_jit(int opcode, int64_t elapsed_us)
+{
+	sql_vdbe_opcode_profile_record(sql_jit_opcode_count,
+				       sql_jit_opcode_time_us, opcode,
+				       elapsed_us);
+}
+
+void
+sql_vdbe_opcode_profile_append_debug_info(struct info_handler *h)
+{
+	info_append_int(h, "sql_opcode_profile_enabled", 1);
+
+	info_table_begin(h, "interpreter_opcode_profile");
+	info_table_begin(h, "count");
+	for (int i = 0; i < SQL_VDBE_OP_PROFILE_SIZE; i++)
+		info_append_int(h, sqlOpcodeName(i),
+				sql_interpreter_opcode_count[i]);
+	info_table_end(h);
+	info_table_begin(h, "time_us");
+	for (int i = 0; i < SQL_VDBE_OP_PROFILE_SIZE; i++)
+		info_append_int(h, sqlOpcodeName(i),
+				sql_interpreter_opcode_time_us[i]);
+	info_table_end(h);
+	info_table_end(h);
+
+	info_table_begin(h, "jit_opcode_profile");
+	info_table_begin(h, "count");
+	for (int i = 0; i < SQL_VDBE_OP_PROFILE_SIZE; i++)
+		info_append_int(h, sqlOpcodeName(i), sql_jit_opcode_count[i]);
+	info_table_end(h);
+	info_table_begin(h, "time_us");
+	for (int i = 0; i < SQL_VDBE_OP_PROFILE_SIZE; i++)
+		info_append_int(h, sqlOpcodeName(i), sql_jit_opcode_time_us[i]);
+	info_table_end(h);
+	info_table_end(h);
+}
+#else
+void
+sql_vdbe_opcode_profile_record_interpreter(int opcode, int64_t elapsed_us)
+{
+	(void)opcode;
+	(void)elapsed_us;
+}
+
+void
+sql_vdbe_opcode_profile_record_jit(int opcode, int64_t elapsed_us)
+{
+	(void)opcode;
+	(void)elapsed_us;
+}
+
+void
+sql_vdbe_opcode_profile_append_debug_info(struct info_handler *h)
+{
+	info_append_int(h, "sql_opcode_profile_enabled", 0);
+}
 #endif
 
 /* Test a register to see if it exceeds the current maximum blob size.
@@ -321,9 +418,13 @@ int sqlVdbeExec(Vdbe *p)
 	 *   -1:   execution complete (all opcodes handled by JIT)
 	 */
 	int jit_entry_pc = p->pc;
-	if (jit_entry_pc == 0 && p->jit_compiled && p->jit_func != NULL &&
-	    p->pc >= 0 && p->pc < p->nOp &&
-	    p->aOp[p->pc].opcode == OP_TTransaction) {
+	if (p->jit_compiled && p->jit_func != NULL &&
+	    p->pc >= 0 && p->pc < p->nOp) {
+		if (jit_entry_pc != 0) {
+			sql_jit_resume_skip_count++;
+		} else if (p->aOp[p->pc].opcode != OP_TTransaction) {
+			sql_jit_guard_skip_count++;
+		} else {
 		for (int jit_cf_steps = 0; jit_cf_steps < p->nOp; jit_cf_steps++) {
 			Op *jit_op = &p->aOp[p->pc];
 			if (jit_op->opcode == OP_Init) {
@@ -361,6 +462,7 @@ int sqlVdbeExec(Vdbe *p)
 		}
 		say_debug("JIT: enter at pc=%d opcode=%s",
 			  p->pc, sqlOpcodeName(p->aOp[p->pc].opcode));
+		sql_jit_exec_count++;
 		int jit_rc = ((int (*)(struct Vdbe *, int))p->jit_func)(
 			p, p->pc);
 		if (jit_rc < 0) {
@@ -368,6 +470,7 @@ int sqlVdbeExec(Vdbe *p)
 			 * JIT handled everything. Return SQL_DONE since
 			 * the program completed without hitting ResultRow.
 			 */
+			sql_jit_full_run_count++;
 			rc = SQL_DONE;
 			goto vdbe_return;
 		}
@@ -383,7 +486,9 @@ int sqlVdbeExec(Vdbe *p)
 		}
 		say_debug("JIT: fallback to interpreter at pc=%d opcode=%s",
 			  jit_rc, sqlOpcodeName(p->aOp[jit_rc].opcode));
+		sql_jit_fallback_count++;
 		p->pc = jit_rc;
+		}
 	}
 #endif
 
@@ -412,6 +517,10 @@ int sqlVdbeExec(Vdbe *p)
 	Mem *pIn3 = 0;             /* 3rd input operand */
 	Mem *pOut = 0;             /* Output operand */
 	int *aPermute = 0;         /* Permutation of columns for OP_Compare */
+#if SQL_VDBE_OP_PROFILE
+	int vdbe_profile_opcode = -1;
+	int64_t vdbe_profile_start_us = 0;
+#endif
 
 	assert(pOp>=aOp && pOp<&aOp[p->nOp]);
 
@@ -449,6 +558,25 @@ int sqlVdbeExec(Vdbe *p)
 #define OUT_P2 &aMem[P2]
 #define OUT_P3 &aMem[P3]
 
+#if SQL_VDBE_OP_PROFILE
+#define VDBE_PROFILE_BEGIN() do {					\
+	vdbe_profile_opcode = pOp->opcode;				\
+	vdbe_profile_start_us = fiber_clock64();			\
+} while (0)
+
+#define VDBE_PROFILE_END() do {						\
+	if (vdbe_profile_opcode >= 0) {					\
+		sql_vdbe_opcode_profile_record_interpreter(		\
+			vdbe_profile_opcode,				\
+			fiber_clock64() - vdbe_profile_start_us);	\
+		vdbe_profile_opcode = -1;				\
+	}								\
+} while (0)
+#else
+#define VDBE_PROFILE_BEGIN() do { } while (0)
+#define VDBE_PROFILE_END() do { } while (0)
+#endif
+
 /*
  * Define macro to hide internal implementation
  * of dispatching to next opcode processing
@@ -457,22 +585,26 @@ int sqlVdbeExec(Vdbe *p)
 
 #define DISPATCH() do {                       	  \
 	vdbe_trace(p, pOrigOp, rc, aMem);         \
+	VDBE_PROFILE_END();                       \
 	pOp++;                                    \
 	assert(rc == 0);                          \
 	assert(pOp >= aOp && pOp < &aOp[p->nOp]); \
-	/*nVmStep++;*/                            \
+	sql_interpreter_step_count++;             \
 	check_vdbe_operands(p, pOp, aOp, aMem);   \
 	pOrigOp = pOp;                            \
+	VDBE_PROFILE_BEGIN();                     \
 	NEXT(pOp->opcode);                        \
 } while (0)
 
 #else
 
 #define DISPATCH() do {                       	  \
+	VDBE_PROFILE_END();                       \
 	pOp++;                                    \
 	assert(rc == 0);                          \
 	assert(pOp >= aOp && pOp < &aOp[p->nOp]); \
-	/*nVmStep++;*/                            \
+	sql_interpreter_step_count++;             \
+	VDBE_PROFILE_BEGIN();                     \
 	NEXT(pOp->opcode);                        \
 } while (0)
 
@@ -490,7 +622,8 @@ int sqlVdbeExec(Vdbe *p)
 	 */
 	assert(rc == 0);
 
-	//nVmStep++;
+	sql_interpreter_step_count++;
+	VDBE_PROFILE_BEGIN();
 
 #ifdef SQL_DEBUG
 	/* Only check first opcode when starting from beginning.
@@ -3753,6 +3886,7 @@ abort_due_to_error:
 
 	/* This is the only way out of this procedure. */
 vdbe_return:
+	VDBE_PROFILE_END();
 	assert(rc == 0 || rc == -1 || rc == SQL_ROW || rc == SQL_DONE);
 	return rc;
 

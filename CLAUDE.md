@@ -55,6 +55,34 @@
   `cd <builddir> && rm -f *.snap *.xlog && VDBE_DISPATCHER=generated SQL_JIT_ENABLE=1 ./src/tarantool /absolute/path/to/script.lua`
 - Use standalone scripts for fast repros outside the test harness; use `test-run.py` when you need suite setup, result checking, or memtx/vinyl coverage.
 
+## SQL Runtime Statistics
+
+- `box.stat.sql()` exposes persistent SQL execution counters from `src/box/sql.c:sql_debug_info()`.
+- Generic counters now include:
+  - `sql_interpreter_step_count`
+  - `sql_jit_step_count`
+  - `sql_jit_compile_count`
+  - `sql_jit_compile_success_count`
+  - `sql_jit_exec_count`
+  - `sql_jit_full_run_count`
+  - `sql_jit_fallback_count`
+  - `sql_jit_resume_skip_count`
+  - `sql_jit_guard_skip_count`
+- Per-opcode profiling is controlled by `SQL_VDBE_OP_PROFILE`.
+  - Debug builds enable it by default in `src/box/CMakeLists.txt`.
+  - Release builds leave it off unless you define `SQL_VDBE_OP_PROFILE=1` explicitly.
+- When enabled, `box.stat.sql()` also contains nested maps:
+  - `interpreter_opcode_profile.count`
+  - `interpreter_opcode_profile.time_us`
+  - `jit_opcode_profile.count`
+  - `jit_opcode_profile.time_us`
+- Per-opcode timing is accumulated in microseconds via `fiber_clock64()`.
+- Interpreter per-opcode profiling covers both:
+  - the old inline dispatcher in `vdbe.c`;
+  - the generated dispatcher loop in `vdbe_dispatch_wrapper.c`.
+- JIT per-opcode stats move only when native execution actually starts, so if
+  `sql_jit_exec_count == 0`, expect the JIT opcode maps to stay empty too.
+
 ## Debugging Assertions
 
 When encountering an assertion failure:

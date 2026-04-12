@@ -11,6 +11,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "fiber.h"
 #include "sqlInt.h"
 #include "mem.h"
 #include "vdbeInt.h"
@@ -25,6 +26,23 @@ void check_vdbe_operands(Vdbe *p, Op *pOp, Op *aOp, Mem *aMem);
 
 #ifdef SQL_TEST
 extern int sql_search_count;
+#endif
+extern int64_t sql_interpreter_step_count;
+
+#if SQL_VDBE_OP_PROFILE
+static __thread int vdbe_gen_profile_opcode = -1;
+static __thread int64_t vdbe_gen_profile_start_us = 0;
+
+#define VDBE_GEN_PROFILE_FLUSH() do {					\
+	if (vdbe_gen_profile_opcode >= 0) {				\
+		sql_vdbe_opcode_profile_record_interpreter(		\
+			vdbe_gen_profile_opcode,			\
+			fiber_clock64() - vdbe_gen_profile_start_us);	\
+		vdbe_gen_profile_opcode = -1;				\
+	}								\
+} while (0)
+#else
+#define VDBE_GEN_PROFILE_FLUSH() do { } while (0)
 #endif
 
 /* Global dispatcher mode (Phase 5.3.4) */
@@ -186,6 +204,10 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	assert(aOp == p->aOp);
 	assert(aMem == p->aMem);
 	assert(p->magic == VDBE_MAGIC_RUN);
+#if SQL_VDBE_OP_PROFILE
+	vdbe_gen_profile_opcode = -1;
+	vdbe_gen_profile_start_us = 0;
+#endif
 
 #ifdef SQL_DEBUG
 	if (pc == 0 &&
@@ -206,7 +228,13 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 
 	/* Main execution loop - Phase 5.5: Loop-based dispatcher */
 	while (pc < nOp) {
+		VDBE_GEN_PROFILE_FLUSH();
 		pOp = &aOp[pc];
+		sql_interpreter_step_count++;
+#if SQL_VDBE_OP_PROFILE
+		vdbe_gen_profile_opcode = pOp->opcode;
+		vdbe_gen_profile_start_us = fiber_clock64();
+#endif
 
 		/* Debug tracing (before opcode execution) */
 #ifdef SQL_DEBUG
@@ -1335,6 +1363,7 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	 */
 		default: {
 			/* Unhandled opcode - fall back to inline dispatcher */
+			VDBE_GEN_PROFILE_FLUSH();
 			p->pc = pc;
 			return SQL_FALLBACK_TO_INLINE;
 		}
@@ -1342,6 +1371,7 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 
 		/* Exit loop on error or special return code */
 		if (rc != 0) {
+			VDBE_GEN_PROFILE_FLUSH();
 			if (rc < 0 && diag_is_empty(diag_get())) {
 				diag_set(ClientError, ER_SQL_EXECUTE,
 					 "VDBE error without diagnostics");
@@ -1351,6 +1381,7 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 	}
 
 	/* Cleanup and return */
+	VDBE_GEN_PROFILE_FLUSH();
 	p->pc = pc;
 	return rc;
 

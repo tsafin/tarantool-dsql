@@ -473,6 +473,7 @@ add_dependencies(box vdbe_codegen)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_definitions(-DSQL_DEBUG=1)
+  add_definitions(-DSQL_VDBE_OP_PROFILE=1)
 endif()
 add_definitions(-DSQL_TEST=1)
 

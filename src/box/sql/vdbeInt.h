@@ -335,6 +335,16 @@ struct Vdbe {
  */
 #define SQL_FALLBACK_TO_INLINE  99
 
+#ifndef SQL_VDBE_OP_PROFILE
+# ifdef SQL_DEBUG
+#  define SQL_VDBE_OP_PROFILE 1
+# else
+#  define SQL_VDBE_OP_PROFILE 0
+# endif
+#endif
+
+#define SQL_VDBE_OP_PROFILE_SIZE (OP_NotNull + 1)
+
 /**
  * Close a VDBE cursor and release all the resources that cursor happens to
  * hold.
@@ -354,6 +364,8 @@ int sqlVdbeList(Vdbe *);
 int sqlVdbeHalt(Vdbe *);
 
 const char *sqlOpcodeName(int);
+void sql_vdbe_opcode_profile_record_interpreter(int opcode, int64_t elapsed_us);
+void sql_vdbe_opcode_profile_record_jit(int opcode, int64_t elapsed_us);
 int sqlVdbeCloseStatement(Vdbe *, int);
 void sqlVdbeFrameDelete(VdbeFrame *);
 int sqlVdbeFrameRestore(VdbeFrame *);

@@ -1235,11 +1235,35 @@ sql_debug_info(struct info_handler *h)
 	extern int sql_sort_count;
 	extern int sql_found_count;
 	extern int sql_xfer_count;
+	extern int64_t sql_interpreter_step_count;
+	extern int64_t sql_jit_step_count;
+	extern int64_t sql_jit_compile_count;
+	extern int64_t sql_jit_compile_success_count;
+	extern int64_t sql_jit_exec_count;
+	extern int64_t sql_jit_full_run_count;
+	extern int64_t sql_jit_fallback_count;
+	extern int64_t sql_jit_resume_skip_count;
+	extern int64_t sql_jit_guard_skip_count;
+	extern void sql_vdbe_opcode_profile_append_debug_info(struct info_handler *);
 	info_begin(h);
 	info_append_int(h, "sql_search_count", sql_search_count);
 	info_append_int(h, "sql_sort_count", sql_sort_count);
 	info_append_int(h, "sql_found_count", sql_found_count);
 	info_append_int(h, "sql_xfer_count", sql_xfer_count);
+	info_append_int(h, "sql_interpreter_step_count",
+			sql_interpreter_step_count);
+	info_append_int(h, "sql_jit_step_count", sql_jit_step_count);
+	info_append_int(h, "sql_jit_compile_count", sql_jit_compile_count);
+	info_append_int(h, "sql_jit_compile_success_count",
+			sql_jit_compile_success_count);
+	info_append_int(h, "sql_jit_exec_count", sql_jit_exec_count);
+	info_append_int(h, "sql_jit_full_run_count", sql_jit_full_run_count);
+	info_append_int(h, "sql_jit_fallback_count", sql_jit_fallback_count);
+	info_append_int(h, "sql_jit_resume_skip_count",
+			sql_jit_resume_skip_count);
+	info_append_int(h, "sql_jit_guard_skip_count",
+			sql_jit_guard_skip_count);
+	sql_vdbe_opcode_profile_append_debug_info(h);
 	info_end(h);
 }
 
