@@ -159,6 +159,71 @@ int64_t sql_jit_fallback_count = 0;
 int64_t sql_jit_resume_skip_count = 0;
 int64_t sql_jit_guard_skip_count = 0;
 
+#ifdef ENABLE_SQL_JIT
+static inline void
+sql_vdbe_record_interpreter_prelude(int opcode, int64_t start_us)
+{
+	sql_interpreter_step_count++;
+#if SQL_VDBE_OP_PROFILE
+	sql_vdbe_opcode_profile_record_interpreter(opcode,
+						   fiber_clock64() - start_us);
+#else
+	(void)opcode;
+	(void)start_us;
+#endif
+}
+
+static int
+sql_vdbe_exec_init_for_jit(struct Vdbe *p, Op *pOp, struct sql *db)
+{
+	char *zTrace;
+	int i;
+
+	assert(pOp == p->aOp);
+	assert(pOp->opcode == OP_Init);
+	assert(pOp->p4.z == 0 || strncmp(pOp->p4.z, "-" "- ", 3) == 0);
+
+	if (p->pFrame == NULL && sql_vdbe_prepare(p) != 0)
+		return -1;
+
+	if ((db->mTrace & SQL_TRACE_STMT) != 0 && !p->doingRerun &&
+	    (zTrace = (pOp->p4.z ? pOp->p4.z : p->zSql)) != 0) {
+		(void)db->xTrace(SQL_TRACE_STMT, db->pTraceArg, p, zTrace);
+	}
+#ifdef SQL_DEBUG
+	if ((p->sql_flags & SQL_SqlTrace) != 0 &&
+	    (zTrace = (pOp->p4.z ? pOp->p4.z : p->zSql)) != 0)
+		sqlDebugPrintf("SQL-trace: %s\n", zTrace);
+#endif
+	assert(pOp->p2 > 0);
+	if (pOp->p1 >= sqlGlobalConfig.iOnceResetThreshold) {
+		for (i = 1; i < p->nOp; i++) {
+			if (p->aOp[i].opcode == OP_Once)
+				p->aOp[i].p1 = 0;
+		}
+		pOp->p1 = 0;
+	}
+	pOp->p1++;
+	p->pc = pOp->p2;
+	return 0;
+}
+
+static int
+sql_vdbe_exec_ttransaction_for_jit(struct Vdbe *p)
+{
+	if (!box_txn()) {
+		if (txn_begin() == NULL)
+			return -1;
+	} else {
+		p->anonymous_savepoint = txn_savepoint_new(in_txn(), NULL);
+		if (p->anonymous_savepoint == NULL)
+			return -1;
+	}
+	p->pc++;
+	return 0;
+}
+#endif
+
 #if SQL_VDBE_OP_PROFILE
 static int64_t sql_interpreter_opcode_count[SQL_VDBE_OP_PROFILE_SIZE];
 static int64_t sql_interpreter_opcode_time_us[SQL_VDBE_OP_PROFILE_SIZE];
@@ -422,72 +487,63 @@ int sqlVdbeExec(Vdbe *p)
 	    p->pc >= 0 && p->pc < p->nOp) {
 		if (jit_entry_pc != 0) {
 			sql_jit_resume_skip_count++;
-		} else if (p->aOp[p->pc].opcode != OP_TTransaction) {
-			sql_jit_guard_skip_count++;
 		} else {
-		for (int jit_cf_steps = 0; jit_cf_steps < p->nOp; jit_cf_steps++) {
-			Op *jit_op = &p->aOp[p->pc];
-			if (jit_op->opcode == OP_Init) {
-				int i;
-				if (sql_vdbe_prepare(p) != 0) {
+			if (p->aOp[p->pc].opcode == OP_Init) {
+				int64_t start_us = fiber_clock64();
+				if (sql_vdbe_exec_init_for_jit(p, &p->aOp[p->pc],
+							      sql_get()) != 0) {
+					sql_vdbe_record_interpreter_prelude(OP_Init,
+									 start_us);
 					rc = -1;
 					goto abort_due_to_error;
 				}
-				assert(p->pc == 0);
-				assert(jit_op == p->aOp);
-				if (jit_op->p1 >= sqlGlobalConfig.iOnceResetThreshold) {
-					for (i = 1; i < p->nOp; i++) {
-						if (p->aOp[i].opcode == OP_Once)
-							p->aOp[i].p1 = 0;
-					}
-					jit_op->p1 = 0;
+				sql_vdbe_record_interpreter_prelude(OP_Init,
+								 start_us);
+			}
+			if (p->pc >= 0 && p->pc < p->nOp &&
+			    p->aOp[p->pc].opcode == OP_TTransaction) {
+				int64_t start_us = fiber_clock64();
+				if (sql_vdbe_exec_ttransaction_for_jit(p) != 0) {
+					sql_vdbe_record_interpreter_prelude(
+						OP_TTransaction, start_us);
+					rc = -1;
+					goto abort_due_to_error;
 				}
-				jit_op->p1++;
-				if (jit_op->p2 < 0 || jit_op->p2 >= p->nOp)
-					break;
-				p->pc = jit_op->p2;
-				continue;
+				sql_vdbe_record_interpreter_prelude(
+					OP_TTransaction, start_us);
 			}
-			if (jit_op->opcode == OP_Goto) {
-				if (jit_op->p2 < 0 || jit_op->p2 >= p->nOp)
-					break;
-				p->pc = jit_op->p2;
-				continue;
+			if (p->pc < 0 || p->pc >= p->nOp) {
+				rc = SQL_DONE;
+				goto vdbe_return;
 			}
-			break;
-		}
-		if (p->pc < 0 || p->pc >= p->nOp) {
-			rc = SQL_DONE;
-			goto vdbe_return;
-		}
-		say_debug("JIT: enter at pc=%d opcode=%s",
-			  p->pc, sqlOpcodeName(p->aOp[p->pc].opcode));
-		sql_jit_exec_count++;
-		int jit_rc = ((int (*)(struct Vdbe *, int))p->jit_func)(
-			p, p->pc);
-		if (jit_rc < 0) {
+			say_debug("JIT: enter at pc=%d opcode=%s",
+				  p->pc, sqlOpcodeName(p->aOp[p->pc].opcode));
+			sql_jit_exec_count++;
+			int jit_rc = ((int (*)(struct Vdbe *, int))p->jit_func)(
+				p, p->pc);
+			if (jit_rc < 0) {
+				/*
+				 * JIT handled everything. Return SQL_DONE since
+				 * the program completed without hitting ResultRow.
+				 */
+				sql_jit_full_run_count++;
+				rc = SQL_DONE;
+				goto vdbe_return;
+			}
 			/*
-			 * JIT handled everything. Return SQL_DONE since
-			 * the program completed without hitting ResultRow.
+			 * JIT hit an unsupported opcode at jit_rc.
+			 * Continue with the interpreter from that PC.
 			 */
-			sql_jit_full_run_count++;
-			rc = SQL_DONE;
-			goto vdbe_return;
-		}
-		/*
-		 * JIT hit an unsupported opcode at jit_rc.
-		 * Continue with the interpreter from that PC.
-		 */
-		if (jit_rc >= p->nOp) {
-			say_debug("JIT: invalid fallback pc=%d (nOp=%d), "
-				  "resuming at current pc=%d",
-				  jit_rc, p->nOp, p->pc);
-			jit_rc = p->pc;
-		}
-		say_debug("JIT: fallback to interpreter at pc=%d opcode=%s",
-			  jit_rc, sqlOpcodeName(p->aOp[jit_rc].opcode));
-		sql_jit_fallback_count++;
-		p->pc = jit_rc;
+			if (jit_rc >= p->nOp) {
+				say_debug("JIT: invalid fallback pc=%d (nOp=%d), "
+					  "resuming at current pc=%d",
+					  jit_rc, p->nOp, p->pc);
+				jit_rc = p->pc;
+			}
+			say_debug("JIT: fallback to interpreter at pc=%d opcode=%s",
+				  jit_rc, sqlOpcodeName(p->aOp[jit_rc].opcode));
+			sql_jit_fallback_count++;
+			p->pc = jit_rc;
 		}
 	}
 #endif
