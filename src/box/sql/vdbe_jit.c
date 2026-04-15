@@ -97,7 +97,7 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_And] = JIT_MODE_INLINE,          /* Logical operation */
 	[OP_Not] = JIT_MODE_INLINE,          /* Logical operation */
 	[OP_Next] = JIT_MODE_CALL,
-	[OP_Goto] = JIT_MODE_UNSUPPORTED,    /* Control flow */
+	[OP_Goto] = JIT_MODE_INLINE,         /* Direct control flow */
 	[OP_SetDiag] = JIT_MODE_UNSUPPORTED,
 	[OP_Gosub] = JIT_MODE_UNSUPPORTED,   /* Control flow */
 	[OP_InitCoroutine] = JIT_MODE_UNSUPPORTED,
@@ -167,8 +167,8 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_Column] = JIT_MODE_CALL,
 	[OP_FetchByName] = JIT_MODE_CALL,
 	[OP_Fetch] = JIT_MODE_CALL,
-	[OP_ApplyType] = JIT_MODE_UNSUPPORTED,
-	[OP_MakeRecord] = JIT_MODE_UNSUPPORTED,
+	[OP_ApplyType] = JIT_MODE_CALL,
+	[OP_MakeRecord] = JIT_MODE_CALL,
 	[OP_Count] = JIT_MODE_CALL,
 	[OP_CreateForeignKey] = JIT_MODE_UNSUPPORTED,
 	[OP_CreateCheck] = JIT_MODE_UNSUPPORTED,
@@ -200,7 +200,7 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_ResetCount] = JIT_MODE_CALL,
 	[OP_SorterCompare] = JIT_MODE_CALL,
 	[OP_SorterData] = JIT_MODE_CALL,
-	[OP_RowData] = JIT_MODE_UNSUPPORTED,
+	[OP_RowData] = JIT_MODE_CALL,
 	[OP_NullRow] = JIT_MODE_CALL,
 	[OP_SorterInsert] = JIT_MODE_CALL,
 	[OP_IdxReplace] = JIT_MODE_CALL,
@@ -272,9 +272,17 @@ static const char *opcode_handler_names[] = {
 	[OP_IfNot] = "vdbe_op_ifnot_inline",
 	[OP_Column] = "vdbe_op_column",
 	[OP_Rewind] = "vdbe_op_rewind",
-	[OP_Next] = "vdbe_op_next",
+	[OP_Next] = "vdbe_op_next_jit",
+	[OP_Prev] = "vdbe_op_prev_jit",
+	[OP_NextIfOpen] = "vdbe_op_nextifopen_jit",
+	[OP_PrevIfOpen] = "vdbe_op_previfopen_jit",
 	[OP_IteratorOpen] = "vdbe_op_iteratoropen",
 	[OP_OpenSpace] = "vdbe_op_openspace_inline",
+	[OP_OpenTEphemeral] = "vdbe_op_opentephemeral_inline",
+	[OP_Close] = "vdbe_op_close_inline",
+	[OP_NotFound] = "vdbe_op_found_notfound_noconflict",
+	[OP_IdxInsert] = "vdbe_op_idx_insert_replace",
+	[OP_Update] = "vdbe_op_update",
 	[OP_Explain] = "vdbe_op_explain_inline",
 	[OP_ApplyType] = "vdbe_op_applytype",
 	[OP_MakeRecord] = "vdbe_op_makerecord",
@@ -587,11 +595,22 @@ jit_handler_is_external(int opcode)
 	case OP_IsNull:
 	case OP_NotNull:
 	case OP_Column:
+	case OP_RowData:
+	case OP_PrevIfOpen:
+	case OP_NextIfOpen:
+	case OP_Prev:
 	case OP_Rewind:
 	case OP_Next:
 	case OP_IteratorOpen:
 	case OP_OpenSpace:
+	case OP_OpenTEphemeral:
+	case OP_Close:
+	case OP_NotFound:
+	case OP_IdxInsert:
+	case OP_Update:
 	case OP_Explain:
+	case OP_ApplyType:
+	case OP_MakeRecord:
 		return true;
 	default:
 		return false;
@@ -932,7 +951,8 @@ vdbe_jit_compile(struct Vdbe *p)
 	if (entry_pc >= 0) {
 		int entry_inline_count = 0;
 		int entry_call_count = 0;
-		for (int i = entry_pc; i < p->nOp; i++) {
+		for (int i = entry_pc, steps = 0; i >= 0 && i < p->nOp &&
+		     steps < p->nOp; steps++) {
 			int opcode = p->aOp[i].opcode;
 			if (opcode < 0 ||
 			    opcode >= (int)(sizeof(opcode_jit_modes) /
@@ -940,12 +960,21 @@ vdbe_jit_compile(struct Vdbe *p)
 				break;
 			enum vdbe_jit_mode mode = opcode_jit_modes[opcode];
 			const char *handler_name = jit_handler_name_for_opcode(opcode);
+			if (opcode == OP_Goto) {
+				entry_inline_count++;
+				int target = p->aOp[i].p2;
+				if (target < 0 || target >= p->nOp)
+					break;
+				i = target;
+				continue;
+			}
 			if (mode == JIT_MODE_UNSUPPORTED || handler_name == NULL)
 				break;
 			if (mode == JIT_MODE_INLINE)
 				entry_inline_count++;
 			else if (mode == JIT_MODE_CALL)
 				entry_call_count++;
+			i++;
 		}
 		if ((entry_call_count == 0 && entry_inline_count < 8) ||
 		    (entry_call_count > 0 && entry_inline_count < 3)) {

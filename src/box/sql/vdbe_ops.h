@@ -62,9 +62,13 @@ int vdbe_op_rowdata(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_last(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_rewind(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_next(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_next_jit(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_nextifopen(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_nextifopen_jit(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_prev(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_prev_jit(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_previfopen(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_previfopen_jit(Vdbe *p, Op *pOp, Mem *aMem);
 /* Cursor seek opcodes - return 2 for skip next opcode (SEEKEQ) */
 int vdbe_op_seek_lt_gt(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_seek_le_ge(Vdbe *p, Op *pOp, Mem *aMem);

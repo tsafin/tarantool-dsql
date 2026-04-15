@@ -170,6 +170,29 @@ int vdbe_op_next(Vdbe *p, Op *pOp, Mem *aMem)
 	return res;  /* Return res for next_tail to process */
 }
 
+static int
+vdbe_op_advance_jit_tail(Vdbe *p, Op *pOp, int rc)
+{
+	if (rc < 0)
+		return rc;
+	VdbeCursor *pC = p->apCsr[pOp->p1];
+	if (pC == NULL)
+		return 0;
+	pC->cacheStatus = CACHE_STALE;
+	pC->nullRow = (rc != 0);
+#ifdef SQL_TEST
+	if (rc == 0)
+		sql_search_count++;
+#endif
+	return rc == 0 ? 1 : 0;
+}
+
+int
+vdbe_op_next_jit(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_advance_jit_tail(p, pOp, vdbe_op_next(p, pOp, aMem));
+}
+
 /* Opcode: NextIfOpen P1 P2 P3 P4 P5
  *
  * This opcode works just like Next except that if cursor P1 is not
@@ -187,6 +210,15 @@ int vdbe_op_nextifopen(Vdbe *p, Op *pOp, Mem *aMem)
 
 	/* Cursor is open - delegate to vdbe_op_next */
 	return vdbe_op_next(p, pOp, aMem);
+}
+
+int
+vdbe_op_nextifopen_jit(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	if (p->apCsr[pOp->p1] == NULL)
+		return 0;
+	return vdbe_op_advance_jit_tail(p, pOp,
+					vdbe_op_nextifopen(p, pOp, aMem));
 }
 
 /* Opcode: Prev P1 P2 P3 P4 P5
@@ -242,6 +274,12 @@ int vdbe_op_prev(Vdbe *p, Op *pOp, Mem *aMem)
 	return res;  /* Return res for next_tail to process */
 }
 
+int
+vdbe_op_prev_jit(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_advance_jit_tail(p, pOp, vdbe_op_prev(p, pOp, aMem));
+}
+
 /* Opcode: PrevIfOpen P1 P2 P3 P4 P5
  *
  * This opcode works just like Prev except that if cursor P1 is not
@@ -259,4 +297,13 @@ int vdbe_op_previfopen(Vdbe *p, Op *pOp, Mem *aMem)
 
 	/* Cursor is open - delegate to vdbe_op_prev */
 	return vdbe_op_prev(p, pOp, aMem);
+}
+
+int
+vdbe_op_previfopen_jit(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	if (p->apCsr[pOp->p1] == NULL)
+		return 0;
+	return vdbe_op_advance_jit_tail(p, pOp,
+					vdbe_op_previfopen(p, pOp, aMem));
 }

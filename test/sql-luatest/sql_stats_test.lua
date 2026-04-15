@@ -196,3 +196,52 @@ g_jit.test_sql_jit_column_opcode = function()
         t.assert_gt(res.profile.after.Column or 0, res.profile.before.Column or 0)
     end
 end
+
+g_jit.test_sql_jit_materialization_opcodes = function()
+    local res = g_jit.server:exec(function()
+        box.execute([[SET SESSION "sql_seq_scan" = true;]])
+        box.execute([[CREATE TABLE dst (id INT PRIMARY KEY, a INT, b INT);]])
+        box.execute([[INSERT INTO dst VALUES (1, 10, 100);]])
+
+        local before = box.stat.sql()
+        box.execute([[UPDATE dst SET a = a + 1;]])
+        local after = box.stat.sql()
+        local updated = box.execute([[SELECT id, a, b FROM dst;]]).rows
+
+        box.execute([[DROP TABLE dst;]])
+
+        local profile = nil
+        if before.sql_opcode_profile_enabled ~= 0 then
+            profile = {
+                before = before.jit_opcode_profile.count,
+                after = after.jit_opcode_profile.count,
+            }
+        end
+
+        return {
+            updated = updated,
+            before_compile = before.sql_jit_compile_count,
+            after_compile = after.sql_jit_compile_count,
+            before_exec = before.sql_jit_exec_count,
+            after_exec = after.sql_jit_exec_count,
+            before_steps = before.sql_jit_step_count,
+            after_steps = after.sql_jit_step_count,
+            profile = profile,
+        }
+    end)
+
+    t.assert_equals(res.updated, {{1, 11, 100}})
+    if res.after_compile == res.before_compile then
+        t.skip('SQL JIT is not available in this build')
+    end
+    t.assert_gt(res.after_exec, res.before_exec)
+    t.assert_gt(res.after_steps, res.before_steps)
+    if res.profile ~= nil then
+        t.assert_gt(res.profile.after.ApplyType or 0,
+                    res.profile.before.ApplyType or 0)
+        t.assert_gt(res.profile.after.MakeRecord or 0,
+                    res.profile.before.MakeRecord or 0)
+        t.assert_gt(res.profile.after.RowData or 0,
+                    res.profile.before.RowData or 0)
+    end
+end
