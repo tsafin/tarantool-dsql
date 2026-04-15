@@ -22,6 +22,7 @@
 #include "sqlInt.h"
 #include "vdbeInt.h"
 #include "vdbe_jit.h"
+#include "vdbe_ops.h"
 
 #ifdef ENABLE_SQL_JIT
 
@@ -35,6 +36,7 @@
 #include <llvm-c/Transforms/Utils.h>
 #include <llvm-c/OrcBindings.h>
 #include <llvm-c/Linker.h>
+#include <dlfcn.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -162,7 +164,7 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_Permutation] = JIT_MODE_UNSUPPORTED,
 	[OP_Compare] = JIT_MODE_CALL,
 	[OP_If] = JIT_MODE_CALL,             /* Control flow via helper */
-	[OP_Column] = JIT_MODE_UNSUPPORTED,
+	[OP_Column] = JIT_MODE_CALL,
 	[OP_FetchByName] = JIT_MODE_CALL,
 	[OP_Fetch] = JIT_MODE_CALL,
 	[OP_ApplyType] = JIT_MODE_UNSUPPORTED,
@@ -225,7 +227,7 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_SetSession] = JIT_MODE_UNSUPPORTED,
 	[OP_ShowCreateTable] = JIT_MODE_CALL,
 	[OP_Noop] = JIT_MODE_INLINE,         /* No-op can be inlined */
-	[OP_Explain] = JIT_MODE_UNSUPPORTED,
+	[OP_Explain] = JIT_MODE_CALL,
 	[OP_IsNull] = JIT_MODE_CALL,         /* Control flow via helper */
 	[OP_NotNull] = JIT_MODE_CALL,        /* Control flow via helper */
 };
@@ -269,6 +271,11 @@ static const char *opcode_handler_names[] = {
 	[OP_If] = "vdbe_op_ifnot_inline",
 	[OP_IfNot] = "vdbe_op_ifnot_inline",
 	[OP_Column] = "vdbe_op_column",
+	[OP_Rewind] = "vdbe_op_rewind",
+	[OP_Next] = "vdbe_op_next",
+	[OP_IteratorOpen] = "vdbe_op_iteratoropen",
+	[OP_OpenSpace] = "vdbe_op_openspace_inline",
+	[OP_Explain] = "vdbe_op_explain_inline",
 	[OP_ApplyType] = "vdbe_op_applytype",
 	[OP_MakeRecord] = "vdbe_op_makerecord",
 	[OP_RowData] = "vdbe_op_rowdata",
@@ -579,6 +586,12 @@ jit_handler_is_external(int opcode)
 	case OP_IfNot:
 	case OP_IsNull:
 	case OP_NotNull:
+	case OP_Column:
+	case OP_Rewind:
+	case OP_Next:
+	case OP_IteratorOpen:
+	case OP_OpenSpace:
+	case OP_Explain:
 		return true;
 	default:
 		return false;
@@ -715,6 +728,61 @@ jit_get_profile_record_function(LLVMModuleRef module)
 	LLVMTypeRef fn_type = LLVMFunctionType(LLVMVoidType(), arg_types, 2, 0);
 	return LLVMAddFunction(module, "sql_vdbe_opcode_profile_record_jit",
 			       fn_type);
+}
+
+static void
+jit_add_external_mappings(LLVMModuleRef module)
+{
+	if (jit_state.engine == NULL)
+		return;
+
+#define JIT_MAP_FN(fn_name)							\
+	do {									\
+		LLVMValueRef fn = LLVMGetNamedFunction(module, #fn_name);	\
+		if (fn != NULL)						\
+			LLVMAddGlobalMapping(jit_state.engine, fn,		\
+					 (void *)fn_name);			\
+	} while (0)
+
+	/*
+	 * Existing JIT execution already depends on these host-side helpers via
+	 * external declarations. Register them explicitly in the execution
+	 * engine instead of relying on ambient process-wide symbol lookup.
+	 */
+	JIT_MAP_FN(fiber_clock64);
+	JIT_MAP_FN(sql_vdbe_prepare);
+	JIT_MAP_FN(sql_vdbe_opcode_profile_record_jit);
+	JIT_MAP_FN(vdbe_op_ifnot_inline);
+	JIT_MAP_FN(vdbe_op_isnull_inline);
+	JIT_MAP_FN(vdbe_op_notnull_inline);
+
+#undef JIT_MAP_FN
+
+	for (LLVMValueRef fn = LLVMGetFirstFunction(module); fn != NULL;
+	     fn = LLVMGetNextFunction(fn)) {
+		if (!LLVMIsDeclaration(fn))
+			continue;
+		const char *name = LLVMGetValueName(fn);
+		if (name == NULL || name[0] == '\0' ||
+		    strncmp(name, "llvm.", 5) == 0)
+			continue;
+		void *addr = dlsym(RTLD_DEFAULT, name);
+		if (addr != NULL)
+			LLVMAddGlobalMapping(jit_state.engine, fn, addr);
+	}
+
+	for (LLVMValueRef global = LLVMGetFirstGlobal(module);
+	     global != NULL; global = LLVMGetNextGlobal(global)) {
+		if (!LLVMIsDeclaration(global))
+			continue;
+		const char *name = LLVMGetValueName(global);
+		if (name == NULL || name[0] == '\0' ||
+		    strncmp(name, "llvm.", 5) == 0)
+			continue;
+		void *addr = dlsym(RTLD_DEFAULT, name);
+		if (addr != NULL)
+			LLVMAddGlobalMapping(jit_state.engine, global, addr);
+	}
 }
 
 static void
@@ -920,7 +988,8 @@ vdbe_jit_compile(struct Vdbe *p)
 			const char *handler_name =
 				jit_handler_name_for_opcode(opcode);
 			if (handler_name == NULL ||
-			    opcode_jit_modes[opcode] == JIT_MODE_UNSUPPORTED)
+			    opcode_jit_modes[opcode] == JIT_MODE_UNSUPPORTED ||
+			    jit_handler_is_external(opcode))
 				continue;
 			int module_idx = jit_module_index_for_opcode(opcode);
 			if (module_idx >= 0 && module_idx < jit_state.module_count)
@@ -1277,6 +1346,7 @@ vdbe_jit_compile(struct Vdbe *p)
 	LLVMRunPassManager(mpm, module);
 	LLVMDisposePassManager(mpm);
 
+	jit_add_external_mappings(module);
 	/* Add module to execution engine and compile */
 	LLVMAddModule(jit_state.engine, module);
 
