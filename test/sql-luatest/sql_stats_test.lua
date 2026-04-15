@@ -399,3 +399,54 @@ g_jit.test_sql_jit_cast_opcode = function()
         t.assert_gt(res.profile.after.Cast or 0, res.profile.before.Cast or 0)
     end
 end
+
+g_jit.test_sql_jit_coroutine_opcodes = function()
+    local res = g_jit.server:exec(function()
+        box.execute([[SET SESSION "sql_seq_scan" = true;]])
+        box.execute([[CREATE TABLE t (id INT PRIMARY KEY, a INT);]])
+        box.execute([[INSERT INTO t VALUES (1, 10), (2, 20), (3, 30);]])
+
+        local before = box.stat.sql()
+        local result = box.execute([[
+            SELECT sum(x + 1)
+            FROM (SELECT id + a + 1 AS x FROM t LIMIT 2);
+        ]])
+        local after = box.stat.sql()
+
+        box.execute([[DROP TABLE t;]])
+
+        local profile = nil
+        if before.sql_opcode_profile_enabled ~= 0 then
+            profile = {
+                before = before.jit_opcode_profile.count,
+                after = after.jit_opcode_profile.count,
+            }
+        end
+
+        return {
+            rows = result.rows,
+            before_compile = before.sql_jit_compile_count,
+            after_compile = after.sql_jit_compile_count,
+            before_exec = before.sql_jit_exec_count,
+            after_exec = after.sql_jit_exec_count,
+            before_steps = before.sql_jit_step_count,
+            after_steps = after.sql_jit_step_count,
+            profile = profile,
+        }
+    end)
+
+    t.assert_equals(res.rows, {{37}})
+    if res.after_compile == res.before_compile then
+        t.skip('SQL JIT is not available in this build')
+    end
+    t.assert_gt(res.after_exec, res.before_exec)
+    t.assert_gt(res.after_steps, res.before_steps)
+    if res.profile ~= nil then
+        t.assert_gt(res.profile.after.InitCoroutine or 0,
+                    res.profile.before.InitCoroutine or 0)
+        t.assert_gt(res.profile.after.Yield or 0,
+                    res.profile.before.Yield or 0)
+        t.assert_gt(res.profile.after.EndCoroutine or 0,
+                    res.profile.before.EndCoroutine or 0)
+    end
+end

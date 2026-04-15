@@ -101,8 +101,8 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_Next] = JIT_MODE_CALL,
 	[OP_Goto] = JIT_MODE_INLINE,         /* Direct control flow */
 	[OP_SetDiag] = JIT_MODE_UNSUPPORTED,
-	[OP_Gosub] = JIT_MODE_UNSUPPORTED,   /* Control flow */
-	[OP_InitCoroutine] = JIT_MODE_UNSUPPORTED,
+	[OP_Gosub] = JIT_MODE_CALL,          /* Dynamic control flow */
+	[OP_InitCoroutine] = JIT_MODE_CALL,
 	[OP_Ne] = JIT_MODE_INLINE,           /* Comparison */
 	[OP_Eq] = JIT_MODE_INLINE,           /* Comparison */
 	[OP_Gt] = JIT_MODE_INLINE,           /* Comparison */
@@ -120,7 +120,7 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_Divide] = JIT_MODE_INLINE,       /* Arithmetic */
 	[OP_Remainder] = JIT_MODE_INLINE,    /* Arithmetic */
 	[OP_Concat] = JIT_MODE_CALL,         /* String operation */
-	[OP_Yield] = JIT_MODE_UNSUPPORTED,
+	[OP_Yield] = JIT_MODE_CALL,
 	[OP_BitNot] = JIT_MODE_INLINE,       /* Bitwise operation */
 	[OP_MustBeInt] = JIT_MODE_CALL,
 	[OP_Jump] = JIT_MODE_INLINE,         /* Branch on p->iCompare */
@@ -135,14 +135,14 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_Sort] = JIT_MODE_CALL,
 	[OP_Rewind] = JIT_MODE_CALL,
 	[OP_IdxGE] = JIT_MODE_CALL,
-	[OP_Program] = JIT_MODE_UNSUPPORTED,
+	[OP_Program] = JIT_MODE_CALL,
 	[OP_IfPos] = JIT_MODE_CALL,          /* Control flow via helper */
 	[OP_IfNotZero] = JIT_MODE_CALL,      /* Control flow via helper */
 	[OP_String8] = JIT_MODE_INLINE,      /* Constant load */
 	[OP_DecrJumpZero] = JIT_MODE_CALL,   /* Control flow via helper */
 	[OP_Init] = JIT_MODE_UNSUPPORTED,    /* Control flow */
-	[OP_Return] = JIT_MODE_UNSUPPORTED,  /* Control flow */
-	[OP_EndCoroutine] = JIT_MODE_UNSUPPORTED,
+	[OP_Return] = JIT_MODE_CALL,         /* Dynamic control flow */
+	[OP_EndCoroutine] = JIT_MODE_CALL,
 	[OP_Halt] = JIT_MODE_UNSUPPORTED,    /* Control flow */
 	[OP_Integer] = JIT_MODE_INLINE,      /* Constant load */
 	[OP_Bool] = JIT_MODE_INLINE,         /* Constant load */
@@ -271,14 +271,27 @@ static const char *opcode_handler_names[] = {
 	[OP_ResultRow] = "vdbe_op_resultrow",
 	[OP_MustBeInt] = "vdbe_op_mustbeint",
 	[OP_Cast] = "vdbe_op_cast",
+	[OP_Gosub] = "vdbe_op_gosub_jit",
+	[OP_InitCoroutine] = "vdbe_op_initcoroutine_jit",
+	[OP_Yield] = "vdbe_op_yield_jit",
+	[OP_Program] = "vdbe_op_program_jit",
+	[OP_Return] = "vdbe_op_return_jit",
+	[OP_EndCoroutine] = "vdbe_op_endcoroutine_jit",
 	[OP_If] = "vdbe_op_ifnot_inline",
 	[OP_IfNot] = "vdbe_op_ifnot_inline",
 	[OP_Once] = "vdbe_op_once_inline",
 	[OP_IfPos] = "vdbe_op_ifpos_inline",
 	[OP_IfNotZero] = "vdbe_op_ifnotzero_inline",
 	[OP_DecrJumpZero] = "vdbe_op_decrjumpzero_inline",
+	[OP_Found] = "vdbe_op_found_notfound_noconflict",
+	[OP_Last] = "vdbe_op_last",
+	[OP_IdxGE] = "vdbe_op_idx_compare",
 	[OP_Column] = "vdbe_op_column",
 	[OP_Rewind] = "vdbe_op_rewind",
+	[OP_SeekLT] = "vdbe_op_seeklt",
+	[OP_SeekGT] = "vdbe_op_seekgt",
+	[OP_SeekGE] = "vdbe_op_seekge",
+	[OP_SeekLE] = "vdbe_op_seekle",
 	[OP_Next] = "vdbe_op_next_jit",
 	[OP_Prev] = "vdbe_op_prev_jit",
 	[OP_NextIfOpen] = "vdbe_op_nextifopen_jit",
@@ -288,6 +301,10 @@ static const char *opcode_handler_names[] = {
 	[OP_OpenTEphemeral] = "vdbe_op_opentephemeral_inline",
 	[OP_Close] = "vdbe_op_close_inline",
 	[OP_NotFound] = "vdbe_op_found_notfound_noconflict",
+	[OP_NoConflict] = "vdbe_op_found_notfound_noconflict",
+	[OP_IdxLE] = "vdbe_op_idx_compare",
+	[OP_IdxGT] = "vdbe_op_idx_compare",
+	[OP_IdxLT] = "vdbe_op_idx_compare",
 	[OP_IdxInsert] = "vdbe_op_idx_insert_replace",
 	[OP_Update] = "vdbe_op_update",
 	[OP_Explain] = "vdbe_op_explain_inline",
@@ -607,12 +624,25 @@ jit_handler_is_external(int opcode)
 	case OP_NotNull:
 	case OP_MustBeInt:
 	case OP_Cast:
+	case OP_Program:
+	case OP_Gosub:
+	case OP_Return:
+	case OP_InitCoroutine:
+	case OP_EndCoroutine:
+	case OP_Yield:
 	case OP_Once:
 	case OP_IfPos:
 	case OP_IfNotZero:
 	case OP_DecrJumpZero:
 	case OP_Column:
 	case OP_RowData:
+	case OP_Found:
+	case OP_Last:
+	case OP_SeekLT:
+	case OP_SeekGT:
+	case OP_SeekGE:
+	case OP_SeekLE:
+	case OP_IdxGE:
 	case OP_PrevIfOpen:
 	case OP_NextIfOpen:
 	case OP_Prev:
@@ -622,7 +652,11 @@ jit_handler_is_external(int opcode)
 	case OP_OpenSpace:
 	case OP_OpenTEphemeral:
 	case OP_Close:
+	case OP_NoConflict:
 	case OP_NotFound:
+	case OP_IdxLE:
+	case OP_IdxGT:
+	case OP_IdxLT:
 	case OP_IdxInsert:
 	case OP_Update:
 	case OP_Explain:
@@ -693,6 +727,23 @@ jit_load_int_field(LLVMBuilderRef builder, LLVMValueRef base_ptr,
 	LLVMValueRef field_ptr =
 		LLVMBuildBitCast(builder, field_addr, int_ptr_type, "field_ptr");
 	return LLVMBuildLoad(builder, field_ptr, name);
+}
+
+static void
+jit_emit_runtime_pc_dispatch(LLVMBuilderRef builder, LLVMValueRef target_pc,
+			       LLVMValueRef fallback_pc,
+			       LLVMBasicBlockRef *op_blocks, int nOp)
+{
+	LLVMBasicBlockRef invalid_bb =
+		LLVMAppendBasicBlock(LLVMGetBasicBlockParent(
+			LLVMGetInsertBlock(builder)), "pc_invalid");
+	LLVMValueRef sw = LLVMBuildSwitch(builder, target_pc, invalid_bb, nOp);
+	for (int pc = 0; pc < nOp; ++pc) {
+		LLVMAddCase(sw, LLVMConstInt(LLVMInt32Type(), pc, 0),
+			    op_blocks[pc]);
+	}
+	LLVMPositionBuilderAtEnd(builder, invalid_bb);
+	LLVMBuildRet(builder, fallback_pc);
 }
 
 /**
@@ -1007,6 +1058,17 @@ vdbe_jit_compile(struct Vdbe *p)
 				entry_inline_count++;
 				break;
 			}
+			if (opcode == OP_Program) {
+				entry_call_count++;
+				break;
+			}
+			if (opcode == OP_Gosub || opcode == OP_Return ||
+			    opcode == OP_InitCoroutine || opcode == OP_Yield ||
+			    opcode == OP_EndCoroutine) {
+				entry_call_count++;
+				i++;
+				continue;
+			}
 			if (mode == JIT_MODE_UNSUPPORTED || handler_name == NULL)
 				break;
 			if (mode == JIT_MODE_INLINE)
@@ -1286,6 +1348,101 @@ vdbe_jit_compile(struct Vdbe *p)
 			else
 				LLVMBuildRet(builder,
 					     LLVMConstInt(LLVMInt32Type(), i, 0));
+			continue;
+		}
+
+		if (opcode == OP_Program || opcode == OP_Gosub ||
+		    opcode == OP_Return || opcode == OP_InitCoroutine ||
+		    opcode == OP_EndCoroutine || opcode == OP_Yield) {
+			const char *special_handler =
+				jit_handler_name_for_opcode(opcode);
+			assert(special_handler != NULL);
+			LLVMValueRef handler_fn =
+				LLVMGetNamedFunction(module, special_handler);
+			if (handler_fn == NULL)
+				handler_fn = jit_declare_external_handler(module,
+								  special_handler);
+			if (handler_fn == NULL) {
+				LLVMBuildRet(builder,
+					     LLVMConstInt(LLVMInt32Type(), i, 0));
+				continue;
+			}
+#if SQL_VDBE_OP_PROFILE
+			profile_start_us = LLVMBuildCall(builder,
+				jit_get_i64_function(module, "fiber_clock64"),
+				NULL, 0, "jit_profile_start");
+#else
+			profile_start_us = LLVMConstInt(LLVMInt64Type(), 0, 0);
+#endif
+			LLVMValueRef aOp_before =
+				jit_load_ptr_field(builder, param_vdbe,
+						   VDBE_OFFSET_AOP, "aOp_before");
+			LLVMValueRef pOp_ptr =
+				jit_array_element_ptr(builder, aOp_before, i,
+						      VDBE_SIZEOF_OP, "pOp");
+			LLVMValueRef aMem_ptr =
+				jit_load_ptr_field(builder, param_vdbe,
+						   VDBE_OFFSET_AMEM, "aMem");
+			LLVMTypeRef handler_type =
+				LLVMGetElementType(LLVMTypeOf(handler_fn));
+			assert(LLVMCountParamTypes(handler_type) == 3);
+			LLVMTypeRef handler_param_types[3];
+			LLVMGetParamTypes(handler_type, handler_param_types);
+			LLVMValueRef call_args[3] = {
+				LLVMBuildBitCast(builder, param_vdbe,
+						 handler_param_types[0],
+						 "vdbe_arg"),
+				LLVMBuildBitCast(builder, pOp_ptr,
+						 handler_param_types[1], "pOp_arg"),
+				LLVMBuildBitCast(builder, aMem_ptr,
+						 handler_param_types[2],
+						 "aMem_arg"),
+			};
+			LLVMValueRef target_pc =
+				LLVMBuildCall(builder, handler_fn, call_args, 3,
+					      "target_pc");
+			LLVMValueRef is_error =
+				LLVMBuildICmp(builder, LLVMIntSLT, target_pc,
+					      LLVMConstInt(LLVMInt32Type(), 0, 0),
+					      "is_error");
+			LLVMBasicBlockRef err_bb =
+				LLVMAppendBasicBlock(jit_func, "subprog_err");
+			LLVMBasicBlockRef cont_bb =
+				LLVMAppendBasicBlock(jit_func, "subprog_cont");
+			LLVMBuildCondBr(builder, is_error, err_bb, cont_bb);
+
+			LLVMPositionBuilderAtEnd(builder, cont_bb);
+			jit_emit_profile_record(module, builder, opcode,
+						profile_start_us);
+			if (opcode == OP_Program) {
+				LLVMValueRef aOp_after =
+					jit_load_ptr_field(builder, param_vdbe,
+							   VDBE_OFFSET_AOP,
+							   "aOp_after");
+				LLVMValueRef aOp_changed =
+					LLVMBuildICmp(builder, LLVMIntNE,
+						      aOp_before, aOp_after,
+						      "aOp_changed");
+				LLVMBasicBlockRef fallback_bb =
+					LLVMAppendBasicBlock(jit_func,
+							     "program_fallback");
+				LLVMBasicBlockRef dispatch_bb =
+					LLVMAppendBasicBlock(jit_func,
+							     "program_dispatch");
+				LLVMBuildCondBr(builder, aOp_changed, fallback_bb,
+						dispatch_bb);
+				LLVMPositionBuilderAtEnd(builder, fallback_bb);
+				LLVMBuildRet(builder, target_pc);
+				LLVMPositionBuilderAtEnd(builder, dispatch_bb);
+			}
+			jit_emit_runtime_pc_dispatch(builder, target_pc,
+					LLVMConstInt(LLVMInt32Type(), i, 0),
+					op_blocks, p->nOp);
+
+			LLVMPositionBuilderAtEnd(builder, err_bb);
+			jit_emit_profile_record(module, builder, opcode,
+						profile_start_us);
+			LLVMBuildRet(builder, target_pc);
 			continue;
 		}
 

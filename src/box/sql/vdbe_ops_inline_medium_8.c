@@ -19,12 +19,9 @@
  * - OP_LoadAnalysis: Load sql_stat1 analysis (currently a no-op)
  * - OP_RenameTable: Rename table and rebuild trigger bodies
  *
- * Coroutine opcodes (Gosub, Return, Yield, InitCoroutine, EndCoroutine)
- * are implemented inline in vdbe_dispatch_wrapper.c because they require
- * direct pc/aOp manipulation in the dispatcher loop.
- *
- * OP_Program (trigger sub-programs) is handled by the generated dispatcher;
- * dispatcher due to its VdbeFrame setup complexity.
+ * The generated dispatcher still provides the canonical coroutine/subprogram
+ * semantics. This file adds JIT-facing helpers that return an absolute next pc
+ * so native execution can jump dynamically without hard-coding a static edge.
  */
 
 #include "sqlInt.h"
@@ -39,6 +36,8 @@
 #include "box/space.h"
 #include "box/space_cache.h"
 #include "box/error.h"
+
+int op_program_enter(Vdbe *p, Op *pOp, Mem *aMem, Op *aOp);
 
 /*
  * Opcode: ElseNotEq P2 * * * *
@@ -82,6 +81,74 @@ vdbe_op_resetcount_inline(Vdbe *p, Op *pOp, Mem *aMem)
 	p->nChange = 0;
 	p->ignoreRaised = 0;
 	return 0;
+}
+
+int
+vdbe_op_program_jit(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	int rc = op_program_enter(p, pOp, aMem, p->aOp);
+	if (rc > 0)
+		return -1;
+	if (rc < 0)
+		return p->pc + 1;
+	return 0;
+}
+
+int
+vdbe_op_gosub_jit(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	assert(pOp->p1 > 0 && pOp->p1 <= (p->nMem + 1 - p->nCursor));
+	Mem *pIn1 = &aMem[pOp->p1];
+	assert(VdbeMemDynamic(pIn1) == 0);
+	mem_set_uint(pIn1, p->pc);
+	return pOp->p2;
+}
+
+int
+vdbe_op_return_jit(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	(void)p;
+	Mem *pIn1 = &aMem[pOp->p1];
+	assert(mem_is_uint(pIn1));
+	int target_pc = (int)pIn1->u.u + 1;
+	mem_set_invalid(pIn1);
+	return target_pc;
+}
+
+int
+vdbe_op_initcoroutine_jit(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	assert(pOp->p1 > 0 && pOp->p1 <= (p->nMem + 1 - p->nCursor));
+	assert(pOp->p2 >= 0 && pOp->p2 < p->nOp);
+	assert(pOp->p3 > 0 && pOp->p3 < p->nOp);
+	Mem *pOut = &aMem[pOp->p1];
+	assert(!VdbeMemDynamic(pOut));
+	mem_set_uint(pOut, pOp->p3 - 1);
+	return pOp->p2 ? pOp->p2 : p->pc + 1;
+}
+
+int
+vdbe_op_endcoroutine_jit(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	Mem *pIn1 = &aMem[pOp->p1];
+	assert(mem_is_uint(pIn1));
+	assert(pIn1->u.u < (uint64_t)p->nOp);
+	VdbeOp *pCaller = &p->aOp[pIn1->u.u];
+	assert(pCaller->opcode == OP_Yield);
+	assert(pCaller->p2 >= 0 && pCaller->p2 < p->nOp);
+	int target_pc = pCaller->p2;
+	mem_set_invalid(pIn1);
+	return target_pc;
+}
+
+int
+vdbe_op_yield_jit(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	Mem *pIn1 = &aMem[pOp->p1];
+	assert(VdbeMemDynamic(pIn1) == 0);
+	int target_pc = (int)pIn1->u.u + 1;
+	mem_set_uint(pIn1, p->pc);
+	return target_pc;
 }
 
 /*

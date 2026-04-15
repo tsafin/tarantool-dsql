@@ -118,6 +118,13 @@ int vdbe_op_ifpos_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* IfPos */
 int vdbe_op_ifnotzero_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* IfNotZero */
 int vdbe_op_decrjumpzero_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* DecrJumpZero */
 int vdbe_op_nullrow_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* NullRow */
+/* JIT subprogram/coroutine helpers - return absolute next pc or -1 on error */
+int vdbe_op_program_jit(Vdbe *p, Op *pOp, Mem *aMem);  /* Program */
+int vdbe_op_gosub_jit(Vdbe *p, Op *pOp, Mem *aMem);  /* Gosub */
+int vdbe_op_return_jit(Vdbe *p, Op *pOp, Mem *aMem);  /* Return */
+int vdbe_op_initcoroutine_jit(Vdbe *p, Op *pOp, Mem *aMem);  /* InitCoroutine */
+int vdbe_op_endcoroutine_jit(Vdbe *p, Op *pOp, Mem *aMem);  /* EndCoroutine */
+int vdbe_op_yield_jit(Vdbe *p, Op *pOp, Mem *aMem);  /* Yield */
 /* Medium complexity inline opcode handlers - Phase 5.6f */
 int vdbe_op_showcreatettable_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* ShowCreateTable */
 int vdbe_op_resetsorter_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* ResetSorter */
@@ -164,10 +171,9 @@ int vdbe_op_addfuncdefault_inline(Vdbe *p, Op *pOp, Mem *aMem);     /* AddFuncDe
 int vdbe_op_checkviewreferences_inline(Vdbe *p, Op *pOp, Mem *aMem);/* CheckViewReferences */
 int vdbe_op_loadanalysis_inline(Vdbe *p, Op *pOp, Mem *aMem);       /* LoadAnalysis */
 int vdbe_op_renametable_inline(Vdbe *p, Op *pOp, Mem *aMem);        /* RenameTable */
-/* Coroutine opcodes (Gosub/Return/Yield/InitCoroutine/EndCoroutine) are
- * implemented inline in vdbe_dispatch_wrapper.c - they need direct pc/aOp access.
- * OP_Program is fully implemented in the generated dispatcher (142/142 opcodes).
- * The JIT still marks OP_Program as JIT_MODE_UNSUPPORTED and falls back to the
- * dispatcher, since JIT pre-bakes aOp/aMem offsets which OP_Program swaps out. */
+/* The generated dispatcher still owns the canonical coroutine/subprogram
+ * semantics. The JIT reuses dedicated helpers for these opcodes so it can
+ * jump to an absolute runtime pc, and OP_Program can hand control back to the
+ * interpreter after switching into a child frame. */
 
 #endif /* SRC_BOX_SQL_VDBE_OPS_H */
