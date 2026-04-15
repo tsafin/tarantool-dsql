@@ -159,7 +159,7 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_BuiltinFunction] = JIT_MODE_CALL,
 	[OP_FunctionByName] = JIT_MODE_CALL,
 	[OP_AddImm] = JIT_MODE_INLINE,       /* Arithmetic */
-	[OP_Cast] = JIT_MODE_UNSUPPORTED,
+	[OP_Cast] = JIT_MODE_CALL,
 	[OP_Array] = JIT_MODE_CALL,
 	[OP_Map] = JIT_MODE_CALL,
 	[OP_Getitem] = JIT_MODE_CALL,
@@ -220,7 +220,7 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_ResetSorter] = JIT_MODE_CALL,
 	[OP_RenameTable] = JIT_MODE_UNSUPPORTED,
 	[OP_LoadAnalysis] = JIT_MODE_UNSUPPORTED,
-	[OP_Param] = JIT_MODE_UNSUPPORTED,
+	[OP_Param] = JIT_MODE_CALL,
 	[OP_OffsetLimit] = JIT_MODE_CALL,
 	[OP_AggStep] = JIT_MODE_CALL,
 	[OP_AggFinal] = JIT_MODE_CALL,
@@ -296,6 +296,7 @@ static const char *opcode_handler_names[] = {
 	[OP_AggStep] = "vdbe_op_aggstep",
 	[OP_AggFinal] = "vdbe_op_aggfinal",
 	[OP_RowData] = "vdbe_op_rowdata",
+	[OP_Param] = "vdbe_op_param_inline",
 	[OP_OffsetLimit] = "vdbe_op_offsetlimit",
 	[OP_Real] = "vdbe_op_real",
 	[OP_Noop] = "vdbe_op_noop",
@@ -605,6 +606,7 @@ jit_handler_is_external(int opcode)
 	case OP_IsNull:
 	case OP_NotNull:
 	case OP_MustBeInt:
+	case OP_Cast:
 	case OP_Once:
 	case OP_IfPos:
 	case OP_IfNotZero:
@@ -628,6 +630,7 @@ jit_handler_is_external(int opcode)
 	case OP_MakeRecord:
 	case OP_AggStep:
 	case OP_AggFinal:
+	case OP_Param:
 	case OP_OffsetLimit:
 		return true;
 	default:
