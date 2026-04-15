@@ -289,3 +289,64 @@ g_jit.test_sql_jit_aggregate_opcodes = function()
         t.assert_gt(res.profile.after.AggFinal or 0, res.profile.before.AggFinal or 0)
     end
 end
+
+g_jit.test_sql_jit_control_flow_round2_opcodes = function()
+    local res = g_jit.server:exec(function()
+        box.execute([[SET SESSION "sql_seq_scan" = true;]])
+        box.execute([[CREATE TABLE t (id INT PRIMARY KEY, a INT);]])
+        box.execute([[INSERT INTO t VALUES (1, 10), (2, 20), (3, 30), (4, 40);]])
+
+        local before = box.stat.sql()
+        local offset_result = box.execute([[
+            SELECT 100 + 1
+            WHERE EXISTS(SELECT id + a + 1 FROM t LIMIT 2 OFFSET 1);
+        ]]).rows
+        local once_result = box.execute([[
+            SELECT 100 + 1
+            WHERE EXISTS(SELECT (SELECT 40 + 2) + id FROM t LIMIT 1);
+        ]]).rows
+        local after = box.stat.sql()
+
+        box.execute([[DROP TABLE t;]])
+
+        local profile = nil
+        if before.sql_opcode_profile_enabled ~= 0 then
+            profile = {
+                before = before.jit_opcode_profile.count,
+                after = after.jit_opcode_profile.count,
+            }
+        end
+
+        return {
+            offset_result = offset_result,
+            once_result = once_result,
+            before_compile = before.sql_jit_compile_count,
+            after_compile = after.sql_jit_compile_count,
+            before_exec = before.sql_jit_exec_count,
+            after_exec = after.sql_jit_exec_count,
+            before_steps = before.sql_jit_step_count,
+            after_steps = after.sql_jit_step_count,
+            profile = profile,
+        }
+    end)
+
+    t.assert_equals(res.offset_result, {{101}})
+    t.assert_equals(res.once_result, {{101}})
+    if res.after_compile == res.before_compile then
+        t.skip('SQL JIT is not available in this build')
+    end
+    t.assert_gt(res.after_exec, res.before_exec)
+    t.assert_gt(res.after_steps, res.before_steps)
+    if res.profile ~= nil then
+        t.assert_gt(res.profile.after.MustBeInt or 0,
+                    res.profile.before.MustBeInt or 0)
+        t.assert_gt(res.profile.after.OffsetLimit or 0,
+                    res.profile.before.OffsetLimit or 0)
+        t.assert_gt(res.profile.after.IfPos or 0,
+                    res.profile.before.IfPos or 0)
+        t.assert_gt(res.profile.after.Once or 0,
+                    res.profile.before.Once or 0)
+        t.assert_gt(res.profile.after.DecrJumpZero or 0,
+                    res.profile.before.DecrJumpZero or 0)
+    end
+end

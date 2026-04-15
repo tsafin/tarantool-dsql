@@ -60,6 +60,8 @@ enum {
 	VDBE_OFFSET_AMEM = offsetof(struct Vdbe, aMem),
 	/** Byte offset of pc field within struct Vdbe. */
 	VDBE_OFFSET_PC = offsetof(struct Vdbe, pc),
+	/** Byte offset of iCompare field within struct Vdbe. */
+	VDBE_OFFSET_ICOMPARE = offsetof(struct Vdbe, iCompare),
 	/** Size of a single VdbeOp (Op) structure in bytes. */
 	VDBE_SIZEOF_OP = sizeof(Op),
 };
@@ -120,9 +122,9 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_Concat] = JIT_MODE_CALL,         /* String operation */
 	[OP_Yield] = JIT_MODE_UNSUPPORTED,
 	[OP_BitNot] = JIT_MODE_INLINE,       /* Bitwise operation */
-	[OP_MustBeInt] = JIT_MODE_UNSUPPORTED,
-	[OP_Jump] = JIT_MODE_UNSUPPORTED,    /* Control flow */
-	[OP_Once] = JIT_MODE_UNSUPPORTED,
+	[OP_MustBeInt] = JIT_MODE_CALL,
+	[OP_Jump] = JIT_MODE_INLINE,         /* Branch on p->iCompare */
+	[OP_Once] = JIT_MODE_CALL,
 	[OP_IfNot] = JIT_MODE_CALL,          /* Control flow via helper */
 	[OP_SeekLT] = JIT_MODE_CALL,
 	[OP_SeekGT] = JIT_MODE_CALL,
@@ -134,10 +136,10 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_Rewind] = JIT_MODE_CALL,
 	[OP_IdxGE] = JIT_MODE_CALL,
 	[OP_Program] = JIT_MODE_UNSUPPORTED,
-	[OP_IfPos] = JIT_MODE_UNSUPPORTED,   /* Control flow */
-	[OP_IfNotZero] = JIT_MODE_UNSUPPORTED, /* Control flow */
+	[OP_IfPos] = JIT_MODE_CALL,          /* Control flow via helper */
+	[OP_IfNotZero] = JIT_MODE_CALL,      /* Control flow via helper */
 	[OP_String8] = JIT_MODE_INLINE,      /* Constant load */
-	[OP_DecrJumpZero] = JIT_MODE_UNSUPPORTED, /* Control flow */
+	[OP_DecrJumpZero] = JIT_MODE_CALL,   /* Control flow via helper */
 	[OP_Init] = JIT_MODE_UNSUPPORTED,    /* Control flow */
 	[OP_Return] = JIT_MODE_UNSUPPORTED,  /* Control flow */
 	[OP_EndCoroutine] = JIT_MODE_UNSUPPORTED,
@@ -219,7 +221,7 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_RenameTable] = JIT_MODE_UNSUPPORTED,
 	[OP_LoadAnalysis] = JIT_MODE_UNSUPPORTED,
 	[OP_Param] = JIT_MODE_UNSUPPORTED,
-	[OP_OffsetLimit] = JIT_MODE_INLINE,  /* Arithmetic */
+	[OP_OffsetLimit] = JIT_MODE_CALL,
 	[OP_AggStep] = JIT_MODE_CALL,
 	[OP_AggFinal] = JIT_MODE_CALL,
 	[OP_Expire] = JIT_MODE_UNSUPPORTED,
@@ -267,9 +269,14 @@ static const char *opcode_handler_names[] = {
 	[OP_Copy] = "vdbe_op_copy",
 	[OP_SCopy] = "vdbe_op_scopy",
 	[OP_ResultRow] = "vdbe_op_resultrow",
+	[OP_MustBeInt] = "vdbe_op_mustbeint",
 	[OP_Cast] = "vdbe_op_cast",
 	[OP_If] = "vdbe_op_ifnot_inline",
 	[OP_IfNot] = "vdbe_op_ifnot_inline",
+	[OP_Once] = "vdbe_op_once_inline",
+	[OP_IfPos] = "vdbe_op_ifpos_inline",
+	[OP_IfNotZero] = "vdbe_op_ifnotzero_inline",
+	[OP_DecrJumpZero] = "vdbe_op_decrjumpzero_inline",
 	[OP_Column] = "vdbe_op_column",
 	[OP_Rewind] = "vdbe_op_rewind",
 	[OP_Next] = "vdbe_op_next_jit",
@@ -289,6 +296,7 @@ static const char *opcode_handler_names[] = {
 	[OP_AggStep] = "vdbe_op_aggstep",
 	[OP_AggFinal] = "vdbe_op_aggfinal",
 	[OP_RowData] = "vdbe_op_rowdata",
+	[OP_OffsetLimit] = "vdbe_op_offsetlimit",
 	[OP_Real] = "vdbe_op_real",
 	[OP_Noop] = "vdbe_op_noop",
 	[OP_IsNull] = "vdbe_op_isnull_inline",
@@ -596,6 +604,11 @@ jit_handler_is_external(int opcode)
 	case OP_IfNot:
 	case OP_IsNull:
 	case OP_NotNull:
+	case OP_MustBeInt:
+	case OP_Once:
+	case OP_IfPos:
+	case OP_IfNotZero:
+	case OP_DecrJumpZero:
 	case OP_Column:
 	case OP_RowData:
 	case OP_PrevIfOpen:
@@ -615,6 +628,7 @@ jit_handler_is_external(int opcode)
 	case OP_MakeRecord:
 	case OP_AggStep:
 	case OP_AggFinal:
+	case OP_OffsetLimit:
 		return true;
 	default:
 		return false;
@@ -661,6 +675,20 @@ jit_load_ptr_field(LLVMBuilderRef builder, LLVMValueRef base_ptr,
 	LLVMValueRef field_ptr =
 		LLVMBuildBitCast(builder, field_addr, ptr_ptr_type,
 				 "field_ptr");
+	return LLVMBuildLoad(builder, field_ptr, name);
+}
+
+static LLVMValueRef
+jit_load_int_field(LLVMBuilderRef builder, LLVMValueRef base_ptr,
+		   int offset, const char *name)
+{
+	LLVMValueRef offset_val =
+		LLVMConstInt(LLVMInt32Type(), (unsigned)offset, 0);
+	LLVMValueRef field_addr =
+		LLVMBuildGEP(builder, base_ptr, &offset_val, 1, "field_addr");
+	LLVMTypeRef int_ptr_type = LLVMPointerType(LLVMInt32Type(), 0);
+	LLVMValueRef field_ptr =
+		LLVMBuildBitCast(builder, field_addr, int_ptr_type, "field_ptr");
 	return LLVMBuildLoad(builder, field_ptr, name);
 }
 
@@ -972,6 +1000,10 @@ vdbe_jit_compile(struct Vdbe *p)
 				i = target;
 				continue;
 			}
+			if (opcode == OP_Jump) {
+				entry_inline_count++;
+				break;
+			}
 			if (mode == JIT_MODE_UNSUPPORTED || handler_name == NULL)
 				break;
 			if (mode == JIT_MODE_INLINE)
@@ -1188,6 +1220,66 @@ vdbe_jit_compile(struct Vdbe *p)
 						profile_start_us);
 			if (pOp->p2 >= 0 && pOp->p2 < p->nOp)
 				LLVMBuildBr(builder, op_blocks[pOp->p2]);
+			else
+				LLVMBuildRet(builder,
+					     LLVMConstInt(LLVMInt32Type(), i, 0));
+			continue;
+		}
+
+		if (opcode == OP_Jump) {
+#if SQL_VDBE_OP_PROFILE
+			profile_start_us = LLVMBuildCall(builder,
+				jit_get_i64_function(module, "fiber_clock64"),
+				NULL, 0, "jit_profile_start");
+#else
+			profile_start_us = LLVMConstInt(LLVMInt64Type(), 0, 0);
+#endif
+			LLVMValueRef i_compare =
+				jit_load_int_field(builder, param_vdbe,
+						  VDBE_OFFSET_ICOMPARE,
+						  "iCompare");
+			LLVMValueRef is_lt = LLVMBuildICmp(builder, LLVMIntSLT,
+				i_compare, LLVMConstInt(LLVMInt32Type(), 0, 1),
+				"is_lt");
+			LLVMValueRef is_eq = LLVMBuildICmp(builder, LLVMIntEQ,
+				i_compare, LLVMConstInt(LLVMInt32Type(), 0, 0),
+				"is_eq");
+			LLVMBasicBlockRef jump_lt_bb =
+				LLVMAppendBasicBlock(jit_func, "jump_lt");
+			LLVMBasicBlockRef jump_ge_bb =
+				LLVMAppendBasicBlock(jit_func, "jump_ge");
+			LLVMBasicBlockRef jump_eq_bb =
+				LLVMAppendBasicBlock(jit_func, "jump_eq");
+			LLVMBasicBlockRef jump_gt_bb =
+				LLVMAppendBasicBlock(jit_func, "jump_gt");
+			LLVMBuildCondBr(builder, is_lt, jump_lt_bb, jump_ge_bb);
+
+			LLVMPositionBuilderAtEnd(builder, jump_lt_bb);
+			jit_emit_profile_record(module, builder, opcode,
+						profile_start_us);
+			if (pOp->p1 >= 0 && pOp->p1 < p->nOp)
+				LLVMBuildBr(builder, op_blocks[pOp->p1]);
+			else
+				LLVMBuildRet(builder,
+					     LLVMConstInt(LLVMInt32Type(), i, 0));
+
+			LLVMPositionBuilderAtEnd(builder, jump_ge_bb);
+			LLVMBuildCondBr(builder, is_eq, jump_eq_bb, jump_gt_bb);
+
+			LLVMPositionBuilderAtEnd(builder, jump_eq_bb);
+			jit_emit_profile_record(module, builder, opcode,
+						profile_start_us);
+			if (pOp->p2 >= 0 && pOp->p2 < p->nOp)
+				LLVMBuildBr(builder, op_blocks[pOp->p2]);
+			else
+				LLVMBuildRet(builder,
+					     LLVMConstInt(LLVMInt32Type(), i, 0));
+
+			LLVMPositionBuilderAtEnd(builder, jump_gt_bb);
+			jit_emit_profile_record(module, builder, opcode,
+						profile_start_us);
+			if (pOp->p3 >= 0 && pOp->p3 < p->nOp)
+				LLVMBuildBr(builder, op_blocks[pOp->p3]);
 			else
 				LLVMBuildRet(builder,
 					     LLVMConstInt(LLVMInt32Type(), i, 0));
