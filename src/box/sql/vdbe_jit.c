@@ -21,6 +21,7 @@
 
 #include "sqlInt.h"
 #include "vdbeInt.h"
+#include "vdbe_jit.h"
 
 #ifdef ENABLE_SQL_JIT
 
@@ -120,7 +121,7 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_MustBeInt] = JIT_MODE_UNSUPPORTED,
 	[OP_Jump] = JIT_MODE_UNSUPPORTED,    /* Control flow */
 	[OP_Once] = JIT_MODE_UNSUPPORTED,
-	[OP_IfNot] = JIT_MODE_UNSUPPORTED,   /* Control flow */
+	[OP_IfNot] = JIT_MODE_CALL,          /* Control flow via helper */
 	[OP_SeekLT] = JIT_MODE_CALL,
 	[OP_SeekGT] = JIT_MODE_CALL,
 	[OP_SeekGE] = JIT_MODE_CALL,
@@ -160,7 +161,7 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_Getitem] = JIT_MODE_CALL,
 	[OP_Permutation] = JIT_MODE_UNSUPPORTED,
 	[OP_Compare] = JIT_MODE_CALL,
-	[OP_If] = JIT_MODE_UNSUPPORTED,      /* Control flow */
+	[OP_If] = JIT_MODE_CALL,             /* Control flow via helper */
 	[OP_Column] = JIT_MODE_UNSUPPORTED,
 	[OP_FetchByName] = JIT_MODE_CALL,
 	[OP_Fetch] = JIT_MODE_CALL,
@@ -225,8 +226,8 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_ShowCreateTable] = JIT_MODE_CALL,
 	[OP_Noop] = JIT_MODE_INLINE,         /* No-op can be inlined */
 	[OP_Explain] = JIT_MODE_UNSUPPORTED,
-	[OP_IsNull] = JIT_MODE_UNSUPPORTED,
-	[OP_NotNull] = JIT_MODE_UNSUPPORTED,
+	[OP_IsNull] = JIT_MODE_CALL,         /* Control flow via helper */
+	[OP_NotNull] = JIT_MODE_CALL,        /* Control flow via helper */
 };
 
 /*
@@ -265,12 +266,16 @@ static const char *opcode_handler_names[] = {
 	[OP_SCopy] = "vdbe_op_scopy",
 	[OP_ResultRow] = "vdbe_op_resultrow",
 	[OP_Cast] = "vdbe_op_cast",
+	[OP_If] = "vdbe_op_ifnot_inline",
+	[OP_IfNot] = "vdbe_op_ifnot_inline",
 	[OP_Column] = "vdbe_op_column",
 	[OP_ApplyType] = "vdbe_op_applytype",
 	[OP_MakeRecord] = "vdbe_op_makerecord",
 	[OP_RowData] = "vdbe_op_rowdata",
 	[OP_Real] = "vdbe_op_real",
 	[OP_Noop] = "vdbe_op_noop",
+	[OP_IsNull] = "vdbe_op_isnull_inline",
+	[OP_NotNull] = "vdbe_op_notnull_inline",
 };
 
 /** Maximum opcode value for the handler name table. */
@@ -294,6 +299,48 @@ struct sql_jit_state {
 };
 
 static struct sql_jit_state jit_state = {0};
+static uint64_t jit_module_serial = 0;
+
+static void
+jit_remove_module(LLVMModuleRef module)
+{
+	if (module == NULL)
+		return;
+	if (jit_state.engine == NULL) {
+		LLVMDisposeModule(module);
+		return;
+	}
+	LLVMModuleRef removed = NULL;
+	char *error_msg = NULL;
+	if (LLVMRemoveModule(jit_state.engine, module, &removed, &error_msg) != 0) {
+		say_error("JIT: failed to remove module: %s",
+			  error_msg != NULL ? error_msg : "unknown");
+		if (error_msg != NULL)
+			LLVMDisposeMessage(error_msg);
+		return;
+	}
+	if (error_msg != NULL)
+		LLVMDisposeMessage(error_msg);
+	if (removed != NULL)
+		LLVMDisposeModule(removed);
+}
+
+static int
+jit_find_static_entry_pc(struct Vdbe *p)
+{
+	int pc = 0;
+	if (p->nOp == 0)
+		return -1;
+	if (p->aOp[pc].opcode == OP_Init) {
+		int target = p->aOp[pc].p2;
+		if (target < 0 || target >= p->nOp)
+			return -1;
+		pc = target;
+	}
+	if (pc < p->nOp && p->aOp[pc].opcode == OP_TTransaction)
+		pc++;
+	return pc < p->nOp ? pc : -1;
+}
 
 /*
  * List of handler bitcode files to load at initialization.
@@ -522,6 +569,33 @@ jit_module_index_for_opcode(int opcode)
 	default:
 		return -1;
 	}
+}
+
+static bool
+jit_handler_is_external(int opcode)
+{
+	switch (opcode) {
+	case OP_If:
+	case OP_IfNot:
+	case OP_IsNull:
+	case OP_NotNull:
+		return true;
+	default:
+		return false;
+	}
+}
+
+static LLVMValueRef
+jit_declare_external_handler(LLVMModuleRef module, const char *handler_name)
+{
+	LLVMValueRef handler_fn = LLVMGetNamedFunction(module, handler_name);
+	if (handler_fn != NULL)
+		return handler_fn;
+	LLVMTypeRef ptr_type = LLVMPointerType(LLVMInt8Type(), 0);
+	LLVMTypeRef arg_types[3] = {ptr_type, ptr_type, ptr_type};
+	LLVMTypeRef handler_type =
+		LLVMFunctionType(LLVMInt32Type(), arg_types, 3, 0);
+	return LLVMAddFunction(module, handler_name, handler_type);
 }
 
 /**
@@ -775,9 +849,56 @@ vdbe_jit_compile(struct Vdbe *p)
 		return 0;
 	}
 
+	/*
+	 * Skip statements that can only do a trivial amount of native work before
+	 * immediately falling back. Tiny prefixes such as:
+	 *   - Integer; Goto ...
+	 *   - Decimal; Decimal; ApplyType ...
+	 *   - Integer/Add/Divide/...; MakeRecord ...
+	 * show up in sql-tap hot loops and compile thousands of unique statements
+	 * that never enter native execution, so require either:
+	 *   - a meaningful pure-inline prefix; or
+	 *   - at least some helper/cursor work before the first unsupported op.
+	 */
+	int entry_pc = jit_find_static_entry_pc(p);
+	if (entry_pc >= 0) {
+		int entry_inline_count = 0;
+		int entry_call_count = 0;
+		for (int i = entry_pc; i < p->nOp; i++) {
+			int opcode = p->aOp[i].opcode;
+			if (opcode < 0 ||
+			    opcode >= (int)(sizeof(opcode_jit_modes) /
+					    sizeof(opcode_jit_modes[0])))
+				break;
+			enum vdbe_jit_mode mode = opcode_jit_modes[opcode];
+			const char *handler_name = jit_handler_name_for_opcode(opcode);
+			if (mode == JIT_MODE_UNSUPPORTED || handler_name == NULL)
+				break;
+			if (mode == JIT_MODE_INLINE)
+				entry_inline_count++;
+			else if (mode == JIT_MODE_CALL)
+				entry_call_count++;
+		}
+		if ((entry_call_count == 0 && entry_inline_count < 8) ||
+		    (entry_call_count > 0 && entry_inline_count < 3)) {
+			p->jit_compiled = 0;
+			p->jit_func = NULL;
+			p->jit_module = NULL;
+			return 0;
+		}
+	}
+
 	/* Create a new module for this VDBE program */
+	/*
+	 * The execution engine keeps added modules alive, so function names must
+	 * remain unique across the process lifetime. Vdbe pointers are frequently
+	 * reused by short-lived box.execute() statements, so pointer-based names
+	 * can alias stale compiled code from an older statement.
+	 */
+	uint64_t jit_id = ++jit_module_serial;
 	char module_name[64];
-	snprintf(module_name, sizeof(module_name), "vdbe_jit_%p", (void *)p);
+	snprintf(module_name, sizeof(module_name), "vdbe_jit_%llu",
+		 (unsigned long long)jit_id);
 	LLVMModuleRef module = LLVMModuleCreateWithName(module_name);
 	if (module == NULL) {
 		diag_set(ClientError, ER_SQL_EXECUTE,
@@ -824,7 +945,8 @@ vdbe_jit_compile(struct Vdbe *p)
 		LLVMFunctionType(LLVMInt32Type(), jit_param_types, 2, 0);
 
 	char func_name[64];
-	snprintf(func_name, sizeof(func_name), "vdbe_jit_exec_%p", (void *)p);
+	snprintf(func_name, sizeof(func_name), "vdbe_jit_exec_%llu",
+		 (unsigned long long)jit_id);
 	LLVMValueRef jit_func = LLVMAddFunction(module, func_name,
 						 jit_func_type);
 	LLVMSetFunctionCallConv(jit_func, LLVMCCallConv);
@@ -872,7 +994,8 @@ vdbe_jit_compile(struct Vdbe *p)
 
 	/* Build exit block: return -1 (execution complete) */
 	LLVMPositionBuilderAtEnd(builder, exit_bb);
-	LLVMBuildRet(builder, LLVMConstInt(LLVMInt32Type(), (uint64_t)-1, 1));
+	LLVMBuildRet(builder, LLVMConstInt(LLVMInt32Type(),
+					   (uint64_t)VDBE_JIT_RC_DONE, 1));
 
 	/*
 	 * Build opcode blocks.
@@ -988,6 +1111,9 @@ vdbe_jit_compile(struct Vdbe *p)
 		 */
 		LLVMValueRef handler_fn =
 			LLVMGetNamedFunction(module, handler_name);
+		if (handler_fn == NULL && jit_handler_is_external(opcode))
+			handler_fn = jit_declare_external_handler(module,
+								  handler_name);
 		if (handler_fn == NULL) {
 			/*
 			 * Handler not available in linked bitcode.
@@ -1159,6 +1285,7 @@ vdbe_jit_compile(struct Vdbe *p)
 	if (func_addr == 0) {
 		diag_set(ClientError, ER_SQL_EXECUTE,
 			 "Failed to get JIT function address");
+		jit_remove_module(module);
 		free(op_blocks);
 		return -1;
 	}
@@ -1185,12 +1312,9 @@ vdbe_jit_compile(struct Vdbe *p)
 void
 vdbe_jit_cleanup(struct Vdbe *p)
 {
-	/*
-	 * Note: jit_module is owned by the execution engine after
-	 * LLVMAddModule, so we don't dispose it here.
-	 */
 	if (p->jit_module != NULL)
-		p->jit_module = NULL;
+		jit_remove_module((LLVMModuleRef)p->jit_module);
+	p->jit_module = NULL;
 	p->jit_func = NULL;
 	p->jit_compiled = 0;
 }

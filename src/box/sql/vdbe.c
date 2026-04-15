@@ -479,8 +479,9 @@ int sqlVdbeExec(Vdbe *p)
 	 *
 	 * If this VDBE program has been JIT-compiled, invoke the native
 	 * code. The JIT function returns:
-	 *   >= 0: PC of first unsupported opcode, fall back to interpreter
-	 *   -1:   execution complete (all opcodes handled by JIT)
+	 *   >= 0:               PC of first unsupported opcode
+	 *   VDBE_JIT_RC_DONE:   execution complete in JIT
+	 *   other negative:     SQL error, already recorded in diagnostics
 	 */
 	int jit_entry_pc = p->pc;
 	if (p->jit_compiled && p->jit_func != NULL &&
@@ -521,7 +522,7 @@ int sqlVdbeExec(Vdbe *p)
 			sql_jit_exec_count++;
 			int jit_rc = ((int (*)(struct Vdbe *, int))p->jit_func)(
 				p, p->pc);
-			if (jit_rc < 0) {
+			if (jit_rc == VDBE_JIT_RC_DONE) {
 				/*
 				 * JIT handled everything. Return SQL_DONE since
 				 * the program completed without hitting ResultRow.
@@ -529,6 +530,10 @@ int sqlVdbeExec(Vdbe *p)
 				sql_jit_full_run_count++;
 				rc = SQL_DONE;
 				goto vdbe_return;
+			}
+			if (jit_rc < 0) {
+				rc = jit_rc;
+				goto abort_due_to_error;
 			}
 			/*
 			 * JIT hit an unsupported opcode at jit_rc.

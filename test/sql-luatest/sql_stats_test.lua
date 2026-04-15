@@ -80,7 +80,7 @@ end
 g_jit.test_sql_jit_exec_count_growth = function()
     local res = g_jit.server:exec(function()
         local before = box.stat.sql()
-        local result = box.execute([[SELECT 1 + 2;]])
+        local result = box.execute([[SELECT 1 + 2 + 3 + 4 + 5;]])
         local after = box.stat.sql()
         return {
             rows = result.rows,
@@ -97,7 +97,7 @@ g_jit.test_sql_jit_exec_count_growth = function()
         }
     end)
 
-    t.assert_equals(res.rows, {{3}})
+    t.assert_equals(res.rows, {{15}})
     if res.after_compile == res.before_compile then
         t.skip('SQL JIT is not available in this build')
     end
@@ -105,4 +105,51 @@ g_jit.test_sql_jit_exec_count_growth = function()
     t.assert_gt(res.after_exec, res.before_exec)
     t.assert_gt(res.after_steps, res.before_steps)
     t.assert_gt(res.after_fallback, res.before_fallback)
+end
+
+g_jit.test_sql_jit_control_flow_opcodes = function()
+    local res = g_jit.server:exec(function()
+        local before = box.stat.sql()
+        local results = {
+            if_ifnot = box.execute([[SELECT 1 WHERE (1, 2) != (1, 3);]]).rows,
+            not_null = box.execute([[
+                SELECT 1 WHERE NULL IS NULL AND 1 + 2 + 3 + 4 = 10;
+            ]]).rows,
+            is_null = box.execute([[
+                SELECT 1 WHERE 1 + 2 + 3 + 4 IS NULL OR 1 = 1;
+            ]]).rows,
+        }
+        local after = box.stat.sql()
+        local profile = nil
+        if before.sql_opcode_profile_enabled ~= 0 then
+            profile = {
+                before = before.jit_opcode_profile.count,
+                after = after.jit_opcode_profile.count,
+            }
+        end
+        return {
+            results = results,
+            before_compile = before.sql_jit_compile_count,
+            after_compile = after.sql_jit_compile_count,
+            before_exec = before.sql_jit_exec_count,
+            after_exec = after.sql_jit_exec_count,
+            profile = profile,
+        }
+    end)
+
+    t.assert_equals(res.results.if_ifnot, {{1}})
+    t.assert_equals(res.results.not_null, {{1}})
+    t.assert_equals(res.results.is_null, {{1}})
+    if res.after_compile == res.before_compile then
+        t.skip('SQL JIT is not available in this build')
+    end
+    t.assert_gt(res.after_exec, res.before_exec)
+    if res.profile ~= nil then
+        local before = res.profile.before
+        local after = res.profile.after
+        t.assert_gt(after.If or 0, before.If or 0)
+        t.assert_gt(after.IfNot or 0, before.IfNot or 0)
+        t.assert_gt(after.NotNull or 0, before.NotNull or 0)
+        t.assert_gt(after.IsNull or 0, before.IsNull or 0)
+    end
 end
