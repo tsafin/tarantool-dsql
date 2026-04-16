@@ -208,20 +208,6 @@ sql_vdbe_exec_init_for_jit(struct Vdbe *p, Op *pOp, struct sql *db)
 	return 0;
 }
 
-static int
-sql_vdbe_exec_ttransaction_for_jit(struct Vdbe *p)
-{
-	if (!box_txn()) {
-		if (txn_begin() == NULL)
-			return -1;
-	} else {
-		p->anonymous_savepoint = txn_savepoint_new(in_txn(), NULL);
-		if (p->anonymous_savepoint == NULL)
-			return -1;
-	}
-	p->pc++;
-	return 0;
-}
 #endif
 
 #if SQL_VDBE_OP_PROFILE
@@ -500,18 +486,6 @@ int sqlVdbeExec(Vdbe *p)
 				}
 				sql_vdbe_record_interpreter_prelude(OP_Init,
 								 start_us);
-			}
-			if (p->pc >= 0 && p->pc < p->nOp &&
-			    p->aOp[p->pc].opcode == OP_TTransaction) {
-				int64_t start_us = fiber_clock64();
-				if (sql_vdbe_exec_ttransaction_for_jit(p) != 0) {
-					sql_vdbe_record_interpreter_prelude(
-						OP_TTransaction, start_us);
-					rc = -1;
-					goto abort_due_to_error;
-				}
-				sql_vdbe_record_interpreter_prelude(
-					OP_TTransaction, start_us);
 			}
 			if (p->pc < 0 || p->pc >= p->nOp) {
 				rc = SQL_DONE;

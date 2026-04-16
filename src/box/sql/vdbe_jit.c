@@ -180,10 +180,10 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_DropFieldCheck] = JIT_MODE_UNSUPPORTED,
 	[OP_AddFuncDefault] = JIT_MODE_UNSUPPORTED,
 	[OP_CheckViewReferences] = JIT_MODE_UNSUPPORTED,
-	[OP_TransactionBegin] = JIT_MODE_UNSUPPORTED,
-	[OP_TransactionCommit] = JIT_MODE_UNSUPPORTED,
-	[OP_TransactionRollback] = JIT_MODE_UNSUPPORTED,
-	[OP_TTransaction] = JIT_MODE_UNSUPPORTED,
+	[OP_TransactionBegin] = JIT_MODE_CALL,
+	[OP_TransactionCommit] = JIT_MODE_CALL,
+	[OP_TransactionRollback] = JIT_MODE_CALL,
+	[OP_TTransaction] = JIT_MODE_CALL,
 	[OP_IteratorOpen] = JIT_MODE_CALL,
 	[OP_OpenSpace] = JIT_MODE_CALL,
 	[OP_OpenTEphemeral] = JIT_MODE_CALL,
@@ -226,7 +226,7 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_AggFinal] = JIT_MODE_CALL,
 	[OP_Expire] = JIT_MODE_UNSUPPORTED,
 	[OP_GenSpaceid] = JIT_MODE_CALL,
-	[OP_SetSession] = JIT_MODE_UNSUPPORTED,
+	[OP_SetSession] = JIT_MODE_CALL,
 	[OP_ShowCreateTable] = JIT_MODE_CALL,
 	[OP_Noop] = JIT_MODE_INLINE,         /* No-op can be inlined */
 	[OP_Explain] = JIT_MODE_CALL,
@@ -315,6 +315,11 @@ static const char *opcode_handler_names[] = {
 	[OP_RowData] = "vdbe_op_rowdata",
 	[OP_Param] = "vdbe_op_param_inline",
 	[OP_OffsetLimit] = "vdbe_op_offsetlimit",
+	[OP_TransactionBegin] = "vdbe_op_transactionbegin_inline",
+	[OP_TransactionCommit] = "vdbe_op_transactioncommit_inline",
+	[OP_TransactionRollback] = "vdbe_op_transactionrollback_inline",
+	[OP_TTransaction] = "vdbe_op_ttransaction_inline",
+	[OP_SetSession] = "vdbe_op_setsession",
 	[OP_Real] = "vdbe_op_real",
 	[OP_Noop] = "vdbe_op_noop",
 	[OP_IsNull] = "vdbe_op_isnull_inline",
@@ -380,8 +385,6 @@ jit_find_static_entry_pc(struct Vdbe *p)
 			return -1;
 		pc = target;
 	}
-	if (pc < p->nOp && p->aOp[pc].opcode == OP_TTransaction)
-		pc++;
 	return pc < p->nOp ? pc : -1;
 }
 
@@ -666,6 +669,11 @@ jit_handler_is_external(int opcode)
 	case OP_AggFinal:
 	case OP_Param:
 	case OP_OffsetLimit:
+	case OP_TransactionBegin:
+	case OP_TransactionCommit:
+	case OP_TransactionRollback:
+	case OP_TTransaction:
+	case OP_SetSession:
 		return true;
 	default:
 		return false;

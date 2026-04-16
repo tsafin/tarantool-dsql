@@ -199,6 +199,31 @@ vdbe_op_transactioncommit_inline(Vdbe *p, Op *pOp, Mem *aMem)
 }
 
 /*
+ * Opcode: TTRANSACTION - Start statement transaction or savepoint
+ *
+ * Start Tarantool's transaction for an auto-generated DML statement. If an
+ * outer transaction is already active, create an anonymous savepoint instead
+ * so ABORT can roll back only the current statement.
+ */
+int
+vdbe_op_ttransaction_inline(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	(void)pOp;
+	(void)aMem;
+
+	if (!box_txn()) {
+		if (txn_begin() == NULL)
+			return -1;
+	} else {
+		p->anonymous_savepoint = txn_savepoint_new(in_txn(), NULL);
+		if (p->anonymous_savepoint == NULL)
+			return -1;
+	}
+
+	return 0;
+}
+
+/*
  * Opcode: DROPTUPLECHECK - Drop tuple-level check constraint
  *
  * Drop a check constraint at the tuple level. The constraint ID is in P1,
