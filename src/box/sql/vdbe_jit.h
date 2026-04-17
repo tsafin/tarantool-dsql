@@ -19,9 +19,11 @@ struct Vdbe;
  * JIT function return contract:
  *   >= 0               - fallback PC for interpreter resume;
  *   VDBE_JIT_RC_DONE   - statement finished fully in JIT;
+ *   VDBE_JIT_RC_ROW    - statement produced a row fully in JIT;
  *   other negative     - SQL error, already recorded in diagnostics.
  */
 #define VDBE_JIT_RC_DONE INT_MIN
+#define VDBE_JIT_RC_ROW (INT_MIN + 1)
 
 /**
  * Initialize the JIT compiler subsystem.

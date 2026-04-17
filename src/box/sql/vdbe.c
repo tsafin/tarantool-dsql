@@ -505,6 +505,10 @@ int sqlVdbeExec(Vdbe *p)
 				rc = SQL_DONE;
 				goto vdbe_return;
 			}
+			if (jit_rc == VDBE_JIT_RC_ROW) {
+				rc = SQL_ROW;
+				goto vdbe_return;
+			}
 			if (jit_rc < 0) {
 				rc = jit_rc;
 				goto abort_due_to_error;

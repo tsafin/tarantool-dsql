@@ -156,7 +156,7 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_Move] = JIT_MODE_CALL,           /* Register move via host helper */
 	[OP_Copy] = JIT_MODE_CALL,           /* Register copy via host helper */
 	[OP_SCopy] = JIT_MODE_CALL,          /* Register copy via host helper */
-	[OP_ResultRow] = JIT_MODE_UNSUPPORTED,  /* Returns SQL_ROW to caller */
+	[OP_ResultRow] = JIT_MODE_CALL,
 	[OP_SkipLoad] = JIT_MODE_UNSUPPORTED,
 	[OP_BuiltinFunction] = JIT_MODE_CALL,
 	[OP_FunctionByName] = JIT_MODE_CALL,
@@ -691,6 +691,7 @@ jit_handler_is_external(int opcode)
 	case OP_Move:
 	case OP_Copy:
 	case OP_SCopy:
+	case OP_ResultRow:
 	case OP_Permutation:
 	case OP_Program:
 	case OP_Gosub:
@@ -1113,7 +1114,7 @@ vdbe_jit_compile(struct Vdbe *p)
 	if (entry_pc >= 0) {
 		int entry_inline_count = 0;
 		int entry_call_count = 0;
-		int first_unsupported_opcode = -1;
+		bool entry_hits_result_row = false;
 		for (int i = entry_pc, steps = 0; i >= 0 && i < p->nOp &&
 		     steps < p->nOp; steps++) {
 			int opcode = p->aOp[i].opcode;
@@ -1147,17 +1148,19 @@ vdbe_jit_compile(struct Vdbe *p)
 				continue;
 			}
 			if (mode == JIT_MODE_UNSUPPORTED || handler_name == NULL) {
-				first_unsupported_opcode = opcode;
 				break;
 			}
 			if (mode == JIT_MODE_INLINE)
 				entry_inline_count++;
 			else if (mode == JIT_MODE_CALL)
 				entry_call_count++;
+			if (opcode == OP_ResultRow) {
+				entry_hits_result_row = true;
+				break;
+			}
 			i++;
 		}
-		if (can_cache_negative &&
-		    first_unsupported_opcode == OP_ResultRow) {
+		if (can_cache_negative && entry_hits_result_row) {
 			jit_negative_cache_add(stmt_id, schema_version);
 			p->jit_compiled = 0;
 			p->jit_func = NULL;
@@ -1613,7 +1616,8 @@ vdbe_jit_compile(struct Vdbe *p)
 		/*
 		 * Check handler return value:
 		 *   rc < 0  → error, return rc
-		 *   rc == 1 → jump to P2
+		 *   rc == 1 → jump to P2 for branch opcodes, or return SQL_ROW
+		 *             for OP_ResultRow
 		 *   rc == 0 → continue to next opcode
 		 */
 		LLVMValueRef is_error =
@@ -1644,12 +1648,30 @@ vdbe_jit_compile(struct Vdbe *p)
 		snprintf(cont_bb_name, sizeof(cont_bb_name), "cont_%d", i);
 		LLVMBasicBlockRef cont_bb =
 			LLVMAppendBasicBlock(jit_func, cont_bb_name);
+		LLVMBasicBlockRef row_bb = NULL;
+		LLVMBasicBlockRef non_row_bb = NULL;
 
 		LLVMBuildCondBr(builder, is_error, err_bb, cont_bb);
 
 		LLVMPositionBuilderAtEnd(builder, cont_bb);
 		jit_emit_profile_record(module, builder, opcode,
 					profile_start_us);
+		if (opcode == OP_ResultRow) {
+			char row_bb_name[32];
+			snprintf(row_bb_name, sizeof(row_bb_name), "row_%d", i);
+			row_bb = LLVMAppendBasicBlock(jit_func, row_bb_name);
+			char non_row_bb_name[32];
+			snprintf(non_row_bb_name, sizeof(non_row_bb_name),
+				 "non_row_%d", i);
+			non_row_bb = LLVMAppendBasicBlock(jit_func,
+							  non_row_bb_name);
+			LLVMBuildCondBr(builder, is_jump, row_bb, non_row_bb);
+			LLVMPositionBuilderAtEnd(builder, row_bb);
+			LLVMBuildRet(builder,
+				     LLVMConstInt(LLVMInt32Type(),
+						  (uint64_t)VDBE_JIT_RC_ROW, 1));
+			LLVMPositionBuilderAtEnd(builder, non_row_bb);
+		}
 		LLVMBuildCondBr(builder, is_jump, jump_bb, next_bb);
 
 		/* Error block: return the error code */
@@ -1831,7 +1853,7 @@ vdbe_jit_note_fallback(struct Vdbe *p, int fallback_pc)
 	    fallback_pc < 0 || fallback_pc >= p->nOp)
 		return;
 	int opcode = p->aOp[fallback_pc].opcode;
-	if (opcode != OP_ResultRow && opcode != OP_Halt)
+	if (opcode != OP_Halt)
 		return;
 	jit_negative_cache_add(p->stmt_id, p->schema_ver);
 }
