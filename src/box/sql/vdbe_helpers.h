@@ -44,7 +44,16 @@ struct VdbeCursor;
  *   pVdbe - The VDBE instance
  *   pMem  - The memory register about to be modified
  */
+#ifdef SQL_DEBUG
 void sqlVdbeMemAboutToChange(struct Vdbe *pVdbe, struct Mem *pMem);
+#else
+static inline void
+sqlVdbeMemAboutToChange(struct Vdbe *pVdbe, struct Mem *pMem)
+{
+	(void)pVdbe;
+	(void)pMem;
+}
+#endif
 
 /**
  * Helper function: vdbe_prepare_null_out

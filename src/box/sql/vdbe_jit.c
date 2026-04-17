@@ -44,7 +44,6 @@
 #include <stddef.h>
 #include <limits.h>
 
-extern int64_t sql_jit_step_count;
 extern int64_t sql_jit_compile_count;
 extern int64_t sql_jit_compile_success_count;
 
@@ -144,16 +143,16 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_Return] = JIT_MODE_CALL,         /* Dynamic control flow */
 	[OP_EndCoroutine] = JIT_MODE_CALL,
 	[OP_Halt] = JIT_MODE_UNSUPPORTED,    /* Control flow */
-	[OP_Integer] = JIT_MODE_INLINE,      /* Constant load */
-	[OP_Bool] = JIT_MODE_INLINE,         /* Constant load */
-	[OP_Int64] = JIT_MODE_INLINE,        /* Constant load */
-	[OP_String] = JIT_MODE_INLINE,       /* Constant load */
-	[OP_Null] = JIT_MODE_INLINE,         /* Constant load */
-	[OP_Blob] = JIT_MODE_INLINE,         /* Constant load */
+	[OP_Integer] = JIT_MODE_CALL,        /* Constant load via host helper */
+	[OP_Bool] = JIT_MODE_CALL,           /* Constant load via host helper */
+	[OP_Int64] = JIT_MODE_CALL,          /* Constant load via host helper */
+	[OP_String] = JIT_MODE_CALL,         /* Constant load via host helper */
+	[OP_Null] = JIT_MODE_CALL,           /* Constant load via host helper */
+	[OP_Blob] = JIT_MODE_CALL,           /* Constant load via host helper */
 	[OP_Variable] = JIT_MODE_CALL,
-	[OP_Move] = JIT_MODE_INLINE,         /* Register move */
-	[OP_Copy] = JIT_MODE_INLINE,         /* Register copy */
-	[OP_SCopy] = JIT_MODE_INLINE,        /* Register copy */
+	[OP_Move] = JIT_MODE_CALL,           /* Register move via host helper */
+	[OP_Copy] = JIT_MODE_CALL,           /* Register copy via host helper */
+	[OP_SCopy] = JIT_MODE_CALL,          /* Register copy via host helper */
 	[OP_ResultRow] = JIT_MODE_UNSUPPORTED,  /* Returns SQL_ROW to caller */
 	[OP_SkipLoad] = JIT_MODE_UNSUPPORTED,
 	[OP_BuiltinFunction] = JIT_MODE_CALL,
@@ -213,7 +212,7 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_IdxDelete] = JIT_MODE_CALL,
 	[OP_IdxLE] = JIT_MODE_CALL,
 	[OP_IdxGT] = JIT_MODE_CALL,
-	[OP_Real] = JIT_MODE_INLINE,         /* Constant load */
+	[OP_Real] = JIT_MODE_CALL,           /* Constant load via host helper */
 	[OP_Decimal] = JIT_MODE_INLINE,      /* Constant load */
 	[OP_IdxLT] = JIT_MODE_CALL,
 	[OP_Clear] = JIT_MODE_CALL,
@@ -637,6 +636,17 @@ jit_handler_is_external(int opcode)
 	case OP_NotNull:
 	case OP_MustBeInt:
 	case OP_Cast:
+	case OP_Integer:
+	case OP_Bool:
+	case OP_Int64:
+	case OP_Real:
+	case OP_String:
+	case OP_Null:
+	case OP_Blob:
+	case OP_Variable:
+	case OP_Move:
+	case OP_Copy:
+	case OP_SCopy:
 	case OP_Permutation:
 	case OP_Program:
 	case OP_Gosub:
@@ -822,22 +832,6 @@ jit_store_int_field(LLVMBuilderRef builder, LLVMValueRef base_ptr,
 		       field_ptr);
 }
 
-static void
-jit_increment_global_i64(LLVMModuleRef module, LLVMBuilderRef builder,
-			  const char *name)
-{
-	LLVMValueRef global = LLVMGetNamedGlobal(module, name);
-	if (global == NULL) {
-		global = LLVMAddGlobal(module, LLVMInt64Type(), name);
-		LLVMSetLinkage(global, LLVMExternalLinkage);
-	}
-	LLVMValueRef value = LLVMBuildLoad(builder, global, "stat_val");
-	LLVMValueRef next = LLVMBuildAdd(builder, value,
-					  LLVMConstInt(LLVMInt64Type(), 1, 0),
-					  "stat_next");
-	LLVMBuildStore(builder, next, global);
-}
-
 static LLVMValueRef
 jit_get_i64_function(LLVMModuleRef module, const char *name)
 {
@@ -920,14 +914,13 @@ static void
 jit_emit_profile_record(LLVMModuleRef module, LLVMBuilderRef builder, int opcode,
 			  LLVMValueRef start_us)
 {
-	jit_increment_global_i64(module, builder, "sql_jit_step_count");
 #if SQL_VDBE_OP_PROFILE
+	LLVMValueRef record_fn = jit_get_profile_record_function(module);
 	LLVMValueRef now_fn = jit_get_i64_function(module, "fiber_clock64");
 	LLVMValueRef now_us =
 		LLVMBuildCall(builder, now_fn, NULL, 0, "jit_profile_now");
 	LLVMValueRef elapsed_us =
 		LLVMBuildSub(builder, now_us, start_us, "jit_profile_elapsed");
-	LLVMValueRef record_fn = jit_get_profile_record_function(module);
 	LLVMValueRef record_args[2] = {
 		LLVMConstInt(LLVMInt32Type(), (uint64_t)opcode, 0),
 		elapsed_us,
