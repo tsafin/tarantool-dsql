@@ -156,6 +156,7 @@ int vdbe_op_setsession(Vdbe *p, Op *pOp, Mem *aMem);  /* SetSession */
 int vdbe_op_sorteropen(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterOpen */
 int vdbe_op_sorterinsert(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterInsert */
 int vdbe_op_sorternext(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterNext */
+int vdbe_op_sorternext_jit(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterNext */
 int vdbe_op_sorterdata(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterData */
 int vdbe_op_sortercompare(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterCompare */
 int vdbe_op_sortersort(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterSort */

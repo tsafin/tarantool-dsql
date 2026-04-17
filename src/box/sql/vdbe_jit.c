@@ -163,7 +163,7 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_Array] = JIT_MODE_CALL,
 	[OP_Map] = JIT_MODE_CALL,
 	[OP_Getitem] = JIT_MODE_CALL,
-	[OP_Permutation] = JIT_MODE_UNSUPPORTED,
+	[OP_Permutation] = JIT_MODE_CALL,
 	[OP_Compare] = JIT_MODE_CALL,
 	[OP_If] = JIT_MODE_CALL,             /* Control flow via helper */
 	[OP_Column] = JIT_MODE_CALL,
@@ -271,6 +271,8 @@ static const char *opcode_handler_names[] = {
 	[OP_ResultRow] = "vdbe_op_resultrow",
 	[OP_MustBeInt] = "vdbe_op_mustbeint",
 	[OP_Cast] = "vdbe_op_cast",
+	[OP_Permutation] = "vdbe_op_permutation_inline",
+	[OP_Compare] = "vdbe_op_compare",
 	[OP_Gosub] = "vdbe_op_gosub_jit",
 	[OP_InitCoroutine] = "vdbe_op_initcoroutine_jit",
 	[OP_Yield] = "vdbe_op_yield_jit",
@@ -299,6 +301,8 @@ static const char *opcode_handler_names[] = {
 	[OP_IteratorOpen] = "vdbe_op_iteratoropen",
 	[OP_OpenSpace] = "vdbe_op_openspace_inline",
 	[OP_OpenTEphemeral] = "vdbe_op_opentephemeral_inline",
+	[OP_SorterOpen] = "vdbe_op_sorteropen",
+	[OP_OpenPseudo] = "vdbe_op_openpseudo_inline",
 	[OP_Close] = "vdbe_op_close_inline",
 	[OP_NotFound] = "vdbe_op_found_notfound_noconflict",
 	[OP_NoConflict] = "vdbe_op_found_notfound_noconflict",
@@ -320,6 +324,11 @@ static const char *opcode_handler_names[] = {
 	[OP_TransactionRollback] = "vdbe_op_transactionrollback_inline",
 	[OP_TTransaction] = "vdbe_op_ttransaction_inline",
 	[OP_SetSession] = "vdbe_op_setsession",
+	[OP_SorterInsert] = "vdbe_op_sorterinsert",
+	[OP_SorterNext] = "vdbe_op_sorternext_jit",
+	[OP_SorterData] = "vdbe_op_sorterdata",
+	[OP_SorterCompare] = "vdbe_op_sortercompare",
+	[OP_SorterSort] = "vdbe_op_sortersort",
 	[OP_Real] = "vdbe_op_real",
 	[OP_Noop] = "vdbe_op_noop",
 	[OP_IsNull] = "vdbe_op_isnull_inline",
@@ -582,6 +591,7 @@ jit_module_index_for_opcode(int opcode)
 	case OP_Le:
 	case OP_Lt:
 	case OP_Ge:
+	case OP_Compare:
 		return JIT_MODULE_COMPARE;
 	case OP_Or:
 	case OP_And:
@@ -627,6 +637,7 @@ jit_handler_is_external(int opcode)
 	case OP_NotNull:
 	case OP_MustBeInt:
 	case OP_Cast:
+	case OP_Permutation:
 	case OP_Program:
 	case OP_Gosub:
 	case OP_Return:
@@ -654,6 +665,8 @@ jit_handler_is_external(int opcode)
 	case OP_IteratorOpen:
 	case OP_OpenSpace:
 	case OP_OpenTEphemeral:
+	case OP_SorterOpen:
+	case OP_OpenPseudo:
 	case OP_Close:
 	case OP_NoConflict:
 	case OP_NotFound:
@@ -674,6 +687,11 @@ jit_handler_is_external(int opcode)
 	case OP_TransactionRollback:
 	case OP_TTransaction:
 	case OP_SetSession:
+	case OP_SorterInsert:
+	case OP_SorterNext:
+	case OP_SorterData:
+	case OP_SorterCompare:
+	case OP_SorterSort:
 		return true;
 	default:
 		return false;

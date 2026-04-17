@@ -451,6 +451,66 @@ g_jit.test_sql_jit_coroutine_opcodes = function()
     end
 end
 
+g_jit.test_sql_jit_sorter_gosub_return_opcodes = function()
+    local res = g_jit.server:exec(function()
+        box.execute([[SET SESSION "sql_seq_scan" = true;]])
+        box.execute([[CREATE TABLE t (id INT PRIMARY KEY, a INT);]])
+        box.execute([[INSERT INTO t VALUES (1, 10), (2, 20), (3, 30);]])
+
+        local before = box.stat.sql()
+        local result = box.execute([[
+            SELECT sum(x)
+            FROM (
+                SELECT id + a + 1 AS x FROM t
+                UNION ALL
+                SELECT id + a + 2 FROM t
+                ORDER BY 1
+            );
+        ]])
+        local after = box.stat.sql()
+
+        box.execute([[DROP TABLE t;]])
+
+        local profile = nil
+        if before.sql_opcode_profile_enabled ~= 0 then
+            profile = {
+                before = before.jit_opcode_profile.count,
+                after = after.jit_opcode_profile.count,
+            }
+        end
+
+        return {
+            rows = result.rows,
+            before_compile = before.sql_jit_compile_count,
+            after_compile = after.sql_jit_compile_count,
+            before_exec = before.sql_jit_exec_count,
+            after_exec = after.sql_jit_exec_count,
+            before_steps = before.sql_jit_step_count,
+            after_steps = after.sql_jit_step_count,
+            profile = profile,
+        }
+    end)
+
+    t.assert_equals(res.rows, {{141}})
+    if res.after_compile == res.before_compile then
+        t.skip('SQL JIT is not available in this build')
+    end
+    t.assert_gt(res.after_exec, res.before_exec)
+    t.assert_gt(res.after_steps, res.before_steps)
+    if res.profile ~= nil then
+        t.assert_gt(res.profile.after.Permutation or 0,
+                    res.profile.before.Permutation or 0)
+        t.assert_gt(res.profile.after.Compare or 0,
+                    res.profile.before.Compare or 0)
+        t.assert_gt(res.profile.after.SorterNext or 0,
+                    res.profile.before.SorterNext or 0)
+        t.assert_gt(res.profile.after.Gosub or 0,
+                    res.profile.before.Gosub or 0)
+        t.assert_gt(res.profile.after.Return or 0,
+                    res.profile.before.Return or 0)
+    end
+end
+
 g_jit.test_sql_jit_ttransaction_opcode = function()
     local res = g_jit.server:exec(function()
         box.execute([[CREATE TABLE t (id INT PRIMARY KEY, a INT);]])
@@ -493,5 +553,55 @@ g_jit.test_sql_jit_ttransaction_opcode = function()
     if res.profile ~= nil then
         t.assert_gt(res.profile.after.TTransaction or 0,
                     res.profile.before.TTransaction or 0)
+    end
+end
+
+g_jit.test_sql_jit_program_opcode = function()
+    local res = g_jit.server:exec(function()
+        box.execute([[CREATE TABLE t1(x INTEGER PRIMARY KEY);]])
+        box.execute([[CREATE TABLE t2(y INTEGER PRIMARY KEY);]])
+        box.execute([[
+            CREATE TRIGGER tr AFTER INSERT ON t1 FOR EACH ROW
+            BEGIN
+                INSERT INTO t2 VALUES(new.x + 1);
+            END;
+        ]])
+
+        local before = box.stat.sql()
+        box.execute([[INSERT INTO t1 VALUES(10);]])
+        local after = box.stat.sql()
+
+        box.execute([[DROP TABLE t1;]])
+        box.execute([[DROP TABLE t2;]])
+
+        local profile = nil
+        if before.sql_opcode_profile_enabled ~= 0 then
+            profile = {
+                before = before.jit_opcode_profile.count,
+                after = after.jit_opcode_profile.count,
+            }
+        end
+
+        return {
+            before_compile = before.sql_jit_compile_count,
+            after_compile = after.sql_jit_compile_count,
+            before_exec = before.sql_jit_exec_count,
+            after_exec = after.sql_jit_exec_count,
+            before_steps = before.sql_jit_step_count,
+            after_steps = after.sql_jit_step_count,
+            profile = profile,
+        }
+    end)
+
+    if res.after_compile == res.before_compile then
+        t.skip('SQL JIT is not available in this build')
+    end
+    t.assert_gt(res.after_exec, res.before_exec)
+    t.assert_gt(res.after_steps, res.before_steps)
+    if res.profile ~= nil then
+        t.assert_gt(res.profile.after.Program or 0,
+                    res.profile.before.Program or 0)
+        t.assert_equals(res.profile.after.Param or 0,
+                        res.profile.before.Param or 0)
     end
 end

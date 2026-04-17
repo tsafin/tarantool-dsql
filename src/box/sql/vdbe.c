@@ -523,6 +523,8 @@ int sqlVdbeExec(Vdbe *p)
 				  jit_rc, sqlOpcodeName(p->aOp[jit_rc].opcode));
 			sql_jit_fallback_count++;
 			p->pc = jit_rc;
+			aOp = p->aOp;
+			aMem = p->aMem;
 		}
 	}
 #endif

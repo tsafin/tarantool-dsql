@@ -105,6 +105,15 @@ vdbe_op_sorternext(Vdbe *p, Op *pOp, Mem *aMem)
 	return res;
 }
 
+int
+vdbe_op_sorternext_jit(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	int rc = vdbe_op_sorternext(p, pOp, aMem);
+	if (rc < 0)
+		return -1;
+	return rc == 0 ? 1 : 0;
+}
+
 /* Opcode: SorterData P1 P2 P3 * *
  * Synopsis: r[P2]=data
  *
