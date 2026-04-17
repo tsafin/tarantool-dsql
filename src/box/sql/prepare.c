@@ -42,13 +42,15 @@
 
 int
 sql_stmt_compile(const char *zSql, int nBytes, struct Vdbe *pReprepare,
-		 struct Vdbe **ppStmt, const char **pzTail)
+		 struct Vdbe **ppStmt, const char **pzTail,
+		 bool is_prepared_stmt)
 {
 	int rc = 0;	/* Result code */
 	Parse sParse;		/* Parsing context */
 	uint32_t session_flags = current_session()->sql_flags;
 	sql_parser_create(&sParse, session_flags);
 	sParse.pReprepare = pReprepare;
+	sParse.is_prepared_stmt = is_prepared_stmt;
 	*ppStmt = NULL;
 
 	/* Check to verify that it is possible to get a read lock on all
@@ -180,7 +182,8 @@ sqlReprepare(Vdbe * p)
 
 	zSql = sql_sql(p);
 	assert(zSql != 0);
-	if (sql_stmt_compile(zSql, -1, p, &pNew, 0) != 0) {
+	if (sql_stmt_compile(zSql, -1, p, &pNew, 0,
+			     p->is_prepared_stmt) != 0) {
 		assert(pNew == 0);
 		return -1;
 	}

@@ -126,7 +126,7 @@ sql_reprepare(struct Vdbe **stmt)
 	const char *sql_str = sql_stmt_query_str(*stmt);
 	struct Vdbe *new_stmt;
 	if (sql_stmt_compile(sql_str, strlen(sql_str), NULL,
-			     &new_stmt, NULL) != 0)
+			     &new_stmt, NULL, true) != 0)
 		return -1;
 	if (sql_stmt_cache_update(*stmt, new_stmt) != 0)
 		return -1;
@@ -146,7 +146,7 @@ sql_prepare(const char *sql, int len, struct port *port)
 	struct Vdbe *stmt = sql_stmt_cache_find(stmt_id);
 	rmean_collect(rmean_box, IPROTO_PREPARE, 1);
 	if (stmt == NULL) {
-		if (sql_stmt_compile(sql, len, NULL, &stmt, NULL) != 0)
+		if (sql_stmt_compile(sql, len, NULL, &stmt, NULL, true) != 0)
 			return -1;
 		if (sql_stmt_cache_insert(stmt) != 0) {
 			sql_stmt_finalize(stmt);
@@ -272,7 +272,7 @@ sql_prepare_and_execute(const char *sql, int len, const struct sql_bind *bind,
 			struct region *region)
 {
 	struct Vdbe *stmt;
-	int compile_rc = sql_stmt_compile(sql, len, NULL, &stmt, NULL);
+	int compile_rc = sql_stmt_compile(sql, len, NULL, &stmt, NULL, false);
 	if (compile_rc != 0)
 		return -1;
 	assert(stmt != NULL);

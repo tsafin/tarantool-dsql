@@ -315,7 +315,8 @@ sql_vsnprintf(int, char *, const char *, va_list);
  */
 int
 sql_stmt_compile(const char *sql, int bytes_count, struct Vdbe *re_prepared,
-		 struct Vdbe **stmt, const char **sql_tail);
+		 struct Vdbe **stmt, const char **sql_tail,
+		 bool is_prepared_stmt);
 
 /** This is the top-level implementation of sqlStep(). */
 int
@@ -2001,6 +2002,8 @@ struct Parse {
 	struct region region;
 	/** True, if error should be raised after parsing. */
 	bool is_aborted;
+	/** True when the statement is compiled for explicit PREPARE. */
+	bool is_prepared_stmt;
 
   /**************************************************************************
   * Fields above must be initialized to zero.  The fields that follow,

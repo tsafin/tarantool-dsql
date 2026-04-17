@@ -991,6 +991,8 @@ jit_link_handler_modules(LLVMModuleRef dest, const bool *needed_modules)
 int
 vdbe_jit_compile(struct Vdbe *p)
 {
+	bool force_prepared_jit = p->is_prepared_stmt;
+
 	if (!jit_state.initialized) {
 		if (vdbe_jit_init() != 0)
 			return -1;
@@ -1041,7 +1043,7 @@ vdbe_jit_compile(struct Vdbe *p)
 	 * Skip JIT compilation if there are no inlinable operations.
 	 * Pure I/O programs or control-flow heavy programs won't benefit.
 	 */
-	if (inline_count == 0) {
+	if (!force_prepared_jit && inline_count == 0) {
 		p->jit_compiled = 0;
 		p->jit_func = NULL;
 		p->jit_module = NULL;
@@ -1103,8 +1105,9 @@ vdbe_jit_compile(struct Vdbe *p)
 				entry_call_count++;
 			i++;
 		}
-		if ((entry_call_count == 0 && entry_inline_count < 8) ||
-		    (entry_call_count > 0 && entry_inline_count < 3)) {
+		if (!force_prepared_jit &&
+		    ((entry_call_count == 0 && entry_inline_count < 8) ||
+		     (entry_call_count > 0 && entry_inline_count < 3))) {
 			p->jit_compiled = 0;
 			p->jit_func = NULL;
 			p->jit_module = NULL;

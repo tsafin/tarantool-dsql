@@ -1480,6 +1480,7 @@ sqlVdbeMakeReady(Vdbe * p,	/* The VDBE */
 	p->explain = pParse->explain;
 	p->nCursor = nCursor;
 	p->nVar = nVar;
+	p->is_prepared_stmt = pParse->is_prepared_stmt;
 	for (int i = 0; i < nVar; ++i)
 		mem_create(&p->aVar[i]);
 	p->nMem = nMem;

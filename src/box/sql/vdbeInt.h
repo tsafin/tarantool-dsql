@@ -299,6 +299,8 @@ struct Vdbe {
 	 * does not use external resources other than bind variables.
 	 */
 	bft is_sandboxed : 1;
+	/** True if this VM came from explicit PREPARE rather than one-shot execute. */
+	bft is_prepared_stmt : 1;
 	char *zSql;		/* Text of the SQL statement that generated this */
 	void *pFree;		/* Free this when deleting the vdbe */
 	VdbeFrame *pFrame;	/* Parent frame */

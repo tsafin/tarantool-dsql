@@ -1840,7 +1840,7 @@ int
 sql_fuzz(const char *sql, int bytes_count)
 {
 	struct Vdbe *stmt;
-	if (sql_stmt_compile(sql, bytes_count, NULL, &stmt, NULL) != 0)
+	if (sql_stmt_compile(sql, bytes_count, NULL, &stmt, NULL, false) != 0)
 		return -1;
 	return sqlVdbeFinalize(stmt);
 }

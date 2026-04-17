@@ -107,6 +107,38 @@ g_jit.test_sql_jit_exec_count_growth = function()
     t.assert_gt(res.after_fallback, res.before_fallback)
 end
 
+g_jit.test_sql_jit_prepare_forces_small_statement = function()
+    local res = g_jit.server:exec(function()
+        local before = box.stat.sql()
+        local stmt = box.prepare([[SELECT 1 + 2;]])
+        local after_prepare = box.stat.sql()
+        local result = box.execute(stmt.stmt_id)
+        local after_execute = box.stat.sql()
+        box.unprepare(stmt.stmt_id)
+        return {
+            rows = result.rows,
+            before_compile = before.sql_jit_compile_count,
+            after_prepare_compile = after_prepare.sql_jit_compile_count,
+            before_compile_success = before.sql_jit_compile_success_count,
+            after_prepare_compile_success = after_prepare.sql_jit_compile_success_count,
+            before_exec = before.sql_jit_exec_count,
+            after_prepare_exec = after_prepare.sql_jit_exec_count,
+            after_execute_exec = after_execute.sql_jit_exec_count,
+            before_steps = before.sql_jit_step_count,
+            after_execute_steps = after_execute.sql_jit_step_count,
+        }
+    end)
+
+    t.assert_equals(res.rows, {{3}})
+    if res.after_prepare_compile == res.before_compile then
+        t.skip('SQL JIT is not available in this build')
+    end
+    t.assert_gt(res.after_prepare_compile_success, res.before_compile_success)
+    t.assert_equals(res.after_prepare_exec, res.before_exec)
+    t.assert_gt(res.after_execute_exec, res.after_prepare_exec)
+    t.assert_gt(res.after_execute_steps, res.before_steps)
+end
+
 g_jit.test_sql_jit_control_flow_opcodes = function()
     local res = g_jit.server:exec(function()
         local before = box.stat.sql()
