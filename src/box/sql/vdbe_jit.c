@@ -20,6 +20,9 @@
  */
 
 #include "sqlInt.h"
+#include "assoc.h"
+#include "box/schema.h"
+#include "box/sql_stmt_cache.h"
 #include "vdbeInt.h"
 #include "vdbe_jit.h"
 #include "vdbe_ops.h"
@@ -356,6 +359,36 @@ struct sql_jit_state {
 
 static struct sql_jit_state jit_state = {0};
 static uint64_t jit_module_serial = 0;
+static struct mh_i64ptr_t *jit_negative_cache;
+
+static inline uint64_t
+jit_negative_cache_key(uint32_t stmt_id, uint64_t schema_version)
+{
+	return (schema_version << 32) | stmt_id;
+}
+
+static bool
+jit_negative_cache_contains(uint32_t stmt_id, uint64_t schema_version)
+{
+	if (jit_negative_cache == NULL)
+		return false;
+	uint64_t key = jit_negative_cache_key(stmt_id, schema_version);
+	return mh_i64ptr_find(jit_negative_cache, key, NULL) !=
+	       mh_end(jit_negative_cache);
+}
+
+static void
+jit_negative_cache_add(uint32_t stmt_id, uint64_t schema_version)
+{
+	if (jit_negative_cache == NULL)
+		return;
+	uint64_t key = jit_negative_cache_key(stmt_id, schema_version);
+	if (mh_i64ptr_find(jit_negative_cache, key, NULL) !=
+	    mh_end(jit_negative_cache))
+		return;
+	struct mh_i64ptr_node_t node = { key, NULL };
+	mh_i64ptr_put(jit_negative_cache, &node, NULL, NULL);
+}
 
 static void
 jit_remove_module(LLVMModuleRef module)
@@ -516,6 +549,17 @@ vdbe_jit_init(void)
 	} else {
 		say_info("JIT: loaded %d/%d bitcode modules from %s",
 			 loaded, count, SQL_JIT_BITCODE_DIR);
+	}
+
+	jit_negative_cache = mh_i64ptr_new();
+	if (jit_negative_cache == NULL) {
+		free(jit_state.handler_modules);
+		jit_state.handler_modules = NULL;
+		jit_state.module_count = 0;
+		jit_state.modules_loaded = 0;
+		diag_set(OutOfMemory, 0, "mh_i64ptr_new",
+			 "jit_negative_cache");
+		return -1;
 	}
 
 	char *error_msg = NULL;
@@ -985,6 +1029,17 @@ int
 vdbe_jit_compile(struct Vdbe *p)
 {
 	bool force_prepared_jit = p->is_prepared_stmt;
+	uint32_t stmt_id = p->stmt_id;
+	uint64_t schema_version = p->schema_ver;
+	bool can_cache_negative = !force_prepared_jit && stmt_id != 0;
+	if (can_cache_negative) {
+		if (jit_negative_cache_contains(stmt_id, schema_version)) {
+			p->jit_compiled = 0;
+			p->jit_func = NULL;
+			p->jit_module = NULL;
+			return 0;
+		}
+	}
 
 	if (!jit_state.initialized) {
 		if (vdbe_jit_init() != 0)
@@ -1058,6 +1113,7 @@ vdbe_jit_compile(struct Vdbe *p)
 	if (entry_pc >= 0) {
 		int entry_inline_count = 0;
 		int entry_call_count = 0;
+		int first_unsupported_opcode = -1;
 		for (int i = entry_pc, steps = 0; i >= 0 && i < p->nOp &&
 		     steps < p->nOp; steps++) {
 			int opcode = p->aOp[i].opcode;
@@ -1090,13 +1146,23 @@ vdbe_jit_compile(struct Vdbe *p)
 				i++;
 				continue;
 			}
-			if (mode == JIT_MODE_UNSUPPORTED || handler_name == NULL)
+			if (mode == JIT_MODE_UNSUPPORTED || handler_name == NULL) {
+				first_unsupported_opcode = opcode;
 				break;
+			}
 			if (mode == JIT_MODE_INLINE)
 				entry_inline_count++;
 			else if (mode == JIT_MODE_CALL)
 				entry_call_count++;
 			i++;
+		}
+		if (can_cache_negative &&
+		    first_unsupported_opcode == OP_ResultRow) {
+			jit_negative_cache_add(stmt_id, schema_version);
+			p->jit_compiled = 0;
+			p->jit_func = NULL;
+			p->jit_module = NULL;
+			return 0;
 		}
 		if (!force_prepared_jit &&
 		    ((entry_call_count == 0 && entry_inline_count < 8) ||
@@ -1719,6 +1785,10 @@ vdbe_jit_shutdown(void)
 		LLVMDisposeExecutionEngine(jit_state.engine);
 		jit_state.engine = NULL;
 	}
+	if (jit_negative_cache != NULL) {
+		mh_i64ptr_delete(jit_negative_cache);
+		jit_negative_cache = NULL;
+	}
 
 	jit_state.initialized = 0;
 	jit_state.module_count = 0;
@@ -1754,6 +1824,18 @@ vdbe_jit_is_enabled(void)
 	return 0;
 }
 
+void
+vdbe_jit_note_fallback(struct Vdbe *p, int fallback_pc)
+{
+	if (p == NULL || p->is_prepared_stmt || p->stmt_id == 0 ||
+	    fallback_pc < 0 || fallback_pc >= p->nOp)
+		return;
+	int opcode = p->aOp[fallback_pc].opcode;
+	if (opcode != OP_ResultRow && opcode != OP_Halt)
+		return;
+	jit_negative_cache_add(p->stmt_id, p->schema_ver);
+}
+
 #else /* !ENABLE_SQL_JIT */
 
 /* Stub implementations when JIT is disabled */
@@ -1786,6 +1868,13 @@ int
 vdbe_jit_is_enabled(void)
 {
 	return 0;
+}
+
+void
+vdbe_jit_note_fallback(struct Vdbe *p, int fallback_pc)
+{
+	(void)p;
+	(void)fallback_pc;
 }
 
 #endif /* ENABLE_SQL_JIT */

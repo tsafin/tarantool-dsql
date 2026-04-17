@@ -301,6 +301,8 @@ struct Vdbe {
 	bft is_sandboxed : 1;
 	/** True if this VM came from explicit PREPARE rather than one-shot execute. */
 	bft is_prepared_stmt : 1;
+	/** Stable statement hash derived from the original SQL text. */
+	uint32_t stmt_id;
 	char *zSql;		/* Text of the SQL statement that generated this */
 	void *pFree;		/* Free this when deleting the vdbe */
 	VdbeFrame *pFrame;	/* Parent frame */

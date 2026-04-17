@@ -63,3 +63,10 @@ vdbe_jit_shutdown(void);
  */
 int
 vdbe_jit_is_enabled(void);
+
+/**
+ * Remember that a one-shot statement fell back from JIT at the given PC,
+ * so equivalent future statements can skip JIT compilation altogether.
+ */
+void
+vdbe_jit_note_fallback(struct Vdbe *p, int fallback_pc);

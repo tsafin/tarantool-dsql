@@ -37,6 +37,7 @@
 #include "sqlInt.h"
 #include "tarantoolInt.h"
 #include "vdbeInt.h"
+#include "box/sql_stmt_cache.h"
 #include "box/space.h"
 #include "box/session.h"
 
@@ -51,6 +52,9 @@ sql_stmt_compile(const char *zSql, int nBytes, struct Vdbe *pReprepare,
 	sql_parser_create(&sParse, session_flags);
 	sParse.pReprepare = pReprepare;
 	sParse.is_prepared_stmt = is_prepared_stmt;
+	sParse.stmt_id = sql_stmt_calculate_id(zSql,
+					       nBytes >= 0 ? (size_t)nBytes :
+					       strlen(zSql));
 	*ppStmt = NULL;
 
 	/* Check to verify that it is possible to get a read lock on all

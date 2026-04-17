@@ -2004,6 +2004,8 @@ struct Parse {
 	bool is_aborted;
 	/** True when the statement is compiled for explicit PREPARE. */
 	bool is_prepared_stmt;
+	/** Stable statement hash derived from the original SQL text. */
+	uint32_t stmt_id;
 
   /**************************************************************************
   * Fields above must be initialized to zero.  The fields that follow,

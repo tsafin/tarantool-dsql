@@ -522,6 +522,7 @@ int sqlVdbeExec(Vdbe *p)
 			say_debug("JIT: fallback to interpreter at pc=%d opcode=%s",
 				  jit_rc, sqlOpcodeName(p->aOp[jit_rc].opcode));
 			sql_jit_fallback_count++;
+			vdbe_jit_note_fallback(p, jit_rc);
 			p->pc = jit_rc;
 			aOp = p->aOp;
 			aMem = p->aMem;
