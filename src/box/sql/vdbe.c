@@ -239,6 +239,7 @@ sql_vdbe_opcode_profile_record_interpreter(int opcode, int64_t elapsed_us)
 void
 sql_vdbe_opcode_profile_record_jit(int opcode, int64_t elapsed_us)
 {
+	sql_jit_step_count++;
 	sql_vdbe_opcode_profile_record(sql_jit_opcode_count,
 				       sql_jit_opcode_time_us, opcode,
 				       elapsed_us);
@@ -286,6 +287,7 @@ sql_vdbe_opcode_profile_record_jit(int opcode, int64_t elapsed_us)
 {
 	(void)opcode;
 	(void)elapsed_us;
+	sql_jit_step_count++;
 }
 
 void

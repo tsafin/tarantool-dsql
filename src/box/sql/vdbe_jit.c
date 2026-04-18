@@ -71,6 +71,15 @@ enum {
 /* Function type for JIT-compiled VDBE execution */
 typedef int (*VdbeJitFunc)(struct Vdbe *p, int start_pc);
 
+/**
+ * Large VDBE programs cause compile-time explosion in the current LLVM JIT:
+ * we emit one basic block per opcode plus a full switch over all PCs, and the
+ * optimization pipeline spends disproportionate time and memory simplifying
+ * that CFG. Keep oversized programs on the interpreter path until the JIT uses
+ * a more scalable dispatch strategy.
+ */
+enum { VDBE_JIT_MAX_OPS = 512 };
+
 /*
  * Opcode JIT mode classification
  */
@@ -360,11 +369,18 @@ struct sql_jit_state {
 static struct sql_jit_state jit_state = {0};
 static uint64_t jit_module_serial = 0;
 static struct mh_i64ptr_t *jit_negative_cache;
+static struct mh_i64ptr_t *jit_shape_negative_cache;
 
 static inline uint64_t
 jit_negative_cache_key(uint32_t stmt_id, uint64_t schema_version)
 {
 	return (schema_version << 32) | stmt_id;
+}
+
+static inline uint64_t
+jit_shape_negative_cache_key(uint32_t shape_hash, uint64_t schema_version)
+{
+	return (schema_version << 32) | shape_hash;
 }
 
 static bool
@@ -388,6 +404,51 @@ jit_negative_cache_add(uint32_t stmt_id, uint64_t schema_version)
 		return;
 	struct mh_i64ptr_node_t node = { key, NULL };
 	mh_i64ptr_put(jit_negative_cache, &node, NULL, NULL);
+}
+
+static inline uint64_t
+jit_shape_hash_mix(uint64_t hash, uint64_t value)
+{
+	hash ^= value;
+	hash *= UINT64_C(1099511628211);
+	return hash;
+}
+
+static uint32_t
+jit_stmt_shape_hash(const struct Vdbe *p)
+{
+	uint64_t hash = UINT64_C(1469598103934665603);
+	hash = jit_shape_hash_mix(hash, (uint64_t)p->nOp);
+	for (int i = 0; i < p->nOp; ++i) {
+		const Op *op = &p->aOp[i];
+		hash = jit_shape_hash_mix(hash, (uint64_t)op->opcode);
+		hash = jit_shape_hash_mix(hash, (uint64_t)(unsigned char)op->p4type);
+		hash = jit_shape_hash_mix(hash, (uint64_t)op->p5);
+	}
+	return (uint32_t)(hash ^ (hash >> 32));
+}
+
+static bool
+jit_shape_negative_cache_contains(uint32_t shape_hash, uint64_t schema_version)
+{
+	if (jit_shape_negative_cache == NULL)
+		return false;
+	uint64_t key = jit_shape_negative_cache_key(shape_hash, schema_version);
+	return mh_i64ptr_find(jit_shape_negative_cache, key, NULL) !=
+	       mh_end(jit_shape_negative_cache);
+}
+
+static void
+jit_shape_negative_cache_add(uint32_t shape_hash, uint64_t schema_version)
+{
+	if (jit_shape_negative_cache == NULL)
+		return;
+	uint64_t key = jit_shape_negative_cache_key(shape_hash, schema_version);
+	if (mh_i64ptr_find(jit_shape_negative_cache, key, NULL) !=
+	    mh_end(jit_shape_negative_cache))
+		return;
+	struct mh_i64ptr_node_t node = { key, NULL };
+	mh_i64ptr_put(jit_shape_negative_cache, &node, NULL, NULL);
 }
 
 static void
@@ -427,6 +488,29 @@ jit_find_static_entry_pc(struct Vdbe *p)
 		pc = target;
 	}
 	return pc < p->nOp ? pc : -1;
+}
+
+static bool
+jit_has_write_side_effects(const struct Vdbe *p)
+{
+	for (int i = 0; i < p->nOp; ++i) {
+		switch (p->aOp[i].opcode) {
+		case OP_Delete:
+		case OP_IdxInsert:
+		case OP_IdxReplace:
+		case OP_Update:
+		case OP_SInsert:
+		case OP_Clear:
+		case OP_TTransaction:
+		case OP_TransactionBegin:
+		case OP_TransactionCommit:
+		case OP_TransactionRollback:
+			return true;
+		default:
+			break;
+		}
+	}
+	return false;
 }
 
 /*
@@ -559,6 +643,18 @@ vdbe_jit_init(void)
 		jit_state.modules_loaded = 0;
 		diag_set(OutOfMemory, 0, "mh_i64ptr_new",
 			 "jit_negative_cache");
+		return -1;
+	}
+	jit_shape_negative_cache = mh_i64ptr_new();
+	if (jit_shape_negative_cache == NULL) {
+		mh_i64ptr_delete(jit_negative_cache);
+		jit_negative_cache = NULL;
+		free(jit_state.handler_modules);
+		jit_state.handler_modules = NULL;
+		jit_state.module_count = 0;
+		jit_state.modules_loaded = 0;
+		diag_set(OutOfMemory, 0, "mh_i64ptr_new",
+			 "jit_shape_negative_cache");
 		return -1;
 	}
 
@@ -1052,6 +1148,8 @@ vdbe_jit_compile(struct Vdbe *p)
 	uint32_t stmt_id = p->stmt_id;
 	uint64_t schema_version = p->schema_ver;
 	bool can_cache_negative = !force_prepared_jit && stmt_id != 0;
+	bool is_literal_oneshot_write = !force_prepared_jit && p->nVar == 0 &&
+		jit_has_write_side_effects(p);
 	if (can_cache_negative) {
 		if (jit_negative_cache_contains(stmt_id, schema_version)) {
 			p->jit_compiled = 0;
@@ -1072,6 +1170,27 @@ vdbe_jit_compile(struct Vdbe *p)
 		p->jit_func = NULL;
 		p->jit_module = NULL;
 		return 0;
+	}
+	if (p->nOp > VDBE_JIT_MAX_OPS) {
+		if (can_cache_negative)
+			jit_negative_cache_add(stmt_id, schema_version);
+		if (is_literal_oneshot_write) {
+			uint32_t shape_hash = jit_stmt_shape_hash(p);
+			jit_shape_negative_cache_add(shape_hash, schema_version);
+		}
+		p->jit_compiled = 0;
+		p->jit_func = NULL;
+		p->jit_module = NULL;
+		return 0;
+	}
+	if (is_literal_oneshot_write) {
+		uint32_t shape_hash = jit_stmt_shape_hash(p);
+		if (jit_shape_negative_cache_contains(shape_hash, schema_version)) {
+			p->jit_compiled = 0;
+			p->jit_func = NULL;
+			p->jit_module = NULL;
+			return 0;
+		}
 	}
 	sql_jit_compile_count++;
 
@@ -1111,7 +1230,7 @@ vdbe_jit_compile(struct Vdbe *p)
 	 * Skip JIT compilation if there are no inlinable operations.
 	 * Pure I/O programs or control-flow heavy programs won't benefit.
 	 */
-	if (!force_prepared_jit && inline_count == 0) {
+	if (!force_prepared_jit && !is_literal_oneshot_write && inline_count == 0) {
 		p->jit_compiled = 0;
 		p->jit_func = NULL;
 		p->jit_module = NULL;
@@ -1133,7 +1252,6 @@ vdbe_jit_compile(struct Vdbe *p)
 	if (entry_pc >= 0) {
 		int entry_inline_count = 0;
 		int entry_call_count = 0;
-		bool entry_hits_result_row = false;
 		bool entry_hits_program = false;
 		for (int i = entry_pc, steps = 0; i >= 0 && i < p->nOp &&
 		     steps < p->nOp; steps++) {
@@ -1175,21 +1293,18 @@ vdbe_jit_compile(struct Vdbe *p)
 				entry_inline_count++;
 			else if (mode == JIT_MODE_CALL)
 				entry_call_count++;
-			if (opcode == OP_ResultRow) {
-				entry_hits_result_row = true;
+			if (opcode == OP_ResultRow)
 				break;
-			}
 			i++;
 		}
-		if (can_cache_negative &&
-		    (entry_hits_result_row || entry_hits_program)) {
+		if (can_cache_negative && entry_hits_program) {
 			jit_negative_cache_add(stmt_id, schema_version);
 			p->jit_compiled = 0;
 			p->jit_func = NULL;
 			p->jit_module = NULL;
 			return 0;
 		}
-		if (!force_prepared_jit &&
+		if (!force_prepared_jit && !is_literal_oneshot_write &&
 		    ((entry_call_count == 0 && entry_inline_count < 8) ||
 		     (entry_call_count > 0 && entry_inline_count < 3))) {
 			p->jit_compiled = 0;
@@ -1844,6 +1959,10 @@ vdbe_jit_shutdown(void)
 		mh_i64ptr_delete(jit_negative_cache);
 		jit_negative_cache = NULL;
 	}
+	if (jit_shape_negative_cache != NULL) {
+		mh_i64ptr_delete(jit_shape_negative_cache);
+		jit_shape_negative_cache = NULL;
+	}
 
 	jit_state.initialized = 0;
 	jit_state.module_count = 0;
@@ -1882,13 +2001,17 @@ vdbe_jit_is_enabled(void)
 void
 vdbe_jit_note_fallback(struct Vdbe *p, int fallback_pc)
 {
-	if (p == NULL || p->is_prepared_stmt || p->stmt_id == 0 ||
-	    fallback_pc < 0 || fallback_pc >= p->nOp)
+	if (p == NULL || p->is_prepared_stmt || fallback_pc < 0 ||
+	    fallback_pc >= p->nOp)
 		return;
 	int opcode = p->aOp[fallback_pc].opcode;
-	if (opcode != OP_Halt)
-		return;
-	jit_negative_cache_add(p->stmt_id, p->schema_ver);
+	if (opcode == OP_Halt && p->stmt_id != 0)
+		jit_negative_cache_add(p->stmt_id, p->schema_ver);
+	if (p->nVar == 0 && jit_has_write_side_effects(p) &&
+	    (opcode == OP_Halt || opcode == OP_Program)) {
+		uint32_t shape_hash = jit_stmt_shape_hash(p);
+		jit_shape_negative_cache_add(shape_hash, p->schema_ver);
+	}
 }
 
 #else /* !ENABLE_SQL_JIT */
