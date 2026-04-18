@@ -127,24 +127,36 @@ sql_expr_type(struct Expr *pExpr)
 		 * expression always represents WHEN
 		 * argument, and the second one - THEN.
 		 */
-		uint32_t i = 1;
+		bool is_found = false;
+		enum field_type res_type = FIELD_TYPE_ANY;
 		uint32_t count = cs->nExpr;
-		while (i < count && cs->a[i].pExpr->op == TK_NULL)
-			i += 2;
-		if (i >= count)
-			return FIELD_TYPE_ANY;
-		enum field_type res_type = sql_expr_type(cs->a[i].pExpr);
-		if (cs->a[i].pExpr->op == TK_VARIABLE)
-			res_type = FIELD_TYPE_ANY;
-		for (i += 2; i < count; i += 2)
-			res_type = sql_highest_type(res_type, cs->a[i].pExpr);
-		/*
-		 * ELSE clause is optional but we should check
-		 * its type as well.
-		 */
-		if (count % 2 == 0)
-			return res_type;
-		return sql_highest_type(res_type, cs->a[count - 1].pExpr);
+		for (uint32_t i = 1; i < count; i += 2) {
+			struct Expr *res = cs->a[i].pExpr;
+			if (res->op == TK_NULL)
+				continue;
+			if (!is_found) {
+				res_type = res->op == TK_VARIABLE ? FIELD_TYPE_ANY :
+					   sql_expr_type(res);
+				is_found = true;
+				continue;
+			}
+			res_type = sql_highest_type(res_type, res);
+		}
+		if (count % 2 == 1) {
+			struct Expr *else_expr = cs->a[count - 1].pExpr;
+			if (else_expr->op != TK_NULL) {
+				if (!is_found) {
+					res_type = else_expr->op == TK_VARIABLE ?
+						   FIELD_TYPE_ANY :
+						   sql_expr_type(else_expr);
+					is_found = true;
+				} else {
+					res_type = sql_highest_type(res_type,
+									 else_expr);
+				}
+			}
+		}
+		return is_found ? res_type : FIELD_TYPE_ANY;
 	}
 	case TK_LT:
 	case TK_GT:
@@ -1591,50 +1603,55 @@ sqlExprDup(struct Expr *p, int flags)
 struct ExprList *
 sql_expr_list_dup(struct ExprList *p, int flags)
 {
-	struct ExprList_item *pItem, *pOldItem;
-	int i;
-	Expr *pPriorSelectCol = NULL;
-	if (p == NULL)
-		return NULL;
-	ExprList *pNew = sql_xmalloc(sizeof(*pNew));
-	pNew->nExpr = i = p->nExpr;
-	if ((flags & EXPRDUP_REDUCE) == 0) {
-		for (i = 1; i < p->nExpr; i += i) {
-		}
-	}
-	pItem = sql_xmalloc(i * sizeof(p->a[0]));
-	pNew->a = pItem;
-	pOldItem = p->a;
-	for (i = 0; i < p->nExpr; i++, pItem++, pOldItem++) {
-		Expr *pOldExpr = pOldItem->pExpr;
-		Expr *pNewExpr;
-		pItem->pExpr = sqlExprDup(pOldExpr, flags);
-		if (pOldExpr != NULL && pOldExpr->op == TK_SELECT_COLUMN &&
-		    (pNewExpr = pItem->pExpr) != NULL) {
-			assert(pNewExpr->iColumn == 0 || i > 0);
-			if (pNewExpr->iColumn == 0) {
-				assert(pOldExpr->pLeft == pOldExpr->pRight);
-				pPriorSelectCol = pNewExpr->pLeft =
-					pNewExpr->pRight;
-			} else {
-				assert(i > 0);
-				assert(pItem[-1].pExpr != 0);
-				assert(pNewExpr->iColumn ==
-				       pItem[-1].pExpr->iColumn + 1);
-				assert(pPriorSelectCol ==
-				       pItem[-1].pExpr->pLeft);
-				pNewExpr->pLeft = pPriorSelectCol;
+	struct ExprList *pHead = NULL;
+	struct ExprList **ppTail = &pHead;
+	for (; p != NULL; p = p->pNext) {
+		struct ExprList_item *pItem, *pOldItem;
+		Expr *pPriorSelectCol = NULL;
+		int i = p->nExpr;
+		ExprList *pNew = sql_xmalloc(sizeof(*pNew));
+		pNew->nExpr = p->nExpr;
+		pNew->pNext = NULL;
+		if ((flags & EXPRDUP_REDUCE) == 0) {
+			for (i = 1; i < p->nExpr; i += i) {
 			}
 		}
-		pItem->zName = sql_xstrdup(pOldItem->zName);
-		pItem->zSpan = sql_xstrdup(pOldItem->zSpan);
-		pItem->legacy_name = sql_xstrdup(pOldItem->legacy_name);
-		pItem->sort_order = pOldItem->sort_order;
-		pItem->done = 0;
-		pItem->bSpanIsTab = pOldItem->bSpanIsTab;
-		pItem->u = pOldItem->u;
+		pItem = sql_xmalloc(i * sizeof(p->a[0]));
+		pNew->a = pItem;
+		pOldItem = p->a;
+		for (i = 0; i < p->nExpr; i++, pItem++, pOldItem++) {
+			Expr *pOldExpr = pOldItem->pExpr;
+			Expr *pNewExpr;
+			pItem->pExpr = sqlExprDup(pOldExpr, flags);
+			if (pOldExpr != NULL && pOldExpr->op == TK_SELECT_COLUMN &&
+			    (pNewExpr = pItem->pExpr) != NULL) {
+				assert(pNewExpr->iColumn == 0 || i > 0);
+				if (pNewExpr->iColumn == 0) {
+					assert(pOldExpr->pLeft == pOldExpr->pRight);
+					pPriorSelectCol = pNewExpr->pLeft =
+						pNewExpr->pRight;
+				} else {
+					assert(i > 0);
+					assert(pItem[-1].pExpr != 0);
+					assert(pNewExpr->iColumn ==
+					       pItem[-1].pExpr->iColumn + 1);
+					assert(pPriorSelectCol ==
+					       pItem[-1].pExpr->pLeft);
+					pNewExpr->pLeft = pPriorSelectCol;
+				}
+			}
+			pItem->zName = sql_xstrdup(pOldItem->zName);
+			pItem->zSpan = sql_xstrdup(pOldItem->zSpan);
+			pItem->legacy_name = sql_xstrdup(pOldItem->legacy_name);
+			pItem->sort_order = pOldItem->sort_order;
+			pItem->done = 0;
+			pItem->bSpanIsTab = pOldItem->bSpanIsTab;
+			pItem->u = pOldItem->u;
+		}
+		*ppTail = pNew;
+		ppTail = &pNew->pNext;
 	}
-	return pNew;
+	return pHead;
 }
 
 /*
@@ -1719,6 +1736,9 @@ sqlSelectDup(struct Select *p, int flags)
 		return 0;
 	pNew = sql_xmalloc(sizeof(*p));
 	pNew->pEList = sql_expr_list_dup(p->pEList, flags);
+	pNew->pValuesTail = pNew->pEList;
+	while (pNew->pValuesTail != NULL && pNew->pValuesTail->pNext != NULL)
+		pNew->pValuesTail = pNew->pValuesTail->pNext;
 	pNew->pSrc = sqlSrcListDup(p->pSrc, flags);
 	pNew->pWhere = sqlExprDup(p->pWhere, flags);
 	pNew->pGroupBy = sql_expr_list_dup(p->pGroupBy, flags);
@@ -1749,6 +1769,7 @@ sql_expr_list_append(struct ExprList *expr_list, struct Expr *expr)
 	if (expr_list == NULL) {
 		expr_list = sql_xmalloc(sizeof(ExprList));
 		expr_list->nExpr = 0;
+		expr_list->pNext = NULL;
 		expr_list->a = sql_xmalloc(sizeof(expr_list->a[0]));
 	} else if ((expr_list->nExpr & (expr_list->nExpr - 1)) == 0) {
 		struct ExprList_item *a;
@@ -1901,17 +1922,21 @@ sqlExprListSetSpan(struct ExprList *pList, struct ExprSpan *pSpan)
 static SQL_NOINLINE void
 exprListDeleteNN(struct ExprList *pList)
 {
-	int i;
-	struct ExprList_item *pItem;
-	assert(pList->a != 0 || pList->nExpr == 0);
-	for (pItem = pList->a, i = 0; i < pList->nExpr; i++, pItem++) {
-		sql_expr_delete(pItem->pExpr);
-		sql_xfree(pItem->zName);
-		sql_xfree(pItem->zSpan);
-		sql_xfree(pItem->legacy_name);
+	while (pList != NULL) {
+		int i;
+		struct ExprList_item *pItem;
+		struct ExprList *pNext = pList->pNext;
+		assert(pList->a != 0 || pList->nExpr == 0);
+		for (pItem = pList->a, i = 0; i < pList->nExpr; i++, pItem++) {
+			sql_expr_delete(pItem->pExpr);
+			sql_xfree(pItem->zName);
+			sql_xfree(pItem->zSpan);
+			sql_xfree(pItem->legacy_name);
+		}
+		sql_xfree(pList->a);
+		sql_xfree(pList);
+		pList = pNext;
 	}
-	sql_xfree(pList->a);
-	sql_xfree(pList);
 }
 
 void
@@ -1930,7 +1955,7 @@ sqlExprListFlags(const ExprList * pList)
 {
 	int i;
 	u32 m = 0;
-	if (pList) {
+	for (; pList != NULL; pList = pList->pNext) {
 		for (i = 0; i < pList->nExpr; i++) {
 			Expr *pExpr = pList->a[i].pExpr;
 			assert(pExpr != 0);

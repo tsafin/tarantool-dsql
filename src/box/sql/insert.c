@@ -263,8 +263,8 @@ sqlInsert(Parse * pParse,	/* Parser context */
 	 * single row (the common case) then keep that one row of values
 	 * and discard the other (unused) parts of the pSelect object
 	 */
-	if (pSelect && (pSelect->selFlags & SF_Values) != 0
-	    && pSelect->pPrior == 0) {
+	if (pSelect && (pSelect->selFlags & SF_Values) != 0 &&
+	    (pSelect->selFlags & SF_MultiValue) == 0 && pSelect->pPrior == 0) {
 		pList = pSelect->pEList;
 		pSelect->pEList = 0;
 		sql_select_delete(pSelect);
@@ -379,7 +379,6 @@ sqlInsert(Parse * pParse,	/* Parser context */
 	}
 
 	int reg = ++pParse->nMem;
-	sqlVdbeAddOp2(v, OP_OpenSpace, reg, space->def->id);
 
 	int reg_eph;
 	/* Figure out how many columns of data are supplied.  If the data
@@ -513,6 +512,8 @@ sqlInsert(Parse * pParse,	/* Parser context */
 		sqlReleaseTempReg(pParse, regRec);
 		sqlReleaseTempRange(pParse, regCopy, nColumn);
 	}
+
+	sqlVdbeAddOp2(v, OP_OpenSpace, reg, space->def->id);
 
 	/* This is the top of the main insertion loop */
 	if (useTempTable) {

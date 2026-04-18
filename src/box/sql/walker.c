@@ -93,7 +93,7 @@ sqlWalkExprList(Walker * pWalker, ExprList * p)
 {
 	int i;
 	struct ExprList_item *pItem;
-	if (p) {
+	for (; p != NULL; p = p->pNext) {
 		for (i = p->nExpr, pItem = p->a; i > 0; i--, pItem++) {
 			if (sqlWalkExpr(pWalker, pItem->pExpr))
 				return WRC_Abort;

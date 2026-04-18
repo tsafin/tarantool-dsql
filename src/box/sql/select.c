@@ -379,6 +379,7 @@ sqlSelectNew(Parse * pParse,	/* Parsing context */
 		pEList = sql_expr_list_append(NULL, expr);
 	}
 	standin.pEList = pEList;
+	standin.pValuesTail = (selFlags & SF_Values) != 0 ? pEList : NULL;
 	standin.op = TK_SELECT;
 	standin.selFlags = selFlags;
 	standin.iLimit = 0;
@@ -2662,38 +2663,128 @@ static int multiSelectOrderBy(Parse * pParse,	/* Parsing context */
  * @param pDest What to do with query results.
  * @retval 0 On success, not 0 elsewhere.
  */
+static inline bool
+select_has_multi_value_rows(const struct Select *select)
+{
+	return select != NULL && (select->selFlags & SF_Values) != 0 &&
+	       select->pEList != NULL && select->pEList->pNext != NULL;
+}
+
+static struct Select *
+select_dup_as_legacy_values_chain(struct Parse *pParse, const struct Select *select)
+{
+	assert(select_has_multi_value_rows(select));
+	struct Select *rightmost = sqlSelectDup((struct Select *)select, 0);
+	if (rightmost == NULL)
+		return NULL;
+	if (rightmost->pOrderBy != NULL) {
+		struct ExprList *order_by = NULL;
+		for (int i = 0; i < rightmost->pOrderBy->nExpr; ++i) {
+			struct ExprList_item *item = &rightmost->pOrderBy->a[i];
+			struct Expr *expr;
+			/*
+			 * ORDER BY terms may already be resolved against the first
+			 * VALUES row. Rebuild positional refs explicitly so the
+			 * legacy chain keeps ORDER BY 1,2,... semantics.
+			 */
+			if (item->u.x.iOrderByCol > 0) {
+				expr = sql_expr_new_anon(TK_INTEGER);
+				if (expr != NULL) {
+					expr->flags |= EP_IntValue;
+					expr->u.iValue = item->u.x.iOrderByCol;
+					expr->type = FIELD_TYPE_INTEGER;
+				}
+			} else {
+				expr = sqlExprDup(item->pExpr, 0);
+			}
+			order_by = sql_expr_list_append(order_by, expr);
+			if (order_by == NULL) {
+				sql_expr_list_delete(order_by);
+				sql_select_delete(rightmost);
+				return NULL;
+			}
+			struct ExprList_item *new_item =
+				&order_by->a[order_by->nExpr - 1];
+			new_item->sort_order = item->sort_order;
+			new_item->u.x.iOrderByCol = item->u.x.iOrderByCol;
+		}
+		sql_expr_list_delete(rightmost->pOrderBy);
+		rightmost->pOrderBy = order_by;
+	}
+	struct ExprList *rows = rightmost->pEList;
+	rightmost->pEList = NULL;
+	rightmost->pValuesTail = NULL;
+	rightmost->pPrior = NULL;
+	rightmost->pNext = NULL;
+	struct Select *current = NULL;
+	for (struct ExprList *row = rows; row != NULL; ) {
+		struct ExprList *next = row->pNext;
+		row->pNext = NULL;
+		struct Select *node;
+		if (next == NULL) {
+			node = rightmost;
+		} else {
+			node = sqlSelectNew(pParse, row, 0, 0, 0, 0, 0,
+					    SF_Values, 0, 0);
+			if (node == NULL) {
+				if (current != NULL)
+					sql_select_delete(current);
+				sql_select_delete(rightmost);
+				return NULL;
+			}
+		}
+		node->pEList = row;
+		node->pValuesTail = row;
+		node->pPrior = current;
+		node->pNext = NULL;
+		node->op = current == NULL ? TK_SELECT : TK_ALL;
+		node->selFlags |= SF_Values;
+		node->selFlags &= ~SF_MultiValue;
+		if (current != NULL) {
+			current->pNext = node;
+			current->selFlags |= SF_Compound;
+			node->selFlags |= SF_Compound;
+		}
+		current = node;
+		row = next;
+	}
+	return rightmost;
+}
+
 static int
 multiSelectValues(struct Parse *pParse, struct Select *p,
 		  struct SelectDest *pDest)
 {
-	Select *pPrior;
 	int nRow = 1;
 	int rc = 0;
-	assert(p->selFlags & SF_MultiValue);
-	do {
-		assert(p->selFlags & SF_Values);
-		assert(p->op == TK_ALL
-		       || (p->op == TK_SELECT && p->pPrior == 0));
-		assert(p->pLimit == 0);
-		assert(p->pOffset == 0);
-		assert(p->pNext == 0
-		       || p->pEList->nExpr == p->pNext->pEList->nExpr);
-		if (p->pPrior == 0)
-			break;
-		assert(p->pPrior->pNext == p);
-		p = p->pPrior;
+	assert(select_has_multi_value_rows(p));
+	assert(p->pPrior == 0);
+	assert(p->pEList != NULL);
+	int nExpr = p->pEList->nExpr;
+	for (ExprList *row = p->pEList->pNext; row != NULL; row = row->pNext) {
+		if (row->nExpr != nExpr) {
+			diag_set(ClientError, ER_SQL_PARSER_GENERIC,
+				 "all VALUES must have the same number of terms");
+			pParse->is_aborted = true;
+			return 1;
+		}
 		nRow++;
-	} while (1);
-	while (p) {
-		pPrior = p->pPrior;
-		p->pPrior = 0;
-		rc = sqlSelect(pParse, p, pDest);
-		p->pPrior = pPrior;
+	}
+	for (ExprList *row = p->pEList; row != NULL; row = row->pNext) {
+		ExprList single_row = *row;
+		single_row.pNext = NULL;
+		Select value_row = *p;
+		value_row.op = TK_SELECT;
+		value_row.pEList = &single_row;
+		value_row.pValuesTail = &single_row;
+		value_row.selFlags &= ~SF_MultiValue;
+		value_row.pPrior = NULL;
+		value_row.pNext = NULL;
+		rc = sqlSelect(pParse, &value_row, pDest);
 		if (rc)
 			break;
-		p->nSelectRow = nRow;
-		p = p->pNext;
 	}
+	p->nSelectRow = nRow;
 	return rc;
 }
 
@@ -5563,6 +5654,59 @@ sqlSelect(Parse * pParse,		/* The parser context */
 	assert(p->pOrderBy == 0 || pDest->eDest != SRT_Fifo);
 	assert(p->pOrderBy == 0 || pDest->eDest != SRT_DistQueue);
 	assert(p->pOrderBy == 0 || pDest->eDest != SRT_Queue);
+	if (select_has_multi_value_rows(p) && p->pPrior == 0) {
+		/*
+		 * Plain multi-row VALUES can use the compact row chain directly,
+		 * but ORDER BY / LIMIT / scalar-subquery handling still expects
+		 * the legacy VALUES-as-compound shape.
+		 */
+		if (p->pOrderBy != NULL || p->pLimit != NULL || p->pOffset != NULL ||
+		    (p->selFlags & SF_SingleRow) != 0) {
+			struct Select *legacy_values =
+				select_dup_as_legacy_values_chain(pParse, p);
+			if (legacy_values == NULL) {
+				pParse->is_aborted = true;
+				pParse->iSelectId = iRestoreSelectId;
+				return 1;
+			}
+			rc = sqlSelect(pParse, legacy_values, pDest);
+			p->iLimit = legacy_values->iLimit;
+			p->iOffset = legacy_values->iOffset;
+			p->nSelectRow = legacy_values->nSelectRow;
+			sql_select_delete(legacy_values);
+#ifdef SQL_DEBUG
+			SELECTTRACE(1, pParse, p, ("end multi-values processing\n"));
+			pParse->nSelectIndent--;
+#endif
+			pParse->iSelectId = iRestoreSelectId;
+			return rc;
+		}
+		iEnd = 0;
+		if (p->pLimit != NULL) {
+			v = sqlGetVdbe(pParse);
+			assert(v != NULL);
+			iEnd = sqlVdbeMakeLabel(v);
+			computeLimitRegisters(pParse, p, iEnd);
+			if (pParse->is_aborted) {
+				pParse->iSelectId = iRestoreSelectId;
+				return 1;
+			}
+		}
+		rc = multiSelectValues(pParse, p, pDest);
+		if ((p->selFlags & SF_SingleRow) != 0 && p->iLimit != 0)
+			vdbe_code_raise_on_multiple_rows(pParse, p->iLimit, iEnd);
+		if (iEnd != 0) {
+			v = sqlGetVdbe(pParse);
+			assert(v != NULL);
+			sqlVdbeResolveLabel(v, iEnd);
+		}
+#ifdef SQL_DEBUG
+		SELECTTRACE(1, pParse, p, ("end multi-values processing\n"));
+		pParse->nSelectIndent--;
+#endif
+		pParse->iSelectId = iRestoreSelectId;
+		return rc;
+	}
 	if (IgnorableOrderby(pDest)) {
 		assert(pDest->eDest == SRT_Exists || pDest->eDest == SRT_Union
 		       || pDest->eDest == SRT_Except

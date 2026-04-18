@@ -2,6 +2,7 @@
 local test = require("sqltester")
 local tarantool = require('tarantool')
 test:plan(1)
+box.cfg{sql_cache_size = 256 * 1024 * 1024}
 
 --!./tcltestrunner.lua
 -- 2015-01-05
@@ -59,4 +60,3 @@ test:do_test(
     })
 
 test:finish_test()
-

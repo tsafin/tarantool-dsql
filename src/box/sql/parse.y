@@ -539,15 +539,17 @@ values(A) ::= VALUES LP nexprlist(X) RP. {
   A = sqlSelectNew(pParse,X,0,0,0,0,0,SF_Values,0,0);
 }
 values(A) ::= values(A) COMMA LP exprlist(Y) RP. {
-  Select *pRight, *pLeft = A;
-  pRight = sqlSelectNew(pParse,Y,0,0,0,0,0,SF_Values|SF_MultiValue,0,0);
-  if( ALWAYS(pLeft) ) pLeft->selFlags &= ~SF_MultiValue;
-  if( pRight ){
-    pRight->op = TK_ALL;
-    pRight->pPrior = pLeft;
-    A = pRight;
-  }else{
-    A = pLeft;
+  if (A != 0) {
+    A->selFlags |= SF_MultiValue;
+    if (Y != 0) {
+      if (A->pValuesTail == 0)
+        A->pValuesTail = A->pEList;
+      if (A->pValuesTail == 0)
+        A->pEList = Y;
+      else
+        A->pValuesTail->pNext = Y;
+      A->pValuesTail = Y;
+    }
   }
 }
 

@@ -1492,6 +1492,7 @@ struct Expr {
  */
 struct ExprList {
 	int nExpr;		/* Number of expressions on the list */
+	struct ExprList *pNext; /* Next VALUES row when used by SF_MultiValue */
 	struct ExprList_item {	/* For each expression in the list */
 		Expr *pExpr;	/* The list of expressions */
 		char *zName;	/* Token associated with this expression */
@@ -1752,6 +1753,7 @@ struct NameContext {
  */
 struct Select {
 	ExprList *pEList;	/* The fields of the result */
+	ExprList *pValuesTail;	/* Tail of VALUES row chain rooted at pEList */
 	u8 op;			/* One of: TK_UNION TK_ALL TK_INTERSECT TK_EXCEPT */
 	LogEst nSelectRow;	/* Estimated number of result rows */
 	u32 selFlags;		/* Various SF_* values */
@@ -1789,7 +1791,7 @@ struct Select {
 #define SF_HasTypeInfo    0x00080	/* FROM subqueries have Table metadata */
 #define SF_Compound       0x00100	/* Part of a compound query */
 #define SF_Values         0x00200	/* Synthesized from VALUES clause */
-#define SF_MultiValue     0x00400	/* Single VALUES term with multiple rows */
+#define SF_MultiValue     0x00400	/* VALUES uses pEList->pNext row chain */
 #define SF_NestedFrom     0x00800	/* Part of a parenthesized FROM clause */
 #define SF_MinMaxAgg      0x01000	/* Aggregate containing min() or max() */
 #define SF_Recursive      0x02000	/* The recursive part of a recursive CTE */
