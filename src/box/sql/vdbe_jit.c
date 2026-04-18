@@ -105,12 +105,12 @@ static const enum vdbe_jit_mode opcode_jit_modes[] = {
 	[OP_SetDiag] = JIT_MODE_UNSUPPORTED,
 	[OP_Gosub] = JIT_MODE_CALL,          /* Dynamic control flow */
 	[OP_InitCoroutine] = JIT_MODE_CALL,
-	[OP_Ne] = JIT_MODE_INLINE,           /* Comparison */
-	[OP_Eq] = JIT_MODE_INLINE,           /* Comparison */
-	[OP_Gt] = JIT_MODE_INLINE,           /* Comparison */
-	[OP_Le] = JIT_MODE_INLINE,           /* Comparison */
-	[OP_Lt] = JIT_MODE_INLINE,           /* Comparison */
-	[OP_Ge] = JIT_MODE_INLINE,           /* Comparison */
+	[OP_Ne] = JIT_MODE_CALL,             /* Comparison via host helper */
+	[OP_Eq] = JIT_MODE_CALL,             /* Comparison via host helper */
+	[OP_Gt] = JIT_MODE_CALL,             /* Comparison via host helper */
+	[OP_Le] = JIT_MODE_CALL,             /* Comparison via host helper */
+	[OP_Lt] = JIT_MODE_CALL,             /* Comparison via host helper */
+	[OP_Ge] = JIT_MODE_CALL,             /* Comparison via host helper */
 	[OP_ElseNotEq] = JIT_MODE_UNSUPPORTED,
 	[OP_BitAnd] = JIT_MODE_INLINE,       /* Bitwise operation */
 	[OP_BitOr] = JIT_MODE_INLINE,        /* Bitwise operation */
@@ -678,6 +678,13 @@ jit_handler_is_external(int opcode)
 	case OP_IfNot:
 	case OP_IsNull:
 	case OP_NotNull:
+	case OP_Eq:
+	case OP_Ne:
+	case OP_Lt:
+	case OP_Le:
+	case OP_Gt:
+	case OP_Ge:
+	case OP_Compare:
 	case OP_MustBeInt:
 	case OP_Cast:
 	case OP_Integer:
@@ -764,6 +771,18 @@ jit_declare_external_handler(LLVMModuleRef module, const char *handler_name)
 	LLVMTypeRef handler_type =
 		LLVMFunctionType(LLVMInt32Type(), arg_types, 3, 0);
 	return LLVMAddFunction(module, handler_name, handler_type);
+}
+
+static LLVMValueRef
+jit_resolve_external_handler_addr(LLVMValueRef handler_fn,
+				       const char *handler_name)
+{
+	void *addr = dlsym(RTLD_DEFAULT, handler_name);
+	if (addr == NULL)
+		return NULL;
+	LLVMValueRef addr_const =
+		LLVMConstInt(LLVMInt64Type(), (uint64_t)(uintptr_t)addr, 0);
+	return LLVMConstIntToPtr(addr_const, LLVMTypeOf(handler_fn));
 }
 
 /**
@@ -1115,6 +1134,7 @@ vdbe_jit_compile(struct Vdbe *p)
 		int entry_inline_count = 0;
 		int entry_call_count = 0;
 		bool entry_hits_result_row = false;
+		bool entry_hits_program = false;
 		for (int i = entry_pc, steps = 0; i >= 0 && i < p->nOp &&
 		     steps < p->nOp; steps++) {
 			int opcode = p->aOp[i].opcode;
@@ -1137,6 +1157,7 @@ vdbe_jit_compile(struct Vdbe *p)
 				break;
 			}
 			if (opcode == OP_Program) {
+				entry_hits_program = true;
 				entry_call_count++;
 				break;
 			}
@@ -1160,7 +1181,8 @@ vdbe_jit_compile(struct Vdbe *p)
 			}
 			i++;
 		}
-		if (can_cache_negative && entry_hits_result_row) {
+		if (can_cache_negative &&
+		    (entry_hits_result_row || entry_hits_program)) {
 			jit_negative_cache_add(stmt_id, schema_version);
 			p->jit_compiled = 0;
 			p->jit_func = NULL;
@@ -1453,7 +1475,13 @@ vdbe_jit_compile(struct Vdbe *p)
 			if (handler_fn == NULL)
 				handler_fn = jit_declare_external_handler(module,
 								  special_handler);
-			if (handler_fn == NULL) {
+			LLVMValueRef handler_callee = handler_fn;
+			if (handler_fn != NULL) {
+				handler_callee =
+					jit_resolve_external_handler_addr(
+						handler_fn, special_handler);
+			}
+			if (handler_callee == NULL) {
 				LLVMBuildRet(builder,
 					     LLVMConstInt(LLVMInt32Type(), i, 0));
 				continue;
@@ -1490,7 +1518,7 @@ vdbe_jit_compile(struct Vdbe *p)
 						 "aMem_arg"),
 			};
 			LLVMValueRef target_pc =
-				LLVMBuildCall(builder, handler_fn, call_args, 3,
+				LLVMBuildCall(builder, handler_callee, call_args, 3,
 					      "target_pc");
 			LLVMValueRef is_error =
 				LLVMBuildICmp(builder, LLVMIntSLT, target_pc,
@@ -1559,7 +1587,12 @@ vdbe_jit_compile(struct Vdbe *p)
 		if (handler_fn == NULL && jit_handler_is_external(opcode))
 			handler_fn = jit_declare_external_handler(module,
 								  handler_name);
-		if (handler_fn == NULL) {
+		LLVMValueRef handler_callee = handler_fn;
+		if (handler_fn != NULL && jit_handler_is_external(opcode)) {
+			handler_callee = jit_resolve_external_handler_addr(
+				handler_fn, handler_name);
+		}
+		if (handler_callee == NULL) {
 			/*
 			 * Handler not available in linked bitcode.
 			 * Return PC for interpreter fallback.
@@ -1610,7 +1643,7 @@ vdbe_jit_compile(struct Vdbe *p)
 					 handler_param_types[2], "aMem_arg"),
 		};
 		LLVMValueRef ret_val =
-			LLVMBuildCall(builder, handler_fn, call_args, 3,
+			LLVMBuildCall(builder, handler_callee, call_args, 3,
 				      "handler_rc");
 
 		/*
