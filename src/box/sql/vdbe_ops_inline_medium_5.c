@@ -201,6 +201,7 @@ vdbe_op_param_inline(Vdbe *p, Op *pOp, Mem *aMem)
 	VdbeFrame *pFrame;
 	Mem *pIn;
 	Mem *pOut;
+	int p1;
 
 	(void)aMem;
 
@@ -209,9 +210,11 @@ vdbe_op_param_inline(Vdbe *p, Op *pOp, Mem *aMem)
 
 	assert(pFrame != NULL);
 	assert(pOp->p1 >= 0);
-	assert(pOp->p1 < pFrame->nChildMem);
+	assert(pFrame->pc >= 0 && pFrame->pc < pFrame->nOp);
+	p1 = pOp->p1 + pFrame->aOp[pFrame->pc].p1;
+	assert(p1 >= 0 && p1 < pFrame->nMem);
 
-	pIn = &pFrame->aMem[pOp->p1 + pFrame->aOp[pFrame->pc].p1];
+	pIn = &pFrame->aMem[p1];
 
 	mem_copy_as_ephemeral(pOut, pIn);
 
