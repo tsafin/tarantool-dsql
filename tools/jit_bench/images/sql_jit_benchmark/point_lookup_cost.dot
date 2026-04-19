@@ -1,0 +1,51 @@
+digraph point_lookup_cost {
+    graph [
+        bgcolor="white",
+        rankdir=TB,
+        pad=0.25,
+        nodesep=0.45,
+        ranksep=0.6,
+        fontname="Helvetica",
+        labelloc="t"
+    ];
+    node [
+        shape=plain,
+        fontname="Helvetica"
+    ];
+    edge [
+        color="#555555",
+        penwidth=1.4,
+        arrowsize=0.8
+    ];
+
+    prepared [label=<
+        <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="10" COLOR="#4b6a88">
+            <TR><TD BGCOLOR="#dbeeff" COLSPAN="2"><B>Prepared once, execute many times</B></TD></TR>
+            <TR><TD BGCOLOR="#eef6fb" ALIGN="LEFT">Interpreter prepare</TD><TD BGCOLOR="#eef6fb"><B>10.109 us</B></TD></TR>
+            <TR><TD BGCOLOR="#eef6fb" ALIGN="LEFT">JIT prepare</TD><TD BGCOLOR="#eef6fb"><B>9277.296 us</B></TD></TR>
+            <TR><TD BGCOLOR="#e5f7ea" ALIGN="LEFT">Interpreter execute</TD><TD BGCOLOR="#e5f7ea"><B>3.022 us/op</B></TD></TR>
+            <TR><TD BGCOLOR="#e5f7ea" ALIGN="LEFT">JIT execute</TD><TD BGCOLOR="#e5f7ea"><B>2.320 us/op</B></TD></TR>
+            <TR><TD BGCOLOR="#fff4d9" ALIGN="LEFT">Break-even</TD><TD BGCOLOR="#fff4d9"><B>13212 execs</B></TD></TR>
+        </TABLE>
+    >];
+
+    oneshot [label=<
+        <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="10" COLOR="#8a5a32">
+            <TR><TD BGCOLOR="#ffe7c8" COLSPAN="2"><B>Automatic one-shot execute</B></TD></TR>
+            <TR><TD BGCOLOR="#fff3e0" ALIGN="LEFT">Interpreter total</TD><TD BGCOLOR="#fff3e0"><B>9.831 us/op</B></TD></TR>
+            <TR><TD BGCOLOR="#ffd6c8" ALIGN="LEFT">JIT total</TD><TD BGCOLOR="#ffd6c8"><B>9337.320 us/op</B></TD></TR>
+            <TR><TD BGCOLOR="#ffecec" ALIGN="LEFT">Observed slowdown</TD><TD BGCOLOR="#ffecec"><B>949.82x</B></TD></TR>
+        </TABLE>
+    >];
+
+    summary [label=<
+        <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="10" COLOR="#666666">
+            <TR><TD BGCOLOR="#f2f2f2"><B>Interpretation</B></TD></TR>
+            <TR><TD BGCOLOR="#fafafa" ALIGN="LEFT">Prepared statements can amortize JIT compile cost.</TD></TR>
+            <TR><TD BGCOLOR="#fafafa" ALIGN="LEFT">One-shot execution is still dominated by prepare-time JIT cost.</TD></TR>
+        </TABLE>
+    >];
+
+    prepared -> summary;
+    oneshot -> summary;
+}

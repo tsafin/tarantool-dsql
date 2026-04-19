@@ -145,15 +145,21 @@ produces `src/box/sql/generated/vdbe_dispatch_generated.c` and
 
 ---
 
-### Track 2: LLVM JIT (vdbe_jit.c)
+### Track 2: LLVM MCJIT (vdbe_jit.c)
 
-Compiles VDBE programs to native code at prepare time using LLVM OrcJIT.
-Completely separate from the interpreter dispatcher above.
+Compiles VDBE programs to native code at prepare time using LLVM MCJIT /
+ExecutionEngine-style plumbing. Completely separate from the interpreter
+dispatcher above.
+
+When writing docs, benchmark notes, or status updates, refer to the current SQL
+JIT specifically as **LLVM MCJIT**, not generically as just "JIT", because
+future JIT backends may have different behavior and performance.
 
 #### CMake Build System
 
 - Added `ENABLE_SQL_JIT` option in main CMakeLists.txt (default: OFF)
-- When enabled, requires LLVM 11+ (12+ recommended) with OrcJIT components
+- When enabled, requires LLVM 11+ (12+ recommended); current implementation is
+  documented as LLVM MCJIT / ExecutionEngine-style
 - Bitcode files (.bc) generated for handler modules: vdbe_ops_arith.c, vdbe_ops_compare.c, vdbe_ops_logical.c, vdbe_ops_data.c, vdbe_ops_cursor_data.c, vdbe_ops_index.c, vdbe_ops_string.c, vdbe_ops_type.c
 - Install location: `${CMAKE_INSTALL_DATAROOTDIR}/tarantool/sql_handlers/*.bc`
 - Build requires: LLVM development packages (llvm-11-dev or higher on Debian/Ubuntu)

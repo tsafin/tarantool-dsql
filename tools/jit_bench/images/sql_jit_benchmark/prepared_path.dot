@@ -1,0 +1,33 @@
+digraph prepared_path {
+    graph [
+        bgcolor="white",
+        rankdir=LR,
+        pad=0.2,
+        nodesep=0.45,
+        ranksep=0.7,
+        fontname="Helvetica"
+    ];
+    node [
+        shape=box,
+        style="rounded,filled",
+        fontname="Helvetica",
+        fontsize=14,
+        color="#1f3b4d",
+        penwidth=1.4,
+        fillcolor="#eef6fb",
+        margin="0.16,0.08"
+    ];
+    edge [
+        color="#456b82",
+        penwidth=1.6,
+        arrowsize=0.8
+    ];
+
+    sql   [label="SQL text"];
+    prep  [label="box.prepare()"];
+    jit   [label="JIT compile once\nat prepare time", fillcolor="#d9ecff"];
+    stmt  [label="Prepared stmt_id\nreused many times", fillcolor="#dff5e6"];
+    exec  [label="Per-exec cost dominates\nafter enough reuses", fillcolor="#fff3d6"];
+
+    sql -> prep -> jit -> stmt -> exec;
+}
