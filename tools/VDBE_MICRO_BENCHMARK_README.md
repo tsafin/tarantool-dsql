@@ -333,7 +333,7 @@ After Phase 5.10 cleanup:
 
 ## See Also
 
-- [PROJECT_STATUS_UPDATE.md](../PROJECT_STATUS_UPDATE.md) - Overall project status
-- [VDBE_REFACTOR_MASTER_PLAN.md](../VDBE_REFACTOR_MASTER_PLAN.md) - Complete architecture
+- [PROJECT_STATUS_UPDATE.md](../docs/sql-vdbe/branch-notes/PROJECT_STATUS_UPDATE.md) - Overall project status
+- [VDBE_REFACTOR_MASTER_PLAN.md](../docs/sql-vdbe/branch-notes/VDBE_REFACTOR_MASTER_PLAN.md) - Complete architecture
 - [BUILD-VDBE.md](../BUILD-VDBE.md) - Build system details
 - Phase 5.8 performance reports in project root

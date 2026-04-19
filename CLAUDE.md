@@ -209,4 +209,5 @@ future JIT backends may have different behavior and performance.
 - CHECK/FK constraints defined in DDL but not enforced at SQL layer in this build
 - ANALYZE, CREATE/DROP SEQUENCE return `nil` result from `box.execute` (not an error)
 - `./src/tarantool - << EOF` stdin/heredoc mode unreliable — always use file-based `.lua` scripts
-- See `DISPATCHER_STATUS.md` for full opcode-by-opcode tracking
+- See `docs/sql-vdbe/branch-notes/DISPATCHER_STATUS.md` for full
+  opcode-by-opcode tracking

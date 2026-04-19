@@ -3,10 +3,10 @@
 This file tracks progress for the `src/box/sql/vdbe.c` refactor.
 
 **Quick Links**:
-- **[VDBE_REFACTOR_MASTER_PLAN.md](VDBE_REFACTOR_MASTER_PLAN.md)** - Complete project overview and architecture
-- **[PHASE_5_6e_PLAN.md](PHASE_5_6e_PLAN.md)** - Next phase (Medium Batch 4)
-- **[PHASE_5_6d_SESSION_SUMMARY.md](PHASE_5_6d_SESSION_SUMMARY.md)** - Current phase completion details
-- **[PHASE_5_6_INLINE_CODE_STRATEGY.md](PHASE_5_6_INLINE_CODE_STRATEGY.md)** - Overall strategy and approach
+- **[VDBE_REFACTOR_MASTER_PLAN.md](docs/sql-vdbe/branch-notes/VDBE_REFACTOR_MASTER_PLAN.md)** - Complete project overview and architecture
+- **[PHASE_5_6e_PLAN.md](docs/sql-vdbe/branch-notes/PHASE_5_6e_PLAN.md)** - Next phase (Medium Batch 4)
+- **[PHASE_5_6d_SESSION_SUMMARY.md](docs/sql-vdbe/branch-notes/PHASE_5_6d_SESSION_SUMMARY.md)** - Current phase completion details
+- **[PHASE_5_6_INLINE_CODE_STRATEGY.md](docs/sql-vdbe/branch-notes/PHASE_5_6_INLINE_CODE_STRATEGY.md)** - Overall strategy and approach
 
 - [x] Analyze `vdbe.c`
   - Map responsibilities, data structures, helpers, and the execution loop. (DONE)
@@ -101,7 +101,7 @@ This file tracks progress for the `src/box/sql/vdbe.c` refactor.
       - ✓ Phase 5.3.1: Interface and wrapper setup (DONE - 2025-12-18)
         - Created vdbe_dispatch_interface.h with dispatcher function interface
         - Created vdbe_dispatch_wrapper.c with wrapper stub implementations
-        - Created PHASE_5_3_INTEGRATION_PLAN.md with detailed architecture
+        - Created docs/sql-vdbe/branch-notes/PHASE_5_3_INTEGRATION_PLAN.md with detailed architecture
         - Commit: d04ac3f8e3
       - ✓ Phase 5.3.2: Old dispatcher extraction (DONE - 2025-12-18)
         - Implemented vdbe_exec_old_dispatcher() wrapper calling sqlVdbeExec()
@@ -274,7 +274,7 @@ Immediate next actions:
 **Phase 5.3.4 Status**: ✓ COMPLETE - Testing infrastructure ready
 - Runtime dispatcher selection: export VDBE_DISPATCHER=parallel|old|generated|auto
 - Parallel validation framework operational
-- See PHASE_5_3_4_VALIDATION_TESTING.md for usage details
+- See docs/sql-vdbe/branch-notes/PHASE_5_3_4_VALIDATION_TESTING.md for usage details
 
 Progress recorded:
 - ✓ Code generator (vdbe_codegen.py) with full dispatcher generation

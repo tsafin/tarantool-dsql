@@ -313,8 +313,8 @@ SELECT your_expression;
 
 ## References
 
-- [Phase 5.6c Session Summary](PHASE_5_6c_SESSION_SUMMARY.md) - Completed phase details
-- [Phase 5.6d Plan](PHASE_5_6d_PLAN.md) - Next phase targets
+- [Phase 5.6c Session Summary](docs/sql-vdbe/branch-notes/PHASE_5_6c_SESSION_SUMMARY.md) - Completed phase details
+- [Phase 5.6d Plan](docs/sql-vdbe/branch-notes/PHASE_5_6d_PLAN.md) - Next phase targets
 - [vdbe_ops_inline_medium_2.c](src/box/sql/vdbe_ops_inline_medium_2.c) - Reference implementations
 - [vdbeInt.h](src/box/sql/vdbeInt.h) - VDBE structures and types
 - [mem.h](src/box/sql/mem.h) - Memory register operations

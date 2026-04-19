@@ -325,7 +325,7 @@ All planned handler extraction phases have been successfully completed:
   - [x] Create vdbe_dispatch_interface.h with dispatcher function interface
   - [x] Create vdbe_dispatch_wrapper.c with wrapper function stubs
   - [x] Integrate wrapper functions in build system
-  - [x] Create PHASE_5_3_INTEGRATION_PLAN.md with detailed architecture
+  - [x] Create docs/sql-vdbe/branch-notes/PHASE_5_3_INTEGRATION_PLAN.md with detailed architecture
   - Status: ✓ COMPLETED
 - [x] Phase 5.3.2: Old dispatcher extraction (2025-12-18)
   - [x] Implement vdbe_exec_old_dispatcher() wrapper in vdbe_dispatch_wrapper.c
@@ -544,7 +544,7 @@ EXECUTE(OP_Xxx,(P1,P2)): {
   - Created vdbe_dispatch_interface.h with common dispatcher interface
   - Implemented vdbe_dispatch_wrapper.c with wrapper function stubs
   - Designed "Option A: Wrapper Functions" integration approach
-  - Created PHASE_5_3_INTEGRATION_PLAN.md with detailed architecture
+  - Created docs/sql-vdbe/branch-notes/PHASE_5_3_INTEGRATION_PLAN.md with detailed architecture
   - All new code verified to compile correctly
   - Build succeeds with new dispatcher wrapper infrastructure
 - **Phase 5.3.2** (2025-12-18): Old dispatcher extraction
@@ -570,7 +570,7 @@ EXECUTE(OP_Xxx,(P1,P2)): {
   - Implemented dispatcher mode management functions
   - Enhanced validation statistics with Phase 5.3.4 reporting
   - Code compiles successfully (box library builds without errors)
-  - Documentation: PHASE_5_3_4_VALIDATION_TESTING.md
+  - Documentation: docs/sql-vdbe/branch-notes/PHASE_5_3_4_VALIDATION_TESTING.md
   - **Commit**: e5ba24115c
 - **Phase 5.3.3.2** (2025-12-19): Implement actual generated dispatcher
   - Implemented callable loop-based dispatcher wrapper (Option C: Refactor Generated Loop)
@@ -606,7 +606,7 @@ EXECUTE(OP_Xxx,(P1,P2)): {
   - Implemented 4 medium opcodes: OP_Decimal, OP_AddImm, OP_Sequence, OP_OpenSpace
   - Total inline handlers: 12 opcodes (19% of 63)
   - Helper pattern proven and documented for reuse
-  - **Documentation**: PHASE_5_6c_SESSION_SUMMARY.md, PHASE_5_6c_CODE_CHANGES.md
+  - **Documentation**: docs/sql-vdbe/branch-notes/PHASE_5_6c_SESSION_SUMMARY.md, docs/sql-vdbe/branch-notes/PHASE_5_6c_CODE_CHANGES.md
   - **Status**: ✓ PHASE 5.6c COMPLETE
 - **Status**: ✓ PHASES 5.1-5.6c COMPLETE (2025-12-20)
   - 60 external handlers extracted
@@ -631,10 +631,10 @@ EXECUTE(OP_Xxx,(P1,P2)): {
 
 For detailed information about the overall refactoring project, refer to the comprehensive planning documents:
 
-- **[VDBE_REFACTOR_MASTER_PLAN.md](/home/tsafin/tarantool/VDBE_REFACTOR_MASTER_PLAN.md)** - Complete project overview with architecture, timeline, and metrics
-- **[PLANNING_DOCUMENTS_INDEX.md](/home/tsafin/tarantool/PLANNING_DOCUMENTS_INDEX.md)** - Navigation guide to all 18+ planning documents
-- **[PHASE_5_6d_PLAN.md](/home/tsafin/tarantool/PHASE_5_6d_PLAN.md)** - Next phase (Medium Batch 3) roadmap
+- **[VDBE_REFACTOR_MASTER_PLAN.md](../../../docs/sql-vdbe/branch-notes/VDBE_REFACTOR_MASTER_PLAN.md)** - Complete project overview with architecture, timeline, and metrics
+- **[PLANNING_DOCUMENTS_INDEX.md](../../../docs/sql-vdbe/branch-notes/PLANNING_DOCUMENTS_INDEX.md)** - Navigation guide to all 18+ planning documents
+- **[PHASE_5_6d_PLAN.md](../../../docs/sql-vdbe/branch-notes/PHASE_5_6d_PLAN.md)** - Next phase (Medium Batch 3) roadmap
 - **[VDBE_HANDLER_IMPLEMENTATION_GUIDE.md](/home/tsafin/tarantool/VDBE_HANDLER_IMPLEMENTATION_GUIDE.md)** - Step-by-step guide for implementing new handlers
-- **[PHASE_5_6c_SESSION_SUMMARY.md](/home/tsafin/tarantool/PHASE_5_6c_SESSION_SUMMARY.md)** - Current phase results and lessons learned
-- **[PHASE_5_6c_CODE_CHANGES.md](/home/tsafin/tarantool/PHASE_5_6c_CODE_CHANGES.md)** - Technical code changes and diffs
+- **[PHASE_5_6c_SESSION_SUMMARY.md](../../../docs/sql-vdbe/branch-notes/PHASE_5_6c_SESSION_SUMMARY.md)** - Current phase results and lessons learned
+- **[PHASE_5_6c_CODE_CHANGES.md](../../../docs/sql-vdbe/branch-notes/PHASE_5_6c_CODE_CHANGES.md)** - Technical code changes and diffs
 - **[TODO.md](/home/tsafin/tarantool/TODO.md)** - Master project status and checklist
