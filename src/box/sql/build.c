@@ -3574,6 +3574,8 @@ static struct sql_option_metadata sql_session_opts[] = {
 	{FIELD_TYPE_BOOLEAN, SQL_FullColNames},
 	/** SESSION_SETTING_SQL_FULL_METADATA */
 	{FIELD_TYPE_BOOLEAN, SQL_FullMetadata},
+	/** SESSION_SETTING_SQL_JIT */
+	{FIELD_TYPE_BOOLEAN, 0},
 	/** SESSION_SETTING_SQL_PARSER_DEBUG */
 	{FIELD_TYPE_BOOLEAN, SQL_SqlTrace | PARSER_TRACE_FLAG},
 	/** SESSION_SETTING_SQL_RECURSIVE_TRIGGERS */
@@ -3622,10 +3624,14 @@ sql_session_setting_get(int id, const char **mp_pair, const char **mp_pair_end)
 	assert(pos != NULL);
 	char *pos_end = mp_encode_array(pos, 2);
 	pos_end = mp_encode_str(pos_end, name, name_len);
-	if (is_bool)
-		pos_end = mp_encode_bool(pos_end, (flags & mask) == mask);
-	else
+	if (is_bool) {
+		bool value = id == SESSION_SETTING_SQL_JIT ?
+			     session->sql_jit_enabled :
+			     (flags & mask) == mask;
+		pos_end = mp_encode_bool(pos_end, value);
+	} else {
 		pos_end = mp_encode_str(pos_end, engine, engine_len);
+	}
 	*mp_pair = pos;
 	*mp_pair_end = pos_end;
 }
@@ -3637,6 +3643,10 @@ sql_set_boolean_option(int id, bool value)
 	struct sql_option_metadata *option =
 		&sql_session_opts[id - SESSION_SETTING_SQL_BEGIN];
 	assert(option->field_type == FIELD_TYPE_BOOLEAN);
+	if (id == SESSION_SETTING_SQL_JIT) {
+		session->sql_jit_enabled = value;
+		return 0;
+	}
 #ifdef NDEBUG
 	if ((session->sql_flags & SQL_SqlTrace) == 0) {
 		if (value)

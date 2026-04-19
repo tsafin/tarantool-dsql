@@ -119,6 +119,37 @@ g_jit.test_sql_jit_exec_count_growth = function()
     t.assert_ge(res.after_fallback, res.before_fallback)
 end
 
+g_jit.test_sql_jit_session_setting = function()
+    local res = g_jit.server:exec(function()
+        local settings = box.space._session_settings
+        local before_value = settings:get('sql_jit').value
+        box.execute([[SET SESSION "sql_jit" = false;]])
+        local disabled_value = settings:get('sql_jit').value
+        local before_disabled = box.stat.sql()
+        local disabled = box.execute([[SELECT 1 + 2 + 3 + 4 + 5;]])
+        local after_disabled = box.stat.sql()
+        box.execute([[SET SESSION "sql_jit" = true;]])
+        local restored_value = settings:get('sql_jit').value
+        return {
+            before_value = before_value,
+            disabled_value = disabled_value,
+            restored_value = restored_value,
+            rows = disabled.rows,
+            before_compile = before_disabled.sql_jit_compile_count,
+            after_disabled_compile = after_disabled.sql_jit_compile_count,
+            before_exec = before_disabled.sql_jit_exec_count,
+            after_disabled_exec = after_disabled.sql_jit_exec_count,
+        }
+    end)
+
+    t.assert_equals(res.before_value, true)
+    t.assert_equals(res.disabled_value, false)
+    t.assert_equals(res.restored_value, true)
+    t.assert_equals(res.rows, {{15}})
+    t.assert_equals(res.after_disabled_compile, res.before_compile)
+    t.assert_equals(res.after_disabled_exec, res.before_exec)
+end
+
 g_jit.test_sql_jit_row_shape_negative_cache = function()
     local res = g_jit.server:exec(function()
         local before = box.stat.sql()

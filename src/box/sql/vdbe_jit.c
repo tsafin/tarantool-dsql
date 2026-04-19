@@ -22,6 +22,7 @@
 #include "sqlInt.h"
 #include "assoc.h"
 #include "box/schema.h"
+#include "box/session.h"
 #include "box/sql_stmt_cache.h"
 #include "vdbeInt.h"
 #include "vdbe_jit.h"
@@ -1998,6 +1999,8 @@ vdbe_jit_shutdown(void)
 int
 vdbe_jit_is_enabled(void)
 {
+	if (!current_session()->sql_jit_enabled)
+		return 0;
 	char env[16];
 	const char *value = getenv_safe("SQL_JIT_ENABLE", env, sizeof(env));
 	if (value == NULL)

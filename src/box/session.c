@@ -265,6 +265,7 @@ session_new(enum session_type type)
 	session_set_type(session, type);
 	session->sql_flags = sql_default_session_flags();
 	session->sql_default_engine = SQL_STORAGE_ENGINE_MEMTX;
+	session->sql_jit_enabled = true;
 	session->sql_stmts = NULL;
 	session->watchers = NULL;
 	rlist_create(&session->in_shutdown_list);

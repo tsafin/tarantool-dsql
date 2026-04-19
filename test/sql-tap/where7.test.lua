@@ -1,6 +1,7 @@
 #!/usr/bin/env tarantool
 local test = require("sqltester")
 test:plan(2023)
+box.execute([[SET SESSION "sql_jit" = false;]])
 
 --!./tcltestrunner.lua
 -- 2008 December 23
