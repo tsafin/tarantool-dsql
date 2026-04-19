@@ -5,7 +5,7 @@
 ### Commit Messages
 - Write practical, factual commit messages describing what was actually done
 - No emoji symbols in commit messages
-- No "Co-Authored-By:" footer
+- No "Co-Authored-By:" / "Co-authored-by:" footer, including Copilot trailers
 - Avoid exaggerations and advertising language
 - Focus on technical implementation details and actual changes
 - Example: "sql: fix OP_NoConflict register initialization" vs "sql: fix OP_NoConflict bug ✅"
@@ -40,7 +40,7 @@
 - Use `python3 test/test-run.py --builddir /absolute/path/to/build --suite sql` for the `test/sql/` suite.
 - Use `python3 test/test-run.py --builddir /absolute/path/to/build --suite sql-tap` for the `test/sql-tap/` suite.
 - Use `python3 test/test-run.py --builddir /absolute/path/to/build --suite sql-luatest` for the `test/sql-luatest/` suite.
-- For focused debugging, add a pattern: `-p <test-name>` (for example `--suite sql-tap -p select1.test.lua`).
+- For focused debugging, change to test directory and use in a form: `--builddir ../relative-build-dir <relative-test-path>` (for example `sql-tap/seot1.test.lua`).
 - Always pass `--builddir` explicitly when checking JIT or alternate builds, otherwise `test-run.py` may pick the wrong executable.
 - SQL TAP harness enables `sql_seq_scan`; keep it enabled for SQL debugging unless a test explicitly checks the opposite behavior.
 
