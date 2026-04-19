@@ -72,3 +72,10 @@ vdbe_jit_is_enabled(void);
  */
 void
 vdbe_jit_note_fallback(struct Vdbe *p, int fallback_pc);
+
+/**
+ * Remember that a one-shot statement produced a row under JIT, so equivalent
+ * future statements can skip recompiling a row-at-a-time shape.
+ */
+void
+vdbe_jit_note_row(struct Vdbe *p);

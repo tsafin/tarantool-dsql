@@ -508,6 +508,7 @@ int sqlVdbeExec(Vdbe *p)
 				goto vdbe_return;
 			}
 			if (jit_rc == VDBE_JIT_RC_ROW) {
+				vdbe_jit_note_row(p);
 				rc = SQL_ROW;
 				goto vdbe_return;
 			}

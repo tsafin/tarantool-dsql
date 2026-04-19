@@ -4,6 +4,17 @@ local t = require('luatest')
 local g = t.group()
 local g_jit = t.group('sql_jit')
 
+local function opcode_count(profile, ...)
+    for i = 1, select('#', ...) do
+        local name = select(i, ...)
+        local value = profile[name]
+        if value ~= nil then
+            return value
+        end
+    end
+    return 0
+end
+
 g.before_all(function()
     g.server = server:new({alias = 'sql_stats'})
     g.server:start()
@@ -108,6 +119,41 @@ g_jit.test_sql_jit_exec_count_growth = function()
     t.assert_ge(res.after_fallback, res.before_fallback)
 end
 
+g_jit.test_sql_jit_row_shape_negative_cache = function()
+    local res = g_jit.server:exec(function()
+        local before = box.stat.sql()
+        local first = box.execute([[SELECT 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9;]])
+        local after_first = box.stat.sql()
+        local second = box.execute([[SELECT 9 + 8 + 7 + 6 + 5 + 4 + 3 + 2 + 1;]])
+        local after_second = box.stat.sql()
+        return {
+            first = first.rows,
+            second = second.rows,
+            before_compile = before.sql_jit_compile_count,
+            after_first_compile = after_first.sql_jit_compile_count,
+            after_second_compile = after_second.sql_jit_compile_count,
+            before_compile_success = before.sql_jit_compile_success_count,
+            after_first_compile_success = after_first.sql_jit_compile_success_count,
+            after_second_compile_success = after_second.sql_jit_compile_success_count,
+            before_exec = before.sql_jit_exec_count,
+            after_first_exec = after_first.sql_jit_exec_count,
+            after_second_exec = after_second.sql_jit_exec_count,
+        }
+    end)
+
+    t.assert_equals(res.first, {{45}})
+    t.assert_equals(res.second, {{45}})
+    if res.after_first_compile == res.before_compile then
+        t.skip('SQL JIT is not available in this build')
+    end
+    t.assert_gt(res.after_first_compile_success, res.before_compile_success)
+    t.assert_gt(res.after_first_exec, res.before_exec)
+    t.assert_equals(res.after_second_compile, res.after_first_compile)
+    t.assert_equals(res.after_second_compile_success,
+                    res.after_first_compile_success)
+    t.assert_equals(res.after_second_exec, res.after_first_exec)
+end
+
 g_jit.test_sql_jit_prepare_forces_small_statement = function()
     local res = g_jit.server:exec(function()
         local before = box.stat.sql()
@@ -143,16 +189,29 @@ end
 g_jit.test_sql_jit_control_flow_opcodes = function()
     local res = g_jit.server:exec(function()
         local before = box.stat.sql()
+        local if_stmt = box.prepare([[
+            SELECT CASE WHEN NOT ? THEN 10 ELSE 20 END + 1 + 2 + 3;
+        ]])
+        local ifnot_stmt = box.prepare([[
+            SELECT CASE WHEN ? THEN 10 ELSE 20 END + 1 + 2 + 3;
+        ]])
+        local is_null_stmt = box.prepare([[
+            SELECT 1 WHERE ? IS NOT NULL AND 1 + 2 + 3 + 4 = 10;
+        ]])
+        local not_null_stmt = box.prepare([[
+            SELECT 1 WHERE ? IS NULL AND 1 + 2 + 3 + 4 = 10;
+        ]])
         local results = {
-            if_ifnot = box.execute([[SELECT 1 WHERE (1, 2) != (1, 3);]]).rows,
-            not_null = box.execute([[
-                SELECT 1 WHERE NULL IS NULL AND 1 + 2 + 3 + 4 = 10;
-            ]]).rows,
-            is_null = box.execute([[
-                SELECT 1 WHERE 1 + 2 + 3 + 4 IS NULL OR 1 = 1;
-            ]]).rows,
+            if_op = box.execute(if_stmt.stmt_id, {false}).rows,
+            ifnot_op = box.execute(ifnot_stmt.stmt_id, {true}).rows,
+            is_null_op = box.execute(is_null_stmt.stmt_id, {1}).rows,
+            not_null_op = box.execute(not_null_stmt.stmt_id, {box.NULL}).rows,
         }
         local after = box.stat.sql()
+        box.unprepare(if_stmt.stmt_id)
+        box.unprepare(ifnot_stmt.stmt_id)
+        box.unprepare(is_null_stmt.stmt_id)
+        box.unprepare(not_null_stmt.stmt_id)
         local profile = nil
         if before.sql_opcode_profile_enabled ~= 0 then
             profile = {
@@ -170,9 +229,10 @@ g_jit.test_sql_jit_control_flow_opcodes = function()
         }
     end)
 
-    t.assert_equals(res.results.if_ifnot, {{1}})
-    t.assert_equals(res.results.not_null, {{1}})
-    t.assert_equals(res.results.is_null, {{1}})
+    t.assert_equals(res.results.if_op, {{16}})
+    t.assert_equals(res.results.ifnot_op, {{16}})
+    t.assert_equals(res.results.is_null_op, {{1}})
+    t.assert_equals(res.results.not_null_op, {{1}})
     if res.after_compile == res.before_compile then
         t.skip('SQL JIT is not available in this build')
     end
@@ -180,10 +240,16 @@ g_jit.test_sql_jit_control_flow_opcodes = function()
     if res.profile ~= nil then
         local before = res.profile.before
         local after = res.profile.after
-        local before_total = (before.If or 0) + (before.IfNot or 0) +
-            (before.NotNull or 0) + (before.IsNull or 0)
-        local after_total = (after.If or 0) + (after.IfNot or 0) +
-            (after.NotNull or 0) + (after.IsNull or 0)
+        local before_total =
+            opcode_count(before, 'If') +
+            opcode_count(before, 'IfNot') +
+            opcode_count(before, 'IsNull', 'NotUsed_174') +
+            opcode_count(before, 'NotNull', 'NotUsed_175')
+        local after_total =
+            opcode_count(after, 'If') +
+            opcode_count(after, 'IfNot') +
+            opcode_count(after, 'IsNull', 'NotUsed_174') +
+            opcode_count(after, 'NotNull', 'NotUsed_175')
         t.assert_gt(after_total, before_total)
     end
 end
@@ -612,6 +678,7 @@ g_jit.test_sql_jit_program_opcode = function()
         local after_prepare = box.stat.sql()
         box.execute(stmt.stmt_id)
         local after = box.stat.sql()
+        local rows = box.execute([[SELECT y FROM t2 WHERE y = 11;]]).rows
         box.unprepare(stmt.stmt_id)
 
         box.execute([[DROP TABLE t1;]])
@@ -628,10 +695,13 @@ g_jit.test_sql_jit_program_opcode = function()
         return {
             before_compile = before.sql_jit_compile_count,
             after_compile = after_prepare.sql_jit_compile_count,
+            before_compile_success = before.sql_jit_compile_success_count,
+            after_compile_success = after_prepare.sql_jit_compile_success_count,
             before_exec = before.sql_jit_exec_count,
             after_exec = after.sql_jit_exec_count,
             before_steps = before.sql_jit_step_count,
             after_steps = after.sql_jit_step_count,
+            rows = rows,
             profile = profile,
         }
     end)
@@ -639,11 +709,13 @@ g_jit.test_sql_jit_program_opcode = function()
     if res.after_compile == res.before_compile then
         t.skip('SQL JIT is not available in this build')
     end
-    t.assert_gt(res.after_exec, res.before_exec)
-    t.assert_gt(res.after_steps, res.before_steps)
+    t.assert_equals(res.rows, {{11}})
+    t.assert_equals(res.after_compile_success, res.before_compile_success)
+    t.assert_equals(res.after_exec, res.before_exec)
+    t.assert_equals(res.after_steps, res.before_steps)
     if res.profile ~= nil then
-        t.assert_gt(res.profile.after.Program or 0,
-                    res.profile.before.Program or 0)
+        t.assert_equals(res.profile.after.Program or 0,
+                        res.profile.before.Program or 0)
         t.assert_equals(res.profile.after.Param or 0,
                         res.profile.before.Param or 0)
     end

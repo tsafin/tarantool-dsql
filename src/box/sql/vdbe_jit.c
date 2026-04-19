@@ -1148,7 +1148,8 @@ vdbe_jit_compile(struct Vdbe *p)
 	uint32_t stmt_id = p->stmt_id;
 	uint64_t schema_version = p->schema_ver;
 	bool can_cache_negative = !force_prepared_jit && stmt_id != 0;
-	bool is_literal_oneshot_write = !force_prepared_jit && p->nVar == 0 &&
+	bool is_literal_oneshot = !force_prepared_jit && p->nVar == 0;
+	bool is_literal_oneshot_write = is_literal_oneshot &&
 		jit_has_write_side_effects(p);
 	if (can_cache_negative) {
 		if (jit_negative_cache_contains(stmt_id, schema_version)) {
@@ -1171,26 +1172,26 @@ vdbe_jit_compile(struct Vdbe *p)
 		p->jit_module = NULL;
 		return 0;
 	}
-	if (p->nOp > VDBE_JIT_MAX_OPS) {
-		if (can_cache_negative)
-			jit_negative_cache_add(stmt_id, schema_version);
-		if (is_literal_oneshot_write) {
-			uint32_t shape_hash = jit_stmt_shape_hash(p);
-			jit_shape_negative_cache_add(shape_hash, schema_version);
-		}
-		p->jit_compiled = 0;
-		p->jit_func = NULL;
-		p->jit_module = NULL;
-		return 0;
-	}
-	if (is_literal_oneshot_write) {
-		uint32_t shape_hash = jit_stmt_shape_hash(p);
+	uint32_t shape_hash = 0;
+	if (is_literal_oneshot) {
+		shape_hash = jit_stmt_shape_hash(p);
 		if (jit_shape_negative_cache_contains(shape_hash, schema_version)) {
 			p->jit_compiled = 0;
 			p->jit_func = NULL;
 			p->jit_module = NULL;
 			return 0;
 		}
+	}
+	if (p->nOp > VDBE_JIT_MAX_OPS) {
+		if (can_cache_negative)
+			jit_negative_cache_add(stmt_id, schema_version);
+		if (is_literal_oneshot) {
+			jit_shape_negative_cache_add(shape_hash, schema_version);
+		}
+		p->jit_compiled = 0;
+		p->jit_func = NULL;
+		p->jit_module = NULL;
+		return 0;
 	}
 	sql_jit_compile_count++;
 
@@ -1204,6 +1205,7 @@ vdbe_jit_compile(struct Vdbe *p)
 	int inline_count = 0;
 	int call_count = 0;
 	int unsupported_count = 0;
+	bool has_subprogram = p->pProgram != NULL;
 
 	for (int i = 0; i < p->nOp; i++) {
 		VdbeOp *pOp = &p->aOp[i];
@@ -1218,12 +1220,31 @@ vdbe_jit_compile(struct Vdbe *p)
 		}
 
 		enum vdbe_jit_mode mode = opcode_jit_modes[opcode];
+		if (opcode == OP_Program)
+			has_subprogram = true;
 		if (mode == JIT_MODE_INLINE)
 			inline_count++;
 		else if (mode == JIT_MODE_CALL)
 			call_count++;
 		else
 			unsupported_count++;
+	}
+
+	/*
+	 * Subprogram hand-off is still not semantically correct under JIT for
+	 * multi-trigger statements. Keep OP_Program statements on the interpreter
+	 * path until the child-frame resume path is fully verified.
+	 */
+	if (has_subprogram) {
+		if (can_cache_negative)
+			jit_negative_cache_add(stmt_id, schema_version);
+		if (is_literal_oneshot) {
+			jit_shape_negative_cache_add(shape_hash, schema_version);
+		}
+		p->jit_compiled = 0;
+		p->jit_func = NULL;
+		p->jit_module = NULL;
+		return 0;
 	}
 
 	/*
@@ -2007,11 +2028,19 @@ vdbe_jit_note_fallback(struct Vdbe *p, int fallback_pc)
 	int opcode = p->aOp[fallback_pc].opcode;
 	if (opcode == OP_Halt && p->stmt_id != 0)
 		jit_negative_cache_add(p->stmt_id, p->schema_ver);
-	if (p->nVar == 0 && jit_has_write_side_effects(p) &&
-	    (opcode == OP_Halt || opcode == OP_Program)) {
+	if (p->nVar == 0 && (opcode == OP_Halt || opcode == OP_Program)) {
 		uint32_t shape_hash = jit_stmt_shape_hash(p);
 		jit_shape_negative_cache_add(shape_hash, p->schema_ver);
 	}
+}
+
+void
+vdbe_jit_note_row(struct Vdbe *p)
+{
+	if (p == NULL || p->is_prepared_stmt || p->nVar != 0)
+		return;
+	uint32_t shape_hash = jit_stmt_shape_hash(p);
+	jit_shape_negative_cache_add(shape_hash, p->schema_ver);
 }
 
 #else /* !ENABLE_SQL_JIT */
