@@ -10,12 +10,12 @@
 [Tarantool][tarantool-url] is an in-memory computing platform consisting of a
 database and an application server.
 
-This branch also carries substantial SQL VDBE work: generated-dispatch
-interpreter changes and an experimental SQL LLVM MCJIT path. Current benchmark
-results show that LLVM MCJIT can improve reused prepared-statement execution by
-about `1.25x-1.58x`, while one-shot execution is still dominated by prepare-time
-compile cost, with details and methodology documented in
-[`tools/jit_bench/SQL_JIT_BENCHMARK.md`](tools/jit_bench/SQL_JIT_BENCHMARK.md).
+> This branch also carries substantial SQL VDBE work: generated-dispatch
+> interpreter changes and an experimental SQL LLVM MCJIT path. Current benchmark
+> results show that LLVM MCJIT can improve reused prepared-statement execution by
+> about `1.25x-1.58x`, while one-shot execution is still dominated by prepare-time
+> compile cost, with details and methodology documented in
+> [`tools/jit_bench/SQL_JIT_BENCHMARK.md`](tools/jit_bench/SQL_JIT_BENCHMARK.md).
 
 It is distributed under [BSD 2-Clause][license] terms.
 
