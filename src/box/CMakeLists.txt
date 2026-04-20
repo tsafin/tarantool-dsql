@@ -172,6 +172,11 @@ if(ENABLE_SQL_JIT)
     list(APPEND sql_sources sql/vdbe_jit.c)
 endif()
 
+# Add CnP source file only when CnP is enabled
+if(ENABLE_SQL_CNP)
+    list(APPEND sql_sources sql/vdbe_cnp.c)
+endif()
+
 #
 # SQL JIT: Generate LLVM bitcode for handler files
 #
@@ -244,6 +249,93 @@ if(ENABLE_SQL_JIT)
     )
     
     message(STATUS "SQL JIT: Will generate bitcode for ${sql_jit_handlers}")
+endif()
+
+#
+# SQL Copy-and-Patch: Build-time stencil extraction pipeline
+#
+if(ENABLE_SQL_CNP)
+    # Require clang-16+ for stencil compilation
+    find_program(CLANG_CNP clang-16 clang)
+    if(NOT CLANG_CNP)
+        message(FATAL_ERROR "ENABLE_SQL_CNP requires clang-16 (or clang)")
+    endif()
+    message(STATUS "SQL CnP: Using ${CLANG_CNP} for stencil compilation")
+
+    set(CNP_GENERATED_DIR "${PROJECT_BINARY_DIR}/src/box/sql/generated")
+    file(MAKE_DIRECTORY ${CNP_GENERATED_DIR})
+
+    set(CNP_STUBS_C "${CNP_GENERATED_DIR}/vdbe_cnp_stubs.c")
+    set(CNP_STUBS_O "${CNP_GENERATED_DIR}/vdbe_cnp_stubs.o")
+    set(CNP_STENCILS_H "${CNP_GENERATED_DIR}/vdbe_cnp_stencils.h")
+    set(CNP_GENSTUBS "${PROJECT_SOURCE_DIR}/tools/vdbe_cnp_genstubs.py")
+    set(CNP_EXTRACT "${PROJECT_SOURCE_DIR}/tools/vdbe_cnp_extract.py")
+    set(CNP_OPCODES_YAML "${PROJECT_SOURCE_DIR}/tools/vdbe_dsl/opcodes.yaml")
+    set(CNP_OPCODES_H "${PROJECT_BINARY_DIR}/src/box/sql/opcodes.h")
+
+    # Include paths for stencil compilation (same as JIT handlers)
+    set(CNP_INCLUDE_FLAGS
+        -I${PROJECT_SOURCE_DIR}/src
+        -I${PROJECT_SOURCE_DIR}/src/lib
+        -I${PROJECT_SOURCE_DIR}/src/lib/core
+        -I${PROJECT_SOURCE_DIR}/src/lib/small/include
+        -I${PROJECT_SOURCE_DIR}/src/lib/small/third_party
+        -I${PROJECT_SOURCE_DIR}/src/lib/msgpuck
+        -I${PROJECT_SOURCE_DIR}/src/box
+        -I${PROJECT_SOURCE_DIR}/src/box/sql
+        -I${PROJECT_SOURCE_DIR}/third_party
+        -I${PROJECT_SOURCE_DIR}/third_party/coro
+        -I${PROJECT_SOURCE_DIR}/third_party/luajit/src
+        -I${PROJECT_SOURCE_DIR}/third_party/xxHash
+        -I${PROJECT_BINARY_DIR}/src
+        -I${PROJECT_BINARY_DIR}/src/box
+        -I${PROJECT_BINARY_DIR}/src/box/sql
+        -I${PROJECT_BINARY_DIR}/src/lib/small/small/include
+        -I${PROJECT_BINARY_DIR}/third_party
+        -I${PROJECT_BINARY_DIR}/third_party/luajit/src
+    )
+
+    # Step 1: Generate stencil stubs from opcodes.yaml
+    add_custom_command(
+        OUTPUT ${CNP_STUBS_C}
+        COMMAND ${CMAKE_COMMAND} -E env python3 ${CNP_GENSTUBS}
+            --yaml ${CNP_OPCODES_YAML}
+            --output ${CNP_STUBS_C}
+        DEPENDS ${CNP_GENSTUBS} ${CNP_OPCODES_YAML}
+        COMMENT "Generating CnP stencil stubs"
+    )
+
+    # Step 2: Compile stubs to relocatable object
+    add_custom_command(
+        OUTPUT ${CNP_STUBS_O}
+        COMMAND ${CLANG_CNP}
+            -O2 -fno-pic -fno-asynchronous-unwind-tables -fno-stack-protector
+            ${CNP_INCLUDE_FLAGS}
+            -c ${CNP_STUBS_C}
+            -o ${CNP_STUBS_O}
+        DEPENDS ${CNP_STUBS_C}
+        COMMENT "Compiling CnP stencil stubs to object file"
+    )
+
+    # Step 3: Extract stencils from object file
+    add_custom_command(
+        OUTPUT ${CNP_STENCILS_H}
+        COMMAND python3 ${CNP_EXTRACT}
+            --input ${CNP_STUBS_O}
+            --output ${CNP_STENCILS_H}
+            --opcodes-header ${CNP_OPCODES_H}
+        DEPENDS ${CNP_STUBS_O} ${CNP_EXTRACT} ${CNP_OPCODES_H}
+        COMMENT "Extracting CnP stencils from object file"
+    )
+
+    # Convenience target
+    add_custom_target(cnp_stencils
+        DEPENDS ${CNP_STENCILS_H}
+    )
+
+    # Make sure stencils are built before the box library
+    add_definitions(-DENABLE_SQL_CNP)
+    message(STATUS "SQL CnP: Stencil pipeline enabled")
 endif()
 
 add_custom_target(box_generate_lua_sources
@@ -480,6 +572,10 @@ endif()
 
 if (VDBE_USE_GENERATED_DISPATCH)
   add_definitions(-DVDBE_USE_GENERATED_DISPATCH=1)
+endif()
+
+if(ENABLE_SQL_CNP)
+    add_dependencies(box cnp_stencils)
 endif()
 
 set(EXT_SRC_DIR ${PROJECT_SOURCE_DIR}/extra)

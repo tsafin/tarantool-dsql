@@ -18,6 +18,7 @@
 #include "vdbe_ops.h"
 #include "vdbe_dispatch.h"
 #include "vdbe_dispatch_interface.h"
+#include "vdbe_cnp.h"
 #include "box/error.h"
 
 /* Forward declarations */
@@ -71,6 +72,8 @@ vdbe_get_dispatcher_mode(void)
 				vdbe_dispatcher_mode = VDBE_DISPATCH_GENERATED;
 			} else if (strcmp(env, "parallel") == 0) {
 				vdbe_dispatcher_mode = VDBE_DISPATCH_PARALLEL;
+			} else if (strcmp(env, "cnp") == 0) {
+				vdbe_dispatcher_mode = VDBE_DISPATCH_CNP;
 			} else if (strcmp(env, "auto") == 0) {
 				vdbe_dispatcher_mode = VDBE_DISPATCH_AUTO;
 			}
@@ -1393,4 +1396,29 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 #undef IN_P2
 #undef OUT_P2
 #undef OUT_P3
+}
+
+/*
+ * Copy-and-Patch dispatcher.
+ * Tries to compile the VDBE program to native code using pre-extracted
+ * stencils.  Falls back to the generated dispatcher if compilation fails
+ * (e.g. because an opcode has no stencil).
+ */
+int
+vdbe_exec_cnp_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
+{
+#ifdef ENABLE_SQL_CNP
+	if (!p->cnp_compiled) {
+		if (vdbe_cnp_compile(p) != 0) {
+			/* Fall back to generated dispatcher */
+			return vdbe_exec_generated_dispatcher(p, aOp, aMem);
+		}
+	}
+	return vdbe_cnp_exec(p);
+#else
+	(void)aOp;
+	(void)aMem;
+	/* CnP not compiled in — fall back */
+	return vdbe_exec_generated_dispatcher(p, p->aOp, p->aMem);
+#endif
 }
