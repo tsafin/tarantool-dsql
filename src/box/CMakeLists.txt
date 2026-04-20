@@ -468,9 +468,6 @@ endif()
 
 add_library(box STATIC ${box_sources})
 
-# Ensure generated VDBE sources are produced before building box
-add_dependencies(box vdbe_codegen)
-
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_definitions(-DSQL_DEBUG=1)
   add_definitions(-DSQL_VDBE_OP_PROFILE=1)
@@ -510,6 +507,7 @@ add_custom_command(
 )
 
 add_custom_target(vdbe_codegen DEPENDS ${VDBE_GEN_C} ${VDBE_GEN_H})
+add_dependencies(vdbe_codegen generate_sql_files)
 include_directories(${SQL_SRC_DIR}/generated)
 
 #
@@ -530,6 +528,7 @@ add_custom_target(generate_sql_files DEPENDS
     sql/dispatchtable.h
     sql/parse.y
     sql/parse.c
+    sql/opcodes.h
     sql/opcodes.c)
 
 add_custom_command(OUTPUT ${SQL_BIN_DIR}/keywordhash.h
@@ -576,7 +575,7 @@ if(ENABLE_SQL_JIT)
     )
 endif()
 
-add_dependencies(box build_bundled_libs generate_sql_files)
+add_dependencies(box build_bundled_libs vdbe_codegen)
 if(ENABLE_SQL_JIT)
     add_dependencies(box sql_jit_bitcode)
 endif()
