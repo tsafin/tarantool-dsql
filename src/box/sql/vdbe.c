@@ -158,6 +158,7 @@ int64_t sql_jit_full_run_count = 0;
 int64_t sql_jit_fallback_count = 0;
 int64_t sql_jit_resume_skip_count = 0;
 int64_t sql_jit_guard_skip_count = 0;
+int64_t sql_cnp_exec_count = 0;
 
 #ifdef ENABLE_SQL_JIT
 static inline void

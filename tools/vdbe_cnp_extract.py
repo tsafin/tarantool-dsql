@@ -32,6 +32,7 @@ HOLE_MAP = {
     "HOLE_BRANCH": "CNP_HOLE_BRANCH",
     "HOLE_ERROR_EXIT": "CNP_HOLE_ERROR_EXIT",
     "HOLE_HANDLER": "CNP_HOLE_HANDLER",
+    "HOLE_SIGNAL": "CNP_HOLE_SIGNAL",
 }
 
 # x86_64 relocation type constants
@@ -197,6 +198,7 @@ def emit_header(stencils, output_path, max_opcode):
         out.write("    CNP_HOLE_BRANCH,\n")
         out.write("    CNP_HOLE_ERROR_EXIT,\n")
         out.write("    CNP_HOLE_HANDLER,\n")
+        out.write("    CNP_HOLE_SIGNAL,\n")
         out.write("};\n\n")
 
         # Relocation type constants

@@ -33,6 +33,11 @@ extern uint64_t HOLE_ERROR_EXIT;
  * allowing the JIT buffer to be mapped at any address.
  */
 extern uint64_t HOLE_HANDLER;
+/*
+ * HOLE_SIGNAL: address of cnp_signal_row(); called by OP_ResultRow to
+ * notify the dispatch loop that a result row is ready.
+ */
+extern uint64_t HOLE_SIGNAL;
 
 /*
  * Load a 64-bit HOLE address via movabs.  Produces a 10-byte instruction
@@ -71,15 +76,15 @@ struct CnpOp {
 /*
  * Stencil return convention:
  *   >= CNP_ADDR_THRESHOLD : address of next stencil (int64_t cast)
- *   CNP_STATUS_DONE (101) : SQL_DONE
- *   CNP_STATUS_ROW  (1)   : SQL_ROW (row ready, caller must resume)
- *   CNP_STATUS_ERROR (-1) : fatal error
+ *   SQL_DONE (2)          : all rows delivered
+ *   SQL_ROW  (1)          : row ready (caller must resume)
+ *   -1                    : fatal error
  *
  * Valid mmap'd addresses on x86_64 Linux are always well above 4096,
  * so small integers are safe as status codes.
  */
 
-/* --- OP_Goto (control_flow) --- */
+/* --- OP_Goto (control_flow: unconditional jump) --- */
 int64_t __attribute__((noinline))
 cnp_OP_Goto(struct Vdbe *p, Mem *aMem)
 {
@@ -87,12 +92,46 @@ cnp_OP_Goto(struct Vdbe *p, Mem *aMem)
     return (int64_t)LOAD_HOLE(HOLE_BRANCH);
 }
 
-/* --- OP_Halt (control_flow) --- */
+/* --- OP_Init (external, jump to P2 on success) --- */
+typedef int (*cnp_handler_fn_t)(struct Vdbe *, struct VdbeOp *, Mem *);
+int64_t __attribute__((noinline))
+cnp_OP_Init(struct Vdbe *p, Mem *aMem)
+{
+    struct CnpOp op = {
+        .p1 = (int)(uint64_t)&HOLE_P1,
+        .p2 = (int)(uint64_t)&HOLE_P2,
+        .p3 = (int)(uint64_t)&HOLE_P3,
+        .p5 = (uint16_t)(uint64_t)&HOLE_P5,
+    };
+    cnp_handler_fn_t fn =
+        (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, (struct VdbeOp *)&op, aMem);
+    if (rc < 0)
+        return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0)
+        return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Halt (external, jump branch returns SQL_DONE) --- */
+typedef int (*cnp_handler_fn_t)(struct Vdbe *, struct VdbeOp *, Mem *);
 int64_t __attribute__((noinline))
 cnp_OP_Halt(struct Vdbe *p, Mem *aMem)
 {
-    (void)p; (void)aMem;
-    return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    struct CnpOp op = {
+        .p1 = (int)(uint64_t)&HOLE_P1,
+        .p2 = (int)(uint64_t)&HOLE_P2,
+        .p3 = (int)(uint64_t)&HOLE_P3,
+        .p5 = (uint16_t)(uint64_t)&HOLE_P5,
+    };
+    cnp_handler_fn_t fn =
+        (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, (struct VdbeOp *)&op, aMem);
+    if (rc < 0)
+        return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0)
+        return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
 }
 
 /* --- OP_Integer (external, no branch) --- */
@@ -152,7 +191,7 @@ cnp_OP_Copy(struct Vdbe *p, Mem *aMem)
     return (int64_t)LOAD_HOLE(HOLE_NEXT);
 }
 
-/* --- OP_ResultRow (external, suspend on rc=1) --- */
+/* --- OP_ResultRow (external, signal row then continue) --- */
 typedef int (*cnp_handler_fn_t)(struct Vdbe *, struct VdbeOp *, Mem *);
 int64_t __attribute__((noinline))
 cnp_OP_ResultRow(struct Vdbe *p, Mem *aMem)
@@ -168,7 +207,11 @@ cnp_OP_ResultRow(struct Vdbe *p, Mem *aMem)
     int rc = fn(p, (struct VdbeOp *)&op, aMem);
     if (rc < 0)
         return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
-    if (rc > 0)
-        return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    if (rc > 0) {
+        typedef void (*cnp_signal_fn_t)(struct Vdbe *);
+        cnp_signal_fn_t sig =
+            (cnp_signal_fn_t)(uintptr_t)LOAD_HOLE(HOLE_SIGNAL);
+        sig(p);
+    }
     return (int64_t)LOAD_HOLE(HOLE_NEXT);
 }

@@ -1389,6 +1389,10 @@ sqlVdbeRewind(Vdbe * p)
 	p->cacheCtr = 1;
 	p->iStatement = 0;
 	p->nFkConstraint = 0;
+#ifdef ENABLE_SQL_CNP
+	p->cnp_resume_func = NULL;
+	p->cnp_row_ready = 0;
+#endif
 }
 
 /*
