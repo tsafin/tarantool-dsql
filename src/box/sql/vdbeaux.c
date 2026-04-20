@@ -48,6 +48,9 @@
 #ifdef ENABLE_SQL_JIT
 #include "vdbe_jit.h"
 #endif
+#ifdef ENABLE_SQL_CNP
+#include "vdbe_cnp.h"
+#endif
 
 /*
  * Create a new virtual database engine.
@@ -2104,6 +2107,9 @@ sqlVdbeClearObject(struct Vdbe *p)
 {
 #ifdef ENABLE_SQL_JIT
 	vdbe_jit_cleanup(p);
+#endif
+#ifdef ENABLE_SQL_CNP
+	vdbe_cnp_release(p);
 #endif
 	SubProgram *pSub, *pNext;
 	vdbe_metadata_delete(p);

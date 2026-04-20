@@ -321,6 +321,14 @@ struct Vdbe {
 	/** Non-zero if this VDBE has been JIT-compiled */
 	int jit_compiled;
 #endif
+#ifdef ENABLE_SQL_CNP
+	/** mmap'd native code buffer (copy-and-patch) */
+	void *cnp_code;
+	/** Size of the cnp_code buffer */
+	uint32_t cnp_size;
+	/** Non-zero if CnP compiled successfully */
+	int cnp_compiled;
+#endif
 };
 
 /*

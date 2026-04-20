@@ -53,6 +53,14 @@ int vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem);
 int vdbe_exec_parallel_validation(struct Vdbe *p, VdbeOp *aOp, Mem *aMem);
 
 /*
+ * Copy-and-patch dispatcher.
+ * Compiles the VDBE program to native code on first invocation, then
+ * executes the compiled buffer.  Falls back to the generated dispatcher
+ * if any opcode lacks a stencil.
+ */
+int vdbe_exec_cnp_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem);
+
+/*
  * Dispatcher selection mode (Phase 5.3.4)
  * Controls which dispatcher is used and how validation is performed
  */
@@ -61,6 +69,7 @@ typedef enum {
 	VDBE_DISPATCH_OLD = 1,          /* Use old dispatcher */
 	VDBE_DISPATCH_GENERATED = 2,    /* Use generated dispatcher */
 	VDBE_DISPATCH_PARALLEL = 3,     /* Run both and compare (validation mode) */
+	VDBE_DISPATCH_CNP = 4,          /* Copy-and-patch native execution */
 } VdbeDispatchMode;
 
 /*
@@ -94,6 +103,8 @@ vdbe_get_dispatcher(void)
 		return vdbe_exec_generated_dispatcher;
 	case VDBE_DISPATCH_PARALLEL:
 		return vdbe_exec_parallel_validation;
+	case VDBE_DISPATCH_CNP:
+		return vdbe_exec_cnp_dispatcher;
 	case VDBE_DISPATCH_AUTO:
 	default:
 #ifdef VDBE_USE_GENERATED_DISPATCH

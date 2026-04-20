@@ -771,6 +771,7 @@ include (cmake/rpm.cmake)
 option(ENABLE_VDBE_GOTO_DISPATCH "Enable SQL vdbe goto dispatch." OFF)
 option(VDBE_USE_GENERATED_DISPATCH "Use generated VDBE dispatcher" ON)
 option(ENABLE_SQL_JIT "Enable SQL JIT compilation using LLVM" OFF)
+option(ENABLE_SQL_CNP "Enable SQL Copy-and-Patch JIT compilation" OFF)
 
 #
 # LLVM for SQL JIT
