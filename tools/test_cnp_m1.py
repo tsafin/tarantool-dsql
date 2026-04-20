@@ -35,6 +35,7 @@ import tempfile
 # Opcode name → opcode number (must match opcodes.h)
 M1_OPCODES = {
     "OP_Goto":      9,
+    "OP_Init":      50,
     "OP_Halt":      53,
     "OP_Integer":   54,
     "OP_Add":       24,
@@ -54,6 +55,7 @@ HOLE_KINDS_NEED_64BIT = {
     "CNP_HOLE_NEXT",
     "CNP_HOLE_BRANCH",
     "CNP_HOLE_ERROR_EXIT",
+    "CNP_HOLE_SIGNAL",
 }
 
 HOLE_KINDS_ALLOW_32BIT = {
@@ -227,13 +229,17 @@ def check_minimal_stencil(op_name, stencil):
     return errors
 
 
-def check_handler_stencil(op_name, stencil, has_branch=False):
+def check_handler_stencil(op_name, stencil, branch_type="none"):
     """
-    OP_Integer, OP_Add, OP_Copy, OP_ResultRow:
+    OP_Integer, OP_Add, OP_Copy, OP_ResultRow, OP_Init, OP_Halt:
     - Must have exactly one HOLE_HANDLER hole
-    - HOLE_HANDLER must be at a valid movabs offset (offset % 1 is fine, but bytes[offset-1] should be 0xb8
-      and bytes[offset-2] should be 0x48, i.e. the movabs prefix immediately precedes the hole)
+    - HOLE_HANDLER must be at a valid movabs offset
     - Reloc types must be correct (64-bit for control-flow holes, 32-bit for P1..P5)
+
+    branch_type:
+      "none"  — no HOLE_BRANCH (always HOLE_NEXT)
+      "jump"  — has one HOLE_BRANCH (for jump target or SQL_DONE)
+      "row"   — has one HOLE_SIGNAL (for OP_ResultRow row notification)
     """
     errors = []
     raw = stencil["bytes"]
@@ -248,10 +254,20 @@ def check_handler_stencil(op_name, stencil, has_branch=False):
         if err:
             errors.append(err)
 
-    if has_branch:
+    if branch_type == "jump":
         branch_holes = [h for h in holes if h["kind"] == "CNP_HOLE_BRANCH"]
         if len(branch_holes) != 1:
             errors.append(f"  FAIL [{op_name}]: expected 1 HOLE_BRANCH, got {len(branch_holes)}")
+    elif branch_type == "row":
+        signal_holes = [h for h in holes if h["kind"] == "CNP_HOLE_SIGNAL"]
+        if len(signal_holes) != 1:
+            errors.append(f"  FAIL [{op_name}]: expected 1 HOLE_SIGNAL, got {len(signal_holes)}")
+        branch_holes = [h for h in holes if h["kind"] == "CNP_HOLE_BRANCH"]
+        if len(branch_holes) != 0:
+            errors.append(
+                f"  FAIL [{op_name}]: expected 0 HOLE_BRANCH (row type uses SIGNAL), "
+                f"got {len(branch_holes)}"
+            )
 
     errors.extend(check_no_plt32(holes, op_name))
     errors.extend(check_64bit_holes(holes, op_name))
@@ -303,9 +319,9 @@ def main():
                   f"{len(stencils[op_name]['holes'])} holes")
             passed += 1
 
-    # --- Check 2: minimal stencils (OP_Goto, OP_Halt) ---
-    print("\n[2] Checking minimal stencils (Goto, Halt)...")
-    for op_name in ("OP_Goto", "OP_Halt"):
+    # --- Check 2: minimal stencils (OP_Goto only; OP_Halt is now an external handler) ---
+    print("\n[2] Checking minimal stencil (Goto only)...")
+    for op_name in ("OP_Goto",):
         total += 1
         if op_name not in stencils:
             all_errors.append(f"  SKIP: {op_name} not in stencils")
@@ -320,23 +336,25 @@ def main():
     # --- Check 3: handler stencils (no PLT32) ---
     print("\n[3] Checking handler stencils (no PLT32, 64-bit handler calls)...")
     handler_ops = {
-        "OP_Integer":   False,
-        "OP_Add":       False,
-        "OP_Copy":      False,
-        "OP_ResultRow": True,
+        "OP_Integer":   "none",   # always HOLE_NEXT
+        "OP_Add":       "none",   # always HOLE_NEXT
+        "OP_Copy":      "none",   # always HOLE_NEXT
+        "OP_ResultRow": "row",    # HOLE_SIGNAL + HOLE_NEXT (no HOLE_BRANCH)
+        "OP_Init":      "jump",   # HOLE_BRANCH for jump to P2
+        "OP_Halt":      "jump",   # HOLE_BRANCH for SQL_DONE
     }
-    for op_name, has_branch in handler_ops.items():
+    for op_name, branch_type in handler_ops.items():
         total += 1
         if op_name not in stencils:
             all_errors.append(f"  SKIP: {op_name} not in stencils")
             continue
-        errs = check_handler_stencil(op_name, stencils[op_name], has_branch)
+        errs = check_handler_stencil(op_name, stencils[op_name], branch_type)
         if errs:
             all_errors.extend(errs)
         else:
             n_holes = len(stencils[op_name]["holes"])
             print(f"  OK   {op_name}: HOLE_HANDLER R_X86_64_64, "
-                  f"no PLT32 ({n_holes} holes total)")
+                  f"no PLT32, branch_type={branch_type} ({n_holes} holes total)")
             passed += 1
 
     # --- Check 4: disassembly sanity via objdump ---

@@ -5,11 +5,16 @@
  * patches operand holes and jump targets, then marks the buffer
  * executable.
  *
- * Dispatch model (M1): each stencil is a regular function returning
- * int64_t.  The return value is the address of the next stencil
- * function to call.  The runtime loops calling stencils until a
- * return value falls below a threshold (indicating a terminal status
- * code rather than an address).
+ * Dispatch model: each stencil is a regular function returning int64_t.
+ * The return value is the address of the next stencil function to call.
+ * The runtime loops calling stencils until a return value falls below a
+ * threshold (indicating a terminal status code rather than an address).
+ *
+ * Resume model (M2): OP_ResultRow calls cnp_signal_row() via HOLE_SIGNAL
+ * to set p->cnp_row_ready.  The exec loop detects this flag, saves the
+ * next stencil address in p->cnp_resume_func, and returns SQL_ROW to the
+ * caller.  On the next call to vdbe_cnp_exec(), execution resumes from
+ * p->cnp_resume_func.
  */
 
 #include <stdlib.h>
@@ -20,6 +25,7 @@
 
 #include "sqlInt.h"
 #include "vdbeInt.h"
+#include "vdbe.h"
 #include "vdbe_cnp.h"
 #include "vdbe_ops.h"
 
@@ -34,8 +40,73 @@
 #define CNP_R_X86_64_32 10
 #endif
 
+/* Execution counter exposed via box.stat.sql() */
+extern int64_t sql_cnp_exec_count;
+
 /*
- * Resolve call target by opcode number (M1 shortcut).
+ * Stencil function type.  Each stencil returns the address of the
+ * next stencil to execute, or a terminal status code.
+ */
+typedef int64_t (*cnp_stencil_func_t)(struct Vdbe *p, Mem *aMem);
+
+/*
+ * Threshold: return values below this are status codes, not addresses.
+ * Any valid mmap'd address will be well above this.
+ */
+#define CNP_ADDR_THRESHOLD  4096
+
+/*
+ * Signal function called by the OP_ResultRow stencil via HOLE_SIGNAL.
+ * Sets p->cnp_row_ready so the exec loop knows to return SQL_ROW.
+ */
+static void
+cnp_signal_row(struct Vdbe *p)
+{
+	p->cnp_row_ready = 1;
+}
+
+/*
+ * OP_Init handler: set up the transaction, increment the OP_Once counter,
+ * and return 1 (jump to P2).  Mirrors sql_vdbe_exec_init_for_jit() in vdbe.c.
+ */
+static int
+vdbe_cnp_init_handler(struct Vdbe *p, struct VdbeOp *pOp, struct Mem *aMem)
+{
+	(void)aMem;
+	if (p->pFrame == NULL && sql_vdbe_prepare(p) != 0)
+		return -1;
+	if (pOp->p1 >= sqlGlobalConfig.iOnceResetThreshold) {
+		for (int i = 1; i < p->nOp; i++) {
+			if (p->aOp[i].opcode == OP_Once)
+				p->aOp[i].p1 = 0;
+		}
+		pOp->p1 = 0;
+	}
+	pOp->p1++;
+	p->pc = pOp->p2;
+	return 1;
+}
+
+/*
+ * OP_Halt handler: commit/roll back the transaction via sqlVdbeHalt(),
+ * then return 1 on success or -1 if the statement was aborted.
+ *
+ * sqlVdbeHalt() requires p->pc >= 0 to run cleanup.  The OP_Init handler
+ * already set p->pc = P2 (>= 1), so the guard is satisfied.
+ */
+static int
+vdbe_cnp_halt_handler(struct Vdbe *p, struct VdbeOp *pOp, struct Mem *aMem)
+{
+	(void)aMem;
+	if (pOp->p1 != 0)
+		p->is_aborted = true;
+	p->errorAction = (uint8_t)pOp->p2;
+	sqlVdbeHalt(p);
+	return p->is_aborted ? -1 : 1;
+}
+
+/*
+ * Resolve the external handler address for opcodes that use HOLE_HANDLER.
  */
 static uintptr_t
 cnp_resolve_call_by_opcode(int opcode)
@@ -45,30 +116,11 @@ cnp_resolve_call_by_opcode(int opcode)
 	case OP_Integer:   return (uintptr_t)vdbe_op_integer;
 	case OP_Copy:      return (uintptr_t)vdbe_op_copy;
 	case OP_ResultRow: return (uintptr_t)vdbe_op_resultrow;
-	default: return 0;
+	case OP_Init:      return (uintptr_t)vdbe_cnp_init_handler;
+	case OP_Halt:      return (uintptr_t)vdbe_cnp_halt_handler;
+	default:           return 0;
 	}
 }
-
-/*
- * Stencil function type.  Each stencil returns the address of the
- * next stencil to execute, or a terminal status code.
- */
-typedef int64_t (*cnp_stencil_func_t)(struct Vdbe *p, Mem *aMem);
-
-/*
- * Terminal return values (must not collide with valid code addresses).
- * On x86_64 Linux, user-space addresses are always positive and large
- * (> 0x10000), so small integers are safe to use as status codes.
- */
-#define CNP_STATUS_ERROR    (-1)
-#define CNP_STATUS_ROW      1      /* SQL_ROW */
-#define CNP_STATUS_DONE     101    /* SQL_DONE */
-
-/*
- * Threshold: return values below this are status codes, not addresses.
- * Any valid mmap'd address will be well above this.
- */
-#define CNP_ADDR_THRESHOLD  4096
 
 /*
  * Apply a single relocation patch to the code buffer.
@@ -167,15 +219,12 @@ vdbe_cnp_compile(struct Vdbe *p)
 	/*
 	 * Phase 4: Patch holes.
 	 *
-	 * HOLE_NEXT/BRANCH: patched with the address of the next
-	 * stencil function in the code buffer.  The stencil returns
-	 * this address, and the runtime calls it.
-	 *
-	 * HOLE_ERROR_EXIT: patched with CNP_STATUS_ERROR (-1).
-	 * The stencil returns this, and the runtime recognizes it
-	 * as a terminal status.
-	 *
-	 * For OP_ResultRow BRANCH: patched with CNP_STATUS_ROW (1).
+	 * HOLE_NEXT   — address of next stencil (or SQL_DONE at end of program)
+	 * HOLE_BRANCH — jump target address, or SQL_DONE for OP_Halt
+	 * HOLE_SIGNAL — address of cnp_signal_row (called by OP_ResultRow)
+	 * HOLE_HANDLER — address of the opcode's C handler function
+	 * HOLE_ERROR_EXIT — SQL error code (-1)
+	 * HOLE_P1..P5 — operand values
 	 */
 	for (int i = 0; i < nOp; i++) {
 		const struct cnp_stencil *st =
@@ -205,28 +254,29 @@ vdbe_cnp_compile(struct Vdbe *p)
 					target = (uintptr_t)(code +
 						pc_offset[i + 1]);
 				else
-					target = (uintptr_t)CNP_STATUS_DONE;
+					target = (uintptr_t)SQL_DONE;
 				break;
 			case CNP_HOLE_BRANCH:
-				if (aOp[i].opcode == OP_ResultRow) {
-					/* OP_ResultRow → SQL_ROW */
-					target = (uintptr_t)CNP_STATUS_ROW;
-				} else if (aOp[i].opcode == OP_Halt) {
-					/* OP_Halt → SQL_DONE (P2 is error action, not jump target) */
-					target = (uintptr_t)CNP_STATUS_DONE;
+				if (aOp[i].opcode == OP_Halt) {
+					/* OP_Halt: rc>0 means done */
+					target = (uintptr_t)SQL_DONE;
 				} else if (aOp[i].p2 >= 0 &&
 					   aOp[i].p2 < nOp) {
 					target = (uintptr_t)(code +
 						pc_offset[aOp[i].p2]);
 				} else {
-					target = (uintptr_t)CNP_STATUS_DONE;
+					target = (uintptr_t)SQL_DONE;
 				}
 				break;
+			case CNP_HOLE_SIGNAL:
+				target = (uintptr_t)cnp_signal_row;
+				break;
 			case CNP_HOLE_HANDLER:
-				target = cnp_resolve_call_by_opcode(aOp[i].opcode);
+				target = cnp_resolve_call_by_opcode(
+					aOp[i].opcode);
 				break;
 			case CNP_HOLE_ERROR_EXIT:
-				target = (uintptr_t)CNP_STATUS_ERROR;
+				target = (uintptr_t)(intptr_t)(-1);
 				break;
 			default:
 				break;
@@ -261,13 +311,21 @@ vdbe_cnp_exec(struct Vdbe *p)
 	if (!p->cnp_compiled)
 		return -1;
 
-	/*
-	 * Dispatch loop: call the first stencil, then keep calling
-	 * the returned address until we get a terminal status code.
-	 */
-	cnp_stencil_func_t func = (cnp_stencil_func_t)p->cnp_code;
-	int64_t result;
+	sql_cnp_exec_count++;
 
+	/*
+	 * Resume from the stencil after OP_ResultRow if the previous call
+	 * returned SQL_ROW.
+	 */
+	cnp_stencil_func_t func;
+	if (p->cnp_resume_func != NULL) {
+		func = (cnp_stencil_func_t)p->cnp_resume_func;
+		p->cnp_resume_func = NULL;
+	} else {
+		func = (cnp_stencil_func_t)p->cnp_code;
+	}
+
+	int64_t result;
 	for (;;) {
 		result = func(p, p->aMem);
 		if (result < (int64_t)CNP_ADDR_THRESHOLD) {
@@ -276,6 +334,16 @@ vdbe_cnp_exec(struct Vdbe *p)
 		}
 		/* result is the address of the next stencil */
 		func = (cnp_stencil_func_t)result;
+		if (p->cnp_row_ready) {
+			/*
+			 * OP_ResultRow fired the signal.  Save the next
+			 * stencil address and return SQL_ROW to the caller.
+			 * The next exec call will resume from here.
+			 */
+			p->cnp_row_ready = 0;
+			p->cnp_resume_func = (void *)func;
+			return SQL_ROW;
+		}
 	}
 }
 
@@ -288,6 +356,8 @@ vdbe_cnp_release(struct Vdbe *p)
 		p->cnp_size = 0;
 		p->cnp_compiled = 0;
 	}
+	p->cnp_resume_func = NULL;
+	p->cnp_row_ready = 0;
 }
 
 int

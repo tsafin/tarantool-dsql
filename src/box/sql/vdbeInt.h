@@ -328,6 +328,10 @@ struct Vdbe {
 	uint32_t cnp_size;
 	/** Non-zero if CnP compiled successfully */
 	int cnp_compiled;
+	/** Resume address after OP_ResultRow (next stencil to call) */
+	void *cnp_resume_func;
+	/** Set to 1 by the OP_ResultRow stencil to signal SQL_ROW */
+	int cnp_row_ready;
 #endif
 };
 

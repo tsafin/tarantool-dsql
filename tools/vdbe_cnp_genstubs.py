@@ -24,7 +24,7 @@ import sys
 import yaml
 
 M1_OPCODES = {"OP_Integer", "OP_Add", "OP_Copy", "OP_Goto", "OP_ResultRow",
-              "OP_Halt"}
+              "OP_Halt", "OP_Init"}
 
 HEADER = """\
 /*
@@ -62,6 +62,11 @@ extern uint64_t HOLE_ERROR_EXIT;
  * allowing the JIT buffer to be mapped at any address.
  */
 extern uint64_t HOLE_HANDLER;
+/*
+ * HOLE_SIGNAL: address of cnp_signal_row(); called by OP_ResultRow to
+ * notify the dispatch loop that a result row is ready.
+ */
+extern uint64_t HOLE_SIGNAL;
 
 /*
  * Load a 64-bit HOLE address via movabs.  Produces a 10-byte instruction
@@ -100,9 +105,9 @@ struct CnpOp {
 /*
  * Stencil return convention:
  *   >= CNP_ADDR_THRESHOLD : address of next stencil (int64_t cast)
- *   CNP_STATUS_DONE (101) : SQL_DONE
- *   CNP_STATUS_ROW  (1)   : SQL_ROW (row ready, caller must resume)
- *   CNP_STATUS_ERROR (-1) : fatal error
+ *   SQL_DONE (2)          : all rows delivered
+ *   SQL_ROW  (1)          : row ready (caller must resume)
+ *   -1                    : fatal error
  *
  * Valid mmap'd addresses on x86_64 Linux are always well above 4096,
  * so small integers are safe as status codes.
@@ -111,15 +116,18 @@ struct CnpOp {
 """
 
 
-def emit_external_handler(name, handler_func, has_branch):
+def emit_external_handler(name, handler_func, branch_type):
     """Emit a stub that calls an external handler and returns next address.
 
     Uses LOAD_HOLE(HOLE_HANDLER) for the call so the relocation is an
     R_X86_64_64 (64-bit absolute movabs), which works at any JIT buffer
     address — unlike a PLT32 call that only covers ±2 GB.
 
-    has_branch=True: on rc>0 (e.g. OP_ResultRow), returns HOLE_BRANCH
-    (patched to CNP_STATUS_ROW) instead of HOLE_NEXT.
+    branch_type:
+      "none" — always falls through to HOLE_NEXT
+      "jump" — on rc>0, returns HOLE_BRANCH (e.g. OP_Init jumps to P2)
+      "row"  — on rc>0, calls HOLE_SIGNAL(p) to set cnp_row_ready,
+               then returns HOLE_NEXT (e.g. OP_ResultRow)
     """
     lines = []
     lines.append("typedef int (*cnp_handler_fn_t)"
@@ -138,28 +146,19 @@ def emit_external_handler(name, handler_func, has_branch):
     lines.append(f"    int rc = fn(p, (struct VdbeOp *)&op, aMem);")
     lines.append("    if (rc < 0)")
     lines.append("        return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);")
-    if has_branch:
+    if branch_type == "jump":
         lines.append("    if (rc > 0)")
         lines.append("        return (int64_t)LOAD_HOLE(HOLE_BRANCH);")
+    elif branch_type == "row":
+        lines.append("    if (rc > 0) {")
+        lines.append("        typedef void (*cnp_signal_fn_t)(struct Vdbe *);")
+        lines.append("        cnp_signal_fn_t sig =")
+        lines.append("            (cnp_signal_fn_t)(uintptr_t)LOAD_HOLE(HOLE_SIGNAL);")
+        lines.append("        sig(p);")
+        lines.append("    }")
     lines.append("    return (int64_t)LOAD_HOLE(HOLE_NEXT);")
     lines.append("}")
     return "\n".join(lines)
-
-
-def emit_halt_stub():
-    """OP_Halt: terminate execution, returning CNP_STATUS_DONE via HOLE_BRANCH.
-
-    The real halt cleanup (errorAction, sqlVdbeHalt) is handled by the
-    caller (sql_step) after CnP returns.  For M1, we just return the
-    terminal status code.
-    """
-    return """\
-int64_t __attribute__((noinline))
-cnp_OP_Halt(struct Vdbe *p, Mem *aMem)
-{
-    (void)p; (void)aMem;
-    return (int64_t)LOAD_HOLE(HOLE_BRANCH);
-}"""
 
 
 def emit_goto_stub():
@@ -182,30 +181,36 @@ def generate(yaml_path, output_path):
     with open(output_path, "w") as out:
         out.write(HEADER)
 
-        out.write("/* --- OP_Goto (control_flow) --- */\n")
+        out.write("/* --- OP_Goto (control_flow: unconditional jump) --- */\n")
         out.write(emit_goto_stub())
         out.write("\n\n")
 
-        out.write("/* --- OP_Halt (control_flow) --- */\n")
-        out.write(emit_halt_stub())
+        out.write("/* --- OP_Init (external, jump to P2 on success) --- */\n")
+        out.write(emit_external_handler("OP_Init", "vdbe_cnp_init_handler",
+                                         "jump"))
+        out.write("\n\n")
+
+        out.write("/* --- OP_Halt (external, jump branch returns SQL_DONE) --- */\n")
+        out.write(emit_external_handler("OP_Halt", "vdbe_cnp_halt_handler",
+                                         "jump"))
         out.write("\n\n")
 
         out.write("/* --- OP_Integer (external, no branch) --- */\n")
         out.write(emit_external_handler("OP_Integer", "vdbe_op_integer",
-                                         False))
+                                         "none"))
         out.write("\n\n")
 
         out.write("/* --- OP_Add (external, no branch) --- */\n")
-        out.write(emit_external_handler("OP_Add", "vdbe_op_add", False))
+        out.write(emit_external_handler("OP_Add", "vdbe_op_add", "none"))
         out.write("\n\n")
 
         out.write("/* --- OP_Copy (external, no branch) --- */\n")
-        out.write(emit_external_handler("OP_Copy", "vdbe_op_copy", False))
+        out.write(emit_external_handler("OP_Copy", "vdbe_op_copy", "none"))
         out.write("\n\n")
 
-        out.write("/* --- OP_ResultRow (external, suspend on rc=1) --- */\n")
+        out.write("/* --- OP_ResultRow (external, signal row then continue) --- */\n")
         out.write(emit_external_handler("OP_ResultRow",
-                                         "vdbe_op_resultrow", True))
+                                         "vdbe_op_resultrow", "row"))
         out.write("\n")
 
     print(f"Generated {output_path} with {len(M1_OPCODES)} stencil stubs")
