@@ -57,8 +57,60 @@ _Static_assert(offsetof(struct Vdbe, iCompare) ==
 #define CNP_R_X86_64_32 10
 #endif
 
-/* Execution counter exposed via box.stat.sql() */
+/* Counters exposed via box.stat.sql() */
+extern int64_t sql_cnp_compile_count;
+extern int64_t sql_cnp_compile_success_count;
 extern int64_t sql_cnp_exec_count;
+extern int64_t sql_cnp_step_count;
+
+/*
+ * Code arena: one large RWX mmap shared across all CnP compilations.
+ * Eliminates per-compile mmap+mprotect syscalls (~5 µs overhead each).
+ *
+ * Ring-buffer reset: when the bump pointer reaches the end, it wraps to
+ * the beginning.  This is safe as long as no live stencil allocation spans
+ * a wrap.  In practice, VDBE programs are prepared, executed, and released
+ * before any wrap occurs.
+ */
+#define CNP_ARENA_SIZE (8 * 1024 * 1024)  /* 8 MB */
+
+struct cnp_arena {
+	uint8_t *base;
+	size_t   size;
+	size_t   pos;
+};
+
+static struct cnp_arena g_cnp_arena = {NULL, 0, 0};
+
+static uint8_t *
+cnp_arena_alloc(size_t nbytes)
+{
+	/* Align to 16 bytes so stencils start on a cache-line boundary. */
+	nbytes = (nbytes + 15) & ~(size_t)15;
+
+	if (g_cnp_arena.base == NULL) {
+		g_cnp_arena.base =
+			(uint8_t *)mmap(NULL, CNP_ARENA_SIZE,
+					PROT_READ | PROT_WRITE | PROT_EXEC,
+					MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		if (g_cnp_arena.base == MAP_FAILED) {
+			g_cnp_arena.base = NULL;
+			return NULL;
+		}
+		g_cnp_arena.size = CNP_ARENA_SIZE;
+		g_cnp_arena.pos = 0;
+	}
+
+	if (nbytes > g_cnp_arena.size)
+		return NULL;
+
+	if (g_cnp_arena.pos + nbytes > g_cnp_arena.size)
+		g_cnp_arena.pos = 0;  /* wrap */
+
+	uint8_t *ptr = g_cnp_arena.base + g_cnp_arena.pos;
+	g_cnp_arena.pos += nbytes;
+	return ptr;
+}
 
 /*
  * Stencil function type.  Each stencil returns the address of the
@@ -503,46 +555,74 @@ vdbe_cnp_compile(struct Vdbe *p)
 	if (p->cnp_compiled)
 		return 0;
 
+	sql_cnp_compile_count++;
+
 	int nOp = p->nOp;
 	Op *aOp = p->aOp;
 
 	/*
- * Phase 1: Check that every opcode has a stencil.
+ * Phase 1+3 (merged): single pass over opcodes to:
+ *   a) verify every opcode has a stencil,
+ *   b) compute total code buffer size,
+ *   c) detect coroutine opcodes (Gosub/Return/Yield/InitCoroutine/EndCoroutine)
+ *      which are the only callers of the pc_stencil lookup table.
+ *
+ * pc_offset is a temporary array used only during compile to resolve
+ * branch targets.  Allocate from the stack for small programs (covers
+ * the vast majority of real queries) and fall back to heap for large.
  */
+#define CNP_STACK_OP_LIMIT 128
+	uint32_t pc_offset_stack[CNP_STACK_OP_LIMIT + 1];
+	uint32_t *pc_offset;
+	int pc_offset_heap = 0;
+
 	uint32_t total_size = 0;
+	int needs_pc_stencil = 0;
 	for (int i = 0; i < nOp; i++) {
 		int opcode = aOp[i].opcode;
 		if (opcode > CNP_MAX_OPCODE ||
-		    cnp_stencils[opcode].bytes == NULL) {
+		    cnp_stencils[opcode].bytes == NULL)
+			return -1;
+		total_size += cnp_stencils[opcode].size;
+		if (opcode == OP_Gosub || opcode == OP_Return ||
+		    opcode == OP_Yield || opcode == OP_InitCoroutine ||
+		    opcode == OP_EndCoroutine)
+			needs_pc_stencil = 1;
+	}
+
+	if (nOp + 1 <= CNP_STACK_OP_LIMIT + 1) {
+		pc_offset = pc_offset_stack;
+		memset(pc_offset, 0, (nOp + 1) * sizeof(uint32_t));
+	} else {
+		pc_offset = (uint32_t *)calloc(nOp + 1, sizeof(uint32_t));
+		if (pc_offset == NULL)
+			return -1;
+		pc_offset_heap = 1;
+	}
+
+	/*
+ * Phase 2: Allocate code buffer from the shared RWX arena.
+ * This avoids a per-compile mmap+mprotect pair (~5 µs overhead).
+ */
+	uint8_t *code = cnp_arena_alloc(total_size);
+	if (code == NULL) {
+		if (pc_offset_heap)
+			free(pc_offset);
+		return -1;
+	}
+
+	/*
+ * Phase 3: Copy stencils, build pc-to-offset map, and (only when
+ * coroutine opcodes are present) populate pc_stencil lookup table.
+ */
+	void **pc_stencil = NULL;
+	if (needs_pc_stencil) {
+		pc_stencil = (void **)calloc(nOp, sizeof(void *));
+		if (pc_stencil == NULL) {
+			if (pc_offset_heap)
+				free(pc_offset);
 			return -1;
 		}
-		total_size += cnp_stencils[opcode].size;
-	}
-
-	/*
- * Phase 2: Allocate RW buffer.
- */
-	uint8_t *code =
-		(uint8_t *)mmap(NULL, total_size, PROT_READ | PROT_WRITE,
-				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-	if (code == MAP_FAILED)
-		return -1;
-
-	/*
- * Phase 3: Copy stencils, build pc-to-offset map, and populate
- * the PC-stencil lookup array used by the coroutine exec path.
- */
-	uint32_t *pc_offset = (uint32_t *)calloc(nOp + 1, sizeof(uint32_t));
-	if (pc_offset == NULL) {
-		munmap(code, total_size);
-		return -1;
-	}
-
-	void **pc_stencil = (void **)calloc(nOp, sizeof(void *));
-	if (pc_stencil == NULL) {
-		free(pc_offset);
-		munmap(code, total_size);
-		return -1;
 	}
 
 	uint32_t pos = 0;
@@ -554,8 +634,10 @@ vdbe_cnp_compile(struct Vdbe *p)
 	}
 	pc_offset[nOp] = pos;
 
-	for (int i = 0; i < nOp; i++)
-		pc_stencil[i] = code + pc_offset[i];
+	if (needs_pc_stencil) {
+		for (int i = 0; i < nOp; i++)
+			pc_stencil[i] = code + pc_offset[i];
+	}
 
 	/*
  * Phase 4: Patch holes.
@@ -659,16 +741,13 @@ vdbe_cnp_compile(struct Vdbe *p)
 		}
 	}
 
-	free(pc_offset);
+	if (pc_offset_heap)
+		free(pc_offset);
 
 	/*
- * Phase 5: Make executable.
+ * Phase 5: Flush instruction cache (no-op on x86_64; required on ARM).
+ * No mprotect needed — the arena is already RWX.
  */
-	if (mprotect(code, total_size, PROT_READ | PROT_EXEC) != 0) {
-		free(pc_stencil);
-		munmap(code, total_size);
-		return -1;
-	}
 	__builtin___clear_cache((char *)code, (char *)(code + total_size));
 
 	p->cnp_code = code;
@@ -676,6 +755,7 @@ vdbe_cnp_compile(struct Vdbe *p)
 	p->cnp_compiled = 1;
 	p->cnp_pc_stencil = pc_stencil;
 	p->cnp_nop = nOp;
+	sql_cnp_compile_success_count++;
 	return 0;
 }
 
@@ -702,6 +782,7 @@ vdbe_cnp_exec(struct Vdbe *p)
 	int64_t result;
 	for (;;) {
 		result = func(p, p->aMem);
+		sql_cnp_step_count++;
 
 		if (result >= (int64_t)CNP_ADDR_THRESHOLD) {
 			/* Normal: result is the address of the next stencil. */
@@ -738,7 +819,11 @@ void
 vdbe_cnp_release(struct Vdbe *p)
 {
 	if (p->cnp_code != NULL) {
-		munmap(p->cnp_code, p->cnp_size);
+		/*
+		 * Code lives in the shared arena — do not munmap it.
+		 * The arena bump pointer advances past it; the memory
+		 * will be reclaimed when the arena wraps.
+		 */
 		p->cnp_code = NULL;
 		p->cnp_size = 0;
 		p->cnp_compiled = 0;
