@@ -10,11 +10,16 @@
  * The runtime loops calling stencils until a return value falls below a
  * threshold (indicating a terminal status code rather than an address).
  *
- * Resume model (M2): OP_ResultRow calls cnp_signal_row() via HOLE_SIGNAL
+ * Resume model: OP_ResultRow calls cnp_signal_row() via HOLE_SIGNAL
  * to set p->cnp_row_ready.  The exec loop detects this flag, saves the
  * next stencil address in p->cnp_resume_func, and returns SQL_ROW to the
  * caller.  On the next call to vdbe_cnp_exec(), execution resumes from
  * p->cnp_resume_func.
+ *
+ * Coroutine model: coroutine stencils (Gosub/Return/Yield/InitCoroutine/
+ * EndCoroutine) return (target_pc + CNP_PC_JUMP_BASE) instead of a stencil
+ * address.  The exec loop uses p->cnp_pc_stencil[] to look up the target
+ * stencil by PC index.
  */
 
 #include <stdlib.h>
@@ -28,8 +33,20 @@
 #include "vdbe.h"
 #include "vdbe_cnp.h"
 #include "vdbe_ops.h"
+#include "box/error.h"
+#include "vdbe_cnp_vdbe_view.h"
 
 #ifdef ENABLE_SQL_CNP
+
+/*
+ * Verify that CnpVdbeView field offsets match the real Vdbe layout.
+ * These assertions catch any accidental struct reordering.
+ */
+_Static_assert(offsetof(struct Vdbe, pc) == offsetof(struct CnpVdbeView, pc),
+	       "CnpVdbeView.pc offset mismatch");
+_Static_assert(offsetof(struct Vdbe, iCompare) ==
+		       offsetof(struct CnpVdbeView, iCompare),
+	       "CnpVdbeView.iCompare offset mismatch");
 #include "generated/vdbe_cnp_stencils.h"
 
 /*
@@ -45,15 +62,22 @@ extern int64_t sql_cnp_exec_count;
 
 /*
  * Stencil function type.  Each stencil returns the address of the
- * next stencil to execute, or a terminal status code.
+ * next stencil to execute, or a terminal/coroutine status code.
  */
 typedef int64_t (*cnp_stencil_func_t)(struct Vdbe *p, Mem *aMem);
 
 /*
- * Threshold: return values below this are status codes, not addresses.
- * Any valid mmap'd address will be well above this.
+ * Threshold: return values below this are status/PC codes, not addresses.
+ * Any valid mmap'd address will be well above this value.
  */
-#define CNP_ADDR_THRESHOLD  4096
+#define CNP_ADDR_THRESHOLD 4096
+
+/*
+ * Base added to coroutine target PCs in stencil return values.
+ * Values 0 (error), 1 (SQL_ROW), 2 (SQL_DONE) are terminal codes.
+ * Values CNP_PC_JUMP_BASE .. CNP_ADDR_THRESHOLD-1 encode PC jumps.
+ */
+#define CNP_PC_JUMP_BASE 3
 
 /*
  * Signal function called by the OP_ResultRow stencil via HOLE_SIGNAL.
@@ -67,7 +91,7 @@ cnp_signal_row(struct Vdbe *p)
 
 /*
  * OP_Init handler: set up the transaction, increment the OP_Once counter,
- * and return 1 (jump to P2).  Mirrors sql_vdbe_exec_init_for_jit() in vdbe.c.
+ * and return 1 (jump to P2).  Mirrors sql_vdbe_exec_init_for_jit().
  */
 static int
 vdbe_cnp_init_handler(struct Vdbe *p, struct VdbeOp *pOp, struct Mem *aMem)
@@ -90,9 +114,6 @@ vdbe_cnp_init_handler(struct Vdbe *p, struct VdbeOp *pOp, struct Mem *aMem)
 /*
  * OP_Halt handler: commit/roll back the transaction via sqlVdbeHalt(),
  * then return 1 on success or -1 if the statement was aborted.
- *
- * sqlVdbeHalt() requires p->pc >= 0 to run cleanup.  The OP_Init handler
- * already set p->pc = P2 (>= 1), so the guard is satisfied.
  */
 static int
 vdbe_cnp_halt_handler(struct Vdbe *p, struct VdbeOp *pOp, struct Mem *aMem)
@@ -106,19 +127,338 @@ vdbe_cnp_halt_handler(struct Vdbe *p, struct VdbeOp *pOp, struct Mem *aMem)
 }
 
 /*
- * Resolve the external handler address for opcodes that use HOLE_HANDLER.
+ * OP_SetDiag handler: set the diagnostic error and return 1 if P2 != 0
+ * (jump to P2), or 0 (fall through).
+ */
+static int
+vdbe_cnp_setdiag_handler(struct Vdbe *p, struct VdbeOp *pOp, struct Mem *aMem)
+{
+	(void)p;
+	(void)aMem;
+	box_error_set(__FILE__, __LINE__, (uint32_t)pOp->p1, pOp->p4.z);
+	return pOp->p2 != 0 ? 1 : 0;
+}
+
+/*
+ * OP_TTransaction handler: start a Tarantool transaction if none is
+ * active; otherwise create an anonymous savepoint.
+ */
+static int
+vdbe_cnp_ttransaction_handler(struct Vdbe *p, struct VdbeOp *pOp,
+			      struct Mem *aMem)
+{
+	(void)pOp;
+	(void)aMem;
+	if (!box_txn()) {
+		if (txn_begin() == NULL)
+			return -1;
+	} else {
+		p->anonymous_savepoint = txn_savepoint_new(in_txn(), NULL);
+		if (p->anonymous_savepoint == NULL)
+			return -1;
+	}
+	return 0;
+}
+
+/*
+ * Return the C handler function address for HOLE_HANDLER patching.
+ * Covers all 139 opcodes that have a HOLE_HANDLER hole (excludes
+ * OP_Goto, OP_Jump which have no handler call, and OP_Program which
+ * has no stencil).
  */
 static uintptr_t
-cnp_resolve_call_by_opcode(int opcode)
+cnp_resolve_handler_by_opcode(int opcode)
 {
 	switch (opcode) {
-	case OP_Add:       return (uintptr_t)vdbe_op_add;
-	case OP_Integer:   return (uintptr_t)vdbe_op_integer;
-	case OP_Copy:      return (uintptr_t)vdbe_op_copy;
-	case OP_ResultRow: return (uintptr_t)vdbe_op_resultrow;
-	case OP_Init:      return (uintptr_t)vdbe_cnp_init_handler;
-	case OP_Halt:      return (uintptr_t)vdbe_cnp_halt_handler;
-	default:           return 0;
+	case OP_Concat:
+		return (uintptr_t)vdbe_op_concat;
+	case OP_Cast:
+		return (uintptr_t)vdbe_op_cast;
+	case OP_ApplyType:
+		return (uintptr_t)vdbe_op_applytype;
+	case OP_MakeRecord:
+		return (uintptr_t)vdbe_op_makerecord;
+	case OP_AggStep:
+		return (uintptr_t)vdbe_op_aggstep;
+	case OP_AggFinal:
+		return (uintptr_t)vdbe_op_aggfinal;
+	case OP_ResultRow:
+		return (uintptr_t)vdbe_op_resultrow;
+	case OP_Column:
+		return (uintptr_t)vdbe_op_column;
+	case OP_RowData:
+		return (uintptr_t)vdbe_op_rowdata;
+	case OP_Rewind:
+		return (uintptr_t)vdbe_op_rewind;
+	case OP_Last:
+		return (uintptr_t)vdbe_op_last;
+	/*
+ * OP_Next/Prev/SorterNext: the raw handlers return 0=more rows
+ * (jump to P2) and 1=exhausted (fall through). The dispatch
+ * wrapper branches on rc==0, but the CnP jump stencil branches
+ * on rc>0.  Use the _jit variants which invert the return value
+ * and also maintain cacheStatus/nullRow (normally set by the
+ * wrapper post-call).
+ */
+	case OP_Next:
+		return (uintptr_t)vdbe_op_next_jit;
+	case OP_NextIfOpen:
+		return (uintptr_t)vdbe_op_nextifopen_jit;
+	case OP_Prev:
+		return (uintptr_t)vdbe_op_prev_jit;
+	case OP_PrevIfOpen:
+		return (uintptr_t)vdbe_op_previfopen_jit;
+	case OP_SeekLE:
+		return (uintptr_t)vdbe_op_seek_le_ge;
+	case OP_SeekGT:
+		return (uintptr_t)vdbe_op_seek_lt_gt;
+	case OP_SeekGE:
+		return (uintptr_t)vdbe_op_seek_le_ge;
+	case OP_SeekLT:
+		return (uintptr_t)vdbe_op_seek_lt_gt;
+	case OP_IdxGE:
+		return (uintptr_t)vdbe_op_idx_compare;
+	case OP_IdxGT:
+		return (uintptr_t)vdbe_op_idx_compare;
+	case OP_IdxLE:
+		return (uintptr_t)vdbe_op_idx_compare;
+	case OP_IdxLT:
+		return (uintptr_t)vdbe_op_idx_compare;
+	case OP_Found:
+		return (uintptr_t)vdbe_op_found_notfound_noconflict;
+	case OP_NotFound:
+		return (uintptr_t)vdbe_op_found_notfound_noconflict;
+	case OP_NoConflict:
+		return (uintptr_t)vdbe_op_found_notfound_noconflict;
+	case OP_IdxInsert:
+		return (uintptr_t)vdbe_op_idx_insert_replace;
+	case OP_IdxReplace:
+		return (uintptr_t)vdbe_op_idx_insert_replace;
+	case OP_Delete:
+		return (uintptr_t)vdbe_op_delete;
+	case OP_Update:
+		return (uintptr_t)vdbe_op_update;
+	case OP_SInsert:
+		return (uintptr_t)vdbe_op_sinsert;
+	case OP_SDelete:
+		return (uintptr_t)vdbe_op_sdelete;
+	case OP_IdxDelete:
+		return (uintptr_t)vdbe_op_idxdelete;
+	case OP_Add:
+		return (uintptr_t)vdbe_op_add;
+	case OP_Subtract:
+		return (uintptr_t)vdbe_op_sub;
+	case OP_Multiply:
+		return (uintptr_t)vdbe_op_multiply;
+	case OP_Divide:
+		return (uintptr_t)vdbe_op_divide;
+	case OP_Remainder:
+		return (uintptr_t)vdbe_op_remainder;
+	case OP_Eq:
+		return (uintptr_t)vdbe_op_eq;
+	case OP_Ne:
+		return (uintptr_t)vdbe_op_ne;
+	case OP_Lt:
+		return (uintptr_t)vdbe_op_lt;
+	case OP_Le:
+		return (uintptr_t)vdbe_op_le;
+	case OP_Gt:
+		return (uintptr_t)vdbe_op_gt;
+	case OP_Ge:
+		return (uintptr_t)vdbe_op_ge;
+	case OP_And:
+		return (uintptr_t)vdbe_op_and;
+	case OP_Or:
+		return (uintptr_t)vdbe_op_or;
+	case OP_Not:
+		return (uintptr_t)vdbe_op_not;
+	case OP_BitAnd:
+		return (uintptr_t)vdbe_op_bitand;
+	case OP_BitOr:
+		return (uintptr_t)vdbe_op_bitor;
+	case OP_BitNot:
+		return (uintptr_t)vdbe_op_bitnot;
+	case OP_Integer:
+		return (uintptr_t)vdbe_op_integer;
+	case OP_Bool:
+		return (uintptr_t)vdbe_op_bool;
+	case OP_Int64:
+		return (uintptr_t)vdbe_op_int64;
+	case OP_Real:
+		return (uintptr_t)vdbe_op_real;
+	case OP_String:
+		return (uintptr_t)vdbe_op_string;
+	case OP_Null:
+		return (uintptr_t)vdbe_op_null;
+	case OP_Blob:
+		return (uintptr_t)vdbe_op_blob;
+	case OP_Variable:
+		return (uintptr_t)vdbe_op_variable;
+	case OP_Move:
+		return (uintptr_t)vdbe_op_move;
+	case OP_Copy:
+		return (uintptr_t)vdbe_op_copy;
+	case OP_SCopy:
+		return (uintptr_t)vdbe_op_scopy;
+	case OP_If:
+		return (uintptr_t)vdbe_op_ifnot_inline;
+	case OP_IfNot:
+		return (uintptr_t)vdbe_op_ifnot_inline;
+	case OP_Once:
+		return (uintptr_t)vdbe_op_once_inline;
+	case OP_Gosub:
+		return (uintptr_t)vdbe_op_gosub_jit;
+	case OP_Return:
+		return (uintptr_t)vdbe_op_return_jit;
+	case OP_InitCoroutine:
+		return (uintptr_t)vdbe_op_initcoroutine_jit;
+	case OP_Yield:
+		return (uintptr_t)vdbe_op_yield_jit;
+	case OP_EndCoroutine:
+		return (uintptr_t)vdbe_op_endcoroutine_jit;
+	case OP_ElseNotEq:
+		return (uintptr_t)vdbe_op_elsenoteq_inline;
+	case OP_MustBeInt:
+		return (uintptr_t)vdbe_op_mustbeint;
+	case OP_IfPos:
+		return (uintptr_t)vdbe_op_ifpos_inline;
+	case OP_IfNotZero:
+		return (uintptr_t)vdbe_op_ifnotzero_inline;
+	case OP_DecrJumpZero:
+		return (uintptr_t)vdbe_op_decrjumpzero_inline;
+	case OP_SetDiag:
+		return (uintptr_t)vdbe_cnp_setdiag_handler;
+	case OP_Halt:
+		return (uintptr_t)vdbe_cnp_halt_handler;
+	case OP_Init:
+		return (uintptr_t)vdbe_cnp_init_handler;
+	case OP_Savepoint:
+		return (uintptr_t)vdbe_op_savepoint_inline;
+	/* SorterNext same inverted semantics as OP_Next - use jit variant */
+	case OP_SorterNext:
+		return (uintptr_t)vdbe_op_sorternext_jit;
+	case OP_String8:
+		return (uintptr_t)vdbe_op_string8;
+	case OP_SkipLoad:
+		return (uintptr_t)vdbe_op_skipload_inline;
+	case OP_BuiltinFunction:
+		return (uintptr_t)vdbe_op_builtinfunction;
+	case OP_FunctionByName:
+		return (uintptr_t)vdbe_op_functionbyname;
+	case OP_AddImm:
+		return (uintptr_t)vdbe_op_addimm_inline;
+	case OP_Array:
+		return (uintptr_t)vdbe_op_array_inline;
+	case OP_Map:
+		return (uintptr_t)vdbe_op_map_inline;
+	case OP_Getitem:
+		return (uintptr_t)vdbe_op_getitem_inline;
+	case OP_Permutation:
+		return (uintptr_t)vdbe_op_permutation_inline;
+	case OP_Compare:
+		return (uintptr_t)vdbe_op_compare;
+	case OP_FetchByName:
+		return (uintptr_t)vdbe_op_fetchbyname_inline;
+	case OP_Fetch:
+		return (uintptr_t)vdbe_op_fetch_inline;
+	case OP_Count:
+		return (uintptr_t)vdbe_op_count_inline;
+	case OP_CreateForeignKey:
+		return (uintptr_t)vdbe_op_createforeignkey_inline;
+	case OP_CreateCheck:
+		return (uintptr_t)vdbe_op_createcheck_inline;
+	case OP_DropTupleForeignKey:
+		return (uintptr_t)vdbe_op_droptupleforeignkey_inline;
+	case OP_DropTupleCheck:
+		return (uintptr_t)vdbe_op_droptuplecheckundidocheck_inline;
+	case OP_DropFieldForeignKey:
+		return (uintptr_t)vdbe_op_dropfieldforeignkey_inline;
+	case OP_DropFieldCheck:
+		return (uintptr_t)vdbe_op_dropfieldcheck_inline;
+	case OP_AddFuncDefault:
+		return (uintptr_t)vdbe_op_addfuncdefault_inline;
+	case OP_CheckViewReferences:
+		return (uintptr_t)vdbe_op_checkviewreferences_inline;
+	case OP_TransactionBegin:
+		return (uintptr_t)vdbe_op_transactionbegin_inline;
+	case OP_TransactionCommit:
+		return (uintptr_t)vdbe_op_transactioncommit_inline;
+	case OP_TransactionRollback:
+		return (uintptr_t)vdbe_op_transactionrollback_inline;
+	case OP_TTransaction:
+		return (uintptr_t)vdbe_cnp_ttransaction_handler;
+	case OP_IteratorOpen:
+		return (uintptr_t)vdbe_op_iteratoropen;
+	case OP_OpenSpace:
+		return (uintptr_t)vdbe_op_openspace_inline;
+	case OP_OpenTEphemeral:
+		return (uintptr_t)vdbe_op_opentephemeral_inline;
+	case OP_SorterOpen:
+		return (uintptr_t)vdbe_op_sorteropen;
+	case OP_SequenceTest:
+		return (uintptr_t)vdbe_op_sequencetest_inline;
+	case OP_OpenPseudo:
+		return (uintptr_t)vdbe_op_openpseudo_inline;
+	case OP_Close:
+		return (uintptr_t)vdbe_op_close_inline;
+	case OP_Sequence:
+		return (uintptr_t)vdbe_op_sequence_inline;
+	case OP_NextSystemSpaceId:
+		return (uintptr_t)vdbe_op_nextsystemspaceid_inline;
+	case OP_NextIdEphemeral:
+		return (uintptr_t)vdbe_op_nextidephemeral_inline;
+	case OP_FCopy:
+		return (uintptr_t)vdbe_op_fcopy_inline;
+	case OP_ResetCount:
+		return (uintptr_t)vdbe_op_resetcount_inline;
+	case OP_SorterCompare:
+		return (uintptr_t)vdbe_op_sortercompare;
+	case OP_SorterData:
+		return (uintptr_t)vdbe_op_sorterdata;
+	case OP_NullRow:
+		return (uintptr_t)vdbe_op_nullrow_inline;
+	case OP_SorterInsert:
+		return (uintptr_t)vdbe_op_sorterinsert;
+	case OP_Clear:
+		return (uintptr_t)vdbe_op_clear_inline;
+	case OP_ResetSorter:
+		return (uintptr_t)vdbe_op_resetsorter_inline;
+	case OP_RenameTable:
+		return (uintptr_t)vdbe_op_renametable_inline;
+	case OP_LoadAnalysis:
+		return (uintptr_t)vdbe_op_loadanalysis_inline;
+	case OP_Param:
+		return (uintptr_t)vdbe_op_param_inline;
+	case OP_OffsetLimit:
+		return (uintptr_t)vdbe_op_offsetlimit;
+	case OP_Expire:
+		return (uintptr_t)vdbe_op_expire_inline;
+	case OP_GenSpaceid:
+		return (uintptr_t)vdbe_op_genspaceid_inline;
+	case OP_SetSession:
+		return (uintptr_t)vdbe_op_setsession;
+	case OP_ShowCreateTable:
+		return (uintptr_t)vdbe_op_showcreatettable_inline;
+	case OP_Noop:
+		return (uintptr_t)vdbe_op_noop_inline;
+	case OP_Explain:
+		return (uintptr_t)vdbe_op_explain_inline;
+	case OP_IsNull:
+		return (uintptr_t)vdbe_op_isnull_inline;
+	case OP_NotNull:
+		return (uintptr_t)vdbe_op_notnull_inline;
+	case OP_Decimal:
+		return (uintptr_t)vdbe_op_decimal_inline;
+	case OP_Sort:
+		return (uintptr_t)vdbe_op_sort_inline;
+	case OP_SorterSort:
+		return (uintptr_t)vdbe_op_sortersort;
+	case OP_ShiftLeft:
+		return (uintptr_t)vdbe_op_shiftleft_inline;
+	case OP_ShiftRight:
+		return (uintptr_t)vdbe_op_shiftright_inline;
+	default:
+		return 0;
 	}
 }
 
@@ -126,40 +466,33 @@ cnp_resolve_call_by_opcode(int opcode)
  * Apply a single relocation patch to the code buffer.
  */
 static void
-cnp_patch(uint8_t *patch_addr, uintptr_t target,
-	  uint8_t reloc_type, int addend)
+cnp_patch(uint8_t *patch_addr, uintptr_t target, uint8_t reloc_type, int addend)
 {
 	switch (reloc_type) {
 	case CNP_R_X86_64_64: {
-		/* Absolute 64-bit (movabs immediate) */
 		uint64_t val = (uint64_t)target + addend;
 		memcpy(patch_addr, &val, 8);
 		break;
 	}
 	case CNP_R_X86_64_PC32:
 	case CNP_R_X86_64_PLT32: {
-		/* PC-relative 32-bit: S + A - P */
 		uintptr_t P = (uintptr_t)patch_addr;
-		int32_t val = (int32_t)((int64_t)target +
-					addend - (int64_t)P);
+		int32_t val = (int32_t)((int64_t)target + addend - (int64_t)P);
 		memcpy(patch_addr, &val, 4);
 		break;
 	}
 	case CNP_R_X86_64_32: {
-		/* Unsigned 32-bit absolute */
 		uint32_t val = (uint32_t)((uint64_t)target + addend);
 		memcpy(patch_addr, &val, 4);
 		break;
 	}
 	case CNP_R_X86_64_32S: {
-		/* Signed 32-bit absolute */
 		int32_t val = (int32_t)((int64_t)target + addend);
 		memcpy(patch_addr, &val, 4);
 		break;
 	}
 	default:
-		fprintf(stderr, "cnp: unsupported reloc type %d\n",
-			reloc_type);
+		fprintf(stderr, "cnp: unsupported reloc type %d\n", reloc_type);
 		break;
 	}
 }
@@ -174,8 +507,8 @@ vdbe_cnp_compile(struct Vdbe *p)
 	Op *aOp = p->aOp;
 
 	/*
-	 * Phase 1: Check that every opcode has a stencil.
-	 */
+ * Phase 1: Check that every opcode has a stencil.
+ */
 	uint32_t total_size = 0;
 	for (int i = 0; i < nOp; i++) {
 		int opcode = aOp[i].opcode;
@@ -187,21 +520,27 @@ vdbe_cnp_compile(struct Vdbe *p)
 	}
 
 	/*
-	 * Phase 2: Allocate RW buffer.
-	 */
-	uint8_t *code = (uint8_t *)mmap(NULL, total_size,
-					 PROT_READ | PROT_WRITE,
-					 MAP_PRIVATE | MAP_ANONYMOUS,
-					 -1, 0);
+ * Phase 2: Allocate RW buffer.
+ */
+	uint8_t *code =
+		(uint8_t *)mmap(NULL, total_size, PROT_READ | PROT_WRITE,
+				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (code == MAP_FAILED)
 		return -1;
 
 	/*
-	 * Phase 3: Copy stencils and build pc-to-offset map.
-	 */
-	uint32_t *pc_offset = (uint32_t *)calloc(nOp + 1,
-						  sizeof(uint32_t));
+ * Phase 3: Copy stencils, build pc-to-offset map, and populate
+ * the PC-stencil lookup array used by the coroutine exec path.
+ */
+	uint32_t *pc_offset = (uint32_t *)calloc(nOp + 1, sizeof(uint32_t));
 	if (pc_offset == NULL) {
+		munmap(code, total_size);
+		return -1;
+	}
+
+	void **pc_stencil = (void **)calloc(nOp, sizeof(void *));
+	if (pc_stencil == NULL) {
+		free(pc_offset);
 		munmap(code, total_size);
 		return -1;
 	}
@@ -209,26 +548,31 @@ vdbe_cnp_compile(struct Vdbe *p)
 	uint32_t pos = 0;
 	for (int i = 0; i < nOp; i++) {
 		pc_offset[i] = pos;
-		const struct cnp_stencil *st =
-			&cnp_stencils[aOp[i].opcode];
+		const struct cnp_stencil *st = &cnp_stencils[aOp[i].opcode];
 		memcpy(code + pos, st->bytes, st->size);
 		pos += st->size;
 	}
 	pc_offset[nOp] = pos;
 
+	for (int i = 0; i < nOp; i++)
+		pc_stencil[i] = code + pc_offset[i];
+
 	/*
-	 * Phase 4: Patch holes.
-	 *
-	 * HOLE_NEXT   — address of next stencil (or SQL_DONE at end of program)
-	 * HOLE_BRANCH — jump target address, or SQL_DONE for OP_Halt
-	 * HOLE_SIGNAL — address of cnp_signal_row (called by OP_ResultRow)
-	 * HOLE_HANDLER — address of the opcode's C handler function
-	 * HOLE_ERROR_EXIT — SQL error code (-1)
-	 * HOLE_P1..P5 — operand values
-	 */
+ * Phase 4: Patch holes.
+ *
+ * HOLE_OP        — pointer to real VdbeOp (replaces CnpOp)
+ * HOLE_CPC       — current PC integer value (for coroutine ops)
+ * HOLE_NEXT      — address of the next stencil (or SQL_DONE)
+ * HOLE_BRANCH    — jump target (P2), or SQL_DONE for OP_Halt
+ * HOLE_BRANCH_P1 — OP_Jump branch to stencil at P1
+ * HOLE_BRANCH_P3 — OP_Jump branch to stencil at P3
+ * HOLE_SKIP2     — address of stencil at i+2 (SeekGE/SeekLE)
+ * HOLE_SIGNAL    — address of cnp_signal_row (OP_ResultRow)
+ * HOLE_HANDLER   — address of opcode's C handler function
+ * HOLE_ERROR_EXIT — SQL error code (-1 cast to uintptr_t)
+ */
 	for (int i = 0; i < nOp; i++) {
-		const struct cnp_stencil *st =
-			&cnp_stencils[aOp[i].opcode];
+		const struct cnp_stencil *st = &cnp_stencils[aOp[i].opcode];
 		uint32_t base = pc_offset[i];
 
 		for (uint32_t h = 0; h < st->num_holes; h++) {
@@ -246,33 +590,61 @@ vdbe_cnp_compile(struct Vdbe *p)
 			case CNP_HOLE_P3:
 				target = (uintptr_t)aOp[i].p3;
 				break;
+			case CNP_HOLE_P4:
+				target = 0;
+				break;
 			case CNP_HOLE_P5:
 				target = (uintptr_t)aOp[i].p5;
+				break;
+			case CNP_HOLE_OP:
+				target = (uintptr_t)&aOp[i];
+				break;
+			case CNP_HOLE_CPC:
+				target = (uintptr_t)(uintptr_t)i;
 				break;
 			case CNP_HOLE_NEXT:
 				if (i + 1 < nOp)
 					target = (uintptr_t)(code +
-						pc_offset[i + 1]);
+							     pc_offset[i + 1]);
 				else
 					target = (uintptr_t)SQL_DONE;
 				break;
 			case CNP_HOLE_BRANCH:
 				if (aOp[i].opcode == OP_Halt) {
-					/* OP_Halt: rc>0 means done */
 					target = (uintptr_t)SQL_DONE;
-				} else if (aOp[i].p2 >= 0 &&
-					   aOp[i].p2 < nOp) {
-					target = (uintptr_t)(code +
-						pc_offset[aOp[i].p2]);
+				} else if (aOp[i].p2 >= 0 && aOp[i].p2 < nOp) {
+					target = (uintptr_t)(
+						code + pc_offset[aOp[i].p2]);
 				} else {
 					target = (uintptr_t)SQL_DONE;
 				}
+				break;
+			case CNP_HOLE_BRANCH_P1:
+				if (aOp[i].p1 >= 0 && aOp[i].p1 < nOp)
+					target = (uintptr_t)(
+						code + pc_offset[aOp[i].p1]);
+				else
+					target = (uintptr_t)SQL_DONE;
+				break;
+			case CNP_HOLE_BRANCH_P3:
+				if (aOp[i].p3 >= 0 && aOp[i].p3 < nOp)
+					target = (uintptr_t)(
+						code + pc_offset[aOp[i].p3]);
+				else
+					target = (uintptr_t)SQL_DONE;
+				break;
+			case CNP_HOLE_SKIP2:
+				if (i + 2 < nOp)
+					target = (uintptr_t)(code +
+							     pc_offset[i + 2]);
+				else
+					target = (uintptr_t)SQL_DONE;
 				break;
 			case CNP_HOLE_SIGNAL:
 				target = (uintptr_t)cnp_signal_row;
 				break;
 			case CNP_HOLE_HANDLER:
-				target = cnp_resolve_call_by_opcode(
+				target = cnp_resolve_handler_by_opcode(
 					aOp[i].opcode);
 				break;
 			case CNP_HOLE_ERROR_EXIT:
@@ -282,26 +654,28 @@ vdbe_cnp_compile(struct Vdbe *p)
 				break;
 			}
 
-			cnp_patch(patch_addr, target,
-				  hole->reloc_type, hole->addend);
+			cnp_patch(patch_addr, target, hole->reloc_type,
+				  hole->addend);
 		}
 	}
 
 	free(pc_offset);
 
 	/*
-	 * Phase 5: Make executable.
-	 */
+ * Phase 5: Make executable.
+ */
 	if (mprotect(code, total_size, PROT_READ | PROT_EXEC) != 0) {
+		free(pc_stencil);
 		munmap(code, total_size);
 		return -1;
 	}
-	__builtin___clear_cache((char *)code,
-				(char *)(code + total_size));
+	__builtin___clear_cache((char *)code, (char *)(code + total_size));
 
 	p->cnp_code = code;
 	p->cnp_size = total_size;
 	p->cnp_compiled = 1;
+	p->cnp_pc_stencil = pc_stencil;
+	p->cnp_nop = nOp;
 	return 0;
 }
 
@@ -314,9 +688,9 @@ vdbe_cnp_exec(struct Vdbe *p)
 	sql_cnp_exec_count++;
 
 	/*
-	 * Resume from the stencil after OP_ResultRow if the previous call
-	 * returned SQL_ROW.
-	 */
+ * Resume from the stencil after OP_ResultRow if the previous call
+ * returned SQL_ROW.
+ */
 	cnp_stencil_func_t func;
 	if (p->cnp_resume_func != NULL) {
 		func = (cnp_stencil_func_t)p->cnp_resume_func;
@@ -328,18 +702,31 @@ vdbe_cnp_exec(struct Vdbe *p)
 	int64_t result;
 	for (;;) {
 		result = func(p, p->aMem);
-		if (result < (int64_t)CNP_ADDR_THRESHOLD) {
-			/* Terminal status code */
+
+		if (result >= (int64_t)CNP_ADDR_THRESHOLD) {
+			/* Normal: result is the address of the next stencil. */
+			func = (cnp_stencil_func_t)result;
+		} else if (result >= CNP_PC_JUMP_BASE) {
+			/*
+ * Coroutine PC jump: result encodes a target PC as
+ * (pc + CNP_PC_JUMP_BASE).  Look up the stencil for
+ * that PC from the compile-time array.
+ */
+			int pc = (int)(result - CNP_PC_JUMP_BASE);
+			if (pc < 0 || pc >= p->cnp_nop ||
+			    p->cnp_pc_stencil[pc] == NULL)
+				return -1;
+			func = (cnp_stencil_func_t)p->cnp_pc_stencil[pc];
+		} else {
+			/* Terminal status code (SQL_ROW, SQL_DONE, or -1). */
 			return (int)result;
 		}
-		/* result is the address of the next stencil */
-		func = (cnp_stencil_func_t)result;
+
 		if (p->cnp_row_ready) {
 			/*
-			 * OP_ResultRow fired the signal.  Save the next
-			 * stencil address and return SQL_ROW to the caller.
-			 * The next exec call will resume from here.
-			 */
+ * OP_ResultRow fired the signal.  Save the next
+ * stencil address and return SQL_ROW to the caller.
+ */
 			p->cnp_row_ready = 0;
 			p->cnp_resume_func = (void *)func;
 			return SQL_ROW;
@@ -355,6 +742,11 @@ vdbe_cnp_release(struct Vdbe *p)
 		p->cnp_code = NULL;
 		p->cnp_size = 0;
 		p->cnp_compiled = 0;
+	}
+	if (p->cnp_pc_stencil != NULL) {
+		free(p->cnp_pc_stencil);
+		p->cnp_pc_stencil = NULL;
+		p->cnp_nop = 0;
 	}
 	p->cnp_resume_func = NULL;
 	p->cnp_row_ready = 0;
