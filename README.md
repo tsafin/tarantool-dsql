@@ -10,12 +10,32 @@
 [Tarantool][tarantool-url] is an in-memory computing platform consisting of a
 database and an application server.
 
-> This branch also carries substantial SQL VDBE work: generated-dispatch
-> interpreter changes and an experimental SQL LLVM MCJIT path. Current benchmark
-> results show that LLVM MCJIT can improve reused prepared-statement execution by
-> about `1.25x-1.58x`, while one-shot execution is still dominated by prepare-time
-> compile cost, with details and methodology documented in
-> [`tools/jit_bench/SQL_JIT_BENCHMARK.md`](tools/jit_bench/SQL_JIT_BENCHMARK.md).
+> This branch carries substantial SQL VDBE execution engine work:
+>
+> * **Generated threaded interpreter** — a DSL-driven code generator
+>   (`tools/vdbe_codegen.py`) produces a fully-covered dispatch loop
+>   (`src/box/sql/generated/`) from `tools/vdbe_dsl/opcodes.yaml`. All 142/142
+>   opcodes are handled. Selectable at runtime via `VDBE_DISPATCHER=generated`.
+>
+> * **LLVM MCJIT** — an experimental ahead-of-time compiler that translates VDBE
+>   programs to native code at prepare time using the LLVM ExecutionEngine API
+>   (requires `ENABLE_SQL_JIT=ON`). 141/142 opcodes supported (OP_Program falls
+>   back to the interpreter). Enabled at runtime via `SQL_JIT_ENABLE=1`.
+>   Prepared-statement execution is `1.25x–1.58x` faster than the interpreter;
+>   one-shot execution is dominated by compile cost.
+>
+> * **Copy-and-Patch (CnP) JIT** — a lightweight JIT that copies pre-compiled
+>   opcode stencils and patches in runtime addresses, with no LLVM dependency.
+>   All 142/142 opcodes covered. Selectable via `VDBE_DISPATCHER=cnp`.
+>   Uses a shared 8 MB RWX arena to eliminate per-compile mmap overhead.
+>
+> * **Auto statement cache with JIT integration** — `box.execute()` caches the
+>   last 256 prepared statements and triggers JIT compilation on cache insertion,
+>   so repeated `box.execute()` calls for the same query use native code without
+>   explicit `box.prepare()`.
+>
+> Benchmark results and methodology: [`tools/jit_bench/SQL_JIT_BENCHMARK.md`](tools/jit_bench/SQL_JIT_BENCHMARK.md).  
+> Implementation plan and design notes: [`docs/sql-vdbe/COPY_AND_PATCH_PLAN.md`](docs/sql-vdbe/COPY_AND_PATCH_PLAN.md).
 
 It is distributed under [BSD 2-Clause][license] terms.
 
