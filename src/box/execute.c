@@ -51,6 +51,121 @@
 #include "rmean.h"
 #include "box/sql/port.h"
 #include "tweaks.h"
+#include "box/schema.h"
+#include <string.h>
+
+/*
+ * Automatic SQL statement cache for sql_prepare_and_execute.
+ *
+ * A direct-mapped cache (open addressing, power-of-2 capacity) that stores
+ * compiled Vdbe* instances keyed by (sql_hash, sql_flags).  On a cache hit
+ * the full parse + codegen + JIT compile cycle is bypassed; only execution
+ * runs.  This makes box.execute("SELECT ...") as fast as box.prepare() +
+ * stmt:execute() on the second and subsequent calls for the same SQL text.
+ *
+ * Design choices:
+ *  - Direct-mapped: no per-entry allocation, O(1) lookup/eviction.
+ *  - 256 slots: covers typical workloads without consuming significant memory.
+ *  - Keys include sql_flags (session compilation flags) so that stmts compiled
+ *    under different flag sets are not mixed up.
+ *  - Staleness is detected by comparing stmt->schema_ver with the live
+ *    box_schema_version() at lookup time.  sqlVdbeReset clears stmt->expired
+ *    but preserves schema_ver, so the version comparison is the authoritative
+ *    staleness check.
+ *  - SQL text is verified on hit (strlen + memcmp) to handle 32-bit hash
+ *    collisions.
+ */
+#define AUTO_CACHE_CAPACITY 256
+#define AUTO_CACHE_MASK     (AUTO_CACHE_CAPACITY - 1)
+
+struct auto_cache_entry {
+	uint32_t sql_hash;
+	uint32_t sql_flags;
+	struct Vdbe *stmt;
+};
+
+static struct auto_cache_entry auto_stmt_cache[AUTO_CACHE_CAPACITY];
+
+/*
+ * Compute the slot index for (sql_hash, sql_flags).
+ * Mix the two 32-bit values so that distinct sql_flags map to different slots
+ * for the same SQL text.
+ */
+static inline uint32_t
+auto_cache_slot(uint32_t sql_hash, uint32_t sql_flags)
+{
+	return (sql_hash ^ (sql_flags * 2654435761u)) & AUTO_CACHE_MASK;
+}
+
+/*
+ * Evict the entry at slot, releasing the Vdbe.  No-op if slot is empty.
+ */
+static void
+auto_cache_evict_slot(uint32_t slot)
+{
+	struct auto_cache_entry *e = &auto_stmt_cache[slot];
+	if (e->stmt != NULL) {
+		sql_stmt_finalize(e->stmt);
+		e->stmt = NULL;
+	}
+}
+
+/*
+ * Look up a cached stmt for (sql_hash, sql_flags, sql text).
+ *
+ * Returns a valid, idle Vdbe* on hit, or NULL on miss/stale.  A stale entry
+ * (schema changed or SQL text mismatch) is evicted before returning NULL.
+ */
+static struct Vdbe *
+auto_cache_lookup(uint32_t sql_hash, uint32_t sql_flags,
+		  const char *sql, size_t sql_len)
+{
+	uint32_t slot = auto_cache_slot(sql_hash, sql_flags);
+	struct auto_cache_entry *e = &auto_stmt_cache[slot];
+	if (e->stmt == NULL)
+		return NULL;
+
+	if (e->sql_hash != sql_hash || e->sql_flags != sql_flags)
+		return NULL;
+
+	/* Verify SQL text to rule out 32-bit hash collisions. */
+	const char *cached_sql = sql_stmt_query_str(e->stmt);
+	if (cached_sql == NULL)
+		goto evict;
+	size_t cached_len = strlen(cached_sql);
+	if (cached_len != sql_len || memcmp(cached_sql, sql, sql_len) != 0)
+		goto evict;
+
+	/* Reject stale stmts (schema changed since compile). */
+	if (sql_stmt_schema_version(e->stmt) != box_schema_version())
+		goto evict;
+
+	/* Reject stmts that are mid-execution (should not happen in practice). */
+	if (sql_stmt_busy(e->stmt))
+		return NULL;
+
+	return e->stmt;
+evict:
+	auto_cache_evict_slot(slot);
+	return NULL;
+}
+
+/*
+ * Insert stmt into the auto cache, evicting any existing occupant of the slot.
+ * The cache takes ownership; the caller must NOT finalize stmt afterwards.
+ */
+static void
+auto_cache_insert(uint32_t sql_hash, uint32_t sql_flags, struct Vdbe *stmt)
+{
+	uint32_t slot = auto_cache_slot(sql_hash, sql_flags);
+	struct auto_cache_entry *e = &auto_stmt_cache[slot];
+	/* Evict whatever is currently in this slot (if anything). */
+	if (e->stmt != NULL && e->stmt != stmt)
+		sql_stmt_finalize(e->stmt);
+	e->sql_hash = sql_hash;
+	e->sql_flags = sql_flags;
+	e->stmt = stmt;
+}
 
 const char *sql_info_key_strs[] = {
 	"row_count",
@@ -271,19 +386,45 @@ sql_prepare_and_execute(const char *sql, int len, const struct sql_bind *bind,
 			uint32_t bind_count, struct port *port,
 			struct region *region)
 {
-	struct Vdbe *stmt;
-	int compile_rc = sql_stmt_compile(sql, len, NULL, &stmt, NULL, false);
-	if (compile_rc != 0)
-		return -1;
-	assert(stmt != NULL);
+	size_t sql_len = len >= 0 ? (size_t)len : strlen(sql);
+	uint32_t sql_flags = current_session()->sql_flags;
+	uint32_t stmt_id = sql_stmt_calculate_id(sql, sql_len);
+
+	/* Try the auto cache — skips parse + codegen + JIT compile on hit. */
+	struct Vdbe *stmt = auto_cache_lookup(stmt_id, sql_flags, sql, sql_len);
+	bool from_cache = (stmt != NULL);
+
+	if (stmt == NULL) {
+		if (sql_stmt_compile(sql, len, NULL, &stmt, NULL, false) != 0)
+			return -1;
+		assert(stmt != NULL);
+		/*
+		 * Hand ownership to the cache.  The cache manages the stmt
+		 * lifetime from here on; we must not finalize it ourselves.
+		 */
+		auto_cache_insert(stmt_id, sql_flags, stmt);
+	} else {
+		/* Clear state left over from the previous execution cycle. */
+		sql_unbind(stmt);
+		sql_reset_autoinc_id_list(stmt);
+	}
+
 	enum sql_serialization_format format = sql_column_count(stmt) > 0 ?
-					   DQL_EXECUTE : DML_EXECUTE;
-	port_sql_create(port, stmt, format, true);
-	if (sql_bind(stmt, bind, bind_count) == 0 &&
-	    sql_execute(stmt, port, region) == 0)
-		return 0;
-	port_destroy(port);
-	return -1;
+					       DQL_EXECUTE : DML_EXECUTE;
+	/*
+	 * Never auto-destroy: the cache owns the stmt.
+	 * We reset it manually after execution.
+	 */
+	port_sql_create(port, stmt, format, false);
+	int rc = 0;
+	if (sql_bind(stmt, bind, bind_count) != 0 ||
+	    sql_execute(stmt, port, region) != 0) {
+		port_destroy(port);
+		rc = -1;
+	}
+	sql_stmt_reset(stmt);
+	(void)from_cache;
+	return rc;
 }
 
 int
