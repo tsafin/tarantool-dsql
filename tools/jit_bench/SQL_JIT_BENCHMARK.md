@@ -1,8 +1,9 @@
-# SQL LLVM MCJIT benchmark
+# SQL JIT benchmark
 
-This note describes the current **LLVM MCJIT vs interpreter** benchmark
-methodology, what is being measured, and why **prepare cost** is the deciding
-factor for one-shot SQL.
+This note describes the **three-dispatcher benchmark** for Tarantool's VDBE SQL
+engine: the threaded interpreter, LLVM MCJIT, and Copy-and-Patch (CnP) JIT.
+It covers methodology, what is being measured, and the significant performance
+improvement that resulted from adding an automatic statement cache in M4.
 
 The benchmark harness used for these measurements lives at:
 
@@ -16,46 +17,39 @@ three execution modes.
 | Workload | SQL shape | Purpose |
 | --- | --- | --- |
 | `tiny_const` | `SELECT 1 + 2;` | Small constant expression, almost pure overhead |
-| `hot_expr` | `SELECT 1 + 2 + 3 + 4 + 5;` | Small arithmetic expression that is LLVM MCJIT-friendly when reused |
+| `hot_expr` | `SELECT 1 + 2 + 3 + 4 + 5;` | Small arithmetic expression that exercises the expression evaluator |
 | `point_lookup` | indexed `SELECT ... FROM bench_arith WHERE id = ?` | Lookup with realistic table access plus arithmetic work |
 
 | Case | What it measures | Why it matters |
 | --- | --- | --- |
-| `prepare_only` | repeated `box.prepare()` / `box.unprepare()` | Isolates prepare-time LLVM MCJIT compile cost |
-| `prepared_execute` | prepare once, execute many times by `stmt_id` | Best-case reuse path for LLVM MCJIT |
-| `automatic_execute` | repeated `box.execute(sql, args)` | One-shot path: prepare + optional LLVM MCJIT compile + execute every call |
+| `prepare_only` | repeated `box.prepare()` / `box.unprepare()` | Isolates prepare-time JIT compile cost |
+| `prepared_execute` | prepare once, execute many times by `stmt_id` | Best-case reuse path for JIT backends |
+| `automatic_execute` | repeated `box.execute(sql, args)` | Warm cache path: prepare once, execute many times via auto cache |
 
 ## How it is benchmarked
 
-The current numbers were taken from a narrowed **RelWithDebInfo** matrix with:
+The numbers below were taken from a **RelWithDebInfo** matrix with:
 
 - build: `build-jit-relwithdebinfo`
-- dispatcher: `VDBE_DISPATCHER=generated`
-- interpreter baseline: `SQL_JIT_ENABLE=0`
-- LLVM MCJIT run: `SQL_JIT_ENABLE=1`
-- `BENCH_RUNS=3`
+- interpreter baseline: `VDBE_DISPATCHER=generated SQL_JIT_ENABLE=0`
+- LLVM MCJIT run: `VDBE_DISPATCHER=generated SQL_JIT_ENABLE=1`
+- CnP JIT run: `VDBE_DISPATCHER=cnp SQL_JIT_ENABLE=0`
+- `BENCH_RUNS=3`, best-of-three reported
 
 The benchmark harness records wall-clock time and `box.stat.sql()` deltas for
-each run:
-
-- `sql_jit_compile_count`
-- `sql_jit_compile_success_count`
-- `sql_jit_exec_count`
-- `sql_jit_fallback_count`
-- `sql_jit_resume_skip_count`
-- `sql_interpreter_step_count`
-- `sql_jit_step_count`
+each run.
 
 ### Iteration counts
 
-The narrowed matrix intentionally keeps `automatic_execute` small for the
-pathological LLVM MCJIT cases so the run completes in bounded time.
-
 | Workload | `prepare_only` | `prepared_execute` | `automatic_execute` |
 | --- | ---: | ---: | ---: |
-| `tiny_const` | 500 | 200000 | 5000 |
-| `hot_expr` | 500 | 200000 | 100 |
-| `point_lookup` | 250 | 100000 | 100 |
+| `tiny_const` | 500 | 200 000 | 200 000 |
+| `hot_expr` | 500 | 200 000 | 200 000 |
+| `point_lookup` | 250 | 100 000 | 100 000 |
+
+`automatic_execute` now uses the same iteration count as `prepared_execute`
+because the auto stmt cache (added in M4) eliminates per-call recompilation,
+making the automatic path as warm as the prepared path after the first call.
 
 ## Execution model
 
@@ -63,127 +57,134 @@ pathological LLVM MCJIT cases so the run completes in bounded time.
 
 ![Prepared statement path](images/sql_jit_benchmark/prepared_path.png)
 
-### Automatic one-shot path
+### Automatic path (with auto stmt cache)
 
-![Automatic one-shot path](images/sql_jit_benchmark/automatic_path.png)
+![Automatic path with cache](images/sql_jit_benchmark/automatic_path.png)
 
-The second path is exactly why prepare cost matters: if compilation happens for
-every call, LLVM MCJIT must win back that cost from a **single execution**.
+On first `box.execute(sql)` for a given SQL string, the statement is compiled
+(and optionally JIT-compiled). It is then stored in a 256-slot direct-mapped
+`auto_stmt_cache` indexed by `(sql_hash ^ sql_flags * 2654435761) & 255`.
+Subsequent calls with the same SQL string hit the cache: only a reset and
+rebind are performed, with no recompile.
 
 ## Current measured results
+
+All numbers are best-of-3 runs, RelWithDebInfo build.
+
+### Prepare only
+
+These numbers measure prepare-time cost in isolation (prepare + unprepare, no
+execute).
+
+| Workload | Interpreter | LLVM MCJIT | CnP JIT |
+| --- | ---: | ---: | ---: |
+| `tiny_const` | `2.000 µs` | `5 978 µs` | `2.000 µs` |
+| `hot_expr` | `4.000 µs` | `7 776 µs` | `4.000 µs` |
+| `point_lookup` | `8.000 µs` | `9 224 µs` | `8.000 µs` |
+
+CnP prepare cost equals interpreter prepare cost — CnP patches stencils at
+prepare time using only memcpy and pointer fixups, with no LLVM passes.
+LLVM MCJIT prepare cost is still in the **6–9 ms** range.
 
 ### Prepared execute
 
 These numbers measure the path where the statement is prepared once and reused.
 
-| Workload | Interpreter | LLVM MCJIT | Result |
-| --- | ---: | ---: | --- |
-| `tiny_const` | `1.412 us/op` | `0.891 us/op` | **LLVM MCJIT 1.58x faster** |
-| `hot_expr` | `1.344 us/op` | `1.076 us/op` | **LLVM MCJIT 1.25x faster** |
-| `point_lookup` | `3.022 us/op` | `2.320 us/op` | **LLVM MCJIT 1.30x faster** |
-
-This is the only place where the current LLVM MCJIT story is clearly favorable.
-
-### Prepare only
-
-These numbers isolate prepare-time cost.
-
-| Workload | Interpreter | LLVM MCJIT | Slowdown |
+| Workload | Interpreter | LLVM MCJIT | CnP JIT |
 | --- | ---: | ---: | ---: |
-| `tiny_const` | `2.783 us/op` | `7378.718 us/op` | `2650.3x` |
-| `hot_expr` | `3.877 us/op` | `8313.965 us/op` | `2144.2x` |
-| `point_lookup` | `10.109 us/op` | `9277.296 us/op` | `917.7x` |
+| `tiny_const` | `0.930 µs` | `0.895 µs` | `1.000 µs` |
+| `hot_expr` | `0.980 µs` | `0.955 µs` | `0.970 µs` |
+| `point_lookup` | `2.270 µs` | `2.250 µs` | `2.290 µs` |
 
-Prepare-time LLVM MCJIT cost is still in the **7.4-9.3 ms per statement**
-range.
+All three dispatchers are within **±5%** of each other at this workload scale.
+LLVM MCJIT has a marginal edge; CnP is marginally slower than interpreter for
+`tiny_const` but converges for heavier workloads.
 
-### Automatic execute
+### Automatic execute (warm cache)
 
-These numbers are sampled one-shot runs, not a reused prepared statement path.
+These numbers measure `box.execute(sql, args)` with the auto stmt cache warm
+(all iterations after the first call are cache hits).
 
-| Workload | Interpreter | LLVM MCJIT | Result |
-| --- | ---: | ---: | --- |
-| `tiny_const` | `3.224 us/op` | `1.932 us/op` | sample faster, but **no native exec** |
-| `hot_expr` | `4.402 us/op` | `4.969 us/op` | **LLVM MCJIT 1.13x slower** |
-| `point_lookup` | `9.831 us/op` | `9337.320 us/op` | **LLVM MCJIT 949.82x slower** |
+| Workload | Interpreter | LLVM MCJIT | CnP JIT |
+| --- | ---: | ---: | ---: |
+| `tiny_const` | `0.880 µs` | `0.880 µs` | `0.895 µs` |
+| `hot_expr` | `0.980 µs` | `0.990 µs` | `1.040 µs` |
+| `point_lookup` | `2.250 µs` | `2.230 µs` | `2.270 µs` |
 
-Important counter evidence behind those rows:
+All three dispatchers now converge to the same throughput. The auto stmt cache
+made the `automatic_execute` path as efficient as `prepared_execute`.
 
-- `tiny_const` automatic sample:
-  - `jit_compile_count = 5000`
-  - `jit_compile_success_count = 0`
-  - `jit_exec_count = 0`
-- `hot_expr` automatic sample:
-  - `jit_compile_count = 0`
-  - `jit_exec_count = 0`
-- `point_lookup` automatic sample:
-  - `jit_compile_success_count = 100`
-  - `jit_exec_count = 100`
-  - `jit_resume_skip_count = 100`
+### Before and after: automatic_execute improvement
 
-So the worst automatic case is not hypothetical. It is a real measured
-**prepare-and-compile per query** cliff.
+The auto stmt cache eliminated per-call recompilation. Old numbers used only 5 000
+(tiny_const) and 100 (hot_expr / point_lookup) iterations because LLVM MCJIT
+would recompile every call, making higher counts impractical.
 
-## Why prepare matters
+| Workload | Dispatcher | Before cache | After cache | Speedup |
+| --- | --- | ---: | ---: | ---: |
+| `tiny_const` | Interpreter | `3.224 µs` | `0.880 µs` | **3.7×** |
+| `tiny_const` | LLVM MCJIT | `1.932 µs` (no native exec) | `0.880 µs` | **2.2×** |
+| `hot_expr` | Interpreter | `4.402 µs` | `0.980 µs` | **4.5×** |
+| `hot_expr` | LLVM MCJIT | `4.969 µs` | `0.990 µs` | **5.0×** |
+| `point_lookup` | Interpreter | `9.831 µs` | `2.250 µs` | **4.4×** |
+| `point_lookup` | LLVM MCJIT | `9 337 µs` (recompile each call) | `2.230 µs` | **>4 000×** |
 
-Total runtime is not just execution speed. It is:
+The point_lookup LLVM MCJIT case was catastrophic before the cache: it was
+recompiling a ~9 ms JIT program for every single `box.execute` call.
+
+## Why prepare matters (LLVM MCJIT break-even)
+
+For LLVM MCJIT, prepare cost is still in the 6–9 ms range. The break-even
+analysis shows how many reuses are needed to amortize that cost against the
+marginal execution advantage.
 
 ```text
 total_cost = prepare_cost + execution_count * execute_cost
 ```
 
-LLVM MCJIT wins on `execute_cost`, but loses heavily on `prepare_cost`.
-That means it only becomes profitable after enough reuses of the same prepared
-statement.
-
-### Break-even point
-
-The table below answers: **how many executions are needed to amortize LLVM MCJIT
-prepare cost?**
-
-| Workload | Extra LLVM MCJIT prepare cost | Per-exec LLVM MCJIT gain | Break-even |
+| Workload | Extra LLVM MCJIT prepare cost | Per-exec LLVM MCJIT gain vs interp | Break-even |
 | --- | ---: | ---: | ---: |
-| `tiny_const` | `7375.935 us` | `0.521 us` | `14162` executions |
-| `hot_expr` | `8310.088 us` | `0.269 us` | `30922` executions |
-| `point_lookup` | `9267.187 us` | `0.701 us` | `13212` executions |
+| `tiny_const` | ~5 976 µs | ~0.035 µs | ~170 000 executions |
+| `hot_expr` | ~7 772 µs | ~0.025 µs | ~310 000 executions |
+| `point_lookup` | ~9 216 µs | ~0.020 µs | ~460 000 executions |
 
-This is the key benchmark result.
+At this scale of per-execution advantage (~0.02–0.04 µs), the break-even
+is now in the hundreds of thousands of executions. LLVM MCJIT has a real
+native-code advantage for long-lived prepared statements, but the edge over
+interpreter at these workloads is small.
 
-For one-shot SQL, or for short-lived statements executed only a handful of
-times, the current LLVM MCJIT compile cost dominates the total wall time. For
-heavily reused prepared statements, LLVM MCJIT can still produce a real
-execution win.
-
-## Cost picture for `point_lookup`
-
-`point_lookup` is the clearest example because it has both a real prepared-path
-win and a catastrophic one-shot path.
-
-![Point lookup cost picture](images/sql_jit_benchmark/point_lookup_cost.png)
-
-Interpretation:
-
-- if the statement is **reused thousands of times**, the LLVM MCJIT path can win;
-- if the statement is **prepared and executed once**, the LLVM MCJIT path is currently
-  far worse.
+**CnP has no such break-even problem**: its prepare cost equals interpreter
+prepare cost, so it carries zero compile-time risk for short-lived statements.
 
 ## Practical reading of the numbers
 
-1. **Prepared statement benchmarking is the meaningful LLVM MCJIT benchmark
-   today.** That is where LLVM MCJIT has a measurable upside.
-2. **One-shot `box.execute()` is still prepare-dominated.**
-   This is why SQL TAP cases with many distinct statements are poor LLVM MCJIT
-   candidates unless they are gated or opted out.
-3. **Benchmark reports should always separate prepare from execute.**
+1. **All three dispatchers are now equivalent for `box.execute()` workloads.**
+   The auto stmt cache removed the per-call compile penalty. Applications using
+   `box.execute()` in a hot loop get the same throughput regardless of which
+   dispatcher is active.
+
+2. **LLVM MCJIT prepare cost is still 6–9 ms per statement.** For one-shot
+   SQL that will never be cached (e.g., DDL, ad hoc queries), LLVM MCJIT adds
+   visible latency. For cached or explicitly prepared statements executed
+   hundreds of thousands of times, the marginal execution advantage may matter.
+
+3. **CnP prepare cost is zero relative to interpreter.** CnP is a safe drop-in
+   for any dispatcher mode: no latency cliff for one-shot SQL, and execution
+   throughput within 5–10% of interpreter.
+
+4. **Benchmark reports should always separate prepare from execute.**
    Reporting only execution throughput hides the dominant cost in one-shot
-   workloads.
+   or low-reuse workloads.
 
 ## Current conclusion
 
-The benchmark data supports a narrow claim:
+The benchmark data supports two claims:
 
-- **LLVM MCJIT is modestly faster for reused prepared statements.**
+- **The auto stmt cache made `box.execute()` as efficient as
+  explicit `box.prepare()` + `stmt:execute()`** for repeated calls with the
+  same SQL string. This benefits all three dispatchers equally.
 
-It does **not** yet support a broad claim that LLVM MCJIT speeds up general SQL
-execution, because prepare-time compile cost still dominates one-shot execution,
-especially for `point_lookup`-style statements.
+- **For long-lived explicitly prepared statements, LLVM MCJIT is modestly
+  faster than interpreter** (~0–5% at these workload sizes). The advantage
+  is real but small; CnP and interpreter are competitive.
+

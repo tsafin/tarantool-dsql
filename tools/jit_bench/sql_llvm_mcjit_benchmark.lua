@@ -32,6 +32,10 @@ local function stat_snapshot()
         jit_fallback_count = s.sql_jit_fallback_count or 0,
         jit_resume_skip_count = s.sql_jit_resume_skip_count or 0,
         jit_guard_skip_count = s.sql_jit_guard_skip_count or 0,
+        cnp_compile_count = s.sql_cnp_compile_count or 0,
+        cnp_compile_success_count = s.sql_cnp_compile_success_count or 0,
+        cnp_exec_count = s.sql_cnp_exec_count or 0,
+        cnp_step_count = s.sql_cnp_step_count or 0,
     }
 end
 
@@ -188,6 +192,7 @@ local results = {
     metadata = {
         tarantool_version = _TARANTOOL,
         jit_env = os.getenv('SQL_JIT_ENABLE') or 'unset',
+        dispatcher_env = os.getenv('VDBE_DISPATCHER') or 'default',
         benchmark_label = os.getenv('BENCH_LABEL') or 'default',
         runs = RUNS,
     },
