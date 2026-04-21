@@ -502,7 +502,11 @@ cnp_resolve_handler_by_opcode(int opcode)
 	case OP_Decimal:
 		return (uintptr_t)vdbe_op_decimal_inline;
 	case OP_Sort:
-		return (uintptr_t)vdbe_op_sort_inline;
+		/* OP_Sort is an alias for OP_Rewind: it positions the ephemeral
+		 * B-tree cursor at the first row (smallest key). The interpreter
+		 * implements this via a C-level fallthrough from OP_Sort into
+		 * OP_Rewind. CnP must call vdbe_op_rewind explicitly. */
+		return (uintptr_t)vdbe_op_rewind;
 	case OP_SorterSort:
 		return (uintptr_t)vdbe_op_sortersort;
 	case OP_ShiftLeft:
