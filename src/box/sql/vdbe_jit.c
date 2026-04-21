@@ -2046,6 +2046,36 @@ vdbe_jit_note_row(struct Vdbe *p)
 	jit_shape_negative_cache_add(shape_hash, p->schema_ver);
 }
 
+/*
+ * Compile a VDBE program that will be stored in the automatic stmt cache.
+ *
+ * The auto cache reuses a stmt across many box.execute() calls, making it
+ * semantically equivalent to a prepared statement.  vdbe_jit_compile() with
+ * is_prepared_stmt == false applies the "trivial program filter" (inline_count
+ * < 8) which suppresses JIT for short programs like SELECT 1+2.  That filter
+ * is correct for genuine one-shot stmts, but wrong for cached stmts that will
+ * be executed many times.
+ *
+ * This function temporarily promotes is_prepared_stmt to 1 so that the filter
+ * is bypassed, then restores the original value.  The stmt runtime behaviour
+ * (port_sql, result handling) is not affected because those paths check
+ * is_prepared_stmt independently.
+ *
+ * Call this once per cache miss, after auto_cache_insert(), only if JIT has
+ * not already compiled the stmt (jit_compiled == 0).
+ */
+int
+vdbe_jit_compile_cached(struct Vdbe *p)
+{
+	if (p == NULL || p->jit_compiled || !vdbe_jit_is_enabled())
+		return 0;
+	int saved = p->is_prepared_stmt;
+	p->is_prepared_stmt = 1;
+	int rc = vdbe_jit_compile(p);
+	p->is_prepared_stmt = saved;
+	return rc;
+}
+
 #else /* !ENABLE_SQL_JIT */
 
 /* Stub implementations when JIT is disabled */
@@ -2085,6 +2115,13 @@ vdbe_jit_note_fallback(struct Vdbe *p, int fallback_pc)
 {
 	(void)p;
 	(void)fallback_pc;
+}
+
+int
+vdbe_jit_compile_cached(struct Vdbe *p)
+{
+	(void)p;
+	return 0;
 }
 
 #endif /* ENABLE_SQL_JIT */

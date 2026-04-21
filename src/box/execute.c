@@ -45,6 +45,7 @@
 #include "tuple.h"
 #include "sql/vdbe.h"
 #include "sql/vdbeInt.h"
+#include "sql/vdbe_jit.h"
 #include "box/lua/execute.h"
 #include "box/sql_stmt_cache.h"
 #include "session.h"
@@ -403,6 +404,12 @@ sql_prepare_and_execute(const char *sql, int len, const struct sql_bind *bind,
 		 * lifetime from here on; we must not finalize it ourselves.
 		 */
 		auto_cache_insert(stmt_id, sql_flags, stmt);
+		/*
+		 * If JIT skipped this stmt due to the trivial-program filter
+		 * (which only applies to non-prepared stmts), recompile with
+		 * the prepared-stmt path so the cached copy runs natively.
+		 */
+		vdbe_jit_compile_cached(stmt);
 	} else {
 		/* Clear state left over from the previous execution cycle. */
 		sql_unbind(stmt);

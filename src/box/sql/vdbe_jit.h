@@ -79,3 +79,20 @@ vdbe_jit_note_fallback(struct Vdbe *p, int fallback_pc);
  */
 void
 vdbe_jit_note_row(struct Vdbe *p);
+
+/**
+ * Compile a VDBE program for use in the automatic stmt cache.
+ *
+ * The auto cache reuses a stmt across many box.execute() calls, making it
+ * semantically equivalent to a prepared statement.  Unlike vdbe_jit_compile(),
+ * this function bypasses the trivial-program filter (inline_count < 8) that
+ * suppresses JIT for short non-prepared stmts, since a cached stmt will be
+ * executed many times and benefits from native code.
+ *
+ * No-op if JIT is disabled or the stmt was already compiled (jit_compiled != 0).
+ *
+ * @param p  VDBE program to compile
+ * @return 0 on success, -1 on error
+ */
+int
+vdbe_jit_compile_cached(struct Vdbe *p);
