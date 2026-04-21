@@ -3,40 +3,39 @@
  *
  * Copy-and-Patch stencil wrappers.  Each function returns the address
  * of the next stencil to execute, or a special status code.
+ *
+ * M3 design: all stencils use HOLE_OP (pointer to the real VdbeOp)
+ * instead of a fake CnpOp struct, giving handlers access to all operands
+ * including p4 fields (collation, key_info, string pointer, etc.).
  */
 
 #include <stdint.h>
 #include <stddef.h>
 
 /*
- * Hole markers — extern symbols whose relocations become "holes"
- * in the extracted stencils.
+ * HOLE_OP: 64-bit pointer to the real VdbeOp for this instruction.
+ * Patched at compile time to &p->aOp[i].  Loaded via movabs so the
+ * relocation is R_X86_64_64 (no +/-2 GB limit).
  *
- * Operand holes (P1..P5) generate R_X86_64_32S relocations (32-bit
- * signed immediate) when used as integer initializers.
+ * HOLE_CPC: 32-bit current PC value (R_X86_64_32S).  Patched to the
+ * integer index i of this instruction.  Used by coroutine ops to set
+ * p->pc before calling the jit handler.
  *
- * Control-flow and handler holes (NEXT, BRANCH, ERROR_EXIT, HANDLER)
- * use LOAD_HOLE() which emits a movabs + R_X86_64_64 relocation,
- * giving a full 64-bit patchable immediate that works at any address.
+ * HOLE_SKIP2: 64-bit address of stencil at i+2.  Used by SeekGE/SeekLE
+ * when the handler returns rc==2 (skip the following IdxLT/GT opcode).
+ *
+ * HOLE_BRANCH_P1/P3: 64-bit stencil addresses for OP_Jump's three-way
+ * branch (P1 = less-than target, P3 = greater-than target).
  */
-extern uint64_t HOLE_P1;
-extern uint64_t HOLE_P2;
-extern uint64_t HOLE_P3;
-extern uint64_t HOLE_P4;
-extern uint64_t HOLE_P5;
+extern uint64_t HOLE_OP;
+extern uint64_t HOLE_CPC;
 extern uint64_t HOLE_NEXT;
 extern uint64_t HOLE_BRANCH;
+extern uint64_t HOLE_BRANCH_P1;
+extern uint64_t HOLE_BRANCH_P3;
+extern uint64_t HOLE_SKIP2;
 extern uint64_t HOLE_ERROR_EXIT;
-/*
- * HOLE_HANDLER: 64-bit absolute address of the opcode handler function.
- * Loaded via movabs so the relocation is R_X86_64_64 (no ±2 GB limit),
- * allowing the JIT buffer to be mapped at any address.
- */
 extern uint64_t HOLE_HANDLER;
-/*
- * HOLE_SIGNAL: address of cnp_signal_row(); called by OP_ResultRow to
- * notify the dispatch loop that a result row is ready.
- */
 extern uint64_t HOLE_SIGNAL;
 
 /*
@@ -53,6 +52,12 @@ cnp_load_hole(uint64_t *hole)
 
 #define LOAD_HOLE(name) cnp_load_hole(&(name))
 
+/*
+ * Minimal Vdbe field accessors (avoids pulling in full Tarantool headers).
+ * vdbe_cnp_vdbe_view.h defines CnpVdbeView and cnp_vdbe_pc/cnp_vdbe_icompare.
+ */
+#include "vdbe_cnp_vdbe_view.h"
+
 /* Forward declarations — real types from Tarantool. */
 struct Vdbe;
 struct VdbeOp;
@@ -60,31 +65,732 @@ struct Mem;
 
 typedef struct Mem Mem;
 
+/* Standard opcode handler: rc<0=error, rc>0=branch/signal, rc==0=continue. */
+typedef int (*cnp_handler_fn_t)(struct Vdbe *, struct VdbeOp *, Mem *);
+
+/* JIT coroutine handler: returns target PC (non-negative). */
+typedef int (*cnp_jit_fn_t)(struct Vdbe *, struct VdbeOp *, Mem *);
+
+/* Row-signal function called by the OP_ResultRow stencil. */
+typedef void (*cnp_row_signal_t)(struct Vdbe *);
+
 /*
- * Minimal Op struct matching the beginning of VdbeOp.
- * Used to pass operands to external handler functions.
+ * Base added to coroutine target PCs before returning from a stencil.
+ * Values 0 (error), 1 (SQL_ROW), 2 (SQL_DONE) are already taken, so
+ * coroutine returns use 3+ to encode target_pc.
  */
-struct CnpOp {
-    uint8_t opcode;
-    uint8_t p4type;
-    uint16_t p5;
-    int p1;
-    int p2;
-    int p3;
-};
+#define CNP_PC_JUMP_BASE 3
 
 /*
  * Stencil return convention:
- *   >= CNP_ADDR_THRESHOLD : address of next stencil (int64_t cast)
- *   SQL_DONE (2)          : all rows delivered
- *   SQL_ROW  (1)          : row ready (caller must resume)
- *   -1                    : fatal error
- *
- * Valid mmap'd addresses on x86_64 Linux are always well above 4096,
- * so small integers are safe as status codes.
+ *   >= CNP_ADDR_THRESHOLD            : address of next stencil
+ *   CNP_PC_JUMP_BASE..THRESHOLD-1    : coroutine PC jump (target_pc+base)
+ *   SQL_DONE (2)                     : all rows delivered
+ *   SQL_ROW  (1)                     : row ready (caller must resume)
+ *   -1                               : fatal error
  */
 
-/* --- OP_Goto (control_flow: unconditional jump) --- */
+/* --- OP_Concat (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Concat(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Cast (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Cast(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_ApplyType (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_ApplyType(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_MakeRecord (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_MakeRecord(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_AggStep (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_AggStep(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_AggFinal (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_AggFinal(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_ResultRow (row) --- */
+int64_t __attribute__((noinline))
+cnp_OP_ResultRow(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) {
+        cnp_row_signal_t sig_fn = (cnp_row_signal_t)(uintptr_t)LOAD_HOLE(HOLE_SIGNAL);
+        sig_fn(p);
+    }
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Column (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Column(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_RowData (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_RowData(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Rewind (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Rewind(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Last (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Last(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Next (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Next(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_NextIfOpen (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_NextIfOpen(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Prev (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Prev(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_PrevIfOpen (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_PrevIfOpen(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_SeekLE (seekskip) --- */
+int64_t __attribute__((noinline))
+cnp_OP_SeekLE(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc == 1) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    if (rc == 2) return (int64_t)LOAD_HOLE(HOLE_SKIP2);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_SeekGT (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_SeekGT(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_SeekGE (seekskip) --- */
+int64_t __attribute__((noinline))
+cnp_OP_SeekGE(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc == 1) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    if (rc == 2) return (int64_t)LOAD_HOLE(HOLE_SKIP2);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_SeekLT (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_SeekLT(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_IdxGE (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_IdxGE(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_IdxGT (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_IdxGT(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_IdxLE (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_IdxLE(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_IdxLT (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_IdxLT(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Found (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Found(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_NotFound (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_NotFound(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_NoConflict (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_NoConflict(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_IdxInsert (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_IdxInsert(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_IdxReplace (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_IdxReplace(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Delete (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Delete(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Update (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Update(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_SInsert (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_SInsert(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_SDelete (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_SDelete(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_IdxDelete (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_IdxDelete(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Add (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Add(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Subtract (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Subtract(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Multiply (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Multiply(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Divide (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Divide(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Remainder (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Remainder(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Eq (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Eq(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Ne (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Ne(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Lt (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Lt(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Le (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Le(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Gt (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Gt(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Ge (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Ge(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_And (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_And(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Or (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Or(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Not (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Not(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_BitAnd (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_BitAnd(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_BitOr (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_BitOr(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_BitNot (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_BitNot(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Integer (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Integer(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Bool (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Bool(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Int64 (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Int64(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Real (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Real(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_String (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_String(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Null (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Null(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Blob (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Blob(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Variable (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Variable(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Move (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Move(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Copy (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Copy(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_SCopy (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_SCopy(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Goto (goto) --- */
 int64_t __attribute__((noinline))
 cnp_OP_Goto(struct Vdbe *p, Mem *aMem)
 {
@@ -92,126 +798,891 @@ cnp_OP_Goto(struct Vdbe *p, Mem *aMem)
     return (int64_t)LOAD_HOLE(HOLE_BRANCH);
 }
 
-/* --- OP_Init (external, jump to P2 on success) --- */
-typedef int (*cnp_handler_fn_t)(struct Vdbe *, struct VdbeOp *, Mem *);
+/* --- OP_Jump (jump3way) --- */
 int64_t __attribute__((noinline))
-cnp_OP_Init(struct Vdbe *p, Mem *aMem)
+cnp_OP_Jump(struct Vdbe *p, Mem *aMem)
 {
-    struct CnpOp op = {
-        .p1 = (int)(uint64_t)&HOLE_P1,
-        .p2 = (int)(uint64_t)&HOLE_P2,
-        .p3 = (int)(uint64_t)&HOLE_P3,
-        .p5 = (uint16_t)(uint64_t)&HOLE_P5,
-    };
-    cnp_handler_fn_t fn =
-        (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
-    int rc = fn(p, (struct VdbeOp *)&op, aMem);
-    if (rc < 0)
-        return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
-    if (rc > 0)
-        return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    (void)aMem;
+    if (cnp_vdbe_icompare(p) < 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH_P1);
+    if (cnp_vdbe_icompare(p) > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH_P3);
+    return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+}
+
+/* --- OP_If (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_If(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
     return (int64_t)LOAD_HOLE(HOLE_NEXT);
 }
 
-/* --- OP_Halt (external, jump branch returns SQL_DONE) --- */
-typedef int (*cnp_handler_fn_t)(struct Vdbe *, struct VdbeOp *, Mem *);
+/* --- OP_IfNot (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_IfNot(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Once (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Once(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Gosub (coroutine_cpc) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Gosub(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_vdbe_pc(p) = (int)(uint64_t)&HOLE_CPC;
+    cnp_jit_fn_t fn = (cnp_jit_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int target = fn(p, pOp, aMem);
+    if (target < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)(target + CNP_PC_JUMP_BASE);
+}
+
+/* --- OP_Return (coroutine_npc) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Return(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_jit_fn_t fn = (cnp_jit_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int target = fn(p, pOp, aMem);
+    if (target < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)(target + CNP_PC_JUMP_BASE);
+}
+
+/* --- OP_InitCoroutine (coroutine_cpc) --- */
+int64_t __attribute__((noinline))
+cnp_OP_InitCoroutine(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_vdbe_pc(p) = (int)(uint64_t)&HOLE_CPC;
+    cnp_jit_fn_t fn = (cnp_jit_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int target = fn(p, pOp, aMem);
+    if (target < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)(target + CNP_PC_JUMP_BASE);
+}
+
+/* --- OP_Yield (coroutine_cpc) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Yield(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_vdbe_pc(p) = (int)(uint64_t)&HOLE_CPC;
+    cnp_jit_fn_t fn = (cnp_jit_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int target = fn(p, pOp, aMem);
+    if (target < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)(target + CNP_PC_JUMP_BASE);
+}
+
+/* --- OP_EndCoroutine (coroutine_npc) --- */
+int64_t __attribute__((noinline))
+cnp_OP_EndCoroutine(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_jit_fn_t fn = (cnp_jit_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int target = fn(p, pOp, aMem);
+    if (target < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)(target + CNP_PC_JUMP_BASE);
+}
+
+/* --- OP_ElseNotEq (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_ElseNotEq(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_MustBeInt (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_MustBeInt(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_IfPos (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_IfPos(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_IfNotZero (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_IfNotZero(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_DecrJumpZero (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_DecrJumpZero(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_SetDiag (setdiag) --- */
+int64_t __attribute__((noinline))
+cnp_OP_SetDiag(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Halt (jump) --- */
 int64_t __attribute__((noinline))
 cnp_OP_Halt(struct Vdbe *p, Mem *aMem)
 {
-    struct CnpOp op = {
-        .p1 = (int)(uint64_t)&HOLE_P1,
-        .p2 = (int)(uint64_t)&HOLE_P2,
-        .p3 = (int)(uint64_t)&HOLE_P3,
-        .p5 = (uint16_t)(uint64_t)&HOLE_P5,
-    };
-    cnp_handler_fn_t fn =
-        (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
-    int rc = fn(p, (struct VdbeOp *)&op, aMem);
-    if (rc < 0)
-        return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
-    if (rc > 0)
-        return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
     return (int64_t)LOAD_HOLE(HOLE_NEXT);
 }
 
-/* --- OP_Integer (external, no branch) --- */
-typedef int (*cnp_handler_fn_t)(struct Vdbe *, struct VdbeOp *, Mem *);
+/* --- OP_Init (jump) --- */
 int64_t __attribute__((noinline))
-cnp_OP_Integer(struct Vdbe *p, Mem *aMem)
+cnp_OP_Init(struct Vdbe *p, Mem *aMem)
 {
-    struct CnpOp op = {
-        .p1 = (int)(uint64_t)&HOLE_P1,
-        .p2 = (int)(uint64_t)&HOLE_P2,
-        .p3 = (int)(uint64_t)&HOLE_P3,
-        .p5 = (uint16_t)(uint64_t)&HOLE_P5,
-    };
-    cnp_handler_fn_t fn =
-        (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
-    int rc = fn(p, (struct VdbeOp *)&op, aMem);
-    if (rc < 0)
-        return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
     return (int64_t)LOAD_HOLE(HOLE_NEXT);
 }
 
-/* --- OP_Add (external, no branch) --- */
-typedef int (*cnp_handler_fn_t)(struct Vdbe *, struct VdbeOp *, Mem *);
+/* --- OP_Savepoint (none) --- */
 int64_t __attribute__((noinline))
-cnp_OP_Add(struct Vdbe *p, Mem *aMem)
+cnp_OP_Savepoint(struct Vdbe *p, Mem *aMem)
 {
-    struct CnpOp op = {
-        .p1 = (int)(uint64_t)&HOLE_P1,
-        .p2 = (int)(uint64_t)&HOLE_P2,
-        .p3 = (int)(uint64_t)&HOLE_P3,
-        .p5 = (uint16_t)(uint64_t)&HOLE_P5,
-    };
-    cnp_handler_fn_t fn =
-        (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
-    int rc = fn(p, (struct VdbeOp *)&op, aMem);
-    if (rc < 0)
-        return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
     return (int64_t)LOAD_HOLE(HOLE_NEXT);
 }
 
-/* --- OP_Copy (external, no branch) --- */
-typedef int (*cnp_handler_fn_t)(struct Vdbe *, struct VdbeOp *, Mem *);
+/* --- OP_SorterNext (jump) --- */
 int64_t __attribute__((noinline))
-cnp_OP_Copy(struct Vdbe *p, Mem *aMem)
+cnp_OP_SorterNext(struct Vdbe *p, Mem *aMem)
 {
-    struct CnpOp op = {
-        .p1 = (int)(uint64_t)&HOLE_P1,
-        .p2 = (int)(uint64_t)&HOLE_P2,
-        .p3 = (int)(uint64_t)&HOLE_P3,
-        .p5 = (uint16_t)(uint64_t)&HOLE_P5,
-    };
-    cnp_handler_fn_t fn =
-        (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
-    int rc = fn(p, (struct VdbeOp *)&op, aMem);
-    if (rc < 0)
-        return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
     return (int64_t)LOAD_HOLE(HOLE_NEXT);
 }
 
-/* --- OP_ResultRow (external, signal row then continue) --- */
-typedef int (*cnp_handler_fn_t)(struct Vdbe *, struct VdbeOp *, Mem *);
+/* --- OP_String8 (none) --- */
 int64_t __attribute__((noinline))
-cnp_OP_ResultRow(struct Vdbe *p, Mem *aMem)
+cnp_OP_String8(struct Vdbe *p, Mem *aMem)
 {
-    struct CnpOp op = {
-        .p1 = (int)(uint64_t)&HOLE_P1,
-        .p2 = (int)(uint64_t)&HOLE_P2,
-        .p3 = (int)(uint64_t)&HOLE_P3,
-        .p5 = (uint16_t)(uint64_t)&HOLE_P5,
-    };
-    cnp_handler_fn_t fn =
-        (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
-    int rc = fn(p, (struct VdbeOp *)&op, aMem);
-    if (rc < 0)
-        return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
-    if (rc > 0) {
-        typedef void (*cnp_signal_fn_t)(struct Vdbe *);
-        cnp_signal_fn_t sig =
-            (cnp_signal_fn_t)(uintptr_t)LOAD_HOLE(HOLE_SIGNAL);
-        sig(p);
-    }
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
     return (int64_t)LOAD_HOLE(HOLE_NEXT);
 }
+
+/* --- OP_SkipLoad (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_SkipLoad(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_BuiltinFunction (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_BuiltinFunction(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_FunctionByName (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_FunctionByName(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_AddImm (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_AddImm(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Array (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Array(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Map (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Map(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Getitem (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Getitem(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Permutation (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Permutation(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Compare (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Compare(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_FetchByName (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_FetchByName(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Fetch (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Fetch(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Count (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Count(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_CreateForeignKey (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_CreateForeignKey(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_CreateCheck (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_CreateCheck(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_DropTupleForeignKey (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_DropTupleForeignKey(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_DropTupleCheck (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_DropTupleCheck(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_DropFieldForeignKey (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_DropFieldForeignKey(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_DropFieldCheck (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_DropFieldCheck(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_AddFuncDefault (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_AddFuncDefault(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_CheckViewReferences (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_CheckViewReferences(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_TransactionBegin (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_TransactionBegin(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_TransactionCommit (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_TransactionCommit(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_TransactionRollback (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_TransactionRollback(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_TTransaction (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_TTransaction(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_IteratorOpen (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_IteratorOpen(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_OpenSpace (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_OpenSpace(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_OpenTEphemeral (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_OpenTEphemeral(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_SorterOpen (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_SorterOpen(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_SequenceTest (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_SequenceTest(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_OpenPseudo (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_OpenPseudo(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Close (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Close(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Sequence (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Sequence(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_NextSystemSpaceId (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_NextSystemSpaceId(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_NextIdEphemeral (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_NextIdEphemeral(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_FCopy (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_FCopy(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_ResetCount (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_ResetCount(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_SorterCompare (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_SorterCompare(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_SorterData (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_SorterData(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_NullRow (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_NullRow(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_SorterInsert (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_SorterInsert(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Clear (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Clear(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_ResetSorter (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_ResetSorter(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_RenameTable (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_RenameTable(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_LoadAnalysis (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_LoadAnalysis(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Param (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Param(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_OffsetLimit (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_OffsetLimit(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Expire (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Expire(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_GenSpaceid (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_GenSpaceid(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_SetSession (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_SetSession(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_ShowCreateTable (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_ShowCreateTable(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Noop (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Noop(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Explain (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Explain(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_IsNull (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_IsNull(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_NotNull (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_NotNull(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Decimal (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Decimal(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_Sort (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_Sort(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_SorterSort (jump) --- */
+int64_t __attribute__((noinline))
+cnp_OP_SorterSort(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_ShiftLeft (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_ShiftLeft(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+
+/* --- OP_ShiftRight (none) --- */
+int64_t __attribute__((noinline))
+cnp_OP_ShiftRight(struct Vdbe *p, Mem *aMem)
+{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}
+

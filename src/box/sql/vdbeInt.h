@@ -332,6 +332,10 @@ struct Vdbe {
 	void *cnp_resume_func;
 	/** Set to 1 by the OP_ResultRow stencil to signal SQL_ROW */
 	int cnp_row_ready;
+	/** Array mapping PC index → stencil address (cnp_nop entries) */
+	void **cnp_pc_stencil;
+	/** Number of ops (size of cnp_pc_stencil array) */
+	int cnp_nop;
 #endif
 };
 

@@ -28,8 +28,13 @@ HOLE_MAP = {
     "HOLE_P3": "CNP_HOLE_P3",
     "HOLE_P4": "CNP_HOLE_P4",
     "HOLE_P5": "CNP_HOLE_P5",
+    "HOLE_OP": "CNP_HOLE_OP",
+    "HOLE_CPC": "CNP_HOLE_CPC",
     "HOLE_NEXT": "CNP_HOLE_NEXT",
     "HOLE_BRANCH": "CNP_HOLE_BRANCH",
+    "HOLE_BRANCH_P1": "CNP_HOLE_BRANCH_P1",
+    "HOLE_BRANCH_P3": "CNP_HOLE_BRANCH_P3",
+    "HOLE_SKIP2": "CNP_HOLE_SKIP2",
     "HOLE_ERROR_EXIT": "CNP_HOLE_ERROR_EXIT",
     "HOLE_HANDLER": "CNP_HOLE_HANDLER",
     "HOLE_SIGNAL": "CNP_HOLE_SIGNAL",
@@ -194,8 +199,13 @@ def emit_header(stencils, output_path, max_opcode):
         out.write("    CNP_HOLE_P3,\n")
         out.write("    CNP_HOLE_P4,\n")
         out.write("    CNP_HOLE_P5,\n")
+        out.write("    CNP_HOLE_OP,\n")
+        out.write("    CNP_HOLE_CPC,\n")
         out.write("    CNP_HOLE_NEXT,\n")
         out.write("    CNP_HOLE_BRANCH,\n")
+        out.write("    CNP_HOLE_BRANCH_P1,\n")
+        out.write("    CNP_HOLE_BRANCH_P3,\n")
+        out.write("    CNP_HOLE_SKIP2,\n")
         out.write("    CNP_HOLE_ERROR_EXIT,\n")
         out.write("    CNP_HOLE_HANDLER,\n")
         out.write("    CNP_HOLE_SIGNAL,\n")

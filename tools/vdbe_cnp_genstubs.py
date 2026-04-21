@@ -1,30 +1,95 @@
 #!/usr/bin/env python3
 """
-Copy-and-Patch stencil stub generator.
+Copy-and-Patch stencil stub generator (M3: all 141 opcodes).
 
-Reads tools/vdbe_dsl/opcodes.yaml and generates vdbe_cnp_stubs.c — one wrapper
-function per opcode that uses HOLE_* extern symbols to create relocations the
-stencil extractor can later find and classify.
+Reads tools/vdbe_dsl/opcodes.yaml and generates vdbe_cnp_stubs.c with
+one wrapper function per opcode (OP_Program excluded).
 
-For M1, generate stubs for 5 opcodes only: OP_Integer, OP_Add, OP_Copy,
-OP_Goto, OP_ResultRow.
-
-Strategy: Each stencil is a function taking (Vdbe *p, Mem *aMem) that returns
-an int (next stencil address or special code).  The CnP runtime loops:
-  while ((rc = stencil(p, aMem)) > 0) { stencil = (func_t)rc; }
-  return rc;  // 0 = done, negative = error, SQL_ROW, SQL_DONE
-
-This avoids the stack-leak problem entirely — each stencil is a normal
-function call with proper prologue/epilogue.
+M3 design:
+  - HOLE_OP: 64-bit pointer to the real VdbeOp (replaces fake CnpOp)
+  - HOLE_CPC: 32-bit current PC (for coroutine operations)
+  - HOLE_SKIP2: 64-bit stencil address at i+2 (SeekGE/SeekLE)
+  - HOLE_BRANCH_P1/P3: 64-bit stencil addresses for OP_Jump 3-way branch
 """
 
 import argparse
 import os
+import re
 import sys
 import yaml
 
-M1_OPCODES = {"OP_Integer", "OP_Add", "OP_Copy", "OP_Goto", "OP_ResultRow",
-              "OP_Halt", "OP_Init"}
+# Handler function overrides (non-standard names from vdbe_dispatch_wrapper.c)
+HANDLER_OVERRIDES = {
+    "OP_SeekLE":          "vdbe_op_seek_le_ge",
+    "OP_SeekGT":          "vdbe_op_seek_lt_gt",
+    "OP_SeekLT":          "vdbe_op_seek_lt_gt",
+    "OP_SeekGE":          "vdbe_op_seek_le_ge",
+    "OP_IdxGE":           "vdbe_op_idx_compare",
+    "OP_IdxGT":           "vdbe_op_idx_compare",
+    "OP_IdxLE":           "vdbe_op_idx_compare",
+    "OP_IdxLT":           "vdbe_op_idx_compare",
+    "OP_IdxInsert":       "vdbe_op_idx_insert_replace",
+    "OP_IdxReplace":      "vdbe_op_idx_insert_replace",
+    "OP_Found":           "vdbe_op_found_notfound_noconflict",
+    "OP_NotFound":        "vdbe_op_found_notfound_noconflict",
+    "OP_NoConflict":      "vdbe_op_found_notfound_noconflict",
+    "OP_Subtract":        "vdbe_op_sub",
+    "OP_DropTupleCheck":  "vdbe_op_droptuplecheckundidocheck_inline",
+    "OP_ShowCreateTable": "vdbe_op_showcreatettable_inline",
+    # control_flow opcodes mapped to their CnP handlers
+    "OP_If":              "vdbe_op_ifnot_inline",
+    "OP_Gosub":           "vdbe_op_gosub_jit",
+    "OP_Return":          "vdbe_op_return_jit",
+    "OP_InitCoroutine":   "vdbe_op_initcoroutine_jit",
+    "OP_Yield":           "vdbe_op_yield_jit",
+    "OP_EndCoroutine":    "vdbe_op_endcoroutine_jit",
+    "OP_MustBeInt":       "vdbe_op_mustbeint",
+    "OP_SetDiag":         "vdbe_cnp_setdiag_handler",
+    "OP_Halt":            "vdbe_cnp_halt_handler",
+    "OP_Init":            "vdbe_cnp_init_handler",
+    "OP_TTransaction":    "vdbe_cnp_ttransaction_handler",
+}
+
+# Per-opcode stencil category:
+#   excluded     - no stencil (OP_Program)
+#   goto         - unconditional jump to HOLE_BRANCH (OP_Goto)
+#   jump3way     - OP_Jump: p->iCompare → HOLE_BRANCH_P1/BRANCH/BRANCH_P3
+#   jump         - handler call; rc>0 → HOLE_BRANCH
+#   none         - handler call; always fall through to HOLE_NEXT
+#   row          - handler call; rc>0 → signal then HOLE_NEXT
+#   seekskip     - handler call; rc==1→BRANCH, rc==2→SKIP2
+#   coroutine_cpc - set p->pc, call jit handler, return pc+BASE
+#   coroutine_npc - call jit handler, return pc+BASE (no p->pc set)
+#   setdiag      - handler call; rc>0→BRANCH (no error path)
+CATEGORY_OVERRIDES = {
+    "OP_Program":       "excluded",
+    "OP_Goto":          "goto",
+    "OP_Jump":          "jump3way",
+    "OP_If":            "jump",
+    "OP_Gosub":         "coroutine_cpc",
+    "OP_Return":        "coroutine_npc",
+    "OP_InitCoroutine": "coroutine_cpc",
+    "OP_Yield":         "coroutine_cpc",
+    "OP_EndCoroutine":  "coroutine_npc",
+    "OP_MustBeInt":     "jump",
+    "OP_SetDiag":       "setdiag",
+    "OP_Halt":          "jump",
+    "OP_Init":          "jump",
+    "OP_TTransaction":  "none",
+    "OP_SeekGE":        "seekskip",
+    "OP_SeekLE":        "seekskip",
+    "OP_ResultRow":     "row",
+    # Opcodes in shared case blocks or using pOp->p2 (not caught by regex)
+    "OP_SeekLT":        "jump",
+    "OP_SeekGT":        "jump",
+    "OP_IdxGE":         "jump",
+    "OP_IdxGT":         "jump",
+    "OP_IdxLE":         "jump",
+    "OP_IdxLT":         "jump",
+    "OP_IfPos":         "jump",
+    "OP_IfNotZero":     "jump",
+    "OP_DecrJumpZero":  "jump",
+}
 
 HEADER = """\
 /*
@@ -32,40 +97,39 @@ HEADER = """\
  *
  * Copy-and-Patch stencil wrappers.  Each function returns the address
  * of the next stencil to execute, or a special status code.
+ *
+ * M3 design: all stencils use HOLE_OP (pointer to the real VdbeOp)
+ * instead of a fake CnpOp struct, giving handlers access to all operands
+ * including p4 fields (collation, key_info, string pointer, etc.).
  */
 
 #include <stdint.h>
 #include <stddef.h>
 
 /*
- * Hole markers — extern symbols whose relocations become "holes"
- * in the extracted stencils.
+ * HOLE_OP: 64-bit pointer to the real VdbeOp for this instruction.
+ * Patched at compile time to &p->aOp[i].  Loaded via movabs so the
+ * relocation is R_X86_64_64 (no +/-2 GB limit).
  *
- * Operand holes (P1..P5) generate R_X86_64_32S relocations (32-bit
- * signed immediate) when used as integer initializers.
+ * HOLE_CPC: 32-bit current PC value (R_X86_64_32S).  Patched to the
+ * integer index i of this instruction.  Used by coroutine ops to set
+ * p->pc before calling the jit handler.
  *
- * Control-flow and handler holes (NEXT, BRANCH, ERROR_EXIT, HANDLER)
- * use LOAD_HOLE() which emits a movabs + R_X86_64_64 relocation,
- * giving a full 64-bit patchable immediate that works at any address.
+ * HOLE_SKIP2: 64-bit address of stencil at i+2.  Used by SeekGE/SeekLE
+ * when the handler returns rc==2 (skip the following IdxLT/GT opcode).
+ *
+ * HOLE_BRANCH_P1/P3: 64-bit stencil addresses for OP_Jump's three-way
+ * branch (P1 = less-than target, P3 = greater-than target).
  */
-extern uint64_t HOLE_P1;
-extern uint64_t HOLE_P2;
-extern uint64_t HOLE_P3;
-extern uint64_t HOLE_P4;
-extern uint64_t HOLE_P5;
+extern uint64_t HOLE_OP;
+extern uint64_t HOLE_CPC;
 extern uint64_t HOLE_NEXT;
 extern uint64_t HOLE_BRANCH;
+extern uint64_t HOLE_BRANCH_P1;
+extern uint64_t HOLE_BRANCH_P3;
+extern uint64_t HOLE_SKIP2;
 extern uint64_t HOLE_ERROR_EXIT;
-/*
- * HOLE_HANDLER: 64-bit absolute address of the opcode handler function.
- * Loaded via movabs so the relocation is R_X86_64_64 (no ±2 GB limit),
- * allowing the JIT buffer to be mapped at any address.
- */
 extern uint64_t HOLE_HANDLER;
-/*
- * HOLE_SIGNAL: address of cnp_signal_row(); called by OP_ResultRow to
- * notify the dispatch loop that a result row is ready.
- */
 extern uint64_t HOLE_SIGNAL;
 
 /*
@@ -82,6 +146,12 @@ cnp_load_hole(uint64_t *hole)
 
 #define LOAD_HOLE(name) cnp_load_hole(&(name))
 
+/*
+ * Minimal Vdbe field accessors (avoids pulling in full Tarantool headers).
+ * vdbe_cnp_vdbe_view.h defines CnpVdbeView and cnp_vdbe_pc/cnp_vdbe_icompare.
+ */
+#include "vdbe_cnp_vdbe_view.h"
+
 /* Forward declarations — real types from Tarantool. */
 struct Vdbe;
 struct VdbeOp;
@@ -89,80 +159,56 @@ struct Mem;
 
 typedef struct Mem Mem;
 
+/* Standard opcode handler: rc<0=error, rc>0=branch/signal, rc==0=continue. */
+typedef int (*cnp_handler_fn_t)(struct Vdbe *, struct VdbeOp *, Mem *);
+
+/* JIT coroutine handler: returns target PC (non-negative). */
+typedef int (*cnp_jit_fn_t)(struct Vdbe *, struct VdbeOp *, Mem *);
+
+/* Row-signal function called by the OP_ResultRow stencil. */
+typedef void (*cnp_row_signal_t)(struct Vdbe *);
+
 /*
- * Minimal Op struct matching the beginning of VdbeOp.
- * Used to pass operands to external handler functions.
+ * Base added to coroutine target PCs before returning from a stencil.
+ * Values 0 (error), 1 (SQL_ROW), 2 (SQL_DONE) are already taken, so
+ * coroutine returns use 3+ to encode target_pc.
  */
-struct CnpOp {
-    uint8_t opcode;
-    uint8_t p4type;
-    uint16_t p5;
-    int p1;
-    int p2;
-    int p3;
-};
+#define CNP_PC_JUMP_BASE 3
 
 /*
  * Stencil return convention:
- *   >= CNP_ADDR_THRESHOLD : address of next stencil (int64_t cast)
- *   SQL_DONE (2)          : all rows delivered
- *   SQL_ROW  (1)          : row ready (caller must resume)
- *   -1                    : fatal error
- *
- * Valid mmap'd addresses on x86_64 Linux are always well above 4096,
- * so small integers are safe as status codes.
+ *   >= CNP_ADDR_THRESHOLD            : address of next stencil
+ *   CNP_PC_JUMP_BASE..THRESHOLD-1    : coroutine PC jump (target_pc+base)
+ *   SQL_DONE (2)                     : all rows delivered
+ *   SQL_ROW  (1)                     : row ready (caller must resume)
+ *   -1                               : fatal error
  */
 
 """
 
 
-def emit_external_handler(name, handler_func, branch_type):
-    """Emit a stub that calls an external handler and returns next address.
-
-    Uses LOAD_HOLE(HOLE_HANDLER) for the call so the relocation is an
-    R_X86_64_64 (64-bit absolute movabs), which works at any JIT buffer
-    address — unlike a PLT32 call that only covers ±2 GB.
-
-    branch_type:
-      "none" — always falls through to HOLE_NEXT
-      "jump" — on rc>0, returns HOLE_BRANCH (e.g. OP_Init jumps to P2)
-      "row"  — on rc>0, calls HOLE_SIGNAL(p) to set cnp_row_ready,
-               then returns HOLE_NEXT (e.g. OP_ResultRow)
-    """
-    lines = []
-    lines.append("typedef int (*cnp_handler_fn_t)"
-                 "(struct Vdbe *, struct VdbeOp *, Mem *);")
-    lines.append(f"int64_t __attribute__((noinline))")
-    lines.append(f"cnp_{name}(struct Vdbe *p, Mem *aMem)")
-    lines.append("{")
-    lines.append("    struct CnpOp op = {")
-    lines.append("        .p1 = (int)(uint64_t)&HOLE_P1,")
-    lines.append("        .p2 = (int)(uint64_t)&HOLE_P2,")
-    lines.append("        .p3 = (int)(uint64_t)&HOLE_P3,")
-    lines.append("        .p5 = (uint16_t)(uint64_t)&HOLE_P5,")
-    lines.append("    };")
-    lines.append("    cnp_handler_fn_t fn =")
-    lines.append("        (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);")
-    lines.append(f"    int rc = fn(p, (struct VdbeOp *)&op, aMem);")
-    lines.append("    if (rc < 0)")
-    lines.append("        return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);")
-    if branch_type == "jump":
-        lines.append("    if (rc > 0)")
-        lines.append("        return (int64_t)LOAD_HOLE(HOLE_BRANCH);")
-    elif branch_type == "row":
-        lines.append("    if (rc > 0) {")
-        lines.append("        typedef void (*cnp_signal_fn_t)(struct Vdbe *);")
-        lines.append("        cnp_signal_fn_t sig =")
-        lines.append("            (cnp_signal_fn_t)(uintptr_t)LOAD_HOLE(HOLE_SIGNAL);")
-        lines.append("        sig(p);")
-        lines.append("    }")
-    lines.append("    return (int64_t)LOAD_HOLE(HOLE_NEXT);")
-    lines.append("}")
-    return "\n".join(lines)
+def derive_handler(name, ht):
+    """Derive the C handler function name for an opcode."""
+    if name in HANDLER_OVERRIDES:
+        return HANDLER_OVERRIDES[name]
+    if ht == "external":
+        return "vdbe_op_" + name[3:].lower()
+    if ht == "external_inline":
+        return "vdbe_op_" + name[3:].lower() + "_inline"
+    return None
 
 
-def emit_goto_stub():
-    """OP_Goto: unconditional jump to P2."""
+def has_jump_in_wrapper(op_name, dw_text):
+    """Check if this opcode's dispatch-wrapper block jumps to P2 on rc>0."""
+    pattern = rf"case {re.escape(op_name)}:(.*?)(?=\n\t*case |\Z)"
+    m = re.search(pattern, dw_text, re.DOTALL)
+    if m:
+        block = m.group(1)
+        return "pc = P2" in block or "pc = pOp->p2" in block
+    return False
+
+
+def emit_goto():
     return """\
 int64_t __attribute__((noinline))
 cnp_OP_Goto(struct Vdbe *p, Mem *aMem)
@@ -172,48 +218,184 @@ cnp_OP_Goto(struct Vdbe *p, Mem *aMem)
 }"""
 
 
+def emit_jump3way():
+    return """\
+int64_t __attribute__((noinline))
+cnp_OP_Jump(struct Vdbe *p, Mem *aMem)
+{
+    (void)aMem;
+    if (cnp_vdbe_icompare(p) < 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH_P1);
+    if (cnp_vdbe_icompare(p) > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH_P3);
+    return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+}"""
+
+
+def emit_none(name):
+    return f"""\
+int64_t __attribute__((noinline))
+cnp_{name}(struct Vdbe *p, Mem *aMem)
+{{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}}"""
+
+
+def emit_jump(name):
+    return f"""\
+int64_t __attribute__((noinline))
+cnp_{name}(struct Vdbe *p, Mem *aMem)
+{{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}}"""
+
+
+def emit_row(name):
+    return f"""\
+int64_t __attribute__((noinline))
+cnp_{name}(struct Vdbe *p, Mem *aMem)
+{{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc > 0) {{
+        cnp_row_signal_t sig_fn = (cnp_row_signal_t)(uintptr_t)LOAD_HOLE(HOLE_SIGNAL);
+        sig_fn(p);
+    }}
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}}"""
+
+
+def emit_seekskip(name):
+    return f"""\
+int64_t __attribute__((noinline))
+cnp_{name}(struct Vdbe *p, Mem *aMem)
+{{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    if (rc == 1) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    if (rc == 2) return (int64_t)LOAD_HOLE(HOLE_SKIP2);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}}"""
+
+
+def emit_coroutine_cpc(name):
+    return f"""\
+int64_t __attribute__((noinline))
+cnp_{name}(struct Vdbe *p, Mem *aMem)
+{{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_vdbe_pc(p) = (int)(uint64_t)&HOLE_CPC;
+    cnp_jit_fn_t fn = (cnp_jit_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int target = fn(p, pOp, aMem);
+    if (target < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)(target + CNP_PC_JUMP_BASE);
+}}"""
+
+
+def emit_coroutine_npc(name):
+    return f"""\
+int64_t __attribute__((noinline))
+cnp_{name}(struct Vdbe *p, Mem *aMem)
+{{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_jit_fn_t fn = (cnp_jit_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int target = fn(p, pOp, aMem);
+    if (target < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
+    return (int64_t)(target + CNP_PC_JUMP_BASE);
+}}"""
+
+
+def emit_setdiag(name):
+    return f"""\
+int64_t __attribute__((noinline))
+cnp_{name}(struct Vdbe *p, Mem *aMem)
+{{
+    struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);
+    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+}}"""
+
+
+EMITTERS = {
+    "goto":          lambda name: emit_goto(),
+    "jump3way":      lambda name: emit_jump3way(),
+    "none":          emit_none,
+    "jump":          emit_jump,
+    "row":           emit_row,
+    "seekskip":      emit_seekskip,
+    "coroutine_cpc": emit_coroutine_cpc,
+    "coroutine_npc": emit_coroutine_npc,
+    "setdiag":       emit_setdiag,
+}
+
+
+def classify(name, ht, dw_text):
+    if name in CATEGORY_OVERRIDES:
+        return CATEGORY_OVERRIDES[name]
+    if ht in ("external", "external_inline"):
+        return "jump" if has_jump_in_wrapper(name, dw_text) else "none"
+    return "none"
+
+
 def generate(yaml_path, output_path):
-    with open(yaml_path, "r") as f:
+    with open(yaml_path) as f:
         opcodes = yaml.safe_load(f)
 
-    opcode_map = {op["name"]: op for op in opcodes}
+    # Load dispatch wrapper for jump detection.
+    # Use __file__-relative path (tools/ → repo_root) to avoid breakage
+    # when yaml_path is given as a relative or absolute path from elsewhere.
+    _tools_dir = os.path.dirname(os.path.abspath(__file__))
+    _repo_root = os.path.dirname(_tools_dir)
+    wrapper_path = os.path.join(_repo_root, "src", "box", "sql",
+                                "vdbe_dispatch_wrapper.c")
+    dw_text = ""
+    if os.path.exists(wrapper_path):
+        with open(wrapper_path) as f:
+            dw_text = f.read()
+    else:
+        print(f"WARNING: dispatch wrapper not found at {wrapper_path}",
+              file=sys.stderr)
+        print("  Jump classification will default to 'none' for all opcodes.",
+              file=sys.stderr)
 
+    n_stencils = 0
     with open(output_path, "w") as out:
         out.write(HEADER)
 
-        out.write("/* --- OP_Goto (control_flow: unconditional jump) --- */\n")
-        out.write(emit_goto_stub())
-        out.write("\n\n")
+        for op in opcodes:
+            name = op["name"]
+            ht = op.get("handler_type", "external")
 
-        out.write("/* --- OP_Init (external, jump to P2 on success) --- */\n")
-        out.write(emit_external_handler("OP_Init", "vdbe_cnp_init_handler",
-                                         "jump"))
-        out.write("\n\n")
+            cat = classify(name, ht, dw_text)
+            if cat == "excluded":
+                continue
 
-        out.write("/* --- OP_Halt (external, jump branch returns SQL_DONE) --- */\n")
-        out.write(emit_external_handler("OP_Halt", "vdbe_cnp_halt_handler",
-                                         "jump"))
-        out.write("\n\n")
+            handler = derive_handler(name, ht)
+            emitter = EMITTERS.get(cat)
+            if emitter is None:
+                print(f"WARNING: unknown category '{cat}' for {name}",
+                      file=sys.stderr)
+                continue
 
-        out.write("/* --- OP_Integer (external, no branch) --- */\n")
-        out.write(emit_external_handler("OP_Integer", "vdbe_op_integer",
-                                         "none"))
-        out.write("\n\n")
+            out.write(f"/* --- {name} ({cat}) --- */\n")
+            out.write(emitter(name))
+            out.write("\n\n")
+            n_stencils += 1
 
-        out.write("/* --- OP_Add (external, no branch) --- */\n")
-        out.write(emit_external_handler("OP_Add", "vdbe_op_add", "none"))
-        out.write("\n\n")
-
-        out.write("/* --- OP_Copy (external, no branch) --- */\n")
-        out.write(emit_external_handler("OP_Copy", "vdbe_op_copy", "none"))
-        out.write("\n\n")
-
-        out.write("/* --- OP_ResultRow (external, signal row then continue) --- */\n")
-        out.write(emit_external_handler("OP_ResultRow",
-                                         "vdbe_op_resultrow", "row"))
-        out.write("\n")
-
-    print(f"Generated {output_path} with {len(M1_OPCODES)} stencil stubs")
+    print(f"Generated {output_path} with {n_stencils} stencil stubs")
 
 
 def main():
