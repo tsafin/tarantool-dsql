@@ -23,12 +23,17 @@ digraph automatic_path {
         arrowsize=0.8
     ];
 
-    sql   [label="SQL text", fillcolor="#f8f8f8", color="#666666"];
-    exec  [label="box.execute(sql, args)", fillcolor="#ffe4df"];
-    prep  [label="Prepare every call", fillcolor="#ffd6cf"];
-    jit   [label="JIT compile every call\nif enabled", fillcolor="#ffc7bd"];
-    once  [label="Execute once", fillcolor="#ffe8c8", color="#8d6937"];
-    drop  [label="Statement destroyed", fillcolor="#f1f1f1", color="#777777"];
+    sql    [label="SQL text", fillcolor="#f8f8f8", color="#666666"];
+    exec   [label="box.execute(sql, args)", fillcolor="#ffe4df"];
+    lookup [label="auto_stmt_cache\nlookup (256-slot)", fillcolor="#e8f4e8", color="#2a6e2a"];
+    miss   [label="MISS:\nPrepare + JIT compile\n(once per distinct SQL)", fillcolor="#ffd6cf"];
+    store  [label="Store in cache", fillcolor="#d4ecd4", color="#2a6e2a"];
+    hit    [label="HIT:\nReset + rebind\n(no recompile)", fillcolor="#d4ecd4", color="#2a6e2a"];
+    run    [label="Execute\n(reuse cached stmt)", fillcolor="#ffe8c8", color="#8d6937"];
 
-    sql -> exec -> prep -> jit -> once -> drop;
+    sql -> exec -> lookup;
+    lookup -> miss [label="first call"];
+    miss -> store -> run;
+    lookup -> hit [label="subsequent calls"];
+    hit -> run;
 }
