@@ -25,6 +25,8 @@ struct Vdbe;
 #define VDBE_JIT_RC_DONE INT_MIN
 #define VDBE_JIT_RC_ROW (INT_MIN + 1)
 
+#ifdef ENABLE_SQL_JIT
+
 /**
  * Initialize the JIT compiler subsystem.
  * Must be called before any other JIT functions.
@@ -96,3 +98,17 @@ vdbe_jit_note_row(struct Vdbe *p);
  */
 int
 vdbe_jit_compile_cached(struct Vdbe *p);
+
+#else /* !ENABLE_SQL_JIT */
+
+static inline int vdbe_jit_init(void) { return 0; }
+static inline int vdbe_jit_compile(struct Vdbe *p) { (void)p; return 0; }
+static inline void vdbe_jit_cleanup(struct Vdbe *p) { (void)p; }
+static inline void vdbe_jit_shutdown(void) {}
+static inline int vdbe_jit_is_enabled(void) { return 0; }
+static inline void vdbe_jit_note_fallback(struct Vdbe *p, int pc)
+	{ (void)p; (void)pc; }
+static inline void vdbe_jit_note_row(struct Vdbe *p) { (void)p; }
+static inline int vdbe_jit_compile_cached(struct Vdbe *p) { (void)p; return 0; }
+
+#endif /* ENABLE_SQL_JIT */
