@@ -224,6 +224,18 @@ sql_stmt_schema_version(const struct Vdbe *v)
 	return v->schema_ver;
 }
 
+bool
+sql_stmt_is_run_only_once(const struct Vdbe *v)
+{
+	return v->runOnlyOnce != 0;
+}
+
+bool
+sql_stmt_is_expired(const struct Vdbe *v)
+{
+	return v->expired != 0;
+}
+
 static size_t
 sql_metadata_size(const struct sql_column_metadata *metadata)
 {

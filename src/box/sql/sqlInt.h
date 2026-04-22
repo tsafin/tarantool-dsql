@@ -411,6 +411,14 @@ sql_column_span(struct Vdbe *v, int n);
 uint64_t
 sql_stmt_schema_version(const struct Vdbe *stmt);
 
+/** Return true if the VDBE is marked run-only-once (e.g. PRAGMA). */
+bool
+sql_stmt_is_run_only_once(const struct Vdbe *stmt);
+
+/** Return true if the VDBE has been expired (needs recompilation). */
+bool
+sql_stmt_is_expired(const struct Vdbe *stmt);
+
 int
 sql_initialize(void);
 
