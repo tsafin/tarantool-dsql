@@ -16,7 +16,10 @@ local function opcode_count(profile, ...)
 end
 
 g.before_all(function()
-    g.server = server:new({alias = 'sql_stats'})
+    g.server = server:new({
+        alias = 'sql_stats',
+        env = { VDBE_DISPATCHER = 'generated' },
+    })
     g.server:start()
 end)
 
