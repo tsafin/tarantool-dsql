@@ -170,6 +170,11 @@ set(sql_sources
 # Add JIT source file only when JIT is enabled
 if(ENABLE_SQL_JIT)
     list(APPEND sql_sources sql/vdbe_jit.c)
+    list(APPEND sql_sources sql/vdbe_jit_perf.cc)
+    # vdbe_jit_perf.cc includes LLVM C++ headers that require C++17 with GCC 8.
+    # Suppress -Wunused-parameter from LLVM system headers in debug builds.
+    set_source_files_properties(sql/vdbe_jit_perf.cc PROPERTIES
+        COMPILE_FLAGS "-std=c++17 -Wno-unused-parameter")
 endif()
 
 # Add CnP source file only when CnP is enabled
@@ -310,6 +315,7 @@ if(ENABLE_SQL_CNP)
         OUTPUT ${CNP_STUBS_O}
         COMMAND ${CLANG_CNP}
             -O2 -fno-pic -fno-asynchronous-unwind-tables -fno-stack-protector
+            -fno-omit-frame-pointer
             ${CNP_INCLUDE_FLAGS}
             -c ${CNP_STUBS_C}
             -o ${CNP_STUBS_O}

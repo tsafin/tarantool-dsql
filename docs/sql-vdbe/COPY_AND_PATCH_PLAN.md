@@ -204,7 +204,7 @@ Not in the first shipped version, in order of likely priority for a follow-up:
 | M2 — Runtime | `vdbe_cnp.c` compiles and runs a hand-built 5-op program end to end | W^X plumbing on all targets | Sum 1+2+3+4+5 returns correct result |
 | M3 — Full coverage | All 141 JIT-covered opcodes have stencils; TAP `sql-tap` suite passes | Long tail of handler quirks | Parallel-diff against generated dispatcher: zero divergence |
 | M4 — Benchmark | `SQL_JIT_BENCHMARK.md` extended with `cnp` column | Worst case: CnP code slower than interpreter | `tiny_const automatic_execute` ≥ interpreter throughput |
-| M5 — Unwind + debug | `perf` / `gdb` see JIT frames | Cross-platform unwind encoding | `perf record` produces symbolicated samples |
+| M5 — Unwind + debug | `perf` / `gdb` see JIT frames | Cross-platform unwind encoding | `perf record` produces symbolicated samples — **DONE** (CnP: `/tmp/perf-PID.map`, MCJIT: `PerfJITEventListener`) |
 | M6 — Default on | Flip default when `ENABLE_SQL_CNP=ON` | Rollback complexity | Two consecutive weekly TAP runs clean |
 
 The single biggest technical risk is the relocation-kind inventory: compilers occasionally emit relocations the extractor doesn't recognize, and the failure mode is a silent miscompile rather than a build error. Mitigate with a strict-mode extractor (unknown relocation → hard fail, never "best effort"), and with the per-opcode fuzz tests from §9(3), which catch any stencil whose patching semantics are wrong.

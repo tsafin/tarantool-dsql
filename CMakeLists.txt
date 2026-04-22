@@ -812,6 +812,7 @@ if(ENABLE_SQL_JIT)
         Core Support OrcJIT ExecutionEngine MCJIT RuntimeDyld
         Analysis BitReader Linker
         ScalarOpts InstCombine TransformUtils IPO
+        PerfJITEvents
         ${LLVM_NATIVE_TARGET}
     )
 
