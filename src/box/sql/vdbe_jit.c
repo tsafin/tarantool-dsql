@@ -371,6 +371,18 @@ static struct sql_jit_state jit_state = {0};
 static uint64_t jit_module_serial = 0;
 static struct mh_i64ptr_t *jit_negative_cache;
 static struct mh_i64ptr_t *jit_shape_negative_cache;
+/*
+ * Positive shape cache: maps (full_shape_hash, schema_version) -> jit_func_ptr.
+ *
+ * For literal one-shot programs (no bound parameters) with the same opcode
+ * structure, the JIT-compiled function is identical across all instances —
+ * literal values are read from p->aOp[i].p1 at runtime, not baked into code.
+ * We compile once and reuse the cached function pointer.
+ *
+ * The module is permanently owned by the execution engine (p->jit_module is
+ * cleared for cache-hit Vdbes so that vdbe_jit_cleanup does not dispose it).
+ */
+static struct mh_i64ptr_t *jit_shape_positive_cache;
 
 static inline uint64_t
 jit_negative_cache_key(uint32_t stmt_id, uint64_t schema_version)
@@ -450,6 +462,69 @@ jit_shape_negative_cache_add(uint32_t shape_hash, uint64_t schema_version)
 		return;
 	struct mh_i64ptr_node_t node = { key, NULL };
 	mh_i64ptr_put(jit_shape_negative_cache, &node, NULL, NULL);
+}
+
+/*
+ * Extended shape hash for the positive cache.
+ *
+ * Unlike jit_stmt_shape_hash() (used by the negative cache), this hash also
+ * covers p2 and p3 per opcode.  p2 is the branch-target for conditional
+ * opcodes, and p3 is used as a secondary register index by several opcodes.
+ * Including them guarantees that two programs which differ only in jump targets
+ * or register indices do NOT share a compiled function.
+ *
+ * Programs that share this hash have bit-for-bit identical compiled native
+ * code, because:
+ *  - The JIT bakes p2 into branch edges (op_blocks[pOp->p2]) at compile time.
+ *  - Literal values (p1) are read from p->aOp[i].p1 at *execution* time, so
+ *    they do NOT affect the compiled code.
+ */
+static uint32_t
+jit_stmt_full_shape_hash(const struct Vdbe *p)
+{
+	uint64_t hash = UINT64_C(1469598103934665603);
+	hash = jit_shape_hash_mix(hash, (uint64_t)p->nOp);
+	for (int i = 0; i < p->nOp; ++i) {
+		const Op *op = &p->aOp[i];
+		hash = jit_shape_hash_mix(hash, (uint64_t)op->opcode);
+		hash = jit_shape_hash_mix(hash, (uint64_t)(unsigned)op->p2);
+		hash = jit_shape_hash_mix(hash, (uint64_t)(unsigned)op->p3);
+		hash = jit_shape_hash_mix(hash, (uint64_t)(unsigned char)op->p4type);
+		hash = jit_shape_hash_mix(hash, (uint64_t)op->p5);
+	}
+	return (uint32_t)(hash ^ (hash >> 32));
+}
+
+static uint64_t
+jit_shape_positive_cache_key(uint32_t full_hash, uint64_t schema_version)
+{
+	return (schema_version << 32) | full_hash;
+}
+
+static void *
+jit_shape_positive_cache_get(uint32_t full_hash, uint64_t schema_version)
+{
+	if (jit_shape_positive_cache == NULL)
+		return NULL;
+	uint64_t key = jit_shape_positive_cache_key(full_hash, schema_version);
+	mh_int_t pos = mh_i64ptr_find(jit_shape_positive_cache, key, NULL);
+	if (pos == mh_end(jit_shape_positive_cache))
+		return NULL;
+	return mh_i64ptr_node(jit_shape_positive_cache, pos)->val;
+}
+
+static void
+jit_shape_positive_cache_add(uint32_t full_hash, uint64_t schema_version,
+			     void *func_ptr)
+{
+	if (jit_shape_positive_cache == NULL)
+		return;
+	uint64_t key = jit_shape_positive_cache_key(full_hash, schema_version);
+	if (mh_i64ptr_find(jit_shape_positive_cache, key, NULL) !=
+	    mh_end(jit_shape_positive_cache))
+		return;
+	struct mh_i64ptr_node_t node = { key, func_ptr };
+	mh_i64ptr_put(jit_shape_positive_cache, &node, NULL, NULL);
 }
 
 static void
@@ -656,6 +731,20 @@ vdbe_jit_init(void)
 		jit_state.modules_loaded = 0;
 		diag_set(OutOfMemory, 0, "mh_i64ptr_new",
 			 "jit_shape_negative_cache");
+		return -1;
+	}
+	jit_shape_positive_cache = mh_i64ptr_new();
+	if (jit_shape_positive_cache == NULL) {
+		mh_i64ptr_delete(jit_shape_negative_cache);
+		jit_shape_negative_cache = NULL;
+		mh_i64ptr_delete(jit_negative_cache);
+		jit_negative_cache = NULL;
+		free(jit_state.handler_modules);
+		jit_state.handler_modules = NULL;
+		jit_state.module_count = 0;
+		jit_state.modules_loaded = 0;
+		diag_set(OutOfMemory, 0, "mh_i64ptr_new",
+			 "jit_shape_positive_cache");
 		return -1;
 	}
 
@@ -1174,7 +1263,28 @@ vdbe_jit_compile(struct Vdbe *p)
 		return 0;
 	}
 	uint32_t shape_hash = 0;
+	uint32_t full_shape_hash = 0;
 	if (is_literal_oneshot) {
+		full_shape_hash = jit_stmt_full_shape_hash(p);
+		/*
+		 * Positive cache: if we have already compiled a program with
+		 * identical structure (same opcodes AND jump targets), reuse
+		 * the existing native function.  p1 values (literals) are read
+		 * from p->aOp[i].p1 at execution time, so the same compiled
+		 * function handles all literal variants of the same shape.
+		 *
+		 * Set jit_module = NULL so that vdbe_jit_cleanup() does not
+		 * attempt to remove the shared module from the engine.
+		 */
+		void *cached_func =
+			jit_shape_positive_cache_get(full_shape_hash,
+						     schema_version);
+		if (cached_func != NULL) {
+			p->jit_func = cached_func;
+			p->jit_module = NULL;
+			p->jit_compiled = 1;
+			return 0;
+		}
 		shape_hash = jit_stmt_shape_hash(p);
 		if (jit_shape_negative_cache_contains(shape_hash, schema_version)) {
 			p->jit_compiled = 0;
@@ -1934,6 +2044,21 @@ vdbe_jit_compile(struct Vdbe *p)
 		  (void *)p, p->nOp, inline_count, call_count,
 		  unsupported_count);
 
+	/*
+	 * For literal one-shot programs, cache the compiled function so that
+	 * subsequent programs with the same structure (e.g. 30,000 INSERTs
+	 * with different literal values) skip recompilation entirely.
+	 *
+	 * The module is permanently owned by the execution engine: we clear
+	 * p->jit_module so that vdbe_jit_cleanup does not attempt to remove
+	 * it.  The native code remains valid until vdbe_jit_shutdown().
+	 */
+	if (is_literal_oneshot && full_shape_hash != 0) {
+		jit_shape_positive_cache_add(full_shape_hash, schema_version,
+					     p->jit_func);
+		p->jit_module = NULL;
+	}
+
 	free(op_blocks);
 	return 0;
 }
@@ -1984,6 +2109,10 @@ vdbe_jit_shutdown(void)
 	if (jit_shape_negative_cache != NULL) {
 		mh_i64ptr_delete(jit_shape_negative_cache);
 		jit_shape_negative_cache = NULL;
+	}
+	if (jit_shape_positive_cache != NULL) {
+		mh_i64ptr_delete(jit_shape_positive_cache);
+		jit_shape_positive_cache = NULL;
 	}
 
 	jit_state.initialized = 0;
