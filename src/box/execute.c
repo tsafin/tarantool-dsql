@@ -137,8 +137,10 @@ auto_cache_lookup(uint32_t sql_hash, uint32_t sql_flags,
 	if (cached_len != sql_len || memcmp(cached_sql, sql, sql_len) != 0)
 		goto evict;
 
-	/* Reject stale stmts (schema changed since compile). */
-	if (sql_stmt_schema_version(e->stmt) != box_schema_version())
+	/* Reject stale stmts (schema changed since compile, or expired by
+	 * sqlExpirePreparedStatements e.g. after a function was created/dropped). */
+	if (sql_stmt_schema_version(e->stmt) != box_schema_version() ||
+	    sql_stmt_is_expired(e->stmt))
 		goto evict;
 
 	/* Reject stmts that are mid-execution (should not happen in practice). */
@@ -153,19 +155,28 @@ evict:
 
 /*
  * Insert stmt into the auto cache, evicting any existing occupant of the slot.
- * The cache takes ownership; the caller must NOT finalize stmt afterwards.
+ * Returns true if the stmt was cached (caller must NOT finalize it afterwards).
+ * Returns false if the slot is occupied by a busy (mid-execution) stmt — in
+ * that case the caller must treat stmt as transient and free it itself.
  */
-static void
+static bool
 auto_cache_insert(uint32_t sql_hash, uint32_t sql_flags, struct Vdbe *stmt)
 {
 	uint32_t slot = auto_cache_slot(sql_hash, sql_flags);
 	struct auto_cache_entry *e = &auto_stmt_cache[slot];
-	/* Evict whatever is currently in this slot (if anything). */
+	/*
+	 * Never evict a stmt that is currently executing: another fiber may be
+	 * suspended mid-execution on it and holds a live pointer to it.
+	 * Return false so the caller runs this stmt as a transient one-shot.
+	 */
+	if (e->stmt != NULL && e->stmt != stmt && sql_stmt_busy(e->stmt))
+		return false;
 	if (e->stmt != NULL && e->stmt != stmt)
 		sql_stmt_finalize(e->stmt);
 	e->sql_hash = sql_hash;
 	e->sql_flags = sql_flags;
 	e->stmt = stmt;
+	return true;
 }
 
 const char *sql_info_key_strs[] = {
@@ -400,16 +411,53 @@ sql_prepare_and_execute(const char *sql, int len, const struct sql_bind *bind,
 			return -1;
 		assert(stmt != NULL);
 		/*
-		 * Hand ownership to the cache.  The cache manages the stmt
-		 * lifetime from here on; we must not finalize it ourselves.
+		 * Run-only-once statements (e.g. PRAGMA) expire immediately
+		 * after first execution, so caching them is pointless and
+		 * leads to a stale-stmt assertion on the second call.  Let
+		 * the stmt be owned by port_sql (auto_destroy = true) instead.
 		 */
-		auto_cache_insert(stmt_id, sql_flags, stmt);
+		if (sql_stmt_is_run_only_once(stmt)) {
+			enum sql_serialization_format fmt =
+				sql_column_count(stmt) > 0 ?
+				DQL_EXECUTE : DML_EXECUTE;
+			port_sql_create(port, stmt, fmt, true);
+			int rc = 0;
+			if (sql_bind(stmt, bind, bind_count) != 0 ||
+			    sql_execute(stmt, port, region) != 0) {
+				port_destroy(port);
+				rc = -1;
+			}
+			return rc;
+		}
+		/*
+		 * Hand ownership to the cache.  If the cache slot is occupied
+		 * by a busy (mid-execution) stmt from another fiber, insertion
+		 * is skipped — run this stmt as a transient one-shot instead.
+		 */
+		bool cached = auto_cache_insert(stmt_id, sql_flags, stmt);
 		/*
 		 * If JIT skipped this stmt due to the trivial-program filter
 		 * (which only applies to non-prepared stmts), recompile with
 		 * the prepared-stmt path so the cached copy runs natively.
 		 */
 		vdbe_jit_compile_cached(stmt);
+		if (!cached) {
+			/*
+			 * Transient stmt: port takes ownership (auto_destroy).
+			 * No manual reset is needed — port cleans up on destroy.
+			 */
+			enum sql_serialization_format fmt =
+				sql_column_count(stmt) > 0 ?
+				DQL_EXECUTE : DML_EXECUTE;
+			port_sql_create(port, stmt, fmt, true);
+			int rc = 0;
+			if (sql_bind(stmt, bind, bind_count) != 0 ||
+			    sql_execute(stmt, port, region) != 0) {
+				port_destroy(port);
+				rc = -1;
+			}
+			return rc;
+		}
 	} else {
 		/* Clear state left over from the previous execution cycle. */
 		sql_unbind(stmt);
@@ -419,8 +467,8 @@ sql_prepare_and_execute(const char *sql, int len, const struct sql_bind *bind,
 	enum sql_serialization_format format = sql_column_count(stmt) > 0 ?
 					       DQL_EXECUTE : DML_EXECUTE;
 	/*
-	 * Never auto-destroy: the cache owns the stmt.
-	 * We reset it manually after execution.
+	 * Cache owns the stmt — do not auto-destroy.
+	 * Reset it manually after execution so it is ready for reuse.
 	 */
 	port_sql_create(port, stmt, format, false);
 	int rc = 0;

@@ -63,6 +63,22 @@ static sql *db = NULL;
 
 static const char nil_key[] = { 0x90 }; /* Empty MsgPack array. */
 
+/*
+ * Expire all prepared statements when a function is created or dropped.
+ * A compiled SQL statement may reference a user-defined function by name;
+ * if the function definition changes, the statement must be recompiled.
+ */
+static int
+sql_on_alter_func(struct trigger *trigger, void *event)
+{
+	(void)trigger;
+	(void)event;
+	sqlExpirePreparedStatements();
+	return 0;
+}
+
+static TRIGGER(on_alter_func_in_sql, sql_on_alter_func);
+
 static bool sql_seq_scan_default = false;
 TWEAK_BOOL(sql_seq_scan_default);
 
@@ -84,6 +100,7 @@ sql_init(void)
 
 	sql_stmt_cache_init();
 	sql_built_in_functions_cache_init();
+	trigger_add(&on_alter_func, &on_alter_func_in_sql);
 
 	assert(db != NULL);
 }
