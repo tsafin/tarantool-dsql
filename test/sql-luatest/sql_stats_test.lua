@@ -150,39 +150,60 @@ g_jit.test_sql_jit_session_setting = function()
     t.assert_equals(res.after_disabled_exec, res.before_exec)
 end
 
+-- Verify that re-executing the same SQL text reuses the cached JIT code
+-- (auto-stmt cache hit → vdbe_jit_compile_cached skips, jit_compiled already set),
+-- while a different SQL string with the same opcode shape compiles independently.
 g_jit.test_sql_jit_row_shape_negative_cache = function()
     local res = g_jit.server:exec(function()
+        local sql1 = [[SELECT 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9;]]
+        local sql2 = [[SELECT 9 + 8 + 7 + 6 + 5 + 4 + 3 + 2 + 1;]]
         local before = box.stat.sql()
-        local first = box.execute([[SELECT 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9;]])
+        local first = box.execute(sql1)
         local after_first = box.stat.sql()
-        local second = box.execute([[SELECT 9 + 8 + 7 + 6 + 5 + 4 + 3 + 2 + 1;]])
+        -- Re-run the SAME SQL: auto-stmt cache hit → JIT already compiled → no new compile
+        local first_again = box.execute(sql1)
+        local after_first_again = box.stat.sql()
+        -- Different SQL (same opcode shape): new cache entry → gets compiled independently
+        local second = box.execute(sql2)
         local after_second = box.stat.sql()
         return {
             first = first.rows,
+            first_again = first_again.rows,
             second = second.rows,
             before_compile = before.sql_jit_compile_count,
             after_first_compile = after_first.sql_jit_compile_count,
+            after_first_again_compile = after_first_again.sql_jit_compile_count,
             after_second_compile = after_second.sql_jit_compile_count,
             before_compile_success = before.sql_jit_compile_success_count,
             after_first_compile_success = after_first.sql_jit_compile_success_count,
+            after_first_again_compile_success = after_first_again.sql_jit_compile_success_count,
             after_second_compile_success = after_second.sql_jit_compile_success_count,
             before_exec = before.sql_jit_exec_count,
             after_first_exec = after_first.sql_jit_exec_count,
+            after_first_again_exec = after_first_again.sql_jit_exec_count,
             after_second_exec = after_second.sql_jit_exec_count,
         }
     end)
 
     t.assert_equals(res.first, {{45}})
+    t.assert_equals(res.first_again, {{45}})
     t.assert_equals(res.second, {{45}})
     if res.after_first_compile == res.before_compile then
         t.skip('SQL JIT is not available in this build')
     end
+    -- First execution: compiles and runs via JIT
     t.assert_gt(res.after_first_compile_success, res.before_compile_success)
     t.assert_gt(res.after_first_exec, res.before_exec)
-    t.assert_equals(res.after_second_compile, res.after_first_compile)
-    t.assert_equals(res.after_second_compile_success,
+    -- Second execution of SAME SQL: auto-stmt cache hit → no recompile
+    t.assert_equals(res.after_first_again_compile, res.after_first_compile)
+    t.assert_equals(res.after_first_again_compile_success,
                     res.after_first_compile_success)
-    t.assert_equals(res.after_second_exec, res.after_first_exec)
+    t.assert_gt(res.after_first_again_exec, res.after_first_exec)
+    -- Different SQL with same shape: new cache entry → compiled independently
+    t.assert_gt(res.after_second_compile, res.after_first_again_compile)
+    t.assert_gt(res.after_second_compile_success,
+                res.after_first_again_compile_success)
+    t.assert_gt(res.after_second_exec, res.after_first_again_exec)
 end
 
 g_jit.test_sql_jit_prepare_forces_small_statement = function()

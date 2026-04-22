@@ -477,6 +477,7 @@ int sqlVdbeExec(Vdbe *p)
 	 */
 	int jit_entry_pc = p->pc;
 	if (p->jit_compiled && p->jit_func != NULL &&
+	    vdbe_jit_is_enabled() &&
 	    p->pc >= 0 && p->pc < p->nOp) {
 		if (jit_entry_pc != 0) {
 			sql_jit_resume_skip_count++;
@@ -499,6 +500,7 @@ int sqlVdbeExec(Vdbe *p)
 			}
 			say_debug("JIT: enter at pc=%d opcode=%s",
 				  p->pc, sqlOpcodeName(p->aOp[p->pc].opcode));
+			int jit_start_pc = p->pc;
 			sql_jit_exec_count++;
 			int jit_rc = ((int (*)(struct Vdbe *, int))p->jit_func)(
 				p, p->pc);
@@ -507,11 +509,13 @@ int sqlVdbeExec(Vdbe *p)
 				 * JIT handled everything. Return SQL_DONE since
 				 * the program completed without hitting ResultRow.
 				 */
+				sql_jit_step_count += p->nOp - jit_start_pc;
 				sql_jit_full_run_count++;
 				rc = SQL_DONE;
 				goto vdbe_return;
 			}
 			if (jit_rc == VDBE_JIT_RC_ROW) {
+				sql_jit_step_count += p->nOp - jit_start_pc;
 				vdbe_jit_note_row(p);
 				rc = SQL_ROW;
 				goto vdbe_return;
@@ -532,6 +536,10 @@ int sqlVdbeExec(Vdbe *p)
 			}
 			say_debug("JIT: fallback to interpreter at pc=%d opcode=%s",
 				  jit_rc, sqlOpcodeName(p->aOp[jit_rc].opcode));
+			/* Count ops JIT ran; use nOp as fallback to avoid negative delta
+			 * from backward jumps (jit_rc may be less than jit_start_pc). */
+			sql_jit_step_count += jit_rc > jit_start_pc ?
+					      jit_rc - jit_start_pc : p->nOp;
 			sql_jit_fallback_count++;
 			vdbe_jit_note_fallback(p, jit_rc);
 			p->pc = jit_rc;
