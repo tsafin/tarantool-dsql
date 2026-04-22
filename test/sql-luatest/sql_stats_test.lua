@@ -153,38 +153,54 @@ g_jit.test_sql_jit_session_setting = function()
     t.assert_equals(res.after_disabled_exec, res.before_exec)
 end
 
--- Verify that re-executing the same SQL text reuses the cached JIT code
--- (auto-stmt cache hit → vdbe_jit_compile_cached skips, jit_compiled already set),
--- while a different SQL string with the same opcode shape compiles independently.
+-- Verify that:
+--  1. Re-executing the same SQL text reuses the cached JIT code
+--     (auto-stmt cache hit → jit_compiled already set → no new compile).
+--  2. A different SQL string with the SAME opcode structure also reuses compiled
+--     code via the positive shape cache (literal values differ but the native
+--     function is identical — it reads p->aOp[i].p1 at runtime).
+--  3. A SQL string with a DIFFERENT opcode structure (different opcodes/jumps)
+--     triggers an independent new compilation.
 g_jit.test_sql_jit_row_shape_negative_cache = function()
     local res = g_jit.server:exec(function()
+        -- sql1 and sql2 have the same opcode structure (same Add chain, same shape)
+        -- but different literal values.
         local sql1 = [[SELECT 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9;]]
         local sql2 = [[SELECT 9 + 8 + 7 + 6 + 5 + 4 + 3 + 2 + 1;]]
+        -- sql3 uses Concat instead of Add — genuinely different opcode shape.
+        local sql3 = [[SELECT 'a' || 'b' || 'c' || 'd' || 'e' || 'f' || 'g' || 'h' || 'i';]]
         local before = box.stat.sql()
         local first = box.execute(sql1)
         local after_first = box.stat.sql()
         -- Re-run the SAME SQL: auto-stmt cache hit → JIT already compiled → no new compile
         local first_again = box.execute(sql1)
         local after_first_again = box.stat.sql()
-        -- Different SQL (same opcode shape): new cache entry → gets compiled independently
+        -- Different SQL, SAME opcode shape: positive shape cache hit → no new compile
         local second = box.execute(sql2)
         local after_second = box.stat.sql()
+        -- Different SQL, DIFFERENT opcode shape: cache miss → compiled independently
+        local third = box.execute(sql3)
+        local after_third = box.stat.sql()
         return {
             first = first.rows,
             first_again = first_again.rows,
             second = second.rows,
+            third = third.rows,
             before_compile = before.sql_jit_compile_count,
             after_first_compile = after_first.sql_jit_compile_count,
             after_first_again_compile = after_first_again.sql_jit_compile_count,
             after_second_compile = after_second.sql_jit_compile_count,
+            after_third_compile = after_third.sql_jit_compile_count,
             before_compile_success = before.sql_jit_compile_success_count,
             after_first_compile_success = after_first.sql_jit_compile_success_count,
             after_first_again_compile_success = after_first_again.sql_jit_compile_success_count,
             after_second_compile_success = after_second.sql_jit_compile_success_count,
+            after_third_compile_success = after_third.sql_jit_compile_success_count,
             before_exec = before.sql_jit_exec_count,
             after_first_exec = after_first.sql_jit_exec_count,
             after_first_again_exec = after_first_again.sql_jit_exec_count,
             after_second_exec = after_second.sql_jit_exec_count,
+            after_third_exec = after_third.sql_jit_exec_count,
         }
     end)
 
@@ -202,11 +218,18 @@ g_jit.test_sql_jit_row_shape_negative_cache = function()
     t.assert_equals(res.after_first_again_compile_success,
                     res.after_first_compile_success)
     t.assert_gt(res.after_first_again_exec, res.after_first_exec)
-    -- Different SQL with same shape: new cache entry → compiled independently
-    t.assert_gt(res.after_second_compile, res.after_first_again_compile)
-    t.assert_gt(res.after_second_compile_success,
-                res.after_first_again_compile_success)
+    -- Different SQL, same opcode shape: positive shape cache hit → no recompile
+    t.assert_equals(res.after_second_compile, res.after_first_again_compile,
+                    'same-shape SQL should be served from the positive shape cache')
+    t.assert_equals(res.after_second_compile_success,
+                    res.after_first_again_compile_success)
     t.assert_gt(res.after_second_exec, res.after_first_again_exec)
+    -- Different SQL with a different opcode shape: triggers new compilation
+    t.assert_gt(res.after_third_compile, res.after_second_compile,
+                'different-shape SQL should trigger independent JIT compilation')
+    t.assert_gt(res.after_third_compile_success,
+                res.after_second_compile_success)
+    t.assert_gt(res.after_third_exec, res.after_second_exec)
 end
 
 g_jit.test_sql_jit_prepare_forces_small_statement = function()
