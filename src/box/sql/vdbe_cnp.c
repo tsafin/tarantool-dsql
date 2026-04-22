@@ -27,6 +27,9 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "sqlInt.h"
 #include "vdbeInt.h"
@@ -62,6 +65,73 @@ extern int64_t sql_cnp_compile_count;
 extern int64_t sql_cnp_compile_success_count;
 extern int64_t sql_cnp_exec_count;
 extern int64_t sql_cnp_step_count;
+
+/*
+ * perf.map support (Linux `perf` JIT symbol resolution).
+ *
+ * When enabled, each compiled CnP program is registered in
+ * /tmp/perf-<PID>.map so that `perf report --kallsyms` / `perf script`
+ * can symbolicate JIT frames.
+ *
+ * Activation: set environment variable SQL_CNP_PERF_MAP=1 before
+ * starting tarantool.
+ *
+ * Symbol naming: `vdbe_cnp_<seq>` where <seq> is a monotonic counter.
+ * SQL text is intentionally excluded from names to avoid leaking query
+ * content into a world-visible file.
+ *
+ * File lifetime: opened once with O_TRUNC | O_WRONLY | O_CREAT at mode
+ * 0600 so only the process owner can read it.  Entries are never removed
+ * (perf.map has no unload semantics), but the arena is 8 MB and wraps, so
+ * old entries may become stale after a wrap.
+ */
+static FILE  *g_cnp_perf_file = NULL;
+static int    g_cnp_perf_enabled = -1; /* -1 = not checked yet */
+static int64_t g_cnp_perf_seq = 0;
+
+static void
+cnp_perf_map_open(void)
+{
+	if (g_cnp_perf_enabled >= 0)
+		return;
+	const char *env = getenv("SQL_CNP_PERF_MAP");
+	if (env == NULL || env[0] != '1') {
+		g_cnp_perf_enabled = 0;
+		return;
+	}
+	char path[64];
+	snprintf(path, sizeof(path), "/tmp/perf-%d.map", (int)getpid());
+	int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+	if (fd < 0) {
+		g_cnp_perf_enabled = 0;
+		return;
+	}
+	g_cnp_perf_file = fdopen(fd, "w");
+	if (g_cnp_perf_file == NULL) {
+		close(fd);
+		g_cnp_perf_enabled = 0;
+		return;
+	}
+	/* Line buffering: each fprintf is one complete record. */
+	setlinebuf(g_cnp_perf_file);
+	g_cnp_perf_enabled = 1;
+}
+
+/*
+ * Register one compiled program in /tmp/perf-PID.map.
+ * Format required by Linux perf: "<hex_start> <hex_size> <name>\n"
+ */
+static void
+cnp_perf_map_add(uint8_t *code, uint32_t size)
+{
+	cnp_perf_map_open();
+	if (!g_cnp_perf_enabled)
+		return;
+	fprintf(g_cnp_perf_file, "%lx %x vdbe_cnp_%lld\n",
+		(unsigned long)(uintptr_t)code,
+		(unsigned)size,
+		(long long)g_cnp_perf_seq++);
+}
 
 /*
  * Code arena: one large RWX mmap shared across all CnP compilations.
@@ -760,6 +830,7 @@ vdbe_cnp_compile(struct Vdbe *p)
 	p->cnp_pc_stencil = pc_stencil;
 	p->cnp_nop = nOp;
 	sql_cnp_compile_success_count++;
+	cnp_perf_map_add(code, total_size);
 	return 0;
 }
 

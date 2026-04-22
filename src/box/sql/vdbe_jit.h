@@ -12,6 +12,9 @@
 #pragma once
 
 #include <limits.h>
+#ifdef ENABLE_SQL_JIT
+#include <llvm-c/ExecutionEngine.h>
+#endif
 
 struct Vdbe;
 
@@ -98,6 +101,15 @@ vdbe_jit_note_row(struct Vdbe *p);
  */
 int
 vdbe_jit_compile_cached(struct Vdbe *p);
+
+/**
+ * Register the LLVM PerfJITEventListener with the execution engine so that
+ * `perf record` / `perf report` can symbolicate JIT frames.
+ * Activation: set SQL_JIT_PERF_MAP=1 in the environment.
+ * Defined in vdbe_jit_perf.cc (C++ bridge).
+ */
+void
+vdbe_jit_register_perf_listener(LLVMExecutionEngineRef ee_ref);
 
 #else /* !ENABLE_SQL_JIT */
 

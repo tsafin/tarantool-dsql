@@ -765,6 +765,7 @@ vdbe_jit_init(void)
 	}
 
 	jit_state.initialized = 1;
+	vdbe_jit_register_perf_listener(jit_state.engine);
 	return 0;
 }
 
