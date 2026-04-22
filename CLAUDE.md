@@ -43,6 +43,17 @@
 - For focused debugging, change to test directory and use in a form: `--builddir ../relative-build-dir <relative-test-path>` (for example `sql-tap/seot1.test.lua`).
 - Always pass `--builddir` explicitly when checking JIT or alternate builds, otherwise `test-run.py` may pick the wrong executable.
 - SQL TAP harness enables `sql_seq_scan`; keep it enabled for SQL debugging unless a test explicitly checks the opposite behavior.
+- **NEVER run multiple test-run.py sessions simultaneously** — they share ports and temp dirs and produce corrupt/mixed results. Always serialize test suite runs.
+
+### VDBE dispatcher test modes (use `--builddir build-jit-relwithdebinfo`)
+- **Generated interpreter**: `VDBE_DISPATCHER=generated python3 test/test-run.py ...`
+- **LLVM MCJIT**: `SQL_JIT_ENABLE=1 VDBE_DISPATCHER=generated python3 test/test-run.py ...`
+- **Copy-and-Patch JIT**: `VDBE_DISPATCHER=cnp python3 test/test-run.py ...`
+
+### Pre-existing sql-tap failures (exclude with `--exclude <name>`)
+- `default.test.lua` — fails memtx+vinyl on clean build (unrelated to JIT)
+- `gh-2579-custom-aggregate.test.lua` — fails on clean build
+- `gh-2723-concurrency.test.lua` — fails vinyl on clean build
 
 ## Standalone Lua Debug Scripts
 
