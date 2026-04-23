@@ -186,11 +186,11 @@ cnp_arena_alloc(size_t nbytes)
 			uint8_t *lo = g_cnp_arena.base;
 			uint8_t *hi = lo + g_cnp_arena.size;
 			for (Vdbe *v = db->pVdbe; v != NULL; v = v->pNext) {
-				if (!v->cnp_compiled || v->cnp_code == NULL)
+				if (v->cnp_compiled != CNP_COMPILED || v->cnp_code == NULL)
 					continue;
 				uint8_t *code = (uint8_t *)v->cnp_code;
 				if (code >= lo && code < hi) {
-					v->cnp_compiled = 0;
+					v->cnp_compiled = CNP_NOT_COMPILED;
 					v->cnp_resume_func = NULL;
 				}
 			}
@@ -647,8 +647,10 @@ cnp_patch(uint8_t *patch_addr, uintptr_t target, uint8_t reloc_type, int addend)
 int
 vdbe_cnp_compile(struct Vdbe *p)
 {
-	if (p->cnp_compiled)
+	if (p->cnp_compiled == CNP_COMPILED)
 		return 0;
+	if (p->cnp_compiled == CNP_COMPILE_FAILED)
+		return -1;
 
 	sql_cnp_compile_count++;
 
@@ -676,8 +678,10 @@ vdbe_cnp_compile(struct Vdbe *p)
 	for (int i = 0; i < nOp; i++) {
 		int opcode = aOp[i].opcode;
 		if (opcode > CNP_MAX_OPCODE ||
-		    cnp_stencils[opcode].bytes == NULL)
+		    cnp_stencils[opcode].bytes == NULL) {
+			p->cnp_compiled = CNP_COMPILE_FAILED;
 			return -1;
+		}
 		total_size += cnp_stencils[opcode].size;
 		if (opcode == OP_Gosub || opcode == OP_Return ||
 		    opcode == OP_Yield || opcode == OP_InitCoroutine ||
@@ -847,7 +851,7 @@ vdbe_cnp_compile(struct Vdbe *p)
 
 	p->cnp_code = code;
 	p->cnp_size = total_size;
-	p->cnp_compiled = 1;
+	p->cnp_compiled = CNP_COMPILED;
 	p->cnp_pc_stencil = pc_stencil;
 	p->cnp_nop = nOp;
 	sql_cnp_compile_success_count++;
@@ -858,7 +862,7 @@ vdbe_cnp_compile(struct Vdbe *p)
 int
 vdbe_cnp_exec(struct Vdbe *p)
 {
-	if (!p->cnp_compiled)
+	if (p->cnp_compiled != CNP_COMPILED)
 		return -1;
 
 	sql_cnp_exec_count++;
@@ -922,7 +926,7 @@ vdbe_cnp_release(struct Vdbe *p)
 		 */
 		p->cnp_code = NULL;
 		p->cnp_size = 0;
-		p->cnp_compiled = 0;
+		p->cnp_compiled = CNP_NOT_COMPILED;
 	}
 	if (p->cnp_pc_stencil != NULL) {
 		free(p->cnp_pc_stencil);
