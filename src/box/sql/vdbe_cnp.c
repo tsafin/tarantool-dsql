@@ -174,8 +174,29 @@ cnp_arena_alloc(size_t nbytes)
 	if (nbytes > g_cnp_arena.size)
 		return NULL;
 
-	if (g_cnp_arena.pos + nbytes > g_cnp_arena.size)
+	if (g_cnp_arena.pos + nbytes > g_cnp_arena.size) {
+		/*
+		 * Arena wrap: position resets to 0.  All existing code in
+		 * the arena will eventually be overwritten as the bump
+		 * pointer advances.  Invalidate every compiled Vdbe so each
+		 * is recompiled before its next execution.
+		 */
+		sql *db = sql_get();
+		if (db != NULL) {
+			uint8_t *lo = g_cnp_arena.base;
+			uint8_t *hi = lo + g_cnp_arena.size;
+			for (Vdbe *v = db->pVdbe; v != NULL; v = v->pNext) {
+				if (!v->cnp_compiled || v->cnp_code == NULL)
+					continue;
+				uint8_t *code = (uint8_t *)v->cnp_code;
+				if (code >= lo && code < hi) {
+					v->cnp_compiled = 0;
+					v->cnp_resume_func = NULL;
+				}
+			}
+		}
 		g_cnp_arena.pos = 0;  /* wrap */
+	}
 
 	uint8_t *ptr = g_cnp_arena.base + g_cnp_arena.pos;
 	g_cnp_arena.pos += nbytes;
