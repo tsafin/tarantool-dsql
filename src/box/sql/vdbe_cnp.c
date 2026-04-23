@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <time.h>
 
 #include "sqlInt.h"
 #include "vdbeInt.h"
@@ -131,6 +132,370 @@ cnp_perf_map_add(uint8_t *code, uint32_t size)
 		(unsigned long)(uintptr_t)code,
 		(unsigned)size,
 		(long long)g_cnp_perf_seq++);
+}
+
+/*
+ * .eh_frame CFI registration for stack unwinding through CnP frames.
+ *
+ * CnP stencils are plain function pointers with no prologue.  Without CFI
+ * the CPU unwinder stops at the first CnP frame, producing "?? ()" in gdb bt.
+ *
+ * The CnP calling convention is uniform: CFA = RSP+8, RA = [RSP].
+ * One static CIE covers every compiled program; each program gets one FDE.
+ *
+ * .eh_frame layout (x86-64, no augmentation, absolute 8-byte addresses):
+ *
+ *   CIE  [20 bytes]: length=16, id=0, ver=1, aug="", code_align=1,
+ *                    data_align=-8, RA=16, DW_CFA_def_cfa(RSP,8),
+ *                    DW_CFA_offset(RIP,1), nop pad
+ *   FDE  [24 bytes]: length=20, cie_ptr, pc_begin(8), pc_range(8)
+ *   Term [ 4 bytes]: 0x00000000 (required section terminator)
+ *
+ * Total: 48 bytes per compiled program.
+ *
+ * Without the 'z'/'R' augmentation in the CIE, the libgcc parser uses
+ * native pointer width (8 bytes on x86-64) for pc_begin and pc_range.
+ *
+ * Activation: SQL_CNP_EH_FRAME=1
+ * Guarded by HAVE_REGISTER_FRAME (CMake check_function_exists).
+ */
+#ifdef HAVE_REGISTER_FRAME
+
+extern void __register_frame(const void *);
+extern void __deregister_frame(const void *);
+
+/*
+ * Pre-encoded CIE (20 bytes).
+ * Content after length field = 16 bytes (= length value):
+ *   CIE id(4) version(1) aug(1) code_align(1) data_align(1) RA(1)
+ *   DW_CFA_def_cfa(3) DW_CFA_offset(2) nop pad(2)
+ */
+static const uint8_t cnp_cie_template[20] = {
+	/* length = 16 (content after this 4-byte field) */
+	0x10, 0x00, 0x00, 0x00,
+	/* CIE id = 0 */
+	0x00, 0x00, 0x00, 0x00,
+	/* version = 1 */
+	0x01,
+	/* augmentation = "" (NUL) */
+	0x00,
+	/* code_align_factor = 1 (uleb128) */
+	0x01,
+	/* data_align_factor = -8 (sleb128: 0x78) */
+	0x78,
+	/* return_address_register = 16 (RIP on x86-64) */
+	0x10,
+	/* DW_CFA_def_cfa: register=RSP(7), offset=8 */
+	0x0c, 0x07, 0x08,
+	/* DW_CFA_offset: register=RIP(16), factored_offset=1 */
+	0x90, 0x01,
+	/* DW_CFA_nop padding to reach 16 bytes of content */
+	0x00, 0x00,
+};
+
+#define CNP_CIE_SIZE   20
+/* FDE: length(4) + cie_ptr(4) + pc_begin(8) + pc_range(8) = 24 bytes total */
+#define CNP_FDE_SIZE   24
+/* Section terminator: 4-byte zero length record */
+#define CNP_TERM_SIZE  4
+#define CNP_EHFRAME_SIZE  (CNP_CIE_SIZE + CNP_FDE_SIZE + CNP_TERM_SIZE)
+
+static int g_cnp_ehframe_enabled = -1;
+
+static void
+cnp_register_frame(struct Vdbe *p)
+{
+	if (g_cnp_ehframe_enabled < 0) {
+		const char *env = getenv("SQL_CNP_EH_FRAME");
+		g_cnp_ehframe_enabled = (env != NULL && env[0] == '1') ? 1 : 0;
+	}
+	if (!g_cnp_ehframe_enabled || p->cnp_ehframe != NULL)
+		return;
+
+	uint8_t *buf = (uint8_t *)malloc(CNP_EHFRAME_SIZE);
+	if (buf == NULL)
+		return;
+
+	/* CIE */
+	memcpy(buf, cnp_cie_template, CNP_CIE_SIZE);
+
+	/* FDE at buf + CNP_CIE_SIZE */
+	uint8_t *fde = buf + CNP_CIE_SIZE;
+
+	/* FDE length = content after length field = 20 */
+	uint32_t fde_content_len = CNP_FDE_SIZE - 4;
+	memcpy(fde + 0, &fde_content_len, 4);
+
+	/* CIE pointer: distance from &fde[4] back to &buf[0].
+	 * libgcc computes: cie = &fde_cie_ptr - cie_ptr_value */
+	uint32_t cie_ptr = CNP_CIE_SIZE + 4;
+	memcpy(fde + 4, &cie_ptr, 4);
+
+	/* pc_begin: 8-byte absolute (no augmentation → native pointer width) */
+	uint64_t code_addr = (uint64_t)(uintptr_t)p->cnp_code;
+	memcpy(fde + 8, &code_addr, 8);
+
+	/* pc_range: 8-byte size */
+	uint64_t code_range = (uint64_t)p->cnp_size;
+	memcpy(fde + 16, &code_range, 8);
+
+	/* Section terminator */
+	uint32_t term = 0;
+	memcpy(buf + CNP_CIE_SIZE + CNP_FDE_SIZE, &term, 4);
+
+	__register_frame(buf);
+	p->cnp_ehframe = buf;
+}
+
+static void
+cnp_deregister_frame(struct Vdbe *p)
+{
+	if (p->cnp_ehframe == NULL)
+		return;
+	__deregister_frame(p->cnp_ehframe);
+	free(p->cnp_ehframe);
+	p->cnp_ehframe = NULL;
+}
+
+#else /* !HAVE_REGISTER_FRAME */
+
+static inline void cnp_register_frame(struct Vdbe *p)   { (void)p; }
+static inline void cnp_deregister_frame(struct Vdbe *p) { (void)p; }
+
+#endif /* HAVE_REGISTER_FRAME */
+
+/*
+ * JITDUMP support for per-opcode perf attribution via `perf inject --jit`.
+ *
+ * Activation: SQL_CNP_JITDUMP=1
+ *
+ * The JITDUMP binary file is mmap'd (perf reads it live).  We emit two
+ * records per compiled program:
+ *   JIT_CODE_LOAD        — symbol name + address + size
+ *   JIT_CODE_DEBUG_INFO  — one entry per opcode (addr, lineno, name)
+ *
+ * Workflow:
+ *   SQL_CNP_JITDUMP=1 VDBE_DISPATCHER=cnp perf record -k mono ./src/tarantool bench.lua
+ *   perf inject --jit -i perf.data -o perf.jit.data
+ *   perf report -i perf.jit.data --stdio
+ */
+
+/* JITDUMP record types */
+#define JIT_CODE_LOAD       0
+#define JIT_CODE_DEBUG_INFO 2
+
+#pragma pack(push, 1)
+struct jitdump_file_header {
+	uint32_t magic;       /* 0x4A695444 "JiTD" LE, or "DTiJ" BE */
+	uint32_t version;     /* 1 */
+	uint32_t total_size;  /* sizeof(header) */
+	uint32_t elf_mach;    /* EM_X86_64 = 62 */
+	uint32_t pad1;
+	uint32_t pid;
+	uint64_t timestamp;   /* CLOCK_MONOTONIC nanoseconds */
+	uint64_t flags;       /* 0 */
+};
+
+struct jitdump_record_header {
+	uint32_t id;
+	uint32_t total_size;
+	uint64_t timestamp;
+};
+
+struct jitdump_code_load {
+	struct jitdump_record_header header;
+	uint32_t pid;
+	uint32_t tid;
+	uint64_t vma;
+	uint64_t code_addr;
+	uint64_t code_size;
+	uint64_t code_index;
+};
+
+struct jitdump_debug_entry {
+	uint64_t addr;
+	uint32_t lineno;
+	uint32_t discrim;
+	/* followed by NUL-terminated filename string */
+};
+
+struct jitdump_code_debug_info {
+	struct jitdump_record_header header;
+	uint64_t code_addr;
+	uint64_t nr_entry;
+	/* followed by nr_entry jitdump_debug_entry + filename strings */
+};
+#pragma pack(pop)
+
+/* Initial mmap size; grown with ftruncate+mremap as needed */
+#define CNP_JITDUMP_INIT_SIZE (1024 * 1024)  /* 1 MB */
+
+static int      g_cnp_jitdump_enabled = -1;
+static int      g_cnp_jitdump_fd = -1;
+static uint8_t *g_cnp_jitdump_map = NULL;
+static size_t   g_cnp_jitdump_map_size = 0;
+static size_t   g_cnp_jitdump_pos = 0;
+static uint64_t g_cnp_jitdump_code_index = 0;
+
+static uint64_t
+cnp_jitdump_timestamp(void)
+{
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return (uint64_t)ts.tv_sec * 1000000000ULL + (uint64_t)ts.tv_nsec;
+}
+
+static int
+cnp_jitdump_grow(size_t needed)
+{
+	size_t new_size = g_cnp_jitdump_map_size;
+	while (new_size - g_cnp_jitdump_pos < needed)
+		new_size *= 2;
+	if (new_size == g_cnp_jitdump_map_size)
+		return 0;
+	if (ftruncate(g_cnp_jitdump_fd, (off_t)new_size) != 0)
+		return -1;
+	void *new_map = mremap(g_cnp_jitdump_map,
+			       g_cnp_jitdump_map_size, new_size,
+			       MREMAP_MAYMOVE);
+	if (new_map == MAP_FAILED)
+		return -1;
+	g_cnp_jitdump_map = (uint8_t *)new_map;
+	g_cnp_jitdump_map_size = new_size;
+	return 0;
+}
+
+static void
+cnp_jitdump_open(void)
+{
+	if (g_cnp_jitdump_enabled >= 0)
+		return;
+	const char *env = getenv("SQL_CNP_JITDUMP");
+	if (env == NULL || env[0] != '1') {
+		g_cnp_jitdump_enabled = 0;
+		return;
+	}
+
+	char path[64];
+	snprintf(path, sizeof(path), "/tmp/jit-%d.dump", (int)getpid());
+	int fd = open(path, O_RDWR | O_CREAT | O_TRUNC, 0600);
+	if (fd < 0) {
+		g_cnp_jitdump_enabled = 0;
+		return;
+	}
+	if (ftruncate(fd, CNP_JITDUMP_INIT_SIZE) != 0) {
+		close(fd);
+		g_cnp_jitdump_enabled = 0;
+		return;
+	}
+	void *map = mmap(NULL, CNP_JITDUMP_INIT_SIZE,
+			 PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	if (map == MAP_FAILED) {
+		close(fd);
+		g_cnp_jitdump_enabled = 0;
+		return;
+	}
+	g_cnp_jitdump_fd = fd;
+	g_cnp_jitdump_map = (uint8_t *)map;
+	g_cnp_jitdump_map_size = CNP_JITDUMP_INIT_SIZE;
+	g_cnp_jitdump_pos = 0;
+
+	/* Write file header */
+	struct jitdump_file_header hdr;
+	memset(&hdr, 0, sizeof(hdr));
+	hdr.magic      = 0x4A695444;
+	hdr.version    = 1;
+	hdr.total_size = sizeof(hdr);
+	hdr.elf_mach   = 62; /* EM_X86_64 */
+	hdr.pid        = (uint32_t)getpid();
+	hdr.timestamp  = cnp_jitdump_timestamp();
+	hdr.flags      = 0;
+
+	memcpy(g_cnp_jitdump_map, &hdr, sizeof(hdr));
+	g_cnp_jitdump_pos = sizeof(hdr);
+	g_cnp_jitdump_enabled = 1;
+}
+
+static void
+cnp_jitdump_write(struct Vdbe *p, int nOp, Op *aOp, uint32_t *pc_offset)
+{
+	cnp_jitdump_open();
+	if (!g_cnp_jitdump_enabled)
+		return;
+
+	uint8_t *code = (uint8_t *)p->cnp_code;
+	uint32_t code_size = p->cnp_size;
+	uint64_t ts = cnp_jitdump_timestamp();
+	uint64_t idx = g_cnp_jitdump_code_index++;
+
+	/* Build symbol name */
+	char sym[32];
+	int sym_len = snprintf(sym, sizeof(sym), "vdbe_cnp_%llu",
+			       (unsigned long long)idx) + 1; /* include NUL */
+
+	/* --- JIT_CODE_LOAD record --- */
+	uint32_t load_size = (uint32_t)(sizeof(struct jitdump_code_load) +
+					sym_len + code_size);
+	if (cnp_jitdump_grow(load_size) != 0)
+		return;
+
+	struct jitdump_code_load load;
+	memset(&load, 0, sizeof(load));
+	load.header.id         = JIT_CODE_LOAD;
+	load.header.total_size = load_size;
+	load.header.timestamp  = ts;
+	load.pid               = (uint32_t)getpid();
+	load.tid               = (uint32_t)getpid();
+	load.vma               = (uint64_t)(uintptr_t)code;
+	load.code_addr         = (uint64_t)(uintptr_t)code;
+	load.code_size         = code_size;
+	load.code_index        = idx;
+
+	memcpy(g_cnp_jitdump_map + g_cnp_jitdump_pos, &load, sizeof(load));
+	g_cnp_jitdump_pos += sizeof(load);
+	memcpy(g_cnp_jitdump_map + g_cnp_jitdump_pos, sym, sym_len);
+	g_cnp_jitdump_pos += sym_len;
+	memcpy(g_cnp_jitdump_map + g_cnp_jitdump_pos, code, code_size);
+	g_cnp_jitdump_pos += code_size;
+
+	/* --- JIT_CODE_DEBUG_INFO record --- */
+	/* Each entry: jitdump_debug_entry + NUL-terminated opcode name */
+	size_t debug_entries_size = 0;
+	for (int i = 0; i < nOp; i++) {
+		const char *name = sqlOpcodeName(aOp[i].opcode);
+		debug_entries_size += sizeof(struct jitdump_debug_entry) +
+				      strlen(name) + 1;
+	}
+	uint32_t debug_size = (uint32_t)(sizeof(struct jitdump_code_debug_info) +
+					 debug_entries_size);
+	if (cnp_jitdump_grow(debug_size) != 0)
+		return;
+
+	struct jitdump_code_debug_info dbg;
+	memset(&dbg, 0, sizeof(dbg));
+	dbg.header.id         = JIT_CODE_DEBUG_INFO;
+	dbg.header.total_size = debug_size;
+	dbg.header.timestamp  = ts;
+	dbg.code_addr         = (uint64_t)(uintptr_t)code;
+	dbg.nr_entry          = (uint64_t)nOp;
+
+	memcpy(g_cnp_jitdump_map + g_cnp_jitdump_pos, &dbg, sizeof(dbg));
+	g_cnp_jitdump_pos += sizeof(dbg);
+
+	for (int i = 0; i < nOp; i++) {
+		struct jitdump_debug_entry entry;
+		entry.addr    = (uint64_t)(uintptr_t)(code + pc_offset[i]);
+		entry.lineno  = (uint32_t)i;
+		entry.discrim = 0;
+		memcpy(g_cnp_jitdump_map + g_cnp_jitdump_pos,
+		       &entry, sizeof(entry));
+		g_cnp_jitdump_pos += sizeof(entry);
+
+		const char *name = sqlOpcodeName(aOp[i].opcode);
+		size_t nlen = strlen(name) + 1;
+		memcpy(g_cnp_jitdump_map + g_cnp_jitdump_pos, name, nlen);
+		g_cnp_jitdump_pos += nlen;
+	}
 }
 
 /*
@@ -840,9 +1205,6 @@ vdbe_cnp_compile(struct Vdbe *p)
 		}
 	}
 
-	if (pc_offset_heap)
-		free(pc_offset);
-
 	/*
  * Phase 5: Flush instruction cache (no-op on x86_64; required on ARM).
  * No mprotect needed — the arena is already RWX.
@@ -856,6 +1218,12 @@ vdbe_cnp_compile(struct Vdbe *p)
 	p->cnp_nop = nOp;
 	sql_cnp_compile_success_count++;
 	cnp_perf_map_add(code, total_size);
+	cnp_register_frame(p);
+	/* jitdump_write uses pc_offset; call before freeing it */
+	cnp_jitdump_write(p, nOp, aOp, pc_offset);
+
+	if (pc_offset_heap)
+		free(pc_offset);
 	return 0;
 }
 
@@ -918,6 +1286,7 @@ vdbe_cnp_exec(struct Vdbe *p)
 void
 vdbe_cnp_release(struct Vdbe *p)
 {
+	cnp_deregister_frame(p);
 	if (p->cnp_code != NULL) {
 		/*
 		 * Code lives in the shared arena — do not munmap it.

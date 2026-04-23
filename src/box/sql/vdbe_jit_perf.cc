@@ -16,19 +16,28 @@
 #include <llvm/ExecutionEngine/JITEventListener.h>
 #include <llvm-c/ExecutionEngine.h>
 
+static bool
+getenv_flag(const char *name)
+{
+	const char *v = getenv(name);
+	return v != nullptr && v[0] == '1';
+}
+
 extern "C" void
 vdbe_jit_register_perf_listener(LLVMExecutionEngineRef ee_ref)
 {
-	const char *env = getenv("SQL_JIT_PERF_MAP");
-	if (env == nullptr || env[0] != '1')
-		return;
-
 	llvm::ExecutionEngine *EE = llvm::unwrap(ee_ref);
 	if (EE == nullptr)
 		return;
 
-	llvm::JITEventListener *listener =
-		llvm::JITEventListener::createPerfJITEventListener();
-	if (listener != nullptr)
-		EE->RegisterJITEventListener(listener);
+	if (getenv_flag("SQL_JIT_PERF_MAP")) {
+		auto *l = llvm::JITEventListener::createPerfJITEventListener();
+		if (l)
+			EE->RegisterJITEventListener(l);
+	}
+	if (getenv_flag("SQL_JIT_GDB")) {
+		auto *l = llvm::JITEventListener::createGDBRegistrationListener();
+		if (l)
+			EE->RegisterJITEventListener(l);
+	}
 }
