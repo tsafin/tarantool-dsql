@@ -10,6 +10,21 @@
 
 struct Vdbe;
 
+/*
+ * Values for Vdbe.cnp_compiled:
+ *
+ *   CNP_NOT_COMPILED   — no compile attempt yet (or reset after schema change)
+ *   CNP_COMPILED       — compiled successfully; cnp_code is valid
+ *   CNP_COMPILE_FAILED — permanent failure (e.g. opcode with no stencil);
+ *                        do not retry until schema changes
+ *
+ * Transient failures (OOM, arena full) leave the state as CNP_NOT_COMPILED
+ * so the next call can retry.
+ */
+#define CNP_NOT_COMPILED   0
+#define CNP_COMPILED       1
+#define CNP_COMPILE_FAILED (-1)
+
 /**
  * Compile the VDBE program to native code using copy-and-patch.
  * Returns 0 on success, -1 if any opcode lacks a stencil (caller
