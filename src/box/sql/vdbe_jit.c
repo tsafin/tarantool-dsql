@@ -1242,6 +1242,24 @@ vdbe_jit_compile(struct Vdbe *p)
 	bool is_literal_oneshot = !force_prepared_jit && p->nVar == 0;
 	bool is_literal_oneshot_write = is_literal_oneshot &&
 		jit_has_write_side_effects(p);
+	/*
+	 * Positive shape cache: check BEFORE the negative caches so that a
+	 * query that was once successfully force-compiled (via
+	 * vdbe_jit_compile_cached) is not blocked by the stmt-id negative
+	 * cache entry that vdbe_jit_note_fallback() may have recorded
+	 * (e.g. fallback at OP_Halt on an empty result set).
+	 */
+	if (is_literal_oneshot && p->nOp > 0) {
+		uint32_t pos_hash = jit_stmt_full_shape_hash(p);
+		void *pos_func =
+			jit_shape_positive_cache_get(pos_hash, schema_version);
+		if (pos_func != NULL) {
+			p->jit_func = pos_func;
+			p->jit_module = NULL;
+			p->jit_compiled = 1;
+			return 0;
+		}
+	}
 	if (can_cache_negative) {
 		if (jit_negative_cache_contains(stmt_id, schema_version)) {
 			p->jit_compiled = 0;
@@ -1267,25 +1285,6 @@ vdbe_jit_compile(struct Vdbe *p)
 	uint32_t full_shape_hash = 0;
 	if (is_literal_oneshot) {
 		full_shape_hash = jit_stmt_full_shape_hash(p);
-		/*
-		 * Positive cache: if we have already compiled a program with
-		 * identical structure (same opcodes AND jump targets), reuse
-		 * the existing native function.  p1 values (literals) are read
-		 * from p->aOp[i].p1 at execution time, so the same compiled
-		 * function handles all literal variants of the same shape.
-		 *
-		 * Set jit_module = NULL so that vdbe_jit_cleanup() does not
-		 * attempt to remove the shared module from the engine.
-		 */
-		void *cached_func =
-			jit_shape_positive_cache_get(full_shape_hash,
-						     schema_version);
-		if (cached_func != NULL) {
-			p->jit_func = cached_func;
-			p->jit_module = NULL;
-			p->jit_compiled = 1;
-			return 0;
-		}
 		shape_hash = jit_stmt_shape_hash(p);
 		if (jit_shape_negative_cache_contains(shape_hash, schema_version)) {
 			p->jit_compiled = 0;
@@ -1440,6 +1439,14 @@ vdbe_jit_compile(struct Vdbe *p)
 		if (!force_prepared_jit && !is_literal_oneshot_write &&
 		    ((entry_call_count == 0 && entry_inline_count < 8) ||
 		     (entry_call_count > 0 && entry_inline_count < 3))) {
+			/*
+			 * Cache the negative result so re-compiled Vdbes with
+			 * the same opcode shape skip this analysis entirely,
+			 * avoiding repeated work after auto_stmt_cache evictions.
+			 */
+			if (is_literal_oneshot && shape_hash != 0)
+				jit_shape_negative_cache_add(shape_hash,
+							     schema_version);
 			p->jit_compiled = 0;
 			p->jit_func = NULL;
 			p->jit_module = NULL;
@@ -2203,6 +2210,23 @@ vdbe_jit_compile_cached(struct Vdbe *p)
 	p->is_prepared_stmt = 1;
 	int rc = vdbe_jit_compile(p);
 	p->is_prepared_stmt = saved;
+	/*
+	 * Populate the positive shape cache so that future Vdbes with
+	 * identical structure (same opcodes + jump targets) reuse this
+	 * compiled function after a cache eviction, instead of triggering
+	 * a fresh LLVM compilation on every re-entry of the stmt cache miss
+	 * path.  The module is already owned by the LLVM execution engine;
+	 * clearing jit_module prevents double-free in vdbe_jit_cleanup.
+	 */
+	if (rc == 0 && p->jit_compiled && p->jit_func != NULL &&
+	    p->jit_module != NULL) {
+		uint32_t full_hash = jit_stmt_full_shape_hash(p);
+		if (full_hash != 0) {
+			jit_shape_positive_cache_add(full_hash, p->schema_ver,
+						     p->jit_func);
+			p->jit_module = NULL;
+		}
+	}
 	return rc;
 }
 
