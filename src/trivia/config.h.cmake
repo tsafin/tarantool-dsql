@@ -194,6 +194,7 @@
 #cmakedefine HAVE_FALLOCATE 1
 #cmakedefine HAVE_MREMAP 1
 #cmakedefine HAVE_SYNC_FILE_RANGE 1
+#cmakedefine HAVE_REGISTER_FRAME 1
 
 #cmakedefine HAVE_MSG_NOSIGNAL 1
 #cmakedefine HAVE_SO_NOSIGPIPE 1

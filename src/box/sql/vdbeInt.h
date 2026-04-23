@@ -336,6 +336,8 @@ struct Vdbe {
 	void **cnp_pc_stencil;
 	/** Number of ops (size of cnp_pc_stencil array) */
 	int cnp_nop;
+	/** Heap-allocated .eh_frame buffer registered via __register_frame */
+	uint8_t *cnp_ehframe;
 #endif
 };
 
