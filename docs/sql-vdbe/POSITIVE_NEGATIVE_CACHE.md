@@ -1,5 +1,78 @@
 # VDBE JIT Caching Strategy
 
+This document covers the caching strategies used by both the LLVM MCJIT compiler
+(`src/box/sql/vdbe_jit.c`) and the Copy-and-Patch (CnP) compiler
+(`src/box/sql/vdbe_cnp.c`) to avoid redundant compilation work.
+
+---
+
+## Overview
+
+| Feature | MCJIT | CnP |
+|---------|-------|-----|
+| Per-Vdbe compile guard | `p->jit_compiled` (0/1) | `p->cnp_compiled` (0/1/-1) |
+| Cross-Vdbe positive shape cache | ✅ `jit_shape_positive_cache` | ❌ not needed (µs compile cost) |
+| Cross-Vdbe shape negative cache | ✅ `jit_shape_negative_cache` | ❌ not needed |
+| Per-stmt-id negative cache | ✅ `jit_negative_cache` | ❌ not needed |
+| Permanent per-Vdbe failure flag | ❌ (relies on shape caches) | ✅ `CNP_COMPILE_FAILED = -1` |
+| Compile cost | ~ms (LLVM) | ~µs (memcpy + relocs) |
+
+MCJIT needs a multi-level cross-Vdbe caching system because LLVM compilation is
+milliseconds-expensive; recompiling the same query after an `auto_stmt_cache`
+eviction would dominate hot-loop latency.
+
+CnP compilation is microseconds-cheap (a single-pass memcpy loop), so cross-Vdbe
+shape caches are not worth the complexity.  The only issue CnP needs to handle is
+avoiding a retry of an always-failing compile (e.g. a query containing `OP_Program`
+which has no stencil); this is solved with a simple per-Vdbe failure flag.
+
+---
+
+## CnP: `cnp_compiled` State Machine
+
+Defined in `src/box/sql/vdbe_cnp.h`:
+
+```c
+#define CNP_NOT_COMPILED   0    /* not yet attempted, or reset after schema change */
+#define CNP_COMPILED       1    /* compiled successfully; cnp_code is valid */
+#define CNP_COMPILE_FAILED (-1) /* permanent failure — do not retry */
+```
+
+### State transitions
+
+```
+CNP_NOT_COMPILED   ── stencil scan succeeds ──────► CNP_COMPILED
+CNP_NOT_COMPILED   ── missing stencil (OP_Program) ► CNP_COMPILE_FAILED
+CNP_NOT_COMPILED   ── OOM / arena full ────────────► CNP_NOT_COMPILED (retry)
+CNP_COMPILED       ── arena wrap (schema inval.) ──► CNP_NOT_COMPILED
+CNP_COMPILE_FAILED ── schema change ───────────────► CNP_NOT_COMPILED (retry)
+```
+
+Only the **missing-stencil** path sets `CNP_COMPILE_FAILED`.  Transient
+failures (OOM, arena exhaustion) leave the state as `CNP_NOT_COMPILED` so the
+next call can retry.  Currently the only opcode that triggers a permanent failure
+is `OP_Program` (trigger sub-programs); 141 of 142 real opcodes have stencils.
+
+After a schema change the arena wrap invalidates all compiled Vdbes back to
+`CNP_NOT_COMPILED`, giving previously-failing programs a fresh chance (the
+trigger may have been dropped, or a new stencil may have been added).
+
+### Decision flow in `vdbe_exec_cnp_dispatcher`
+
+```
+cnp_compiled == CNP_COMPILED?
+  YES → vdbe_cnp_exec(p)                               ← FAST PATH (no compile)
+  NO  → vdbe_cnp_compile(p)
+          == CNP_COMPILE_FAILED on entry → return -1
+          stencil scan ok → cnp_compiled = CNP_COMPILED → vdbe_cnp_exec(p)
+          stencil missing → cnp_compiled = CNP_COMPILE_FAILED → return -1
+                          → vdbe_exec_generated_dispatcher(p)  ← FALLBACK
+```
+
+---
+
+## MCJIT: Three-Cache System
+
 The JIT compiler in `src/box/sql/vdbe_jit.c` uses three independent caches to
 avoid redundant LLVM compilation.  Understanding their interaction is essential
 for correctness.
@@ -164,8 +237,9 @@ incur at most **one** LLVM compilation each, not one per eviction cycle.
 
 ## Bug History
 
-Three interacting bugs (fixed in commit `sql/jit: fix shape cache bugs ...`)
-caused per-pass LLVM recompilation of evicted queries:
+### MCJIT: three interacting shape-cache bugs
+
+Fixed in commit `sql/jit: fix shape cache bugs causing per-pass LLVM recompilation`.
 
 | # | Bug | Symptom | Fix |
 |---|-----|---------|-----|
@@ -176,3 +250,14 @@ caused per-pass LLVM recompilation of evicted queries:
 Combined effect before fix: MCJIT hot-loop 397 µs/query (59× slower than
 interpreter).  After fix: 7.2 µs/query (on par with interpreter at 7.1 µs/q
 and CnP at 6.9 µs/q).
+
+### CnP: missing permanent-failure sentinel
+
+Fixed in commit `sql/cnp: add CNP_COMPILE_FAILED sentinel to avoid retry on permanent failures`.
+
+`cnp_compiled` was a boolean (0/1).  When `vdbe_cnp_compile` returned -1 due
+to a missing stencil (e.g. `OP_Program` in a trigger-calling query), the state
+stayed at 0, causing the full opcode-scan loop to re-execute on every subsequent
+`sql_step()` call for the same Vdbe.  Adding `CNP_COMPILE_FAILED = -1` as a
+third state prevents the retry with no overhead — the early-exit check at the
+top of `vdbe_cnp_compile` costs a single integer comparison.
