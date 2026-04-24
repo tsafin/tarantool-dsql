@@ -5,6 +5,10 @@ engine: the threaded interpreter, LLVM MCJIT, and Copy-and-Patch (CnP) JIT.
 It covers methodology, what is being measured, and the significant performance
 improvement that resulted from adding an automatic statement cache in M4.
 
+This note is only for the focused JIT micro-benchmark matrix. End-to-end
+sequential SQL testsuite timings belong in
+`docs/sql-vdbe/branch-notes/END_TO_END_SQL_BENCHMARK.md`.
+
 The benchmark harness used for these measurements lives at:
 
 - `tools/jit_bench/sql_llvm_mcjit_benchmark.lua`
@@ -204,4 +208,3 @@ The benchmark data supports several claims:
 
 - **CnP is a safe drop-in for any dispatcher mode**: zero latency cliff for
   one-shot SQL, and execution throughput within 5–10% of interpreter.
-
