@@ -5,6 +5,7 @@
 | Backend | Feature | Activation | What you get |
 |---------|---------|------------|--------------|
 | CnP | `.eh_frame` CFI | always-on | Stack unwinding through CnP frames; `gdb bt` shows CnP frames |
+| CnP | GDB JIT registration | always-on | `gdb bt` shows `vdbe_cnp_stmt_<stmt_id>_ops_<nOp>` at frame `#0`; breakpoints and disassembly work by symbol or address |
 | CnP | `/tmp/perf-PID.map` | `SQL_CNP_PERF_MAP=1` | Function-level perf symbolication |
 | CnP | JITDUMP | `SQL_CNP_JITDUMP=1` | Per-opcode perf attribution after `perf inject --jit` |
 | MCJIT | GDB registration listener | always-on | `gdb bt` shows MCJIT function names, breakpoints inside JIT |
@@ -66,6 +67,41 @@ bash tools/jit_bench/gdb_jit.sh --bench -d cnp --batch -c "sql-break-compile"
 bash tools/jit_bench/gdb_jit.sh -d generated --jit -- /tmp/my_workload.lua
 (gdb) sql-break-compile       # logs every vdbe_jit_compile call
 (gdb) jit-info <vdbe_ptr>     # show MCJIT state for a Vdbe
+```
+
+### Self-stop wrapper — `gdb_jit_stop.sh`
+
+Runs the reproducible self-stop demo (`sql_jit_stop_demo.lua`) and automates:
+
+- stopping after compilation,
+- resolving the active `Vdbe`,
+- printing the generated symbol name,
+- breaking on the generated code entry,
+- printing `bt`,
+- printing a short instruction window at the JIT entry.
+
+```bash
+bash /path/to/tools/jit_bench/gdb_jit_stop.sh [OPTIONS]
+
+Options:
+  -d, --dispatcher <name>  VDBE_DISPATCHER (generated|cnp|old)  default: cnp
+  -j, --jit                Enable MCJIT (SQL_JIT_ENABLE=1)
+  -s, --script <path>      Override the self-stop Lua script
+  -c, --cmd <gdb-cmd>      Extra GDB -ex command (repeatable)
+  -B, --batch              Run GDB in batch mode and exit
+  -h, --help               Show this help
+```
+
+Examples:
+
+```bash
+# CnP: automated batch output
+cd build-jit-relwithdebinfo
+bash tools/jit_bench/gdb_jit_stop.sh -d cnp --batch
+
+# MCJIT: automated batch output
+cd build-jit-relwithdebinfo
+bash tools/jit_bench/gdb_jit_stop.sh -d generated --jit --batch
 ```
 
 **Stopped benchmark example: CnP**
@@ -134,7 +170,7 @@ Vdbe 0x...  stmt_id=852fab6b  sql=SELECT 1 + 2 + 3 + 4 + 5;
   CnP : compiled=1 code=0x... size=707 name=vdbe_cnp_stmt_852fab6b_ops_13
 
 Thread ... hit Breakpoint ..., 0x... in ?? ()
-#0  0x... in ?? ()
+#0  0x... in vdbe_cnp_stmt_852fab6b_ops_13 ()
 #1  vdbe_cnp_exec(...)
 #2  sqlVdbeExec(...)
 ...
@@ -144,12 +180,6 @@ CnP addr 0x... belongs to Vdbe 0x...
   SQL:          SELECT 1 + 2 + 3 + 4 + 5;
   perf symbol:  vdbe_cnp_stmt_852fab6b_ops_13
 ```
-
-**Important limitation:** CnP does not currently register an in-memory ELF/JIT
-object with GDB. That means GDB can unwind through CnP frames, but the frame at
-the generated entry address still appears as `?? ()`. The synthetic name
-`vdbe_cnp_stmt_<stmt_id>_ops_<nOp>` is available through `cnp-info`,
-`sql-vdbes`, perf-map, and JITDUMP, not as a native GDB symbol.
 
 **Stopped benchmark example: MCJIT**
 
@@ -240,7 +270,7 @@ Loaded automatically by `gdb_jit.sh`.  Can also be sourced manually:
 | `sql-break-exec` | Set silent logging breakpoints at `vdbe_cnp_exec` and `sqlVdbeExec` with 6-frame backtrace |
 | `sql-break-off` | Delete all breakpoints |
 
-`cnp-info` prints the synthetic perf/JITDUMP symbol name
+`cnp-info` prints the synthetic perf/JITDUMP/GDB symbol name
 `vdbe_cnp_stmt_<stmt_id>_ops_<nOp>`. `jit-info` prints the actual MCJIT symbol
 resolved by GDB, for example `vdbe_jit_exec_42`.
 

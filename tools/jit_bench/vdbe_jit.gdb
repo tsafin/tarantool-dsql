@@ -218,7 +218,8 @@ define cnp-disas
                 set $end = $start + $p->cnp_size
                 printf "Disassembly for vdbe_cnp_stmt_%08x_ops_%d [%p, %p)\n", \
                     $p->stmt_id, $p->nOp, $start, $end
-                disassemble $start, $end
+                eval "disassemble 0x%lx, 0x%lx", \
+                    (unsigned long)$start, (unsigned long)$end
             else
                 set $pc = (int)$arg1
                 if $pc < 0 || $pc >= $p->cnp_nop
@@ -232,7 +233,8 @@ define cnp-disas
                     end
                     printf "Disassembly for vdbe_cnp_stmt_%08x_ops_%d pc=%d [%p, %p)\n", \
                         $p->stmt_id, $p->nOp, $pc, $start, $end
-                    disassemble $start, $end
+                    eval "disassemble 0x%lx, 0x%lx", \
+                        (unsigned long)$start, (unsigned long)$end
                 end
             end
         end
@@ -255,7 +257,7 @@ define jit-disas
         else
             printf "Disassembly for MCJIT function at %p\n", $p->jit_func
             info symbol $p->jit_func
-            disassemble $p->jit_func
+            eval "disassemble 0x%lx", (unsigned long)$p->jit_func
         end
     end
 end

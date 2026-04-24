@@ -31,6 +31,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
+#include <elf.h>
+#undef EV_NONE
 
 #include "sqlInt.h"
 #include "vdbeInt.h"
@@ -95,6 +97,12 @@ cnp_symbol_name(char *buf, size_t size, const struct Vdbe *p)
 {
 	snprintf(buf, size, "vdbe_cnp_stmt_%08x_ops_%d",
 		 (unsigned)p->stmt_id, p->nOp);
+}
+
+static size_t
+cnp_align_up(size_t offset, size_t align)
+{
+	return (offset + align - 1) & ~(align - 1);
 }
 
 static void
@@ -267,6 +275,216 @@ static inline void cnp_register_frame(struct Vdbe *p)   { (void)p; }
 static inline void cnp_deregister_frame(struct Vdbe *p) { (void)p; }
 
 #endif /* HAVE_REGISTER_FRAME */
+
+/*
+ * GDB JIT registration for named CnP frames.
+ *
+ * Reuses the same __jit_debug_descriptor / __jit_debug_register_code
+ * interface that LLVM MCJIT uses.  For each compiled program we build a
+ * minimal in-memory ELF relocatable object containing a .text section with
+ * the copied machine code and a global function symbol whose name matches the
+ * perf/JITDUMP identity: vdbe_cnp_stmt_<stmt_id>_ops_<nOp>.
+ *
+ * With that object registered, GDB can show the generated function name in
+ * frame #0, set breakpoints by symbol, and disassemble the JIT code by name.
+ */
+struct jit_code_entry {
+	struct jit_code_entry *next_entry;
+	struct jit_code_entry *prev_entry;
+	const char *symfile_addr;
+	uint64_t symfile_size;
+};
+
+struct jit_descriptor {
+	uint32_t version;
+	uint32_t action_flag;
+	struct jit_code_entry *relevant_entry;
+	struct jit_code_entry *first_entry;
+};
+
+enum {
+	JIT_NOACTION = 0,
+	JIT_REGISTER_FN = 1,
+	JIT_UNREGISTER_FN = 2,
+};
+
+extern struct jit_descriptor __jit_debug_descriptor;
+extern void __jit_debug_register_code(void);
+
+struct cnp_gdb_entry {
+	struct jit_code_entry jit;
+	size_t symfile_size;
+	uint8_t symfile[];
+};
+
+static struct cnp_gdb_entry *
+cnp_build_gdb_symfile(struct Vdbe *p)
+{
+	static const char shstrtab[] =
+		"\0.text\0.symtab\0.strtab\0.shstrtab\0";
+	enum {
+		SEC_NULL = 0,
+		SEC_TEXT = 1,
+		SEC_SYMTAB = 2,
+		SEC_STRTAB = 3,
+		SEC_SHSTRTAB = 4,
+		SEC_COUNT = 5,
+		SYM_NULL = 0,
+		SYM_TEXT = 1,
+		SYM_FUNC = 2,
+		SYM_COUNT = 3,
+	};
+	char func_name[64];
+	cnp_symbol_name(func_name, sizeof(func_name), p);
+	size_t func_name_len = strlen(func_name) + 1;
+	size_t strtab_size = 1 + func_name_len;
+
+	size_t off = sizeof(Elf64_Ehdr);
+	size_t text_off = cnp_align_up(off, 16);
+	size_t text_size = p->cnp_size;
+	size_t symtab_off = cnp_align_up(text_off + text_size, 8);
+	size_t symtab_size = sizeof(Elf64_Sym) * SYM_COUNT;
+	size_t strtab_off = symtab_off + symtab_size;
+	size_t shstrtab_off = strtab_off + strtab_size;
+	size_t shoff = cnp_align_up(shstrtab_off + sizeof(shstrtab), 8);
+	size_t symfile_size = shoff + sizeof(Elf64_Shdr) * SEC_COUNT;
+
+	struct cnp_gdb_entry *entry =
+		(struct cnp_gdb_entry *)calloc(1, sizeof(*entry) + symfile_size);
+	if (entry == NULL)
+		return NULL;
+
+	uint8_t *buf = entry->symfile;
+	entry->symfile_size = symfile_size;
+	entry->jit.symfile_addr = (const char *)buf;
+	entry->jit.symfile_size = symfile_size;
+
+	Elf64_Ehdr *ehdr = (Elf64_Ehdr *)buf;
+	memcpy(ehdr->e_ident, ELFMAG, SELFMAG);
+	ehdr->e_ident[EI_CLASS] = ELFCLASS64;
+	ehdr->e_ident[EI_DATA] = ELFDATA2LSB;
+	ehdr->e_ident[EI_VERSION] = EV_CURRENT;
+	ehdr->e_ident[EI_OSABI] = ELFOSABI_NONE;
+	ehdr->e_type = ET_REL;
+	ehdr->e_machine = EM_X86_64;
+	ehdr->e_version = EV_CURRENT;
+	ehdr->e_ehsize = sizeof(*ehdr);
+	ehdr->e_shentsize = sizeof(Elf64_Shdr);
+	ehdr->e_shnum = SEC_COUNT;
+	ehdr->e_shoff = shoff;
+	ehdr->e_shstrndx = SEC_SHSTRTAB;
+
+	memcpy(buf + text_off, p->cnp_code, text_size);
+
+	char *strtab = (char *)(buf + strtab_off);
+	size_t func_name_off = 1;
+	strtab[0] = '\0';
+	memcpy(strtab + func_name_off, func_name, func_name_len);
+	memcpy(buf + shstrtab_off, shstrtab, sizeof(shstrtab));
+
+	Elf64_Sym *symtab = (Elf64_Sym *)(buf + symtab_off);
+	symtab[SYM_TEXT].st_info = ELF64_ST_INFO(STB_LOCAL, STT_SECTION);
+	symtab[SYM_TEXT].st_shndx = SEC_TEXT;
+	symtab[SYM_FUNC].st_name = func_name_off;
+	symtab[SYM_FUNC].st_info = ELF64_ST_INFO(STB_GLOBAL, STT_FUNC);
+	symtab[SYM_FUNC].st_shndx = SEC_TEXT;
+	symtab[SYM_FUNC].st_size = text_size;
+
+	Elf64_Shdr *shdr = (Elf64_Shdr *)(buf + shoff);
+	shdr[SEC_TEXT].sh_name = 1;
+	shdr[SEC_TEXT].sh_type = SHT_PROGBITS;
+	shdr[SEC_TEXT].sh_flags = SHF_ALLOC | SHF_EXECINSTR;
+	shdr[SEC_TEXT].sh_addr = (Elf64_Addr)(uintptr_t)p->cnp_code;
+	shdr[SEC_TEXT].sh_offset = text_off;
+	shdr[SEC_TEXT].sh_size = text_size;
+	shdr[SEC_TEXT].sh_addralign = 16;
+
+	shdr[SEC_SYMTAB].sh_name = 7;
+	shdr[SEC_SYMTAB].sh_type = SHT_SYMTAB;
+	shdr[SEC_SYMTAB].sh_offset = symtab_off;
+	shdr[SEC_SYMTAB].sh_size = symtab_size;
+	shdr[SEC_SYMTAB].sh_link = SEC_STRTAB;
+	shdr[SEC_SYMTAB].sh_info = SYM_FUNC;
+	shdr[SEC_SYMTAB].sh_addralign = 8;
+	shdr[SEC_SYMTAB].sh_entsize = sizeof(Elf64_Sym);
+
+	shdr[SEC_STRTAB].sh_name = 15;
+	shdr[SEC_STRTAB].sh_type = SHT_STRTAB;
+	shdr[SEC_STRTAB].sh_offset = strtab_off;
+	shdr[SEC_STRTAB].sh_size = strtab_size;
+	shdr[SEC_STRTAB].sh_addralign = 1;
+
+	shdr[SEC_SHSTRTAB].sh_name = 23;
+	shdr[SEC_SHSTRTAB].sh_type = SHT_STRTAB;
+	shdr[SEC_SHSTRTAB].sh_offset = shstrtab_off;
+	shdr[SEC_SHSTRTAB].sh_size = sizeof(shstrtab);
+	shdr[SEC_SHSTRTAB].sh_addralign = 1;
+
+	return entry;
+}
+
+static void
+cnp_gdb_register(struct Vdbe *p)
+{
+	if (p->cnp_gdb_entry != NULL)
+		return;
+
+	struct cnp_gdb_entry *entry = cnp_build_gdb_symfile(p);
+	if (entry == NULL)
+		return;
+
+	struct jit_code_entry *jit = &entry->jit;
+	jit->prev_entry = NULL;
+	jit->next_entry = __jit_debug_descriptor.first_entry;
+	if (jit->next_entry != NULL)
+		jit->next_entry->prev_entry = jit;
+
+	__jit_debug_descriptor.relevant_entry = jit;
+	__jit_debug_descriptor.action_flag = JIT_REGISTER_FN;
+	__jit_debug_descriptor.first_entry = jit;
+	__jit_debug_register_code();
+	p->cnp_gdb_entry = entry;
+}
+
+static void
+cnp_gdb_deregister(struct Vdbe *p)
+{
+	struct cnp_gdb_entry *entry = (struct cnp_gdb_entry *)p->cnp_gdb_entry;
+	if (entry == NULL)
+		return;
+
+	struct jit_code_entry *jit = &entry->jit;
+	if (jit->prev_entry != NULL)
+		jit->prev_entry->next_entry = jit->next_entry;
+	else
+		__jit_debug_descriptor.first_entry = jit->next_entry;
+	if (jit->next_entry != NULL)
+		jit->next_entry->prev_entry = jit->prev_entry;
+
+	__jit_debug_descriptor.relevant_entry = jit;
+	__jit_debug_descriptor.action_flag = JIT_UNREGISTER_FN;
+	__jit_debug_register_code();
+
+	free(entry);
+	p->cnp_gdb_entry = NULL;
+}
+
+static void
+cnp_invalidate_program(struct Vdbe *p)
+{
+	cnp_gdb_deregister(p);
+	cnp_deregister_frame(p);
+	if (p->cnp_pc_stencil != NULL) {
+		free(p->cnp_pc_stencil);
+		p->cnp_pc_stencil = NULL;
+	}
+	p->cnp_code = NULL;
+	p->cnp_size = 0;
+	p->cnp_compiled = CNP_NOT_COMPILED;
+	p->cnp_resume_func = NULL;
+	p->cnp_row_ready = 0;
+	p->cnp_nop = 0;
+}
 
 /*
  * JITDUMP support for per-opcode perf attribution via `perf inject --jit`.
@@ -558,10 +776,8 @@ cnp_arena_alloc(size_t nbytes)
 				if (v->cnp_compiled != CNP_COMPILED || v->cnp_code == NULL)
 					continue;
 				uint8_t *code = (uint8_t *)v->cnp_code;
-				if (code >= lo && code < hi) {
-					v->cnp_compiled = CNP_NOT_COMPILED;
-					v->cnp_resume_func = NULL;
-				}
+				if (code >= lo && code < hi)
+					cnp_invalidate_program(v);
 			}
 		}
 		g_cnp_arena.pos = 0;  /* wrap */
@@ -1020,6 +1236,9 @@ vdbe_cnp_compile(struct Vdbe *p)
 		return 0;
 	if (p->cnp_compiled == CNP_COMPILE_FAILED)
 		return -1;
+	if (p->cnp_code != NULL || p->cnp_pc_stencil != NULL ||
+	    p->cnp_ehframe != NULL || p->cnp_gdb_entry != NULL)
+		cnp_invalidate_program(p);
 
 	sql_cnp_compile_count++;
 
@@ -1223,6 +1442,7 @@ vdbe_cnp_compile(struct Vdbe *p)
 	sql_cnp_compile_success_count++;
 	cnp_perf_map_add(p, code, total_size);
 	cnp_register_frame(p);
+	cnp_gdb_register(p);
 	/* jitdump_write uses pc_offset; call before freeing it */
 	cnp_jitdump_write(p, nOp, aOp, pc_offset);
 
@@ -1290,24 +1510,11 @@ vdbe_cnp_exec(struct Vdbe *p)
 void
 vdbe_cnp_release(struct Vdbe *p)
 {
-	cnp_deregister_frame(p);
-	if (p->cnp_code != NULL) {
-		/*
-		 * Code lives in the shared arena — do not munmap it.
-		 * The arena bump pointer advances past it; the memory
-		 * will be reclaimed when the arena wraps.
-		 */
-		p->cnp_code = NULL;
-		p->cnp_size = 0;
-		p->cnp_compiled = CNP_NOT_COMPILED;
-	}
-	if (p->cnp_pc_stencil != NULL) {
-		free(p->cnp_pc_stencil);
-		p->cnp_pc_stencil = NULL;
-		p->cnp_nop = 0;
-	}
-	p->cnp_resume_func = NULL;
-	p->cnp_row_ready = 0;
+	/*
+	 * Code lives in the shared arena, so invalidation only drops metadata.
+	 * The arena memory itself is reclaimed on wrap.
+	 */
+	cnp_invalidate_program(p);
 }
 
 int
