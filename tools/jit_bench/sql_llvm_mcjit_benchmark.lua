@@ -22,6 +22,12 @@ end
 
 local function stat_snapshot()
     local s = box.stat.sql()
+    local cnp_opcode_count = {}
+    if s.cnp_opcode_profile ~= nil and s.cnp_opcode_profile.count ~= nil then
+        for k, v in pairs(s.cnp_opcode_profile.count) do
+            cnp_opcode_count[k] = v
+        end
+    end
     return {
         interpreter_step_count = s.sql_interpreter_step_count or 0,
         jit_step_count = s.sql_jit_step_count or 0,
@@ -36,13 +42,33 @@ local function stat_snapshot()
         cnp_compile_success_count = s.sql_cnp_compile_success_count or 0,
         cnp_exec_count = s.sql_cnp_exec_count or 0,
         cnp_step_count = s.sql_cnp_step_count or 0,
+        cnp_fallback_count = s.sql_cnp_fallback_count or 0,
+        cnp_resume_count = s.sql_cnp_resume_count or 0,
+        cnp_pc_jump_count = s.sql_cnp_pc_jump_count or 0,
+        cnp_row_return_count = s.sql_cnp_row_return_count or 0,
+        cnp_done_return_count = s.sql_cnp_done_return_count or 0,
+        cnp_error_return_count = s.sql_cnp_error_return_count or 0,
+        cnp_compiled_bytes = s.sql_cnp_compiled_bytes or 0,
+        cnp_opcode_count = cnp_opcode_count,
     }
 end
 
 local function stat_diff(before, after)
     local diff = {}
     for k, v in pairs(after) do
-        diff[k] = v - before[k]
+        if type(v) == 'table' then
+            local table_diff = {}
+            local before_table = before[k] or {}
+            for kk, vv in pairs(v) do
+                local delta = vv - (before_table[kk] or 0)
+                if delta ~= 0 then
+                    table_diff[kk] = delta
+                end
+            end
+            diff[k] = table_diff
+        else
+            diff[k] = v - before[k]
+        end
     end
     return diff
 end

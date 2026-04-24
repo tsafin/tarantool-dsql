@@ -162,6 +162,13 @@ int64_t sql_cnp_compile_count = 0;
 int64_t sql_cnp_compile_success_count = 0;
 int64_t sql_cnp_exec_count = 0;
 int64_t sql_cnp_step_count = 0;
+int64_t sql_cnp_fallback_count = 0;
+int64_t sql_cnp_resume_count = 0;
+int64_t sql_cnp_pc_jump_count = 0;
+int64_t sql_cnp_row_return_count = 0;
+int64_t sql_cnp_done_return_count = 0;
+int64_t sql_cnp_error_return_count = 0;
+int64_t sql_cnp_compiled_bytes = 0;
 
 #ifdef ENABLE_SQL_JIT
 static inline void
@@ -219,6 +226,8 @@ static int64_t sql_interpreter_opcode_count[SQL_VDBE_OP_PROFILE_SIZE];
 static int64_t sql_interpreter_opcode_time_us[SQL_VDBE_OP_PROFILE_SIZE];
 static int64_t sql_jit_opcode_count[SQL_VDBE_OP_PROFILE_SIZE];
 static int64_t sql_jit_opcode_time_us[SQL_VDBE_OP_PROFILE_SIZE];
+static int64_t sql_cnp_opcode_count[SQL_VDBE_OP_PROFILE_SIZE];
+static int64_t sql_cnp_opcode_time_us[SQL_VDBE_OP_PROFILE_SIZE];
 
 static inline void
 sql_vdbe_opcode_profile_record(int64_t *count, int64_t *time_us, int opcode,
@@ -250,6 +259,14 @@ sql_vdbe_opcode_profile_record_jit(int opcode, int64_t elapsed_us)
 }
 
 void
+sql_vdbe_opcode_profile_record_cnp(int opcode, int64_t elapsed_us)
+{
+	sql_vdbe_opcode_profile_record(sql_cnp_opcode_count,
+				       sql_cnp_opcode_time_us, opcode,
+				       elapsed_us);
+}
+
+void
 sql_vdbe_opcode_profile_append_debug_info(struct info_handler *h)
 {
 	info_append_int(h, "sql_opcode_profile_enabled", 1);
@@ -277,6 +294,17 @@ sql_vdbe_opcode_profile_append_debug_info(struct info_handler *h)
 		info_append_int(h, sqlOpcodeName(i), sql_jit_opcode_time_us[i]);
 	info_table_end(h);
 	info_table_end(h);
+
+	info_table_begin(h, "cnp_opcode_profile");
+	info_table_begin(h, "count");
+	for (int i = 0; i < SQL_VDBE_OP_PROFILE_SIZE; i++)
+		info_append_int(h, sqlOpcodeName(i), sql_cnp_opcode_count[i]);
+	info_table_end(h);
+	info_table_begin(h, "time_us");
+	for (int i = 0; i < SQL_VDBE_OP_PROFILE_SIZE; i++)
+		info_append_int(h, sqlOpcodeName(i), sql_cnp_opcode_time_us[i]);
+	info_table_end(h);
+	info_table_end(h);
 }
 #else
 void
@@ -292,6 +320,13 @@ sql_vdbe_opcode_profile_record_jit(int opcode, int64_t elapsed_us)
 	(void)opcode;
 	(void)elapsed_us;
 	sql_jit_step_count++;
+}
+
+void
+sql_vdbe_opcode_profile_record_cnp(int opcode, int64_t elapsed_us)
+{
+	(void)opcode;
+	(void)elapsed_us;
 }
 
 void

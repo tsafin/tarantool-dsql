@@ -68,6 +68,12 @@ extern int64_t sql_cnp_compile_count;
 extern int64_t sql_cnp_compile_success_count;
 extern int64_t sql_cnp_exec_count;
 extern int64_t sql_cnp_step_count;
+extern int64_t sql_cnp_resume_count;
+extern int64_t sql_cnp_pc_jump_count;
+extern int64_t sql_cnp_row_return_count;
+extern int64_t sql_cnp_done_return_count;
+extern int64_t sql_cnp_error_return_count;
+extern int64_t sql_cnp_compiled_bytes;
 
 /*
  * perf.map support (Linux `perf` JIT symbol resolution).
@@ -310,6 +316,15 @@ enum {
 
 extern struct jit_descriptor __jit_debug_descriptor;
 extern void __jit_debug_register_code(void);
+
+#if !defined(ENABLE_SQL_JIT)
+struct jit_descriptor __jit_debug_descriptor;
+
+__attribute__((noinline)) void
+__jit_debug_register_code(void)
+{
+}
+#endif
 
 struct cnp_gdb_entry {
 	struct jit_code_entry jit;
@@ -794,6 +809,19 @@ cnp_arena_alloc(size_t nbytes)
  */
 typedef int64_t (*cnp_stencil_func_t)(struct Vdbe *p, Mem *aMem);
 
+#if SQL_VDBE_OP_PROFILE
+static int
+cnp_find_pc_for_func(struct Vdbe *p, cnp_stencil_func_t func)
+{
+	void *target = (void *)func;
+	for (int i = 0; i < p->cnp_nop; i++) {
+		if (p->cnp_pc_stencil[i] == target)
+			return i;
+	}
+	return -1;
+}
+#endif
+
 /*
  * Threshold: return values below this are status/PC codes, not addresses.
  * Any valid mmap'd address will be well above this value.
@@ -1262,7 +1290,6 @@ vdbe_cnp_compile(struct Vdbe *p)
 	int pc_offset_heap = 0;
 
 	uint32_t total_size = 0;
-	int needs_pc_stencil = 0;
 	for (int i = 0; i < nOp; i++) {
 		int opcode = aOp[i].opcode;
 		if (opcode > CNP_MAX_OPCODE ||
@@ -1271,10 +1298,6 @@ vdbe_cnp_compile(struct Vdbe *p)
 			return -1;
 		}
 		total_size += cnp_stencils[opcode].size;
-		if (opcode == OP_Gosub || opcode == OP_Return ||
-		    opcode == OP_Yield || opcode == OP_InitCoroutine ||
-		    opcode == OP_EndCoroutine)
-			needs_pc_stencil = 1;
 	}
 
 	if (nOp + 1 <= CNP_STACK_OP_LIMIT + 1) {
@@ -1299,17 +1322,15 @@ vdbe_cnp_compile(struct Vdbe *p)
 	}
 
 	/*
- * Phase 3: Copy stencils, build pc-to-offset map, and (only when
- * coroutine opcodes are present) populate pc_stencil lookup table.
+ * Phase 3: Copy stencils, build pc-to-offset map, and populate
+ * pc_stencil so profiling, debugger helpers, and coroutine jumps can
+ * map between pc and native address.
  */
-	void **pc_stencil = NULL;
-	if (needs_pc_stencil) {
-		pc_stencil = (void **)calloc(nOp, sizeof(void *));
-		if (pc_stencil == NULL) {
-			if (pc_offset_heap)
-				free(pc_offset);
-			return -1;
-		}
+	void **pc_stencil = (void **)calloc(nOp, sizeof(void *));
+	if (pc_stencil == NULL) {
+		if (pc_offset_heap)
+			free(pc_offset);
+		return -1;
 	}
 
 	uint32_t pos = 0;
@@ -1321,10 +1342,8 @@ vdbe_cnp_compile(struct Vdbe *p)
 	}
 	pc_offset[nOp] = pos;
 
-	if (needs_pc_stencil) {
-		for (int i = 0; i < nOp; i++)
-			pc_stencil[i] = code + pc_offset[i];
-	}
+	for (int i = 0; i < nOp; i++)
+		pc_stencil[i] = code + pc_offset[i];
 
 	/*
  * Phase 4: Patch holes.
@@ -1440,6 +1459,7 @@ vdbe_cnp_compile(struct Vdbe *p)
 	p->cnp_pc_stencil = pc_stencil;
 	p->cnp_nop = nOp;
 	sql_cnp_compile_success_count++;
+	sql_cnp_compiled_bytes += total_size;
 	cnp_perf_map_add(p, code, total_size);
 	cnp_register_frame(p);
 	cnp_gdb_register(p);
@@ -1464,22 +1484,42 @@ vdbe_cnp_exec(struct Vdbe *p)
  * returned SQL_ROW.
  */
 	cnp_stencil_func_t func;
+#if SQL_VDBE_OP_PROFILE
+	int current_pc = 0;
+#endif
 	if (p->cnp_resume_func != NULL) {
+		sql_cnp_resume_count++;
 		func = (cnp_stencil_func_t)p->cnp_resume_func;
 		p->cnp_resume_func = NULL;
+#if SQL_VDBE_OP_PROFILE
+		current_pc = cnp_find_pc_for_func(p, func);
+#endif
 	} else {
 		func = (cnp_stencil_func_t)p->cnp_code;
 	}
 
 	int64_t result;
 	for (;;) {
+#if SQL_VDBE_OP_PROFILE
+		int opcode = (current_pc >= 0 && current_pc < p->nOp) ?
+			     p->aOp[current_pc].opcode : -1;
+		int64_t start_us = fiber_clock64();
+#endif
 		result = func(p, p->aMem);
 		sql_cnp_step_count++;
+#if SQL_VDBE_OP_PROFILE
+		sql_vdbe_opcode_profile_record_cnp(opcode,
+						   fiber_clock64() - start_us);
+#endif
 
 		if (result >= (int64_t)CNP_ADDR_THRESHOLD) {
 			/* Normal: result is the address of the next stencil. */
 			func = (cnp_stencil_func_t)result;
+#if SQL_VDBE_OP_PROFILE
+			current_pc = cnp_find_pc_for_func(p, func);
+#endif
 		} else if (result >= CNP_PC_JUMP_BASE) {
+			sql_cnp_pc_jump_count++;
 			/*
  * Coroutine PC jump: result encodes a target PC as
  * (pc + CNP_PC_JUMP_BASE).  Look up the stencil for
@@ -1487,11 +1527,20 @@ vdbe_cnp_exec(struct Vdbe *p)
  */
 			int pc = (int)(result - CNP_PC_JUMP_BASE);
 			if (pc < 0 || pc >= p->cnp_nop ||
-			    p->cnp_pc_stencil[pc] == NULL)
+			    p->cnp_pc_stencil[pc] == NULL) {
+				sql_cnp_error_return_count++;
 				return -1;
+			}
 			func = (cnp_stencil_func_t)p->cnp_pc_stencil[pc];
+#if SQL_VDBE_OP_PROFILE
+			current_pc = pc;
+#endif
 		} else {
 			/* Terminal status code (SQL_ROW, SQL_DONE, or -1). */
+			if (result == SQL_DONE)
+				sql_cnp_done_return_count++;
+			else if (result < 0)
+				sql_cnp_error_return_count++;
 			return (int)result;
 		}
 
@@ -1502,6 +1551,7 @@ vdbe_cnp_exec(struct Vdbe *p)
  */
 			p->cnp_row_ready = 0;
 			p->cnp_resume_func = (void *)func;
+			sql_cnp_row_return_count++;
 			return SQL_ROW;
 		}
 	}

@@ -390,6 +390,7 @@ int sqlVdbeHalt(Vdbe *);
 const char *sqlOpcodeName(int);
 void sql_vdbe_opcode_profile_record_interpreter(int opcode, int64_t elapsed_us);
 void sql_vdbe_opcode_profile_record_jit(int opcode, int64_t elapsed_us);
+void sql_vdbe_opcode_profile_record_cnp(int opcode, int64_t elapsed_us);
 int sqlVdbeCloseStatement(Vdbe *, int);
 void sqlVdbeFrameDelete(VdbeFrame *);
 int sqlVdbeFrameRestore(VdbeFrame *);
