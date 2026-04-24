@@ -30,14 +30,25 @@ vdbe_jit_register_perf_listener(LLVMExecutionEngineRef ee_ref)
 	if (EE == nullptr)
 		return;
 
+	/*
+	 * GDB JIT registration: always active.
+	 * Uses the GDB JIT interface (__jit_debug_register_code).  When gdb
+	 * is not attached the function is a no-op; overhead is zero.
+	 * When gdb is attached, each compiled function becomes visible in
+	 * backtraces and can be stepped into.
+	 */
+	auto *gdb_l = llvm::JITEventListener::createGDBRegistrationListener();
+	if (gdb_l)
+		EE->RegisterJITEventListener(gdb_l);
+
+	/*
+	 * PerfJIT JITDUMP: opt-in via SQL_JIT_PERF_MAP=1.
+	 * Writes /tmp/jit-PID.dump which `perf inject --jit` then uses to
+	 * annotate perf report with per-function (and DWARF-line) attribution.
+	 */
 	if (getenv_flag("SQL_JIT_PERF_MAP")) {
-		auto *l = llvm::JITEventListener::createPerfJITEventListener();
-		if (l)
-			EE->RegisterJITEventListener(l);
-	}
-	if (getenv_flag("SQL_JIT_GDB")) {
-		auto *l = llvm::JITEventListener::createGDBRegistrationListener();
-		if (l)
-			EE->RegisterJITEventListener(l);
+		auto *perf_l = llvm::JITEventListener::createPerfJITEventListener();
+		if (perf_l)
+			EE->RegisterJITEventListener(perf_l);
 	}
 }
