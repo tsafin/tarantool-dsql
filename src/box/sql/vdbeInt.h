@@ -338,6 +338,8 @@ struct Vdbe {
 	int cnp_nop;
 	/** Heap-allocated .eh_frame buffer registered via __register_frame */
 	uint8_t *cnp_ehframe;
+	/** Heap-allocated GDB JIT registration entry for the current program */
+	void *cnp_gdb_entry;
 #endif
 };
 
