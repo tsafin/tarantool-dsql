@@ -77,7 +77,7 @@ extern int64_t sql_cnp_step_count;
  * Activation: set environment variable SQL_CNP_PERF_MAP=1 before
  * starting tarantool.
  *
- * Symbol naming: `vdbe_cnp_<seq>` where <seq> is a monotonic counter.
+ * Symbol naming: `vdbe_cnp_stmt_<stmt_id>_ops_<nOp>`.
  * SQL text is intentionally excluded from names to avoid leaking query
  * content into a world-visible file.
  *
@@ -89,6 +89,13 @@ extern int64_t sql_cnp_step_count;
 static FILE  *g_cnp_perf_file = NULL;
 static int    g_cnp_perf_enabled = -1; /* -1 = not checked yet */
 static int64_t g_cnp_perf_seq = 0;
+
+static void
+cnp_symbol_name(char *buf, size_t size, const struct Vdbe *p)
+{
+	snprintf(buf, size, "vdbe_cnp_stmt_%08x_ops_%d",
+		 (unsigned)p->stmt_id, p->nOp);
+}
 
 static void
 cnp_perf_map_open(void)
@@ -123,15 +130,18 @@ cnp_perf_map_open(void)
  * Format required by Linux perf: "<hex_start> <hex_size> <name>\n"
  */
 static void
-cnp_perf_map_add(uint8_t *code, uint32_t size)
+cnp_perf_map_add(struct Vdbe *p, uint8_t *code, uint32_t size)
 {
 	cnp_perf_map_open();
 	if (!g_cnp_perf_enabled)
 		return;
-	fprintf(g_cnp_perf_file, "%lx %x vdbe_cnp_%lld\n",
+	char sym[64];
+	cnp_symbol_name(sym, sizeof(sym), p);
+	fprintf(g_cnp_perf_file, "%lx %x %s\n",
 		(unsigned long)(uintptr_t)code,
 		(unsigned)size,
-		(long long)g_cnp_perf_seq++);
+		sym);
+	g_cnp_perf_seq++;
 }
 
 /*
@@ -156,8 +166,8 @@ cnp_perf_map_add(uint8_t *code, uint32_t size)
  * Without the 'z'/'R' augmentation in the CIE, the libgcc parser uses
  * native pointer width (8 bytes on x86-64) for pc_begin and pc_range.
  *
- * Activation: SQL_CNP_EH_FRAME=1
- * Guarded by HAVE_REGISTER_FRAME (CMake check_function_exists).
+ * Always active when HAVE_REGISTER_FRAME is available (CMake check).
+ * Overhead: one 48-byte malloc + __register_frame() per compile.
  */
 #ifdef HAVE_REGISTER_FRAME
 
@@ -200,16 +210,10 @@ static const uint8_t cnp_cie_template[20] = {
 #define CNP_TERM_SIZE  4
 #define CNP_EHFRAME_SIZE  (CNP_CIE_SIZE + CNP_FDE_SIZE + CNP_TERM_SIZE)
 
-static int g_cnp_ehframe_enabled = -1;
-
 static void
 cnp_register_frame(struct Vdbe *p)
 {
-	if (g_cnp_ehframe_enabled < 0) {
-		const char *env = getenv("SQL_CNP_EH_FRAME");
-		g_cnp_ehframe_enabled = (env != NULL && env[0] == '1') ? 1 : 0;
-	}
-	if (!g_cnp_ehframe_enabled || p->cnp_ehframe != NULL)
+	if (p->cnp_ehframe != NULL)
 		return;
 
 	uint8_t *buf = (uint8_t *)malloc(CNP_EHFRAME_SIZE);
@@ -429,9 +433,9 @@ cnp_jitdump_write(struct Vdbe *p, int nOp, Op *aOp, uint32_t *pc_offset)
 	uint64_t idx = g_cnp_jitdump_code_index++;
 
 	/* Build symbol name */
-	char sym[32];
-	int sym_len = snprintf(sym, sizeof(sym), "vdbe_cnp_%llu",
-			       (unsigned long long)idx) + 1; /* include NUL */
+	char sym[64];
+	cnp_symbol_name(sym, sizeof(sym), p);
+	int sym_len = (int)strlen(sym) + 1; /* include NUL */
 
 	/* --- JIT_CODE_LOAD record --- */
 	uint32_t load_size = (uint32_t)(sizeof(struct jitdump_code_load) +
@@ -1217,7 +1221,7 @@ vdbe_cnp_compile(struct Vdbe *p)
 	p->cnp_pc_stencil = pc_stencil;
 	p->cnp_nop = nOp;
 	sql_cnp_compile_success_count++;
-	cnp_perf_map_add(code, total_size);
+	cnp_perf_map_add(p, code, total_size);
 	cnp_register_frame(p);
 	/* jitdump_write uses pc_offset; call before freeing it */
 	cnp_jitdump_write(p, nOp, aOp, pc_offset);

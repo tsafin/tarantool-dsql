@@ -1,289 +1,427 @@
-# M5 Phase 2 — DWARF / GDB / Unwind Support for CnP and MCJIT
+# M5 Phase 2 — Debuggability and Profiling for CnP and MCJIT
 
-## Current State (M5 Phase 2 — done)
+## Current State (implemented, Apr 2026)
 
 | Backend | Feature | Activation | What you get |
 |---------|---------|------------|--------------|
+| CnP | `.eh_frame` CFI | always-on | Stack unwinding through CnP frames; `gdb bt` shows CnP frames |
 | CnP | `/tmp/perf-PID.map` | `SQL_CNP_PERF_MAP=1` | Function-level perf symbolication |
-| CnP | `.eh_frame` CFI | `SQL_CNP_EH_FRAME=1` | Stack unwinding through CnP frames; `gdb bt` shows CnP frames |
 | CnP | JITDUMP | `SQL_CNP_JITDUMP=1` | Per-opcode perf attribution after `perf inject --jit` |
+| MCJIT | GDB registration listener | always-on | `gdb bt` shows MCJIT function names, breakpoints inside JIT |
 | MCJIT | JITDUMP (PerfJITEventListener) | `SQL_JIT_PERF_MAP=1` | Function-level perf + DWARF via `perf inject --jit` |
-| MCJIT | GDB registration listener | `SQL_JIT_GDB=1` | `gdb bt` shows MCJIT function names, breakpoints inside JIT |
 
-## Tasks Completed (M5 Phase 2)
-
-| Task | Lines | File | Status |
-|------|-------|------|--------|
-| A — MCJIT GDB listener | ~15 | `vdbe_jit_perf.cc` | ✅ Done |
-| B — CnP `.eh_frame` CFI | ~100 | `vdbe_cnp.c` | ✅ Done |
-| C — CnP JITDUMP | ~200 | `vdbe_cnp.c` | ✅ Done |
-
-### Implementation notes
-
-**Task A**: `createGDBRegistrationListener()` builds a minimal in-memory ELF
-for each compiled MCJIT function and notifies gdb via the JIT interface
-`__jit_debug_register_code`.  Activated by `SQL_JIT_GDB=1`.
-
-**Task B**: CIE encodes `CFA = RSP+8, RA = [RSP]` — the uniform CnP calling
-convention (no prologue, no callee-saves).  Without augmentation `zR`, libgcc
-expects 8-byte absolute addresses in the FDE's `pc_begin`/`pc_range` fields
-on x86-64.  Includes a 4-byte zero section terminator required by libgcc's
-`__register_frame`.  Guarded by `HAVE_REGISTER_FRAME` (CMake check).
-Activated by `SQL_CNP_EH_FRAME=1`.
-
-**Task C**: Emits `JIT_CODE_LOAD` + `JIT_CODE_DEBUG_INFO` records into a
-mmap'd `/tmp/jit-PID.dump` file.  Each opcode gets one debug entry with its
-stencil address, PC index as line number, and opcode mnemonic as filename.
-Uses `mremap` to grow the file as needed.  Activated by `SQL_CNP_JITDUMP=1`.
+Both always-on features (`eh_frame` for CnP, GDB listener for MCJIT) have zero
+overhead when no debugger is attached: `__register_frame` is a pure registration
+call, and `__jit_debug_register_code` is a no-op stub that GDB replaces with its
+own handler only when attached.
 
 ---
 
-## Task A — MCJIT: GDB registration listener
+## Tools
 
-**Effort:** ~10 lines of C++
-**File:** `src/box/sql/vdbe_jit_perf.cc`
-**Activation:** `SQL_JIT_GDB=1`
-
-LLVM 11 provides `JITEventListener::createGDBRegistrationListener()`.  It
-implements the [GDB JIT interface][gdb-jit]: builds a minimal in-memory ELF
-object for each compiled function and notifies gdb via `__jit_debug_register_code`.
-
-Hook it alongside the existing `createPerfJITEventListener()` call:
-
-```cpp
-extern "C" void
-vdbe_jit_register_perf_listener(LLVMExecutionEngineRef ee_ref)
-{
-    llvm::ExecutionEngine *EE = llvm::unwrap(ee_ref);
-    if (EE == nullptr)
-        return;
-
-    if (getenv_flag("SQL_JIT_PERF_MAP")) {
-        auto *l = llvm::JITEventListener::createPerfJITEventListener();
-        if (l) EE->RegisterJITEventListener(l);
-    }
-    if (getenv_flag("SQL_JIT_GDB")) {
-        auto *l = llvm::JITEventListener::createGDBRegistrationListener();
-        if (l) EE->RegisterJITEventListener(l);
-    }
-}
-```
-
-After this change, `gdb` will show MCJIT frames by name in backtraces and
-can set breakpoints inside compiled SQL functions.
-
-[gdb-jit]: https://sourceware.org/gdb/current/onlinedocs/gdb/JIT-Interface.html
-
----
-
-## Task B — CnP: `.eh_frame` CFI registration
-
-**Effort:** ~80 lines of C
-**File:** `src/box/sql/vdbe_cnp.c`
-**Activation:** consider always-on (overhead is negligible)
-
-### Problem
-
-CnP stencils are called as plain function pointers with no prologue/epilogue.
-The CPU's default frame unwinding (RBP chain or `.eh_frame` DWARF CFI) has no
-information about them.  Consequences:
-
-- `backtrace()` / `backtrace_symbols()` produce garbage or stop at the CnP
-  dispatch loop.
-- gdb `bt` shows `?? ()` for all CnP frames.
-- C++ exceptions cannot propagate through CnP frames (not a current concern
-  since CnP code is plain C, but relevant if the call stack passes through
-  CnP into Lua or C++ code that throws).
-
-### Solution: DWARF CFI via `__register_frame`
-
-The CnP calling convention is uniform and trivially describable in DWARF CFI:
-
-- No function prologue — RSP is not adjusted by the stencil itself.
-- No callee-saved registers pushed.
-- The return address is at `[RSP]` (i.e. `CFA = RSP + 8`, `RA = [CFA-8]`).
-
-This means a single static **CIE** (Common Information Entry) covers every
-compiled program, and each program only needs a short **FDE** (Frame
-Description Entry) recording its start address and byte length.
+All tools live in `tools/jit_bench/`.  Run them from the **build directory**:
 
 ```
-CIE:
-  version = 1
-  augmentation = ""       (no LSB/personality/LSDA)
-  code_align = 1
-  data_align = -8         (x86-64 standard)
-  return_address_register = 16  (RIP)
-  DW_CFA_def_cfa: register=RSP (7), offset=8
-  DW_CFA_offset: register=RIP (16), offset=-8/data_align = 1
-
-FDE per program:
-  initial_location = <code pointer>
-  address_range    = <code_size>
-  (no additional instructions — CIE rules apply everywhere)
+cd build-jit-relwithdebinfo
 ```
 
-Total size: ~28-byte CIE + ~20-byte FDE per program.
-
-### Implementation sketch
-
-```c
-/* Static CIE bytes (x86-64, computed once). */
-static const uint8_t cnp_cie_bytes[] = { /* pre-encoded */ };
-
-static void
-cnp_register_frame(struct Vdbe *p)
-{
-    size_t sz = sizeof(cnp_cie_bytes) + CNP_FDE_SIZE;
-    uint8_t *ehframe = malloc(sz);
-    if (!ehframe) return;
-    memcpy(ehframe, cnp_cie_bytes, sizeof(cnp_cie_bytes));
-    cnp_encode_fde(ehframe + sizeof(cnp_cie_bytes),
-                   (uintptr_t)p->cnp_code, p->cnp_size,
-                   /* CIE offset */ sizeof(cnp_cie_bytes));
-    __register_frame(ehframe);
-    p->cnp_ehframe = ehframe;   /* new field on Vdbe */
-}
-
-static void
-cnp_deregister_frame(struct Vdbe *p)
-{
-    if (p->cnp_ehframe) {
-        __deregister_frame(p->cnp_ehframe);
-        free(p->cnp_ehframe);
-        p->cnp_ehframe = NULL;
-    }
-}
-```
-
-Call `cnp_register_frame(p)` at the end of `vdbe_cnp_compile()`, and
-`cnp_deregister_frame(p)` in `vdbe_cnp_release()` (arena wrap path that
-sets `cnp_compiled = CNP_NOT_COMPILED`).
-
-### Platform notes
-
-- `__register_frame` / `__deregister_frame` live in `libgcc_s.so.1`
-  (present on all Debian/Ubuntu targets).  On musl they live in `libgcc.a`.
-  Add a CMake check:
-  ```cmake
-  check_function_exists(__register_frame HAVE_REGISTER_FRAME)
-  ```
-  and guard the feature with `#ifdef HAVE_REGISTER_FRAME`.
-
-- On macOS the function is `__register_frame` in `libSystem` but it takes
-  a single FDE, not a whole `.eh_frame` section.  Guard with
-  `#if defined(__linux__)` for now.
-
-- The DWARF `.eh_frame` encoding is little-endian, DW_EH_PE_pcrel for
-  addresses (to make the FDE relocatable in the mmap'd arena).
-
----
-
-## Task C — CnP: JITDUMP format for per-opcode perf attribution
-
-**Effort:** ~200 lines of C
-**File:** `src/box/sql/vdbe_cnp.c`
-**Activation:** `SQL_CNP_JITDUMP=1`
-
-### Problem
-
-The current `/tmp/perf-PID.map` gives function-level attribution:
+### GDB wrapper — `gdb_jit.sh`
 
 ```
-perf report:
-  42.3%  tarantool  [JIT] vdbe_cnp_17
+bash /path/to/tools/jit_bench/gdb_jit.sh [OPTIONS] [-- LUA_SCRIPT [ARGS...]]
+
+Options:
+  -d, --dispatcher <name>  VDBE_DISPATCHER (generated|cnp|old)  default: cnp
+  -j, --jit                Enable MCJIT (SQL_JIT_ENABLE=1)
+  -b, --bench              Use the built-in benchmark workload
+  -w, --workload <name>    BENCH_ONLY_WORKLOAD for --bench
+  -C, --case <name>        BENCH_ONLY_CASE for --bench
+  -n, --runs <count>       BENCH_RUNS for --bench
+  -c, --cmd <gdb-cmd>      Extra GDB -ex command (repeatable)
+  -B, --batch              Run GDB in batch mode (non-interactive)
+  -h, --help               Show this help
 ```
 
-With JITDUMP we get opcode-level attribution:
-
-```
-perf report:
-  18.1%  tarantool  [JIT] OP_Column       (vdbe_cnp_17:3)
-   9.4%  tarantool  [JIT] OP_Compare      (vdbe_cnp_17:7)
-   7.2%  tarantool  [JIT] OP_MakeRecord   (vdbe_cnp_17:11)
-```
-
-### The JITDUMP format
-
-Documented in `linux/tools/perf/Documentation/jit-interface.txt`.
-
-Key records written once per compiled program:
-
-1. **`JIT_CODE_LOAD`** — registers the code address+size with a symbol name.
-2. **`JIT_CODE_DEBUG_INFO`** — N entries, one per opcode:
-   - `addr` = address of that opcode's stencil in the code buffer
-     (`p->cnp_code + pc_offset[i]`)
-   - `lineno` = opcode index `i` (used as "line number" by perf)
-   - `filename` = opcode mnemonic (e.g. `"OP_Column"`)
-
-The dump file must be **mmap'd** (perf reads it via mmap while the process
-runs), not written with `fprintf`.  Use `ftruncate` to grow it as needed.
-
-```c
-struct jitdump_file_header {
-    uint32_t magic;       /* 0x4A695444 "JiTD" */
-    uint32_t version;     /* 1 */
-    uint32_t total_size;  /* sizeof(header) */
-    uint32_t elf_mach;    /* EM_X86_64 = 62 */
-    uint32_t pad1;        /* 0 */
-    uint32_t pid;
-    uint64_t timestamp;   /* CLOCK_MONOTONIC ns */
-    uint64_t flags;       /* 0 */
-};
-```
-
-### What to emit per `vdbe_cnp_compile()` call
-
-At the end of `vdbe_cnp_compile()`, after `pc_offset[]` is built and before
-it is freed:
-
-1. Write a `JIT_CODE_LOAD` record with the compiled code bytes.
-2. Write a `JIT_CODE_DEBUG_INFO` record with `nOp` entries:
-   ```c
-   for (int i = 0; i < nOp; i++) {
-       entry[i].addr     = (uint64_t)(uintptr_t)(code + pc_offset[i]);
-       entry[i].lineno   = i;
-       entry[i].discrim  = 0;
-       entry[i].name     = opcode_name(aOp[i].opcode);  /* "OP_Column" etc */
-   }
-   ```
-
-### Workflow
+**Interactive session** — break on first CnP compile, inspect Vdbe state:
 
 ```bash
-# Record
-SQL_CNP_JITDUMP=1 VDBE_DISPATCHER=cnp perf record -k mono ./src/tarantool bench.lua
-
-# Inject DWARF
-perf inject --jit -i perf.data -o perf.jit.data
-
-# Report with opcode-level attribution
-perf report -i perf.jit.data --stdio
+cd build-jit-relwithdebinfo
+bash tools/jit_bench/gdb_jit.sh -d cnp -- /tmp/my_workload.lua
+# Inside GDB:
+(gdb) sql-break-compile       # set silent compile-event breakpoints
+(gdb) run
+(gdb) cnp-info $rdi           # dump CnP state at first compile breakpoint
 ```
 
-### Implementation notes
+**Batch mode** — log every compile event silently and exit:
 
-- Keep `SQL_CNP_PERF_MAP` and `SQL_CNP_JITDUMP` as independent env vars;
-  they write different files (`perf-PID.map` vs `jit-PID.dump`) and serve
-  different workflows.  JITDUMP is strictly more informative but requires
-  the extra `perf inject` step.
+```bash
+cd build-jit-relwithdebinfo
+bash tools/jit_bench/gdb_jit.sh --bench -d cnp --batch -c "sql-break-compile"
+```
 
-- The JITDUMP file must be opened before the first `mmap`, with a fixed
-  initial size (e.g. 1 MB), grown with `ftruncate` + `mremap` as needed.
+**MCJIT interactive session:**
 
-- Use `clock_gettime(CLOCK_MONOTONIC, ...)` for all timestamps.
+```bash
+bash tools/jit_bench/gdb_jit.sh -d generated --jit -- /tmp/my_workload.lua
+(gdb) sql-break-compile       # logs every vdbe_jit_compile call
+(gdb) jit-info <vdbe_ptr>     # show MCJIT state for a Vdbe
+```
 
-- The `opcode_name()` helper can use the existing `sqlite3OpcodeName()`
-  function already present in `vdbeaux.c`.
+**Stopped benchmark example: CnP**
+
+```bash
+cd build-jit-relwithdebinfo
+bash tools/jit_bench/gdb_jit.sh --bench -d cnp \
+    -w hot_expr -C prepared_execute -n 1 \
+    -c "break vdbe_cnp_exec"
+
+# Inside GDB after the breakpoint fires:
+(gdb) cnp-info p
+(gdb) bt
+(gdb) frame 0
+(gdb) cnp-disas p
+(gdb) cnp-disas p 0
+```
+
+Expected debugger view:
+
+```text
+Breakpoint ... vdbe_cnp_exec (p=...)
+(gdb) bt
+#0  vdbe_cnp_exec(...)
+#1  vdbe_exec_cnp_dispatcher(...)
+#2  sqlVdbeExec(...)
+...
+
+(gdb) cnp-info p
+  perf symbol:  vdbe_cnp_stmt_<stmt_id>_ops_<nOp>
+
+(gdb) cnp-disas p
+Disassembly for vdbe_cnp_stmt_<stmt_id>_ops_<nOp> [...]
+```
+
+**Stopped self-stop example: CnP**
+
+Use the helper script that compiles the statement, raises `SIGSTOP`, and then
+executes it again after you resume the inferior. This is the most reliable way
+to stop with a compiled `cnp_code` pointer already available.
+
+```bash
+cd /tmp/jit-gdb-demo
+env VDBE_DISPATCHER=cnp SQL_JIT_ENABLE=0 \
+    gdb ./tarantool \
+    --args /path/to/tarantool /path/to/tools/jit_bench/sql_jit_stop_demo.lua
+
+# Inside GDB:
+(gdb) source /path/to/tools/jit_bench/vdbe_jit.gdb
+(gdb) run
+# inferior stops in raise(SIGSTOP)
+(gdb) sql-vdbes
+(gdb) set $p = sql_get()->pVdbe
+(gdb) cnp-info $p
+(gdb) cnp-break $p
+(gdb) signal 0
+(gdb) bt
+(gdb) cnp-find $pc
+(gdb) cnp-disas $p
+```
+
+Expected debugger view:
+
+```text
+Vdbe 0x...  stmt_id=852fab6b  sql=SELECT 1 + 2 + 3 + 4 + 5;
+  CnP : compiled=1 code=0x... size=707 name=vdbe_cnp_stmt_852fab6b_ops_13
+
+Thread ... hit Breakpoint ..., 0x... in ?? ()
+#0  0x... in ?? ()
+#1  vdbe_cnp_exec(...)
+#2  sqlVdbeExec(...)
+...
+
+(gdb) cnp-find $pc
+CnP addr 0x... belongs to Vdbe 0x...
+  SQL:          SELECT 1 + 2 + 3 + 4 + 5;
+  perf symbol:  vdbe_cnp_stmt_852fab6b_ops_13
+```
+
+**Important limitation:** CnP does not currently register an in-memory ELF/JIT
+object with GDB. That means GDB can unwind through CnP frames, but the frame at
+the generated entry address still appears as `?? ()`. The synthetic name
+`vdbe_cnp_stmt_<stmt_id>_ops_<nOp>` is available through `cnp-info`,
+`sql-vdbes`, perf-map, and JITDUMP, not as a native GDB symbol.
+
+**Stopped benchmark example: MCJIT**
+
+```bash
+cd build-jit-relwithdebinfo
+bash tools/jit_bench/gdb_jit.sh --bench -d generated --jit \
+    -w hot_expr -C prepared_execute -n 1 \
+    -c "break sqlVdbeExec if p->jit_func != 0"
+
+# Inside GDB after the breakpoint fires:
+(gdb) jit-info p
+(gdb) break *p->jit_func
+(gdb) continue
+(gdb) bt
+(gdb) frame 0
+(gdb) jit-disas p
+```
+
+Expected debugger view:
+
+```text
+(gdb) jit-info p
+  symbol:       vdbe_jit_exec_<id> + <offset> in section .text of jit module
+
+(gdb) bt
+#0  vdbe_jit_exec_<id>(...)
+#1  sqlVdbeExec(...)
+#2  sql_step(...)
+...
+
+(gdb) jit-disas p
+Disassembly for MCJIT function at 0x...
+vdbe_jit_exec_<id> + <offset> in section .text of jit module
+```
+
+**Stopped self-stop example: MCJIT**
+
+The same helper script works for MCJIT without the CnP warmup step because
+MCJIT compiles at prepare time.
+
+```bash
+cd /tmp/jit-gdb-demo
+env VDBE_DISPATCHER=generated SQL_JIT_ENABLE=1 \
+    gdb -batch \
+    -ex run \
+    -ex "info functions vdbe_jit_exec_" \
+    -ex "break vdbe_jit_exec_1" \
+    -ex "signal 0" \
+    -ex bt \
+    -ex "disassemble vdbe_jit_exec_1" \
+    --args /path/to/tarantool /path/to/tools/jit_bench/sql_jit_stop_demo.lua
+```
+
+Expected debugger view:
+
+```text
+All functions matching regular expression "vdbe_jit_exec_":
+0x...  vdbe_jit_exec_1
+
+Thread ... hit Breakpoint ..., 0x... in vdbe_jit_exec_1 ()
+#0  0x... in vdbe_jit_exec_1 ()
+#1  sqlVdbeExec(...) at vdbe.c:505
+#2  sqlStep(...)
+...
+```
+
+### GDB helper commands — `vdbe_jit.gdb`
+
+Loaded automatically by `gdb_jit.sh`.  Can also be sourced manually:
+
+```
+(gdb) source /path/to/tools/jit_bench/vdbe_jit.gdb
+```
+
+| Command | Description |
+|---------|-------------|
+| `cnp-info <vdbe*>` | Dump CnP compilation state: SQL, op count, cnp_compiled, code ptr, size, `.eh_frame` ptr |
+| `jit-info <vdbe*>` | Dump MCJIT compilation state: SQL, op count, jit_compiled, jit_func |
+| `sql-vdbes` | List active VDBEs with SQL text plus CnP and MCJIT entry addresses |
+| `cnp-find <addr>` | Resolve a CnP code address back to its active `Vdbe` and SQL |
+| `jit-find <addr>` | Resolve a MCJIT function address back to its active `Vdbe` and SQL |
+| `cnp-break <vdbe*>` | Set a breakpoint on `p->cnp_code` |
+| `jit-break <vdbe*>` | Set a breakpoint on `p->jit_func` |
+| `cnp-opcodes <vdbe*>` | Print the opcode table (PC, opcode, p1, p2, p3) |
+| `cnp-disas <vdbe*> [pc]` | Disassemble the full CnP code buffer or one opcode stencil by PC |
+| `jit-disas <vdbe*>` | Disassemble the MCJIT native function |
+| `sql-break-compile` | Set silent logging breakpoints at `vdbe_cnp_compile` and `vdbe_jit_compile`; prints `[CnP]` / `[JIT]` lines with op count and SQL text |
+| `sql-break-exec` | Set silent logging breakpoints at `vdbe_cnp_exec` and `sqlVdbeExec` with 6-frame backtrace |
+| `sql-break-off` | Delete all breakpoints |
+
+`cnp-info` prints the synthetic perf/JITDUMP symbol name
+`vdbe_cnp_stmt_<stmt_id>_ops_<nOp>`. `jit-info` prints the actual MCJIT symbol
+resolved by GDB, for example `vdbe_jit_exec_42`.
+
+Navigation rules:
+
+- SQL query -> JIT code:
+  use `sql-vdbes`, then `cnp-info` / `jit-info`, then `cnp-break` /
+  `jit-break`, then `cnp-disas` / `jit-disas`.
+- JIT address -> SQL query:
+  use `cnp-find <addr>` for CnP and `jit-find <addr>` for MCJIT.
+- CnP reverse lookup works by matching the address against active
+  `[cnp_code, cnp_code + cnp_size)` ranges.
+- MCJIT reverse lookup works by matching the address against active `jit_func`
+  entries.
+
+**Note on parameter access in optimized builds:** The `commands` blocks in
+`vdbe_jit.gdb` use `p->nOp` and `p->zSql` directly. In RelWithDebInfo builds,
+the named parameter `p` is accessible via its DWARF `@entry` value even when
+optimized out of registers. The `$rdi` register approach does NOT work reliably
+with `tarantool-gdb.py` loaded (the FiberUnwinder modifies frame context).
+
+**Note on GDB batch mode:** The `commands...end` blocks inside GDB `define`
+bodies only work correctly when the `.gdb` file is sourced via `source` or `-x`,
+not via inline `-ex` argument sequences. `gdb_jit.sh` uses `source` correctly.
+
+**Note on when `vdbe_cnp_compile` fires:** CnP compilation happens at first
+**execution** of a statement, not at prepare time.  `prepare_only` benchmark
+phases will not trigger `sql-break-compile`.  Use `prepared_execute` or
+`execute_only` workloads to see compile events.
+
+### Perf wrapper — `perf_jit.sh`
+
+```
+bash /path/to/tools/jit_bench/perf_jit.sh [OPTIONS] [-- LUA_SCRIPT [ARGS...]]
+
+Options:
+  -d, --dispatcher <name>  VDBE_DISPATCHER (generated|cnp|old)  default: cnp
+  -j, --jit                Enable MCJIT (SQL_JIT_ENABLE=1)
+  -b, --bench              Use the built-in benchmark workload
+  -w, --workload <name>    BENCH_ONLY_WORKLOAD for --bench
+  -C, --case <name>        BENCH_ONLY_CASE for --bench
+  -n, --runs <count>       BENCH_RUNS for --bench
+  -e, --event <event>      perf event(s) (default: cycles)
+  -g, --callgraph          Record call-graph with DWARF (slower)
+  -r, --report-args <str>  Extra args passed to perf report
+  --no-report              Skip perf report (just record + inject)
+  -h, --help               Show this help
+```
+
+**CnP profiling with per-opcode attribution:**
+
+```bash
+cd build-jit-relwithdebinfo
+bash tools/jit_bench/perf_jit.sh --bench -d cnp
+# Runs: perf record -k mono → perf inject --jit → perf report
+# CnP frames show as OP_Column, OP_Compare, etc.
+```
+
+**MCJIT profiling with call-graph:**
+
+```bash
+bash tools/jit_bench/perf_jit.sh --bench -d generated --jit -g
+```
+
+**Focused benchmark example for perf:**
+
+```bash
+cd build-jit-relwithdebinfo
+
+# CnP: perf report shows vdbe_cnp_stmt_<stmt_id>_ops_<nOp>
+bash tools/jit_bench/perf_jit.sh --bench -d cnp \
+    -w hot_expr -C prepared_execute -n 1 \
+    -r "--stdio --sort symbol,dso"
+
+# MCJIT: perf report shows vdbe_jit_exec_<id>
+bash tools/jit_bench/perf_jit.sh --bench -d generated --jit -g \
+    -w hot_expr -C prepared_execute -n 1 \
+    -r "--stdio --sort symbol,dso"
+```
+
+**Requirements:** `linux-tools` (perf), `kernel.perf_event_paranoid <= 2`.
+
+```bash
+echo 1 | sudo tee /proc/sys/kernel/perf_event_paranoid
+```
 
 ---
 
-## Summary
+## Implementation Details
 
-| Task | Lines | Effort | Backend | What you gain |
-|------|-------|--------|---------|---------------|
-| A — GDB listener | ~10 | Trivial | MCJIT | `gdb bt` shows JIT function names |
-| B — `.eh_frame` CFI | ~80 | Medium | CnP | Stack unwinding through CnP frames; `gdb bt` shows CnP frames |
-| C — JITDUMP | ~200 | Medium | CnP | Per-opcode perf attribution after `perf inject --jit` |
+### CnP `.eh_frame` (always-on, `vdbe_cnp.c`)
 
-Recommended order: A → B → C.  All three are independent.
+CnP stencils execute with no prologue: `CFA = RSP+8`, `RA = [RSP]`.  A single
+static CIE (20 bytes) encodes this uniform convention.  Each compiled program
+gets one FDE (24 bytes) with 8-byte absolute `pc_begin`/`pc_range` (no `zR`
+augmentation, so libgcc uses native pointer width on x86-64).  A 4-byte zero
+terminator follows the FDE — required by libgcc's `__register_frame`, which
+takes a whole `.eh_frame` section, not a single FDE (macOS differs).
+
+```
+.eh_frame buffer layout (48 bytes total):
+  [0..19]  CIE: len=16, id=0, ver=1, aug="", code_align=1, data_align=-8,
+                RA=16, DW_CFA_def_cfa RSP+8, DW_CFA_offset r16 1
+  [20..43] FDE: len=20, cie_ptr=24, pc_begin=<uint64>, pc_range=<uint64>
+  [44..47] zero terminator
+```
+
+Registered via `__register_frame(p->cnp_ehframe)` at the end of
+`vdbe_cnp_compile()`.  Freed and deregistered via `__deregister_frame()` in
+`vdbe_cnp_release()`.  Guarded by `HAVE_REGISTER_FRAME` (CMake
+`check_function_exists(__register_frame HAVE_REGISTER_FRAME)`).
+
+### MCJIT GDB listener (always-on, `vdbe_jit_perf.cc`)
+
+`llvm::JITEventListener::createGDBRegistrationListener()` registers each
+compiled MCJIT function with GDB via `__jit_debug_register_code`.  When GDB is
+not attached the function is a no-op stub; overhead is ~2 ns per compile.
+
+### CnP JITDUMP (`SQL_CNP_JITDUMP=1`, `vdbe_cnp.c`)
+
+Writes a mmap'd `/tmp/jit-PID.dump` in Linux perf JITDUMP format.  Per
+compiled program: one `JIT_CODE_LOAD` record (address, size, symbol name) and
+one `JIT_CODE_DEBUG_INFO` record (one entry per opcode: stencil address,
+PC index as line number, opcode mnemonic as filename).  File grows via
+`ftruncate` + `mremap` as needed.  `perf inject --jit` uses this to annotate
+`perf report` with per-opcode attribution.
+
+### MCJIT PerfJIT listener (`SQL_JIT_PERF_MAP=1`, `vdbe_jit_perf.cc`)
+
+`llvm::JITEventListener::createPerfJITEventListener()` writes a JITDUMP file
+with full DWARF info for MCJIT functions.  Used the same way as CnP JITDUMP.
+
+---
+
+## Struct Fields Added to `Vdbe` (`vdbeInt.h`)
+
+```c
+/** Heap-allocated .eh_frame buffer registered via __register_frame */
+uint8_t *cnp_ehframe;
+```
+
+---
+
+## Build Requirements
+
+- `ENABLE_SQL_CNP=ON` in CMake (default when `ENABLE_SQL_JIT=ON`)
+- `HAVE_REGISTER_FRAME` auto-detected via `check_function_exists`
+- For MCJIT: `ENABLE_SQL_JIT=ON`, LLVM 11+ development packages
+- Build from a build directory, not the source root:
+
+```bash
+cd build-jit-relwithdebinfo
+make tarantool -j$(nproc)
+```
+
+---
+
+## Quick-start Cheat Sheet
+
+```bash
+cd build-jit-relwithdebinfo
+
+# Interactive GDB with CnP:
+bash tools/jit_bench/gdb_jit.sh -d cnp -- /tmp/bench.lua
+(gdb) sql-break-compile
+(gdb) run
+# ... breakpoint fires at first vdbe_cnp_compile call ...
+(gdb) cnp-info $rdi
+
+# Batch GDB — log all compile events:
+bash tools/jit_bench/gdb_jit.sh --bench -d cnp --batch -c "sql-break-compile"
+
+# Perf profiling — CnP with per-opcode attribution:
+bash tools/jit_bench/perf_jit.sh --bench -d cnp
+
+# Perf profiling — MCJIT with call-graph:
+bash tools/jit_bench/perf_jit.sh --bench -d generated --jit -g
+
+# Manual perf workflow:
+SQL_CNP_PERF_MAP=1 SQL_CNP_JITDUMP=1 VDBE_DISPATCHER=cnp \
+    perf record -k mono -e cycles -o perf.data -- ./src/tarantool bench.lua
+perf inject --jit -i perf.data -o perf.jit.data
+perf report -i perf.jit.data --stdio
+```
