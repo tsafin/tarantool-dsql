@@ -1408,8 +1408,10 @@ int
 vdbe_exec_cnp_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 {
 #ifdef ENABLE_SQL_CNP
+	extern int64_t sql_cnp_fallback_count;
 	if (p->cnp_compiled != CNP_COMPILED) {
 		if (vdbe_cnp_compile(p) != 0) {
+			sql_cnp_fallback_count++;
 			/* Fall back to generated dispatcher */
 			return vdbe_exec_generated_dispatcher(p, aOp, aMem);
 		}
