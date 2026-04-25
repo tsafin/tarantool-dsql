@@ -351,6 +351,82 @@ come from:
 2. direct stencil chaining
 3. fused arithmetic superinstructions
 
+## 8.3 First O5 result: direct stencil chaining
+
+The first direct-chaining wave is now implemented in the stencil generator for
+the common straight-line cases:
+
+- `none` handlers now chain through `HOLE_NEXT`,
+- unconditional branches now chain through `HOLE_BRANCH`,
+- conditional branches chain through `HOLE_BRANCH` or `HOLE_NEXT`,
+- seek-style branch handlers chain on their common next/branch paths.
+
+The generator now emits a shared helper:
+
+- `cnp_chain_or_ret(target, p, aMem)`
+
+Its contract is:
+
+- if `target >= CNP_ADDR_THRESHOLD`, treat it as a patched stencil address and
+  jump to it directly,
+- otherwise return the tagged value to `vdbe_cnp_exec()` as before.
+
+This preserves the existing runtime contract for:
+
+- `SQL_ROW`,
+- `SQL_DONE`,
+- fatal error returns,
+- coroutine PC jumps,
+- special paths such as `ResultRow` and skip encodings.
+
+The key structural difference is in the generated machine code. For example,
+the `OP_Integer` and `OP_Add` stencils now end their hot path with:
+
+- reload patched `HOLE_NEXT`,
+- compare against `CNP_ADDR_THRESHOLD`,
+- restore the local frame,
+- `jmpq *%rax` on address targets,
+- `retq` only for non-address tagged returns.
+
+So the common straight-line path no longer returns to
+[`vdbe_cnp_exec()`](/home/tsafin/tarantool/src/box/sql/vdbe_cnp.c#L1462)
+between opcodes. That removes the outer:
+
+- stencil return,
+- tagged-result decode in C,
+- re-entry call to the next stencil.
+
+Measured result in the `build` profiling configuration:
+
+- `tiny_const / prepared_execute`
+  - before chaining: about `2.837 us/op`
+  - after chaining: about `2.676 us/op`
+  - effect: clear improvement, about `5.7%`
+- `hot_expr / prepared_execute`
+  - before chaining: about `3.261 us/op`
+  - after chaining: about `3.225 us/op`
+  - effect: modest improvement, about `1.1%`
+- `point_lookup / prepared_execute`
+  - before chaining: about `7.662 us/op`
+  - after chaining: about `7.642 us/op`
+  - effect: small improvement, about `0.3%`
+- `bitwise_mix / prepared_execute`
+  - before chaining: about `7.138 us/op`
+  - after chaining: about `7.125 us/op`
+  - effect: effectively flat, slight improvement
+
+Interpretation:
+
+- chaining helps most where the program is dominated by tiny straight-line
+  stencils,
+- the gain shrinks as deeper helpers and cursor work dominate,
+- this confirms that the outer return-to-C loop was a real cost center,
+- but it is not yet the only remaining cost center.
+
+This is the first structural optimization that moves CnP in the direction of
+threaded execution without rewriting the entire runtime around a new ABI or a
+fully custom threaded-code interpreter.
+
 ## 8.2 Broader first-level helper split
 
 The implementation strategy now uses two classes of shared `*_impl()` bodies:
@@ -908,6 +984,11 @@ Exit criteria:
 Scope:
 
 - remove per-op return to `vdbe_cnp_exec()` for common paths
+
+Status:
+
+- first wave implemented for straight-line `HOLE_NEXT` and branch transitions
+- row-producing, coroutine, and special tagged-return paths still return to C
 
 Exit criteria:
 

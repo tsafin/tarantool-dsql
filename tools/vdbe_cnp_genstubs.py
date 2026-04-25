@@ -175,6 +175,9 @@ struct Mem;
 
 typedef struct Mem Mem;
 
+/* Stencil function type used for direct chaining between stencils. */
+typedef int64_t (*cnp_stencil_func_t)(struct Vdbe *p, Mem *aMem);
+
 /* Standard opcode handler: rc<0=error, rc>0=branch/signal, rc==0=continue. */
 typedef int (*cnp_handler_fn_t)(struct Vdbe *, struct VdbeOp *, Mem *);
 
@@ -190,6 +193,7 @@ typedef void (*cnp_row_signal_t)(struct Vdbe *);
  * coroutine returns use 3+ to encode target_pc.
  */
 #define CNP_PC_JUMP_BASE 3
+#define CNP_ADDR_THRESHOLD 4096
 
 /*
  * Stencil return convention:
@@ -199,6 +203,15 @@ typedef void (*cnp_row_signal_t)(struct Vdbe *);
  *   SQL_ROW  (1)                     : row ready (caller must resume)
  *   -1                               : fatal error
  */
+static __attribute__((always_inline)) inline int64_t
+cnp_chain_or_ret(uint64_t target, struct Vdbe *p, Mem *aMem)
+{
+    if (target >= CNP_ADDR_THRESHOLD) {
+        cnp_stencil_func_t next = (cnp_stencil_func_t)(uintptr_t)target;
+        return next(p, aMem);
+    }
+    return (int64_t)target;
+}
 
 """
 
@@ -238,8 +251,7 @@ def emit_goto():
 int64_t __attribute__((noinline))
 cnp_OP_Goto(struct Vdbe *p, Mem *aMem)
 {
-    (void)p; (void)aMem;
-    return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    return cnp_chain_or_ret(LOAD_HOLE(HOLE_BRANCH), p, aMem);
 }"""
 
 
@@ -248,10 +260,11 @@ def emit_jump3way():
 int64_t __attribute__((noinline))
 cnp_OP_Jump(struct Vdbe *p, Mem *aMem)
 {
-    (void)aMem;
-    if (cnp_vdbe_icompare(p) < 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH_P1);
-    if (cnp_vdbe_icompare(p) > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH_P3);
-    return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    if (cnp_vdbe_icompare(p) < 0)
+        return cnp_chain_or_ret(LOAD_HOLE(HOLE_BRANCH_P1), p, aMem);
+    if (cnp_vdbe_icompare(p) > 0)
+        return cnp_chain_or_ret(LOAD_HOLE(HOLE_BRANCH_P3), p, aMem);
+    return cnp_chain_or_ret(LOAD_HOLE(HOLE_BRANCH), p, aMem);
 }"""
 
 
@@ -263,7 +276,7 @@ cnp_{name}(struct Vdbe *p, Mem *aMem)
     struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
 {emit_call(name)}
     if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
-    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+    return cnp_chain_or_ret(LOAD_HOLE(HOLE_NEXT), p, aMem);
 }}"""
 
 
@@ -275,8 +288,8 @@ cnp_{name}(struct Vdbe *p, Mem *aMem)
     struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
 {emit_call(name)}
     if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
-    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
-    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+    if (rc > 0) return cnp_chain_or_ret(LOAD_HOLE(HOLE_BRANCH), p, aMem);
+    return cnp_chain_or_ret(LOAD_HOLE(HOLE_NEXT), p, aMem);
 }}"""
 
 
@@ -305,9 +318,9 @@ cnp_{name}(struct Vdbe *p, Mem *aMem)
     cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
     int rc = fn(p, pOp, aMem);
     if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
-    if (rc == 1) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
+    if (rc == 1) return cnp_chain_or_ret(LOAD_HOLE(HOLE_BRANCH), p, aMem);
     if (rc == 2) return (int64_t)LOAD_HOLE(HOLE_SKIP2);
-    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+    return cnp_chain_or_ret(LOAD_HOLE(HOLE_NEXT), p, aMem);
 }}"""
 
 
@@ -346,8 +359,8 @@ cnp_{name}(struct Vdbe *p, Mem *aMem)
     struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
     cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
     int rc = fn(p, pOp, aMem);
-    if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
-    return (int64_t)LOAD_HOLE(HOLE_NEXT);
+    if (rc > 0) return cnp_chain_or_ret(LOAD_HOLE(HOLE_BRANCH), p, aMem);
+    return cnp_chain_or_ret(LOAD_HOLE(HOLE_NEXT), p, aMem);
 }}"""
 
 
