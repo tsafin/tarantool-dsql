@@ -494,108 +494,447 @@ The cost is that every opcode currently pays:
 That is exactly why the current schema is a good first implementation but not
 the final performance model.
 
-## 9. Why not threaded code today?
+## 10. Preferred control-flow model
 
-A direct-threaded model would have each opcode body end with a jump to the
-next opcode body, instead of returning to a central C loop.
+The preferred future CnP model is no longer "function-per-stencil with a
+better chain helper". The preferred model is:
 
-That is attractive because it removes:
+- use the existing threaded interpreter as the source of opcode fragments,
+- extract opcode bodies from that threaded dispatch loop,
+- stitch copied fragments in VDBE order,
+- remove the terminal threaded dispatch jump on straight-line fallthrough,
+- keep explicit exits only for true control-flow, row, coroutine, and error
+  transitions.
 
-- `call`,
-- `ret`,
-- and most of the central loop decode cost.
+The straight-line hot path should therefore look like:
 
-However, it was not used first for several practical reasons:
+- fragment for opcode A,
+- fallthrough into fragment for opcode B,
+- fallthrough into fragment for opcode C,
+- exit only when semantics require it.
 
-1. The current stencils are extracted from normal function code.
-   A direct-threaded model is much easier when the code generator is designed
-   around threaded control flow from the beginning.
+That directly removes the remaining structural costs still visible in the
+wrapper-stencil disassembly:
 
-2. Many opcode bodies still call ordinary C helpers.
-   That means the first implementation still needed a safe, uniform ABI and a
-   simple place to handle terminal statuses and resume behavior.
+- per-op prologue,
+- per-op epilogue,
+- per-op indirect jump between normal straight-line handlers.
 
-3. CnP needed debugger and unwind support early.
-   A plain function-per-stencil model made it much easier to get usable GDB
-   frames, `.eh_frame`, and perf naming working.
+This is the first design that can plausibly outperform the threaded
+interpreter on tiny and arithmetic-heavy VDBE programs without introducing a
+custom ABI.
 
-4. Coroutine and row-resume semantics are easier to get right in a central
-   loop first.
-   The current tagged-return model already handles:
-   - next-address,
-   - PC-jump,
-   - `SQL_ROW`,
-   - `SQL_DONE`,
-   - and error returns.
+## 11. Review of the generated threaded dispatcher as a CnP source
 
-So the current schema is not a claim that threaded code is wrong. It is a
-staging choice.
+The current repository already has two relevant dispatcher representations:
 
-## 10. Why not tail calls today?
+1. the production threaded interpreter path in
+   [`vdbe.c`](/home/tsafin/tarantool/src/box/sql/vdbe.c)
+   using:
+   - `dispatchtable.h`,
+   - `&&Exec_OP_*` label addresses,
+   - `DISPATCH()` and `JUMP_P2()` macros,
+   - label-based control flow inside one large interpreter body
+2. the generated reference source in
+   [`generated/vdbe_dispatch_generated.c`](/home/tsafin/tarantool/src/box/sql/generated/vdbe_dispatch_generated.c)
 
-Tail calls are the most plausible way to evolve the current stencil model into
-direct chaining without rewriting the entire code generator around a custom
-assembler.
+The important conclusion is:
 
-In principle, the desired model is:
+- the real threaded execution model is the one embedded in
+  [`vdbe.c`](/home/tsafin/tarantool/src/box/sql/vdbe.c),
+- the generated reference file is useful as a source-generation model,
+  but it is not currently the compiled runtime artifact used directly for
+  dispatch.
 
-- stencil executes opcode body,
-- stencil tail-jumps to the next stencil for the hot path,
-- only terminal, fallback, and exceptional paths return to C.
+### 11.1 What is compatible with CnP stitching
 
-That would preserve most of the current stencil extraction model while
-removing the common-case `call/ret` chain.
+From the CnP point of view, the threaded dispatcher is compatible in these
+important ways:
 
-The reasons it was not done first are:
+- opcode handlers already have addressable labels via `&&Exec_OP_*`,
+- dispatch is already expressed as label-to-label control flow,
+- many hot opcodes end in a regular threaded `DISPATCH()` edge,
+- operand access still uses the usual VDBE frame state:
+  - `p`,
+  - `aOp`,
+  - `aMem`,
+  - `pOp`,
+  - `P1/P2/P3` aliases
+- helper calls remain ordinary C calls inside the handler body
 
-1. Tail-call formation is compiler-sensitive.
-   Reliable tail calls require careful control over:
-   - ABI,
-   - function signatures,
-   - stack adjustments,
-   - and helper calls inside the stencil.
+That means the threaded interpreter already has the right semantic shape for
+copy-and-patch stitching:
 
-2. The current stencils were extracted as ordinary functions with ordinary
-   helper-call behavior.
-   Guaranteeing a final tail jump is a stricter codegen contract than simply
-   extracting a normal function body.
+- copy body fragments,
+- patch embedded operands and helper references,
+- turn straight-line dispatch into fallthrough,
+- keep non-linear exits explicit.
 
-3. Row-return and coroutine semantics still need structured exits.
-   Even in a tail-call model, some paths must still return to C:
-   - `ResultRow`
-   - terminal completion
-   - errors
-   - unsupported/fallback paths
+### 11.2 What is not compatible today
 
-4. It was more important to get a correct and observable implementation first
-   than to optimize the final control-flow shape immediately.
+The current implementation is not directly extractable by the existing CnP
+toolchain for two concrete reasons:
 
-## 11. Recommendation on control-flow evolution
+1. The current extractor only understands ordinary ELF symbol ranges.
+   It scans `.symtab` for `cnp_OP_*` function symbols in
+   [`vdbe_cnp_extract.py`](/home/tsafin/tarantool/tools/vdbe_cnp_extract.py).
+   It does not yet consume addressable label tables from the threaded
+   interpreter.
 
-The project should move toward direct chaining, but in stages.
+2. The threaded handlers do not currently expose explicit extraction
+   boundaries.
+   For stitching we need, per opcode:
+   - fragment begin,
+   - terminal dispatch edge,
+   - fragment end.
+   The current `Exec_OP_*` labels give the start, but not yet a robust,
+   explicit "cut here" label for the terminal dispatch sequence.
 
-Recommended order:
+This is an implementation problem, not a design problem. The threaded source
+is still the preferred source for CnP fragments.
 
-1. keep the current call/return schema while measuring and inlining the first
-   helper layer,
-2. once hot helper bodies are inlined, change the common-case stencil exit to
-   direct jump or musttail-style chaining,
-3. keep returns to C only for:
-   - `SQL_ROW`,
-   - `SQL_DONE`,
-   - error,
-   - fallback,
-   - and special coroutine transitions if needed.
+### 11.3 Handler classes for the first migration
 
-This should be treated as the main structural optimization after helper
-inlining. It is more important than custom ABI work.
+The threaded dispatcher is not equally easy to stitch across all opcode
+families.
 
-Preferred future model:
+Best first candidates:
 
-- ordinary call boundary only at entry and structured exits,
-- direct chained jumps between hot stencils,
-- optional superinstructions on top of that,
-- custom internal register ABI only if still needed after chaining exists.
+- `Integer`
+- `Bool`
+- `Int64`
+- `Add`
+- `Subtract`
+- `Multiply`
+- `Divide`
+- `Remainder`
+- `Goto`
+- `IfNot`
+- `Once`
+
+These handlers have relatively regular endings:
+
+- helper call or small inline logic,
+- error branch if needed,
+- `JUMP_P2()` or `DISPATCH()`.
+
+Harder classes that should stay out of the first pilot:
+
+- `ResultRow`
+- `Halt`
+- coroutine ops:
+  - `Gosub`
+  - `Return`
+  - `InitCoroutine`
+  - `Yield`
+  - `EndCoroutine`
+- seek/skip ops with multi-way control flow
+- handlers that restore frames or mutate interpreter-global control state
+
+These should remain explicit exits or later special cases.
+
+## 12. Why alternative approaches are worse
+
+The following alternatives were discussed and are intentionally not the
+preferred path.
+
+### 12.1 Keep the wrapper-stencil model and optimize chaining further
+
+This is what the current `cnp_OP_*` wrappers do.
+
+Why it helped:
+
+- it removed the outer `ret -> C decode -> call next stencil` cycle,
+- it produced measurable wins on `tiny_const` and modest wins elsewhere.
+
+Why it is still not the preferred final design:
+
+- every intermediate stencil still has a function prologue,
+- every intermediate stencil still has a function epilogue,
+- every intermediate stencil still performs an indirect jump,
+- the "next opcode" is still the entry of another standalone function body.
+
+So even with direct chaining, the wrapper-stencil model retains exactly the
+kind of repeated boundaries that the original threaded CnP design is supposed
+to remove.
+
+Observed wrapper-stencil disassembly from
+`build/src/box/sql/generated/vdbe_cnp_stubs.o` makes this concrete.
+
+`cnp_OP_Integer`:
+
+```asm
+0000000000001570 <cnp_OP_Integer>:
+    1570: push   %rbp
+    1571: mov    %rsp,%rbp
+    1574: push   %r15
+    1576: push   %r14
+    1578: push   %rbx
+    1579: push   %rax
+    ...
+    158e: callq  vdbe_prepare_null_out
+    ...
+    159f: callq  mem_set_int
+    ...
+    15a4: movabs $0x0,%rax        # HOLE_NEXT
+    15ae: cmp    $0x1000,%rax
+    15b4: jb     15c8
+    15b6: mov    %r14,%rdi
+    15b9: mov    %rbx,%rsi
+    15bc: add    $0x8,%rsp
+    15c0: pop    %rbx
+    15c1: pop    %r14
+    15c3: pop    %r15
+    15c5: pop    %rbp
+    15c6: jmpq   *%rax
+    15c8: add    $0x8,%rsp
+    15cc: pop    %rbx
+    15cd: pop    %r14
+    15cf: pop    %r15
+    15d1: pop    %rbp
+    15d2: retq
+```
+
+`cnp_OP_Add`:
+
+```asm
+0000000000000db0 <cnp_OP_Add>:
+     db0: push   %rbp
+     db1: mov    %rsp,%rbp
+     db4: push   %r14
+     db6: push   %rbx
+     ...
+     de8: callq  mem_add
+     ...
+     dfd: movabs $0x0,%rax        # HOLE_NEXT
+     e07: cmp    $0x1000,%rax
+     e0d: jb     e1b
+     e0f: mov    %r14,%rdi
+     e12: mov    %rbx,%rsi
+     e15: pop    %rbx
+     e16: pop    %r14
+     e18: pop    %rbp
+     e19: jmpq   *%rax
+     e1b: pop    %rbx
+     e1c: pop    %r14
+     e1e: pop    %rbp
+     e1f: retq
+```
+
+`cnp_OP_Goto`:
+
+```asm
+0000000000001a00 <cnp_OP_Goto>:
+    1a00: push   %rbp
+    1a01: mov    %rsp,%rbp
+    1a04: movabs $0x0,%rax        # HOLE_BRANCH
+    1a0e: cmp    $0x1000,%rax
+    1a14: jb     1a19
+    1a16: pop    %rbp
+    1a17: jmpq   *%rax
+    1a19: pop    %rbp
+    1a1a: retq
+```
+
+`cnp_OP_ResultRow`:
+
+```asm
+0000000000000240 <cnp_OP_ResultRow>:
+     240: push   %rbp
+     241: mov    %rsp,%rbp
+     244: push   %rbx
+     245: push   %rax
+     ...
+     260: callq  *%rax            # HOLE_HANDLER
+     ...
+     268: movabs $0x0,%rax        # HOLE_SIGNAL
+     275: callq  *%rax
+     277: movabs $0x0,%rax        # HOLE_NEXT
+     ...
+     28d: add    $0x8,%rsp
+     291: pop    %rbx
+     292: pop    %rbp
+     293: retq
+```
+
+These snippets show the remaining structural problem directly:
+
+- even on the chained hot path, each opcode still begins with a normal
+  function entry sequence,
+- each opcode still ends with a normal teardown sequence,
+- the stitched successor is still entered as another standalone function body,
+- row-producing paths still return through explicit function exit paths.
+
+So the current chaining wave removes the return to `vdbe_cnp_exec()`, but it
+does not yet remove the repeated function-shape boundaries between normal
+straight-line opcodes.
+
+### 12.2 Remove prologues and epilogues from current wrapper stencils
+
+This idea is attractive in the abstract, but it does not fit the current
+extraction model.
+
+The current wrapper stencils are extracted as whole function symbols. As long
+as the unit of extraction is "one ordinary function", prologue and epilogue
+bytes are part of the extracted unit.
+
+That means they cannot be removed safely by patching addresses alone.
+Eliminating them correctly would require:
+
+- a different extractable code unit than "whole function",
+- or separate entry/body/exit fragments,
+- or a dedicated fragment source.
+
+At that point the design has already moved away from wrapper stencils and
+toward threaded fragments, which is the preferred plan anyway.
+
+### 12.3 Use `__attribute__((naked))`
+
+`naked` is worse because it attacks the symptom at the wrong layer.
+
+It would force the generated code to take over responsibilities that the
+compiler currently handles correctly:
+
+- stack alignment,
+- register preservation,
+- ABI-correct calls into helper functions,
+- local spill management,
+- unwind/debug behavior.
+
+That is especially inappropriate here because opcode bodies still do normal C
+work:
+
+- compute `Mem *` addresses,
+- call helpers such as `mem_add()` and `vdbe_prepare_null_out()`,
+- branch on helper return values,
+- interact with normal VDBE state.
+
+So `naked` would push the generator toward handwritten ABI management and
+assembly-like code emission. That is a worse engineering trade-off than
+generating extractable threaded fragments from ordinary C.
+
+### 12.4 Rely on compiler tail calls or `musttail`
+
+This is weaker than threaded-fragment stitching for two reasons:
+
+1. tail-call formation is compiler-sensitive and ABI-sensitive,
+2. even a perfect tail-call model still treats each opcode as a standalone
+   function-shaped unit.
+
+That means tail calls can remove some return overhead, but they still do not
+give the clean straight-line fallthrough model that stitched threaded
+fragments provide.
+
+Tail-call chaining was a valid incremental experiment. It is not the preferred
+end state.
+
+## 13. Preferred implementation plan
+
+The project should now pivot from "better wrapper stencils" to
+"threaded-fragment extraction and stitching".
+
+### 13.1 Generate a dedicated fragment-production artifact
+
+Do not use the shipping wrapper-stencil object as the primary future source.
+Instead, generate a dedicated compiled artifact for fragment extraction from
+the same threaded dispatch logic.
+
+Preferred form:
+
+- an intermediate object file dedicated to fragment extraction
+
+This artifact should not be used as a production runtime path. Its job is only
+to:
+
+- compile the threaded handler bodies,
+- expose stable extraction metadata,
+- allow deterministic fragment extraction.
+
+### 13.2 Emit explicit label metadata
+
+For each opcode handler, emit explicit labels:
+
+- `Exec_OP_X_begin`
+- `Exec_OP_X`
+- `Exec_OP_X_dispatch`
+- `Exec_OP_X_end`
+
+and companion metadata tables containing addressable labels:
+
+- begin table
+- dispatch table
+- end table
+
+Using `&&label` is sufficient for addressability. The important requirement is
+that extraction metadata be explicit rather than inferred heuristically from
+whole-function symbols.
+
+### 13.3 Extract body fragments, not functions
+
+The extractor should pivot from:
+
+- `cnp_OP_*` function symbol extraction
+
+to:
+
+- threaded fragment extraction from `begin` to `dispatch` or `end`
+
+Fragment classes:
+
+1. fallthrough-capable
+2. branch-capable
+3. terminal
+4. coroutine/resume
+
+For straight-line handlers, the terminal threaded dispatch sequence becomes the
+cut point.
+
+### 13.4 Stitching rules
+
+For stitched programs:
+
+- if handler A is followed by handler B in straight-line execution,
+  copy A's fragment body and lay B immediately after it,
+- replace or drop the terminal threaded dispatch edge from A so execution
+  falls through into B,
+- preserve explicit control transfers for:
+  - branches,
+  - `ResultRow`,
+  - `Halt`,
+  - coroutine transitions,
+  - error exits.
+
+The practical rule is not "always nop the last jump". The rule is:
+
+- remove only the terminal dispatch edge for contiguous straight-line
+  successors,
+- preserve semantic control-flow exits.
+
+### 13.5 First pilot set
+
+The initial threaded-fragment pilot should cover:
+
+- `Init`
+- `Integer`
+- `Bool`
+- `Int64`
+- `Add`
+- `Subtract`
+- `Multiply`
+- `Divide`
+- `Remainder`
+- `Goto`
+- `ResultRow`
+- `Halt`
+
+The first stitched success criteria are:
+
+- straight-line arithmetic fragments show no per-op prologue/epilogue in the
+  final native code,
+- straight-line arithmetic fragments fall through into each other,
+- row and halt paths still return correctly,
+- GDB/perf naming remains usable at the statement/function level,
+- `tiny_const` and `hot_expr` improve beyond the wrapper-chaining baseline.
 
 ## 12. Track A: measurement before optimization
 
