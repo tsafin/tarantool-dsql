@@ -3,6 +3,7 @@
 #include "vdbeInt.h"
 #include "mem.h"
 #include "vdbe_ops.h"
+#include "vdbe_ops_cnp_impl.h"
 
 /* Opcode: OffsetLimit P1 P2 P3 * *
  * Synopsis: r[P2]=r[P1]+r[P3]
@@ -20,20 +21,5 @@
  */
 int vdbe_op_offsetlimit(Vdbe *p, Op *pOp, Mem *aMem)
 {
-	Mem *pIn1 = &aMem[pOp->p1];
-	Mem *pIn3 = &aMem[pOp->p3];
-	Mem *pOut = vdbe_prepare_null_out(p, pOp->p2);
-
-	assert(mem_is_uint(pIn1));
-	assert(mem_is_uint(pIn3));
-	uint64_t x = pIn1->u.u;
-	uint64_t rhs = pIn3->u.u;
-	bool unused;
-	if (sql_add_int(x, false, rhs, false, (int64_t *) &x, &unused) != 0) {
-		diag_set(ClientError, ER_SQL_EXECUTE, "sum of LIMIT and OFFSET "
-			"values should not result in integer overflow");
-		return -1;
-	}
-	mem_set_uint(pOut, x);
-	return 0;
+	return vdbe_op_offsetlimit_impl(p, pOp, aMem);
 }

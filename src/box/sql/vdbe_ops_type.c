@@ -3,6 +3,7 @@
 #include "vdbeInt.h"
 #include "mem.h"
 #include "vdbe_ops.h"
+#include "vdbe_ops_cnp_impl.h"
 #include "vdbe_debug.h"
 
 /* Opcode: MustBeInt P1 P2 * * *
@@ -14,16 +15,7 @@
  */
 int vdbe_op_mustbeint(Vdbe *p, Op *pOp, Mem *aMem)
 {
-	(void)p;
-	Mem *pIn1 = &aMem[pOp->p1];
-	if (mem_to_int_precise(pIn1) != 0) {
-		if (pOp->p2 != 0)
-			return 1;  /* Jump to P2 */
-		diag_set(ClientError, ER_SQL_TYPE_MISMATCH,
-			 mem_str(pIn1), "integer");
-		return -1;  /* Error */
-	}
-	return 0;  /* Continue */
+	return vdbe_op_mustbeint_impl(p, pOp, aMem);
 }
 
 /* Opcode: Cast P1 P2 * * *
@@ -43,15 +35,7 @@ int vdbe_op_mustbeint(Vdbe *p, Op *pOp, Mem *aMem)
  */
 int vdbe_op_cast(Vdbe *p, Op *pOp, Mem *aMem)
 {
-	(void)p;
-	Mem *pIn1 = &aMem[pOp->p1];
-	int rc = mem_cast_explicit(pIn1, pOp->p2);
-	UPDATE_MAX_BLOBSIZE(pIn1);
-	if (rc == 0)
-		return 0;
-	diag_set(ClientError, ER_SQL_TYPE_MISMATCH, mem_str(pIn1),
-		 field_type_strs[pOp->p2]);
-	return -1;
+	return vdbe_op_cast_impl(p, pOp, aMem);
 }
 
 /* Opcode: ApplyType P1 P2 * P4 *
@@ -65,20 +49,7 @@ int vdbe_op_cast(Vdbe *p, Op *pOp, Mem *aMem)
  */
 int vdbe_op_applytype(Vdbe *p, Op *pOp, Mem *aMem)
 {
-	enum field_type *types = pOp->p4.types;
-	assert(types != NULL);
-	Mem *pIn1 = &aMem[pOp->p1];
-	for (int i = 0; i < pOp->p2; ++i, ++pIn1) {
-		enum field_type type = types[i];
-		assert(pIn1 <= &p->aMem[(p->nMem + 1 - p->nCursor)]);
-		assert(memIsValid(pIn1));
-		if (mem_cast_implicit(pIn1, type) != 0) {
-			diag_set(ClientError, ER_SQL_TYPE_MISMATCH,
-				 mem_str(pIn1), field_type_strs[type]);
-			return -1;
-		}
-	}
-	return 0;
+	return vdbe_op_applytype_impl(p, pOp, aMem);
 }
 
 /* Opcode: MakeRecord P1 P2 P3 * P5
