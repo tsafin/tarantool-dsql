@@ -273,7 +273,10 @@ if(ENABLE_SQL_CNP)
     set(CNP_STUBS_C "${CNP_GENERATED_DIR}/vdbe_cnp_stubs.c")
     set(CNP_STUBS_O "${CNP_GENERATED_DIR}/vdbe_cnp_stubs.o")
     set(CNP_STENCILS_H "${CNP_GENERATED_DIR}/vdbe_cnp_stencils.h")
+    set(CNP_FRAGMENTS_C "${CNP_GENERATED_DIR}/vdbe_cnp_fragments.c")
+    set(CNP_FRAGMENTS_O "${CNP_GENERATED_DIR}/vdbe_cnp_fragments.o")
     set(CNP_GENSTUBS "${PROJECT_SOURCE_DIR}/tools/vdbe_cnp_genstubs.py")
+    set(CNP_GENFRAGS "${PROJECT_SOURCE_DIR}/tools/vdbe_cnp_genfrags.py")
     set(CNP_EXTRACT "${PROJECT_SOURCE_DIR}/tools/vdbe_cnp_extract.py")
     set(CNP_OPCODES_YAML "${PROJECT_SOURCE_DIR}/tools/vdbe_dsl/opcodes.yaml")
     set(CNP_OPCODES_H "${PROJECT_BINARY_DIR}/src/box/sql/opcodes.h")
@@ -310,6 +313,15 @@ if(ENABLE_SQL_CNP)
         COMMENT "Generating CnP stencil stubs"
     )
 
+    # Dedicated threaded fragment artifact for future extraction.
+    add_custom_command(
+        OUTPUT ${CNP_FRAGMENTS_C}
+        COMMAND ${CMAKE_COMMAND} -E env python3 ${CNP_GENFRAGS}
+            --output ${CNP_FRAGMENTS_C}
+        DEPENDS ${CNP_GENFRAGS}
+        COMMENT "Generating CnP fragment source"
+    )
+
     # Step 2: Compile stubs to relocatable object
     add_custom_command(
         OUTPUT ${CNP_STUBS_O}
@@ -321,6 +333,19 @@ if(ENABLE_SQL_CNP)
             -o ${CNP_STUBS_O}
         DEPENDS ${CNP_STUBS_C}
         COMMENT "Compiling CnP stencil stubs to object file"
+    )
+
+    add_custom_command(
+        OUTPUT ${CNP_FRAGMENTS_O}
+        COMMAND ${CLANG_CNP}
+            -O2 -fno-pic -fno-asynchronous-unwind-tables -fno-stack-protector
+            -fno-omit-frame-pointer
+            -D_GNU_SOURCE
+            ${CNP_INCLUDE_FLAGS}
+            -c ${CNP_FRAGMENTS_C}
+            -o ${CNP_FRAGMENTS_O}
+        DEPENDS ${CNP_FRAGMENTS_C}
+        COMMENT "Compiling CnP fragment source to object file"
     )
 
     # Step 3: Extract stencils from object file
@@ -337,6 +362,10 @@ if(ENABLE_SQL_CNP)
     # Convenience target
     add_custom_target(cnp_stencils
         DEPENDS ${CNP_STENCILS_H}
+    )
+
+    add_custom_target(cnp_fragments
+        DEPENDS ${CNP_FRAGMENTS_O}
     )
 
     # Make sure stencils are built before the box library
