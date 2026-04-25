@@ -275,9 +275,12 @@ if(ENABLE_SQL_CNP)
     set(CNP_STENCILS_H "${CNP_GENERATED_DIR}/vdbe_cnp_stencils.h")
     set(CNP_FRAGMENTS_C "${CNP_GENERATED_DIR}/vdbe_cnp_fragments.c")
     set(CNP_FRAGMENTS_O "${CNP_GENERATED_DIR}/vdbe_cnp_fragments.o")
+    set(CNP_FRAGMENTS_H "${CNP_GENERATED_DIR}/vdbe_cnp_fragments.h")
     set(CNP_GENSTUBS "${PROJECT_SOURCE_DIR}/tools/vdbe_cnp_genstubs.py")
     set(CNP_GENFRAGS "${PROJECT_SOURCE_DIR}/tools/vdbe_cnp_genfrags.py")
     set(CNP_EXTRACT "${PROJECT_SOURCE_DIR}/tools/vdbe_cnp_extract.py")
+    set(CNP_EXTRACT_FRAGS
+        "${PROJECT_SOURCE_DIR}/tools/vdbe_cnp_extract_fragments.py")
     set(CNP_OPCODES_YAML "${PROJECT_SOURCE_DIR}/tools/vdbe_dsl/opcodes.yaml")
     set(CNP_OPCODES_H "${PROJECT_BINARY_DIR}/src/box/sql/opcodes.h")
 
@@ -338,7 +341,7 @@ if(ENABLE_SQL_CNP)
     add_custom_command(
         OUTPUT ${CNP_FRAGMENTS_O}
         COMMAND ${CLANG_CNP}
-            -O2 -fno-pic -fno-asynchronous-unwind-tables -fno-stack-protector
+            -O2 -fPIC -fno-asynchronous-unwind-tables -fno-stack-protector
             -fno-omit-frame-pointer
             -D_GNU_SOURCE
             ${CNP_INCLUDE_FLAGS}
@@ -359,6 +362,16 @@ if(ENABLE_SQL_CNP)
         COMMENT "Extracting CnP stencils from object file"
     )
 
+    add_custom_command(
+        OUTPUT ${CNP_FRAGMENTS_H}
+        COMMAND python3 ${CNP_EXTRACT_FRAGS}
+            --input ${CNP_FRAGMENTS_O}
+            --output ${CNP_FRAGMENTS_H}
+            --opcodes-header ${CNP_OPCODES_H}
+        DEPENDS ${CNP_FRAGMENTS_O} ${CNP_EXTRACT_FRAGS} ${CNP_OPCODES_H}
+        COMMENT "Extracting CnP threaded fragments from object file"
+    )
+
     # Convenience target
     add_custom_target(cnp_stencils
         DEPENDS ${CNP_STENCILS_H}
@@ -366,6 +379,10 @@ if(ENABLE_SQL_CNP)
 
     add_custom_target(cnp_fragments
         DEPENDS ${CNP_FRAGMENTS_O}
+    )
+
+    add_custom_target(cnp_fragment_headers
+        DEPENDS ${CNP_FRAGMENTS_H}
     )
 
     # Make sure stencils are built before the box library

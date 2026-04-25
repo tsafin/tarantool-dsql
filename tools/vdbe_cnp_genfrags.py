@@ -18,7 +18,7 @@ PILOT_FRAGMENTS = [
         "kind": "CNP_FRAG_FALLTHROUGH",
         "body": """\
 if (vdbe_op_integer(p, pOp, aMem))
-    goto abort_due_to_error;""",
+    GOTO_ERROR();""",
         "dispatch": "DISPATCH();",
     },
     {
@@ -26,7 +26,7 @@ if (vdbe_op_integer(p, pOp, aMem))
         "kind": "CNP_FRAG_FALLTHROUGH",
         "body": """\
 if (vdbe_op_bool(p, pOp, aMem))
-    goto abort_due_to_error;""",
+    GOTO_ERROR();""",
         "dispatch": "DISPATCH();",
     },
     {
@@ -34,15 +34,21 @@ if (vdbe_op_bool(p, pOp, aMem))
         "kind": "CNP_FRAG_FALLTHROUGH",
         "body": """\
 if (vdbe_op_int64(p, pOp, aMem))
-    goto abort_due_to_error;""",
+    GOTO_ERROR();""",
         "dispatch": "DISPATCH();",
+    },
+    {
+        "name": "OP_Init",
+        "kind": "CNP_FRAG_JUMP_P2",
+        "body": "",
+        "dispatch": "JUMP_P2();",
     },
     {
         "name": "OP_Add",
         "kind": "CNP_FRAG_FALLTHROUGH",
         "body": """\
 if (vdbe_op_add(p, pOp, aMem))
-    goto abort_due_to_error;""",
+    GOTO_ERROR();""",
         "dispatch": "DISPATCH();",
     },
     {
@@ -50,7 +56,7 @@ if (vdbe_op_add(p, pOp, aMem))
         "kind": "CNP_FRAG_FALLTHROUGH",
         "body": """\
 if (vdbe_op_sub(p, pOp, aMem))
-    goto abort_due_to_error;""",
+    GOTO_ERROR();""",
         "dispatch": "DISPATCH();",
     },
     {
@@ -58,7 +64,7 @@ if (vdbe_op_sub(p, pOp, aMem))
         "kind": "CNP_FRAG_FALLTHROUGH",
         "body": """\
 if (vdbe_op_multiply(p, pOp, aMem))
-    goto abort_due_to_error;""",
+    GOTO_ERROR();""",
         "dispatch": "DISPATCH();",
     },
     {
@@ -66,7 +72,7 @@ if (vdbe_op_multiply(p, pOp, aMem))
         "kind": "CNP_FRAG_FALLTHROUGH",
         "body": """\
 if (vdbe_op_divide(p, pOp, aMem))
-    goto abort_due_to_error;""",
+    GOTO_ERROR();""",
         "dispatch": "DISPATCH();",
     },
     {
@@ -74,7 +80,7 @@ if (vdbe_op_divide(p, pOp, aMem))
         "kind": "CNP_FRAG_FALLTHROUGH",
         "body": """\
 if (vdbe_op_remainder(p, pOp, aMem))
-    goto abort_due_to_error;""",
+    GOTO_ERROR();""",
         "dispatch": "DISPATCH();",
     },
     {
@@ -90,7 +96,7 @@ if (vdbe_op_remainder(p, pOp, aMem))
 {
     int handler_rc = vdbe_op_ifnot_inline(p, pOp, aMem);
     if (handler_rc < 0)
-        goto abort_due_to_error;
+        GOTO_ERROR();
     if (handler_rc == 1)
         JUMP_P2();
 }""",
@@ -103,11 +109,17 @@ if (vdbe_op_remainder(p, pOp, aMem))
 {
     int handler_rc = vdbe_op_once_inline(p, pOp, aMem);
     if (handler_rc < 0)
-        goto abort_due_to_error;
+        GOTO_ERROR();
     if (handler_rc == 1)
         JUMP_P2();
 }""",
         "dispatch": "DISPATCH();",
+    },
+    {
+        "name": "OP_Halt",
+        "kind": "CNP_FRAG_TERMINAL",
+        "body": "",
+        "dispatch": "GOTO_DONE();",
     },
     {
         "name": "OP_ResultRow",
@@ -116,9 +128,9 @@ if (vdbe_op_remainder(p, pOp, aMem))
 {
     int handler_rc = vdbe_op_resultrow(p, pOp, aMem);
     if (handler_rc < 0)
-        goto abort_due_to_error;
+        GOTO_ERROR();
     if (handler_rc == 1)
-        goto done_returning_row;
+        GOTO_ROW();
 }""",
         "dispatch": "DISPATCH();",
     },
@@ -150,33 +162,44 @@ enum cnp_fragment_kind {
 
 struct cnp_fragment_entry {
     int opcode;
-    const void *begin;
-    const void *dispatch;
-    const void *end;
+    uint32_t begin_offset;
+    uint32_t dispatch_offset;
+    uint32_t end_offset;
     int kind;
 };
 
+extern struct Vdbe *cnp_frag_get_p(void);
+extern VdbeOp *cnp_frag_get_aOp(void);
+extern VdbeOp *cnp_frag_get_pOp(void);
+extern Mem *cnp_frag_get_aMem(void);
+extern void cnp_frag_get_p_pOp_aMem(struct Vdbe **pp, VdbeOp **ppOp, Mem **paMem);
+extern void **cnp_frag_get_dispatch_table(void);
+extern void *cnp_frag_get_error_target(void);
+extern void *cnp_frag_get_row_target(void);
+extern void *cnp_frag_get_done_target(void);
+extern void *cnp_frag_dispatch_fallthrough(void);
+extern void *cnp_frag_dispatch_jump_p2(void);
 static volatile int cnp_fragment_probe_opcode = -1;
 
-__attribute__((noinline, noclone, used))
+#if defined(__clang__)
+__attribute__((noinline, optnone, used))
+#else
+__attribute__((noinline, used))
+#endif
 const struct cnp_fragment_entry *
 cnp_fragment_entries(size_t *count)
 {
-    struct Vdbe *p = NULL;
-    VdbeOp *aOp = NULL;
-    VdbeOp *pOp = NULL;
-    Mem *aMem = NULL;
-
+#define p cnp_frag_get_p()
+#define aOp cnp_frag_get_aOp()
+#define pOp cnp_frag_get_pOp()
+#define aMem cnp_frag_get_aMem()
 #define P1 pOp->p1
 #define P2 pOp->p2
 #define P3 pOp->p3
 
-    static void *const dispatch_table[256] = {
 """
 
 FOOTER = """\
-    };
-
     static const struct cnp_fragment_entry entries[] = {
 __ENTRIES__
     };
@@ -184,56 +207,73 @@ __ENTRIES__
     if (count != NULL)
         *count = sizeof(entries) / sizeof(entries[0]);
 
-    switch (cnp_fragment_probe_opcode) {
 __PROBE_CASES__
-    default:
-        return entries;
-    }
+    return entries;
 
-#define DISPATCH() do {                        \\
-    pOp++;                                    \\
-    goto *dispatch_table[pOp->opcode];        \\
+cnp_fragment_base:
+    __asm__ __volatile__(".globl cnp_frag_base_label\\n\\t"
+                         "cnp_frag_base_label:");
+
+#define DISPATCH() do {                                        \\
+    void *__disp_t = cnp_frag_dispatch_fallthrough();          \\
+    __asm__ volatile ("jmpq *%0" :: "r"(__disp_t));            \\
 } while (0)
 
-#define JUMP_P2() do {                        \\
-    pOp = &aOp[P2 - 1];                       \\
-    DISPATCH();                               \\
+#define JUMP_P2() do {                                         \\
+    void *__disp_t = cnp_frag_dispatch_jump_p2();              \\
+    __asm__ volatile ("jmpq *%0" :: "r"(__disp_t));            \\
+} while (0)
+
+#define GOTO_ERROR() do {                                      \\
+    void *__disp_t = cnp_frag_get_error_target();              \\
+    __asm__ volatile ("jmpq *%0" :: "r"(__disp_t));            \\
+} while (0)
+
+#define GOTO_ROW() do {                                        \\
+    void *__disp_t = cnp_frag_get_row_target();                \\
+    __asm__ volatile ("jmpq *%0" :: "r"(__disp_t));            \\
+} while (0)
+
+#define GOTO_DONE() do {                                       \\
+    void *__disp_t = cnp_frag_get_done_target();               \\
+    __asm__ volatile ("jmpq *%0" :: "r"(__disp_t));            \\
 } while (0)
 
 __LABELS__
 
-done_returning_row:
-abort_due_to_error:
-    return entries;
-
+#undef GOTO_DONE
+#undef GOTO_ROW
+#undef GOTO_ERROR
 #undef JUMP_P2
 #undef DISPATCH
 #undef P3
 #undef P2
 #undef P1
+#undef aMem
+#undef pOp
+#undef aOp
+#undef p
 }
 """
 
 
 def generate(output_path: str) -> None:
-    dispatch_lines = []
-    for frag in PILOT_FRAGMENTS:
-        dispatch_lines.append(
-            f"        [{frag['name']}] = &&{frag['name']}_begin,"
-        )
-
     entry_lines = []
     for frag in PILOT_FRAGMENTS:
         entry_lines.append(
-            "        { %s, &&%s_begin, &&%s_dispatch, &&%s_end, %s },"
-            % (frag["name"], frag["name"], frag["name"],
-               frag["name"], frag["kind"])
+            "        { %s, "
+            "(uint32_t)((uintptr_t)&&%s_begin - (uintptr_t)&&cnp_fragment_base), "
+            "(uint32_t)((uintptr_t)&&%s_dispatch - (uintptr_t)&&cnp_fragment_base), "
+            "(uint32_t)((uintptr_t)&&%s_end - (uintptr_t)&&cnp_fragment_base), %s },"
+            % (frag["name"], frag["name"], frag["name"], frag["name"],
+               frag["kind"])
         )
 
     probe_cases = []
     for frag in PILOT_FRAGMENTS:
         probe_cases.append(
-            f"    case {frag['name']}: goto {frag['name']}_begin;"
+            f"    if (cnp_fragment_probe_opcode == {frag['name']}) "
+            f"goto {frag['name']}_begin;"
         )
 
     label_blocks = []
@@ -252,8 +292,6 @@ def generate(output_path: str) -> None:
         )
 
     text = HEADER
-    text += "\n".join(dispatch_lines)
-    text += "\n"
     text += FOOTER.replace("__ENTRIES__", "\n".join(entry_lines)).replace(
         "__LABELS__", "\n".join(label_blocks)
     ).replace(
