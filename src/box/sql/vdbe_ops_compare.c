@@ -12,6 +12,7 @@
 #include "vdbeInt.h"
 #include "mem.h"
 #include "vdbe_ops.h"
+#include "vdbe_ops_cnp_impl.h"
 #include "vdbe_debug.h"
 
 /* Return values for comparison handlers */
@@ -33,72 +34,12 @@
  */
 int vdbe_op_eq(Vdbe *p, Op *pOp, Mem *aMem)
 {
-	Mem *pIn1 = &aMem[pOp->p1];
-	Mem *pIn3 = &aMem[pOp->p3];
-
-	if (mem_is_any_null(pIn1, pIn3) && (pOp->p5 & SQL_NULLEQ) == 0) {
-		/* NULL comparison without NULLEQ */
-		if ((pOp->p5 & SQL_STOREP2) != 0) {
-			Mem *pOut = vdbe_prepare_null_out(p, pOp->p2);
-			p->iCompare = 1;
-			REGISTER_TRACE(p, pOp->p2, pOut);
-			return VDBE_CMP_CONTINUE;
-		}
-		if ((pOp->p5 & SQL_JUMPIFNULL) != 0)
-			return VDBE_CMP_JUMP;
-		return VDBE_CMP_CONTINUE;
-	}
-
-	int cmp_res;
-	if (mem_cmp(pIn3, pIn1, &cmp_res, pOp->p4.pColl) != 0)
-		return VDBE_CMP_ERROR;
-
-	bool result = (cmp_res == 0);
-
-	if ((pOp->p5 & SQL_STOREP2) != 0) {
-		p->iCompare = cmp_res;
-		Mem *pOut = &aMem[pOp->p2];
-		mem_set_bool(pOut, result);
-		REGISTER_TRACE(p, pOp->p2, pOut);
-		return VDBE_CMP_CONTINUE;
-	}
-
-	return result ? VDBE_CMP_JUMP : VDBE_CMP_CONTINUE;
+	return vdbe_op_eq_impl(p, pOp, aMem);
 }
 
 int vdbe_op_ne(Vdbe *p, Op *pOp, Mem *aMem)
 {
-	Mem *pIn1 = &aMem[pOp->p1];
-	Mem *pIn3 = &aMem[pOp->p3];
-
-	if (mem_is_any_null(pIn1, pIn3) && (pOp->p5 & SQL_NULLEQ) == 0) {
-		/* NULL comparison without NULLEQ */
-		if ((pOp->p5 & SQL_STOREP2) != 0) {
-			Mem *pOut = vdbe_prepare_null_out(p, pOp->p2);
-			p->iCompare = 1;
-			REGISTER_TRACE(p, pOp->p2, pOut);
-			return VDBE_CMP_CONTINUE;
-		}
-		if ((pOp->p5 & SQL_JUMPIFNULL) != 0)
-			return VDBE_CMP_JUMP;
-		return VDBE_CMP_CONTINUE;
-	}
-
-	int cmp_res;
-	if (mem_cmp(pIn3, pIn1, &cmp_res, pOp->p4.pColl) != 0)
-		return VDBE_CMP_ERROR;
-
-	bool result = (cmp_res != 0);
-
-	if ((pOp->p5 & SQL_STOREP2) != 0) {
-		p->iCompare = cmp_res;
-		Mem *pOut = &aMem[pOp->p2];
-		mem_set_bool(pOut, result);
-		REGISTER_TRACE(p, pOp->p2, pOut);
-		return VDBE_CMP_CONTINUE;
-	}
-
-	return result ? VDBE_CMP_JUMP : VDBE_CMP_CONTINUE;
+	return vdbe_op_ne_impl(p, pOp, aMem);
 }
 
 /* OP_Lt: IF r[P3]<r[P1]
@@ -112,138 +53,22 @@ int vdbe_op_ne(Vdbe *p, Op *pOp, Mem *aMem)
  */
 int vdbe_op_lt(Vdbe *p, Op *pOp, Mem *aMem)
 {
-	Mem *pIn1 = &aMem[pOp->p1];
-	Mem *pIn3 = &aMem[pOp->p3];
-
-	if (mem_is_any_null(pIn1, pIn3)) {
-		if ((pOp->p5 & SQL_STOREP2) != 0) {
-			Mem *pOut = vdbe_prepare_null_out(p, pOp->p2);
-			p->iCompare = 1;
-			REGISTER_TRACE(p, pOp->p2, pOut);
-			return VDBE_CMP_CONTINUE;
-		}
-		if ((pOp->p5 & SQL_JUMPIFNULL) != 0)
-			return VDBE_CMP_JUMP;
-		return VDBE_CMP_CONTINUE;
-	}
-
-	int cmp_res;
-	if (mem_cmp(pIn3, pIn1, &cmp_res, pOp->p4.pColl) != 0)
-		return VDBE_CMP_ERROR;
-
-	bool result = (cmp_res < 0);
-
-	if ((pOp->p5 & SQL_STOREP2) != 0) {
-		p->iCompare = cmp_res;
-		Mem *pOut = &aMem[pOp->p2];
-		mem_set_bool(pOut, result);
-		REGISTER_TRACE(p, pOp->p2, pOut);
-		return VDBE_CMP_CONTINUE;
-	}
-
-	return result ? VDBE_CMP_JUMP : VDBE_CMP_CONTINUE;
+	return vdbe_op_lt_impl(p, pOp, aMem);
 }
 
 int vdbe_op_le(Vdbe *p, Op *pOp, Mem *aMem)
 {
-	Mem *pIn1 = &aMem[pOp->p1];
-	Mem *pIn3 = &aMem[pOp->p3];
-
-	if (mem_is_any_null(pIn1, pIn3)) {
-		if ((pOp->p5 & SQL_STOREP2) != 0) {
-			Mem *pOut = vdbe_prepare_null_out(p, pOp->p2);
-			p->iCompare = 1;
-			REGISTER_TRACE(p, pOp->p2, pOut);
-			return VDBE_CMP_CONTINUE;
-		}
-		if ((pOp->p5 & SQL_JUMPIFNULL) != 0)
-			return VDBE_CMP_JUMP;
-		return VDBE_CMP_CONTINUE;
-	}
-
-	int cmp_res;
-	if (mem_cmp(pIn3, pIn1, &cmp_res, pOp->p4.pColl) != 0)
-		return VDBE_CMP_ERROR;
-
-	bool result = (cmp_res <= 0);
-
-	if ((pOp->p5 & SQL_STOREP2) != 0) {
-		p->iCompare = cmp_res;
-		Mem *pOut = &aMem[pOp->p2];
-		mem_set_bool(pOut, result);
-		REGISTER_TRACE(p, pOp->p2, pOut);
-		return VDBE_CMP_CONTINUE;
-	}
-
-	return result ? VDBE_CMP_JUMP : VDBE_CMP_CONTINUE;
+	return vdbe_op_le_impl(p, pOp, aMem);
 }
 
 int vdbe_op_gt(Vdbe *p, Op *pOp, Mem *aMem)
 {
-	Mem *pIn1 = &aMem[pOp->p1];
-	Mem *pIn3 = &aMem[pOp->p3];
-
-	if (mem_is_any_null(pIn1, pIn3)) {
-		if ((pOp->p5 & SQL_STOREP2) != 0) {
-			Mem *pOut = vdbe_prepare_null_out(p, pOp->p2);
-			p->iCompare = 1;
-			REGISTER_TRACE(p, pOp->p2, pOut);
-			return VDBE_CMP_CONTINUE;
-		}
-		if ((pOp->p5 & SQL_JUMPIFNULL) != 0)
-			return VDBE_CMP_JUMP;
-		return VDBE_CMP_CONTINUE;
-	}
-
-	int cmp_res;
-	if (mem_cmp(pIn3, pIn1, &cmp_res, pOp->p4.pColl) != 0)
-		return VDBE_CMP_ERROR;
-
-	bool result = (cmp_res > 0);
-
-	if ((pOp->p5 & SQL_STOREP2) != 0) {
-		p->iCompare = cmp_res;
-		Mem *pOut = &aMem[pOp->p2];
-		mem_set_bool(pOut, result);
-		REGISTER_TRACE(p, pOp->p2, pOut);
-		return VDBE_CMP_CONTINUE;
-	}
-
-	return result ? VDBE_CMP_JUMP : VDBE_CMP_CONTINUE;
+	return vdbe_op_gt_impl(p, pOp, aMem);
 }
 
 int vdbe_op_ge(Vdbe *p, Op *pOp, Mem *aMem)
 {
-	Mem *pIn1 = &aMem[pOp->p1];
-	Mem *pIn3 = &aMem[pOp->p3];
-
-	if (mem_is_any_null(pIn1, pIn3)) {
-		if ((pOp->p5 & SQL_STOREP2) != 0) {
-			Mem *pOut = vdbe_prepare_null_out(p, pOp->p2);
-			p->iCompare = 1;
-			REGISTER_TRACE(p, pOp->p2, pOut);
-			return VDBE_CMP_CONTINUE;
-		}
-		if ((pOp->p5 & SQL_JUMPIFNULL) != 0)
-			return VDBE_CMP_JUMP;
-		return VDBE_CMP_CONTINUE;
-	}
-
-	int cmp_res;
-	if (mem_cmp(pIn3, pIn1, &cmp_res, pOp->p4.pColl) != 0)
-		return VDBE_CMP_ERROR;
-
-	bool result = (cmp_res >= 0);
-
-	if ((pOp->p5 & SQL_STOREP2) != 0) {
-		p->iCompare = cmp_res;
-		Mem *pOut = &aMem[pOp->p2];
-		mem_set_bool(pOut, result);
-		REGISTER_TRACE(p, pOp->p2, pOut);
-		return VDBE_CMP_CONTINUE;
-	}
-
-	return result ? VDBE_CMP_JUMP : VDBE_CMP_CONTINUE;
+	return vdbe_op_ge_impl(p, pOp, aMem);
 }
 
 /* OP_Compare: r[P1@P3] <-> r[P2@P3]

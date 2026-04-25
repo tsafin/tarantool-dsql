@@ -351,6 +351,39 @@ come from:
 2. direct stencil chaining
 3. fused arithmetic superinstructions
 
+## 8.2 Broader first-level helper split
+
+The implementation strategy now uses two classes of shared `*_impl()` bodies:
+
+1. stub-safe impls
+2. wrapper-only impls
+
+Stub-safe impls may be called directly from generated CnP stencils. They must
+avoid pulling the stencil compiler through broad SQL frontend dependencies such
+as `sqlInt.h`, error-reporting macros, and large type-definition graphs.
+
+Wrapper-only impls are still useful even when they are not yet safe for direct
+stencil inclusion. They make the extracted opcode helpers structurally ready
+for later inlining and reduce duplicated logic in the first helper layer.
+
+This split is now applied to additional helper families:
+
+- logical and bitwise handlers
+- comparison handlers
+- `OffsetLimit`
+- `Concat`
+- simple type-conversion helpers such as `MustBeInt`, `Cast`, and `ApplyType`
+
+Only the stub-safe subset is mapped into the CnP generator today. The broader
+set is intentionally limited to shared wrapper impls for now.
+
+That keeps the next optimization steps honest:
+
+- expand direct stencil calls only for helpers that are actually dependency-safe
+- continue moving duplicated first-level logic into shared impl bodies
+- do not reintroduce the header-coupling problem that previously broke the
+  stencil build
+
 ## 9. Current stencil execution schema
 
 The current CnP schema is intentionally conservative:

@@ -43,6 +43,7 @@ struct CnpStubOp {
 #else
 #include "sqlInt.h"
 #include "vdbeInt.h"
+#include "vdbe_debug.h"
 #endif
 #include "mem.h"
 #include "vdbe_helpers.h"
@@ -141,6 +142,319 @@ vdbe_op_remainder_impl(Vdbe *p, Op *pOp, Mem *aMem)
 		return -1;
 	return 0;
 }
+
+VDBE_CNP_INLINE int
+vdbe_op_bitand_impl(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	(void)p;
+	Mem *pIn1 = &aMem[pOp->p1];
+	Mem *pIn2 = &aMem[pOp->p2];
+	Mem *pOut = &aMem[pOp->p3];
+	if (mem_bit_and(pIn2, pIn1, pOut) != 0)
+		return -1;
+	assert(pOut->type == MEM_TYPE_UINT || pOut->type == MEM_TYPE_NULL);
+	return 0;
+}
+
+VDBE_CNP_INLINE int
+vdbe_op_bitor_impl(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	(void)p;
+	Mem *pIn1 = &aMem[pOp->p1];
+	Mem *pIn2 = &aMem[pOp->p2];
+	Mem *pOut = &aMem[pOp->p3];
+	if (mem_bit_or(pIn2, pIn1, pOut) != 0)
+		return -1;
+	assert(pOut->type == MEM_TYPE_UINT || pOut->type == MEM_TYPE_NULL);
+	return 0;
+}
+
+VDBE_CNP_INLINE int
+vdbe_op_bitnot_impl(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	(void)p;
+	Mem *pIn1 = &aMem[pOp->p1];
+	Mem *pOut = &aMem[pOp->p2];
+	return mem_bit_not(pIn1, pOut) != 0 ? -1 : 0;
+}
+
+#ifndef VDBE_CNP_STUB_BUILD
+
+VDBE_CNP_INLINE int
+vdbe_op_and_impl(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	int v1, v2;
+	Mem *pIn1 = &aMem[pOp->p1];
+	Mem *pIn2 = &aMem[pOp->p2];
+	Mem *pOut;
+
+	if (mem_is_null(pIn1)) {
+		v1 = 2;
+	} else if (mem_is_bool(pIn1)) {
+		v1 = pIn1->u.b;
+	} else {
+		diag_set(ClientError, ER_SQL_TYPE_MISMATCH,
+			 mem_str(pIn1), "boolean");
+		return -1;
+	}
+
+	if (mem_is_null(pIn2)) {
+		v2 = 2;
+	} else if (mem_is_bool(pIn2)) {
+		v2 = pIn2->u.b;
+	} else {
+		diag_set(ClientError, ER_SQL_TYPE_MISMATCH,
+			 mem_str(pIn2), "boolean");
+		return -1;
+	}
+
+	static const unsigned char and_logic[] = {0, 0, 0, 0, 1, 2, 0, 2, 2};
+	v1 = and_logic[v1 * 3 + v2];
+	pOut = vdbe_prepare_null_out(p, pOp->p3);
+	if (v1 != 2)
+		mem_set_bool(pOut, v1);
+	return 0;
+}
+
+VDBE_CNP_INLINE int
+vdbe_op_or_impl(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	int v1, v2;
+	Mem *pIn1 = &aMem[pOp->p1];
+	Mem *pIn2 = &aMem[pOp->p2];
+	Mem *pOut;
+
+	if (mem_is_null(pIn1)) {
+		v1 = 2;
+	} else if (mem_is_bool(pIn1)) {
+		v1 = pIn1->u.b;
+	} else {
+		diag_set(ClientError, ER_SQL_TYPE_MISMATCH,
+			 mem_str(pIn1), "boolean");
+		return -1;
+	}
+
+	if (mem_is_null(pIn2)) {
+		v2 = 2;
+	} else if (mem_is_bool(pIn2)) {
+		v2 = pIn2->u.b;
+	} else {
+		diag_set(ClientError, ER_SQL_TYPE_MISMATCH,
+			 mem_str(pIn2), "boolean");
+		return -1;
+	}
+
+	static const unsigned char or_logic[] = {0, 1, 2, 1, 1, 1, 2, 1, 2};
+	v1 = or_logic[v1 * 3 + v2];
+	pOut = vdbe_prepare_null_out(p, pOp->p3);
+	if (v1 != 2)
+		mem_set_bool(pOut, v1);
+	return 0;
+}
+
+VDBE_CNP_INLINE int
+vdbe_op_not_impl(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	Mem *pIn1 = &aMem[pOp->p1];
+	Mem *pOut = vdbe_prepare_null_out(p, pOp->p2);
+
+	if (!mem_is_null(pIn1)) {
+		if (!mem_is_bool(pIn1)) {
+			diag_set(ClientError, ER_SQL_TYPE_MISMATCH,
+				 mem_str(pIn1), "boolean");
+			return -1;
+		}
+		mem_set_bool(pOut, !pIn1->u.b);
+	}
+	return 0;
+}
+
+VDBE_CNP_INLINE int
+vdbe_op_concat_impl(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	(void)p;
+	Mem *pIn1 = &aMem[pOp->p1];
+	Mem *pIn2 = &aMem[pOp->p2];
+	Mem *pOut = &aMem[pOp->p3];
+	if (mem_concat(pIn2, pIn1, pOut) != 0)
+		return -1;
+	UPDATE_MAX_BLOBSIZE(pOut);
+	return 0;
+}
+
+VDBE_CNP_INLINE int
+vdbe_op_offsetlimit_impl(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	Mem *pIn1 = &aMem[pOp->p1];
+	Mem *pIn3 = &aMem[pOp->p3];
+	Mem *pOut = vdbe_prepare_null_out(p, pOp->p2);
+
+	assert(mem_is_uint(pIn1));
+	assert(mem_is_uint(pIn3));
+	uint64_t x = pIn1->u.u;
+	uint64_t rhs = pIn3->u.u;
+	bool unused;
+	if (sql_add_int(x, false, rhs, false, (int64_t *)&x, &unused) != 0) {
+		diag_set(ClientError, ER_SQL_EXECUTE,
+			 "sum of LIMIT and OFFSET values should not result "
+			 "in integer overflow");
+		return -1;
+	}
+	mem_set_uint(pOut, x);
+	return 0;
+}
+
+VDBE_CNP_INLINE int
+vdbe_op_mustbeint_impl(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	(void)p;
+	Mem *pIn1 = &aMem[pOp->p1];
+	if (mem_to_int_precise(pIn1) != 0) {
+		if (pOp->p2 != 0)
+			return 1;
+		diag_set(ClientError, ER_SQL_TYPE_MISMATCH,
+			 mem_str(pIn1), "integer");
+		return -1;
+	}
+	return 0;
+}
+
+VDBE_CNP_INLINE int
+vdbe_op_cast_impl(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	(void)p;
+	Mem *pIn1 = &aMem[pOp->p1];
+	int rc = mem_cast_explicit(pIn1, pOp->p2);
+	UPDATE_MAX_BLOBSIZE(pIn1);
+	if (rc == 0)
+		return 0;
+	diag_set(ClientError, ER_SQL_TYPE_MISMATCH, mem_str(pIn1),
+		 field_type_strs[pOp->p2]);
+	return -1;
+}
+
+VDBE_CNP_INLINE int
+vdbe_op_applytype_impl(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	enum field_type *types = pOp->p4.types;
+	assert(types != NULL);
+	Mem *pIn1 = &aMem[pOp->p1];
+	for (int i = 0; i < pOp->p2; ++i, ++pIn1) {
+		enum field_type type = types[i];
+		assert(pIn1 <= &p->aMem[(p->nMem + 1 - p->nCursor)]);
+		assert(memIsValid(pIn1));
+		if (mem_cast_implicit(pIn1, type) != 0) {
+			diag_set(ClientError, ER_SQL_TYPE_MISMATCH,
+				 mem_str(pIn1), field_type_strs[type]);
+			return -1;
+		}
+	}
+	return 0;
+}
+
+enum vdbe_cmp_predicate {
+	VDBE_CMP_EQ,
+	VDBE_CMP_NE,
+	VDBE_CMP_LT,
+	VDBE_CMP_LE,
+	VDBE_CMP_GT,
+	VDBE_CMP_GE,
+};
+
+VDBE_CNP_INLINE int
+vdbe_op_cmp_impl(Vdbe *p, Op *pOp, Mem *aMem, enum vdbe_cmp_predicate pred)
+{
+	Mem *pIn1 = &aMem[pOp->p1];
+	Mem *pIn3 = &aMem[pOp->p3];
+	bool treat_null_as_equal = pred == VDBE_CMP_EQ || pred == VDBE_CMP_NE;
+
+	if (mem_is_any_null(pIn1, pIn3) &&
+	    (!treat_null_as_equal || (pOp->p5 & SQL_NULLEQ) == 0)) {
+		if ((pOp->p5 & SQL_STOREP2) != 0) {
+			Mem *pOut = vdbe_prepare_null_out(p, pOp->p2);
+			p->iCompare = 1;
+			REGISTER_TRACE(p, pOp->p2, pOut);
+			return 0;
+		}
+		if ((pOp->p5 & SQL_JUMPIFNULL) != 0)
+			return 1;
+		return 0;
+	}
+
+	int cmp_res;
+	if (mem_cmp(pIn3, pIn1, &cmp_res, pOp->p4.pColl) != 0)
+		return -1;
+
+	bool result = false;
+	switch (pred) {
+	case VDBE_CMP_EQ:
+		result = cmp_res == 0;
+		break;
+	case VDBE_CMP_NE:
+		result = cmp_res != 0;
+		break;
+	case VDBE_CMP_LT:
+		result = cmp_res < 0;
+		break;
+	case VDBE_CMP_LE:
+		result = cmp_res <= 0;
+		break;
+	case VDBE_CMP_GT:
+		result = cmp_res > 0;
+		break;
+	case VDBE_CMP_GE:
+		result = cmp_res >= 0;
+		break;
+	}
+
+	if ((pOp->p5 & SQL_STOREP2) != 0) {
+		p->iCompare = cmp_res;
+		Mem *pOut = &aMem[pOp->p2];
+		mem_set_bool(pOut, result);
+		REGISTER_TRACE(p, pOp->p2, pOut);
+		return 0;
+	}
+
+	return result ? 1 : 0;
+}
+
+VDBE_CNP_INLINE int
+vdbe_op_eq_impl(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_cmp_impl(p, pOp, aMem, VDBE_CMP_EQ);
+}
+
+VDBE_CNP_INLINE int
+vdbe_op_ne_impl(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_cmp_impl(p, pOp, aMem, VDBE_CMP_NE);
+}
+
+VDBE_CNP_INLINE int
+vdbe_op_lt_impl(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_cmp_impl(p, pOp, aMem, VDBE_CMP_LT);
+}
+
+VDBE_CNP_INLINE int
+vdbe_op_le_impl(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_cmp_impl(p, pOp, aMem, VDBE_CMP_LE);
+}
+
+VDBE_CNP_INLINE int
+vdbe_op_gt_impl(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_cmp_impl(p, pOp, aMem, VDBE_CMP_GT);
+}
+
+VDBE_CNP_INLINE int
+vdbe_op_ge_impl(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_cmp_impl(p, pOp, aMem, VDBE_CMP_GE);
+}
+
+#endif /* !VDBE_CNP_STUB_BUILD */
 
 #undef VDBE_CNP_INLINE
 

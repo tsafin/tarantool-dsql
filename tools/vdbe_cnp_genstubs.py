@@ -59,6 +59,9 @@ INLINE_IMPL_OVERRIDES = {
     "OP_Multiply": "vdbe_op_multiply_impl",
     "OP_Divide": "vdbe_op_divide_impl",
     "OP_Remainder": "vdbe_op_remainder_impl",
+    "OP_BitAnd": "vdbe_op_bitand_impl",
+    "OP_BitOr": "vdbe_op_bitor_impl",
+    "OP_BitNot": "vdbe_op_bitnot_impl",
 }
 
 # Per-opcode stencil category:

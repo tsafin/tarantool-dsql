@@ -2,6 +2,7 @@
 
 local clock = require('clock')
 local json = require('json')
+local bit = require('bit')
 
 io.stdout:setvbuf('no')
 
@@ -210,6 +211,29 @@ local workloads = {
         expected = function(i)
             local id = ((i - 1) % 1024) + 1
             return id * 15 + 1
+        end,
+    },
+    {
+        name = 'bitwise_mix',
+        description = 'Indexed row lookup with bitwise work',
+        sql = [[
+            SELECT (a & b) | c, a & c, a | b, ~a
+            FROM bench_arith
+            WHERE id = ?;
+        ]],
+        prepare_iterations = env_int('BENCH_PREPARE_ITERS_BITWISE', 2500),
+        exec_iterations = env_int('BENCH_EXEC_ITERS_BITWISE', 100000),
+        auto_iterations = env_int('BENCH_AUTO_ITERS_BITWISE', 20000),
+        setup = setup_point_lookup,
+        teardown = teardown_point_lookup,
+        args = function(i) return {((i - 1) % 1024) + 1} end,
+        checksum = function(res) return res.rows[1][1] end,
+        expected = function(i)
+            local id = ((i - 1) % 1024) + 1
+            local a = id * 10
+            local b = id * 5 + 1
+            local c = id * 2 + 1
+            return bit.bor(bit.band(a, b), c)
         end,
     },
 }
