@@ -255,7 +255,103 @@ And the code order should be:
    - [`vdbe_ops_cursor_nav.c`](/home/tsafin/tarantool/src/box/sql/vdbe_ops_cursor_nav.c)
    - [`vdbe_ops_index.c`](/home/tsafin/tarantool/src/box/sql/vdbe_ops_index.c)
 
-## 8. Current stencil execution schema
+## 8. Initial O2 results: first helper layer inlined
+
+The first implementation wave is now in place for:
+
+- `OP_Integer`
+- `OP_Bool`
+- `OP_Int64`
+- `OP_Add`
+
+Implementation shape:
+
+- top-level helpers now forward to shared `*_impl()` bodies in
+  [`vdbe_ops_cnp_impl.h`](/home/tsafin/tarantool/src/box/sql/vdbe_ops_cnp_impl.h)
+- the CnP stub generator emits direct calls to these `*_impl()` bodies instead
+  of loading `HOLE_HANDLER` and performing an indirect helper call
+
+This was validated by inspecting the generated CnP stubs:
+
+- `cnp_OP_Integer()` now calls `vdbe_op_integer_impl()` directly
+- `cnp_OP_Add()` now calls `vdbe_op_add_impl()` directly
+- the old `HOLE_HANDLER` load is gone for these opcodes
+
+Measured result in the `build` profiling configuration:
+
+- `tiny_const / prepared_execute`
+  - before: about `2.914 us/op`
+  - after: about `2.837 us/op`
+  - effect: modest improvement, about `2.6%`
+- `hot_expr / prepared_execute`
+  - before: about `3.257 us/op`
+  - after: about `3.328 us/op`
+  - effect: no improvement in this run, slightly worse
+
+Interpretation:
+
+- removing the indirect handler load and call is real, but not sufficient
+- the inlined stencils still call lower-level helpers such as
+  `vdbe_prepare_null_out()`, `mem_set_int()`, and `mem_add()`
+- so the first-wave change removes only one function boundary, not the full
+  helper stack
+
+This is an important result. It suggests the next gains are more likely to
+come from one of these:
+
+1. inline lower-level tiny helpers used by constants and arithmetic
+2. convert common-case stencil transitions from `call/ret` to direct chaining
+3. add fused arithmetic superinstructions before widening the inline surface
+
+It does not justify a custom ABI change yet.
+
+## 8.1 Second O2 wave: full scalar arithmetic family
+
+The next implementation wave extends the same pattern to:
+
+- `OP_Subtract`
+- `OP_Multiply`
+- `OP_Divide`
+- `OP_Remainder`
+
+That gives the CnP generator direct `*_impl()` calls for the full scalar
+arithmetic family:
+
+- `Add`
+- `Subtract`
+- `Multiply`
+- `Divide`
+- `Remainder`
+
+Measured result in the `build` profiling configuration:
+
+- `hot_expr / prepared_execute`
+  - before second wave: about `3.328 us/op`
+  - after second wave: about `3.261 us/op`
+  - effect: recovered the first-wave regression and returned close to the
+    earlier baseline
+- `point_lookup / prepared_execute`
+  - before second wave: about `7.784 us/op`
+  - after second wave: about `7.662 us/op`
+  - effect: modest improvement, about `1.6%`
+
+Interpretation:
+
+- widening the direct-impl surface helps the mixed arithmetic path more than
+  the pure `Add` micro-benchmark
+- `point_lookup` benefits because it actually executes all five arithmetic
+  operators
+- the overall gain is still modest because these stencils continue to call
+  low-level `mem_*()` helpers and still return to the outer CnP dispatch loop
+
+So the direction is valid, but the next larger gain is still more likely to
+come from:
+
+1. lower-level helper specialization
+2. direct stencil chaining
+3. fused arithmetic superinstructions
+
+## 9. Current stencil execution schema
 
 The current CnP schema is intentionally conservative:
 

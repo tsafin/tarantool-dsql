@@ -50,6 +50,17 @@ HANDLER_OVERRIDES = {
     "OP_TTransaction":    "vdbe_cnp_ttransaction_handler",
 }
 
+INLINE_IMPL_OVERRIDES = {
+    "OP_Integer": "vdbe_op_integer_impl",
+    "OP_Bool": "vdbe_op_bool_impl",
+    "OP_Int64": "vdbe_op_int64_impl",
+    "OP_Add": "vdbe_op_add_impl",
+    "OP_Subtract": "vdbe_op_sub_impl",
+    "OP_Multiply": "vdbe_op_multiply_impl",
+    "OP_Divide": "vdbe_op_divide_impl",
+    "OP_Remainder": "vdbe_op_remainder_impl",
+}
+
 # Per-opcode stencil category:
 #   excluded     - no stencil (OP_Program)
 #   goto         - unconditional jump to HOLE_BRANCH (OP_Goto)
@@ -151,6 +162,8 @@ cnp_load_hole(uint64_t *hole)
  * vdbe_cnp_vdbe_view.h defines CnpVdbeView and cnp_vdbe_pc/cnp_vdbe_icompare.
  */
 #include "vdbe_cnp_vdbe_view.h"
+#define VDBE_CNP_STUB_BUILD 1
+#include "vdbe_ops_cnp_impl.h"
 
 /* Forward declarations — real types from Tarantool. */
 struct Vdbe;
@@ -185,6 +198,15 @@ typedef void (*cnp_row_signal_t)(struct Vdbe *);
  */
 
 """
+
+
+def emit_call(name):
+    impl = INLINE_IMPL_OVERRIDES.get(name)
+    if impl is not None:
+        return f"    int rc = {impl}(p, (Op *)pOp, aMem);"
+    return """\
+    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
+    int rc = fn(p, pOp, aMem);"""
 
 
 def derive_handler(name, ht):
@@ -236,8 +258,7 @@ int64_t __attribute__((noinline))
 cnp_{name}(struct Vdbe *p, Mem *aMem)
 {{
     struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
-    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
-    int rc = fn(p, pOp, aMem);
+{emit_call(name)}
     if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
     return (int64_t)LOAD_HOLE(HOLE_NEXT);
 }}"""
@@ -249,8 +270,7 @@ int64_t __attribute__((noinline))
 cnp_{name}(struct Vdbe *p, Mem *aMem)
 {{
     struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
-    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
-    int rc = fn(p, pOp, aMem);
+{emit_call(name)}
     if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
     if (rc > 0) return (int64_t)LOAD_HOLE(HOLE_BRANCH);
     return (int64_t)LOAD_HOLE(HOLE_NEXT);
@@ -263,8 +283,7 @@ int64_t __attribute__((noinline))
 cnp_{name}(struct Vdbe *p, Mem *aMem)
 {{
     struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
-    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
-    int rc = fn(p, pOp, aMem);
+{emit_call(name)}
     if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
     if (rc > 0) {{
         cnp_row_signal_t sig_fn = (cnp_row_signal_t)(uintptr_t)LOAD_HOLE(HOLE_SIGNAL);
