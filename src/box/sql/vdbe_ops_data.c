@@ -3,6 +3,7 @@
 #include "vdbeInt.h"
 #include "mem.h"
 #include "vdbe_ops.h"
+#include "vdbe_ops_cnp_impl.h"
 #include "vdbe_debug.h"
 
 /* Opcode: Integer P1 P2 * * *
@@ -12,10 +13,7 @@
  */
 int vdbe_op_integer(Vdbe *p, Op *pOp, Mem *aMem)
 {
-	(void)aMem;
-	Mem *pOut = vdbe_prepare_null_out(p, pOp->p2);
-	mem_set_int(pOut, pOp->p1, pOp->p1 < 0);
-	return 0;
+	return vdbe_op_integer_impl(p, pOp, aMem);
 }
 
 /* Opcode: Bool P1 P2 * * *
@@ -25,11 +23,7 @@ int vdbe_op_integer(Vdbe *p, Op *pOp, Mem *aMem)
  */
 int vdbe_op_bool(Vdbe *p, Op *pOp, Mem *aMem)
 {
-	(void)aMem;
-	Mem *pOut = vdbe_prepare_null_out(p, pOp->p2);
-	assert(pOp->p1 == 0 || pOp->p1 == 1);
-	mem_set_bool(pOut, pOp->p1);
-	return 0;
+	return vdbe_op_bool_impl(p, pOp, aMem);
 }
 
 /* Opcode: Int64 * P2 * P4 *
@@ -40,11 +34,7 @@ int vdbe_op_bool(Vdbe *p, Op *pOp, Mem *aMem)
  */
 int vdbe_op_int64(Vdbe *p, Op *pOp, Mem *aMem)
 {
-	(void)aMem;
-	Mem *pOut = vdbe_prepare_null_out(p, pOp->p2);
-	assert(pOp->p4.pI64 != NULL);
-	mem_set_int(pOut, *pOp->p4.pI64, pOp->p4type == P4_INT64);
-	return 0;
+	return vdbe_op_int64_impl(p, pOp, aMem);
 }
 
 /* Opcode: Real * P2 * P4 *
