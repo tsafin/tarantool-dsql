@@ -322,6 +322,8 @@ struct Vdbe {
 	int jit_compiled;
 #endif
 #ifdef ENABLE_SQL_CNP
+	/** CnP code generation mode: wrapper stencils or threaded fragments. */
+	int cnp_mode;
 	/** mmap'd native code buffer (copy-and-patch) */
 	void *cnp_code;
 	/** Size of the cnp_code buffer */
@@ -342,6 +344,13 @@ struct Vdbe {
 	void *cnp_gdb_entry;
 #endif
 };
+
+#ifdef ENABLE_SQL_CNP
+enum {
+	CNP_MODE_STENCILS = 0,
+	CNP_MODE_FRAGMENTS = 1,
+};
+#endif
 
 /*
  * The following are allowed values for Vdbe.magic

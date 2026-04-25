@@ -102,23 +102,40 @@ only answer.
 
 ## 5. Recommendation on ABI changes
 
-Do not begin with a custom calling convention change such as a Haskell-style
-register ABI for stencils.
+Do not begin the threaded-fragment conversion with a custom calling
+convention change such as a Haskell-style register ABI.
 
-That idea may become useful later, but it is not the right first step.
-Reasons:
+This is more important for the stitched-fragment design than it was for the
+wrapper-stencil design. A calling convention governs function boundaries, but
+the preferred CnP model is specifically trying to stop treating opcode
+handlers as ordinary standalone functions. The hot path should be:
 
-- the current system still depends heavily on ordinary C helpers,
-- debug/unwind/perf support already works with the current ABI,
-- a custom ABI complicates extraction, helper interop, and portability,
-- we do not yet know whether the dominant cost is helper ABI overhead or the
-  outer per-op dispatch model.
+- fragment A body,
+- fallthrough into fragment B body,
+- fallthrough into fragment C body,
+- explicit exit only when semantics require it.
 
-The correct order is:
+So the first ABI question is not "which function ABI should we use?" but:
+
+- which values must be stable live-ins at fragment entry,
+- where do those values live,
+- and how do we make that stable enough for extraction and stitching?
+
+For the threaded-fragment model, the practical candidates are:
+
+1. explicit state in memory or globals
+2. a dedicated fragment-production source with controlled live-ins
+3. only later, a custom register ABI if it is still justified
+
+A custom function calling convention does not by itself stabilize raw labels
+cut from one large threaded interpreter body. The compiler still owns
+register allocation, spilling, and temporary lifetime inside that body.
+
+That is why the correct order is:
 
 1. measure the current hot costs,
-2. inline first-level helper bodies for selected opcodes,
-3. remove per-op call/return overhead where possible,
+2. switch from wrapper stencils to stitched threaded fragments,
+3. make fragment live-ins explicit and stable,
 4. only then evaluate whether a custom internal ABI is still justified.
 
 ## 6. High-level optimization strategy
@@ -526,30 +543,34 @@ custom ABI.
 
 ## 11. Review of the generated threaded dispatcher as a CnP source
 
-The current repository already has two relevant dispatcher representations:
+The current repository has two relevant threaded-dispatch representations:
 
-1. the production threaded interpreter path in
+1. the generated threaded dispatcher in
+   [`generated/vdbe_dispatch_generated.c`](/home/tsafin/tarantool/src/box/sql/generated/vdbe_dispatch_generated.c)
+   which is the real validated threaded-dispatch source used as the basis
+   for later JIT work
+2. the manually maintained threaded path in
    [`vdbe.c`](/home/tsafin/tarantool/src/box/sql/vdbe.c)
    using:
    - `dispatchtable.h`,
    - `&&Exec_OP_*` label addresses,
    - `DISPATCH()` and `JUMP_P2()` macros,
    - label-based control flow inside one large interpreter body
-2. the generated reference source in
-   [`generated/vdbe_dispatch_generated.c`](/home/tsafin/tarantool/src/box/sql/generated/vdbe_dispatch_generated.c)
 
 The important conclusion is:
 
-- the real threaded execution model is the one embedded in
-  [`vdbe.c`](/home/tsafin/tarantool/src/box/sql/vdbe.c),
-- the generated reference file is useful as a source-generation model,
-  but it is not currently the compiled runtime artifact used directly for
-  dispatch.
+- the generated threaded dispatcher is the primary source of truth for the
+  threaded execution model that CnP should target,
+- the manually written threaded path in
+  [`vdbe.c`](/home/tsafin/tarantool/src/box/sql/vdbe.c) remains useful for
+  backward compatibility and verification while the migration completes,
+- long term, the generated threaded dispatcher is the one we want to extract
+  fragments from and keep aligned with JIT execution.
 
 ### 11.1 What is compatible with CnP stitching
 
-From the CnP point of view, the threaded dispatcher is compatible in these
-important ways:
+From the CnP point of view, the generated threaded dispatcher is compatible in
+these important ways:
 
 - opcode handlers already have addressable labels via `&&Exec_OP_*`,
 - dispatch is already expressed as label-to-label control flow,
@@ -590,10 +611,54 @@ toolchain for two concrete reasons:
    The current `Exec_OP_*` labels give the start, but not yet a robust,
    explicit "cut here" label for the terminal dispatch sequence.
 
-This is an implementation problem, not a design problem. The threaded source
-is still the preferred source for CnP fragments.
+This is an implementation problem, not a design problem. The generated
+threaded dispatcher is still the preferred source for CnP fragments, and the
+manual path should be treated as a verification aid rather than the extraction
+target.
 
 ### 11.3 Handler classes for the first migration
+
+An automated scan of
+[`generated/vdbe_dispatch_generated.c`](/home/tsafin/tarantool/src/box/sql/generated/vdbe_dispatch_generated.c)
+found `142` generated threaded handlers in total.
+
+Their dominant control-flow shape is highly regular:
+
+- `129` handlers use the common pattern:
+  - helper call or inline body,
+  - `if (handler_rc == 1) JUMP_P2();`
+  - `DISPATCH();`
+- `13` handlers are `DISPATCH()`-only in the generated source
+
+The `DISPATCH()`-only set is:
+
+- `Goto`
+- `Jump`
+- `If`
+- `Gosub`
+- `Return`
+- `InitCoroutine`
+- `Yield`
+- `EndCoroutine`
+- `MustBeInt`
+- `SetDiag`
+- `Halt`
+- `Init`
+- `Program`
+
+This is an important result for the stitching design:
+
+- there are not many handlers whose terminal structure is arbitrary or
+  fundamentally unlike the common case,
+- most handlers still have a normal straight-line path ending in `DISPATCH()`,
+- the irregularity is usually one conditional `P2` transfer rather than a
+  totally different dispatch model.
+
+So the common stitched policy can be:
+
+- preserve the normal path as straight fallthrough,
+- patch one explicit branch edge for the `P2` path when needed,
+- keep row/error/coroutine/terminal exits explicit.
 
 The threaded dispatcher is not equally easy to stitch across all opcode
 families.
@@ -617,6 +682,10 @@ These handlers have relatively regular endings:
 - helper call or small inline logic,
 - error branch if needed,
 - `JUMP_P2()` or `DISPATCH()`.
+
+This matches the measured handler-shape distribution above and is the main
+reason the generated threaded dispatcher is a viable CnP fragment source
+rather than only a conceptual reference.
 
 Harder classes that should stay out of the first pilot:
 
