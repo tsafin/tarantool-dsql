@@ -56,7 +56,7 @@ g.test_explain_bytecode_and_disassembly = function()
         t.assert_gt(#disassembly, 3)
 
         local dump = table.concat(disassembly, '\n')
-        t.assert_str_contains(dump, 'push   rax')
+        t.assert_str_contains(dump, 'push   rbp')
         t.assert_str_contains(dump, 'ret')
         t.assert_not_str_contains(dump, 'file format elf64-x86-64')
         t.assert_not_str_contains(dump, 'Disassembly of section .text:')

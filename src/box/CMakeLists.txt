@@ -288,6 +288,9 @@ if(ENABLE_SQL_CNP)
 
     # Include paths for stencil compilation (same as JIT handlers)
     set(CNP_INCLUDE_FLAGS
+        -I${PROJECT_BINARY_DIR}/src
+        -I${PROJECT_BINARY_DIR}/src/box
+        -I${PROJECT_BINARY_DIR}/src/box/sql
         -I${PROJECT_SOURCE_DIR}/src
         -I${PROJECT_SOURCE_DIR}/src/lib
         -I${PROJECT_SOURCE_DIR}/src/lib/core
@@ -300,9 +303,6 @@ if(ENABLE_SQL_CNP)
         -I${PROJECT_SOURCE_DIR}/third_party/coro
         -I${PROJECT_SOURCE_DIR}/third_party/luajit/src
         -I${PROJECT_SOURCE_DIR}/third_party/xxHash
-        -I${PROJECT_BINARY_DIR}/src
-        -I${PROJECT_BINARY_DIR}/src/box
-        -I${PROJECT_BINARY_DIR}/src/box/sql
         -I${PROJECT_BINARY_DIR}/src/lib/small/small/include
         -I${PROJECT_BINARY_DIR}/third_party
         -I${PROJECT_BINARY_DIR}/third_party/luajit/src
@@ -349,7 +349,7 @@ if(ENABLE_SQL_CNP)
             ${CNP_INCLUDE_FLAGS}
             -c ${CNP_FRAGMENTS_C}
             -o ${CNP_FRAGMENTS_O}
-        DEPENDS ${CNP_FRAGMENTS_C}
+        DEPENDS ${CNP_FRAGMENTS_C} ${CNP_OPCODES_H}
         COMMENT "Compiling CnP fragment source to object file"
     )
 
@@ -629,7 +629,7 @@ if (VDBE_USE_GENERATED_DISPATCH)
 endif()
 
 if(ENABLE_SQL_CNP)
-    add_dependencies(box cnp_stencils)
+    add_dependencies(box cnp_stencils cnp_fragment_headers)
 endif()
 
 set(EXT_SRC_DIR ${PROJECT_SOURCE_DIR}/extra)
@@ -656,7 +656,7 @@ add_custom_command(
 
 add_custom_target(vdbe_codegen DEPENDS ${VDBE_GEN_C} ${VDBE_GEN_H})
 add_dependencies(vdbe_codegen generate_sql_files)
-include_directories(${SQL_SRC_DIR}/generated)
+include_directories(${VDBE_GEN_DIR})
 
 #
 # SQL JIT: Install bitcode files
