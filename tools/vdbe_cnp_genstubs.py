@@ -50,20 +50,6 @@ HANDLER_OVERRIDES = {
     "OP_TTransaction":    "vdbe_cnp_ttransaction_handler",
 }
 
-INLINE_IMPL_OVERRIDES = {
-    "OP_Integer": "vdbe_op_integer_impl",
-    "OP_Bool": "vdbe_op_bool_impl",
-    "OP_Int64": "vdbe_op_int64_impl",
-    "OP_Add": "vdbe_op_add_impl",
-    "OP_Subtract": "vdbe_op_sub_impl",
-    "OP_Multiply": "vdbe_op_multiply_impl",
-    "OP_Divide": "vdbe_op_divide_impl",
-    "OP_Remainder": "vdbe_op_remainder_impl",
-    "OP_BitAnd": "vdbe_op_bitand_impl",
-    "OP_BitOr": "vdbe_op_bitor_impl",
-    "OP_BitNot": "vdbe_op_bitnot_impl",
-}
-
 # Per-opcode stencil category:
 #   excluded     - no stencil (OP_Program)
 #   goto         - unconditional jump to HOLE_BRANCH (OP_Goto)
@@ -206,10 +192,8 @@ typedef void (*cnp_row_signal_t)(struct Vdbe *);
 static __attribute__((always_inline)) inline int64_t
 cnp_chain_or_ret(uint64_t target, struct Vdbe *p, Mem *aMem)
 {
-    if (target >= CNP_ADDR_THRESHOLD) {
-        cnp_stencil_func_t next = (cnp_stencil_func_t)(uintptr_t)target;
-        return next(p, aMem);
-    }
+    (void)p;
+    (void)aMem;
     return (int64_t)target;
 }
 
@@ -217,9 +201,6 @@ cnp_chain_or_ret(uint64_t target, struct Vdbe *p, Mem *aMem)
 
 
 def emit_call(name):
-    impl = INLINE_IMPL_OVERRIDES.get(name)
-    if impl is not None:
-        return f"    int rc = {impl}(p, (Op *)pOp, aMem);"
     return """\
     cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
     int rc = fn(p, pOp, aMem);"""
@@ -315,8 +296,7 @@ int64_t __attribute__((noinline))
 cnp_{name}(struct Vdbe *p, Mem *aMem)
 {{
     struct VdbeOp *pOp = (struct VdbeOp *)(uintptr_t)LOAD_HOLE(HOLE_OP);
-    cnp_handler_fn_t fn = (cnp_handler_fn_t)(uintptr_t)LOAD_HOLE(HOLE_HANDLER);
-    int rc = fn(p, pOp, aMem);
+{emit_call(name)}
     if (rc < 0) return (int64_t)LOAD_HOLE(HOLE_ERROR_EXIT);
     if (rc == 1) return cnp_chain_or_ret(LOAD_HOLE(HOLE_BRANCH), p, aMem);
     if (rc == 2) return (int64_t)LOAD_HOLE(HOLE_SKIP2);
