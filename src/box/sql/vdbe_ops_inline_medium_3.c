@@ -75,8 +75,12 @@ vdbe_op_savepoint_inline(Vdbe *p, Op *pOp, Mem *aMem)
 	zName = pOp->p4.z;
 
 	/* Validate savepoint operation type */
-	assert(p1 == SAVEPOINT_BEGIN || p1 == SAVEPOINT_RELEASE ||
-	       p1 == SAVEPOINT_ROLLBACK);
+	if (p1 != SAVEPOINT_BEGIN && p1 != SAVEPOINT_RELEASE &&
+	    p1 != SAVEPOINT_ROLLBACK) {
+		diag_set(ClientError, ER_SQL_EXECUTE,
+			 "invalid savepoint operation");
+		return -1;
+	}
 	assert(rlist_empty(&txn->savepoints) || box_txn());
 
 	if (p1 == SAVEPOINT_BEGIN) {

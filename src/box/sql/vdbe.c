@@ -73,9 +73,9 @@
  * We use computed-goto-based dispatch only within compilers supporting goto by
  * pointer label.
  */
-#ifdef HAVE_COMPUTED_GOTO
+#if defined(HAVE_COMPUTED_GOTO) && !defined(VDBE_USE_GENERATED_DISPATCH)
 #define SQL_USE_GOTO
-#endif	/* HAVE_COMPUTED_GOTO */
+#endif	/* HAVE_COMPUTED_GOTO && !VDBE_USE_GENERATED_DISPATCH */
 
 #ifdef SQL_DEBUG
 
@@ -2214,8 +2214,12 @@ EXECUTE(OP_Savepoint,(P1,P3,P4)): {
 	 * transaction, then there cannot be any savepoints.
 	 */
 	assert(rlist_empty(&txn->savepoints) || box_txn());
-	assert(p1 == SAVEPOINT_BEGIN || p1 == SAVEPOINT_RELEASE ||
-		p1 == SAVEPOINT_ROLLBACK);
+	if (p1 != SAVEPOINT_BEGIN && p1 != SAVEPOINT_RELEASE &&
+	    p1 != SAVEPOINT_ROLLBACK) {
+		diag_set(ClientError, ER_SQL_EXECUTE,
+			 "invalid savepoint operation");
+		goto abort_due_to_error;
+	}
 
 	if (p1 == SAVEPOINT_BEGIN) {
 		/*
@@ -3985,7 +3989,7 @@ vdbe_return:
 	/* Jump to here if a string or blob larger than SQL_MAX_LENGTH
 	 * is encountered.
 	 */
-too_big: __attribute__((unused));
+	too_big: __attribute__((unused));
 	diag_set(ClientError, ER_SQL_EXECUTE, "string or blob too big");
 	goto abort_due_to_error;
 }

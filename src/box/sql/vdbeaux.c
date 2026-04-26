@@ -52,6 +52,199 @@
 #include "vdbe_cnp.h"
 #endif
 
+static char *displayP4(Op *pOp, char *zTemp, int nTemp);
+static int displayComment(const Op *pOp, const char *zP4, char *zTemp,
+			    int nTemp);
+
+static int
+vdbe_explain_row_count(const char *text)
+{
+	if (text == NULL || text[0] == '\0')
+		return 0;
+	int count = 0;
+	for (const char *p = text; *p != '\0'; ++p) {
+		if (*p == '\n')
+			++count;
+	}
+	return count;
+}
+
+static const char *
+vdbe_explain_row_at(const char *text, int row, int *len)
+{
+	const char *line = text;
+	for (int i = 0; i < row; ++i) {
+		line = strchr(line, '\n');
+		if (line == NULL) {
+			*len = 0;
+			return NULL;
+		}
+		++line;
+	}
+	const char *end = strchr(line, '\n');
+	if (end == NULL)
+		end = line + strlen(line);
+	*len = (int)(end - line);
+	return line;
+}
+
+static void
+vdbe_explain_append_row(StrAccum *acc, const char *section, const char *addr,
+			  const char *detail)
+{
+	sqlXPrintf(acc, "%s\t%s\t%s\n", section, addr != NULL ? addr : "",
+		   detail != NULL ? detail : "");
+}
+
+static void
+vdbe_explain_append_bytecode(StrAccum *acc, Vdbe *p)
+{
+	for (int i = 0; i < p->nOp; ++i) {
+		Op *pOp = &p->aOp[i];
+		char addr_buf[32];
+		char p4_buf[256];
+		char detail_buf[768];
+		char *zP4 = displayP4(pOp, p4_buf, sizeof(p4_buf));
+		const char *comment = "";
+#ifdef SQL_ENABLE_EXPLAIN_COMMENTS
+		char comment_buf[500];
+		displayComment(pOp, zP4, comment_buf, sizeof(comment_buf));
+		comment = comment_buf;
+#endif
+		sql_snprintf(sizeof(addr_buf), addr_buf, "%d", i);
+		sql_snprintf(sizeof(detail_buf), detail_buf,
+			     "%-16s %d %d %d %s %02x%s%s",
+			     sqlOpcodeName(pOp->opcode), pOp->p1, pOp->p2,
+			     pOp->p3, zP4, pOp->p5,
+			     comment[0] != '\0' ? " ; " : "", comment);
+		vdbe_explain_append_row(acc, "bytecode", addr_buf, detail_buf);
+	}
+}
+
+#ifdef ENABLE_SQL_CNP
+static const char *
+vdbe_explain_strip_prefix(const char *zSql)
+{
+	const char *z = zSql;
+	while (*z == ' ' || *z == '\t' || *z == '\n' || *z == '\r')
+		++z;
+	if (sqlStrNICmp(z, "explain", 7) != 0)
+		return zSql;
+	z += 7;
+	while (*z == ' ' || *z == '\t' || *z == '\n' || *z == '\r')
+		++z;
+	if (*z == '(') {
+		int depth = 1;
+		++z;
+		while (*z != '\0' && depth > 0) {
+			if (*z == '(') {
+				++depth;
+			} else if (*z == ')') {
+				--depth;
+			}
+			++z;
+		}
+		while (*z == ' ' || *z == '\t' || *z == '\n' || *z == '\r')
+			++z;
+		return z;
+	}
+	if (sqlStrNICmp(z, "query plan", 10) == 0) {
+		z += 10;
+		while (*z == ' ' || *z == '\t' || *z == '\n' || *z == '\r')
+			++z;
+		return z;
+	}
+	return zSql;
+}
+
+static void
+vdbe_explain_append_cnp_disassembly(StrAccum *acc, Vdbe *p)
+{
+	char *disasm = NULL;
+	const char *zSql = sql_sql(p);
+	Vdbe *pTmp = NULL;
+	if (zSql != NULL) {
+		const char *zStmt = vdbe_explain_strip_prefix(zSql);
+		if (zStmt != NULL && *zStmt != '\0' &&
+		    sql_stmt_compile(zStmt, -1, NULL, &pTmp, NULL,
+				    p->is_prepared_stmt) == 0 &&
+		    pTmp != NULL) {
+			if (vdbe_cnp_disassemble(pTmp, &disasm) != 0 ||
+			    disasm == NULL) {
+				disasm = NULL;
+			}
+		}
+	}
+	if (pTmp != NULL)
+		sqlVdbeFinalize(pTmp);
+	if (disasm == NULL) {
+		vdbe_explain_append_row(acc, "disassembly", NULL,
+					"CnP disassembly is unavailable");
+		return;
+	}
+
+	for (char *line = disasm, *next = NULL; line != NULL; line = next) {
+		next = strchr(line, '\n');
+		if (next != NULL)
+			*next++ = '\0';
+		while (*line == ' ' || *line == '\t')
+			++line;
+		if (*line == '\0')
+			continue;
+		if (strstr(line, "file format") != NULL ||
+		    strstr(line, "Disassembly of section") != NULL)
+			continue;
+
+		char *colon = strchr(line, ':');
+		if (colon == NULL)
+			continue;
+		bool is_hex = true;
+		for (char *pcur = line; pcur < colon; ++pcur) {
+			if (!sqlIsxdigit(*pcur)) {
+				is_hex = false;
+				break;
+			}
+		}
+		if (!is_hex)
+			continue;
+
+		*colon = '\0';
+		char *detail = colon + 1;
+		while (*detail == ' ' || *detail == '\t')
+			++detail;
+		if (*detail == '\0' || *detail == '<')
+			continue;
+		vdbe_explain_append_row(acc, "disassembly", line, detail);
+	}
+	sql_xfree(disasm);
+}
+#else
+static void
+vdbe_explain_append_cnp_disassembly(StrAccum *acc, Vdbe *p)
+{
+	(void)p;
+	vdbe_explain_append_row(acc, "disassembly", NULL,
+				"CnP support is not compiled in");
+}
+#endif
+
+static int
+vdbe_explain_build_text(Vdbe *p)
+{
+	char zBase[512];
+	StrAccum acc;
+	sqlStrAccumInit(&acc, zBase, sizeof(zBase), SQL_MAX_LENGTH);
+	if ((p->explain_flags & SQL_EXPLAIN_BYTECODE) != 0)
+		vdbe_explain_append_bytecode(&acc, p);
+	if ((p->explain_flags & SQL_EXPLAIN_DISASSEMBLE) != 0)
+		vdbe_explain_append_cnp_disassembly(&acc, p);
+	p->explain_text = sqlStrAccumFinish(&acc);
+	if (p->explain_text == NULL)
+		return -1;
+	p->explain_row_count = vdbe_explain_row_count(p->explain_text);
+	return 0;
+}
+
 /*
  * Create a new virtual database engine.
  */
@@ -1150,6 +1343,53 @@ sqlVdbeFrameDelete(VdbeFrame * p)
 int
 sqlVdbeList(Vdbe * p)
 {
+	if ((p->explain_flags & SQL_EXPLAIN_DISASSEMBLE) != 0) {
+		Mem *pMem = &p->aMem[1];
+		releaseMemArray(pMem, 3);
+		p->pResultSet = 0;
+		if (p->explain_text == NULL && vdbe_explain_build_text(p) != 0)
+			return -1;
+		if (p->pc >= p->explain_row_count)
+			return SQL_DONE;
+
+		int row_len = 0;
+		const char *row = vdbe_explain_row_at(p->explain_text, p->pc++,
+						      &row_len);
+		if (row == NULL)
+			return SQL_DONE;
+
+		const char *first_tab = memchr(row, '\t', row_len);
+		if (first_tab == NULL)
+			return -1;
+		const char *second_tab = memchr(first_tab + 1, '\t',
+						row_len - (int)(first_tab + 1 - row));
+		if (second_tab == NULL)
+			return -1;
+
+		mem_set_str_allocated(pMem, sql_xstrndup(row, first_tab - row),
+				      first_tab - row);
+		++pMem;
+
+		if (second_tab == first_tab + 1) {
+			mem_set_null(pMem);
+		} else {
+			char *addr = sql_xstrndup(first_tab + 1,
+						  second_tab - first_tab - 1);
+			uint64_t value = strtoull(addr, NULL, 16);
+			mem_set_uint(pMem, value);
+			sql_xfree(addr);
+		}
+		++pMem;
+
+		mem_set_str_allocated(pMem,
+				      sql_xstrndup(second_tab + 1,
+						   row_len - (int)(second_tab + 1 - row)),
+				      row_len - (int)(second_tab + 1 - row));
+		p->nResColumn = 3;
+		p->pResultSet = &p->aMem[1];
+		return SQL_ROW;
+	}
+
 	int nRow;		/* Stop when row count reaches this */
 	int nSub = 0;		/* Number of sub-vdbes seen so far */
 	SubProgram **apSub = 0;	/* Array of sub-vdbes */
@@ -1485,6 +1725,7 @@ sqlVdbeMakeReady(Vdbe * p,	/* The VDBE */
 	p->pVList = pParse->pVList;
 	pParse->pVList = 0;
 	p->explain = pParse->explain;
+	p->explain_flags = pParse->explain_flags;
 	p->nCursor = nCursor;
 	p->nVar = nVar;
 	p->is_prepared_stmt = pParse->is_prepared_stmt;
@@ -2128,6 +2369,7 @@ sqlVdbeClearObject(struct Vdbe *p)
 		sql_xfree(p->pFree);
 	}
 	vdbeFreeOpArray(p->aOp, p->nOp);
+	sql_xfree(p->explain_text);
 	sql_xfree(p->zSql);
 }
 

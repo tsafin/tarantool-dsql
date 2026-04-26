@@ -558,6 +558,8 @@ sqlRunParser(Parse * pParse, const char *zSql)
 				tokenType = TK_SEMI;
 			}
 		}
+		if (tokenType == TK_SEMI && zSql[i] != 0)
+			pParse->stmt_complete = true;
 		if (tokenType >= TK_SPACE) {
 			assert(tokenType == TK_SPACE
 			       || tokenType == TK_ILLEGAL);
@@ -582,7 +584,8 @@ sqlRunParser(Parse * pParse, const char *zSql)
 		}
 		pParse->line_pos += pParse->sLastToken.n;
 	}
-	sql_code_ast(pParse, &pParse->ast);
+	if (!pParse->is_aborted)
+		sql_code_ast(pParse, &pParse->ast);
 	pParse->zTail = &zSql[i];
 	sqlParserFree(pEngine, free);
 	if (pParse->pVdbe != NULL && pParse->is_aborted) {
