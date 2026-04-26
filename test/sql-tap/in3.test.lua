@@ -480,4 +480,3 @@ test:do_catchsql_test(
     })
 
 test:finish_test()
-

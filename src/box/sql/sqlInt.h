@@ -258,6 +258,11 @@ struct sql_vfs {
  * standard, cast specification 6.13, general rules 11.e.
  */
 #define SQL_TOKEN_TRUE "TRUE"
+
+enum sql_explain_flags {
+	SQL_EXPLAIN_BYTECODE = 1 << 0,
+	SQL_EXPLAIN_DISASSEMBLE = 1 << 1,
+};
 #define SQL_TOKEN_FALSE "FALSE"
 #define SQL_TOKEN_BOOLEAN(v) ({(v) ? SQL_TOKEN_TRUE : SQL_TOKEN_FALSE;})
 
@@ -2051,6 +2056,8 @@ struct Parse {
 	int line_pos;
 	ynVar nVar;		/* Number of '?' variables seen in the SQL so far */
 	u8 explain;		/* True if the EXPLAIN flag is found on the query */
+	u8 explain_flags;	/* Requested EXPLAIN(...) modifiers */
+	bool stmt_complete;	/* True if a full statement was reduced. */
 	int nHeight;		/* Expression tree height of current sub-select */
 	int iSelectId;		/* ID of current select for EXPLAIN output */
 	int iNextSelectId;	/* Next available select ID for EXPLAIN output */

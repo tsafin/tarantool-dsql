@@ -41,6 +41,13 @@ int
 vdbe_cnp_exec(struct Vdbe *p);
 
 /**
+ * Return a textual disassembly of the compiled CnP program.
+ * The caller owns *out on success.
+ */
+int
+vdbe_cnp_disassemble(struct Vdbe *p, char **out);
+
+/**
  * Release the mmap'd code buffer.
  */
 void

@@ -303,8 +303,11 @@ struct Vdbe {
 	bft is_prepared_stmt : 1;
 	/** Stable statement hash derived from the original SQL text. */
 	uint32_t stmt_id;
+	u8 explain_flags;	/* Requested EXPLAIN(...) modifiers */
 	char *zSql;		/* Text of the SQL statement that generated this */
 	void *pFree;		/* Free this when deleting the vdbe */
+	char *explain_text;	/* Cached row-oriented EXPLAIN text */
+	int explain_row_count;	/* Number of rows in explain_text */
 	VdbeFrame *pFrame;	/* Parent frame */
 	VdbeFrame *pDelFrame;	/* List of frame objects to free on VM reset */
 	int nFrame;		/* Number of frames in pFrame list */

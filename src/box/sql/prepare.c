@@ -98,6 +98,17 @@ sql_stmt_compile(const char *zSql, int nBytes, struct Vdbe *pReprepare,
 	if (pzTail) {
 		*pzTail = sParse.zTail;
 	}
+	if (sParse.is_aborted && sParse.stmt_complete) {
+		struct error *e = diag_last_error(diag_get());
+		if (e != NULL && e->code == ER_SQL_SYNTAX_NEAR_TOKEN &&
+		    sParse.sLastToken.isReserved) {
+			diag_clear(diag_get());
+			diag_set(ClientError, ER_SQL_KEYWORD_IS_RESERVED,
+				 sParse.line_count, sParse.line_pos,
+				 sParse.sLastToken.n, sParse.sLastToken.z,
+				 sParse.sLastToken.n, sParse.sLastToken.z);
+		}
+	}
 	if (sParse.is_aborted)
 		rc = -1;
 
@@ -127,12 +138,21 @@ sql_stmt_compile(const char *zSql, int nBytes, struct Vdbe *pReprepare,
 			/* 21 */ "integer",
 			/* 22 */ "detail",
 			/* 23 */ "text",
+			/* 24 */ "section",
+			/* 25 */ "text",
+			/* 26 */ "addr",
+			/* 27 */ "integer",
+			/* 28 */ "detail",
+			/* 29 */ "text",
 		};
 
 		int name_first, name_count;
 		if (sParse.explain == 2) {
 			name_first = 16;
 			name_count = 4;
+		} else if ((sParse.explain_flags & SQL_EXPLAIN_DISASSEMBLE) != 0) {
+			name_first = 24;
+			name_count = 3;
 		} else {
 			name_first = 0;
 			name_count = 8;

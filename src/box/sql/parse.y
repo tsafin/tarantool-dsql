@@ -49,6 +49,7 @@
 // The name of the generated procedure that implements the parser
 // is as follows:
 %name sqlParser
+%start_symbol input
 
 // The following text is included near the beginning of the C source
 // code file that implements the parser.
@@ -104,19 +105,61 @@ static void disableLookaside(Parse *pParse){
   sql_get()->lookaside.bDisable++;
 }
 
-} // end %include
-
-// Input is a single SQL command
-input ::= ecmd.
-ecmd ::= explain cmdx SEMI.
-ecmd ::= SEMI. {
-  diag_set(ClientError, ER_SQL_STATEMENT_EMPTY);
-  pParse->is_aborted = true;
+static int
+sql_parse_bool_option(Parse *pParse, const Token *token, int *value)
+{
+	char *name = sql_name_from_token(token);
+	if (name == NULL) {
+		pParse->is_aborted = true;
+		return -1;
+	}
+	if (sqlStrICmp(name, "true") == 0 || sqlStrICmp(name, "yes") == 0 ||
+	    sqlStrICmp(name, "on") == 0 || sqlStrICmp(name, "1") == 0) {
+		*value = 1;
+	} else if (sqlStrICmp(name, "false") == 0 ||
+		   sqlStrICmp(name, "no") == 0 ||
+		   sqlStrICmp(name, "off") == 0 ||
+		   sqlStrICmp(name, "0") == 0) {
+		*value = 0;
+	} else {
+		diag_set(ClientError, ER_SQL_EXECUTE,
+			 "invalid EXPLAIN option value");
+		sql_xfree(name);
+		pParse->is_aborted = true;
+		return -1;
+	}
+	sql_xfree(name);
+	return 0;
 }
-explain ::= .
-explain ::= EXPLAIN.              { pParse->explain = 1; }
-explain ::= EXPLAIN QUERY PLAN.   { pParse->explain = 2; }
-cmdx ::= cmd.
+
+static void
+sql_set_explain_option(Parse *pParse, int *flags, const Token *name_token,
+			 int value)
+{
+	char *name = sql_name_from_token(name_token);
+	if (name == NULL) {
+		pParse->is_aborted = true;
+		return;
+	}
+	if (sqlStrICmp(name, "bytecode") == 0) {
+		if (value)
+			*flags |= SQL_EXPLAIN_BYTECODE;
+		else
+			*flags &= ~SQL_EXPLAIN_BYTECODE;
+	} else if (sqlStrICmp(name, "disassemble") == 0) {
+		if (value)
+			*flags |= SQL_EXPLAIN_DISASSEMBLE;
+		else
+			*flags &= ~SQL_EXPLAIN_DISASSEMBLE;
+	} else {
+		diag_set(ClientError, ER_SQL_EXECUTE,
+			 "unknown EXPLAIN option");
+		pParse->is_aborted = true;
+	}
+	sql_xfree(name);
+}
+
+} // end %include
 
 // Define operator precedence early so that this is the first occurrence
 // of the operator tokens in the grammer.  Keeping the operators together
@@ -1853,3 +1896,41 @@ number_typedef(A) ::= DECIMAL . { A.type = FIELD_TYPE_DECIMAL; }
  *   (void) C;
  *}
  */
+
+// Input is a single SQL command
+input ::= ecmd.
+ecmd ::= explain cmdx SEMI.
+ecmd ::= SEMI. {
+  diag_set(ClientError, ER_SQL_STATEMENT_EMPTY);
+  pParse->is_aborted = true;
+}
+explain ::= .
+explain ::= EXPLAIN LP explain_opt_list(X) RP. {
+  if (X == 0) {
+    diag_set(ClientError, ER_SQL_EXECUTE,
+             "EXPLAIN() requires at least one enabled option");
+    pParse->is_aborted = true;
+  } else {
+    pParse->explain = 1;
+    pParse->explain_flags = (u8)X;
+  }
+}
+explain ::= EXPLAIN. { pParse->explain = 1; }
+explain ::= EXPLAIN QUERY PLAN.   { pParse->explain = 2; }
+%type explain_opt_list {int}
+%type explain_opt_value {int}
+explain_opt_list(A) ::= explain_opt_list(A) COMMA nm(X) EQ explain_opt_value(Y). {
+  sql_set_explain_option(pParse, &A, &X, Y);
+}
+explain_opt_list(A) ::= nm(X) EQ explain_opt_value(Y). {
+  A = 0;
+  sql_set_explain_option(pParse, &A, &X, Y);
+}
+explain_opt_value(A) ::= TRUE.  { A = 1; }
+explain_opt_value(A) ::= FALSE. { A = 0; }
+explain_opt_value(A) ::= nm(X). {
+  A = 0;
+  if (sql_parse_bool_option(pParse, &X, &A) != 0)
+    return;
+}
+cmdx ::= cmd.

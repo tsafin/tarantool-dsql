@@ -1,5 +1,7 @@
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/src/box/lua)
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/src/box/sql)
+set(SQL_SRC_DIR ${PROJECT_SOURCE_DIR}/src/box/sql)
+set(SQL_BIN_DIR ${PROJECT_BINARY_DIR}/src/box/sql)
 
 # Sometimes 'spying' code is not acceptable even if it would be
 # disabled by default. That option allows to remove the feedback
@@ -96,8 +98,8 @@ if (CC_HAS_COMPUTED_GOTO)
 endif()
 
 set(sql_sources
-    sql/opcodes.c
-    sql/parse.c
+    ${SQL_BIN_DIR}/opcodes.c
+    ${SQL_BIN_DIR}/parse.c
     sql/alter.c
     sql/cursor.c
     sql/build.c
@@ -632,11 +634,9 @@ endif()
 
 set(EXT_SRC_DIR ${PROJECT_SOURCE_DIR}/extra)
 set(EXT_BIN_DIR ${PROJECT_BINARY_DIR}/extra)
-set(SQL_SRC_DIR ${PROJECT_SOURCE_DIR}/src/box/sql)
-set(SQL_BIN_DIR ${PROJECT_BINARY_DIR}/src/box/sql)
 
-include_directories(${SQL_SRC_DIR})
 include_directories(${SQL_BIN_DIR})
+include_directories(${SQL_SRC_DIR})
 set(VDBE_DSL ${PROJECT_SOURCE_DIR}/tools/vdbe_dsl/opcodes.yaml)
 set(VDBE_CODEGEN ${PROJECT_SOURCE_DIR}/tools/vdbe_codegen.py)
 set(VDBE_GEN_DIR ${SQL_BIN_DIR}/generated)
@@ -671,13 +671,13 @@ endif()
 # list(APPEND sql_sources ${VDBE_GEN_C})
 
 add_custom_target(generate_sql_files DEPENDS
-    sql/parse.h
-    sql/keywordhash.h
-    sql/dispatchtable.h
+    ${SQL_BIN_DIR}/parse.h
+    ${SQL_BIN_DIR}/keywordhash.h
+    ${SQL_BIN_DIR}/dispatchtable.h
     sql/parse.y
-    sql/parse.c
-    sql/opcodes.h
-    sql/opcodes.c)
+    ${SQL_BIN_DIR}/parse.c
+    ${SQL_BIN_DIR}/opcodes.h
+    ${SQL_BIN_DIR}/opcodes.c)
 
 add_custom_command(OUTPUT ${SQL_BIN_DIR}/keywordhash.h
     COMMAND ${EXT_BIN_DIR}/mkkeywordhash > keywordhash.h.tmp
