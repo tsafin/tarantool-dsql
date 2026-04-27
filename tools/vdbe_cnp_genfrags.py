@@ -183,40 +183,16 @@ HEADER = """\
 #include "vdbe_ops.h"
 #include "vdbe_ops_cnp_impl.h"
 
-enum cnp_fragment_kind {
-    CNP_FRAG_NONE = 0,
-    CNP_FRAG_FALLTHROUGH = 1,
-    CNP_FRAG_JUMP_P2 = 2,
-    CNP_FRAG_ROW = 3,
-    CNP_FRAG_TERMINAL = 4,
-};
-
-struct cnp_fragment_entry {
-    int opcode;
-    uint32_t begin_offset;
-    uint32_t dispatch_offset;
-    uint32_t transfer_offset;
-    uint32_t end_offset;
-    int kind;
-    int tail_fallthrough;
-};
-
-extern struct Vdbe *cnp_frag_get_p(void);
-extern VdbeOp *cnp_frag_get_aOp(void);
-extern VdbeOp *cnp_frag_get_pOp(void);
-extern Mem *cnp_frag_get_aMem(void);
 extern void **cnp_frag_get_dispatch_table(void);
-static volatile int cnp_fragment_probe_opcode = -1;
+extern char cnp_frag_base_label[];
 
-__attribute__((noinline, used))
-const struct cnp_fragment_entry *
-cnp_fragment_entries(size_t *count)
+typedef int64_t cnp_frag_exec_func_t(struct Vdbe *, VdbeOp *, VdbeOp *, Mem *)
+    __attribute__((preserve_none));
+
+__attribute__((preserve_none, noinline, used))
+int64_t
+cnp_fragment_entry(struct Vdbe *p, VdbeOp *aOp, VdbeOp *pOp, Mem *aMem)
 {
-    static const struct cnp_fragment_entry entries[] = {
-__ENTRIES__
-    };
-
-    goto cnp_fragment_metadata;
 """
 
 FOOTER = """\
@@ -224,22 +200,8 @@ cnp_fragment_base:
     __asm__ __volatile__(".globl cnp_frag_base_label\\n\\t"
                          "cnp_frag_base_label:");
 
-    /*
-     * Reload live-ins once per native entry. This keeps hot opcode bodies free
-     * from getter calls while avoiding direct extern-global accesses inside the
-     * extracted fragments.
-     */
-    Vdbe *p;
-    VdbeOp *aOp;
-    VdbeOp *pOp;
-    Mem *aMem;
-    void **dispatch_table;
-
-    p = cnp_frag_get_p();
-    aOp = cnp_frag_get_aOp();
-    pOp = cnp_frag_get_pOp();
-    aMem = cnp_frag_get_aMem();
-    dispatch_table = cnp_frag_get_dispatch_table();
+    void **dispatch_table = cnp_frag_get_dispatch_table();
+    __asm__ volatile ("mov %0, -16(%%rbp)" :: "r"(pOp) : "memory");
     __asm__ volatile ("jmpq *%0"
                       :: "r"(dispatch_table[(size_t)(pOp - aOp)]));
 
@@ -251,8 +213,19 @@ cnp_fragment_base:
     __asm__ volatile ("jmp cnp_frag_jump_p2_label");           \\
 } while (0)
 
+#define LOAD_POP() do {                                        \\
+    __asm__ volatile ("mov -16(%%rbp), %0"                     \\
+                      : "=r"(pOp) :: "memory");                \\
+} while (0)
+
+#define STORE_POP() do {                                       \\
+    __asm__ volatile ("mov %0, -16(%%rbp)"                     \\
+                      :: "r"(pOp) : "memory");                 \\
+} while (0)
+
 #define JUMP_P2() do {                                         \\
     pOp = &aOp[pOp->p2];                                       \\
+    STORE_POP();                                               \\
     JMP_P2();                                                  \\
 } while (0)
 
@@ -283,44 +256,19 @@ __LABELS__
 
 #undef GOTO_DONE
 #undef GOTO_ROW
-#undef GOTO_ERROR
-#undef JMP_P2
-#undef JMP_FALLTHROUGH
-#undef JUMP_P2
-
-cnp_fragment_metadata:
-    if (count != NULL)
-        *count = sizeof(entries) / sizeof(entries[0]);
-
-__PROBE_CASES__
-    return entries;
+ #undef GOTO_ERROR
+ #undef JMP_P2
+ #undef JMP_FALLTHROUGH
+ #undef JUMP_P2
+ #undef STORE_POP
+ #undef LOAD_POP
+    __builtin_unreachable();
 }
+
 """
 
 
 def generate(output_path: str) -> None:
-    entry_lines = []
-    for frag in PILOT_FRAGMENTS:
-        entry_lines.append(
-            "        { %s, "
-            "(uint32_t)((uintptr_t)&&%s_begin - (uintptr_t)&&cnp_fragment_base), "
-            "(uint32_t)((uintptr_t)&&%s_dispatch - (uintptr_t)&&cnp_fragment_base), "
-            "(uint32_t)((uintptr_t)&&%s_transfer - (uintptr_t)&&cnp_fragment_base), "
-            "(uint32_t)((uintptr_t)&&%s_end - (uintptr_t)&&cnp_fragment_base), %s, %d },"
-            % (frag["name"], frag["name"], frag["name"], frag["name"],
-               frag["name"], frag["kind"], 1 if frag["tail_fallthrough"] else 0)
-        )
-
-    probe_cases = []
-    probe_cases.append(
-        "    if (cnp_fragment_probe_opcode == -2) goto cnp_fragment_base;"
-    )
-    for frag in PILOT_FRAGMENTS:
-        probe_cases.append(
-            f"    if (cnp_fragment_probe_opcode == {frag['name']}) "
-            f"goto {frag['name']}_begin;"
-        )
-
     label_blocks = []
     for frag in PILOT_FRAGMENTS:
         body = frag["body"]
@@ -330,21 +278,39 @@ def generate(output_path: str) -> None:
         dispatch_prep = frag["dispatch_prep"]
         dispatch_prep_block = ""
         if dispatch_prep:
-            dispatch_prep_block = "    " + dispatch_prep.replace("\n", "\n    ") + "\n"
+            dispatch_prep_block = (
+                "    " + dispatch_prep.replace("\n", "\n    ") + "\n"
+                '    __asm__ __volatile__("" : "+r"(pOp));\n'
+            )
         label_blocks.append(
             f"""{frag["name"]}_begin:
+    __asm__ __volatile__(".globl cnp_frag_sym_{frag["name"]}_begin\\n\\t"
+                         "cnp_frag_sym_{frag["name"]}_begin:");
+    LOAD_POP();
 {body_block}{frag["name"]}_dispatch:
-{dispatch_prep_block}{frag["name"]}_transfer:
+    __asm__ __volatile__(".globl cnp_frag_sym_{frag["name"]}_dispatch\\n\\t"
+                         "cnp_frag_sym_{frag["name"]}_dispatch:");
+{dispatch_prep_block}    STORE_POP();
+{frag["name"]}_transfer:
+    __asm__ __volatile__(".globl cnp_frag_sym_{frag["name"]}_transfer\\n\\t"
+                         "cnp_frag_sym_{frag["name"]}_transfer:");
     {frag["dispatch_transfer"]}
 {frag["name"]}_end:
+    __asm__ __volatile__(".globl cnp_frag_sym_{frag["name"]}_end\\n\\t"
+                         "cnp_frag_sym_{frag["name"]}_end:");
     __asm__ volatile("" ::: "memory");
 """
         )
 
-    text = HEADER.replace("__ENTRIES__", "\n".join(entry_lines))
-    text += FOOTER.replace("__LABELS__", "\n".join(label_blocks)).replace(
-        "__PROBE_CASES__", "\n".join(probe_cases)
-    )
+    extern_lines = []
+    for frag in PILOT_FRAGMENTS:
+        for suffix in ("begin", "dispatch", "transfer", "end"):
+            extern_lines.append(
+                f"extern char cnp_frag_sym_{frag['name']}_{suffix}[];"
+            )
+
+    text = HEADER + "\n".join(extern_lines) + "\n"
+    text += FOOTER.replace("__LABELS__", "\n".join(label_blocks))
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:

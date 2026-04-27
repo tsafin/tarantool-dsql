@@ -262,10 +262,11 @@ endif()
 # SQL Copy-and-Patch: Build-time stencil extraction pipeline
 #
 if(ENABLE_SQL_CNP)
-    # Require clang-16+ for stencil compilation
-    find_program(CLANG_CNP clang-16 clang)
+    # Require clang-19+ for preserve_none-based CnP compilation
+    unset(CLANG_CNP CACHE)
+    find_program(CLANG_CNP clang-19 REQUIRED)
     if(NOT CLANG_CNP)
-        message(FATAL_ERROR "ENABLE_SQL_CNP requires clang-16 (or clang)")
+        message(FATAL_ERROR "ENABLE_SQL_CNP requires clang-19")
     endif()
     message(STATUS "SQL CnP: Using ${CLANG_CNP} for stencil compilation")
 
@@ -355,6 +356,7 @@ if(ENABLE_SQL_CNP)
         OUTPUT ${CNP_FRAGMENTS_O}
         COMMAND ${CLANG_CNP}
             -O2 -fno-pic -fno-asynchronous-unwind-tables -fno-stack-protector
+            -mcmodel=large
             -fno-omit-frame-pointer
             -D_GNU_SOURCE
             ${CNP_COMPILE_DEFS}

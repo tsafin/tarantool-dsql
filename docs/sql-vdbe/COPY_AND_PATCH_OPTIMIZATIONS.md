@@ -541,6 +541,118 @@ This is the first design that can plausibly outperform the threaded
 interpreter on tiny and arithmetic-heavy VDBE programs without introducing a
 custom ABI.
 
+## 10.1 Clang 19 internal ABI direction: `preserve_none` and `musttail`
+
+The current paper-style fragment pilot is now correct on `hot_expr`, but the
+remaining gap against the generated interpreter suggests that the next step
+should be an explicit internal ABI for native execution rather than more
+incremental getter/prologue tweaks.
+
+Recent evaluation of CPython's JIT work is relevant here. CPython moved away
+from an LLVM IR rewrite for `ghccc` and now uses Clang-supported attributes:
+
+- `__attribute__((preserve_none))`
+- `__attribute__((musttail))`
+
+That combination gives CPython a compiler-supported internal continuation ABI:
+
+- arguments live in callee-saved registers instead of the normal SysV argument
+  registers,
+- tail transitions are guaranteed rather than left to normal optimization,
+- the JIT can chain native targets without accumulating stack frames.
+
+Local testing with `clang-19` confirms that `preserve_none` is now available on
+our x86_64 Linux environment. For a simple integer test, Clang 19 placed
+arguments in callee-saved registers (`r12`, `r13`, `r14`, `r15`) rather than in
+the ordinary SysV argument registers. That makes it a realistic foundation for
+an explicit CnP live-in ABI.
+
+### Proposed internal register contract
+
+For the first serious ABI-controlled prototype, the natural live-ins are:
+
+- `r12 = p`
+- `r13 = aOp`
+- `r14 = pOp`
+- `r15 = aMem`
+
+The exact mapping may still change, but the principle is important:
+
+- native CnP execution should enter once through a small normal-C shim,
+- the hot path should then run under a stable internal ABI with fixed live-ins,
+- row/done/error exits should be explicit boundaries back to ordinary C,
+- straight-line opcode chains should not reload these values through helper
+  getters or rediscover them from stack slots on every native entry.
+
+This is much closer to the intended copy-and-patch model than the current
+getter-based fragment prologue.
+
+### What `preserve_none` solves
+
+`preserve_none` is useful because it gives the compiler a stable function ABI
+for internal native targets:
+
+- entry shims,
+- continuation functions,
+- row/done/error bridges,
+- possibly PC-jump helpers.
+
+This is especially attractive for resume-heavy paths because it can make the
+native continuation ABI explicit without relying on fragile compiler accidents
+inside one large extracted object.
+
+### What `preserve_none` does not solve by itself
+
+`preserve_none` is still a function calling convention. By itself it does **not**
+guarantee that arbitrary copied labels cut from a compiled function body can be
+treated as independently valid fragment entries with the same stable live-ins.
+
+That distinction matters for our paper-style stitched fragments:
+
+- copied basic blocks with patched direct edges want explicit ownership of the
+  live-in register contract,
+- arbitrary extracted labels still depend on how the compiler shaped the
+  surrounding function.
+
+So `preserve_none` should be viewed as a strong tool for building a controlled
+internal ABI, but not as a magical replacement for explicit fragment-ABI
+design.
+
+### Role of `musttail`
+
+`musttail` is valuable, but mainly for function-shaped continuation boundaries.
+
+It is a good fit for:
+
+- row resume continuations,
+- done/error exits that re-enter native code,
+- explicit continuation trampolines,
+- temporary function-per-fragment experiments built around one internal ABI.
+
+It is less central for the final copied-fragment hot path itself, because a
+stitched fragment layout already prefers:
+
+- physical fallthrough for straight-line execution,
+- direct patched jumps for internal control-flow edges.
+
+For that final hot path, a patched local `jmp` is simpler and cheaper than a
+function boundary, even a guaranteed tail-call one.
+
+So the near-term mixed model should be:
+
+1. use `preserve_none` to define the internal CnP ABI,
+2. use `musttail` where native execution must cross explicit continuation
+   boundaries,
+3. keep the hottest straight-line interior in copied fragments with direct
+   patched edges rather than turning everything back into ordinary functions.
+
+### Practical build implication
+
+Because this depends on real `preserve_none` support, the CnP build pipeline
+should stop preferring `clang-16` once the ABI-controlled prototype begins.
+`clang-19` (or newer) should be treated as the intended toolchain for this
+phase of the work.
+
 ## 11. Review of the generated threaded dispatcher as a CnP source
 
 The current repository has two relevant threaded-dispatch representations:
