@@ -307,6 +307,16 @@ if(ENABLE_SQL_CNP)
         -I${PROJECT_BINARY_DIR}/third_party
         -I${PROJECT_BINARY_DIR}/third_party/luajit/src
     )
+    set(CNP_COMPILE_DEFS -DSQL_TEST=1)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        list(APPEND CNP_COMPILE_DEFS -DSQL_DEBUG=1 -DSQL_VDBE_OP_PROFILE=1)
+    endif()
+    if(ENABLE_VDBE_GOTO_DISPATCH)
+        list(APPEND CNP_COMPILE_DEFS -DSQL_USE_GOTO=1)
+    endif()
+    if(VDBE_USE_GENERATED_DISPATCH)
+        list(APPEND CNP_COMPILE_DEFS -DVDBE_USE_GENERATED_DISPATCH=1)
+    endif()
 
     # Step 1: Generate stencil stubs from opcodes.yaml
     add_custom_command(
@@ -331,8 +341,9 @@ if(ENABLE_SQL_CNP)
     add_custom_command(
         OUTPUT ${CNP_STUBS_O}
         COMMAND ${CLANG_CNP}
-            -O2 -fno-pic -fno-asynchronous-unwind-tables -fno-stack-protector
+            -O2 -fPIC -fno-asynchronous-unwind-tables -fno-stack-protector
             -fno-omit-frame-pointer
+            ${CNP_COMPILE_DEFS}
             ${CNP_INCLUDE_FLAGS}
             -c ${CNP_STUBS_C}
             -o ${CNP_STUBS_O}
@@ -343,9 +354,10 @@ if(ENABLE_SQL_CNP)
     add_custom_command(
         OUTPUT ${CNP_FRAGMENTS_O}
         COMMAND ${CLANG_CNP}
-            -O2 -fPIC -fno-asynchronous-unwind-tables -fno-stack-protector
+            -O2 -fno-pic -fno-asynchronous-unwind-tables -fno-stack-protector
             -fno-omit-frame-pointer
             -D_GNU_SOURCE
+            ${CNP_COMPILE_DEFS}
             ${CNP_INCLUDE_FLAGS}
             -c ${CNP_FRAGMENTS_C}
             -o ${CNP_FRAGMENTS_O}
