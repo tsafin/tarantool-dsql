@@ -48,7 +48,7 @@ struct CnpStubOp {
 #include "mem.h"
 #include "vdbe_helpers.h"
 
-#ifdef VDBE_CNP_STUB_BUILD
+#if defined(VDBE_CNP_STUB_BUILD) || defined(VDBE_CNP_FRAGMENT_BUILD)
 #define VDBE_CNP_INLINE static __attribute__((always_inline)) inline
 #else
 #define VDBE_CNP_INLINE static inline
@@ -178,7 +178,7 @@ vdbe_op_bitnot_impl(Vdbe *p, Op *pOp, Mem *aMem)
 	return mem_bit_not(pIn1, pOut) != 0 ? -1 : 0;
 }
 
-#ifndef VDBE_CNP_STUB_BUILD
+#if !defined(VDBE_CNP_STUB_BUILD) && !defined(VDBE_CNP_FRAGMENT_BUILD)
 
 VDBE_CNP_INLINE int
 vdbe_op_and_impl(Vdbe *p, Op *pOp, Mem *aMem)
@@ -454,7 +454,7 @@ vdbe_op_ge_impl(Vdbe *p, Op *pOp, Mem *aMem)
 	return vdbe_op_cmp_impl(p, pOp, aMem, VDBE_CMP_GE);
 }
 
-#endif /* !VDBE_CNP_STUB_BUILD */
+#endif /* !VDBE_CNP_STUB_BUILD && !VDBE_CNP_FRAGMENT_BUILD */
 
 #undef VDBE_CNP_INLINE
 

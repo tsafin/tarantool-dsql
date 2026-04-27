@@ -16,82 +16,103 @@ PILOT_FRAGMENTS = [
     {
         "name": "OP_Integer",
         "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
         "body": """\
-if (vdbe_op_integer(p, pOp, aMem))
+if (vdbe_op_integer_impl(p, pOp, aMem))
     GOTO_ERROR();""",
-        "dispatch": "DISPATCH();",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
     },
     {
         "name": "OP_Bool",
         "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
         "body": """\
-if (vdbe_op_bool(p, pOp, aMem))
+if (vdbe_op_bool_impl(p, pOp, aMem))
     GOTO_ERROR();""",
-        "dispatch": "DISPATCH();",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
     },
     {
         "name": "OP_Int64",
         "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
         "body": """\
-if (vdbe_op_int64(p, pOp, aMem))
+if (vdbe_op_int64_impl(p, pOp, aMem))
     GOTO_ERROR();""",
-        "dispatch": "DISPATCH();",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
     },
     {
         "name": "OP_Init",
         "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": False,
         "body": "",
-        "dispatch": "JUMP_P2();",
+        "dispatch_prep": "pOp = &aOp[pOp->p2];",
+        "dispatch_transfer": 'JMP_P2();',
     },
     {
         "name": "OP_Add",
         "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
         "body": """\
-if (vdbe_op_add(p, pOp, aMem))
+if (vdbe_op_add_impl(p, pOp, aMem))
     GOTO_ERROR();""",
-        "dispatch": "DISPATCH();",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
     },
     {
         "name": "OP_Subtract",
         "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
         "body": """\
-if (vdbe_op_sub(p, pOp, aMem))
+if (vdbe_op_sub_impl(p, pOp, aMem))
     GOTO_ERROR();""",
-        "dispatch": "DISPATCH();",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
     },
     {
         "name": "OP_Multiply",
         "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
         "body": """\
-if (vdbe_op_multiply(p, pOp, aMem))
+if (vdbe_op_multiply_impl(p, pOp, aMem))
     GOTO_ERROR();""",
-        "dispatch": "DISPATCH();",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
     },
     {
         "name": "OP_Divide",
         "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
         "body": """\
-if (vdbe_op_divide(p, pOp, aMem))
+if (vdbe_op_divide_impl(p, pOp, aMem))
     GOTO_ERROR();""",
-        "dispatch": "DISPATCH();",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
     },
     {
         "name": "OP_Remainder",
         "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
         "body": """\
-if (vdbe_op_remainder(p, pOp, aMem))
+if (vdbe_op_remainder_impl(p, pOp, aMem))
     GOTO_ERROR();""",
-        "dispatch": "DISPATCH();",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
     },
     {
         "name": "OP_Goto",
         "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": False,
         "body": "",
-        "dispatch": "JUMP_P2();",
+        "dispatch_prep": "pOp = &aOp[pOp->p2];",
+        "dispatch_transfer": 'JMP_P2();',
     },
     {
         "name": "OP_IfNot",
         "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": True,
         "body": """\
 {
     int handler_rc = vdbe_op_ifnot_inline(p, pOp, aMem);
@@ -100,11 +121,13 @@ if (vdbe_op_remainder(p, pOp, aMem))
     if (handler_rc == 1)
         JUMP_P2();
 }""",
-        "dispatch": "DISPATCH();",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
     },
     {
         "name": "OP_Once",
         "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": True,
         "body": """\
 {
     int handler_rc = vdbe_op_once_inline(p, pOp, aMem);
@@ -113,17 +136,21 @@ if (vdbe_op_remainder(p, pOp, aMem))
     if (handler_rc == 1)
         JUMP_P2();
 }""",
-        "dispatch": "DISPATCH();",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
     },
     {
         "name": "OP_Halt",
         "kind": "CNP_FRAG_TERMINAL",
+        "tail_fallthrough": False,
         "body": "",
-        "dispatch": "GOTO_DONE();",
+        "dispatch_prep": "",
+        "dispatch_transfer": 'GOTO_DONE();',
     },
     {
         "name": "OP_ResultRow",
         "kind": "CNP_FRAG_ROW",
+        "tail_fallthrough": True,
         "body": """\
 {
     int handler_rc = vdbe_op_resultrow(p, pOp, aMem);
@@ -132,7 +159,8 @@ if (vdbe_op_remainder(p, pOp, aMem))
     if (handler_rc == 1)
         GOTO_ROW();
 }""",
-        "dispatch": "DISPATCH();",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
     },
 ]
 
@@ -147,10 +175,13 @@ HEADER = """\
  */
 
 #include <stddef.h>
+#define VDBE_CNP_FRAGMENT_BUILD 1
 #include "sqlInt.h"
 #include "vdbeInt.h"
 #include "vdbe.h"
+#include "vdbe_debug.h"
 #include "vdbe_ops.h"
+#include "vdbe_ops_cnp_impl.h"
 
 enum cnp_fragment_kind {
     CNP_FRAG_NONE = 0,
@@ -164,95 +195,105 @@ struct cnp_fragment_entry {
     int opcode;
     uint32_t begin_offset;
     uint32_t dispatch_offset;
+    uint32_t transfer_offset;
     uint32_t end_offset;
     int kind;
+    int tail_fallthrough;
 };
 
 extern struct Vdbe *cnp_frag_get_p(void);
 extern VdbeOp *cnp_frag_get_aOp(void);
 extern VdbeOp *cnp_frag_get_pOp(void);
 extern Mem *cnp_frag_get_aMem(void);
-extern void cnp_frag_get_p_pOp_aMem(struct Vdbe **pp, VdbeOp **ppOp, Mem **paMem);
 extern void **cnp_frag_get_dispatch_table(void);
-extern void *cnp_frag_get_error_target(void);
-extern void *cnp_frag_get_row_target(void);
-extern void *cnp_frag_get_done_target(void);
-extern void *cnp_frag_dispatch_fallthrough(void);
-extern void *cnp_frag_dispatch_jump_p2(void);
 static volatile int cnp_fragment_probe_opcode = -1;
 
-#if defined(__clang__)
-__attribute__((noinline, optnone, used))
-#else
 __attribute__((noinline, used))
-#endif
 const struct cnp_fragment_entry *
 cnp_fragment_entries(size_t *count)
 {
-#define p cnp_frag_get_p()
-#define aOp cnp_frag_get_aOp()
-#define pOp cnp_frag_get_pOp()
-#define aMem cnp_frag_get_aMem()
-#define P1 pOp->p1
-#define P2 pOp->p2
-#define P3 pOp->p3
-
-"""
-
-FOOTER = """\
     static const struct cnp_fragment_entry entries[] = {
 __ENTRIES__
     };
 
+    goto cnp_fragment_metadata;
+"""
+
+FOOTER = """\
+cnp_fragment_base:
+    __asm__ __volatile__(".globl cnp_frag_base_label\\n\\t"
+                         "cnp_frag_base_label:");
+
+    /*
+     * Reload live-ins once per native entry. This keeps hot opcode bodies free
+     * from getter calls while avoiding direct extern-global accesses inside the
+     * extracted fragments.
+     */
+    Vdbe *p;
+    VdbeOp *aOp;
+    VdbeOp *pOp;
+    Mem *aMem;
+    void **dispatch_table;
+
+    p = cnp_frag_get_p();
+    aOp = cnp_frag_get_aOp();
+    pOp = cnp_frag_get_pOp();
+    aMem = cnp_frag_get_aMem();
+    dispatch_table = cnp_frag_get_dispatch_table();
+    __asm__ volatile ("jmpq *%0"
+                      :: "r"(dispatch_table[(size_t)(pOp - aOp)]));
+
+#define JMP_FALLTHROUGH() do {                                 \\
+    __asm__ volatile ("jmp cnp_frag_fallthrough_label");       \\
+} while (0)
+
+#define JMP_P2() do {                                          \\
+    __asm__ volatile ("jmp cnp_frag_jump_p2_label");           \\
+} while (0)
+
+#define JUMP_P2() do {                                         \\
+    pOp = &aOp[pOp->p2];                                       \\
+    JMP_P2();                                                  \\
+} while (0)
+
+#define GOTO_ERROR() do {                                      \\
+    __asm__ volatile ("jmp cnp_frag_error_label");             \\
+} while (0)
+
+#define GOTO_ROW() do {                                        \\
+    __asm__ volatile ("jmp cnp_frag_row_label");               \\
+} while (0)
+
+#define GOTO_DONE() do {                                       \\
+    __asm__ volatile ("jmp cnp_frag_done_label");              \\
+} while (0)
+
+__LABELS__
+
+    __asm__ __volatile__(".globl cnp_frag_fallthrough_label\\n\\t"
+                         "cnp_frag_fallthrough_label:");
+    __asm__ __volatile__(".globl cnp_frag_jump_p2_label\\n\\t"
+                         "cnp_frag_jump_p2_label:");
+    __asm__ __volatile__(".globl cnp_frag_error_label\\n\\t"
+                         "cnp_frag_error_label:");
+    __asm__ __volatile__(".globl cnp_frag_row_label\\n\\t"
+                         "cnp_frag_row_label:");
+    __asm__ __volatile__(".globl cnp_frag_done_label\\n\\t"
+                         "cnp_frag_done_label:");
+
+#undef GOTO_DONE
+#undef GOTO_ROW
+#undef GOTO_ERROR
+#undef JMP_P2
+#undef JMP_FALLTHROUGH
+#undef JUMP_P2
+
+cnp_fragment_metadata:
     if (count != NULL)
         *count = sizeof(entries) / sizeof(entries[0]);
 
 __PROBE_CASES__
     return entries;
-
-cnp_fragment_base:
-    __asm__ __volatile__(".globl cnp_frag_base_label\\n\\t"
-                         "cnp_frag_base_label:");
-
-#define DISPATCH() do {                                        \\
-    void *__disp_t = cnp_frag_dispatch_fallthrough();          \\
-    __asm__ volatile ("jmpq *%0" :: "r"(__disp_t));            \\
-} while (0)
-
-#define JUMP_P2() do {                                         \\
-    void *__disp_t = cnp_frag_dispatch_jump_p2();              \\
-    __asm__ volatile ("jmpq *%0" :: "r"(__disp_t));            \\
-} while (0)
-
-#define GOTO_ERROR() do {                                      \\
-    void *__disp_t = cnp_frag_get_error_target();              \\
-    __asm__ volatile ("jmpq *%0" :: "r"(__disp_t));            \\
-} while (0)
-
-#define GOTO_ROW() do {                                        \\
-    void *__disp_t = cnp_frag_get_row_target();                \\
-    __asm__ volatile ("jmpq *%0" :: "r"(__disp_t));            \\
-} while (0)
-
-#define GOTO_DONE() do {                                       \\
-    void *__disp_t = cnp_frag_get_done_target();               \\
-    __asm__ volatile ("jmpq *%0" :: "r"(__disp_t));            \\
-} while (0)
-
-__LABELS__
-
-#undef GOTO_DONE
-#undef GOTO_ROW
-#undef GOTO_ERROR
-#undef JUMP_P2
-#undef DISPATCH
-#undef P3
-#undef P2
-#undef P1
-#undef aMem
-#undef pOp
-#undef aOp
-#undef p
 }
 """
 
@@ -264,12 +305,16 @@ def generate(output_path: str) -> None:
             "        { %s, "
             "(uint32_t)((uintptr_t)&&%s_begin - (uintptr_t)&&cnp_fragment_base), "
             "(uint32_t)((uintptr_t)&&%s_dispatch - (uintptr_t)&&cnp_fragment_base), "
-            "(uint32_t)((uintptr_t)&&%s_end - (uintptr_t)&&cnp_fragment_base), %s },"
+            "(uint32_t)((uintptr_t)&&%s_transfer - (uintptr_t)&&cnp_fragment_base), "
+            "(uint32_t)((uintptr_t)&&%s_end - (uintptr_t)&&cnp_fragment_base), %s, %d },"
             % (frag["name"], frag["name"], frag["name"], frag["name"],
-               frag["kind"])
+               frag["name"], frag["kind"], 1 if frag["tail_fallthrough"] else 0)
         )
 
     probe_cases = []
+    probe_cases.append(
+        "    if (cnp_fragment_probe_opcode == -2) goto cnp_fragment_base;"
+    )
     for frag in PILOT_FRAGMENTS:
         probe_cases.append(
             f"    if (cnp_fragment_probe_opcode == {frag['name']}) "
@@ -282,19 +327,22 @@ def generate(output_path: str) -> None:
         body_block = ""
         if body:
             body_block = "    " + body.replace("\n", "\n    ") + "\n"
+        dispatch_prep = frag["dispatch_prep"]
+        dispatch_prep_block = ""
+        if dispatch_prep:
+            dispatch_prep_block = "    " + dispatch_prep.replace("\n", "\n    ") + "\n"
         label_blocks.append(
             f"""{frag["name"]}_begin:
 {body_block}{frag["name"]}_dispatch:
-    {frag["dispatch"]}
+{dispatch_prep_block}{frag["name"]}_transfer:
+    {frag["dispatch_transfer"]}
 {frag["name"]}_end:
     __asm__ volatile("" ::: "memory");
 """
         )
 
-    text = HEADER
-    text += FOOTER.replace("__ENTRIES__", "\n".join(entry_lines)).replace(
-        "__LABELS__", "\n".join(label_blocks)
-    ).replace(
+    text = HEADER.replace("__ENTRIES__", "\n".join(entry_lines))
+    text += FOOTER.replace("__LABELS__", "\n".join(label_blocks)).replace(
         "__PROBE_CASES__", "\n".join(probe_cases)
     )
 

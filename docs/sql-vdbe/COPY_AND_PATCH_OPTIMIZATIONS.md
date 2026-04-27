@@ -897,115 +897,480 @@ fragments provide.
 Tail-call chaining was a valid incremental experiment. It is not the preferred
 end state.
 
-## 13. Preferred implementation plan
+## 13. Revised plan after `hot_expr` profiling
 
-The project should now pivot from "better wrapper stencils" to
-"threaded-fragment extraction and stitching".
+The `hot_expr / prepared_execute` RelWithDebInfo run showed that CnP is still
+slower than the generated dispatcher:
 
-### 13.1 Generate a dedicated fragment-production artifact
+- generated dispatcher median: about `0.968 us/op`
+- CnP median: about `1.058 us/op`
+- CnP/generate ratio: about `1.09`
 
-Do not use the shipping wrapper-stencil object as the primary future source.
-Instead, generate a dedicated compiled artifact for fragment extraction from
-the same threaded dispatch logic.
+The compiled statement has 13 VDBE opcodes:
 
-Preferred form:
+```text
+Init
+Add
+ResultRow
+Halt
+Integer
+Integer
+Add
+Integer
+Add
+Integer
+Add
+Integer
+Goto
+```
 
-- an intermediate object file dedicated to fragment extraction
+The stitched CnP code size for this statement is `1870` bytes:
 
-This artifact should not be used as a production runtime path. Its job is only
-to:
+```text
+common prologue + initial dispatcher: 28 bytes
+opcode fragments:                    1008 bytes
+3 return stubs:                       66 bytes
+64 absolute call/jump thunks:         768 bytes
+```
 
-- compile the threaded handler bodies,
-- expose stable extraction metadata,
-- allow deterministic fragment extraction.
+This explains the lack of speedup. The current threaded-fragment path did
+remove per-opcode function prologues and epilogues, but it did not yet produce
+cheap inline opcode bodies. A hot arithmetic fragment currently has this
+shape:
 
-### 13.2 Emit explicit label metadata
+```text
+call cnp_frag_get_p
+call cnp_frag_get_pOp
+call cnp_frag_get_aMem
+call vdbe_op_add
+call cnp_frag_dispatch_fallthrough
+jmp next_fragment
+```
 
-For each opcode handler, emit explicit labels:
+That is not cheaper than the generated interpreter, which already keeps
+`p`, `pOp`, and `aMem` as local state inside one dispatcher function and calls
+the same `vdbe_op_add()` helper directly.
 
-- `Exec_OP_X_begin`
-- `Exec_OP_X`
-- `Exec_OP_X_dispatch`
-- `Exec_OP_X_end`
+This redesign now explicitly follows the runtime code-shape described in
+*Copy-and-Patch Compilation: A fast compilation algorithm for high-level
+languages and bytecode* (Haoran Xu, Fredrik Kjolstad, OOPSLA 2021,
+doi:10.1145/3485513). The important takeaway for this branch is that the
+extraction artifact may be compiler-friendly and relocation-heavy, but the
+generated runtime code should be a statement-specific stitched layout of copied
+basic blocks with concrete patched edges.
 
-and companion metadata tables containing addressable labels:
+The revised plan is therefore more aggressive: remove helper calls from the
+threaded fragment ABI, remove dispatch helper calls from the hot path, avoid
+avoidable thunks, and optimize the scalar row-return path.
 
-- begin table
-- dispatch table
-- end table
+### 13.1 Inline fragment live-ins, not only opcode helpers
 
-Using `&&label` is sufficient for addressability. The important requirement is
-that extraction metadata be explicit rather than inferred heuristically from
-whole-function symbols.
+The current fragment-production source uses macros like:
 
-### 13.3 Extract body fragments, not functions
+```c
+#define p cnp_frag_get_p()
+#define pOp cnp_frag_get_pOp()
+#define aMem cnp_frag_get_aMem()
+```
 
-The extractor should pivot from:
+This is the wrong ABI for hot stitched code. It forces every opcode body to
+reload state through helper calls.
 
-- `cnp_OP_*` function symbol extraction
+The next ABI should make the required live-ins explicit and stable:
 
-to:
+- `p`
+- `aOp`
+- `pOp`
+- `aMem`
+- branch/exit targets when needed
 
-- threaded fragment extraction from `begin` to `dispatch` or `end`
+There are two practical implementation choices.
 
-Fragment classes:
+First choice: fixed registers inside the stitched function. The common
+prologue loads `p`, `aOp`, `pOp`, and `aMem` into fixed callee-saved registers
+and every fragment is compiled to use those registers. This is the best
+runtime shape, but it requires more control over compiler output.
 
-1. fallthrough-capable
-2. branch-capable
-3. terminal
-4. coroutine/resume
+Second choice: direct memory references to fixed globals or a per-execution
+state block. This is easier to produce from C, but still removes the function
+calls. It may be a good intermediate step:
 
-For straight-line handlers, the terminal threaded dispatch sequence becomes the
-cut point.
+```text
+mov p,   [cnp_state.p]
+mov pOp, [cnp_state.pOp]
+mov aMem,[cnp_state.aMem]
+```
 
-### 13.4 Stitching rules
+That is still worse than fixed registers, but much cheaper than helper calls.
 
-For stitched programs:
+The important rule is:
 
-- if handler A is followed by handler B in straight-line execution,
-  copy A's fragment body and lay B immediately after it,
-- replace or drop the terminal threaded dispatch edge from A so execution
-  falls through into B,
-- preserve explicit control transfers for:
-  - branches,
-  - `ResultRow`,
-  - `Halt`,
-  - coroutine transitions,
-  - error exits.
+- fragment code must not call `cnp_frag_get_p()`,
+- fragment code must not call `cnp_frag_get_pOp()`,
+- fragment code must not call `cnp_frag_get_aMem()`,
+- fragment code must not call dispatch helpers on the hot fallthrough path.
 
-The practical rule is not "always nop the last jump". The rule is:
+### 13.2 Inline tiny opcode bodies fully
 
-- remove only the terminal dispatch edge for contiguous straight-line
-  successors,
-- preserve semantic control-flow exits.
+Inlining only `vdbe_op_add()` into a wrapper stencil was not enough. For
+`Integer` and arithmetic opcodes the useful target is the actual small body,
+including the low-level `Mem` operation when it is simple enough.
 
-### 13.5 First pilot set
+For example, `OP_Integer` should become a direct store to the output register
+in the common case, not:
 
-The initial threaded-fragment pilot should cover:
+```text
+call vdbe_op_integer
+  call vdbe_prepare_null_out
+  call mem_set_int
+```
 
-- `Init`
-- `Integer`
-- `Bool`
-- `Int64`
-- `Add`
-- `Subtract`
-- `Multiply`
-- `Divide`
-- `Remainder`
-- `Goto`
-- `ResultRow`
-- `Halt`
+Likewise, `OP_Add` should inline the fast integer path directly, with a slow
+exit for uncommon type/error cases.
 
-The first stitched success criteria are:
+Recommended first split:
 
-- straight-line arithmetic fragments show no per-op prologue/epilogue in the
-  final native code,
-- straight-line arithmetic fragments fall through into each other,
-- row and halt paths still return correctly,
-- GDB/perf naming remains usable at the statement/function level,
-- `tiny_const` and `hot_expr` improve beyond the wrapper-chaining baseline.
+- `Integer`: inline the common register store and flags update
+- `Add`: inline integer + integer fast path
+- `Subtract`: inline integer + integer fast path
+- `Multiply`: inline integer + integer fast path where overflow policy allows
+- `ResultRow`: keep the row materialization helper initially, but optimize the
+  surrounding row/terminal control flow
 
-## 12. Track A: measurement before optimization
+The initial goal is not to inline every SQL type path. The goal is to make
+the common benchmarked scalar path real native code and leave slow cases as
+explicit helper exits.
+
+### 13.3 Make fallthrough free
+
+The generated dispatcher pays roughly one threaded dispatch per opcode. The
+current CnP path is worse because `DISPATCH()` expands to:
+
+```text
+call cnp_frag_dispatch_fallthrough
+jmp returned_target
+```
+
+For stitched code, fallthrough should normally cost nothing:
+
+```text
+fragment A body
+fragment B body
+fragment C body
+```
+
+The compiler knows the VDBE program at CnP compile time. For opcode `i`,
+normal fallthrough is opcode `i + 1`. If `i + 1` is the physical next fragment
+in the code buffer, there is no reason to emit a dispatch operation.
+
+The stitching rule should be:
+
+- for normal fallthrough, copy the next fragment immediately after the current
+  one and remove the terminal dispatch edge,
+- for unconditional `Goto`, emit a direct patched jump to `P2`,
+- for conditional branches, emit a direct conditional jump to `P2` and let the
+  non-taken path fall through,
+- for error, row, done, and coroutine exits, jump to explicit local exit
+  stubs.
+
+This makes the hot arithmetic path cheaper than the generated dispatcher:
+
+```text
+generated dispatcher:
+  handler body
+  indirect dispatch to next opcode
+
+desired CnP:
+  handler body
+  fall through to next handler body
+```
+
+### 13.4 Make branches direct, not table-dispatched
+
+The current fragment code computes the next target through
+`cnp_frag_dispatch_table`. That is unnecessary for ordinary VDBE branches
+because `P2` is known while compiling the statement.
+
+For intra-statement control flow, patch direct native branches:
+
+```asm
+jmp  rel32 target_fragment
+jne  rel32 target_fragment
+je   rel32 target_fragment
+```
+
+These targets are always inside the same generated code buffer, so x86-64
+`rel32` is safe for these edges. There is no need for an absolute thunk for
+intra-JIT branches.
+
+Keep the dispatch table only for cases that genuinely need dynamic target
+resolution, such as coroutine-style control flow if it cannot be lowered to
+direct edges yet.
+
+### 13.5 Avoid the second CnP entry for scalar row statements
+
+Today a simple scalar `SELECT` enters CnP twice:
+
+```text
+call 1: execute Init..ResultRow, return SQL_ROW
+call 2: resume at Halt, return SQL_DONE
+```
+
+That means the common prologue/epilogue is paid twice per produced row, and
+the second call does almost no useful work.
+
+For scalar or one-row statements where `ResultRow` is followed by a simple
+terminal tail, compile a row-terminal fast path:
+
+```text
+ResultRow
+Halt or deferred-halt marker
+return SQL_ROW
+next SQL step: return SQL_DONE without entering native code
+```
+
+There are two possible correctness-preserving variants.
+
+Variant A: execute `Halt` before returning `SQL_ROW`.
+
+This is fastest, but only valid if the row output remains readable after
+`sqlVdbeHalt()` for the SQL API contract. This must be verified before use.
+
+Variant B: defer `Halt`.
+
+The CnP code returns `SQL_ROW` and stores a sentinel such as
+`CNP_RESUME_DONE`. On the next `vdbe_cnp_exec()` call, the C wrapper observes
+the sentinel and runs the minimal done/halt path without entering the stitched
+native function. This preserves row lifetime semantics while avoiding the
+second native prologue.
+
+Variant B is the safer first implementation.
+
+### 13.6 Stop generating thunks for intra-JIT targets
+
+The `hot_expr` statement produced 64 absolute thunks, consuming `768` bytes.
+Most of these exist because the fragment extractor conservatively turns
+PC-relative relocations into:
+
+```asm
+movabs rax, target
+jmp    rax
+```
+
+That is acceptable as a correctness fallback, but it is not an optimized JIT
+strategy.
+
+Use this relocation policy instead:
+
+- intra-JIT control-flow edges: always patch direct `rel32` branches,
+- local exit stubs: patch direct `rel32` branches,
+- external helper calls: use direct `call rel32` if the target is in range,
+- external helper calls outside `rel32`: use a shared literal pool or a rare
+  absolute call sequence,
+- hot opcodes: avoid external helper calls entirely by inlining the fast path.
+
+PIC code is not required for generated statement code. The JIT owns the final
+code buffer address and can patch exact addresses after allocation.
+
+### 13.7 Keep PIC only where it helps extraction
+
+The object file used for fragment extraction may still contain relocatable
+code. That is fine. The final copied code does not need to preserve PIC-style
+access when the JIT can resolve the target more cheaply.
+
+The rule should be:
+
+- use compiler relocations as extraction metadata,
+- lower those relocations to the cheapest final encoding during stitching.
+
+That means PIC-like object code is an input format detail, not the runtime
+code-shape goal.
+
+### 13.8 Revised first pilot
+
+The next pilot should target only `hot_expr / prepared_execute` first. It has
+enough repeated arithmetic to expose whether the revised model works.
+
+Current implementation plan (April 2026):
+
+1. **Split each extracted fragment tail into "state update" and "transfer".**
+
+   The fragment generator should now expose four offsets per opcode:
+
+   - `begin`
+   - `dispatch`
+   - `transfer`
+   - `end`
+
+   `dispatch` is the point after the opcode body where the fragment updates its
+   local state for the next edge, for example:
+
+   - `pOp += 1`
+   - `pOp = &aOp[pOp->p2]`
+
+   `transfer` is the actual terminal control transfer:
+
+   - physical fallthrough placeholder,
+   - direct branch to `P2`,
+   - local jump to row/done/error exit,
+   - or another explicit non-fallthrough edge.
+
+   This split is necessary because a paper-style copy-and-patch stitcher does
+   not want to copy "handler body + state update + unconditional jump" as one
+   indivisible block. It wants the option to keep the state update but drop the
+   terminal jump when the next copied block is already adjacent in the final
+   code layout.
+
+2. **Carry explicit fragment metadata into `vdbe_cnp_fragments.h`.**
+
+   The extracted metadata should include:
+
+   - `dispatch_offset`
+   - `transfer_offset`
+   - `tail_fallthrough`
+
+   `tail_fallthrough` means:
+
+   - the fragment may legally end by falling through into the next copied block,
+     provided the stitcher has already applied the correct state update;
+   - the final terminal jump is only a layout convenience in the extraction
+     artifact, not a semantic requirement of the generated runtime code.
+
+   This lets the runtime stitcher compute the copy size as:
+
+   - `transfer_offset` for straight-line fallthrough edges;
+   - full fragment size for terminal or non-adjacent control-flow edges.
+
+3. **Treat the compiled object as extraction metadata, not as the desired
+   runtime code shape.**
+
+   The paper's model is:
+
+   - the offline artifact may contain labels, relocations, helper-oriented
+     jumps, and other convenient compiler-generated structure;
+   - the runtime-generated code should be the cheapest specialized layout for
+     the actual statement being compiled.
+
+   In Tarantool terms, the object built by `vdbe_cnp_genfrags.py` and extracted
+   by `vdbe_cnp_extract_fragments.py` is only the source of:
+
+   - byte ranges,
+   - relocation records,
+   - branch/exit labels,
+   - and per-fragment cut points.
+
+   The generated code emitted by `vdbe_cnp_compile_fragments()` is the real
+   optimization target.
+
+4. **Patch intra-statement edges directly in the stitched code buffer.**
+
+   The first paper-aligned stitcher should lower internal fragment targets to
+   direct local edges:
+
+   - normal fallthrough: no branch at all when opcode `i + 1` is placed
+     immediately after opcode `i`;
+   - `Goto` / `Init`: direct patched target to `P2`;
+   - `IfNot` / `Once`: direct target to `P2` on the taken path, physical
+     fallthrough on the non-taken path when possible;
+   - row/done/error: direct branches to dedicated local exit stubs in the same
+     copied code buffer.
+
+   There should be no dispatch-table lookup for any of those ordinary
+   intra-statement edges.
+
+5. **Keep absolute thunks only for true external helper calls.**
+
+   The fragment path still needs to resolve helper calls such as:
+
+   - `vdbe_op_resultrow`
+   - `vdbe_op_ifnot_inline`
+   - `vdbe_op_once_inline`
+   - other non-inlined helper bodies
+
+   Those are genuine external targets relative to the stitched buffer and may
+   still require:
+
+   - direct `call rel32` when encodable;
+   - otherwise the current absolute thunk fallback.
+
+   However, internal labels such as:
+
+   - fallthrough transfer,
+   - `P2` transfer,
+   - row target,
+   - done target,
+   - error target
+
+   must no longer consume thunk slots. They are properties of the final layout,
+   not external symbol references.
+
+6. **Preserve the current entry ABI for the first transition.**
+
+   The current fragment mode already uses a shared prologue and init region to
+   load:
+
+   - `p`
+   - `aOp`
+   - `pOp`
+   - `aMem`
+   - dispatch/exit support state
+
+   The short-term plan is to keep that entry path stable while changing the
+   copied fragment layout under it. This reduces the moving pieces in the first
+   migration step:
+
+   - entry still jumps to the first copied opcode block;
+   - resume still re-enters through the shared entry path;
+   - only the internal stitched control-flow graph changes.
+
+   Once that works and is measured, the entry ABI can be optimized further.
+
+7. **Keep row-resume semantics conservative until direct edges are stable.**
+
+   The immediate goal is not yet to eliminate the second native entry for
+   `SQL_ROW` statements. The safer sequence is:
+
+   - first: make the stitched code follow the paper's copied-basic-block model;
+   - then: re-check whether `ResultRow -> Halt` tails can use a row-done
+     sentinel or another one-row fast path without violating SQL API row
+     lifetime semantics.
+
+   In practice this means:
+
+   - preserve current `SQL_ROW` / `SQL_DONE` behavior first;
+   - update resume bookkeeping only as needed for the new direct-edge layout;
+   - postpone the scalar row fast path until correctness is revalidated.
+
+8. **Use `hot_expr / prepared_execute` as the primary proof point.**
+
+   The first success condition is not broad feature coverage. It is proving that
+   the paper-style stitched layout materially improves the hot scalar arithmetic
+   case that motivated the rewrite.
+
+Detailed pilot scope:
+
+- direct live-in access without `cnp_frag_get_*()` calls,
+- free fallthrough for `Integer` and `Add`,
+- direct jump for `Goto`,
+- direct local exits for row/done/error,
+- no intra-JIT absolute thunks,
+- conservative row resume semantics at first,
+- row-done sentinel only after the direct-edge model is correct and measured.
+
+Success criteria:
+
+- generated fragment metadata exposes separate `dispatch` and `transfer` cut
+  points,
+- the stitcher copies only the prefix before `transfer` for adjacent
+  fallthrough edges,
+- internal row/done/error/P2 edges are patched directly inside the stitched
+  code buffer,
+- thunk count drops because intra-JIT edges no longer use absolute
+  trampolines,
+- generated code size for `hot_expr` drops substantially below `1870` bytes,
+- CnP beats the generated dispatcher on `hot_expr / prepared_execute`.
+
+## 14. Track A: measurement before optimization
 
 Before changing code generation, add enough instrumentation to explain where
 CnP time is going.
@@ -1088,7 +1453,7 @@ These must isolate:
 Without these focused cases it will be hard to tell whether a change helps
 only arithmetic or the real mixed path.
 
-## 13. Track B: first-level helper inlining
+## 15. Track B: first-level helper inlining
 
 This is the first code-generation experiment to implement.
 
@@ -1260,7 +1625,7 @@ Success means:
 - no regression in correctness,
 - no major regression in code size or i-cache behavior.
 
-## 14. Track C: reduce outer CnP dispatch overhead
+## 16. Track C: reduce outer CnP dispatch overhead
 
 Even if helper bodies are inlined, the current `vdbe_cnp_exec()` loop still
 imposes per-op dispatch overhead.
@@ -1310,7 +1675,7 @@ checks `p->cnp_row_ready` on every step.
 That should eventually be replaced by a dedicated return/tagged terminal path
 used only by `OP_ResultRow`-like stencils, not polled globally.
 
-## 15. Track D: ABI and register residency
+## 17. Track D: ABI and register residency
 
 Only after Tracks B and C should the project revisit ABI changes.
 
@@ -1329,7 +1694,7 @@ But this must stay an internal stencil ABI only.
 External helper boundaries should remain ordinary C ABI until there is strong
 evidence that changing them is worth the complexity.
 
-## 16. Concrete phased plan
+## 18. Concrete phased plan
 
 ### Phase O1: establish measurement baseline
 
@@ -1421,7 +1786,7 @@ Only do this if:
 - direct chaining is already in place,
 - and CnP is still meaningfully behind interpreter for hot reused programs.
 
-## 17. Risks
+## 19. Risks
 
 ### R.1 Code size explosion
 
@@ -1465,26 +1830,40 @@ Mitigation:
 - treat unknown relocation/codegen patterns as hard failures,
 - document the supported compiler/toolchain range.
 
-## 18. Practical conclusion
+## 20. Practical conclusion
 
-Inlining the first helper layer into stencils is a good next optimization
-experiment and should be implemented.
+The `hot_expr` profile changes the optimization priority.
 
-It is likely to help for:
+First-level helper inlining was a useful experiment, but it is not sufficient.
+The current fragment path still performs too many helper calls around each
+opcode and too much dispatch work between opcodes. It also emits unnecessary
+absolute thunks for targets that are known while stitching the statement.
 
-- constants,
-- arithmetic,
-- small logical ops,
-- simple conditionals.
+The next meaningful optimization should therefore be a total hot-path rewrite
+of the threaded-fragment pilot:
 
-It is not, by itself, the full answer to CnP underperforming the interpreter.
-The broader execution model still has too much per-op dispatch overhead.
+1. make fragment live-ins direct,
+2. inline the common `Integer` and arithmetic opcode bodies,
+3. make straight-line fallthrough physical fallthrough,
+4. patch intra-statement branches as direct native branches,
+5. avoid intra-JIT absolute thunks,
+6. avoid the second native entry for scalar `ResultRow; Halt` statements.
 
-The recommended order is:
+The first validation target should be only:
 
-1. measure current costs,
-2. start with `tiny_const`, then `hot_expr`, then `point_lookup`,
-3. inline first-level hot helpers into stencils,
-4. validate codegen quality with disassembly and perf counters,
-5. reduce outer dispatch overhead with direct chaining and superinstructions,
-6. only then reconsider a custom internal ABI.
+- `hot_expr / prepared_execute`
+
+Success is not "a smaller regression". Success is:
+
+- no `cnp_frag_get_*()` calls in the hot arithmetic fragments,
+- no dispatch-helper call on straight-line fallthrough,
+- no intra-JIT thunks for local statement targets,
+- generated `hot_expr` code much smaller than `1870` bytes,
+- CnP faster than the generated dispatcher on `hot_expr`.
+
+Only after that should the plan widen again to:
+
+- `tiny_const`,
+- `point_lookup`,
+- `bitwise_mix`,
+- cursor-heavy statements.

@@ -53,6 +53,13 @@ def find_local_symbol(symtab, prefix):
     return None
 
 
+def find_symbol(symtab, name):
+    for sym in symtab.iter_symbols():
+        if sym.name == name:
+            return sym
+    return None
+
+
 def load_relocations(elf, symtab, section_names):
     rels = []
     for section in elf.iter_sections():
@@ -85,15 +92,18 @@ def relocation_map(rels, start, size):
     return out
 
 
-def entry_text_offset(entry_rels, entry_base, field_off, entry_bytes):
+def entry_text_offset(entry_rels, entry_base, field_off, entry_bytes,
+                      frag_base_text_off):
     rel = entry_rels.get(entry_base + field_off)
     if rel is not None:
         if rel["sym_name"] != ".text" and rel["sym_section"] != ".text":
             raise RuntimeError(
                 f"unexpected fragment-entry relocation target {rel['sym_name']}"
             )
-        return rel["addend"]
-    return struct.unpack_from("<I", entry_bytes, entry_base + field_off)[0]
+        return frag_base_text_off + rel["addend"]
+    return frag_base_text_off + struct.unpack_from(
+        "<I", entry_bytes, entry_base + field_off
+    )[0]
 
 
 def extract_frame_info(text, func_size):
@@ -118,7 +128,7 @@ def extract_frame_info(text, func_size):
         ):
             i += 2
             continue
-        if text[i] in (0x53, 0x56, 0x57):
+        if text[i] in (0x50, 0x53, 0x56, 0x57):
             i += 1
             continue
         break
@@ -127,6 +137,8 @@ def extract_frame_info(text, func_size):
         prologue_end = i + 7
     elif text[i:i + 3] == bytes([0x48, 0x83, 0xEC]):
         prologue_end = i + 4
+    elif i > 4:
+        prologue_end = i
     else:
         raise RuntimeError("could not locate stack allocation in prologue")
     prologue = bytes(text[:prologue_end])
@@ -199,27 +211,38 @@ def extract_fragments(obj_path, opcodes_header_path):
 
         entry_off = entries_sym["st_value"]
         entry_size = entries_sym["st_size"]
-        if entry_size % 20 != 0:
+        if entry_size % 28 != 0:
             raise RuntimeError(f"unexpected fragment entry size block: {entry_size}")
-        count = entry_size // 20
+        count = entry_size // 28
         entry_bytes = rodata[entry_off:entry_off + entry_size]
+
+        frag_base_sym = find_symbol(symtab, "cnp_frag_base_label")
+        frag_base_text_off = 0 if frag_base_sym is None else frag_base_sym["st_value"]
 
         fragments = []
         for i in range(count):
-            base = i * 20
+            base = i * 28
             opcode = struct.unpack_from("<i", entry_bytes, base)[0]
-            begin = entry_text_offset(entry_rels, base, 4, entry_bytes)
-            dispatch = entry_text_offset(entry_rels, base, 8, entry_bytes)
-            end = entry_text_offset(entry_rels, base, 12, entry_bytes)
-            kind_num = struct.unpack_from("<i", entry_bytes, base + 16)[0]
+            begin = entry_text_offset(entry_rels, base, 4, entry_bytes,
+                                      frag_base_text_off)
+            dispatch = entry_text_offset(entry_rels, base, 8, entry_bytes,
+                                         frag_base_text_off)
+            transfer = entry_text_offset(entry_rels, base, 12, entry_bytes,
+                                         frag_base_text_off)
+            end = entry_text_offset(entry_rels, base, 16, entry_bytes,
+                                     frag_base_text_off)
+            kind_num = struct.unpack_from("<i", entry_bytes, base + 20)[0]
+            tail_fallthrough = struct.unpack_from("<i", entry_bytes, base + 24)[0]
             if begin < end and text[begin] == 0x00:
                 begin += 1
                 dispatch += 1
+                transfer += 1
                 end += 1
-            if not (0 <= begin <= dispatch <= end <= len(text)):
+            if not (0 <= begin <= dispatch <= transfer <= end <= len(text)):
                 raise RuntimeError(
                     f"invalid fragment bounds for opcode {opcode}: "
-                    f"begin={begin} dispatch={dispatch} end={end}"
+                    f"begin={begin} dispatch={dispatch} transfer={transfer} "
+                    f"end={end}"
                 )
 
             frag_relocs = []
@@ -237,23 +260,51 @@ def extract_fragments(obj_path, opcodes_header_path):
                 "opcode": opcode,
                 "name": name,
                 "kind": kind_num,
+                "tail_fallthrough": tail_fallthrough,
                 "begin": begin,
                 "dispatch_offset": dispatch - begin,
+                "transfer_offset": transfer - begin,
                 "bytes": text[begin:end],
                 "relocs": frag_relocs,
             }
             fragments.append(frag)
             print(
                 f"  {name} (opcode {opcode}): {len(frag['bytes'])} bytes, "
-                f"dispatch+{frag['dispatch_offset']}, {len(frag_relocs)} relocs"
+                f"dispatch+{frag['dispatch_offset']}, "
+                f"transfer+{frag['transfer_offset']}, {len(frag_relocs)} relocs"
             )
 
-        frag_base = min(frag["begin"] for frag in fragments)
+        first_begin = min(frag["begin"] for frag in fragments)
+        frag_base = first_begin if frag_base_sym is None else frag_base_sym["st_value"]
+        raw_init = text[frag_base:first_begin]
+
+        # Truncate init_bytes at jmpq *rax (ff e0) — code after is dead
+        # (the probe_opcode dispatch loop never runs in JIT context).
+        jmpq_pos = None
+        for i in range(len(raw_init) - 1):
+            if raw_init[i] == 0xff and raw_init[i + 1] == 0xe0:
+                jmpq_pos = i + 2
+                break
+        if jmpq_pos is None:
+            raise RuntimeError("could not find jmpq *rax in init region")
+        init_bytes = raw_init[:jmpq_pos]
+
+        init_relocs = []
+        for rel in text_rels:
+            if frag_base <= rel["offset"] < frag_base + jmpq_pos:
+                init_relocs.append({
+                    "offset": rel["offset"] - frag_base,
+                    "type": rel["type"],
+                    "addend": rel["addend"],
+                    "sym_name": rel["sym_name"],
+                })
         print(f"  fragment code starts at .text offset {frag_base:#x}")
+        print(f"  init region: {len(init_bytes)} bytes (truncated at jmpq), "
+              f"{len(init_relocs)} relocs")
         func_size = symtab.get_symbol_by_name("cnp_fragment_entries")[0]["st_size"]
         prologue, epilogue = extract_frame_info(text, func_size)
 
-        return fragments, prologue, epilogue
+        return fragments, prologue, init_bytes, init_relocs, epilogue
 
 
 def _emit_byte_array(out, name, data):
@@ -265,7 +316,8 @@ def _emit_byte_array(out, name, data):
     out.write("\n};\n\n")
 
 
-def emit_header(fragments, prologue, epilogue, output_path):
+def emit_header(fragments, prologue, init_bytes, init_relocs, epilogue,
+                output_path):
     max_opcode = max(f["opcode"] for f in fragments)
     with open(output_path, "w", encoding="utf-8") as out:
         out.write("/*\n")
@@ -276,8 +328,10 @@ def emit_header(fragments, prologue, epilogue, output_path):
         out.write("#define VDBE_CNP_FRAGMENTS_H\n\n")
         out.write("#include <stdint.h>\n\n")
         _emit_byte_array(out, "cnp_fragment_prologue_bytes", prologue)
+        _emit_byte_array(out, "cnp_fragment_init_bytes", init_bytes)
         _emit_byte_array(out, "cnp_fragment_epilogue_bytes", epilogue)
         out.write(f"#define CNP_FRAGMENT_PROLOGUE_SIZE {len(prologue)}u\n")
+        out.write(f"#define CNP_FRAGMENT_INIT_SIZE {len(init_bytes)}u\n")
         out.write(f"#define CNP_FRAGMENT_EPILOGUE_SIZE {len(epilogue)}u\n\n")
         out.write("enum cnp_fragment_kind {\n")
         for num in sorted(FRAG_KIND_NAMES):
@@ -289,11 +343,24 @@ def emit_header(fragments, prologue, epilogue, output_path):
         out.write("    int32_t addend;\n")
         out.write("    const char *symbol_name;\n")
         out.write("};\n\n")
+        if init_relocs:
+            out.write("static const struct cnp_fragment_reloc "
+                      "cnp_fragment_init_relocs[] = {\n")
+            for rel in init_relocs:
+                out.write(
+                    "    { .offset = %d, .reloc_type = %d, .addend = %d, "
+                    '.symbol_name = "%s" },\n'
+                    % (rel["offset"], rel["type"], rel["addend"], rel["sym_name"])
+                )
+            out.write("};\n\n")
+        out.write(f"#define CNP_FRAGMENT_INIT_NUM_RELOCS {len(init_relocs)}u\n\n")
         out.write("struct cnp_fragment {\n")
         out.write("    const uint8_t *bytes;\n")
         out.write("    uint32_t size;\n")
         out.write("    uint32_t dispatch_offset;\n")
+        out.write("    uint32_t transfer_offset;\n")
         out.write("    enum cnp_fragment_kind kind;\n")
+        out.write("    int tail_fallthrough;\n")
         out.write("    const struct cnp_fragment_reloc *relocs;\n")
         out.write("    uint32_t num_relocs;\n")
         out.write("};\n\n")
@@ -316,7 +383,7 @@ def emit_header(fragments, prologue, epilogue, output_path):
                 out.write("};\n\n")
 
         out.write("static const struct cnp_fragment cnp_fragment_none = "
-                  "{ NULL, 0, 0, CNP_FRAG_NONE, NULL, 0 };\n\n")
+                  "{ NULL, 0, 0, 0, CNP_FRAG_NONE, 0, NULL, 0 };\n\n")
         out.write("static const struct cnp_fragment "
                   "cnp_fragments[CNP_FRAG_MAX_OPCODE + 1] = {\n")
         for frag in fragments:
@@ -324,13 +391,15 @@ def emit_header(fragments, prologue, epilogue, output_path):
             reloc_ref = f"cnp_fragment_relocs_{cname}" if frag["relocs"] else "NULL"
             out.write(
                 "    [%d] = { cnp_fragment_bytes_%s, sizeof(cnp_fragment_bytes_%s), "
-                "%d, %s, %s, %d }, /* %s */\n"
+                "%d, %d, %s, %d, %s, %d }, /* %s */\n"
                 % (
                     frag["opcode"],
                     cname,
                     cname,
                     frag["dispatch_offset"],
+                    frag["transfer_offset"],
                     FRAG_KIND_NAMES.get(frag["kind"], "CNP_FRAG_NONE"),
+                    1 if frag["tail_fallthrough"] else 0,
                     reloc_ref,
                     len(frag["relocs"]),
                     frag["name"],
@@ -352,11 +421,13 @@ def main():
     args = parser.parse_args()
 
     print(f"Extracting threaded fragments from {args.input}...")
-    fragments, prologue, epilogue = extract_fragments(args.input, args.opcodes_header)
+    fragments, prologue, init_bytes, init_relocs, epilogue = extract_fragments(
+        args.input, args.opcodes_header
+    )
     if not fragments:
         print("ERROR: No fragments found!", file=sys.stderr)
         sys.exit(1)
-    emit_header(fragments, prologue, epilogue, args.output)
+    emit_header(fragments, prologue, init_bytes, init_relocs, epilogue, args.output)
 
 
 if __name__ == "__main__":

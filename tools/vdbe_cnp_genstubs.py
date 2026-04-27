@@ -133,18 +133,16 @@ extern uint64_t HOLE_HANDLER;
 extern uint64_t HOLE_SIGNAL;
 
 /*
- * Load a 64-bit HOLE address via movabs.  Produces a 10-byte instruction
- * with an R_X86_64_64 relocation — a full 64-bit patchable immediate.
+ * Load a 64-bit HOLE address via movabs.  The symbol name is embedded
+ * directly in the asm string so the compiler emits an R_X86_64_64
+ * relocation without depending on inline-asm immediate constraints.
  */
-static __attribute__((always_inline)) inline uint64_t
-cnp_load_hole(uint64_t *hole)
-{
-    uint64_t val;
-    __asm__ volatile("movabs %1, %0" : "=r"(val) : "i"(hole));
-    return val;
-}
-
-#define LOAD_HOLE(name) cnp_load_hole(&(name))
+#define LOAD_HOLE(name) ({                                   \\
+    uint64_t val;                                            \\
+    __asm__ volatile("movabs $" #name ", %0"                \\
+                     : "=r"(val));                           \\
+    val;                                                     \\
+})
 
 /*
  * Minimal Vdbe field accessors (avoids pulling in full Tarantool headers).
