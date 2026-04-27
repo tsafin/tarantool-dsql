@@ -67,6 +67,26 @@ _Static_assert(offsetof(struct Vdbe, iCompare) ==
 #define CNP_R_X86_64_32 10
 #endif
 
+enum {
+	X86_MOVABS_RAX_PREFIX_0 = 0x48,
+	X86_MOVABS_RAX_PREFIX_1 = 0xB8,
+	X86_CALL_REL32_OPCODE = 0xE8,
+	X86_JMP_REL32_OPCODE = 0xE9,
+	X86_JCC_REL32_PREFIX = 0x0F,
+	X86_JCC_REL32_MIN_OPCODE = 0x80,
+	X86_JCC_REL32_MAX_OPCODE = 0x8F,
+	X86_JMP_RAX_OPCODE_0 = 0xFF,
+	X86_JMP_RAX_OPCODE_1 = 0xE0,
+	X86_LEAVE_OPCODE = 0xC9,
+	X86_RET_OPCODE = 0xC3,
+};
+
+enum {
+	X86_MOVABS_RAX_SIZE = 10,
+	X86_JMP_RAX_SIZE = 2,
+	X86_LEAVE_RET_SIZE = 2,
+};
+
 /* Counters exposed via box.stat.sql() */
 extern int64_t sql_cnp_compile_count;
 extern int64_t sql_cnp_compile_success_count;
@@ -184,6 +204,61 @@ cnp_frag_get_initial_target(void)
 {
 	return cnp_frag_dispatch_table[(size_t)(cnp_frag_pOp - cnp_frag_aOp)];
 }
+
+#if defined(__x86_64__)
+/*
+ * Bridge from the SysV ABI used by C into Clang's x86-64 preserve_none ABI
+ * used by the generated fragment entry.
+ *
+ * The copied fragment entry expects its four live-ins in callee-saved
+ * registers so that stitched fragment bodies can keep reusing them across
+ * helper calls:
+ *   r12 = p
+ *   r13 = aOp
+ *   r14 = pOp
+ *   r15 = aMem
+ *
+ * A normal C call cannot express that register assignment, so the bridge saves
+ * the callee-saved set required by SysV, loads the preserve_none live-ins, and
+ * performs a single indirect call into the copied fragment entry.
+ */
+static int64_t
+cnp_call_preserve_none(void *func, struct Vdbe *p, VdbeOp *aOp, VdbeOp *pOp,
+		       Mem *aMem);
+
+__asm__(
+".text\n"
+".type cnp_call_preserve_none,@function\n"
+"cnp_call_preserve_none:\n\t"
+"push %rbx\n\t"
+"push %r12\n\t"
+"push %r13\n\t"
+"push %r14\n\t"
+"push %r15\n\t"
+"mov %rsi, %r12\n\t"
+"mov %rdx, %r13\n\t"
+"mov %rcx, %r14\n\t"
+"mov %r8, %r15\n\t"
+"call *%rdi\n\t"
+"pop %r15\n\t"
+"pop %r14\n\t"
+"pop %r13\n\t"
+"pop %r12\n\t"
+"pop %rbx\n\t"
+"ret\n\t");
+#else
+static int64_t
+cnp_call_preserve_none(void *func, struct Vdbe *p, VdbeOp *aOp, VdbeOp *pOp,
+		       Mem *aMem)
+{
+	(void)func;
+	(void)p;
+	(void)aOp;
+	(void)pOp;
+	(void)aMem;
+	return -1;
+}
+#endif
 
 /*
  * perf.map support (Linux `perf` JIT symbol resolution).
@@ -1426,34 +1501,50 @@ cnp_patch(uint8_t *patch_addr, uintptr_t target, uint8_t reloc_type, int addend)
 static inline size_t
 cnp_ret_stub_size(void)
 {
-	/* movabs $value,%rax (10) + epilogue (includes retq) */
-	return 10 + CNP_FRAGMENT_EPILOGUE_SIZE;
+	/*
+	 * Fragment-entry extraction may produce no epilogue when the preserve_none
+	 * source is structured as a non-returning dispatcher. In that case the
+	 * synthetic return stubs must close the frame explicitly.
+	 */
+	return X86_MOVABS_RAX_SIZE +
+	       (CNP_FRAGMENT_EPILOGUE_SIZE > 0 ? CNP_FRAGMENT_EPILOGUE_SIZE :
+						X86_LEAVE_RET_SIZE);
 }
 
 static inline size_t
 cnp_abs_jmp_thunk_size(void)
 {
-	/* movabs $target,%rax (10) + jmpq *%rax (2) */
-	return 12;
+	/* movabs $target,%rax + jmpq *%rax */
+	return X86_MOVABS_RAX_SIZE + X86_JMP_RAX_SIZE;
+}
+
+static inline void
+cnp_emit_movabs_rax(uint8_t *dst, uint64_t value)
+{
+	dst[0] = X86_MOVABS_RAX_PREFIX_0;
+	dst[1] = X86_MOVABS_RAX_PREFIX_1;
+	memcpy(dst + 2, &value, sizeof(value));
 }
 
 static void
 cnp_emit_ret_stub(uint8_t *dst, int64_t value)
 {
-	dst[0] = 0x48;
-	dst[1] = 0xb8;
-	memcpy(dst + 2, &value, sizeof(value));
-	memcpy(dst + 10, cnp_fragment_epilogue_bytes, CNP_FRAGMENT_EPILOGUE_SIZE);
+	cnp_emit_movabs_rax(dst, (uint64_t)value);
+	if (CNP_FRAGMENT_EPILOGUE_SIZE > 0) {
+		memcpy(dst + X86_MOVABS_RAX_SIZE, cnp_fragment_epilogue_bytes,
+		       CNP_FRAGMENT_EPILOGUE_SIZE);
+	} else {
+		dst[X86_MOVABS_RAX_SIZE] = X86_LEAVE_OPCODE;
+		dst[X86_MOVABS_RAX_SIZE + 1] = X86_RET_OPCODE;
+	}
 }
 
 static void
 cnp_emit_abs_jmp_thunk(uint8_t *dst, uintptr_t target)
 {
-	dst[0] = 0x48;
-	dst[1] = 0xb8;
-	memcpy(dst + 2, &target, sizeof(target));
-	dst[10] = 0xff;
-	dst[11] = 0xe0;
+	cnp_emit_movabs_rax(dst, target);
+	dst[X86_MOVABS_RAX_SIZE] = X86_JMP_RAX_OPCODE_0;
+	dst[X86_MOVABS_RAX_SIZE + 1] = X86_JMP_RAX_OPCODE_1;
 }
 
 static bool
@@ -1601,6 +1692,32 @@ cnp_fragment_copy_size(const struct cnp_fragment *frag, int pc, int nOp)
 	return frag->size;
 }
 
+static bool
+cnp_reloc_needs_thunk(const uint8_t *code, size_t size, uint32_t offset,
+		       uint8_t reloc_type)
+{
+	if (offset >= size)
+		return false;
+	if (reloc_type != CNP_R_X86_64_PC32 &&
+	    reloc_type != CNP_R_X86_64_PLT32)
+		return false;
+	/*
+	 * Thunks are only needed for control-transfer rel32 relocations
+	 * (call/jump). Data PC-relative loads such as
+	 * `mov cnp_frag_dispatch_table(%rip), %rax` must keep addressing the
+	 * data symbol directly instead of a code thunk.
+	 */
+	if (offset >= 1 && code[offset - 1] == X86_CALL_REL32_OPCODE)
+		return true;
+	if (offset >= 1 && code[offset - 1] == X86_JMP_REL32_OPCODE)
+		return true;
+	if (offset >= 2 && code[offset - 2] == X86_JCC_REL32_PREFIX &&
+	    code[offset - 1] >= X86_JCC_REL32_MIN_OPCODE &&
+	    code[offset - 1] <= X86_JCC_REL32_MAX_OPCODE)
+		return true;
+	return false;
+}
+
 /*
  * Fragment entry dispatcher emitted after the shared prologue.
  *
@@ -1631,9 +1748,10 @@ vdbe_cnp_compile_fragments(struct Vdbe *p)
 	size_t thunk_count = 0;
 
 	for (uint32_t r = 0; r < CNP_FRAGMENT_INIT_NUM_RELOCS; r++) {
-		uint8_t reloc_type = cnp_fragment_init_relocs[r].reloc_type;
-		if (reloc_type == CNP_R_X86_64_PC32 ||
-		    reloc_type == CNP_R_X86_64_PLT32)
+		const struct cnp_fragment_reloc *rel = &cnp_fragment_init_relocs[r];
+		if (cnp_reloc_needs_thunk(cnp_fragment_init_bytes,
+					  CNP_FRAGMENT_INIT_SIZE,
+					  rel->offset, rel->reloc_type))
 			thunk_count++;
 	}
 	for (int i = 0; i < nOp; i++) {
@@ -1641,14 +1759,14 @@ vdbe_cnp_compile_fragments(struct Vdbe *p)
 		size_t copy_size = cnp_fragment_copy_size(frag, i, nOp);
 		total_size += copy_size;
 		for (uint32_t r = 0; r < frag->num_relocs; r++) {
-			uint8_t reloc_type = frag->relocs[r].reloc_type;
 			if (frag->relocs[r].offset >= copy_size)
 				continue;
 			if (cnp_fragment_is_internal_symbol(
 				    frag->relocs[r].symbol_name))
 				continue;
-			if (reloc_type == CNP_R_X86_64_PC32 ||
-			    reloc_type == CNP_R_X86_64_PLT32)
+			if (cnp_reloc_needs_thunk(frag->bytes, copy_size,
+						  frag->relocs[r].offset,
+						  frag->relocs[r].reloc_type))
 				thunk_count++;
 		}
 	}
@@ -1697,8 +1815,9 @@ vdbe_cnp_compile_fragments(struct Vdbe *p)
 			p->cnp_compiled = CNP_COMPILE_FAILED;
 			return -1;
 		}
-		if (rel->reloc_type == CNP_R_X86_64_PC32 ||
-		    rel->reloc_type == CNP_R_X86_64_PLT32) {
+		if (cnp_reloc_needs_thunk(cnp_fragment_init_bytes,
+					  CNP_FRAGMENT_INIT_SIZE,
+					  rel->offset, rel->reloc_type)) {
 			cnp_emit_abs_jmp_thunk(code + thunk_pos, target);
 			target = (uintptr_t)(code + thunk_pos);
 			thunk_pos += cnp_abs_jmp_thunk_size();
@@ -1730,8 +1849,8 @@ vdbe_cnp_compile_fragments(struct Vdbe *p)
 				return -1;
 			}
 			if (!cnp_fragment_is_internal_symbol(rel->symbol_name) &&
-			    (rel->reloc_type == CNP_R_X86_64_PC32 ||
-			     rel->reloc_type == CNP_R_X86_64_PLT32)) {
+			    cnp_reloc_needs_thunk(frag->bytes, copy_size,
+						  rel->offset, rel->reloc_type)) {
 				cnp_emit_abs_jmp_thunk(code + thunk_pos, target);
 				target = (uintptr_t)(code + thunk_pos);
 				thunk_pos += cnp_abs_jmp_thunk_size();
@@ -1981,8 +2100,7 @@ vdbe_cnp_exec(struct Vdbe *p)
 	sql_cnp_exec_count++;
 
 	if (p->cnp_mode == CNP_MODE_FRAGMENTS) {
-		typedef int64_t (*cnp_threaded_func_t)(void);
-		cnp_threaded_func_t func;
+		void *func;
 
 		cnp_frag_p = p;
 		cnp_frag_aOp = p->aOp;
@@ -1999,10 +2117,11 @@ vdbe_cnp_exec(struct Vdbe *p)
 		} else {
 			cnp_frag_pOp = p->aOp;
 		}
-		/* Always enter via prologue so the frame is properly set up. */
-		func = (cnp_threaded_func_t)p->cnp_code;
+		/* Enter the preserve_none fragment entry with explicit live-ins. */
+		func = p->cnp_code;
 
-		int64_t result = func();
+		int64_t result = cnp_call_preserve_none(func, p, p->aOp,
+							 cnp_frag_pOp, p->aMem);
 		if (result == SQL_ROW) {
 			sql_cnp_row_return_count++;
 			if (p->pc >= 0 && p->pc < p->nOp)

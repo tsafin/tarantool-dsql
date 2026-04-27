@@ -21,6 +21,21 @@ R_X86_64_PLT32 = 4
 R_X86_64_32 = 10
 R_X86_64_32S = 11
 
+X86_PUSH_RBP_PROLOGUE = bytes([0x55, 0x48, 0x89, 0xE5])
+X86_PUSH_REX_PREFIX = 0x41
+X86_PUSH_R12_OPCODE = 0x54
+X86_PUSH_R13_OPCODE = 0x55
+X86_PUSH_R14_OPCODE = 0x56
+X86_PUSH_R15_OPCODE = 0x57
+X86_PUSH_RBX_OPCODE = 0x53
+X86_PUSH_RSI_OPCODE = 0x56
+X86_PUSH_RDI_OPCODE = 0x57
+X86_SUB_RSP_IMM32 = bytes([0x48, 0x81, 0xEC])
+X86_SUB_RSP_IMM8 = bytes([0x48, 0x83, 0xEC])
+X86_ADD_RSP_IMM32 = bytes([0x48, 0x81, 0xC4])
+X86_ADD_RSP_IMM8 = bytes([0x48, 0x83, 0xC4])
+X86_RETQ_OPCODE = 0xC3
+
 
 FRAG_KIND_NAMES = {
     0: "CNP_FRAG_NONE",
@@ -29,6 +44,23 @@ FRAG_KIND_NAMES = {
     3: "CNP_FRAG_ROW",
     4: "CNP_FRAG_TERMINAL",
 }
+
+PILOT_FRAGMENTS = [
+    {"name": "OP_Integer", "kind_num": 1, "tail_fallthrough": True},
+    {"name": "OP_Bool", "kind_num": 1, "tail_fallthrough": True},
+    {"name": "OP_Int64", "kind_num": 1, "tail_fallthrough": True},
+    {"name": "OP_Init", "kind_num": 2, "tail_fallthrough": False},
+    {"name": "OP_Add", "kind_num": 1, "tail_fallthrough": True},
+    {"name": "OP_Subtract", "kind_num": 1, "tail_fallthrough": True},
+    {"name": "OP_Multiply", "kind_num": 1, "tail_fallthrough": True},
+    {"name": "OP_Divide", "kind_num": 1, "tail_fallthrough": True},
+    {"name": "OP_Remainder", "kind_num": 1, "tail_fallthrough": True},
+    {"name": "OP_Goto", "kind_num": 2, "tail_fallthrough": False},
+    {"name": "OP_IfNot", "kind_num": 2, "tail_fallthrough": True},
+    {"name": "OP_Once", "kind_num": 2, "tail_fallthrough": True},
+    {"name": "OP_Halt", "kind_num": 4, "tail_fallthrough": False},
+    {"name": "OP_ResultRow", "kind_num": 3, "tail_fallthrough": True},
+]
 
 
 def parse_opcodes_header(path):
@@ -58,6 +90,22 @@ def find_symbol(symtab, name):
         if sym.name == name:
             return sym
     return None
+
+
+def collect_fragment_symbols(symtab):
+    out = {}
+    prefix = "cnp_frag_sym_OP_"
+    suffixes = ("_begin", "_dispatch", "_transfer", "_end")
+    for sym in symtab.iter_symbols():
+        name = sym.name
+        if not name.startswith(prefix):
+            continue
+        for suffix in suffixes:
+            if name.endswith(suffix):
+                frag_name = name[len("cnp_frag_sym_"):-len(suffix)]
+                out.setdefault(frag_name, {})[suffix[1:]] = sym["st_value"]
+                break
+    return out
 
 
 def load_relocations(elf, symtab, section_names):
@@ -106,7 +154,7 @@ def entry_text_offset(entry_rels, entry_base, field_off, entry_bytes,
     )[0]
 
 
-def extract_frame_info(text, func_size):
+def extract_frame_info(text, func_size, init_start=None):
     """Extract the real function prologue and epilogue templates.
 
     The generated fragment source is one function whose .text starts with a
@@ -115,29 +163,32 @@ def extract_frame_info(text, func_size):
     fragment as "prologue".
     """
     i = 0
-    if not text.startswith(bytes([0x55, 0x48, 0x89, 0xE5])):
+    if not text.startswith(X86_PUSH_RBP_PROLOGUE):
         raise RuntimeError("unexpected function prologue in fragment object")
     i = 4
 
     while i < len(text):
         if text[i:i + 2] in (
-            bytes([0x41, 0x54]),
-            bytes([0x41, 0x55]),
-            bytes([0x41, 0x56]),
-            bytes([0x41, 0x57]),
+            bytes([X86_PUSH_REX_PREFIX, X86_PUSH_R12_OPCODE]),
+            bytes([X86_PUSH_REX_PREFIX, X86_PUSH_R13_OPCODE]),
+            bytes([X86_PUSH_REX_PREFIX, X86_PUSH_R14_OPCODE]),
+            bytes([X86_PUSH_REX_PREFIX, X86_PUSH_R15_OPCODE]),
         ):
             i += 2
             continue
-        if text[i] in (0x50, 0x53, 0x56, 0x57):
+        if text[i] in (0x50, X86_PUSH_RBX_OPCODE, X86_PUSH_RSI_OPCODE,
+                       X86_PUSH_RDI_OPCODE):
             i += 1
             continue
         break
 
-    if text[i:i + 3] == bytes([0x48, 0x81, 0xEC]):
+    if init_start is not None and init_start > i:
+        prologue_end = init_start
+    elif text[i:i + 3] == X86_SUB_RSP_IMM32:
         prologue_end = i + 7
-    elif text[i:i + 3] == bytes([0x48, 0x83, 0xEC]):
+    elif text[i:i + 3] == X86_SUB_RSP_IMM8:
         prologue_end = i + 4
-    elif i > 4:
+    elif i >= 4:
         prologue_end = i
     else:
         raise RuntimeError("could not locate stack allocation in prologue")
@@ -145,22 +196,24 @@ def extract_frame_info(text, func_size):
 
     retq_pos = None
     for i in range(min(func_size, len(text)) - 1, -1, -1):
-        if text[i] == 0xC3:
+        if text[i] == X86_RETQ_OPCODE:
             retq_pos = i
             break
     if retq_pos is None:
-        raise RuntimeError("could not locate function retq in .text")
+        print("  epilogue: none (fragment entry does not return)")
+        return prologue, b""
 
     epilogue_start = None
     for i in range(retq_pos - 3, -1, -1):
-        if text[i:i + 3] == bytes([0x48, 0x81, 0xC4]):
+        if text[i:i + 3] == X86_ADD_RSP_IMM32:
             epilogue_start = i
             break
-        if text[i:i + 3] == bytes([0x48, 0x83, 0xC4]):
+        if text[i:i + 3] == X86_ADD_RSP_IMM8:
             epilogue_start = i
             break
     if epilogue_start is None:
-        raise RuntimeError("could not locate stack teardown in epilogue")
+        print("  epilogue: none (no explicit stack teardown in fragment entry)")
+        return prologue, b""
 
     epilogue = bytes(text[epilogue_start:retq_pos + 1])
     print(f"  prologue: {len(prologue)} bytes at text[0..{prologue_end:#x}]")
@@ -170,18 +223,16 @@ def extract_frame_info(text, func_size):
 
 def extract_fragments(obj_path, opcodes_header_path):
     opcode_names = parse_opcodes_header(opcodes_header_path)
+    opcode_by_name = {name: opcode for opcode, name in opcode_names.items()}
     with open(obj_path, "rb") as f:
         elf = ELFFile(f)
-        text_section = elf.get_section_by_name(".text")
-        rodata_section = (elf.get_section_by_name(".rodata") or
-                          elf.get_section_by_name(".data.rel.ro"))
+        text_section = (elf.get_section_by_name(".ltext") or
+                        elf.get_section_by_name(".text"))
         symtab = elf.get_section_by_name(".symtab")
-        if text_section is None or rodata_section is None or symtab is None:
+        if text_section is None or symtab is None:
             missing = []
             if text_section is None:
-                missing.append(".text")
-            if rodata_section is None:
-                missing.append(".rodata/.data.rel.ro")
+                missing.append(".text/.ltext")
             if symtab is None:
                 missing.append(".symtab")
             raise RuntimeError(
@@ -189,50 +240,30 @@ def extract_fragments(obj_path, opcodes_header_path):
             )
 
         text = text_section.data()
-        rodata = rodata_section.data()
 
-        entries_sym = find_local_symbol(symtab, "cnp_fragment_entries.entr")
-        if entries_sym is None:
-            raise RuntimeError("cnp_fragment_entries.entries symbol not found")
-
-        text_rels = load_relocations(elf, symtab, (".rela.text", ".rel.text"))
-        entry_rels = relocation_map(
-            load_relocations(
-                elf,
-                symtab,
-                (
-                    f".rela{rodata_section.name}",
-                    f".rel{rodata_section.name}",
-                ),
-            ),
-            entries_sym["st_value"],
-            entries_sym["st_size"],
+        text_rels = load_relocations(
+            elf, symtab,
+            (f".rela{text_section.name}", f".rel{text_section.name}")
         )
-
-        entry_off = entries_sym["st_value"]
-        entry_size = entries_sym["st_size"]
-        if entry_size % 28 != 0:
-            raise RuntimeError(f"unexpected fragment entry size block: {entry_size}")
-        count = entry_size // 28
-        entry_bytes = rodata[entry_off:entry_off + entry_size]
-
         frag_base_sym = find_symbol(symtab, "cnp_frag_base_label")
         frag_base_text_off = 0 if frag_base_sym is None else frag_base_sym["st_value"]
+        frag_symbols = collect_fragment_symbols(symtab)
+        if not frag_symbols:
+            raise RuntimeError("no cnp_frag_sym_OP_* symbols found")
 
         fragments = []
-        for i in range(count):
-            base = i * 28
-            opcode = struct.unpack_from("<i", entry_bytes, base)[0]
-            begin = entry_text_offset(entry_rels, base, 4, entry_bytes,
-                                      frag_base_text_off)
-            dispatch = entry_text_offset(entry_rels, base, 8, entry_bytes,
-                                         frag_base_text_off)
-            transfer = entry_text_offset(entry_rels, base, 12, entry_bytes,
-                                         frag_base_text_off)
-            end = entry_text_offset(entry_rels, base, 16, entry_bytes,
-                                     frag_base_text_off)
-            kind_num = struct.unpack_from("<i", entry_bytes, base + 20)[0]
-            tail_fallthrough = struct.unpack_from("<i", entry_bytes, base + 24)[0]
+        for frag_spec in PILOT_FRAGMENTS:
+            name = frag_spec["name"]
+            opcode = opcode_by_name.get(name)
+            sym = frag_symbols.get(name)
+            if opcode is None or sym is None:
+                continue
+            begin = sym["begin"]
+            dispatch = sym["dispatch"]
+            transfer = sym["transfer"]
+            end = sym["end"]
+            kind_num = frag_spec["kind_num"]
+            tail_fallthrough = frag_spec["tail_fallthrough"]
             if begin < end and text[begin] == 0x00:
                 begin += 1
                 dispatch += 1
@@ -255,7 +286,6 @@ def extract_fragments(obj_path, opcodes_header_path):
                         "sym_name": rel["sym_name"],
                     })
 
-            name = opcode_names.get(opcode, f"OP_{opcode}")
             frag = {
                 "opcode": opcode,
                 "name": name,
@@ -301,8 +331,8 @@ def extract_fragments(obj_path, opcodes_header_path):
         print(f"  fragment code starts at .text offset {frag_base:#x}")
         print(f"  init region: {len(init_bytes)} bytes (truncated at jmpq), "
               f"{len(init_relocs)} relocs")
-        func_size = symtab.get_symbol_by_name("cnp_fragment_entries")[0]["st_size"]
-        prologue, epilogue = extract_frame_info(text, func_size)
+        func_size = symtab.get_symbol_by_name("cnp_fragment_entry")[0]["st_size"]
+        prologue, epilogue = extract_frame_info(text, func_size, frag_base)
 
         return fragments, prologue, init_bytes, init_relocs, epilogue
 
