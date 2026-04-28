@@ -526,7 +526,7 @@ cnp_fragment_base:
     __asm__ volatile ("subq $16, %%rsp\\n\\t"
                       "mov %0, -16(%%rbp)\\n\\t"
                       "mov %1, -8(%%rbp)"
-                      :: "r"(pOp), "r"(aOp) : "memory");
+                      :: "r"(pOp), "r"(aOp) : "memory", "r12", "r13", "r14", "r15");
 
     void **dispatch_table = cnp_frag_get_dispatch_table();
     __asm__ volatile ("jmpq *%0"
