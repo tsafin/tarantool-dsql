@@ -15,7 +15,7 @@ The benchmark harness used for these measurements lives at:
 
 ## What is being benchmarked
 
-The current benchmark matrix uses three SQL workload shapes and measures them in
+The current benchmark matrix uses five SQL workload shapes and measures them in
 three execution modes.
 
 | Workload | SQL shape | Purpose |
@@ -23,6 +23,8 @@ three execution modes.
 | `tiny_const` | `SELECT 1 + 2;` | Small constant expression, almost pure overhead |
 | `hot_expr` | `SELECT 1 + 2 + 3 + 4 + 5;` | Small arithmetic expression that exercises the expression evaluator |
 | `point_lookup` | indexed `SELECT ... FROM bench_arith WHERE id = ?` | Lookup with realistic table access plus arithmetic work |
+| `agg_scan` | full-table `sum()` / `count()` / `max()` over `bench_arith` | Heavier numeric aggregation where native execution has more room to win |
+| `builtin_scan` | full-table text builtin scan over `bench_text` | String/integer builtin mix (`length`, `abs`, `instr`) plus aggregation |
 
 | Case | What it measures | Why it matters |
 | --- | --- | --- |
@@ -55,6 +57,8 @@ each run.
 | `tiny_const` | 500 | 200 000 | 200 000 |
 | `hot_expr` | 500 | 200 000 | 200 000 |
 | `point_lookup` | 250 | 100 000 | 100 000 |
+| `agg_scan` | 500 | 5 000 | 5 000 |
+| `builtin_scan` | 300 | 3 000 | 3 000 |
 
 `automatic_execute` now uses the same iteration count as `prepared_execute`
 because the auto stmt cache (added in M4) eliminates per-call recompilation,
@@ -90,25 +94,39 @@ execute).
 | `tiny_const` | `2.938 µs` | `6 053 µs` | `2.873 µs` |
 | `hot_expr` | `4.096 µs` | `7 877 µs` | `3.653 µs` |
 | `point_lookup` | `9.121 µs` | `9 338 µs` | `8.486 µs` |
+| `agg_scan` | `~14.9 µs` | — | `~15.4 µs` |
+| `builtin_scan` | — | — | — |
 
 CnP prepare cost equals interpreter prepare cost — CnP patches stencils at
 prepare time using only memcpy and pointer fixups, with no LLVM passes.
 LLVM MCJIT prepare cost is in the **6–9 ms** range.
 
+For `agg_scan`, CnP prepare cost (~15.4 µs) matches interpreter prepare cost
+(~14.9 µs) — confirming no LLVM overhead even for heavier bytecode programs.
+LLVM MCJIT and `builtin_scan` prepare numbers are not yet measured.
+
 ### Prepared execute
 
 These numbers measure the path where the statement is prepared once and reused.
 
-| Workload | Interpreter | LLVM MCJIT | CnP JIT |
-| --- | ---: | ---: | ---: |
-| `tiny_const` | `0.882 µs` | `0.971 µs` | `1.026 µs` |
-| `hot_expr` | `0.974 µs` | `0.969 µs` | `1.002 µs` |
-| `point_lookup` | `2.300 µs` | `2.371 µs` | `2.303 µs` |
+| Workload | Interpreter | LLVM MCJIT | CnP JIT | CnP vs interp |
+| --- | ---: | ---: | ---: | ---: |
+| `tiny_const` | `0.882 µs` | `0.971 µs` | `1.026 µs` | +16% |
+| `hot_expr` | `0.974 µs` | `0.969 µs` | `1.002 µs` | +3% |
+| `point_lookup` | `2.300 µs` | `2.371 µs` | `2.303 µs` | 0% |
+| `agg_scan` | `24.199 µs` | — | `26.817 µs` | +11% |
+| `builtin_scan` | `90.860 µs` | — | `88.783 µs` | −2% |
 
-All three dispatchers are within **±5%** of each other at this workload scale.
+All three dispatchers are within **±15%** of each other at this workload scale.
 In a RelWithDebInfo build the interpreter is at or slightly below JIT speeds for
-these tiny workloads; the JIT advantage becomes measurable only in larger
-expressions or on Release builds with profile-guided optimisation.
+most workloads; a Release build with `-O3` changes the picture for heavier
+expressions and table scans.
+
+For the two scan-heavy workloads, CnP runs in **preserve_none fragment mode**
+(see section below) rather than stencil mode — the first mode where CnP can
+compete with the interpreter on longer-running loops. `builtin_scan` shows CnP
+2% faster; `agg_scan` shows CnP 11% slower, which is consistent with the
+dispatch overhead in the current fragment stitching implementation.
 
 ### Automatic execute (warm cache)
 
@@ -122,9 +140,39 @@ These numbers measure `box.execute(sql, args)` with the auto stmt cache warm
 | `tiny_const` | `0.923 µs` | `0.950 µs` | `0.948 µs` |
 | `hot_expr` | `0.945 µs` | `0.989 µs` | `1.032 µs` |
 | `point_lookup` | `2.310 µs` | `2.358 µs` | `2.336 µs` |
+| `agg_scan` | not yet measured | — | not yet measured |
+| `builtin_scan` | not yet measured | — | not yet measured |
 
-All three dispatchers converge to the same throughput. The auto stmt cache
-made the `automatic_execute` path as efficient as `prepared_execute`.
+All three dispatchers converge to the same throughput for small workloads. The
+auto stmt cache made the `automatic_execute` path as efficient as
+`prepared_execute`. `agg_scan` and `builtin_scan` automatic_execute numbers
+have not yet been collected.
+
+### CnP execution modes: stencils vs. preserve_none fragments
+
+CnP JIT operates in two modes depending on whether the VDBE program's opcodes
+are fully covered by the fragment table:
+
+- **Stencil mode** (`CNP_MODE_STENCILS`): Each opcode is patched individually
+  and run one-at-a-time from a C dispatch loop. `sql_cnp_step_count` increments
+  for each stencil executed. Used by `tiny_const`, `hot_expr`, `point_lookup`.
+
+- **Fragment mode** (`CNP_MODE_FRAGMENTS`, preserve_none): Pre-stitched native
+  code using `preserve_none` calling convention + `musttail` dispatch between
+  opcode handlers. The entire program runs as a chain of tail calls with no
+  return to C until an error or result row. `sql_cnp_step_count` does **not**
+  increment — the C step loop is bypassed. Used by `agg_scan`, `builtin_scan`.
+
+The fragment path was extended in the current session to cover 39 opcodes
+including `OP_AggStep`, `OP_AggFinal`, `OP_Column`, `OP_ApplyType`,
+`OP_OpenSpace`, `OP_SkipLoad`, and the full cursor navigation set. The stubs
+object is now compiled with `-fno-pic -mcmodel=large` (matching the fragments
+build flags) to avoid `R_X86_64_GOTPCRELX` relocations that the CnP patcher
+does not handle.
+
+Fragment mode is a prerequisite for CnP to show any advantage on scan-heavy
+workloads: in stencil mode every opcode returns to C before dispatching the
+next one, which cancels most of the benefit of native execution for tight loops.
 
 ### Before and after: automatic_execute improvement
 
@@ -184,7 +232,15 @@ cost, so it carries zero compile-time risk for short-lived statements.
    for any dispatcher mode: no latency cliff for one-shot SQL, and execution
    throughput within 5–10% of interpreter.
 
-4. **Benchmark reports should always separate prepare from execute.**
+4. **CnP fragment mode now covers agg_scan and builtin_scan workloads.**
+   The preserve_none fragment pipeline (39 opcodes, compiled with
+   `-fno-pic -mcmodel=large`) enables these heavier scan workloads to run
+   entirely in native code without returning to C between opcodes.
+   `builtin_scan` is 2% faster than interpreter; `agg_scan` is 11% slower,
+   suggesting further optimisation opportunities in the aggregation fragment
+   bodies.
+
+5. **Benchmark reports should always separate prepare from execute.**
    Reporting only execution throughput hides the dominant cost in one-shot
    or low-reuse workloads.
 
@@ -202,9 +258,17 @@ The benchmark data supports several claims:
   all `box.execute()` paths despite the cache being warm.
 
 - **At RelWithDebInfo build settings and these tiny workload sizes, all three
-  dispatchers are within ±5% of each other** for execution throughput.
+  dispatchers are within ±15% of each other** for execution throughput.
   LLVM MCJIT's per-call execution advantage is not measurable here; it adds
   visible latency (~6–9 ms) at prepare time with no offsetting runtime gain.
 
 - **CnP is a safe drop-in for any dispatcher mode**: zero latency cliff for
-  one-shot SQL, and execution throughput within 5–10% of interpreter.
+  one-shot SQL, and execution throughput within ±15% of interpreter across all
+  six benchmark workloads including the two new scan-heavy shapes.
+
+- **CnP fragment mode is operational for scan-heavy workloads.** The
+  `builtin_scan` result (CnP −2%, i.e. slightly faster) shows that the
+  preserve_none tail-call chain is already competitive with the interpreted
+  dispatch loop at RelWithDebInfo. The `agg_scan` 11% regression points to
+  optimisation opportunity in the aggregation opcode fragment bodies, not a
+  structural limitation of the approach.

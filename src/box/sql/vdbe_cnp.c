@@ -205,61 +205,6 @@ cnp_frag_get_initial_target(void)
 	return cnp_frag_dispatch_table[(size_t)(cnp_frag_pOp - cnp_frag_aOp)];
 }
 
-#if defined(__x86_64__)
-/*
- * Bridge from the SysV ABI used by C into Clang's x86-64 preserve_none ABI
- * used by the generated fragment entry.
- *
- * The copied fragment entry expects its four live-ins in callee-saved
- * registers so that stitched fragment bodies can keep reusing them across
- * helper calls:
- *   r12 = p
- *   r13 = aOp
- *   r14 = pOp
- *   r15 = aMem
- *
- * A normal C call cannot express that register assignment, so the bridge saves
- * the callee-saved set required by SysV, loads the preserve_none live-ins, and
- * performs a single indirect call into the copied fragment entry.
- */
-static int64_t
-cnp_call_preserve_none(void *func, struct Vdbe *p, VdbeOp *aOp, VdbeOp *pOp,
-		       Mem *aMem);
-
-__asm__(
-".text\n"
-".type cnp_call_preserve_none,@function\n"
-"cnp_call_preserve_none:\n\t"
-"push %rbx\n\t"
-"push %r12\n\t"
-"push %r13\n\t"
-"push %r14\n\t"
-"push %r15\n\t"
-"mov %rsi, %r12\n\t"
-"mov %rdx, %r13\n\t"
-"mov %rcx, %r14\n\t"
-"mov %r8, %r15\n\t"
-"call *%rdi\n\t"
-"pop %r15\n\t"
-"pop %r14\n\t"
-"pop %r13\n\t"
-"pop %r12\n\t"
-"pop %rbx\n\t"
-"ret\n\t");
-#else
-static int64_t
-cnp_call_preserve_none(void *func, struct Vdbe *p, VdbeOp *aOp, VdbeOp *pOp,
-		       Mem *aMem)
-{
-	(void)func;
-	(void)p;
-	(void)aOp;
-	(void)pOp;
-	(void)aMem;
-	return -1;
-}
-#endif
-
 /*
  * perf.map support (Linux `perf` JIT symbol resolution).
  *
@@ -1049,6 +994,9 @@ cnp_arena_alloc(size_t nbytes)
  * next stencil to execute, or a terminal/coroutine status code.
  */
 typedef int64_t (*cnp_stencil_func_t)(struct Vdbe *p, Mem *aMem);
+typedef int64_t (*cnp_fragment_func_t)(struct Vdbe *p, VdbeOp *aOp,
+				       VdbeOp *pOp, Mem *aMem)
+	__attribute__((preserve_none));
 
 #if SQL_VDBE_OP_PROFILE
 static int
@@ -1628,6 +1576,52 @@ cnp_resolve_fragment_symbol(const char *name)
 		return (uintptr_t)vdbe_op_once_inline;
 	if (strcmp(name, "vdbe_op_resultrow") == 0)
 		return (uintptr_t)vdbe_op_resultrow;
+	/* agg_scan / builtin_scan fallthrough handlers */
+	if (strcmp(name, "vdbe_op_null") == 0)
+		return (uintptr_t)vdbe_op_null;
+	if (strcmp(name, "vdbe_op_variable") == 0)
+		return (uintptr_t)vdbe_op_variable;
+	if (strcmp(name, "vdbe_op_copy") == 0)
+		return (uintptr_t)vdbe_op_copy;
+	if (strcmp(name, "vdbe_op_scopy") == 0)
+		return (uintptr_t)vdbe_op_scopy;
+	if (strcmp(name, "vdbe_op_addimm_inline") == 0)
+		return (uintptr_t)vdbe_op_addimm_inline;
+	if (strcmp(name, "vdbe_op_ttransaction_inline") == 0)
+		return (uintptr_t)vdbe_op_ttransaction_inline;
+	if (strcmp(name, "vdbe_op_iteratoropen") == 0)
+		return (uintptr_t)vdbe_op_iteratoropen;
+	if (strcmp(name, "vdbe_op_nullrow_inline") == 0)
+		return (uintptr_t)vdbe_op_nullrow_inline;
+	if (strcmp(name, "vdbe_op_column") == 0)
+		return (uintptr_t)vdbe_op_column;
+	if (strcmp(name, "vdbe_op_applytype") == 0)
+		return (uintptr_t)vdbe_op_applytype;
+	if (strcmp(name, "vdbe_op_openspace_inline") == 0)
+		return (uintptr_t)vdbe_op_openspace_inline;
+	if (strcmp(name, "vdbe_op_skipload_inline") == 0)
+		return (uintptr_t)vdbe_op_skipload_inline;
+	if (strcmp(name, "vdbe_op_aggstep") == 0)
+		return (uintptr_t)vdbe_op_aggstep;
+	if (strcmp(name, "vdbe_op_aggfinal") == 0)
+		return (uintptr_t)vdbe_op_aggfinal;
+	if (strcmp(name, "vdbe_op_builtinfunction") == 0)
+		return (uintptr_t)vdbe_op_builtinfunction;
+	/* agg_scan / builtin_scan JUMP_P2 cursor handlers */
+	if (strcmp(name, "vdbe_op_rewind") == 0)
+		return (uintptr_t)vdbe_op_rewind;
+	if (strcmp(name, "vdbe_op_seekge") == 0)
+		return (uintptr_t)vdbe_op_seekge;
+	if (strcmp(name, "vdbe_op_seekle") == 0)
+		return (uintptr_t)vdbe_op_seekle;
+	if (strcmp(name, "vdbe_op_seeklt") == 0)
+		return (uintptr_t)vdbe_op_seeklt;
+	if (strcmp(name, "vdbe_op_seekgt") == 0)
+		return (uintptr_t)vdbe_op_seekgt;
+	if (strcmp(name, "vdbe_op_idx_compare") == 0)
+		return (uintptr_t)vdbe_op_idx_compare;
+	if (strcmp(name, "vdbe_op_next_jit") == 0)
+		return (uintptr_t)vdbe_op_next_jit;
 	if (strcmp(name, "vdbe_prepare_null_out") == 0)
 		return (uintptr_t)vdbe_prepare_null_out;
 	if (strcmp(name, "mem_set_int") == 0)
@@ -1656,7 +1650,8 @@ cnp_fragment_is_internal_symbol(const char *name)
 		strcmp(name, "cnp_frag_jump_p2_label") == 0 ||
 		strcmp(name, "cnp_frag_error_label") == 0 ||
 		strcmp(name, "cnp_frag_row_label") == 0 ||
-		strcmp(name, "cnp_frag_done_label") == 0);
+		strcmp(name, "cnp_frag_done_label") == 0 ||
+		strcmp(name, "cnp_fragment_entry") == 0);
 }
 
 static uintptr_t
@@ -1742,9 +1737,10 @@ vdbe_cnp_compile_fragments(struct Vdbe *p)
 {
 	int nOp = p->nOp;
 	Op *aOp = p->aOp;
+	size_t entry_size = CNP_FRAGMENT_WRAPPER_SIZE;
 	size_t preamble_size =
 		CNP_FRAGMENT_PROLOGUE_SIZE + CNP_FRAGMENT_INIT_SIZE;
-	size_t total_size = preamble_size;
+	size_t total_size = entry_size + preamble_size;
 	size_t thunk_count = 0;
 
 	for (uint32_t r = 0; r < CNP_FRAGMENT_INIT_NUM_RELOCS; r++) {
@@ -1777,16 +1773,18 @@ vdbe_cnp_compile_fragments(struct Vdbe *p)
 	if (code == NULL)
 		return -1;
 
-	/* Emit prologue + init dispatcher (extracted from fragment object). */
-	memcpy(code, cnp_fragment_prologue_bytes, CNP_FRAGMENT_PROLOGUE_SIZE);
-	memcpy(code + CNP_FRAGMENT_PROLOGUE_SIZE, cnp_fragment_init_bytes,
+	/* Emit normal-ABI wrapper + preserve_none prologue/init dispatcher. */
+	memcpy(code, cnp_fragment_wrapper_bytes, CNP_FRAGMENT_WRAPPER_SIZE);
+	memcpy(code + entry_size, cnp_fragment_prologue_bytes,
+	       CNP_FRAGMENT_PROLOGUE_SIZE);
+	memcpy(code + entry_size + CNP_FRAGMENT_PROLOGUE_SIZE, cnp_fragment_init_bytes,
 	       CNP_FRAGMENT_INIT_SIZE);
 
 	void **pc_stencil = (void **)calloc((size_t)nOp + 3, sizeof(void *));
 	if (pc_stencil == NULL)
 		return -1;
 
-	size_t pos = preamble_size;
+	size_t pos = entry_size + preamble_size;
 	for (int i = 0; i < nOp; i++) {
 		const struct cnp_fragment *frag = &cnp_fragments[aOp[i].opcode];
 		size_t copy_size = cnp_fragment_copy_size(frag, i, nOp);
@@ -1806,6 +1804,21 @@ vdbe_cnp_compile_fragments(struct Vdbe *p)
 	pos += cnp_ret_stub_size();
 	size_t thunk_pos = pos;
 
+	for (uint32_t r = 0; r < CNP_FRAGMENT_WRAPPER_NUM_RELOCS; r++) {
+		const struct cnp_fragment_reloc *rel = &cnp_fragment_wrapper_relocs[r];
+		uintptr_t target;
+		if (strcmp(rel->symbol_name, "cnp_fragment_entry") == 0)
+			target = (uintptr_t)(code + entry_size);
+		else
+			target = cnp_resolve_fragment_symbol(rel->symbol_name);
+		if (target == 0) {
+			free(pc_stencil);
+			p->cnp_compiled = CNP_COMPILE_FAILED;
+			return -1;
+		}
+		cnp_patch(code + rel->offset, target, rel->reloc_type, rel->addend);
+	}
+
 	/* Patch call relocations in the init region. */
 	for (uint32_t r = 0; r < CNP_FRAGMENT_INIT_NUM_RELOCS; r++) {
 		const struct cnp_fragment_reloc *rel = &cnp_fragment_init_relocs[r];
@@ -1822,7 +1835,7 @@ vdbe_cnp_compile_fragments(struct Vdbe *p)
 			target = (uintptr_t)(code + thunk_pos);
 			thunk_pos += cnp_abs_jmp_thunk_size();
 		}
-		cnp_patch(code + CNP_FRAGMENT_PROLOGUE_SIZE + rel->offset,
+		cnp_patch(code + entry_size + CNP_FRAGMENT_PROLOGUE_SIZE + rel->offset,
 			  target, rel->reloc_type, rel->addend);
 	}
 
@@ -1870,6 +1883,21 @@ vdbe_cnp_compile_fragments(struct Vdbe *p)
 	p->cnp_nop = nOp;
 	sql_cnp_compile_success_count++;
 	sql_cnp_compiled_bytes += thunk_pos;
+
+	cnp_perf_map_add(p, code, (uint32_t)thunk_pos);
+	cnp_register_frame(p);
+	cnp_gdb_register(p);
+
+	uint32_t *pc_offset = (uint32_t *)calloc((size_t)nOp, sizeof(uint32_t));
+	if (pc_offset != NULL) {
+		for (int i = 0; i < nOp; i++) {
+			pc_offset[i] = (uint32_t)
+				((uint8_t *)pc_stencil[i] - code);
+		}
+		cnp_jitdump_write(p, nOp, aOp, pc_offset);
+		free(pc_offset);
+	}
+
 	return 0;
 }
 
@@ -2100,7 +2128,7 @@ vdbe_cnp_exec(struct Vdbe *p)
 	sql_cnp_exec_count++;
 
 	if (p->cnp_mode == CNP_MODE_FRAGMENTS) {
-		void *func;
+		cnp_fragment_func_t func;
 
 		cnp_frag_p = p;
 		cnp_frag_aOp = p->aOp;
@@ -2118,10 +2146,9 @@ vdbe_cnp_exec(struct Vdbe *p)
 			cnp_frag_pOp = p->aOp;
 		}
 		/* Enter the preserve_none fragment entry with explicit live-ins. */
-		func = p->cnp_code;
+		func = (cnp_fragment_func_t)p->cnp_code;
 
-		int64_t result = cnp_call_preserve_none(func, p, p->aOp,
-							 cnp_frag_pOp, p->aMem);
+		int64_t result = func(p, p->aOp, cnp_frag_pOp, p->aMem);
 		if (result == SQL_ROW) {
 			sql_cnp_row_return_count++;
 			if (p->pc >= 0 && p->pc < p->nOp)

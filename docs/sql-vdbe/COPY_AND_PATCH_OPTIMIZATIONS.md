@@ -2,22 +2,28 @@
 
 ## 1. Problem statement
 
-Current CnP compile time is good, but execution throughput is not yet
-consistently better than the interpreter. The current runtime model explains
-why:
+Current CnP compile time is good, and the stitched-fragment pilot is now
+correct on the benchmark workloads, but execution throughput is still not
+consistently better than the generated interpreter.
 
-- each opcode executes as a separate stencil function,
-- each stencil uses the normal C ABI,
-- many stencils call a generic helper function,
-- the outer CnP loop decodes a tagged return value after every opcode.
+The important distinction is that the implementation has moved away from the
+older wrapper-stencil design:
 
-This means the current CnP path still pays a substantial per-op dispatch cost.
-For short programs such as `tiny_const` and `hot_expr`, this dispatch cost can
-dominate the actual work and erase any benefit from native code generation.
+- the hot path no longer executes one ordinary C function per opcode,
+- the fragment object is built from a dedicated `preserve_none` source,
+- runtime code now stitches copied opcode fragments in VDBE order,
+- straight-line transitions use patched local control flow rather than a
+  return-to-C loop,
+- explicit exits remain only for row / done / error and other non-linear
+  transitions.
 
-The main optimization question is therefore not "how do we compile faster?"
-but "how do we reduce per-op execution overhead and improve code quality of the
-generated native path?"
+So the main optimization question is no longer "how do we compile faster?" and
+no longer even primarily "how do we remove the outer dispatch loop?" The
+remaining question is:
+
+- how do we reduce the residual per-fragment overhead still present inside the
+  stitched code,
+- while keeping the fragment ABI explicit and extraction robust?
 
 ## 2. Hypothesis: inline the first helper layer into stencils
 
@@ -102,41 +108,38 @@ only answer.
 
 ## 5. Recommendation on ABI changes
 
-Do not begin the threaded-fragment conversion with a custom calling
-convention change such as a Haskell-style register ABI.
+The stitched-fragment path now does use an explicit internal ABI, but only
+inside the copied-fragment execution domain.
 
-This is more important for the stitched-fragment design than it was for the
-wrapper-stencil design. A calling convention governs function boundaries, but
-the preferred CnP model is specifically trying to stop treating opcode
-handlers as ordinary standalone functions. The hot path should be:
+The current working design is:
 
-- fragment A body,
-- fallthrough into fragment B body,
-- fallthrough into fragment C body,
-- explicit exit only when semantics require it.
+1. `vdbe_cnp_exec()` still calls the fragment entry with the normal SysV C ABI.
+2. A tiny generated wrapper acts as a one-way ABI bridge.
+3. That wrapper moves live-ins into fixed internal registers and jumps into the
+   fragment entry.
+4. The stitched fragment body then runs under a stable `preserve_none`
+   contract until it exits back to ordinary C.
 
-So the first ABI question is not "which function ABI should we use?" but:
+Current live-ins:
 
-- which values must be stable live-ins at fragment entry,
-- where do those values live,
-- and how do we make that stable enough for extraction and stitching?
+- `r12 = p`
+- `r13 = aOp`
+- `r14 = pOp`
+- `r15 = aMem`
 
-For the threaded-fragment model, the practical candidates are:
+This is the right level for ABI control:
 
-1. explicit state in memory or globals
-2. a dedicated fragment-production source with controlled live-ins
-3. only later, a custom register ABI if it is still justified
+- normal helpers remain normal C functions,
+- the runtime call site remains ordinary C,
+- only the stitched fragment domain uses the custom internal contract.
 
-A custom function calling convention does not by itself stabilize raw labels
-cut from one large threaded interpreter body. The compiler still owns
-register allocation, spilling, and temporary lifetime inside that body.
+So the practical ABI rule is now:
 
-That is why the correct order is:
-
-1. measure the current hot costs,
-2. switch from wrapper stencils to stitched threaded fragments,
-3. make fragment live-ins explicit and stable,
-4. only then evaluate whether a custom internal ABI is still justified.
+- do **not** migrate every handler to `preserve_none`,
+- do stabilize the entry bridge and the fragment-production source around the
+  fixed live-ins above,
+- and only extend that internal ABI where it materially simplifies stitched
+  native execution.
 
 ## 6. High-level optimization strategy
 
@@ -272,7 +275,7 @@ And the code order should be:
    - [`vdbe_ops_cursor_nav.c`](/home/tsafin/tarantool/src/box/sql/vdbe_ops_cursor_nav.c)
    - [`vdbe_ops_index.c`](/home/tsafin/tarantool/src/box/sql/vdbe_ops_index.c)
 
-## 8. Initial O2 results: first helper layer inlined
+## 8. Historical O2 results: first helper layer inlined
 
 The first implementation wave is now in place for:
 
@@ -477,44 +480,46 @@ That keeps the next optimization steps honest:
 - do not reintroduce the header-coupling problem that previously broke the
   stencil build
 
-## 9. Current stencil execution schema
+## 9. Current stitched-fragment execution schema
 
-The current CnP schema is intentionally conservative:
+The current CnP schema is no longer the older function-per-stencil model.
+Today it is:
 
-- each stencil is a normal function,
-- stencils use the ordinary C ABI,
-- each stencil returns a tagged `int64_t`,
-- the C loop in [`vdbe_cnp_exec()`](/home/tsafin/tarantool/src/box/sql/vdbe_cnp.c#L1462)
-  decodes that return and dispatches the next stencil.
+- a generated fragment object built from a dedicated `preserve_none` source,
+- a tiny naked wrapper that bridges SysV call arguments into the internal live-in
+  registers,
+- an explicit shared fragment entry that reserves the required frame slots for
+  `pOp` and `aOp`,
+- copied opcode fragments stitched into one runtime code buffer,
+- patched local edges for fallthrough / P2 / row / done / error handling.
 
-This schema was chosen first because it is:
+Two details were necessary to make this reliable:
 
-- easy to generate from extracted machine-code stencils,
-- easy to integrate with existing C helpers,
-- easy to debug and unwind,
-- easy to keep correct while CnP coverage is still expanding.
+1. **Stable live-ins at fragment entry.**
+   The fragment body expects the internal ABI registers listed in §5. The
+   wrapper is therefore part of the design, not an optional convenience.
 
-It also made mixed execution easier:
+2. **Explicit frame slots for extracted code.**
+   The copied fragments reload `pOp` and `aOp` from fixed `rbp`-relative
+   storage. Those slots must be created deliberately by the shared entry rather
+   than relying on whatever stack layout Clang happens to emit.
 
-- a stencil can return a terminal status,
-- a stencil can encode a coroutine PC jump,
-- the runtime can save resume state for `ResultRow`,
-- and the native path can fall back cleanly when needed.
+This current schema keeps the good parts of the earlier design:
 
-The cost is that every opcode currently pays:
+- ordinary helper calls still work,
+- row / done / error exits remain explicit,
+- resume handling for `ResultRow` remains easy to express,
+- unsupported or non-linear cases still have clear runtime boundaries.
 
-- one indirect function call,
-- one function return,
-- one tagged-result decode,
-- one branch to select the next action.
+But the hot path is now much closer to paper-style copy-and-patch:
 
-That is exactly why the current schema is a good first implementation but not
-the final performance model.
+- straight-line opcode bodies stay in native code,
+- normal fallthrough does not return to `vdbe_cnp_exec()` between opcodes,
+- the outer C loop only reappears at real semantic boundaries.
 
 ## 10. Preferred control-flow model
 
-The preferred future CnP model is no longer "function-per-stencil with a
-better chain helper". The preferred model is:
+The preferred CnP model, and now the active implementation direction, is:
 
 - use the existing threaded interpreter as the source of opcode fragments,
 - extract opcode bodies from that threaded dispatch loop,
@@ -537,16 +542,14 @@ wrapper-stencil disassembly:
 - per-op epilogue,
 - per-op indirect jump between normal straight-line handlers.
 
-This is the first design that can plausibly outperform the threaded
-interpreter on tiny and arithmetic-heavy VDBE programs without introducing a
-custom ABI.
+This is now also the first design that has been validated end-to-end on the
+focused benchmark matrix. The remaining work is primarily performance
+improvement and cleanup, not basic correctness of the stitched-fragment
+control-flow model.
 
 ## 10.1 Clang 19 internal ABI direction: `preserve_none` and `musttail`
 
-The current paper-style fragment pilot is now correct on `hot_expr`, but the
-remaining gap against the generated interpreter suggests that the next step
-should be an explicit internal ABI for native execution rather than more
-incremental getter/prologue tweaks.
+This direction is now implemented in the fragment-production source.
 
 Recent evaluation of CPython's JIT work is relevant here. CPython moved away
 from an LLVM IR rewrite for `ghccc` and now uses Clang-supported attributes:
@@ -567,25 +570,21 @@ arguments in callee-saved registers (`r12`, `r13`, `r14`, `r15`) rather than in
 the ordinary SysV argument registers. That makes it a realistic foundation for
 an explicit CnP live-in ABI.
 
-### Proposed internal register contract
+### Current internal register contract
 
-For the first serious ABI-controlled prototype, the natural live-ins are:
+The current stitched-fragment prototype uses:
 
 - `r12 = p`
 - `r13 = aOp`
 - `r14 = pOp`
 - `r15 = aMem`
 
-The exact mapping may still change, but the principle is important:
+and enters that domain through a generated wrapper that explicitly moves SysV
+arguments into those registers before jumping to `cnp_fragment_entry()`.
 
-- native CnP execution should enter once through a small normal-C shim,
-- the hot path should then run under a stable internal ABI with fixed live-ins,
-- row/done/error exits should be explicit boundaries back to ordinary C,
-- straight-line opcode chains should not reload these values through helper
-  getters or rediscover them from stack slots on every native entry.
-
-This is much closer to the intended copy-and-patch model than the current
-getter-based fragment prologue.
+That bridge turned out to be essential. A plain `musttail` jump from the normal
+C call boundary was not sufficient, because it preserved the caller ABI instead
+of materializing the fragment live-ins expected by the stitched code.
 
 ### What `preserve_none` solves
 
@@ -620,7 +619,8 @@ design.
 
 ### Role of `musttail`
 
-`musttail` is valuable, but mainly for function-shaped continuation boundaries.
+`musttail` is still valuable, but its role is narrower than the role of the ABI
+bridge itself.
 
 It is a good fit for:
 
@@ -638,12 +638,13 @@ stitched fragment layout already prefers:
 For that final hot path, a patched local `jmp` is simpler and cheaper than a
 function boundary, even a guaranteed tail-call one.
 
-So the near-term mixed model should be:
+So the current mixed model is:
 
 1. use `preserve_none` to define the internal CnP ABI,
-2. use `musttail` where native execution must cross explicit continuation
+2. use an explicit entry wrapper to bridge ordinary C into that ABI,
+3. use `musttail` only where native execution must cross explicit continuation
    boundaries,
-3. keep the hottest straight-line interior in copied fragments with direct
+4. keep the hottest straight-line interior in copied fragments with direct
    patched edges rather than turning everything back into ordinary functions.
 
 ### Practical build implication
@@ -652,6 +653,105 @@ Because this depends on real `preserve_none` support, the CnP build pipeline
 should stop preferring `clang-16` once the ABI-controlled prototype begins.
 `clang-19` (or newer) should be treated as the intended toolchain for this
 phase of the work.
+
+## 10.2 Current benchmark status
+
+The stitched-fragment design now passes the focused benchmark matrix in
+`build-jit-relwithdebinfo` for all three modes:
+
+- interpreter: `VDBE_DISPATCHER=generated SQL_JIT_ENABLE=0`
+- LLVM MCJIT: `VDBE_DISPATCHER=generated SQL_JIT_ENABLE=1`
+- CnP: `VDBE_DISPATCHER=cnp SQL_JIT_ENABLE=0`
+
+Best-of-3 minima from `tools/jit_bench/run_benchmark_matrix.sh`:
+
+| Mode | tiny_const | hot_expr | point_lookup | bitwise_mix |
+| --- | --- | --- | --- | --- |
+| interpreter | prep `2.818` / prepared `0.911` / auto `0.852` | prep `4.347` / prepared `0.940` / auto `0.925` | prep `8.286` / prepared `2.200` / auto `2.521` | prep `10.635` / prepared `2.063` / auto `1.919` |
+| mcjit | prep `2.413` / prepared `0.895` / auto `0.903` | prep `3.879` / prepared `1.002` / auto `1.019` | prep `8.204` / prepared `2.261` / auto `2.345` | prep `6.678` / prepared `2.191` / auto `1.956` |
+| cnp | prep `2.642` / prepared `0.978` / auto `0.883` | prep `3.616` / prepared `0.933` / auto `0.925` | prep `8.443` / prepared `2.271` / auto `2.218` | prep `7.139` / prepared `2.062` / auto `2.074` |
+
+Current reading of these numbers:
+
+- CnP is now **correct and stable** on the focused workload set.
+- CnP prepare cost remains close to interpreter prepare cost.
+- CnP is competitive on arithmetic-heavy workloads such as `hot_expr`.
+- CnP already wins some `automatic_execute` cells (`point_lookup`), but still
+  trails on others.
+
+So the current optimization problem is no longer "make the stitched-fragment
+prototype work at all." It is:
+
+1. reduce residual overhead in tiny straight-line programs,
+2. improve code quality for helper-heavy paths,
+3. simplify the fragment extraction / tail model without regressing the now-good
+   correctness baseline.
+
+## 10.3 Fragment coverage extension: agg_scan and builtin_scan (April 2026)
+
+Two heavier benchmark shapes were added to the matrix — `agg_scan`
+(full-table `sum/count/max` over `bench_arith`) and `builtin_scan`
+(full-table text builtin scan over `bench_text`). These workloads require
+opcodes not present in the original 36-fragment pilot:
+
+- `OP_ApplyType` — type coercion before aggregate step
+- `OP_OpenSpace` — opens the main table cursor
+- `OP_SkipLoad` — skip-ahead cursor position load
+
+These three were added as `CNP_FRAG_FALLTHROUGH` fragments (39 total), with
+matching entries in `vdbe_cnp_genfrags.py`, `vdbe_cnp_extract_fragments.py`,
+and `cnp_resolve_fragment_symbol()` in `vdbe_cnp.c`.
+
+### Stubs compilation flag fix (R_X86_64_GOTPCRELX)
+
+The stubs object (`vdbe_cnp_stubs.c`) was previously compiled with `-fPIC`.
+When `-fPIC` is active, taking the address of an extern data symbol generates
+`R_X86_64_GOTPCRELX` (type 41) — a GOT-PC-relative relaxation reloc.
+`cnp_patch()` had no handler for type 41, causing crashes in the stencil path.
+
+The fragments build already used `-fno-pic -mcmodel=large`, which generates
+`R_X86_64_64` (8-byte absolute) relocations — the correct form for JIT
+patching. The stubs compilation was updated to match:
+
+```cmake
+# Before (wrong — generates GOTPCRELX for &HOLE_CPC):
+COMMAND ${CLANG_CNP} -O2 -fPIC ...
+
+# After (correct — generates R_X86_64_64 for &HOLE_CPC):
+COMMAND ${CLANG_CNP} -O2 -fno-pic -mcmodel=large ...
+```
+
+### `.ltext` section extraction fix
+
+With `-mcmodel=large`, clang/LLVM places generated code in the `.ltext` section
+(not `.text`). The stencil extractor `tools/vdbe_cnp_extract.py` was hardcoded
+to read `.text`, resulting in zero-byte stencils and crashes at `arena_base + 8MB`
+(one byte past the JIT arena end, the address returned when a zero-size stencil
+was "applied").
+
+The extractor was updated to prefer `.ltext` when it contains data:
+
+```python
+text_section = elf.get_section_by_name(".ltext")
+if text_section is None or len(text_section.data()) == 0:
+    text_section = elf.get_section_by_name(".text")
+```
+
+The relocation section lookup was updated to match (`.rela.ltext` vs `.rela.text`).
+
+### Benchmark results with 39-fragment pipeline
+
+| Workload | Interpreter | CnP JIT | CnP vs interp |
+| --- | ---: | ---: | ---: |
+| `agg_scan` (prepared_execute, 5 000 iters) | `24.199 µs` | `26.817 µs` | +11% |
+| `builtin_scan` (prepared_execute, 3 000 iters) | `90.860 µs` | `88.783 µs` | −2% |
+
+`sql_cnp_step_count` delta = 0 for both workloads — confirmed fragment (not stencil) path.
+
+The `agg_scan` 11% regression points to aggregation fragment body overhead
+(helper calls, indirect dispatch). The `builtin_scan` −2% result shows the
+preserve_none tail-call chain is already competitive with the interpreted loop
+for string/builtin workloads at RelWithDebInfo build settings.
 
 ## 11. Review of the generated threaded dispatcher as a CnP source
 
