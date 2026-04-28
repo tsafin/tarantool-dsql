@@ -342,8 +342,8 @@ if(ENABLE_SQL_CNP)
     add_custom_command(
         OUTPUT ${CNP_STUBS_O}
         COMMAND ${CLANG_CNP}
-            -O2 -fPIC -fno-asynchronous-unwind-tables -fno-stack-protector
-            -fno-omit-frame-pointer
+            -O2 -fno-pic -mcmodel=large -fno-asynchronous-unwind-tables -fno-stack-protector
+            -fno-omit-frame-pointer -D_GNU_SOURCE
             ${CNP_COMPILE_DEFS}
             ${CNP_INCLUDE_FLAGS}
             -c ${CNP_STUBS_C}

@@ -48,7 +48,7 @@ if (vdbe_op_int64_impl(p, pOp, aMem))
         "kind": "CNP_FRAG_JUMP_P2",
         "tail_fallthrough": False,
         "body": "",
-        "dispatch_prep": "pOp = &aOp[pOp->p2];",
+        "dispatch_prep": "LOAD_AOP();\n    pOp = &aOp[pOp->p2];",
         "dispatch_transfer": 'JMP_P2();',
     },
     {
@@ -106,7 +106,7 @@ if (vdbe_op_remainder_impl(p, pOp, aMem))
         "kind": "CNP_FRAG_JUMP_P2",
         "tail_fallthrough": False,
         "body": "",
-        "dispatch_prep": "pOp = &aOp[pOp->p2];",
+        "dispatch_prep": "LOAD_AOP();\n    pOp = &aOp[pOp->p2];",
         "dispatch_transfer": 'JMP_P2();',
     },
     {
@@ -162,6 +162,308 @@ if (vdbe_op_remainder_impl(p, pOp, aMem))
         "dispatch_prep": "pOp += 1;",
         "dispatch_transfer": 'JMP_FALLTHROUGH();',
     },
+    {
+        "name": "OP_Null",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
+        "body": """\
+if (vdbe_op_null(p, pOp, aMem) < 0)
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_Variable",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
+        "body": """\
+if (vdbe_op_variable(p, pOp, aMem) < 0)
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_Copy",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
+        "body": """\
+if (vdbe_op_copy(p, pOp, aMem) < 0)
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_SCopy",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
+        "body": """\
+if (vdbe_op_scopy(p, pOp, aMem) < 0)
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_AddImm",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
+        "body": """\
+if (vdbe_op_addimm_inline(p, pOp, aMem) < 0)
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_TTransaction",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
+        "body": """\
+if (vdbe_op_ttransaction_inline(p, pOp, aMem) < 0)
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_IteratorOpen",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
+        "body": """\
+if (vdbe_op_iteratoropen(p, pOp, aMem) < 0)
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_NullRow",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
+        "body": """\
+if (vdbe_op_nullrow_inline(p, pOp, aMem) < 0)
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_Column",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
+        "body": """\
+if (vdbe_op_column(p, pOp, aMem) < 0)
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_ApplyType",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
+        "body": """\
+if (vdbe_op_applytype(p, pOp, aMem) < 0)
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_OpenSpace",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
+        "body": """\
+if (vdbe_op_openspace_inline(p, pOp, aMem) < 0)
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_SkipLoad",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
+        "body": """\
+if (vdbe_op_skipload_inline(p, pOp, aMem) < 0)
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_AggStep",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
+        "body": """\
+if (vdbe_op_aggstep(p, pOp, aMem) < 0)
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_AggFinal",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
+        "body": """\
+if (vdbe_op_aggfinal(p, pOp, aMem) < 0)
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_BuiltinFunction",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
+        "body": """\
+if (vdbe_op_builtinfunction(p, pOp, aMem) < 0)
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_Rewind",
+        "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": True,
+        "body": """\
+{
+    int handler_rc = vdbe_op_rewind(p, pOp, aMem);
+    if (handler_rc < 0)
+        GOTO_ERROR();
+    if (handler_rc == 1)
+        JUMP_P2();
+}""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_SeekGE",
+        "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": True,
+        "body": """\
+{
+    int handler_rc = vdbe_op_seekge(p, pOp, aMem);
+    if (handler_rc < 0)
+        GOTO_ERROR();
+    if (handler_rc == 1)
+        JUMP_P2();
+}""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_SeekLE",
+        "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": True,
+        "body": """\
+{
+    int handler_rc = vdbe_op_seekle(p, pOp, aMem);
+    if (handler_rc < 0)
+        GOTO_ERROR();
+    if (handler_rc == 1)
+        JUMP_P2();
+}""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_SeekLT",
+        "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": True,
+        "body": """\
+{
+    int handler_rc = vdbe_op_seeklt(p, pOp, aMem);
+    if (handler_rc < 0)
+        GOTO_ERROR();
+    if (handler_rc == 1)
+        JUMP_P2();
+}""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_SeekGT",
+        "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": True,
+        "body": """\
+{
+    int handler_rc = vdbe_op_seekgt(p, pOp, aMem);
+    if (handler_rc < 0)
+        GOTO_ERROR();
+    if (handler_rc == 1)
+        JUMP_P2();
+}""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_IdxLE",
+        "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": True,
+        "body": """\
+{
+    int handler_rc = vdbe_op_idx_compare(p, pOp, aMem);
+    if (handler_rc < 0)
+        GOTO_ERROR();
+    if (handler_rc == 1)
+        JUMP_P2();
+}""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_IdxGT",
+        "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": True,
+        "body": """\
+{
+    int handler_rc = vdbe_op_idx_compare(p, pOp, aMem);
+    if (handler_rc < 0)
+        GOTO_ERROR();
+    if (handler_rc == 1)
+        JUMP_P2();
+}""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_IdxGE",
+        "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": True,
+        "body": """\
+{
+    int handler_rc = vdbe_op_idx_compare(p, pOp, aMem);
+    if (handler_rc < 0)
+        GOTO_ERROR();
+    if (handler_rc == 1)
+        JUMP_P2();
+}""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_IdxLT",
+        "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": True,
+        "body": """\
+{
+    int handler_rc = vdbe_op_idx_compare(p, pOp, aMem);
+    if (handler_rc < 0)
+        GOTO_ERROR();
+    if (handler_rc == 1)
+        JUMP_P2();
+}""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_Next",
+        "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": True,
+        "body": """\
+{
+    /* vdbe_op_next_jit inverts the raw handler: rc=1 = more rows (jump),
+     * rc=0 = exhausted (fall through). Matches JUMP_P2 convention. */
+    int handler_rc = vdbe_op_next_jit(p, pOp, aMem);
+    if (handler_rc < 0)
+        GOTO_ERROR();
+    if (handler_rc == 1)
+        JUMP_P2();
+}""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
 ]
 
 
@@ -186,8 +488,29 @@ HEADER = """\
 extern void **cnp_frag_get_dispatch_table(void);
 extern char cnp_frag_base_label[];
 
+__attribute__((preserve_none, noinline, used))
+int64_t
+cnp_fragment_entry(struct Vdbe *p, VdbeOp *aOp, VdbeOp *pOp, Mem *aMem);
+
 typedef int64_t cnp_frag_exec_func_t(struct Vdbe *, VdbeOp *, VdbeOp *, Mem *)
     __attribute__((preserve_none));
+
+__attribute__((preserve_none, naked, used))
+int64_t
+cnp_fragment_wrapper(struct Vdbe *p, VdbeOp *aOp, VdbeOp *pOp, Mem *aMem)
+{
+    /*
+     * Bridge from the normal SysV call ABI used by vdbe_cnp_exec() to the
+     * preserve_none live-in register convention used by the stitched
+     * fragment entry and all extracted fragment bodies.
+     */
+    __asm__ volatile(
+        "mov %rdi, %r12\\n\\t"
+        "mov %rsi, %r13\\n\\t"
+        "mov %rdx, %r14\\n\\t"
+        "mov %rcx, %r15\\n\\t"
+        "jmp cnp_fragment_entry\\n\\t");
+}
 
 __attribute__((preserve_none, noinline, used))
 int64_t
@@ -200,8 +523,12 @@ cnp_fragment_base:
     __asm__ __volatile__(".globl cnp_frag_base_label\\n\\t"
                          "cnp_frag_base_label:");
 
+    __asm__ volatile ("subq $16, %%rsp\\n\\t"
+                      "mov %0, -16(%%rbp)\\n\\t"
+                      "mov %1, -8(%%rbp)"
+                      :: "r"(pOp), "r"(aOp) : "memory");
+
     void **dispatch_table = cnp_frag_get_dispatch_table();
-    __asm__ volatile ("mov %0, -16(%%rbp)" :: "r"(pOp) : "memory");
     __asm__ volatile ("jmpq *%0"
                       :: "r"(dispatch_table[(size_t)(pOp - aOp)]));
 
@@ -218,12 +545,18 @@ cnp_fragment_base:
                       : "=r"(pOp) :: "memory");                \\
 } while (0)
 
+#define LOAD_AOP() do {                                        \\
+    __asm__ volatile ("mov -8(%%rbp), %0"                      \\
+                      : "=r"(aOp) :: "memory");                \\
+} while (0)
+
 #define STORE_POP() do {                                       \\
     __asm__ volatile ("mov %0, -16(%%rbp)"                     \\
                       :: "r"(pOp) : "memory");                 \\
 } while (0)
 
 #define JUMP_P2() do {                                         \\
+    LOAD_AOP();                                                \\
     pOp = &aOp[pOp->p2];                                       \\
     STORE_POP();                                               \\
     JMP_P2();                                                  \\
@@ -262,7 +595,8 @@ __LABELS__
  #undef JUMP_P2
  #undef STORE_POP
  #undef LOAD_POP
-    __builtin_unreachable();
+ #undef LOAD_AOP
+    return 0;
 }
 
 """

@@ -78,11 +78,14 @@ def extract_stencils(obj_path, opcodes_header_path):
     with open(obj_path, "rb") as f:
         elf = ELFFile(f)
 
-        # Get .text section
-        text_section = elf.get_section_by_name(".text")
+        # Get code section: prefer .ltext (emitted by -mcmodel=large) over .text
+        text_section = elf.get_section_by_name(".ltext")
+        if text_section is None or len(text_section.data()) == 0:
+            text_section = elf.get_section_by_name(".text")
         if text_section is None:
-            print("ERROR: No .text section found", file=sys.stderr)
+            print("ERROR: No .text or .ltext section found", file=sys.stderr)
             sys.exit(1)
+        text_sec_name = text_section.name
         text_data = text_section.data()
         text_offset = text_section["sh_offset"]
 
@@ -93,7 +96,7 @@ def extract_stencils(obj_path, opcodes_header_path):
             sys.exit(1)
 
         # Build symbol index: name -> (value_in_text, size)
-        # For cnp_OP_* symbols, value is offset within .text
+        # For cnp_OP_* symbols, value is offset within the code section
         stencil_syms = {}
         all_syms = {}
         for sym in symtab.iter_symbols():
@@ -105,11 +108,15 @@ def extract_stencils(obj_path, opcodes_header_path):
                     "size": sym["st_size"],
                 }
 
-        # Get relocations for .text
+        # Get relocations for the code section (.rela.ltext or .rela.text)
+        rela_name_candidates = {
+            ".rela" + text_sec_name,
+            ".rel" + text_sec_name,
+        }
         rela_text = None
         for section in elf.iter_sections():
             if isinstance(section, RelocationSection):
-                if section.name in (".rela.text", ".rel.text"):
+                if section.name in rela_name_candidates:
                     rela_text = section
                     break
 

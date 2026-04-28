@@ -60,6 +60,33 @@ PILOT_FRAGMENTS = [
     {"name": "OP_Once", "kind_num": 2, "tail_fallthrough": True},
     {"name": "OP_Halt", "kind_num": 4, "tail_fallthrough": False},
     {"name": "OP_ResultRow", "kind_num": 3, "tail_fallthrough": True},
+    # agg_scan / builtin_scan fallthrough opcodes
+    {"name": "OP_Null", "kind_num": 1, "tail_fallthrough": True},
+    {"name": "OP_Variable", "kind_num": 1, "tail_fallthrough": True},
+    {"name": "OP_Copy", "kind_num": 1, "tail_fallthrough": True},
+    {"name": "OP_SCopy", "kind_num": 1, "tail_fallthrough": True},
+    {"name": "OP_AddImm", "kind_num": 1, "tail_fallthrough": True},
+    {"name": "OP_TTransaction", "kind_num": 1, "tail_fallthrough": True},
+    {"name": "OP_IteratorOpen", "kind_num": 1, "tail_fallthrough": True},
+    {"name": "OP_NullRow", "kind_num": 1, "tail_fallthrough": True},
+    {"name": "OP_Column", "kind_num": 1, "tail_fallthrough": True},
+    {"name": "OP_ApplyType", "kind_num": 1, "tail_fallthrough": True},
+    {"name": "OP_OpenSpace", "kind_num": 1, "tail_fallthrough": True},
+    {"name": "OP_SkipLoad", "kind_num": 1, "tail_fallthrough": True},
+    {"name": "OP_AggStep", "kind_num": 1, "tail_fallthrough": True},
+    {"name": "OP_AggFinal", "kind_num": 1, "tail_fallthrough": True},
+    {"name": "OP_BuiltinFunction", "kind_num": 1, "tail_fallthrough": True},
+    # agg_scan / builtin_scan JUMP_P2 cursor opcodes
+    {"name": "OP_Rewind", "kind_num": 2, "tail_fallthrough": True},
+    {"name": "OP_SeekGE", "kind_num": 2, "tail_fallthrough": True},
+    {"name": "OP_SeekLE", "kind_num": 2, "tail_fallthrough": True},
+    {"name": "OP_SeekLT", "kind_num": 2, "tail_fallthrough": True},
+    {"name": "OP_SeekGT", "kind_num": 2, "tail_fallthrough": True},
+    {"name": "OP_IdxLE", "kind_num": 2, "tail_fallthrough": True},
+    {"name": "OP_IdxGT", "kind_num": 2, "tail_fallthrough": True},
+    {"name": "OP_IdxGE", "kind_num": 2, "tail_fallthrough": True},
+    {"name": "OP_IdxLT", "kind_num": 2, "tail_fallthrough": True},
+    {"name": "OP_Next", "kind_num": 2, "tail_fallthrough": True},
 ]
 
 
@@ -154,7 +181,7 @@ def entry_text_offset(entry_rels, entry_base, field_off, entry_bytes,
     )[0]
 
 
-def extract_frame_info(text, func_size, init_start=None):
+def extract_frame_info(text, func_start, func_size, init_start=None):
     """Extract the real function prologue and epilogue templates.
 
     The generated fragment source is one function whose .text starts with a
@@ -163,12 +190,13 @@ def extract_frame_info(text, func_size, init_start=None):
     fragment as "prologue".
     """
     i = 0
-    if not text.startswith(X86_PUSH_RBP_PROLOGUE):
+    func_text = text[func_start:func_start + func_size]
+    if not func_text.startswith(X86_PUSH_RBP_PROLOGUE):
         raise RuntimeError("unexpected function prologue in fragment object")
     i = 4
 
-    while i < len(text):
-        if text[i:i + 2] in (
+    while i < len(func_text):
+        if func_text[i:i + 2] in (
             bytes([X86_PUSH_REX_PREFIX, X86_PUSH_R12_OPCODE]),
             bytes([X86_PUSH_REX_PREFIX, X86_PUSH_R13_OPCODE]),
             bytes([X86_PUSH_REX_PREFIX, X86_PUSH_R14_OPCODE]),
@@ -176,27 +204,28 @@ def extract_frame_info(text, func_size, init_start=None):
         ):
             i += 2
             continue
-        if text[i] in (0x50, X86_PUSH_RBX_OPCODE, X86_PUSH_RSI_OPCODE,
+        if func_text[i] in (0x50, X86_PUSH_RBX_OPCODE, X86_PUSH_RSI_OPCODE,
                        X86_PUSH_RDI_OPCODE):
             i += 1
             continue
         break
 
-    if init_start is not None and init_start > i:
-        prologue_end = init_start
-    elif text[i:i + 3] == X86_SUB_RSP_IMM32:
+    rel_init_start = None if init_start is None else init_start - func_start
+    if rel_init_start is not None and rel_init_start > i:
+        prologue_end = rel_init_start
+    elif func_text[i:i + 3] == X86_SUB_RSP_IMM32:
         prologue_end = i + 7
-    elif text[i:i + 3] == X86_SUB_RSP_IMM8:
+    elif func_text[i:i + 3] == X86_SUB_RSP_IMM8:
         prologue_end = i + 4
     elif i >= 4:
         prologue_end = i
     else:
         raise RuntimeError("could not locate stack allocation in prologue")
-    prologue = bytes(text[:prologue_end])
+    prologue = bytes(func_text[:prologue_end])
 
     retq_pos = None
-    for i in range(min(func_size, len(text)) - 1, -1, -1):
-        if text[i] == X86_RETQ_OPCODE:
+    for i in range(len(func_text) - 1, -1, -1):
+        if func_text[i] == X86_RETQ_OPCODE:
             retq_pos = i
             break
     if retq_pos is None:
@@ -205,19 +234,19 @@ def extract_frame_info(text, func_size, init_start=None):
 
     epilogue_start = None
     for i in range(retq_pos - 3, -1, -1):
-        if text[i:i + 3] == X86_ADD_RSP_IMM32:
+        if func_text[i:i + 3] == X86_ADD_RSP_IMM32:
             epilogue_start = i
             break
-        if text[i:i + 3] == X86_ADD_RSP_IMM8:
+        if func_text[i:i + 3] == X86_ADD_RSP_IMM8:
             epilogue_start = i
             break
     if epilogue_start is None:
         print("  epilogue: none (no explicit stack teardown in fragment entry)")
         return prologue, b""
 
-    epilogue = bytes(text[epilogue_start:retq_pos + 1])
-    print(f"  prologue: {len(prologue)} bytes at text[0..{prologue_end:#x}]")
-    print(f"  epilogue: {len(epilogue)} bytes at text[{epilogue_start:#x}]")
+    epilogue = bytes(func_text[epilogue_start:retq_pos + 1])
+    print(f"  prologue: {len(prologue)} bytes at text[{func_start:#x}..{func_start + prologue_end:#x}]")
+    print(f"  epilogue: {len(epilogue)} bytes at text[{func_start + epilogue_start:#x}]")
     return prologue, epilogue
 
 
@@ -304,6 +333,22 @@ def extract_fragments(obj_path, opcodes_header_path):
                 f"transfer+{frag['transfer_offset']}, {len(frag_relocs)} relocs"
             )
 
+        wrapper_sym = find_symbol(symtab, "cnp_fragment_wrapper")
+        if wrapper_sym is None:
+            raise RuntimeError("missing cnp_fragment_wrapper symbol")
+        wrapper_begin = wrapper_sym["st_value"]
+        wrapper_end = wrapper_begin + wrapper_sym["st_size"]
+        wrapper_bytes = bytes(text[wrapper_begin:wrapper_end])
+        wrapper_relocs = []
+        for rel in text_rels:
+            if wrapper_begin <= rel["offset"] < wrapper_end:
+                wrapper_relocs.append({
+                    "offset": rel["offset"] - wrapper_begin,
+                    "type": rel["type"],
+                    "addend": rel["addend"],
+                    "sym_name": rel["sym_name"],
+                })
+
         first_begin = min(frag["begin"] for frag in fragments)
         frag_base = first_begin if frag_base_sym is None else frag_base_sym["st_value"]
         raw_init = text[frag_base:first_begin]
@@ -331,10 +376,14 @@ def extract_fragments(obj_path, opcodes_header_path):
         print(f"  fragment code starts at .text offset {frag_base:#x}")
         print(f"  init region: {len(init_bytes)} bytes (truncated at jmpq), "
               f"{len(init_relocs)} relocs")
-        func_size = symtab.get_symbol_by_name("cnp_fragment_entry")[0]["st_size"]
-        prologue, epilogue = extract_frame_info(text, func_size, frag_base)
+        func_sym = symtab.get_symbol_by_name("cnp_fragment_entry")[0]
+        func_size = func_sym["st_size"]
+        func_start = func_sym["st_value"]
+        prologue, epilogue = extract_frame_info(text, func_start, func_size,
+                                                frag_base)
 
-        return fragments, prologue, init_bytes, init_relocs, epilogue
+        return (fragments, wrapper_bytes, wrapper_relocs, prologue,
+                init_bytes, init_relocs, epilogue)
 
 
 def _emit_byte_array(out, name, data):
@@ -346,7 +395,8 @@ def _emit_byte_array(out, name, data):
     out.write("\n};\n\n")
 
 
-def emit_header(fragments, prologue, init_bytes, init_relocs, epilogue,
+def emit_header(fragments, wrapper_bytes, wrapper_relocs, prologue, init_bytes,
+                init_relocs, epilogue,
                 output_path):
     max_opcode = max(f["opcode"] for f in fragments)
     with open(output_path, "w", encoding="utf-8") as out:
@@ -357,9 +407,11 @@ def emit_header(fragments, prologue, init_bytes, init_relocs, epilogue,
         out.write("#ifndef VDBE_CNP_FRAGMENTS_H\n")
         out.write("#define VDBE_CNP_FRAGMENTS_H\n\n")
         out.write("#include <stdint.h>\n\n")
+        _emit_byte_array(out, "cnp_fragment_wrapper_bytes", wrapper_bytes)
         _emit_byte_array(out, "cnp_fragment_prologue_bytes", prologue)
         _emit_byte_array(out, "cnp_fragment_init_bytes", init_bytes)
         _emit_byte_array(out, "cnp_fragment_epilogue_bytes", epilogue)
+        out.write(f"#define CNP_FRAGMENT_WRAPPER_SIZE {len(wrapper_bytes)}u\n")
         out.write(f"#define CNP_FRAGMENT_PROLOGUE_SIZE {len(prologue)}u\n")
         out.write(f"#define CNP_FRAGMENT_INIT_SIZE {len(init_bytes)}u\n")
         out.write(f"#define CNP_FRAGMENT_EPILOGUE_SIZE {len(epilogue)}u\n\n")
@@ -373,6 +425,19 @@ def emit_header(fragments, prologue, init_bytes, init_relocs, epilogue,
         out.write("    int32_t addend;\n")
         out.write("    const char *symbol_name;\n")
         out.write("};\n\n")
+        if wrapper_relocs:
+            out.write("static const struct cnp_fragment_reloc "
+                      "cnp_fragment_wrapper_relocs[] = {\n")
+            for rel in wrapper_relocs:
+                out.write(
+                    "    { .offset = %d, .reloc_type = %d, .addend = %d, "
+                    '.symbol_name = "%s" },\n'
+                    % (rel["offset"], rel["type"], rel["addend"], rel["sym_name"])
+                )
+            out.write("};\n\n")
+        out.write(
+            f"#define CNP_FRAGMENT_WRAPPER_NUM_RELOCS {len(wrapper_relocs)}u\n\n"
+        )
         if init_relocs:
             out.write("static const struct cnp_fragment_reloc "
                       "cnp_fragment_init_relocs[] = {\n")
@@ -451,13 +516,15 @@ def main():
     args = parser.parse_args()
 
     print(f"Extracting threaded fragments from {args.input}...")
-    fragments, prologue, init_bytes, init_relocs, epilogue = extract_fragments(
+    (fragments, wrapper_bytes, wrapper_relocs, prologue,
+     init_bytes, init_relocs, epilogue) = extract_fragments(
         args.input, args.opcodes_header
     )
     if not fragments:
         print("ERROR: No fragments found!", file=sys.stderr)
         sys.exit(1)
-    emit_header(fragments, prologue, init_bytes, init_relocs, epilogue, args.output)
+    emit_header(fragments, wrapper_bytes, wrapper_relocs, prologue, init_bytes,
+                init_relocs, epilogue, args.output)
 
 
 if __name__ == "__main__":

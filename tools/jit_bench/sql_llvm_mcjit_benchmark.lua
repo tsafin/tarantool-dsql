@@ -166,6 +166,85 @@ local function teardown_point_lookup()
     pcall(box.execute, 'DROP TABLE bench_arith')
 end
 
+local agg_scan_expected
+
+local function setup_agg_scan()
+    setup_point_lookup()
+    agg_scan_expected = {}
+    local window = 128
+    for start_id = 1, 1024 do
+        local sum1 = 0
+        local sum2 = 0
+        local cnt = 0
+        local max_mod = nil
+        local finish_id = math.min(start_id + window - 1, 1024)
+        for i = start_id, finish_id do
+            local a = i * 10
+            local b = i * 5 + 1
+            local c = i * 2 + 1
+            sum1 = sum1 + (a * c + b)
+            sum2 = sum2 + ((a - b) * (c + 1))
+            cnt = cnt + 1
+            local mod = a % 97
+            if max_mod == nil or mod > max_mod then
+                max_mod = mod
+            end
+        end
+        agg_scan_expected[start_id] = {sum1, sum2, cnt, max_mod}
+    end
+end
+
+local function teardown_agg_scan()
+    agg_scan_expected = nil
+    teardown_point_lookup()
+end
+
+local builtin_scan_expected
+
+local function setup_builtin_scan()
+    pcall(box.execute, 'DROP TABLE bench_text')
+    box.execute([[
+        CREATE TABLE bench_text(
+            id INTEGER PRIMARY KEY,
+            s1 STRING,
+            s2 STRING,
+            n1 INTEGER,
+            n2 INTEGER
+        );
+    ]])
+
+    builtin_scan_expected = {}
+    local rows = {}
+    for i = 1, 2048 do
+        local s1 = string.format('row-%04d-xx-%d', i, i % 11)
+        local s2 = string.format('alpha-%d-zeta-%d', i % 17, i % 5)
+        local n1 = i * 13
+        local n2 = i * 7 + 3
+        box.execute('INSERT INTO bench_text VALUES (?, ?, ?, ?, ?);',
+                    {i, s1, s2, n1, n2})
+        rows[i] = {s1 = s1, s2 = s2, n1 = n1, n2 = n2}
+    end
+
+    local window = 128
+    for start_id = 1, 2048 do
+        local total = 0
+        local finish_id = math.min(start_id + window - 1, 2048)
+        for i = start_id, finish_id do
+            local row = rows[i]
+            total = total + #string.sub(row.s1, 2, 6) +
+                    #string.upper(row.s2) +
+                    math.abs(row.n1 - row.n2) +
+                    #string.lower(row.s1)
+        end
+        builtin_scan_expected[start_id] = total
+    end
+end
+
+local function teardown_builtin_scan()
+    builtin_scan_expected = nil
+    pcall(box.execute, 'DROP TABLE bench_text')
+end
+
 local workloads = {
     {
         name = 'tiny_const',
@@ -234,6 +313,53 @@ local workloads = {
             local b = id * 5 + 1
             local c = id * 2 + 1
             return bit.bor(bit.band(a, b), c)
+        end,
+    },
+    {
+        name = 'agg_scan',
+        description = 'Indexed range aggregation with arithmetic work',
+        sql = [[
+            SELECT sum(a * c + b), sum((a - b) * (c + 1)), count(*), max(a % 97)
+            FROM bench_arith
+            WHERE id BETWEEN ? AND ?;
+        ]],
+        prepare_iterations = env_int('BENCH_PREPARE_ITERS_AGG', 500),
+        exec_iterations = env_int('BENCH_EXEC_ITERS_AGG', 5000),
+        auto_iterations = env_int('BENCH_AUTO_ITERS_AGG', 5000),
+        setup = setup_agg_scan,
+        teardown = teardown_agg_scan,
+        args = function(i)
+            local start_id = ((i - 1) % 1024) + 1
+            return {start_id, math.min(start_id + 127, 1024)}
+        end,
+        checksum = function(res) return res.rows[1][1] end,
+        expected = function(i)
+            local start_id = ((i - 1) % 1024) + 1
+            return agg_scan_expected[start_id][1]
+        end,
+    },
+    {
+        name = 'builtin_scan',
+        description = 'Indexed range text builtin scan with aggregation',
+        sql = [[
+            SELECT sum(length(substr(s1, 2, 5)) + length(upper(s2)) +
+                       abs(n1 - n2) + length(lower(s1)))
+            FROM bench_text
+            WHERE id BETWEEN ? AND ?;
+        ]],
+        prepare_iterations = env_int('BENCH_PREPARE_ITERS_BUILTIN', 300),
+        exec_iterations = env_int('BENCH_EXEC_ITERS_BUILTIN', 3000),
+        auto_iterations = env_int('BENCH_AUTO_ITERS_BUILTIN', 3000),
+        setup = setup_builtin_scan,
+        teardown = teardown_builtin_scan,
+        args = function(i)
+            local start_id = ((i - 1) % 2048) + 1
+            return {start_id, math.min(start_id + 127, 2048)}
+        end,
+        checksum = function(res) return res.rows[1][1] end,
+        expected = function(i)
+            local start_id = ((i - 1) % 2048) + 1
+            return builtin_scan_expected[start_id]
         end,
     },
 }
