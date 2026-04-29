@@ -32,12 +32,12 @@
  * - SQL_NULLEQ: NULL == NULL returns TRUE (otherwise NULL)
  * - SQL_JUMPIFNULL: Jump if any operand is NULL
  */
-int vdbe_op_eq(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_eq(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_eq_impl(p, pOp, aMem);
 }
 
-int vdbe_op_ne(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_ne(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_ne_impl(p, pOp, aMem);
 }
@@ -51,22 +51,22 @@ int vdbe_op_ne(Vdbe *p, Op *pOp, Mem *aMem)
  * then jump to address P2 or store the comparison result in register P2
  * if the SQL_STOREP2 flag is set in P5.
  */
-int vdbe_op_lt(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_lt(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_lt_impl(p, pOp, aMem);
 }
 
-int vdbe_op_le(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_le(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_le_impl(p, pOp, aMem);
 }
 
-int vdbe_op_gt(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_gt(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_gt_impl(p, pOp, aMem);
 }
 
-int vdbe_op_ge(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_ge(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_ge_impl(p, pOp, aMem);
 }
@@ -84,7 +84,7 @@ int vdbe_op_ge(Vdbe *p, Op *pOp, Mem *aMem)
  * - 0: comparison complete, continue to next opcode
  * - -1: error occurred
  */
-int vdbe_op_compare(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_compare(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	if ((pOp->p5 & OPFLAG_PERMUTE) == 0)
 		p->aPermute = 0;

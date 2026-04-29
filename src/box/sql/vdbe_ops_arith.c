@@ -6,7 +6,7 @@
 #include "vdbe_ops_cnp_impl.h"
 
 /* No-op handler */
-int vdbe_op_noop(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_noop(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	(void)p;
 	(void)pOp;
@@ -21,7 +21,7 @@ int vdbe_op_noop(Vdbe *p, Op *pOp, Mem *aMem)
  * and store the result in register P3.
  * If either input is NULL, the result is NULL.
  */
-int vdbe_op_add(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_add(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_add_impl(p, pOp, aMem);
 }
@@ -33,13 +33,13 @@ int vdbe_op_add(Vdbe *p, Op *pOp, Mem *aMem)
  * and store the result in register P3.
  * If either input is NULL, the result is NULL.
  */
-int vdbe_op_sub(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_sub(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_sub_impl(p, pOp, aMem);
 }
 
 /* Jump handler placeholder */
-int vdbe_op_jump(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_jump(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	(void)p;
 	(void)pOp;
@@ -55,7 +55,7 @@ int vdbe_op_jump(Vdbe *p, Op *pOp, Mem *aMem)
  * and store the result in register P3.
  * If either input is NULL, the result is NULL.
  */
-int vdbe_op_multiply(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_multiply(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_multiply_impl(p, pOp, aMem);
 }
@@ -68,7 +68,7 @@ int vdbe_op_multiply(Vdbe *p, Op *pOp, Mem *aMem)
  * register P1 is zero, then the result is NULL. If either input is
  * NULL, the result is NULL.
  */
-int vdbe_op_divide(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_divide(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_divide_impl(p, pOp, aMem);
 }
@@ -81,7 +81,7 @@ int vdbe_op_divide(Vdbe *p, Op *pOp, Mem *aMem)
  * If the value in register P1 is zero the result is NULL.
  * If either operand is NULL, the result is NULL.
  */
-int vdbe_op_remainder(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_remainder(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_remainder_impl(p, pOp, aMem);
 }

@@ -6,58 +6,58 @@
 
 /* Handler prototypes return int (0 on success, non-zero on error).
  * Implementations live in vdbe_ops_*.c files. */
-int vdbe_op_noop(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_add(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_sub(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_jump(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_multiply(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_divide(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_remainder(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_noop(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_add(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_sub(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_jump(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_multiply(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_divide(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_remainder(Vdbe *p, Op *pOp, Mem *aMem);
 /* Data / constant opcodes */
-int vdbe_op_integer(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_bool(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_int64(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_real(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_string(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_string8(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_integer(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_bool(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_int64(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_real(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_string(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_string8(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_null(Vdbe *p, Op *pOp, Mem *aMem);
 /* Blob / variable / copy/move opcodes */
-int vdbe_op_blob(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_blob(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_variable(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_move(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_move(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_copy(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_scopy(Vdbe *p, Op *pOp, Mem *aMem);
 /* Comparison opcodes (FUNCTIONAL - extracted after adding iCompare to Vdbe struct) */
-int vdbe_op_eq(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_ne(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_lt(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_le(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_gt(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_ge(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_compare(Vdbe *p, Op *pOp, Mem *aMem);  /* Compare multiple fields */
+int SQL_PRESERVE_NONE vdbe_op_eq(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_ne(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_lt(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_le(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_gt(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_ge(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_compare(Vdbe *p, Op *pOp, Mem *aMem);  /* Compare multiple fields */
 /* Logical and bitwise opcodes */
-int vdbe_op_and(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_or(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_not(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_bitand(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_bitor(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_bitnot(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_and(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_or(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_not(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_bitand(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_bitor(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_bitnot(Vdbe *p, Op *pOp, Mem *aMem);
 /* Limit/offset opcodes */
-int vdbe_op_offsetlimit(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_offsetlimit(Vdbe *p, Op *pOp, Mem *aMem);
 /* String opcodes */
-int vdbe_op_concat(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_concat(Vdbe *p, Op *pOp, Mem *aMem);
 /* Type conversion opcodes */
-int vdbe_op_mustbeint(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_cast(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_applytype(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_makerecord(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_mustbeint(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_cast(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_applytype(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_makerecord(Vdbe *p, Op *pOp, Mem *aMem);
 /* Aggregate function opcodes */
 int vdbe_op_aggstep(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_aggfinal(Vdbe *p, Op *pOp, Mem *aMem);
 /* Cursor data access opcodes */
 int vdbe_op_resultrow(Vdbe *p, Op *pOp, Mem *aMem);  /* Returns 1 for SQL_ROW */
 int vdbe_op_column(Vdbe *p, Op *pOp, Mem *aMem);
-int vdbe_op_rowdata(Vdbe *p, Op *pOp, Mem *aMem);
+int SQL_PRESERVE_NONE vdbe_op_rowdata(Vdbe *p, Op *pOp, Mem *aMem);
 /* Cursor navigation opcodes */
 int vdbe_op_last(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_rewind(Vdbe *p, Op *pOp, Mem *aMem);

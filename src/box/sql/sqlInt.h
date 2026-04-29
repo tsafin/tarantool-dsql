@@ -118,6 +118,12 @@
 #define GCC_VERSION 0
 #endif
 
+#if defined(__clang__) && defined(__x86_64__)
+#define SQL_PRESERVE_NONE __attribute__((preserve_none))
+#else
+#define SQL_PRESERVE_NONE
+#endif
+
 /* Needed for various definitions... */
 #if defined(__GNUC__) && !defined(_GNU_SOURCE)
 #define _GNU_SOURCE
