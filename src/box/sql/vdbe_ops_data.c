@@ -11,7 +11,7 @@
  *
  * The 32-bit integer value P1 is written into register P2.
  */
-int vdbe_op_integer(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_integer(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_integer_impl(p, pOp, aMem);
 }
@@ -21,7 +21,7 @@ int vdbe_op_integer(Vdbe *p, Op *pOp, Mem *aMem)
  *
  * The boolean value P1 is written into register P2.
  */
-int vdbe_op_bool(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_bool(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_bool_impl(p, pOp, aMem);
 }
@@ -32,7 +32,7 @@ int vdbe_op_bool(Vdbe *p, Op *pOp, Mem *aMem)
  * P4 is a pointer to a 64-bit integer value.
  * Write that value into register P2.
  */
-int vdbe_op_int64(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_int64(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_int64_impl(p, pOp, aMem);
 }
@@ -43,7 +43,7 @@ int vdbe_op_int64(Vdbe *p, Op *pOp, Mem *aMem)
  * P4 is a pointer to a 64-bit floating point value.
  * Write that value into register P2.
  */
-int vdbe_op_real(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_real(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	(void)aMem;
 	Mem *pOut = vdbe_prepare_null_out(p, pOp->p2);
@@ -64,7 +64,7 @@ int vdbe_op_real(Vdbe *p, Op *pOp, Mem *aMem)
  *
  * if (P3!=0 and reg[P3]==P5) reg[P2] := CAST(reg[P2] as BLOB)
  */
-int vdbe_op_string(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_string(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	(void)aMem;
 	assert(pOp->p4.z != NULL);
@@ -82,7 +82,7 @@ int vdbe_op_string(Vdbe *p, Op *pOp, Mem *aMem)
  * a string literal. The string length is calculated and stored in P1.
  * This is a variant of OP_String that auto-calculates the length.
  */
-int vdbe_op_string8(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_string8(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	(void)aMem;
 	assert(pOp->p4.z != NULL);
@@ -138,7 +138,7 @@ int vdbe_op_null(Vdbe *p, Op *pOp, Mem *aMem)
  * P4 points to a blob of data P1 bytes long.  Store this
  * blob in register P2.  Set subtype to P3.
  */
-int vdbe_op_blob(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_blob(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	(void)aMem;
 	assert(pOp->p1 <= SQL_MAX_LENGTH);
@@ -190,7 +190,7 @@ int vdbe_op_variable(Vdbe *p, Op *pOp, Mem *aMem)
  * P1..P1+P3-1 and P2..P2+P3-1 to overlap.  It is an error
  * for P3 to be less than 1.
  */
-int vdbe_op_move(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_move(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	(void)p;
 	int n = pOp->p3;

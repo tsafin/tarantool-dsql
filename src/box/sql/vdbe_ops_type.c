@@ -13,7 +13,7 @@
  * without data loss, then jump immediately to P2, or if P2==0
  * raise an ER_SQL_TYPE_MISMATCH error.
  */
-int vdbe_op_mustbeint(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_mustbeint(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_mustbeint_impl(p, pOp, aMem);
 }
@@ -33,7 +33,7 @@ int vdbe_op_mustbeint(Vdbe *p, Op *pOp, Mem *aMem)
  *
  * A NULL value is not changed by this routine.  It remains NULL.
  */
-int vdbe_op_cast(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_cast(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_cast_impl(p, pOp, aMem);
 }
@@ -47,7 +47,7 @@ int vdbe_op_cast(Vdbe *p, Op *pOp, Mem *aMem)
  * field_mp_plain_type_is_compatible(), but both are numeric,
  * this opcode attempts to convert the value to the type.
  */
-int vdbe_op_applytype(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_applytype(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_applytype_impl(p, pOp, aMem);
 }
@@ -62,7 +62,7 @@ int vdbe_op_applytype(Vdbe *p, Op *pOp, Mem *aMem)
  * If P5 is not NULL then record under construction is intended to be inserted
  * into ephemeral space. Thus, sort of memory optimization can be performed.
  */
-int vdbe_op_makerecord(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_makerecord(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	Mem *pData0;           /* First field to be combined into the record */
 	int nField;            /* Number of fields in the record */

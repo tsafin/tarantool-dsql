@@ -2140,7 +2140,8 @@ mem_add_itv(const struct Mem *left, const struct Mem *right, struct Mem *result)
 }
 
 int
-mem_add(const struct Mem *left, const struct Mem *right, struct Mem *result)
+mem_add(const struct Mem *left, const struct Mem *right,
+	struct Mem *result)
 {
 	if (mem_is_any_null(left, right)) {
 		mem_set_null(result);
@@ -2253,7 +2254,8 @@ mem_sub_itv(const struct Mem *left, const struct Mem *right, struct Mem *result)
 }
 
 int
-mem_sub(const struct Mem *left, const struct Mem *right, struct Mem *result)
+mem_sub(const struct Mem *left, const struct Mem *right,
+	struct Mem *result)
 {
 	if (mem_is_any_null(left, right)) {
 		mem_set_null(result);
@@ -2273,7 +2275,8 @@ mem_sub(const struct Mem *left, const struct Mem *right, struct Mem *result)
 }
 
 int
-mem_mul(const struct Mem *left, const struct Mem *right, struct Mem *result)
+mem_mul(const struct Mem *left, const struct Mem *right,
+	struct Mem *result)
 {
 	if (mem_is_any_null(left, right)) {
 		mem_set_null(result);
@@ -2315,7 +2318,8 @@ mem_mul(const struct Mem *left, const struct Mem *right, struct Mem *result)
 }
 
 int
-mem_div(const struct Mem *left, const struct Mem *right, struct Mem *result)
+mem_div(const struct Mem *left, const struct Mem *right,
+	struct Mem *result)
 {
 	if (mem_is_any_null(left, right)) {
 		mem_set_null(result);
@@ -2373,7 +2377,8 @@ mem_div(const struct Mem *left, const struct Mem *right, struct Mem *result)
 }
 
 int
-mem_rem(const struct Mem *left, const struct Mem *right, struct Mem *result)
+mem_rem(const struct Mem *left, const struct Mem *right,
+	struct Mem *result)
 {
 	if (mem_is_any_null(left, right)) {
 		mem_set_null(result);

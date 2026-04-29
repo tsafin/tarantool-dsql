@@ -74,7 +74,7 @@ sqlVdbeMemAboutToChange(struct Vdbe *pVdbe, struct Mem *pMem)
  * Returns:
  *   Pointer to the initialized Mem register
  */
-struct Mem * vdbe_prepare_null_out(struct Vdbe *v, int n);
+struct Mem *vdbe_prepare_null_out(struct Vdbe *v, int n);
 
 /**
  * Helper function: allocateCursor

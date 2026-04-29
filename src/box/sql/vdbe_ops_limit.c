@@ -19,7 +19,7 @@
  * sum is larger than 2^63-1 (i.e. overflow takes place) then
  * error is raised.
  */
-int vdbe_op_offsetlimit(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_offsetlimit(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_offsetlimit_impl(p, pOp, aMem);
 }

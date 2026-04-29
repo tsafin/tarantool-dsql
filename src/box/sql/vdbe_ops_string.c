@@ -22,7 +22,7 @@
  * Concatenation operator accepts only arguments of string-like
  * types (i.e. TEXT and BLOB).
  */
-int vdbe_op_concat(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_concat(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_concat_impl(p, pOp, aMem);
 }

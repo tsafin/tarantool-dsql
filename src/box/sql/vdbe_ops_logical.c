@@ -28,12 +28,12 @@
  * AND: F^F=F, F^T=F, F^N=F, T^T=T, T^N=N, N^N=N
  * OR:  F|F=F, F|T=T, F|N=N, T|T=T, T|N=T, N|N=N
  */
-int vdbe_op_and(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_and(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_and_impl(p, pOp, aMem);
 }
 
-int vdbe_op_or(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_or(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_or_impl(p, pOp, aMem);
 }
@@ -44,7 +44,7 @@ int vdbe_op_or(Vdbe *p, Op *pOp, Mem *aMem)
  * boolean complement in register P2. If the value in register P1 is
  * NULL, then a NULL is stored in P2.
  */
-int vdbe_op_not(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_not(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_not_impl(p, pOp, aMem);
 }
@@ -55,7 +55,7 @@ int vdbe_op_not(Vdbe *p, Op *pOp, Mem *aMem)
  * store the result in register P3.
  * If either input is NULL, the result is NULL.
  */
-int vdbe_op_bitand(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_bitand(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_bitand_impl(p, pOp, aMem);
 }
@@ -66,7 +66,7 @@ int vdbe_op_bitand(Vdbe *p, Op *pOp, Mem *aMem)
  * store the result in register P3.
  * If either input is NULL, the result is NULL.
  */
-int vdbe_op_bitor(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_bitor(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_bitor_impl(p, pOp, aMem);
 }
@@ -77,7 +77,7 @@ int vdbe_op_bitor(Vdbe *p, Op *pOp, Mem *aMem)
  * ones-complement of the P1 value into register P2. If P1 holds
  * a NULL then store a NULL in P2.
  */
-int vdbe_op_bitnot(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_bitnot(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_bitnot_impl(p, pOp, aMem);
 }

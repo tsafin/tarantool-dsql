@@ -158,7 +158,7 @@ op_column_out:
  * If the P1 cursor must be pointing to a valid row (not a NULL row)
  * of a real table, not a pseudo-table.
  */
-int vdbe_op_rowdata(Vdbe *p, Op *pOp, Mem *aMem)
+int SQL_PRESERVE_NONE vdbe_op_rowdata(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	(void)aMem;
 	VdbeCursor *pC;
