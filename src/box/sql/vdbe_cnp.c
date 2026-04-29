@@ -2117,6 +2117,23 @@ vdbe_cnp_exec(struct Vdbe *p)
 			cnp_frag_pOp = p->aOp;
 		}
 		entry_pOp = cnp_frag_pOp;
+		/*
+		 * Common single-row tail: OP_ResultRow sets p->pc to the next
+		 * opcode, and many scalar / aggregate statements resume directly at
+		 * OP_Halt. Handle that final step in C so the next sql_step() call
+		 * does not pay another fragment-entry bridge just to finish.
+		 */
+		if (entry_pOp >= p->aOp && entry_pOp < p->aOp + p->nOp &&
+		    entry_pOp->opcode == OP_Halt) {
+			sql_cnp_step_count++;
+			int rc = vdbe_cnp_halt_handler(p, entry_pOp, p->aMem);
+			if (rc > 0) {
+				sql_cnp_done_return_count++;
+				return SQL_DONE;
+			}
+			sql_cnp_error_return_count++;
+			return -1;
+		}
 		func = (cnp_fragment_func_t)
 			p->cnp_pc_stencil[(size_t)(entry_pOp - p->aOp)];
 
