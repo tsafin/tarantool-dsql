@@ -364,6 +364,9 @@ if(ENABLE_SQL_CNP)
             -c ${CNP_FRAGMENTS_C}
             -o ${CNP_FRAGMENTS_O}
         DEPENDS ${CNP_FRAGMENTS_C} ${CNP_OPCODES_H}
+            ${PROJECT_SOURCE_DIR}/src/box/sql/vdbe_debug.h
+            ${PROJECT_SOURCE_DIR}/src/box/sql/vdbe_ops.h
+            ${PROJECT_SOURCE_DIR}/src/box/sql/vdbe_ops_cnp_impl.h
         COMMENT "Compiling CnP fragment source to object file"
     )
 

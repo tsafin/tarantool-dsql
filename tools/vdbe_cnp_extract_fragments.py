@@ -35,6 +35,9 @@ X86_SUB_RSP_IMM8 = bytes([0x48, 0x83, 0xEC])
 X86_ADD_RSP_IMM32 = bytes([0x48, 0x81, 0xC4])
 X86_ADD_RSP_IMM8 = bytes([0x48, 0x83, 0xC4])
 X86_RETQ_OPCODE = 0xC3
+X86_POP_RBP_OPCODE = 0x5D
+X86_MOVABS_RAX = bytes([0x48, 0xB8])
+X86_JMP_RAX = bytes([0xFF, 0xE0])
 
 
 FRAG_KIND_NAMES = {
@@ -57,6 +60,7 @@ PILOT_FRAGMENTS = [
     {"name": "OP_Remainder", "kind_num": 1, "tail_fallthrough": True},
     {"name": "OP_Goto", "kind_num": 2, "tail_fallthrough": False},
     {"name": "OP_IfNot", "kind_num": 2, "tail_fallthrough": True},
+    {"name": "OP_IsNull", "kind_num": 2, "tail_fallthrough": True},
     {"name": "OP_Once", "kind_num": 2, "tail_fallthrough": True},
     {"name": "OP_Halt", "kind_num": 4, "tail_fallthrough": False},
     {"name": "OP_ResultRow", "kind_num": 3, "tail_fallthrough": True},
@@ -122,16 +126,17 @@ def find_symbol(symtab, name):
 def collect_fragment_symbols(symtab):
     out = {}
     prefix = "cnp_frag_sym_OP_"
-    suffixes = ("_begin", "_dispatch", "_transfer", "_end")
     for sym in symtab.iter_symbols():
         name = sym.name
         if not name.startswith(prefix):
             continue
-        for suffix in suffixes:
-            if name.endswith(suffix):
-                frag_name = name[len("cnp_frag_sym_"):-len(suffix)]
-                out.setdefault(frag_name, {})[suffix[1:]] = sym["st_value"]
-                break
+        if sym["st_size"] == 0:
+            continue
+        frag_name = name[len("cnp_frag_sym_"):]
+        out[frag_name] = {
+            "begin": sym["st_value"],
+            "size": sym["st_size"],
+        }
     return out
 
 
@@ -165,6 +170,50 @@ def relocation_map(rels, start, size):
         if start <= rel["offset"] < start + size:
             out[rel["offset"] - start] = rel
     return out
+
+
+def find_fallthrough_fuse_offsets(frag_bytes, frag_relocs, kind_num, tail_fallthrough):
+    if kind_num != 1 or not tail_fallthrough:
+        return 0, 0
+
+    dispatch_relocs = [rel for rel in frag_relocs
+                       if rel["sym_name"] == "cnp_frag_dispatch_table"]
+    if len(dispatch_relocs) != 1:
+        return 0, 0
+
+    rel_off = dispatch_relocs[0]["offset"]
+    if rel_off < len(X86_MOVABS_RAX):
+        return 0, 0
+    dispatch_offset = rel_off - len(X86_MOVABS_RAX)
+    movabs_prefix = frag_bytes[dispatch_offset:dispatch_offset + 2]
+    if len(movabs_prefix) != 2:
+        return 0, 0
+    if movabs_prefix[0] not in (0x48, 0x49):
+        return 0, 0
+    if not (0xB8 <= movabs_prefix[1] <= 0xBF):
+        return 0, 0
+
+    jmp_off = frag_bytes.find(X86_JMP_RAX, rel_off + 8)
+    if jmp_off < 0:
+        return 0, 0
+
+    transfer_offset = 0
+    if jmp_off >= 1 and frag_bytes[jmp_off - 1] == X86_POP_RBP_OPCODE:
+        transfer_offset = jmp_off - 1
+    elif (jmp_off >= 5 and
+          frag_bytes[jmp_off - 5:jmp_off - 2] == X86_ADD_RSP_IMM8 and
+          frag_bytes[jmp_off - 1] == X86_POP_RBP_OPCODE):
+        transfer_offset = jmp_off - 5
+    elif (jmp_off >= 8 and
+          frag_bytes[jmp_off - 8:jmp_off - 5] == X86_ADD_RSP_IMM32 and
+          frag_bytes[jmp_off - 1] == X86_POP_RBP_OPCODE):
+        transfer_offset = jmp_off - 8
+    else:
+        return 0, 0
+
+    if transfer_offset <= dispatch_offset:
+        return 0, 0
+    return dispatch_offset, transfer_offset
 
 
 def entry_text_offset(entry_rels, entry_base, field_off, entry_bytes,
@@ -274,8 +323,6 @@ def extract_fragments(obj_path, opcodes_header_path):
             elf, symtab,
             (f".rela{text_section.name}", f".rel{text_section.name}")
         )
-        frag_base_sym = find_symbol(symtab, "cnp_frag_base_label")
-        frag_base_text_off = 0 if frag_base_sym is None else frag_base_sym["st_value"]
         frag_symbols = collect_fragment_symbols(symtab)
         if not frag_symbols:
             raise RuntimeError("no cnp_frag_sym_OP_* symbols found")
@@ -288,21 +335,13 @@ def extract_fragments(obj_path, opcodes_header_path):
             if opcode is None or sym is None:
                 continue
             begin = sym["begin"]
-            dispatch = sym["dispatch"]
-            transfer = sym["transfer"]
-            end = sym["end"]
+            end = begin + sym["size"]
             kind_num = frag_spec["kind_num"]
             tail_fallthrough = frag_spec["tail_fallthrough"]
-            if begin < end and text[begin] == 0x00:
-                begin += 1
-                dispatch += 1
-                transfer += 1
-                end += 1
-            if not (0 <= begin <= dispatch <= transfer <= end <= len(text)):
+            if not (0 <= begin < end <= len(text)):
                 raise RuntimeError(
                     f"invalid fragment bounds for opcode {opcode}: "
-                    f"begin={begin} dispatch={dispatch} transfer={transfer} "
-                    f"end={end}"
+                    f"begin={begin} end={end}"
                 )
 
             frag_relocs = []
@@ -321,69 +360,20 @@ def extract_fragments(obj_path, opcodes_header_path):
                 "kind": kind_num,
                 "tail_fallthrough": tail_fallthrough,
                 "begin": begin,
-                "dispatch_offset": dispatch - begin,
-                "transfer_offset": transfer - begin,
                 "bytes": text[begin:end],
                 "relocs": frag_relocs,
             }
+            dispatch_offset, transfer_offset = find_fallthrough_fuse_offsets(
+                frag["bytes"], frag_relocs, kind_num, tail_fallthrough
+            )
+            frag["dispatch_offset"] = dispatch_offset
+            frag["transfer_offset"] = transfer_offset
             fragments.append(frag)
             print(
                 f"  {name} (opcode {opcode}): {len(frag['bytes'])} bytes, "
-                f"dispatch+{frag['dispatch_offset']}, "
-                f"transfer+{frag['transfer_offset']}, {len(frag_relocs)} relocs"
+                f"{len(frag_relocs)} relocs"
             )
-
-        wrapper_sym = find_symbol(symtab, "cnp_fragment_wrapper")
-        if wrapper_sym is None:
-            raise RuntimeError("missing cnp_fragment_wrapper symbol")
-        wrapper_begin = wrapper_sym["st_value"]
-        wrapper_end = wrapper_begin + wrapper_sym["st_size"]
-        wrapper_bytes = bytes(text[wrapper_begin:wrapper_end])
-        wrapper_relocs = []
-        for rel in text_rels:
-            if wrapper_begin <= rel["offset"] < wrapper_end:
-                wrapper_relocs.append({
-                    "offset": rel["offset"] - wrapper_begin,
-                    "type": rel["type"],
-                    "addend": rel["addend"],
-                    "sym_name": rel["sym_name"],
-                })
-
-        first_begin = min(frag["begin"] for frag in fragments)
-        frag_base = first_begin if frag_base_sym is None else frag_base_sym["st_value"]
-        raw_init = text[frag_base:first_begin]
-
-        # Truncate init_bytes at jmpq *rax (ff e0) — code after is dead
-        # (the probe_opcode dispatch loop never runs in JIT context).
-        jmpq_pos = None
-        for i in range(len(raw_init) - 1):
-            if raw_init[i] == 0xff and raw_init[i + 1] == 0xe0:
-                jmpq_pos = i + 2
-                break
-        if jmpq_pos is None:
-            raise RuntimeError("could not find jmpq *rax in init region")
-        init_bytes = raw_init[:jmpq_pos]
-
-        init_relocs = []
-        for rel in text_rels:
-            if frag_base <= rel["offset"] < frag_base + jmpq_pos:
-                init_relocs.append({
-                    "offset": rel["offset"] - frag_base,
-                    "type": rel["type"],
-                    "addend": rel["addend"],
-                    "sym_name": rel["sym_name"],
-                })
-        print(f"  fragment code starts at .text offset {frag_base:#x}")
-        print(f"  init region: {len(init_bytes)} bytes (truncated at jmpq), "
-              f"{len(init_relocs)} relocs")
-        func_sym = symtab.get_symbol_by_name("cnp_fragment_entry")[0]
-        func_size = func_sym["st_size"]
-        func_start = func_sym["st_value"]
-        prologue, epilogue = extract_frame_info(text, func_start, func_size,
-                                                frag_base)
-
-        return (fragments, wrapper_bytes, wrapper_relocs, prologue,
-                init_bytes, init_relocs, epilogue)
+        return fragments
 
 
 def _emit_byte_array(out, name, data):
@@ -395,9 +385,7 @@ def _emit_byte_array(out, name, data):
     out.write("\n};\n\n")
 
 
-def emit_header(fragments, wrapper_bytes, wrapper_relocs, prologue, init_bytes,
-                init_relocs, epilogue,
-                output_path):
+def emit_header(fragments, output_path):
     max_opcode = max(f["opcode"] for f in fragments)
     with open(output_path, "w", encoding="utf-8") as out:
         out.write("/*\n")
@@ -407,14 +395,6 @@ def emit_header(fragments, wrapper_bytes, wrapper_relocs, prologue, init_bytes,
         out.write("#ifndef VDBE_CNP_FRAGMENTS_H\n")
         out.write("#define VDBE_CNP_FRAGMENTS_H\n\n")
         out.write("#include <stdint.h>\n\n")
-        _emit_byte_array(out, "cnp_fragment_wrapper_bytes", wrapper_bytes)
-        _emit_byte_array(out, "cnp_fragment_prologue_bytes", prologue)
-        _emit_byte_array(out, "cnp_fragment_init_bytes", init_bytes)
-        _emit_byte_array(out, "cnp_fragment_epilogue_bytes", epilogue)
-        out.write(f"#define CNP_FRAGMENT_WRAPPER_SIZE {len(wrapper_bytes)}u\n")
-        out.write(f"#define CNP_FRAGMENT_PROLOGUE_SIZE {len(prologue)}u\n")
-        out.write(f"#define CNP_FRAGMENT_INIT_SIZE {len(init_bytes)}u\n")
-        out.write(f"#define CNP_FRAGMENT_EPILOGUE_SIZE {len(epilogue)}u\n\n")
         out.write("enum cnp_fragment_kind {\n")
         for num in sorted(FRAG_KIND_NAMES):
             out.write(f"    {FRAG_KIND_NAMES[num]} = {num},\n")
@@ -425,30 +405,6 @@ def emit_header(fragments, wrapper_bytes, wrapper_relocs, prologue, init_bytes,
         out.write("    int32_t addend;\n")
         out.write("    const char *symbol_name;\n")
         out.write("};\n\n")
-        if wrapper_relocs:
-            out.write("static const struct cnp_fragment_reloc "
-                      "cnp_fragment_wrapper_relocs[] = {\n")
-            for rel in wrapper_relocs:
-                out.write(
-                    "    { .offset = %d, .reloc_type = %d, .addend = %d, "
-                    '.symbol_name = "%s" },\n'
-                    % (rel["offset"], rel["type"], rel["addend"], rel["sym_name"])
-                )
-            out.write("};\n\n")
-        out.write(
-            f"#define CNP_FRAGMENT_WRAPPER_NUM_RELOCS {len(wrapper_relocs)}u\n\n"
-        )
-        if init_relocs:
-            out.write("static const struct cnp_fragment_reloc "
-                      "cnp_fragment_init_relocs[] = {\n")
-            for rel in init_relocs:
-                out.write(
-                    "    { .offset = %d, .reloc_type = %d, .addend = %d, "
-                    '.symbol_name = "%s" },\n'
-                    % (rel["offset"], rel["type"], rel["addend"], rel["sym_name"])
-                )
-            out.write("};\n\n")
-        out.write(f"#define CNP_FRAGMENT_INIT_NUM_RELOCS {len(init_relocs)}u\n\n")
         out.write("struct cnp_fragment {\n")
         out.write("    const uint8_t *bytes;\n")
         out.write("    uint32_t size;\n")
@@ -516,15 +472,11 @@ def main():
     args = parser.parse_args()
 
     print(f"Extracting threaded fragments from {args.input}...")
-    (fragments, wrapper_bytes, wrapper_relocs, prologue,
-     init_bytes, init_relocs, epilogue) = extract_fragments(
-        args.input, args.opcodes_header
-    )
+    fragments = extract_fragments(args.input, args.opcodes_header)
     if not fragments:
         print("ERROR: No fragments found!", file=sys.stderr)
         sys.exit(1)
-    emit_header(fragments, wrapper_bytes, wrapper_relocs, prologue, init_bytes,
-                init_relocs, epilogue, args.output)
+    emit_header(fragments, args.output)
 
 
 if __name__ == "__main__":
