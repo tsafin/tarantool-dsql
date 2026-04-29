@@ -77,14 +77,11 @@ enum {
 	X86_JCC_REL32_MAX_OPCODE = 0x8F,
 	X86_JMP_RAX_OPCODE_0 = 0xFF,
 	X86_JMP_RAX_OPCODE_1 = 0xE0,
-	X86_LEAVE_OPCODE = 0xC9,
-	X86_RET_OPCODE = 0xC3,
 };
 
 enum {
 	X86_MOVABS_RAX_SIZE = 10,
 	X86_JMP_RAX_SIZE = 2,
-	X86_LEAVE_RET_SIZE = 2,
 };
 
 /* Counters exposed via box.stat.sql() */
@@ -998,6 +995,41 @@ typedef int64_t (*cnp_fragment_func_t)(struct Vdbe *p, VdbeOp *aOp,
 				       VdbeOp *pOp, Mem *aMem)
 	__attribute__((preserve_none));
 
+#if defined(__x86_64__)
+/*
+ * The copied fragment entry uses preserve_none live-ins in r12-r15, while
+ * vdbe_cnp_exec() is ordinary SysV C code. Bridge the first call so the
+ * stitched fragment domain sees the expected register assignment and the
+ * surrounding C frame still gets its callee-saved registers back.
+ */
+static int64_t __attribute__((naked))
+cnp_fragment_enter(void *target, struct Vdbe *p, VdbeOp *aOp, VdbeOp *pOp,
+		   Mem *aMem)
+{
+	__asm__ volatile(
+		"push %rbx\n\t"
+		"push %rbp\n\t"
+		"push %r12\n\t"
+		"push %r13\n\t"
+		"push %r14\n\t"
+		"push %r15\n\t"
+		"sub $8, %rsp\n\t"
+		"mov %rsi, %r12\n\t"
+		"mov %rdx, %r13\n\t"
+		"mov %rcx, %r14\n\t"
+		"mov %r8, %r15\n\t"
+		"call *%rdi\n\t"
+		"add $8, %rsp\n\t"
+		"pop %r15\n\t"
+		"pop %r14\n\t"
+		"pop %r13\n\t"
+		"pop %r12\n\t"
+		"pop %rbp\n\t"
+		"pop %rbx\n\t"
+		"ret\n\t");
+}
+#endif
+
 #if SQL_VDBE_OP_PROFILE
 static int
 cnp_find_pc_for_func(struct Vdbe *p, cnp_stencil_func_t func)
@@ -1032,6 +1064,36 @@ static void
 cnp_signal_row(struct Vdbe *p)
 {
 	p->cnp_row_ready = 1;
+}
+
+static int64_t __attribute__((preserve_none))
+cnp_frag_terminal_row(struct Vdbe *p, VdbeOp *aOp, VdbeOp *pOp, Mem *aMem)
+{
+	(void)p;
+	(void)aOp;
+	(void)pOp;
+	(void)aMem;
+	return SQL_ROW;
+}
+
+static int64_t __attribute__((preserve_none))
+cnp_frag_terminal_done(struct Vdbe *p, VdbeOp *aOp, VdbeOp *pOp, Mem *aMem)
+{
+	(void)p;
+	(void)aOp;
+	(void)pOp;
+	(void)aMem;
+	return SQL_DONE;
+}
+
+static int64_t __attribute__((preserve_none))
+cnp_frag_terminal_error(struct Vdbe *p, VdbeOp *aOp, VdbeOp *pOp, Mem *aMem)
+{
+	(void)p;
+	(void)aOp;
+	(void)pOp;
+	(void)aMem;
+	return -1;
 }
 
 /*
@@ -1447,19 +1509,6 @@ cnp_patch(uint8_t *patch_addr, uintptr_t target, uint8_t reloc_type, int addend)
 }
 
 static inline size_t
-cnp_ret_stub_size(void)
-{
-	/*
-	 * Fragment-entry extraction may produce no epilogue when the preserve_none
-	 * source is structured as a non-returning dispatcher. In that case the
-	 * synthetic return stubs must close the frame explicitly.
-	 */
-	return X86_MOVABS_RAX_SIZE +
-	       (CNP_FRAGMENT_EPILOGUE_SIZE > 0 ? CNP_FRAGMENT_EPILOGUE_SIZE :
-						X86_LEAVE_RET_SIZE);
-}
-
-static inline size_t
 cnp_abs_jmp_thunk_size(void)
 {
 	/* movabs $target,%rax + jmpq *%rax */
@@ -1472,19 +1521,6 @@ cnp_emit_movabs_rax(uint8_t *dst, uint64_t value)
 	dst[0] = X86_MOVABS_RAX_PREFIX_0;
 	dst[1] = X86_MOVABS_RAX_PREFIX_1;
 	memcpy(dst + 2, &value, sizeof(value));
-}
-
-static void
-cnp_emit_ret_stub(uint8_t *dst, int64_t value)
-{
-	cnp_emit_movabs_rax(dst, (uint64_t)value);
-	if (CNP_FRAGMENT_EPILOGUE_SIZE > 0) {
-		memcpy(dst + X86_MOVABS_RAX_SIZE, cnp_fragment_epilogue_bytes,
-		       CNP_FRAGMENT_EPILOGUE_SIZE);
-	} else {
-		dst[X86_MOVABS_RAX_SIZE] = X86_LEAVE_OPCODE;
-		dst[X86_MOVABS_RAX_SIZE + 1] = X86_RET_OPCODE;
-	}
 }
 
 static void
@@ -1572,6 +1608,8 @@ cnp_resolve_fragment_symbol(const char *name)
 		return (uintptr_t)vdbe_op_remainder;
 	if (strcmp(name, "vdbe_op_ifnot_inline") == 0)
 		return (uintptr_t)vdbe_op_ifnot_inline;
+	if (strcmp(name, "vdbe_op_isnull_inline") == 0)
+		return (uintptr_t)vdbe_op_isnull_inline;
 	if (strcmp(name, "vdbe_op_once_inline") == 0)
 		return (uintptr_t)vdbe_op_once_inline;
 	if (strcmp(name, "vdbe_op_resultrow") == 0)
@@ -1642,49 +1680,57 @@ cnp_resolve_fragment_symbol(const char *name)
 	return 0;
 }
 
-static int
-cnp_fragment_is_internal_symbol(const char *name)
-{
-	return name != NULL &&
-	       (strcmp(name, "cnp_frag_fallthrough_label") == 0 ||
-		strcmp(name, "cnp_frag_jump_p2_label") == 0 ||
-		strcmp(name, "cnp_frag_error_label") == 0 ||
-		strcmp(name, "cnp_frag_row_label") == 0 ||
-		strcmp(name, "cnp_frag_done_label") == 0 ||
-		strcmp(name, "cnp_fragment_entry") == 0);
-}
-
-static uintptr_t
-cnp_fragment_internal_target(const struct Vdbe *p, void **pc_stencil, int pc,
-			       const char *name)
-{
-	if (strcmp(name, "cnp_frag_fallthrough_label") == 0) {
-		if (pc + 1 < p->nOp)
-			return (uintptr_t)pc_stencil[pc + 1];
-		return (uintptr_t)pc_stencil[p->nOp + 1];
-	}
-	if (strcmp(name, "cnp_frag_jump_p2_label") == 0) {
-		int target_pc = p->aOp[pc].p2;
-		if (target_pc >= 0 && target_pc < p->nOp)
-			return (uintptr_t)pc_stencil[target_pc];
-		return (uintptr_t)pc_stencil[p->nOp + 1];
-	}
-	if (strcmp(name, "cnp_frag_error_label") == 0)
-		return (uintptr_t)pc_stencil[p->nOp + 2];
-	if (strcmp(name, "cnp_frag_row_label") == 0)
-		return (uintptr_t)pc_stencil[p->nOp];
-	if (strcmp(name, "cnp_frag_done_label") == 0)
-		return (uintptr_t)pc_stencil[p->nOp + 1];
-	return 0;
-}
-
 static size_t
 cnp_fragment_copy_size(const struct cnp_fragment *frag, int pc, int nOp)
 {
-	if (frag->tail_fallthrough && pc + 1 < nOp &&
-	    frag->transfer_offset > 0 && frag->transfer_offset <= frag->size)
-		return frag->transfer_offset;
+	if (pc + 1 < nOp && frag->kind == CNP_FRAG_FALLTHROUGH &&
+	    frag->tail_fallthrough && frag->dispatch_offset > 0 &&
+	    frag->transfer_offset > frag->dispatch_offset &&
+	    frag->transfer_offset + X86_JMP_RAX_SIZE <= frag->size) {
+		return frag->dispatch_offset +
+		       (frag->size - frag->transfer_offset - X86_JMP_RAX_SIZE);
+	}
 	return frag->size;
+}
+
+static bool
+cnp_fragment_map_offset(const struct cnp_fragment *frag, int pc, int nOp,
+			      uint32_t orig_offset, uint32_t *mapped_offset)
+{
+	size_t fused_size = cnp_fragment_copy_size(frag, pc, nOp);
+	if (fused_size == frag->size) {
+		if (orig_offset >= frag->size)
+			return false;
+		*mapped_offset = orig_offset;
+		return true;
+	}
+
+	size_t jmp_offset = frag->size - X86_JMP_RAX_SIZE;
+	if (orig_offset < frag->dispatch_offset) {
+		*mapped_offset = orig_offset;
+		return true;
+	}
+	if (orig_offset >= frag->transfer_offset && orig_offset < jmp_offset) {
+		*mapped_offset = frag->dispatch_offset +
+				(orig_offset - frag->transfer_offset);
+		return true;
+	}
+	return false;
+}
+
+static void
+cnp_fragment_copy_bytes(uint8_t *dst, const struct cnp_fragment *frag, int pc,
+			int nOp)
+{
+	size_t copy_size = cnp_fragment_copy_size(frag, pc, nOp);
+	if (copy_size == frag->size) {
+		memcpy(dst, frag->bytes, frag->size);
+		return;
+	}
+
+	memcpy(dst, frag->bytes, frag->dispatch_offset);
+	memcpy(dst + frag->dispatch_offset, frag->bytes + frag->transfer_offset,
+	       frag->size - frag->transfer_offset - X86_JMP_RAX_SIZE);
 }
 
 static bool
@@ -1737,138 +1783,72 @@ vdbe_cnp_compile_fragments(struct Vdbe *p)
 {
 	int nOp = p->nOp;
 	Op *aOp = p->aOp;
-	size_t entry_size = CNP_FRAGMENT_WRAPPER_SIZE;
-	size_t preamble_size =
-		CNP_FRAGMENT_PROLOGUE_SIZE + CNP_FRAGMENT_INIT_SIZE;
-	size_t total_size = entry_size + preamble_size;
+	size_t total_size = 0;
 	size_t thunk_count = 0;
 
-	for (uint32_t r = 0; r < CNP_FRAGMENT_INIT_NUM_RELOCS; r++) {
-		const struct cnp_fragment_reloc *rel = &cnp_fragment_init_relocs[r];
-		if (cnp_reloc_needs_thunk(cnp_fragment_init_bytes,
-					  CNP_FRAGMENT_INIT_SIZE,
-					  rel->offset, rel->reloc_type))
-			thunk_count++;
-	}
 	for (int i = 0; i < nOp; i++) {
 		const struct cnp_fragment *frag = &cnp_fragments[aOp[i].opcode];
 		size_t copy_size = cnp_fragment_copy_size(frag, i, nOp);
 		total_size += copy_size;
 		for (uint32_t r = 0; r < frag->num_relocs; r++) {
-			if (frag->relocs[r].offset >= copy_size)
+			uint32_t mapped_offset;
+			if (!cnp_fragment_map_offset(frag, i, nOp,
+						       frag->relocs[r].offset,
+						       &mapped_offset))
 				continue;
-			if (cnp_fragment_is_internal_symbol(
-				    frag->relocs[r].symbol_name))
-				continue;
-			if (cnp_reloc_needs_thunk(frag->bytes, copy_size,
+			if (cnp_reloc_needs_thunk(frag->bytes, frag->size,
 						  frag->relocs[r].offset,
 						  frag->relocs[r].reloc_type))
 				thunk_count++;
 		}
 	}
-	total_size += cnp_ret_stub_size() * 3;
 	total_size += thunk_count * cnp_abs_jmp_thunk_size();
 
 	uint8_t *code = cnp_arena_alloc(total_size);
 	if (code == NULL)
 		return -1;
 
-	/* Emit normal-ABI wrapper + preserve_none prologue/init dispatcher. */
-	memcpy(code, cnp_fragment_wrapper_bytes, CNP_FRAGMENT_WRAPPER_SIZE);
-	memcpy(code + entry_size, cnp_fragment_prologue_bytes,
-	       CNP_FRAGMENT_PROLOGUE_SIZE);
-	memcpy(code + entry_size + CNP_FRAGMENT_PROLOGUE_SIZE, cnp_fragment_init_bytes,
-	       CNP_FRAGMENT_INIT_SIZE);
-
 	void **pc_stencil = (void **)calloc((size_t)nOp + 3, sizeof(void *));
 	if (pc_stencil == NULL)
 		return -1;
 
-	size_t pos = entry_size + preamble_size;
+	size_t pos = 0;
 	for (int i = 0; i < nOp; i++) {
 		const struct cnp_fragment *frag = &cnp_fragments[aOp[i].opcode];
 		size_t copy_size = cnp_fragment_copy_size(frag, i, nOp);
 		pc_stencil[i] = code + pos;
-		memcpy(code + pos, frag->bytes, copy_size);
+		cnp_fragment_copy_bytes(code + pos, frag, i, nOp);
 		pos += copy_size;
 	}
-
-	pc_stencil[nOp] = code + pos;
-	cnp_emit_ret_stub(code + pos, SQL_ROW);
-	pos += cnp_ret_stub_size();
-	pc_stencil[nOp + 1] = code + pos;
-	cnp_emit_ret_stub(code + pos, SQL_DONE);
-	pos += cnp_ret_stub_size();
-	pc_stencil[nOp + 2] = code + pos;
-	cnp_emit_ret_stub(code + pos, -1);
-	pos += cnp_ret_stub_size();
+	pc_stencil[nOp] = (void *)cnp_frag_terminal_done;
+	pc_stencil[nOp + 1] = (void *)cnp_frag_terminal_row;
+	pc_stencil[nOp + 2] = (void *)cnp_frag_terminal_error;
 	size_t thunk_pos = pos;
-
-	for (uint32_t r = 0; r < CNP_FRAGMENT_WRAPPER_NUM_RELOCS; r++) {
-		const struct cnp_fragment_reloc *rel = &cnp_fragment_wrapper_relocs[r];
-		uintptr_t target;
-		if (strcmp(rel->symbol_name, "cnp_fragment_entry") == 0)
-			target = (uintptr_t)(code + entry_size);
-		else
-			target = cnp_resolve_fragment_symbol(rel->symbol_name);
-		if (target == 0) {
-			free(pc_stencil);
-			p->cnp_compiled = CNP_COMPILE_FAILED;
-			return -1;
-		}
-		cnp_patch(code + rel->offset, target, rel->reloc_type, rel->addend);
-	}
-
-	/* Patch call relocations in the init region. */
-	for (uint32_t r = 0; r < CNP_FRAGMENT_INIT_NUM_RELOCS; r++) {
-		const struct cnp_fragment_reloc *rel = &cnp_fragment_init_relocs[r];
-		uintptr_t target = cnp_resolve_fragment_symbol(rel->symbol_name);
-		if (target == 0) {
-			free(pc_stencil);
-			p->cnp_compiled = CNP_COMPILE_FAILED;
-			return -1;
-		}
-		if (cnp_reloc_needs_thunk(cnp_fragment_init_bytes,
-					  CNP_FRAGMENT_INIT_SIZE,
-					  rel->offset, rel->reloc_type)) {
-			cnp_emit_abs_jmp_thunk(code + thunk_pos, target);
-			target = (uintptr_t)(code + thunk_pos);
-			thunk_pos += cnp_abs_jmp_thunk_size();
-		}
-		cnp_patch(code + entry_size + CNP_FRAGMENT_PROLOGUE_SIZE + rel->offset,
-			  target, rel->reloc_type, rel->addend);
-	}
 
 	for (int i = 0; i < nOp; i++) {
 		const struct cnp_fragment *frag = &cnp_fragments[aOp[i].opcode];
-		size_t copy_size = cnp_fragment_copy_size(frag, i, nOp);
 		size_t frag_pos = (size_t)((uint8_t *)pc_stencil[i] - code);
 
 		for (uint32_t r = 0; r < frag->num_relocs; r++) {
 			const struct cnp_fragment_reloc *rel = &frag->relocs[r];
 			uintptr_t target;
-			if (rel->offset >= copy_size)
+			uint32_t mapped_offset;
+			if (!cnp_fragment_map_offset(frag, i, nOp, rel->offset,
+						       &mapped_offset))
 				continue;
-			if (cnp_fragment_is_internal_symbol(rel->symbol_name)) {
-				target = cnp_fragment_internal_target(
-					p, pc_stencil, i, rel->symbol_name);
-			} else {
-				target = cnp_resolve_fragment_symbol(
-					rel->symbol_name);
-			}
+			target = cnp_resolve_fragment_symbol(rel->symbol_name);
 			if (target == 0) {
 				free(pc_stencil);
 				p->cnp_compiled = CNP_COMPILE_FAILED;
 				return -1;
 			}
-			if (!cnp_fragment_is_internal_symbol(rel->symbol_name) &&
-			    cnp_reloc_needs_thunk(frag->bytes, copy_size,
+			if (cnp_reloc_needs_thunk(frag->bytes, frag->size,
 						  rel->offset, rel->reloc_type)) {
 				cnp_emit_abs_jmp_thunk(code + thunk_pos, target);
 				target = (uintptr_t)(code + thunk_pos);
 				thunk_pos += cnp_abs_jmp_thunk_size();
 			}
-			cnp_patch(code + frag_pos + rel->offset, target,
+			cnp_patch(code + frag_pos + mapped_offset, target,
 				  rel->reloc_type, rel->addend);
 		}
 	}
@@ -1887,16 +1867,6 @@ vdbe_cnp_compile_fragments(struct Vdbe *p)
 	cnp_perf_map_add(p, code, (uint32_t)thunk_pos);
 	cnp_register_frame(p);
 	cnp_gdb_register(p);
-
-	uint32_t *pc_offset = (uint32_t *)calloc((size_t)nOp, sizeof(uint32_t));
-	if (pc_offset != NULL) {
-		for (int i = 0; i < nOp; i++) {
-			pc_offset[i] = (uint32_t)
-				((uint8_t *)pc_stencil[i] - code);
-		}
-		cnp_jitdump_write(p, nOp, aOp, pc_offset);
-		free(pc_offset);
-	}
 
 	return 0;
 }
@@ -2129,6 +2099,7 @@ vdbe_cnp_exec(struct Vdbe *p)
 
 	if (p->cnp_mode == CNP_MODE_FRAGMENTS) {
 		cnp_fragment_func_t func;
+		VdbeOp *entry_pOp;
 
 		cnp_frag_p = p;
 		cnp_frag_aOp = p->aOp;
@@ -2145,10 +2116,12 @@ vdbe_cnp_exec(struct Vdbe *p)
 		} else {
 			cnp_frag_pOp = p->aOp;
 		}
-		/* Enter the preserve_none fragment entry with explicit live-ins. */
-		func = (cnp_fragment_func_t)p->cnp_code;
+		entry_pOp = cnp_frag_pOp;
+		func = (cnp_fragment_func_t)
+			p->cnp_pc_stencil[(size_t)(entry_pOp - p->aOp)];
 
-		int64_t result = func(p, p->aOp, cnp_frag_pOp, p->aMem);
+		int64_t result = cnp_fragment_enter((void *)func, p, p->aOp,
+						      entry_pOp, p->aMem);
 		if (result == SQL_ROW) {
 			sql_cnp_row_return_count++;
 			if (p->pc >= 0 && p->pc < p->nOp)

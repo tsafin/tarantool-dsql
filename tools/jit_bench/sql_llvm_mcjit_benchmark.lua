@@ -5,6 +5,7 @@ local json = require('json')
 local bit = require('bit')
 
 io.stdout:setvbuf('no')
+io.stderr:setvbuf('no')
 
 box.cfg{log_level = 4}
 
@@ -18,7 +19,7 @@ local function env_int(name, default)
 end
 
 local function log_progress(fmt, ...)
-    io.stdout:write(('[bench] ' .. fmt .. '\n'):format(...))
+    io.stderr:write(('[bench] ' .. fmt .. '\n'):format(...))
 end
 
 local function stat_snapshot()
@@ -77,14 +78,19 @@ end
 local function summarize_runs(runs)
     table.sort(runs, function(a, b) return a.per_op_us < b.per_op_us end)
     local sum = 0
+    local elapsed_sum = 0
     for _, run in ipairs(runs) do
         sum = sum + run.per_op_us
+        elapsed_sum = elapsed_sum + run.elapsed_sec
     end
     return {
         median_per_op_us = runs[math.floor(#runs / 2) + 1].per_op_us,
         min_per_op_us = runs[1].per_op_us,
         max_per_op_us = runs[#runs].per_op_us,
         mean_per_op_us = sum / #runs,
+        mean_elapsed_sec = elapsed_sum / #runs,
+        min_elapsed_sec = runs[1].elapsed_sec,
+        max_elapsed_sec = runs[#runs].elapsed_sec,
         runs = runs,
     }
 end
