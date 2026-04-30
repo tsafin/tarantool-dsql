@@ -351,6 +351,24 @@ sql_execute(struct Vdbe *stmt, struct port *port, struct region *region)
 	return 0;
 }
 
+static inline int
+sql_execute_no_result(struct Vdbe *stmt)
+{
+	int rc, column_count = sql_column_count(stmt);
+	rmean_collect(rmean_box, IPROTO_EXECUTE, 1);
+	if (column_count > 0) {
+		while ((rc = sql_step(stmt)) == SQL_ROW) {
+		}
+		assert(rc == SQL_DONE || rc != 0);
+	} else {
+		rc = sql_step(stmt);
+		assert(rc != SQL_ROW && rc != 0);
+	}
+	if (rc != SQL_DONE)
+		return -1;
+	return 0;
+}
+
 int
 sql_execute_prepared(uint32_t stmt_id, const struct sql_bind *bind,
 		     uint32_t bind_count, struct port *port,
@@ -390,6 +408,37 @@ sql_execute_prepared(uint32_t stmt_id, const struct sql_bind *bind,
 	}
 	sql_stmt_reset(stmt);
 
+	return 0;
+}
+
+int
+sql_execute_prepared_no_result(uint32_t stmt_id, const struct sql_bind *bind,
+			       uint32_t bind_count)
+{
+	if (!session_check_stmt_id(current_session(), stmt_id)) {
+		diag_set(ClientError, ER_WRONG_QUERY_ID, stmt_id);
+		return -1;
+	}
+	struct Vdbe *stmt = sql_stmt_cache_find(stmt_id);
+	assert(stmt != NULL);
+	if (!sql_stmt_schema_version_is_valid(stmt)) {
+		diag_set(ClientError, ER_SQL_EXECUTE, "statement has expired");
+		return -1;
+	}
+	if (sql_stmt_busy(stmt)) {
+		const char *sql_str = sql_stmt_query_str(stmt);
+		return sql_prepare_and_execute_no_result(sql_str, strlen(sql_str),
+							 bind, bind_count);
+	}
+	sql_unbind(stmt);
+	if (sql_bind(stmt, bind, bind_count) != 0)
+		return -1;
+	sql_reset_autoinc_id_list(stmt);
+	if (sql_execute_no_result(stmt) != 0) {
+		sql_stmt_reset(stmt);
+		return -1;
+	}
+	sql_stmt_reset(stmt);
 	return 0;
 }
 
@@ -479,6 +528,53 @@ sql_prepare_and_execute(const char *sql, int len, const struct sql_bind *bind,
 	}
 	sql_stmt_reset(stmt);
 	(void)from_cache;
+	return rc;
+}
+
+int
+sql_prepare_and_execute_no_result(const char *sql, int len,
+				  const struct sql_bind *bind,
+				  uint32_t bind_count)
+{
+	size_t sql_len = len >= 0 ? (size_t)len : strlen(sql);
+	uint32_t sql_flags = current_session()->sql_flags;
+	uint32_t stmt_id = sql_stmt_calculate_id(sql, sql_len);
+	struct region *region = &fiber()->gc;
+
+	struct Vdbe *stmt = auto_cache_lookup(stmt_id, sql_flags, sql, sql_len);
+	if (stmt == NULL) {
+		if (sql_stmt_compile(sql, len, NULL, &stmt, NULL, false) != 0)
+			return -1;
+		assert(stmt != NULL);
+		if (sql_stmt_is_run_only_once(stmt)) {
+			int rc = 0;
+			if (sql_bind(stmt, bind, bind_count) != 0 ||
+			    sql_execute_no_result(stmt) != 0)
+				rc = -1;
+			sqlVdbeFinalize(stmt);
+			return rc;
+		}
+		bool cached = auto_cache_insert(stmt_id, sql_flags, stmt);
+		vdbe_jit_compile_cached(stmt);
+		if (!cached) {
+			int rc = 0;
+			if (sql_bind(stmt, bind, bind_count) != 0 ||
+			    sql_execute_no_result(stmt) != 0)
+				rc = -1;
+			sqlVdbeFinalize(stmt);
+			return rc;
+		}
+	} else {
+		sql_unbind(stmt);
+		sql_reset_autoinc_id_list(stmt);
+	}
+
+	int rc = 0;
+	if (sql_bind(stmt, bind, bind_count) != 0 ||
+	    sql_execute_no_result(stmt) != 0)
+		rc = -1;
+	sql_stmt_reset(stmt);
+	(void)region;
 	return rc;
 }
 

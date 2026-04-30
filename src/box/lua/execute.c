@@ -496,6 +496,46 @@ error:
 	return luaT_push_nil_and_error(L);
 }
 
+static int
+lbox_execute_no_result(struct lua_State *L)
+{
+	struct sql_bind *bind = NULL;
+	int bind_count = 0;
+	size_t length;
+	int top = lua_gettop(L);
+
+	if ((top != 1 && top != 2) ||
+	    (lua_type(L, 1) != LUA_TSTRING && lua_type(L, 1) != LUA_TNUMBER))
+		return luaL_error(L, "Usage: box.internal.execute_no_result(sqlstring[, params]) "
+				  "or box.internal.execute_no_result(stmt_id[, params])");
+
+	if (lua_type(L, 1) != LUA_TSTRING && lua_tointeger(L, 1) < 0)
+		return luaL_error(L, "Statement id can't be negative");
+
+	size_t region_svp = region_used(&fiber()->gc);
+	if (top == 2) {
+		if (!lua_istable(L, 2))
+			return luaL_error(L, "Second argument must be a table");
+		bind_count = lua_sql_bind_list_decode(L, &bind, 2);
+		if (bind_count < 0)
+			return luaT_push_nil_and_error(L);
+	}
+	int rc;
+	if (lua_type(L, 1) == LUA_TSTRING) {
+		const char *sql = lua_tolstring(L, 1, &length);
+		rc = sql_prepare_and_execute_no_result(sql, length, bind, bind_count);
+	} else {
+		assert(lua_type(L, 1) == LUA_TNUMBER);
+		lua_Integer query_id = lua_tointeger(L, 1);
+		rc = sql_execute_prepared_no_result(query_id, bind, bind_count);
+	}
+	region_truncate(&fiber()->gc, region_svp);
+	if (rc != 0)
+		return luaT_push_nil_and_error(L);
+	lua_pushboolean(L, true);
+	return 1;
+}
+
 /**
  * Prepare SQL statement: compile it and save to the cache.
  */
@@ -532,6 +572,12 @@ box_lua_sql_init(struct lua_State *L)
 	lua_pushstring(L, "unprepare");
 	lua_pushcfunction(L, lbox_unprepare);
 	lua_settable(L, -3);
+
+	luaL_findtable(L, LUA_GLOBALSINDEX, "box.internal", 1);
+	lua_pushstring(L, "execute_no_result");
+	lua_pushcfunction(L, lbox_execute_no_result);
+	lua_settable(L, -3);
+	lua_pop(L, 1);
 
 	lua_pop(L, 1);
 }

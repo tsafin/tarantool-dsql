@@ -13,6 +13,7 @@ local RUNS = tonumber(os.getenv('BENCH_RUNS') or '3')
 local ONLY_WORKLOAD = os.getenv('BENCH_ONLY_WORKLOAD')
 local ONLY_CASE = os.getenv('BENCH_ONLY_CASE')
 local PROGRESS_EVERY = tonumber(os.getenv('BENCH_PROGRESS_EVERY') or '0')
+local DISCARD_RESULTS = os.getenv('BENCH_DISCARD_RESULTS') == '1'
 
 local function env_int(name, default)
     return tonumber(os.getenv(name) or tostring(default))
@@ -150,6 +151,13 @@ local function execute_sql(target, args)
         return box.execute(target)
     end
     return box.execute(target, args)
+end
+
+local function execute_sql_no_result(target, args)
+    if args == nil then
+        return box.internal.execute_no_result(target)
+    end
+    return box.internal.execute_no_result(target, args)
 end
 
 local function setup_point_lookup()
@@ -300,9 +308,14 @@ local workloads = {
     },
     {
         name = 'bitwise_mix',
-        description = 'Indexed row lookup with bitwise work',
+        description = 'Indexed row lookup with denser bitwise work',
         sql = [[
-            SELECT (a & b) | c, a & c, a | b, ~a
+            SELECT (((a & b) | c) & ((a << 1) | (b >> 1))),
+                   ((a | b) & (c << 2)),
+                   ((a >> 1) | (b << 1)),
+                   ((~a) & 1023),
+                   ((a & (~b)) | (c >> 1)),
+                   ((a << 2) & (b | 255))
             FROM bench_arith
             WHERE id = ?;
         ]],
@@ -318,7 +331,8 @@ local workloads = {
             local a = id * 10
             local b = id * 5 + 1
             local c = id * 2 + 1
-            return bit.bor(bit.band(a, b), c)
+            return bit.band(bit.bor(bit.band(a, b), c),
+                            bit.bor(bit.lshift(a, 1), bit.rshift(b, 1)))
         end,
     },
     {
@@ -414,8 +428,13 @@ for _, workload in ipairs(workloads) do
             run = function(progress)
                 local checksum = 0
                 for i = 1, workload.exec_iterations do
-                    local res = execute_sql(stmt.stmt_id, workload.args(i))
-                    checksum = checksum + workload.checksum(res)
+                    if DISCARD_RESULTS then
+                        assert(execute_sql_no_result(stmt.stmt_id,
+                                                     workload.args(i)))
+                    else
+                        local res = execute_sql(stmt.stmt_id, workload.args(i))
+                        checksum = checksum + workload.checksum(res)
+                    end
                     progress(i)
                 end
                 return checksum
@@ -438,8 +457,13 @@ for _, workload in ipairs(workloads) do
             run = function(progress)
                 local checksum = 0
                 for i = 1, workload.auto_iterations do
-                    local res = execute_sql(workload.sql, workload.args(i))
-                    checksum = checksum + workload.checksum(res)
+                    if DISCARD_RESULTS then
+                        assert(execute_sql_no_result(workload.sql,
+                                                     workload.args(i)))
+                    else
+                        local res = execute_sql(workload.sql, workload.args(i))
+                        checksum = checksum + workload.checksum(res)
+                    end
                     progress(i)
                 end
                 return checksum

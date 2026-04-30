@@ -61,6 +61,10 @@ sql_execute_prepared(uint32_t query_id, const struct sql_bind *bind,
 		     uint32_t bind_count, struct port *port,
 		     struct region *region);
 
+int
+sql_execute_prepared_no_result(uint32_t query_id, const struct sql_bind *bind,
+			       uint32_t bind_count);
+
 /**
  * Prepare and execute an SQL statement.
  * @param sql SQL statement.
@@ -78,6 +82,11 @@ int
 sql_prepare_and_execute(const char *sql, int len, const struct sql_bind *bind,
 			uint32_t bind_count, struct port *port,
 			struct region *region);
+
+int
+sql_prepare_and_execute_no_result(const char *sql, int len,
+				  const struct sql_bind *bind,
+				  uint32_t bind_count);
 
 /**
  * The following routine destroys a virtual machine that is created by the

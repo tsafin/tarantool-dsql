@@ -635,3 +635,56 @@ So the current scan picture is:
 - the next scan work, if any, should be even narrower (for example more
   specialized typed `OP_Column` helpers), not a return to risky generic tail
   fusion.
+
+### 10.7 Discard-results benchmark mode
+
+The next benchmark change did not touch the execution engines themselves. It
+added a way to measure the SQL path without also timing row collection into a
+`port_sql` and Lua table materialization on every iteration.
+
+Two new C-side helpers execute SQL and discard `SQL_ROW` output immediately:
+
+- `sql_prepare_and_execute_no_result()`
+- `sql_execute_prepared_no_result()`
+
+They are exposed only as an internal Lua hook:
+
+- `box.internal.execute_no_result(sql[, params])`
+- `box.internal.execute_no_result(stmt_id[, params])`
+
+The benchmark harness now switches its timed loop to that path when
+`BENCH_DISCARD_RESULTS=1`, while setup and warmup still use the normal checked
+path so statement preparation and basic correctness stay covered.
+
+Full isolated matrix in discard mode (`BENCH_RUNS=3`, median per-op, lower is
+better):
+
+| workload | generated prepared | mcjit prepared | cnp prepared | generated automatic | mcjit automatic | cnp automatic |
+|---|---:|---:|---:|---:|---:|---:|
+| tiny_const | 0.144 us | 0.143 us | **0.136 us** | 0.179 us | 0.140 us | **0.131 us** |
+| hot_expr | 0.190 us | 0.208 us | **0.174 us** | 0.188 us | 0.211 us | **0.163 us** |
+| point_lookup | 0.757 us | 0.739 us | **0.677 us** | 0.703 us | 0.692 us | **0.679 us** |
+| bitwise_mix | **0.881 us** | 0.913 us | 0.901 us | **0.870 us** | 0.898 us | 0.886 us |
+| agg_scan | 25.492 us | 22.935 us | **19.504 us** | 23.733 us | 23.392 us | **19.356 us** |
+| builtin_scan | 85.964 us | 85.096 us | **81.510 us** | 91.992 us | 88.705 us | **79.014 us** |
+
+Compared to the ordinary result-materializing matrix, the small expression
+workloads drop by roughly **67-87%** in all three modes. That confirms the
+earlier perf profiles: those tests were dominated mostly by Lua/result
+machinery rather than the SQL execution core.
+
+The larger scan workloads move much less:
+
+- `agg_scan` improves mainly for LLVM MCJIT and CnP;
+- `builtin_scan` only shifts by a few percent;
+- `point_lookup` changes the most qualitatively, because once result
+  materialization is removed, CnP becomes the fastest mode there too.
+
+So the current engine-only picture is:
+
+- CnP wins **5 of 6** workloads in both `prepared_execute` and
+  `automatic_execute`;
+- generated still has a small edge on `bitwise_mix`, so that workload remains a
+  useful non-scan benchmark for arithmetic/bitwise fragment overhead;
+- the main remaining CnP questions are now narrower throughput issues, not a
+  broad inability to compete once front-end overhead is removed.
