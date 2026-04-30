@@ -2860,6 +2860,79 @@ mem_type_to_str(const struct Mem *p)
 	}
 }
 
+int
+mem_cast_implicit_unsigned_fast(struct Mem *mem, enum field_type type)
+{
+	if (mem->type == MEM_TYPE_NULL || type == field_type_MAX)
+		return 0;
+	if (type == FIELD_TYPE_UNSIGNED && mem->type == MEM_TYPE_UINT) {
+		mem->flags = 0;
+		return 0;
+	}
+	return mem_cast_implicit(mem, type);
+}
+
+int
+mem_cast_implicit_string_fast(struct Mem *mem, enum field_type type)
+{
+	if (mem->type == MEM_TYPE_NULL || type == field_type_MAX)
+		return 0;
+	if (type == FIELD_TYPE_STRING && mem->type == MEM_TYPE_STR) {
+		mem->flags &= ~(MEM_Scalar | MEM_Any);
+		return 0;
+	}
+	return mem_cast_implicit(mem, type);
+}
+
+int
+mem_cast_implicit_double_fast(struct Mem *mem, enum field_type type)
+{
+	if (mem->type == MEM_TYPE_NULL || type == field_type_MAX)
+		return 0;
+	if (type == FIELD_TYPE_DOUBLE && mem->type == MEM_TYPE_DOUBLE) {
+		mem->flags = 0;
+		return 0;
+	}
+	return mem_cast_implicit(mem, type);
+}
+
+int
+mem_cast_implicit_integer_fast(struct Mem *mem, enum field_type type)
+{
+	if (mem->type == MEM_TYPE_NULL || type == field_type_MAX)
+		return 0;
+	if (type == FIELD_TYPE_INTEGER &&
+	    (mem->type & (MEM_TYPE_INT | MEM_TYPE_UINT)) != 0) {
+		mem->flags = 0;
+		return 0;
+	}
+	return mem_cast_implicit(mem, type);
+}
+
+int
+mem_cast_implicit_boolean_fast(struct Mem *mem, enum field_type type)
+{
+	if (mem->type == MEM_TYPE_NULL || type == field_type_MAX)
+		return 0;
+	if (type == FIELD_TYPE_BOOLEAN && mem->type == MEM_TYPE_BOOL) {
+		mem->flags = 0;
+		return 0;
+	}
+	return mem_cast_implicit(mem, type);
+}
+
+int
+mem_cast_implicit_number_fast(struct Mem *mem, enum field_type type)
+{
+	if (mem->type == MEM_TYPE_NULL || type == field_type_MAX)
+		return 0;
+	if (type == FIELD_TYPE_NUMBER && mem_is_num(mem)) {
+		mem->flags = MEM_Number;
+		return 0;
+	}
+	return mem_cast_implicit(mem, type);
+}
+
 enum mp_type
 mem_mp_type(const struct Mem *mem)
 {

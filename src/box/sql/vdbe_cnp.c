@@ -46,6 +46,7 @@
 #include "vdbe_helpers.h"
 #include "box/error.h"
 #include "box/field_def.h"
+#include "box/space_cache.h"
 #include "diag.h"
 #include "say.h"
 #include "vdbe_cnp_vdbe_view.h"
@@ -1717,6 +1718,80 @@ cnp_resolve_fragment_symbol(const char *name)
 	return 0;
 }
 
+static const Op *
+cnp_find_last_opcode_before(const struct Vdbe *p, int pc, int opcode, int p1)
+{
+	for (int i = pc - 1; i >= 0; i--) {
+		const Op *op = &p->aOp[i];
+		if (op->opcode == opcode && op->p1 == p1)
+			return op;
+	}
+	return NULL;
+}
+
+static struct space *
+cnp_find_cursor_space(const struct Vdbe *p, int pc, int cursor_id)
+{
+	const Op *iter = cnp_find_last_opcode_before(p, pc, OP_IteratorOpen,
+						      cursor_id);
+	if (iter == NULL)
+		return NULL;
+	const Op *open = cnp_find_last_opcode_before(p, iter - p->aOp + 1,
+						     OP_OpenSpace, iter->p3);
+	if (open == NULL)
+		return NULL;
+	return space_by_id(open->p2);
+}
+
+static uintptr_t
+cnp_select_column_handler(const struct Vdbe *p, int pc)
+{
+	const Op *op = &p->aOp[pc];
+	struct space *space = cnp_find_cursor_space(p, pc, op->p1);
+	if (space == NULL)
+		return (uintptr_t)vdbe_op_column;
+	if ((uint32_t)op->p2 >= space->def->field_count)
+		return (uintptr_t)vdbe_op_column;
+	switch (space->def->fields[op->p2].type) {
+	case FIELD_TYPE_UNSIGNED:
+		return (uintptr_t)vdbe_op_column_unsigned_fast;
+	case FIELD_TYPE_STRING:
+		return (uintptr_t)vdbe_op_column_string_fast;
+	case FIELD_TYPE_DOUBLE:
+		return (uintptr_t)vdbe_op_column_double_fast;
+	case FIELD_TYPE_INTEGER:
+		return (uintptr_t)vdbe_op_column_integer_fast;
+	case FIELD_TYPE_BOOLEAN:
+		return (uintptr_t)vdbe_op_column_boolean_fast;
+	default:
+		return (uintptr_t)vdbe_op_column;
+	}
+}
+
+static uintptr_t
+cnp_select_applytype_cast_helper(const struct Vdbe *p, int pc)
+{
+	const Op *op = &p->aOp[pc];
+	if (op->opcode != OP_ApplyType || op->p2 != 1 || op->p4.types == NULL)
+		return (uintptr_t)mem_cast_implicit;
+	switch (op->p4.types[0]) {
+	case FIELD_TYPE_UNSIGNED:
+		return (uintptr_t)mem_cast_implicit_unsigned_fast;
+	case FIELD_TYPE_STRING:
+		return (uintptr_t)mem_cast_implicit_string_fast;
+	case FIELD_TYPE_DOUBLE:
+		return (uintptr_t)mem_cast_implicit_double_fast;
+	case FIELD_TYPE_INTEGER:
+		return (uintptr_t)mem_cast_implicit_integer_fast;
+	case FIELD_TYPE_BOOLEAN:
+		return (uintptr_t)mem_cast_implicit_boolean_fast;
+	case FIELD_TYPE_NUMBER:
+		return (uintptr_t)mem_cast_implicit_number_fast;
+	default:
+		return (uintptr_t)mem_cast_implicit;
+	}
+}
+
 static bool
 cnp_fragment_has_local_relocs(const struct cnp_fragment *frag)
 {
@@ -2031,6 +2106,12 @@ vdbe_cnp_compile_fragments(struct Vdbe *p)
 				continue;
 			if (rel->symbol_name == NULL || rel->symbol_name[0] == '\0')
 				target = (uintptr_t)(code + frag_pos);
+			else if (aOp[i].opcode == OP_Column &&
+				 strcmp(rel->symbol_name, "vdbe_op_column") == 0)
+				target = cnp_select_column_handler(p, i);
+			else if (aOp[i].opcode == OP_ApplyType &&
+				 strcmp(rel->symbol_name, "mem_cast_implicit") == 0)
+				target = cnp_select_applytype_cast_helper(p, i);
 			else
 				target = cnp_resolve_fragment_symbol(rel->symbol_name);
 			if (target == 0) {

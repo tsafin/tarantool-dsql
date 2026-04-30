@@ -711,6 +711,24 @@ mem_cast_explicit(struct Mem *mem, enum field_type type);
 int
 mem_cast_implicit(struct Mem *mem, enum field_type type);
 
+int
+mem_cast_implicit_unsigned_fast(struct Mem *mem, enum field_type type);
+
+int
+mem_cast_implicit_string_fast(struct Mem *mem, enum field_type type);
+
+int
+mem_cast_implicit_double_fast(struct Mem *mem, enum field_type type);
+
+int
+mem_cast_implicit_integer_fast(struct Mem *mem, enum field_type type);
+
+int
+mem_cast_implicit_boolean_fast(struct Mem *mem, enum field_type type);
+
+int
+mem_cast_implicit_number_fast(struct Mem *mem, enum field_type type);
+
 /**
  * Cast MEM with numeric value to given numeric type. Doesn't fail. The return
  * value is < 0 if the original value is less than the result, > 0 if the

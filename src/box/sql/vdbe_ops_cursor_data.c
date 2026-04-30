@@ -5,6 +5,7 @@
 #include "vdbe_ops.h"
 #include "vdbe_debug.h"
 #include "tarantoolInt.h"
+#include "msgpuck/msgpuck.h"
 
 #ifdef SQL_TEST
 extern int sql_xfer_count;
@@ -139,6 +140,181 @@ int vdbe_op_column(Vdbe *p, Op *pOp, Mem *aMem)
 op_column_out:
 	REGISTER_TRACE(p, pOp->p3, pDest);
 	return 0;
+}
+
+static inline int
+vdbe_op_column_decode_fast(struct Mem *mem, const char *data,
+			   enum field_type field_type)
+{
+	switch (mp_typeof(*data)) {
+	case MP_NIL:
+		mp_decode_nil(&data);
+		mem_set_null(mem);
+		return 0;
+	case MP_UINT:
+		if (field_type == FIELD_TYPE_INTEGER ||
+		    field_type == FIELD_TYPE_UNSIGNED) {
+			mem->u.u = mp_decode_uint(&data);
+			mem->type = MEM_TYPE_UINT;
+			mem->flags = 0;
+			return 0;
+		}
+		return 1;
+	case MP_INT:
+		if (field_type == FIELD_TYPE_INTEGER) {
+			mem->u.i = mp_decode_int(&data);
+			mem->type = MEM_TYPE_INT;
+			mem->flags = 0;
+			return 0;
+		}
+		return 1;
+	case MP_STR:
+		if (field_type != FIELD_TYPE_STRING)
+			return 1;
+		mem->n = (int)mp_decode_strl(&data);
+		if (mem_copy_str(mem, data, mem->n) != 0)
+			return -1;
+		mem->flags &= ~(MEM_Scalar | MEM_Any);
+		return 0;
+	case MP_BOOL:
+		if (field_type != FIELD_TYPE_BOOLEAN)
+			return 1;
+		mem->u.b = mp_decode_bool(&data);
+		mem->type = MEM_TYPE_BOOL;
+		mem->flags = 0;
+		return 0;
+	case MP_FLOAT:
+		if (field_type != FIELD_TYPE_DOUBLE)
+			return 1;
+		mem->u.r = mp_decode_float(&data);
+		if (sqlIsNaN(mem->u.r))
+			mem_set_null(mem);
+		else {
+			mem->type = MEM_TYPE_DOUBLE;
+			mem->flags = 0;
+		}
+		return 0;
+	case MP_DOUBLE:
+		if (field_type != FIELD_TYPE_DOUBLE)
+			return 1;
+		mem->u.r = mp_decode_double(&data);
+		if (sqlIsNaN(mem->u.r))
+			mem_set_null(mem);
+		else {
+			mem->type = MEM_TYPE_DOUBLE;
+			mem->flags = 0;
+		}
+		return 0;
+	default:
+		return 1;
+	}
+}
+
+static int
+vdbe_op_column_typed_fast(Vdbe *p, Op *pOp, Mem *aMem,
+			  enum field_type expected_type)
+{
+	int p2 = pOp->p2;
+	VdbeCursor *pC = p->apCsr[pOp->p1];
+	Mem *pDest;
+	Mem *pReg;
+
+	assert(pOp->p3 > 0 && pOp->p3 <= (p->nMem + 1 - p->nCursor));
+	pDest = vdbe_prepare_null_out(p, pOp->p3);
+	assert(pOp->p1 >= 0 && pOp->p1 < p->nCursor);
+	assert(pC != NULL);
+	assert(p2 < pC->nField);
+	assert(pC->eCurType != CURTYPE_PSEUDO || pC->nullRow);
+	assert(pC->eCurType != CURTYPE_SORTER);
+
+	if (pC->cacheStatus != p->cacheCtr) {
+		if (pC->nullRow) {
+			if (pC->eCurType == CURTYPE_PSEUDO) {
+				assert(pC->uc.pseudoTableReg > 0);
+				pReg = &aMem[pC->uc.pseudoTableReg];
+				assert(mem_is_bin(pReg));
+				assert(memIsValid(pReg));
+				vdbe_field_ref_prepare_data(&pC->field_ref,
+							    pReg->z, pReg->n);
+			} else {
+				goto out;
+			}
+		} else {
+			BtCursor *pCrsr = pC->uc.pCursor;
+			assert(pC->eCurType == CURTYPE_TARANTOOL);
+			assert(pCrsr != NULL);
+			assert(sqlCursorIsValid(pCrsr));
+			assert(pCrsr->curFlags & BTCF_TaCursor ||
+			       pCrsr->curFlags & BTCF_TEphemCursor);
+			vdbe_field_ref_prepare_tuple(&pC->field_ref,
+						     pCrsr->last_tuple);
+		}
+		pC->cacheStatus = p->cacheCtr;
+	}
+
+	struct Mem *default_val_mem =
+		pOp->p4type == P4_MEM ? pOp->p4.pMem : NULL;
+	if (pC->eCurType != CURTYPE_TARANTOOL ||
+	    pC->uc.pCursor->space->def->fields[p2].type != expected_type)
+		return vdbe_op_column(p, pOp, aMem);
+	if ((uint32_t)p2 < pC->field_ref.field_count) {
+		const char *data = vdbe_field_ref_fetch_data(&pC->field_ref, p2);
+		int rc = vdbe_op_column_decode_fast(pDest, data, expected_type);
+		if (rc < 0)
+			return -1;
+		if (rc > 0) {
+			uint32_t dummy;
+			if (mem_from_mp(pDest, data, &dummy) != 0)
+				return -1;
+		}
+		UPDATE_MAX_BLOBSIZE(pDest);
+	} else {
+		UPDATE_MAX_BLOBSIZE(pDest);
+	}
+
+	if (mem_is_null(pDest) &&
+	    (uint32_t)p2 >= pC->field_ref.field_count &&
+	    default_val_mem != NULL) {
+		mem_copy_as_ephemeral(pDest, default_val_mem);
+	}
+	if (pDest->type == MEM_TYPE_NULL)
+		goto out;
+
+	if (expected_type == FIELD_TYPE_NUMBER)
+		pDest->flags |= MEM_Number;
+out:
+	REGISTER_TRACE(p, pOp->p3, pDest);
+	return 0;
+}
+
+int
+vdbe_op_column_unsigned_fast(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_column_typed_fast(p, pOp, aMem, FIELD_TYPE_UNSIGNED);
+}
+
+int
+vdbe_op_column_string_fast(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_column_typed_fast(p, pOp, aMem, FIELD_TYPE_STRING);
+}
+
+int
+vdbe_op_column_double_fast(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_column_typed_fast(p, pOp, aMem, FIELD_TYPE_DOUBLE);
+}
+
+int
+vdbe_op_column_integer_fast(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_column_typed_fast(p, pOp, aMem, FIELD_TYPE_INTEGER);
+}
+
+int
+vdbe_op_column_boolean_fast(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_column_typed_fast(p, pOp, aMem, FIELD_TYPE_BOOLEAN);
 }
 
 /* Opcode: RowData P1 P2 * * P5
