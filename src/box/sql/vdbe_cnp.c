@@ -1292,11 +1292,11 @@ cnp_resolve_handler_by_opcode(int opcode)
 	case OP_Not:
 		return (uintptr_t)vdbe_op_not;
 	case OP_BitAnd:
-		return (uintptr_t)vdbe_op_bitand;
+		return (uintptr_t)vdbe_op_bitand_inline;
 	case OP_BitOr:
-		return (uintptr_t)vdbe_op_bitor;
+		return (uintptr_t)vdbe_op_bitor_inline;
 	case OP_BitNot:
-		return (uintptr_t)vdbe_op_bitnot;
+		return (uintptr_t)vdbe_op_bitnot_inline;
 	case OP_Integer:
 		return (uintptr_t)vdbe_op_integer;
 	case OP_Bool:
@@ -1626,6 +1626,32 @@ cnp_resolve_fragment_symbol(const char *name)
 		return (uintptr_t)vdbe_op_once_inline;
 	if (strcmp(name, "vdbe_op_resultrow") == 0)
 		return (uintptr_t)vdbe_op_resultrow;
+	if (strcmp(name, "vdbe_op_bitand_inline") == 0)
+		return (uintptr_t)vdbe_op_bitand_inline;
+	if (strcmp(name, "vdbe_op_bitor_inline") == 0)
+		return (uintptr_t)vdbe_op_bitor_inline;
+	if (strcmp(name, "vdbe_op_bitnot_inline") == 0)
+		return (uintptr_t)vdbe_op_bitnot_inline;
+	if (strcmp(name, "vdbe_op_bitand_uint_fast") == 0)
+		return (uintptr_t)vdbe_op_bitand_uint_fast;
+	if (strcmp(name, "vdbe_op_bitor_uint_fast") == 0)
+		return (uintptr_t)vdbe_op_bitor_uint_fast;
+	if (strcmp(name, "vdbe_op_bitnot_uint_fast") == 0)
+		return (uintptr_t)vdbe_op_bitnot_uint_fast;
+	if (strcmp(name, "vdbe_op_bitand_p1_imm1023_fast") == 0)
+		return (uintptr_t)vdbe_op_bitand_p1_imm1023_fast;
+	if (strcmp(name, "vdbe_op_bitor_p1_imm255_fast") == 0)
+		return (uintptr_t)vdbe_op_bitor_p1_imm255_fast;
+	if (strcmp(name, "vdbe_op_shiftleft_uint_fast") == 0)
+		return (uintptr_t)vdbe_op_shiftleft_uint_fast;
+	if (strcmp(name, "vdbe_op_shiftright_uint_fast") == 0)
+		return (uintptr_t)vdbe_op_shiftright_uint_fast;
+	if (strcmp(name, "vdbe_op_shiftleft_imm1_fast") == 0)
+		return (uintptr_t)vdbe_op_shiftleft_imm1_fast;
+	if (strcmp(name, "vdbe_op_shiftleft_imm2_fast") == 0)
+		return (uintptr_t)vdbe_op_shiftleft_imm2_fast;
+	if (strcmp(name, "vdbe_op_shiftright_imm1_fast") == 0)
+		return (uintptr_t)vdbe_op_shiftright_imm1_fast;
 	/* agg_scan / builtin_scan fallthrough handlers */
 	if (strcmp(name, "vdbe_op_null") == 0)
 		return (uintptr_t)vdbe_op_null;
@@ -1801,6 +1827,208 @@ cnp_fragment_has_local_relocs(const struct cnp_fragment *frag)
 			return true;
 	}
 	return false;
+}
+
+static const Op *
+cnp_find_last_reg_writer(const struct Vdbe *p, int pc, int reg)
+{
+	for (int i = pc - 1; i >= 0; i--) {
+		const Op *op = &p->aOp[i];
+		switch (op->opcode) {
+		case OP_Integer:
+		case OP_Bool:
+		case OP_Int64:
+		case OP_Real:
+		case OP_String:
+		case OP_Null:
+		case OP_Variable:
+		case OP_Copy:
+		case OP_SCopy:
+		case OP_BitNot:
+			if (op->p2 == reg)
+				return op;
+			break;
+		case OP_Column:
+		case OP_BitAnd:
+		case OP_BitOr:
+		case OP_ShiftLeft:
+		case OP_ShiftRight:
+			if (op->p3 == reg)
+				return op;
+			break;
+		default:
+			break;
+		}
+	}
+	return NULL;
+}
+
+static const Op *
+cnp_find_unique_reg_writer(const struct Vdbe *p, int reg)
+{
+	const Op *writer = NULL;
+	for (int i = 0; i < p->nOp; i++) {
+		const Op *op = &p->aOp[i];
+		bool writes_reg = false;
+		switch (op->opcode) {
+		case OP_Integer:
+		case OP_Bool:
+		case OP_Int64:
+		case OP_Real:
+		case OP_String:
+		case OP_Null:
+		case OP_Variable:
+		case OP_Copy:
+		case OP_SCopy:
+		case OP_BitNot:
+			writes_reg = op->p2 == reg;
+			break;
+		case OP_Column:
+		case OP_BitAnd:
+		case OP_BitOr:
+		case OP_ShiftLeft:
+		case OP_ShiftRight:
+			writes_reg = op->p3 == reg;
+			break;
+		default:
+			break;
+		}
+		if (!writes_reg)
+			continue;
+		if (writer != NULL)
+			return NULL;
+		writer = op;
+	}
+	return writer;
+}
+
+static bool
+cnp_reg_is_likely_uint(const struct Vdbe *p, int pc, int reg, int depth);
+
+static bool
+cnp_op_result_is_likely_uint(const struct Vdbe *p, int pc, const Op *op,
+			       int depth)
+{
+	if (depth <= 0)
+		return false;
+	switch (op->opcode) {
+	case OP_Integer:
+		return op->p1 >= 0;
+	case OP_Bool:
+		return op->p1 >= 0;
+	case OP_Copy:
+	case OP_SCopy:
+		return cnp_reg_is_likely_uint(p, pc, op->p1, depth - 1);
+	case OP_Column: {
+		struct space *space = cnp_find_cursor_space(p, pc, op->p1);
+		if (space == NULL || (uint32_t)op->p2 >= space->def->field_count)
+			return false;
+		enum field_type type = space->def->fields[op->p2].type;
+		return type == FIELD_TYPE_UNSIGNED || type == FIELD_TYPE_INTEGER;
+	}
+	case OP_BitAnd:
+	case OP_BitOr:
+	case OP_ShiftLeft:
+	case OP_ShiftRight:
+		return cnp_reg_is_likely_uint(p, pc, op->p1, depth - 1) &&
+		       cnp_reg_is_likely_uint(p, pc, op->p2, depth - 1);
+	case OP_BitNot:
+		return cnp_reg_is_likely_uint(p, pc, op->p1, depth - 1);
+	default:
+		return false;
+	}
+}
+
+static bool
+cnp_reg_is_likely_uint(const struct Vdbe *p, int pc, int reg, int depth)
+{
+	if (depth <= 0)
+		return false;
+	const Op *def = cnp_find_last_reg_writer(p, pc, reg);
+	if (def == NULL)
+		def = cnp_find_unique_reg_writer(p, reg);
+	if (def == NULL)
+		return false;
+	return cnp_op_result_is_likely_uint(p, pc, def, depth);
+}
+
+static bool
+cnp_resolve_uint_constant(const struct Vdbe *p, int pc, int reg,
+			      uint64_t *value, int depth)
+{
+	if (depth <= 0)
+		return false;
+	const Op *def = cnp_find_last_reg_writer(p, pc, reg);
+	if (def == NULL)
+		def = cnp_find_unique_reg_writer(p, reg);
+	if (def == NULL)
+		return false;
+	switch (def->opcode) {
+	case OP_Integer:
+		if (def->p1 < 0)
+			return false;
+		*value = (uint64_t)def->p1;
+		return true;
+	case OP_Bool:
+		*value = (uint64_t)def->p1;
+		return true;
+	case OP_Copy:
+	case OP_SCopy:
+		return cnp_resolve_uint_constant(p, pc, def->p1, value,
+						 depth - 1);
+	default:
+		return false;
+	}
+}
+
+static uintptr_t
+cnp_select_bitwise_handler(const struct Vdbe *p, int pc)
+{
+	const Op *op = &p->aOp[pc];
+	uint64_t imm;
+	switch (op->opcode) {
+	case OP_BitAnd:
+		if (cnp_resolve_uint_constant(p, pc, op->p1, &imm, 8) &&
+		    imm == 1023)
+			return (uintptr_t)vdbe_op_bitand_p1_imm1023_fast;
+		if (cnp_reg_is_likely_uint(p, pc, op->p1, 16) &&
+		    cnp_reg_is_likely_uint(p, pc, op->p2, 16))
+			return (uintptr_t)vdbe_op_bitand_uint_fast;
+		return (uintptr_t)vdbe_op_bitand_inline;
+	case OP_BitOr:
+		if (cnp_resolve_uint_constant(p, pc, op->p1, &imm, 8) &&
+		    imm == 255)
+			return (uintptr_t)vdbe_op_bitor_p1_imm255_fast;
+		if (cnp_reg_is_likely_uint(p, pc, op->p1, 16) &&
+		    cnp_reg_is_likely_uint(p, pc, op->p2, 16))
+			return (uintptr_t)vdbe_op_bitor_uint_fast;
+		return (uintptr_t)vdbe_op_bitor_inline;
+	case OP_BitNot:
+		if (cnp_reg_is_likely_uint(p, pc, op->p1, 16))
+			return (uintptr_t)vdbe_op_bitnot_uint_fast;
+		return (uintptr_t)vdbe_op_bitnot_inline;
+	case OP_ShiftLeft:
+		if (cnp_resolve_uint_constant(p, pc, op->p1, &imm, 8)) {
+			if (imm == 1)
+				return (uintptr_t)vdbe_op_shiftleft_imm1_fast;
+			if (imm == 2)
+				return (uintptr_t)vdbe_op_shiftleft_imm2_fast;
+		}
+		if (cnp_reg_is_likely_uint(p, pc, op->p1, 16) &&
+		    cnp_reg_is_likely_uint(p, pc, op->p2, 16))
+			return (uintptr_t)vdbe_op_shiftleft_uint_fast;
+		return (uintptr_t)vdbe_op_shiftleft_inline;
+	case OP_ShiftRight:
+		if (cnp_resolve_uint_constant(p, pc, op->p1, &imm, 8) &&
+		    imm == 1)
+			return (uintptr_t)vdbe_op_shiftright_imm1_fast;
+		if (cnp_reg_is_likely_uint(p, pc, op->p1, 16) &&
+		    cnp_reg_is_likely_uint(p, pc, op->p2, 16))
+			return (uintptr_t)vdbe_op_shiftright_uint_fast;
+		return (uintptr_t)vdbe_op_shiftright_inline;
+	default:
+		return cnp_resolve_handler_by_opcode(op->opcode);
+	}
 }
 
 static bool
@@ -2112,6 +2340,20 @@ vdbe_cnp_compile_fragments(struct Vdbe *p)
 			else if (aOp[i].opcode == OP_ApplyType &&
 				 strcmp(rel->symbol_name, "mem_cast_implicit") == 0)
 				target = cnp_select_applytype_cast_helper(p, i);
+			else if ((aOp[i].opcode == OP_BitAnd &&
+				  (strcmp(rel->symbol_name, "vdbe_op_bitand") == 0 ||
+				   strcmp(rel->symbol_name, "vdbe_op_bitand_inline") == 0)) ||
+				 (aOp[i].opcode == OP_BitOr &&
+				  (strcmp(rel->symbol_name, "vdbe_op_bitor") == 0 ||
+				   strcmp(rel->symbol_name, "vdbe_op_bitor_inline") == 0)) ||
+				 (aOp[i].opcode == OP_BitNot &&
+				  (strcmp(rel->symbol_name, "vdbe_op_bitnot") == 0 ||
+				   strcmp(rel->symbol_name, "vdbe_op_bitnot_inline") == 0)) ||
+				 (aOp[i].opcode == OP_ShiftLeft &&
+				  strcmp(rel->symbol_name, "vdbe_op_shiftleft_inline") == 0) ||
+				 (aOp[i].opcode == OP_ShiftRight &&
+				  strcmp(rel->symbol_name, "vdbe_op_shiftright_inline") == 0))
+				target = cnp_select_bitwise_handler(p, i);
 			else
 				target = cnp_resolve_fragment_symbol(rel->symbol_name);
 			if (target == 0) {

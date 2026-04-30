@@ -308,14 +308,17 @@ local workloads = {
     },
     {
         name = 'bitwise_mix',
-        description = 'Indexed row lookup with denser bitwise work',
+        description = 'Indexed row lookup with denser immediate-heavy bitwise work',
         sql = [[
             SELECT (((a & b) | c) & ((a << 1) | (b >> 1))),
                    ((a | b) & (c << 2)),
                    ((a >> 1) | (b << 1)),
                    ((~a) & 1023),
                    ((a & (~b)) | (c >> 1)),
-                   ((a << 2) & (b | 255))
+                   ((a << 2) & (b | 255)),
+                   ((a & 1023) | ((~b) & 255)),
+                   (((a << 1) & 1023) | ((b >> 1) & 255)),
+                   (((c << 2) | (a & 255)) & ((~b) & 1023))
             FROM bench_arith
             WHERE id = ?;
         ]],

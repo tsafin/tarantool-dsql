@@ -42,6 +42,14 @@ int SQL_PRESERVE_NONE vdbe_op_not(Vdbe *p, Op *pOp, Mem *aMem);
 int SQL_PRESERVE_NONE vdbe_op_bitand(Vdbe *p, Op *pOp, Mem *aMem);
 int SQL_PRESERVE_NONE vdbe_op_bitor(Vdbe *p, Op *pOp, Mem *aMem);
 int SQL_PRESERVE_NONE vdbe_op_bitnot(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_bitand_inline(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_bitor_inline(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_bitnot_inline(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_bitand_uint_fast(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_bitor_uint_fast(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_bitnot_uint_fast(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_bitand_p1_imm1023_fast(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_bitor_p1_imm255_fast(Vdbe *p, Op *pOp, Mem *aMem);
 /* Limit/offset opcodes */
 int SQL_PRESERVE_NONE vdbe_op_offsetlimit(Vdbe *p, Op *pOp, Mem *aMem);
 /* String opcodes */
@@ -147,6 +155,11 @@ int vdbe_op_fetch_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Fetch */
 /* Medium complexity inline opcode handlers - Phase 5.6h */
 int vdbe_op_shiftleft_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* ShiftLeft */
 int vdbe_op_shiftright_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* ShiftRight */
+int vdbe_op_shiftleft_uint_fast(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_shiftright_uint_fast(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_shiftleft_imm1_fast(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_shiftleft_imm2_fast(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_shiftright_imm1_fast(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_string8_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* String8 */
 int vdbe_op_array_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Array */
 int vdbe_op_map_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Map */

@@ -25,6 +25,12 @@
 #include "vdbe_helpers.h"
 #include "tarantoolInt.h"
 
+static inline bool
+mem_is_plain_uint(const struct Mem *mem)
+{
+	return mem->type == MEM_TYPE_UINT && !mem_is_metatype(mem);
+}
+
 /*
  * Opcode: SHIFTLEFT P1 P2 P3 * *
  * Synopsis: r[P3] = r[P2] << r[P1]
@@ -63,6 +69,57 @@ vdbe_op_shiftleft_inline(Vdbe *p, Op *pOp, Mem *aMem)
 	return 0;  /* Continue to next instruction */
 }
 
+int
+vdbe_op_shiftleft_uint_fast(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	(void)p;
+	Mem *pShift = &aMem[pOp->p1];
+	Mem *pValue = &aMem[pOp->p2];
+	Mem *pOut = &aMem[pOp->p3];
+	if (mem_is_any_null(pShift, pValue)) {
+		mem_set_null(pOut);
+		return 0;
+	}
+	if (!mem_is_plain_uint(pShift) || !mem_is_plain_uint(pValue))
+		return vdbe_op_shiftleft_inline(p, pOp, aMem);
+	uint64_t shift = pShift->u.u;
+	uint64_t value = pValue->u.u;
+	mem_set_uint(pOut, shift >= 64 ? 0 : value << shift);
+	return 0;
+}
+
+int
+vdbe_op_shiftleft_imm1_fast(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	(void)p;
+	Mem *pValue = &aMem[pOp->p2];
+	Mem *pOut = &aMem[pOp->p3];
+	if (mem_is_null(pValue)) {
+		mem_set_null(pOut);
+		return 0;
+	}
+	if (!mem_is_plain_uint(pValue))
+		return vdbe_op_shiftleft_inline(p, pOp, aMem);
+	mem_set_uint(pOut, pValue->u.u << 1);
+	return 0;
+}
+
+int
+vdbe_op_shiftleft_imm2_fast(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	(void)p;
+	Mem *pValue = &aMem[pOp->p2];
+	Mem *pOut = &aMem[pOp->p3];
+	if (mem_is_null(pValue)) {
+		mem_set_null(pOut);
+		return 0;
+	}
+	if (!mem_is_plain_uint(pValue))
+		return vdbe_op_shiftleft_inline(p, pOp, aMem);
+	mem_set_uint(pOut, pValue->u.u << 2);
+	return 0;
+}
+
 /*
  * Opcode: SHIFTRIGHT P1 P2 P3 * *
  * Synopsis: r[P3] = r[P2] >> r[P1]
@@ -99,6 +156,41 @@ vdbe_op_shiftright_inline(Vdbe *p, Op *pOp, Mem *aMem)
 	assert(pOut->type == MEM_TYPE_UINT || pOut->type == MEM_TYPE_NULL);
 
 	return 0;  /* Continue to next instruction */
+}
+
+int
+vdbe_op_shiftright_uint_fast(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	(void)p;
+	Mem *pShift = &aMem[pOp->p1];
+	Mem *pValue = &aMem[pOp->p2];
+	Mem *pOut = &aMem[pOp->p3];
+	if (mem_is_any_null(pShift, pValue)) {
+		mem_set_null(pOut);
+		return 0;
+	}
+	if (!mem_is_plain_uint(pShift) || !mem_is_plain_uint(pValue))
+		return vdbe_op_shiftright_inline(p, pOp, aMem);
+	uint64_t shift = pShift->u.u;
+	uint64_t value = pValue->u.u;
+	mem_set_uint(pOut, shift >= 64 ? 0 : value >> shift);
+	return 0;
+}
+
+int
+vdbe_op_shiftright_imm1_fast(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	(void)p;
+	Mem *pValue = &aMem[pOp->p2];
+	Mem *pOut = &aMem[pOp->p3];
+	if (mem_is_null(pValue)) {
+		mem_set_null(pOut);
+		return 0;
+	}
+	if (!mem_is_plain_uint(pValue))
+		return vdbe_op_shiftright_inline(p, pOp, aMem);
+	mem_set_uint(pOut, pValue->u.u >> 1);
+	return 0;
 }
 
 /*
