@@ -140,6 +140,21 @@ if (vdbe_op_remainder_impl(p, pOp, aMem))
         "dispatch_transfer": 'JMP_FALLTHROUGH();',
     },
     {
+        "name": "OP_IsNull",
+        "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": True,
+        "body": """\
+{
+    int handler_rc = vdbe_op_isnull_inline(p, pOp, aMem);
+    if (handler_rc < 0)
+        GOTO_ERROR();
+    if (handler_rc == 1)
+        JUMP_P2();
+}""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
         "name": "OP_Halt",
         "kind": "CNP_FRAG_TERMINAL",
         "tail_fallthrough": False,
