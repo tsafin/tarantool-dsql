@@ -360,9 +360,11 @@ struct vdbe_field_ref {
 	 * extra tuple decoding as possible.
 	 */
 	uint64_t slot_bitmask;
+	/** Highest initialized slot in @slots. */
+	uint32_t rightmost_slot;
 	/**
 	 * Array of offsets of tuple fields.
-	 * Only values <= rightmost_slot are valid.
+	 * Only values <= rightmost_slot are initialized.
 	 */
 	uint32_t slots[1];
 };
