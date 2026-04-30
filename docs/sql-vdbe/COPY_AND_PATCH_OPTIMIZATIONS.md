@@ -474,3 +474,43 @@ improved, to determine whether the remaining losses come from:
 - seek/navigation helpers,
 - iterator open / close costs,
 - or the fragment boundary itself.
+
+### 10.4 Current scan comparison: `agg_scan` and `builtin_scan`
+
+After fixing the recent scan-fragment correctness bugs, the safe current CnP
+baseline is already competitive with the other execution modes on the two main
+scan-heavy benchmark workloads.
+
+Focused run (`BENCH_RUNS=3`, lower is better):
+
+| workload | mode | prepared_execute | automatic_execute |
+|---|---:|---:|---:|
+| agg_scan | **cnp** | **27.051 us** | 27.701 us |
+| agg_scan | generated | 33.184 us | 34.750 us |
+| agg_scan | mcjit | 27.723 us | **26.933 us** |
+| builtin_scan | **cnp** | **85.384 us** | **88.542 us** |
+| builtin_scan | generated | 92.996 us | 93.367 us |
+| builtin_scan | mcjit | 93.009 us | 96.041 us |
+
+Interpretation:
+
+- `agg_scan`: CnP is now clearly ahead of the generated interpreter and roughly
+  tied with LLVM MCJIT.
+  - vs generated: about **18.5% faster** in `prepared_execute`,
+    **20.3% faster** in `automatic_execute`;
+  - vs MCJIT: about **2.4% faster** in `prepared_execute`,
+    **2.9% slower** in `automatic_execute`.
+- `builtin_scan`: CnP is currently the fastest of the three modes.
+  - vs generated: about **8.2% faster** in `prepared_execute`,
+    **5.2% faster** in `automatic_execute`;
+  - vs MCJIT: about **8.2% faster** in `prepared_execute`,
+    **7.8% faster** in `automatic_execute`.
+
+This changes the optimization priority for scan-heavy paths:
+
+- the fragment path no longer needs emergency correctness triage for these two
+  workloads;
+- `JUMP_P2` fusion is still worth pursuing, but now as a targeted throughput
+  optimization rather than a prerequisite for basic competitiveness;
+- generic fallthrough fusion should only return once it preserves internal cold
+  branches and late register restores in complex fragments such as `ApplyType`.

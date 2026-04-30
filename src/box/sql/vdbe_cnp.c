@@ -23,6 +23,8 @@
  */
 
 #include <stdlib.h>
+#include <assert.h>
+#include <errno.h>
 #include <sys/mman.h>
 #include <string.h>
 #include <stdio.h>
@@ -43,7 +45,14 @@
 #include "mem.h"
 #include "vdbe_helpers.h"
 #include "box/error.h"
+#include "box/field_def.h"
+#include "diag.h"
+#include "say.h"
 #include "vdbe_cnp_vdbe_view.h"
+
+extern void
+__assert_fail(const char *assertion, const char *file, unsigned int line,
+	      const char *function) __attribute__((noreturn));
 
 #ifdef ENABLE_SQL_CNP
 
@@ -77,6 +86,8 @@ enum {
 	X86_JCC_REL32_MAX_OPCODE = 0x8F,
 	X86_JMP_RAX_OPCODE_0 = 0xFF,
 	X86_JMP_RAX_OPCODE_1 = 0xE0,
+	X86_POP_RBP_OPCODE = 0x5D,
+	X86_NOP_OPCODE = 0x90,
 };
 
 enum {
@@ -1662,6 +1673,8 @@ cnp_resolve_fragment_symbol(const char *name)
 		return (uintptr_t)vdbe_op_next_jit;
 	if (strcmp(name, "vdbe_prepare_null_out") == 0)
 		return (uintptr_t)vdbe_prepare_null_out;
+	if (strcmp(name, "updateMaxBlobsize") == 0)
+		return (uintptr_t)updateMaxBlobsize;
 	if (strcmp(name, "mem_set_int") == 0)
 		return (uintptr_t)mem_set_int;
 	if (strcmp(name, "mem_set_bool") == 0)
@@ -1676,20 +1689,85 @@ cnp_resolve_fragment_symbol(const char *name)
 		return (uintptr_t)mem_div;
 	if (strcmp(name, "mem_rem") == 0)
 		return (uintptr_t)mem_rem;
+	if (strcmp(name, "mem_cast_implicit") == 0)
+		return (uintptr_t)mem_cast_implicit;
+	if (strcmp(name, "mem_str") == 0)
+		return (uintptr_t)mem_str;
+	if (strcmp(name, "sqlVdbeMemTooBig") == 0)
+		return (uintptr_t)sqlVdbeMemTooBig;
+	if (strcmp(name, "field_type_strs") == 0)
+		return (uintptr_t)field_type_strs;
+	if (strcmp(name, "BuildClientError") == 0)
+		return (uintptr_t)BuildClientError;
+	if (strcmp(name, "diag_get") == 0)
+		return (uintptr_t)diag_get;
+	if (strcmp(name, "error_ref") == 0)
+		return (uintptr_t)error_ref;
+	if (strcmp(name, "error_unref") == 0)
+		return (uintptr_t)error_unref;
+	if (strcmp(name, "log_level") == 0)
+		return (uintptr_t)&log_level;
+	if (strcmp(name, "_say") == 0)
+		return (uintptr_t)&_say;
+	if (strcmp(name, "__errno_location") == 0)
+		return (uintptr_t)__errno_location;
+	if (strcmp(name, "__assert_fail") == 0)
+		return (uintptr_t)__assert_fail;
 
 	return 0;
+}
+
+static bool
+cnp_fragment_has_local_relocs(const struct cnp_fragment *frag)
+{
+	for (uint32_t i = 0; i < frag->num_relocs; i++) {
+		const struct cnp_fragment_reloc *rel = &frag->relocs[i];
+		if (rel->symbol_name == NULL || rel->symbol_name[0] == '\0')
+			return true;
+	}
+	return false;
+}
+
+static bool
+cnp_fragment_find_hot_jmp(const struct cnp_fragment *frag, uint32_t *jmp_offset)
+{
+	for (uint32_t i = frag->transfer_offset; i + 1 < frag->size; i++) {
+		if (frag->bytes[i] == X86_JMP_RAX_OPCODE_0 &&
+		    frag->bytes[i + 1] == X86_JMP_RAX_OPCODE_1) {
+			*jmp_offset = i;
+			return true;
+		}
+	}
+	return false;
+}
+
+static bool
+cnp_fragment_can_compact_fallthrough(const struct cnp_fragment *frag, int pc,
+				       int nOp, uint32_t *jmp_offset)
+{
+	/*
+	 * Byte-compacting the middle dispatch block is only safe once we also
+	 * remap internal control-flow targets that jump into the preserved cold
+	 * tail. Scan fragments like OP_OpenSpace use a short js into the error
+	 * block after the hot dispatch tail, so dropping the middle bytes without
+	 * rewriting that branch corrupts the success/error split. Keep the
+	 * original layout for now and patch the dispatch block in place.
+	 */
+	(void)frag;
+	(void)pc;
+	(void)nOp;
+	(void)jmp_offset;
+	return false;
 }
 
 static size_t
 cnp_fragment_copy_size(const struct cnp_fragment *frag, int pc, int nOp)
 {
-	if (pc + 1 < nOp && frag->kind == CNP_FRAG_FALLTHROUGH &&
-	    frag->tail_fallthrough && frag->dispatch_offset > 0 &&
-	    frag->transfer_offset > frag->dispatch_offset &&
-	    frag->transfer_offset + X86_JMP_RAX_SIZE <= frag->size) {
+	uint32_t jmp_offset;
+	if (cnp_fragment_can_compact_fallthrough(frag, pc, nOp, &jmp_offset))
 		return frag->dispatch_offset +
-		       (frag->size - frag->transfer_offset - X86_JMP_RAX_SIZE);
-	}
+		       (jmp_offset - frag->transfer_offset) +
+		       (frag->size - (jmp_offset + X86_JMP_RAX_SIZE));
 	return frag->size;
 }
 
@@ -1697,6 +1775,7 @@ static bool
 cnp_fragment_map_offset(const struct cnp_fragment *frag, int pc, int nOp,
 			      uint32_t orig_offset, uint32_t *mapped_offset)
 {
+	uint32_t jmp_offset;
 	size_t fused_size = cnp_fragment_copy_size(frag, pc, nOp);
 	if (fused_size == frag->size) {
 		if (orig_offset >= frag->size)
@@ -1705,7 +1784,8 @@ cnp_fragment_map_offset(const struct cnp_fragment *frag, int pc, int nOp,
 		return true;
 	}
 
-	size_t jmp_offset = frag->size - X86_JMP_RAX_SIZE;
+	if (!cnp_fragment_can_compact_fallthrough(frag, pc, nOp, &jmp_offset))
+		return false;
 	if (orig_offset < frag->dispatch_offset) {
 		*mapped_offset = orig_offset;
 		return true;
@@ -1715,6 +1795,13 @@ cnp_fragment_map_offset(const struct cnp_fragment *frag, int pc, int nOp,
 				(orig_offset - frag->transfer_offset);
 		return true;
 	}
+	if (orig_offset >= jmp_offset + X86_JMP_RAX_SIZE &&
+	    orig_offset < frag->size) {
+		*mapped_offset = frag->dispatch_offset +
+				(jmp_offset - frag->transfer_offset) +
+				(orig_offset - (jmp_offset + X86_JMP_RAX_SIZE));
+		return true;
+	}
 	return false;
 }
 
@@ -1722,15 +1809,24 @@ static void
 cnp_fragment_copy_bytes(uint8_t *dst, const struct cnp_fragment *frag, int pc,
 			int nOp)
 {
+	uint32_t jmp_offset;
 	size_t copy_size = cnp_fragment_copy_size(frag, pc, nOp);
 	if (copy_size == frag->size) {
 		memcpy(dst, frag->bytes, frag->size);
 		return;
 	}
 
+	if (!cnp_fragment_can_compact_fallthrough(frag, pc, nOp, &jmp_offset)) {
+		memcpy(dst, frag->bytes, frag->size);
+		return;
+	}
 	memcpy(dst, frag->bytes, frag->dispatch_offset);
-	memcpy(dst + frag->dispatch_offset, frag->bytes + frag->transfer_offset,
-	       frag->size - frag->transfer_offset - X86_JMP_RAX_SIZE);
+	size_t pos = frag->dispatch_offset;
+	size_t hot_tail_size = jmp_offset - frag->transfer_offset;
+	memcpy(dst + pos, frag->bytes + frag->transfer_offset, hot_tail_size);
+	pos += hot_tail_size;
+	memcpy(dst + pos, frag->bytes + jmp_offset + X86_JMP_RAX_SIZE,
+	       frag->size - (jmp_offset + X86_JMP_RAX_SIZE));
 }
 
 static bool
@@ -1757,6 +1853,103 @@ cnp_reloc_needs_thunk(const uint8_t *code, size_t size, uint32_t offset,
 	    code[offset - 1] <= X86_JCC_REL32_MAX_OPCODE)
 		return true;
 	return false;
+}
+
+static bool
+cnp_fragment_find_dispatch_block(const struct cnp_fragment *frag, int dispatch_idx,
+				 uint32_t *block_start, uint32_t *block_end)
+{
+	int dispatch_seen = 0;
+	for (uint32_t i = 0; i < frag->num_relocs; i++) {
+		const struct cnp_fragment_reloc *rel = &frag->relocs[i];
+		if (strcmp(rel->symbol_name, "cnp_frag_dispatch_table") != 0)
+			continue;
+		if (dispatch_seen++ != dispatch_idx)
+			continue;
+		if (rel->offset < 2)
+			return false;
+		uint32_t start = rel->offset - 2;
+		if (start + 2 > frag->size)
+			return false;
+		uint8_t rex = frag->bytes[start];
+		uint8_t movabs = frag->bytes[start + 1];
+		if ((rex != 0x48 && rex != 0x49) ||
+		    movabs < 0xB8 || movabs > 0xBF)
+			return false;
+		for (uint32_t j = rel->offset + 8; j + 2 < frag->size; j++) {
+			if (frag->bytes[j] == X86_POP_RBP_OPCODE &&
+			    frag->bytes[j + 1] == X86_JMP_RAX_OPCODE_0 &&
+			    frag->bytes[j + 2] == X86_JMP_RAX_OPCODE_1) {
+				*block_start = start;
+				*block_end = j + 3;
+				return true;
+			}
+		}
+		return false;
+	}
+	return false;
+}
+
+static bool
+cnp_fragment_patch_direct_jump(uint8_t *frag_code, uint32_t block_start,
+			       uint32_t block_end, uintptr_t target)
+{
+	uint32_t block_len = block_end - block_start;
+	if (block_len < X86_MOVABS_RAX_SIZE + 3)
+		return false;
+	memset(frag_code + block_start, X86_NOP_OPCODE, block_len);
+	cnp_emit_movabs_rax(frag_code + block_start, target);
+	frag_code[block_start + X86_MOVABS_RAX_SIZE] = X86_POP_RBP_OPCODE;
+	frag_code[block_start + X86_MOVABS_RAX_SIZE + 1] = X86_JMP_RAX_OPCODE_0;
+	frag_code[block_start + X86_MOVABS_RAX_SIZE + 2] = X86_JMP_RAX_OPCODE_1;
+	return true;
+}
+
+static void
+cnp_fragment_patch_jump_p2_transfers(uint8_t *frag_code,
+				       const struct cnp_fragment *frag,
+				       const struct Vdbe *p,
+				       void **pc_stencil, int pc)
+{
+	if (frag->kind != CNP_FRAG_JUMP_P2 || !frag->tail_fallthrough)
+		return;
+	uint32_t jump_start, jump_end, fall_start, fall_end;
+	if (!cnp_fragment_find_dispatch_block(frag, 0, &jump_start, &jump_end) ||
+	    !cnp_fragment_find_dispatch_block(frag, 1, &fall_start, &fall_end))
+		return;
+	int jump_pc = p->aOp[pc].p2;
+	void *jump_target = (jump_pc >= 0 && jump_pc < p->nOp) ?
+			    pc_stencil[jump_pc] :
+			    pc_stencil[p->nOp + 1];
+	void *fall_target = (pc + 1 < p->nOp) ? pc_stencil[pc + 1] :
+			   pc_stencil[p->nOp + 1];
+	if (jump_target == NULL || fall_target == NULL)
+		return;
+	if (!cnp_fragment_patch_direct_jump(frag_code, jump_start, jump_end,
+					    (uintptr_t)jump_target))
+		return;
+	(void)cnp_fragment_patch_direct_jump(frag_code, fall_start, fall_end,
+					     (uintptr_t)fall_target);
+}
+
+static void
+cnp_fragment_patch_fallthrough_transfer(uint8_t *frag_code,
+				       const struct cnp_fragment *frag,
+				       const struct Vdbe *p, void **pc_stencil,
+				       int pc)
+{
+	/*
+	 * Keep generic fallthrough fragments unmodified for now. Complex fragments
+	 * like ApplyType place live-register restore code inside the metadata
+	 * dispatch block, so blindly replacing that region with a direct jump
+	 * clobbers the fragment-to-fragment ABI. JUMP_P2 fragments still get
+	 * direct target patching via cnp_fragment_patch_jump_p2_transfers().
+	 */
+	(void)frag_code;
+	(void)frag;
+	(void)p;
+	(void)pc_stencil;
+	(void)pc;
 }
 
 /*
@@ -1836,7 +2029,10 @@ vdbe_cnp_compile_fragments(struct Vdbe *p)
 			if (!cnp_fragment_map_offset(frag, i, nOp, rel->offset,
 						       &mapped_offset))
 				continue;
-			target = cnp_resolve_fragment_symbol(rel->symbol_name);
+			if (rel->symbol_name == NULL || rel->symbol_name[0] == '\0')
+				target = (uintptr_t)(code + frag_pos);
+			else
+				target = cnp_resolve_fragment_symbol(rel->symbol_name);
 			if (target == 0) {
 				free(pc_stencil);
 				p->cnp_compiled = CNP_COMPILE_FAILED;
@@ -1851,6 +2047,10 @@ vdbe_cnp_compile_fragments(struct Vdbe *p)
 			cnp_patch(code + frag_pos + mapped_offset, target,
 				  rel->reloc_type, rel->addend);
 		}
+		cnp_fragment_patch_jump_p2_transfers(code + frag_pos, frag,
+						     p, pc_stencil, i);
+		cnp_fragment_patch_fallthrough_transfer(code + frag_pos, frag,
+						       p, pc_stencil, i);
 	}
 
 	__builtin___clear_cache((char *)code, (char *)(code + thunk_pos));
