@@ -1361,6 +1361,7 @@ vdbe_field_ref_fill(struct vdbe_field_ref *field_ref, struct tuple *tuple,
 	memset(&field_ref->slots[1], 0,
 	       field_ref->field_count * sizeof(field_ref->slots[0]));
 	field_ref->slot_bitmask = 0;
+	field_ref->rightmost_slot = 0;
 	bitmask64_set_bit(&field_ref->slot_bitmask, 0);
 }
 
@@ -1382,7 +1383,7 @@ vdbe_field_ref_prepare_tuple(struct vdbe_field_ref *field_ref,
 	uint32_t data_sz = tuple_bsize(tuple);
 	const char *field0 = data;
 	uint32_t mp_count = mp_decode_array(&field0);
-	vdbe_field_ref_fill(field_ref, NULL, mp_count, field0,
+	vdbe_field_ref_fill(field_ref, tuple, mp_count, field0,
 			    (uint32_t)(field0 - data) + data_sz);
 }
 

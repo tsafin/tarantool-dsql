@@ -51,7 +51,12 @@ vdbe_field_ref_fetch_data(struct vdbe_field_ref *field_ref, uint32_t fieldno)
     if (field != NULL && field->offset_slot != TUPLE_OFFSET_SLOT_NIL) {
         field_begin = tuple_field(field_ref->tuple, fieldno);
     } else {
-        uint32_t prev = vdbe_field_ref_closest_slotno(field_ref, fieldno);
+        uint32_t prev;
+        if (fieldno > field_ref->rightmost_slot) {
+            prev = field_ref->rightmost_slot;
+        } else {
+            prev = vdbe_field_ref_closest_slotno(field_ref, fieldno);
+        }
         if (fieldno >= 64) {
             for (uint32_t it = fieldno - 1; it > prev; it--) {
                 if (field_ref->slots[it] == 0)
@@ -70,6 +75,8 @@ vdbe_field_ref_fetch_data(struct vdbe_field_ref *field_ref, uint32_t fieldno)
     }
     field_ref->slots[fieldno] = (uint32_t)(field_begin - field_ref->data);
     bitmask64_set_bit(&field_ref->slot_bitmask, fieldno);
+    if (fieldno > field_ref->rightmost_slot)
+        field_ref->rightmost_slot = fieldno;
     return field_begin;
 }
 

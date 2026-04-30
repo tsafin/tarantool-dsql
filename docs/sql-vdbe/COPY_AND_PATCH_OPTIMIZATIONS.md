@@ -577,3 +577,61 @@ So the current picture is:
 - the next likely scan optimization is deeper specialization of field
   extraction / tuple slot traversal (`vdbe_field_ref_fetch_data()`), not a
   return to unsafe generic tail fusion.
+
+### 10.6 Field-ref traversal fast path for scan columns
+
+The next scan pass targeted the remaining `vdbe_field_ref_fetch_data()`
+overhead directly instead of changing fragment control flow again.
+
+Two small runtime changes were enough:
+
+1. `vdbe_field_ref_prepare_tuple()` now keeps the tuple pointer in the
+   `vdbe_field_ref`, so tuple-backed rows can still use tuple metadata when it
+   exists.
+2. `vdbe_field_ref` now tracks `rightmost_slot`, letting
+   `vdbe_field_ref_fetch_data()` skip the bitmask search when a query walks
+   forward through columns of the same row.
+
+That matches the hot scan opcode order well:
+
+- `agg_scan` repeatedly fetches columns `1 -> 3 -> 2`;
+- `builtin_scan` repeatedly fetches `1 -> 2 -> 3 -> 4 -> 1`.
+
+The first visit to a row still decodes forward with `mp_next()`, but the common
+monotonic case avoids the extra "find nearest initialized slot" work before the
+walk.
+
+Focused rerun after the field-ref change (`BENCH_RUNS=3`, median per-op, lower
+is better):
+
+| workload | mode | prepared_execute | automatic_execute |
+|---|---:|---:|---:|
+| agg_scan | **cnp field-ref** | **22.203 us** | **20.924 us** |
+| agg_scan | generated | 25.375 us | 26.546 us |
+| agg_scan | mcjit | 26.606 us | 25.919 us |
+| builtin_scan | **cnp field-ref** | **83.924 us** | **80.629 us** |
+| builtin_scan | generated | 97.804 us | 107.819 us |
+| builtin_scan | mcjit | 95.792 us | 102.451 us |
+
+Against the previous typed-helper CnP baseline from section 10.5:
+
+- `agg_scan`: `23.052 / 23.475 us` -> `22.203 / 20.924 us`
+  (**3.7% faster** prepared, **10.9% faster** automatic).
+- `builtin_scan`: `85.821 / 87.630 us` -> `83.924 / 80.629 us`
+  (**2.2% faster** prepared, **8.0% faster** automatic).
+
+The perf follow-up on `agg_scan/prepared_execute` also moved in the expected
+direction:
+
+- before this pass, `vdbe_field_ref_fetch_data()` was still around **5.25%**;
+- after the field-ref fast path, it drops to **2.91%**;
+- `vdbe_op_column_typed_fast` remains visible, so the hot path is now more
+  clearly concentrated in typed column decode plus the stitched fragment body.
+
+So the current scan picture is:
+
+- typed helper binding removed the generic materialize/cast overhead;
+- this field-ref pass trimmed the remaining tuple-slot traversal cost;
+- the next scan work, if any, should be even narrower (for example more
+  specialized typed `OP_Column` helpers), not a return to risky generic tail
+  fusion.
