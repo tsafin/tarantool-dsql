@@ -514,3 +514,66 @@ This changes the optimization priority for scan-heavy paths:
   optimization rather than a prerequisite for basic competitiveness;
 - generic fallthrough fusion should only return once it preserves internal cold
   branches and late register restores in complex fragments such as `ApplyType`.
+
+### 10.5 Typed scan helper binding in CnP fragments
+
+The next step after the safe scan baseline was **not** another fallthrough-tail
+fusion attempt. The better payoff came from leaving fragment control flow alone
+and specializing the hot helper relocs inside the existing stitched fragments.
+
+Two per-PC bindings were added:
+
+1. `OP_Column` now binds to a typed helper when the fragment compiler can
+   recover a stable bytecode mapping
+   `OpenSpace(space_id) -> IteratorOpen(cursor, ..., space_reg) -> Column`.
+   When that mapping resolves to an exact schema field type, the fragment uses a
+   typed helper instead of the generic `vdbe_op_column()`.
+2. Single-register `OP_ApplyType` binds its `mem_cast_implicit` relocation to a
+   typed fast helper when `p4.types[0]` is exact.
+
+This keeps the fragment ABI and stitched fragment layout unchanged, which avoids
+reopening the earlier correctness problems in `OP_OpenSpace` / `OP_ApplyType`
+fallthrough tails.
+
+Focused run after the typed binding change (`BENCH_RUNS=3`, lower is better):
+
+| workload | mode | prepared_execute | automatic_execute |
+|---|---:|---:|---:|
+| agg_scan | **cnp typed** | **23.052 us** | **23.475 us** |
+| agg_scan | generated | 26.175 us | 28.682 us |
+| agg_scan | mcjit | 26.903 us | 29.366 us |
+| builtin_scan | **cnp typed** | **85.821 us** | **87.630 us** |
+| builtin_scan | generated | 92.545 us | 97.108 us |
+| builtin_scan | mcjit | 95.726 us | 94.465 us |
+
+Against the previous safe CnP scan baseline from section 10.4:
+
+- `agg_scan`: `27.051 / 27.701 us` -> `23.052 / 23.475 us`
+  (**14.8% faster** prepared, **15.3% faster** automatic).
+- `builtin_scan`: `85.384 / 88.542 us` -> `85.821 / 87.630 us`
+  (**0.5% slower** prepared, **1.0% faster** automatic).
+
+The perf follow-up (`perf_jit.sh`, `prepared_execute`, 1% symbol cutoff)
+supports the intended explanation:
+
+- `agg_scan`
+  - before: top symbols included `vdbe_field_ref_fetch_data`,
+    `mem_from_mp_ephemeral`, `vdbe_op_column`, `mem_cast_implicit`;
+  - after: `vdbe_op_column_typed_fast` and `vdbe_field_ref_fetch_data` remain,
+    but `mem_from_mp_ephemeral` and `mem_cast_implicit` drop below the 1%
+    cutoff.
+- `builtin_scan`
+  - before: top symbols included `vdbe_op_column`,
+    `vdbe_field_ref_fetch_data`, `mem_from_mp_ephemeral`,
+    `vdbe_op_builtinfunction`, and `mem_cast_implicit`;
+  - after: `vdbe_op_column_typed_fast` and `vdbe_field_ref_fetch_data` remain,
+    while the generic materialize/cast helpers are no longer in the top report.
+
+So the current picture is:
+
+- **typed helper selection works** and gives a clear win on `agg_scan`;
+- `builtin_scan` also benefits, but less dramatically because builtin/string
+  work remains a larger share of the total time;
+- the next likely scan optimization is deeper specialization of field
+  extraction / tuple slot traversal (`vdbe_field_ref_fetch_data()`), not a
+  return to unsafe generic tail fusion.
