@@ -967,3 +967,91 @@ So `point_lookup` is no longer the dominant blocker in the benchmark matrix.
 If more work is needed on that workload specifically, the next likely target is
 still the column side (`vdbe_op_column_typed_fast()` /
 `vdbe_field_ref_fetch_*()`), not another broad fragment-control-flow change.
+
+### 10.11 Constant-specialized arithmetic for `tiny_const` / `hot_expr`
+
+The next narrow pass targeted the tiny constant-only expression workloads:
+
+- `tiny_const`: `SELECT 1 + 2;`
+- `hot_expr`: `SELECT 1 + 2 + 3 + 4 + 5;`
+
+Their prepared bytecode is still small:
+
+```text
+tiny_const:
+  Init
+  Integer
+  Integer
+  Goto
+  Add
+  ResultRow
+  Halt
+
+hot_expr:
+  Init
+  Integer
+  Integer
+  Add
+  Integer
+  Add
+  Integer
+  Add
+  Integer
+  Goto
+  Add
+  ResultRow
+  Halt
+```
+
+The first `point_lookup` arithmetic pass already recognized integer producers,
+but it still read both input `Mem` cells for each arithmetic opcode. For tiny
+constant traces that leaves an obvious next step: if neighboring bytecode proves
+one or both inputs come from `OP_Integer` / `OP_Int64`, skip those input loads
+and use compile-time immediates instead.
+
+The implementation keeps the bytecode unchanged and stores per-PC immediate
+metadata in the CnP program state. Then:
+
+- `cnp_resolve_int_constant()` traces a register back to a constant producer;
+- `cnp_select_arith_handler()` / `cnp_select_arith_fragment_handler()` prefer
+  `vdbe_op_*_const_fast()` when at least one operand is constant and the other
+  side is still integer-specializable;
+- the new helpers (`vdbe_op_add_const_fast()`, `...sub...`, `...multiply...`,
+  `...divide...`, `...remainder...`) read only the dynamic inputs and combine
+  them with the per-PC immediates.
+
+That is intentionally still **not constant folding**:
+
+- the `Integer` opcodes remain in the trace;
+- the VDBE program shape is unchanged;
+- the win comes from narrower arithmetic helpers, not from deleting bytecode.
+
+Focused reruns after the change (`BENCH_RUNS=12`) show the intended direction:
+
+| workload | mode | generated | CnP |
+|---|---|---:|---:|
+| `tiny_const` | `prepared_execute`, discard | `0.143 us` | **0.140 us** |
+| `hot_expr` | `prepared_execute`, discard | `0.198 us` | **0.186 us** |
+| `hot_expr` | `prepared_execute`, materialized | `1.195 us` | **1.114 us** |
+
+`perf_jit.sh` on `hot_expr/prepared_execute` also now shows
+`vdbe_op_add_const_fast()` as a visible CnP hot-path symbol.
+
+So this pass is a reasonable first backend-only step for constants:
+
+- it improves tiny arithmetic traces without changing SQL code generation;
+- it reuses the same neighboring-bytecode specialization model as the
+  `point_lookup` arithmetic pass;
+- and it gives a better base for the next, cleaner step.
+
+The next step should still be **prepare-time constant folding** in SQL codegen.
+That would let the compiler collapse sequences such as:
+
+```text
+Integer 1
+Integer 2
+Add
+```
+
+into a single constant result, which helps all execution backends instead of
+teaching only CnP to run the unfused bytecode faster.
