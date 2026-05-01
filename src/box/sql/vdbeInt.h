@@ -345,13 +345,29 @@ struct Vdbe {
 	uint8_t *cnp_ehframe;
 	/** Heap-allocated GDB JIT registration entry for the current program */
 	void *cnp_gdb_entry;
+	/** Per-PC immediate metadata for constant-specialized arithmetic helpers. */
+	struct cnp_arith_imm *cnp_arith_imm;
 #endif
 };
 
 #ifdef ENABLE_SQL_CNP
+struct cnp_arith_imm {
+	uint8_t mask;
+	bool p1_is_signed;
+	bool p2_is_signed;
+	uint8_t reserved;
+	int64_t p1_value;
+	int64_t p2_value;
+};
+
 enum {
 	CNP_MODE_STENCILS = 0,
 	CNP_MODE_FRAGMENTS = 1,
+};
+
+enum {
+	CNP_ARITH_IMM_P1 = 1U << 0,
+	CNP_ARITH_IMM_P2 = 1U << 1,
 };
 #endif
 

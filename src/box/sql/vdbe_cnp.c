@@ -683,6 +683,10 @@ cnp_invalidate_program(struct Vdbe *p)
 {
 	cnp_gdb_deregister(p);
 	cnp_deregister_frame(p);
+	if (p->cnp_arith_imm != NULL) {
+		free(p->cnp_arith_imm);
+		p->cnp_arith_imm = NULL;
+	}
 	if (p->cnp_pc_stencil != NULL) {
 		free(p->cnp_pc_stencil);
 		p->cnp_pc_stencil = NULL;
@@ -2096,12 +2100,78 @@ cnp_resolve_uint_constant(const struct Vdbe *p, int pc, int reg,
 	}
 }
 
-static uintptr_t
-cnp_select_arith_handler(const struct Vdbe *p, int pc)
+static bool
+cnp_resolve_int_constant(const struct Vdbe *p, int pc, int reg, int64_t *value,
+			 bool *is_signed, int depth)
+{
+	if (depth <= 0)
+		return false;
+	const Op *def = cnp_find_last_reg_writer(p, pc, reg);
+	if (def == NULL)
+		def = cnp_find_unique_reg_writer(p, reg);
+	if (def == NULL)
+		return false;
+	switch (def->opcode) {
+	case OP_Integer:
+		*value = def->p1;
+		*is_signed = def->p1 < 0;
+		return true;
+	case OP_Int64:
+		if (def->p4.pI64 == NULL)
+			return false;
+		*value = *def->p4.pI64;
+		*is_signed = def->p4type == P4_INT64;
+		return true;
+	case OP_Copy:
+	case OP_SCopy:
+		return cnp_resolve_int_constant(p, pc, def->p1, value,
+						is_signed, depth - 1);
+	default:
+		return false;
+	}
+}
+
+static bool
+cnp_configure_arith_imm(struct Vdbe *p, int pc)
 {
 	const Op *op = &p->aOp[pc];
-	if (!cnp_reg_is_likely_int(p, pc, op->p1, 16) ||
-	    !cnp_reg_is_likely_int(p, pc, op->p2, 16))
+	struct cnp_arith_imm *imm = &p->cnp_arith_imm[pc];
+	memset(imm, 0, sizeof(*imm));
+	if (cnp_resolve_int_constant(p, pc, op->p1, &imm->p1_value,
+				     &imm->p1_is_signed, 8))
+		imm->mask |= CNP_ARITH_IMM_P1;
+	if (cnp_resolve_int_constant(p, pc, op->p2, &imm->p2_value,
+				     &imm->p2_is_signed, 8))
+		imm->mask |= CNP_ARITH_IMM_P2;
+	return imm->mask != 0;
+}
+
+static uintptr_t
+cnp_select_arith_handler(struct Vdbe *p, int pc)
+{
+	const Op *op = &p->aOp[pc];
+	bool p1_const = cnp_configure_arith_imm(p, pc) &&
+			(p->cnp_arith_imm[pc].mask & CNP_ARITH_IMM_P1) != 0;
+	bool p2_const = (p->cnp_arith_imm[pc].mask & CNP_ARITH_IMM_P2) != 0;
+	bool p1_int = p1_const || cnp_reg_is_likely_int(p, pc, op->p1, 16);
+	bool p2_int = p2_const || cnp_reg_is_likely_int(p, pc, op->p2, 16);
+	if ((p1_const || p2_const) && p1_int && p2_int) {
+		switch (op->opcode) {
+		case OP_Add:
+			return (uintptr_t)vdbe_op_add_const_fast;
+		case OP_Subtract:
+			return (uintptr_t)vdbe_op_sub_const_fast;
+		case OP_Multiply:
+			return (uintptr_t)vdbe_op_multiply_const_fast;
+		case OP_Divide:
+			return (uintptr_t)vdbe_op_divide_const_fast;
+		case OP_Remainder:
+			return (uintptr_t)vdbe_op_remainder_const_fast;
+		default:
+			break;
+		}
+	}
+	if (!p1_int || !p2_int)
 		return cnp_resolve_handler_by_opcode(op->opcode);
 	switch (op->opcode) {
 	case OP_Add:
@@ -2120,11 +2190,31 @@ cnp_select_arith_handler(const struct Vdbe *p, int pc)
 }
 
 static uintptr_t
-cnp_select_arith_fragment_handler(const struct Vdbe *p, int pc)
+cnp_select_arith_fragment_handler(struct Vdbe *p, int pc)
 {
 	const Op *op = &p->aOp[pc];
-	if (!cnp_reg_is_likely_int(p, pc, op->p1, 16) ||
-	    !cnp_reg_is_likely_int(p, pc, op->p2, 16)) {
+	bool p1_const = cnp_configure_arith_imm(p, pc) &&
+			(p->cnp_arith_imm[pc].mask & CNP_ARITH_IMM_P1) != 0;
+	bool p2_const = (p->cnp_arith_imm[pc].mask & CNP_ARITH_IMM_P2) != 0;
+	bool p1_int = p1_const || cnp_reg_is_likely_int(p, pc, op->p1, 16);
+	bool p2_int = p2_const || cnp_reg_is_likely_int(p, pc, op->p2, 16);
+	if ((p1_const || p2_const) && p1_int && p2_int) {
+		switch (op->opcode) {
+		case OP_Add:
+			return (uintptr_t)vdbe_op_add_const_fast;
+		case OP_Subtract:
+			return (uintptr_t)vdbe_op_sub_const_fast;
+		case OP_Multiply:
+			return (uintptr_t)vdbe_op_multiply_const_fast;
+		case OP_Divide:
+			return (uintptr_t)vdbe_op_divide_const_fast;
+		case OP_Remainder:
+			return (uintptr_t)vdbe_op_remainder_const_fast;
+		default:
+			break;
+		}
+	}
+	if (!p1_int || !p2_int) {
 		switch (op->opcode) {
 		case OP_Add:
 			return (uintptr_t)vdbe_op_add_sysv_bridge;
@@ -2619,6 +2709,10 @@ vdbe_cnp_compile(struct Vdbe *p)
 
 	int nOp = p->nOp;
 	Op *aOp = p->aOp;
+	p->cnp_arith_imm = (struct cnp_arith_imm *)calloc(nOp,
+						       sizeof(*p->cnp_arith_imm));
+	if (p->cnp_arith_imm == NULL)
+		return -1;
 	bool use_fragments = cnp_can_use_fragments(p);
 
 	if (use_fragments)
