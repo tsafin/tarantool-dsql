@@ -102,6 +102,56 @@ if (vdbe_op_remainder_impl(p, pOp, aMem))
         "dispatch_transfer": 'JMP_FALLTHROUGH();',
     },
     {
+        "name": "OP_BitAnd",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
+        "body": """\
+if (vdbe_op_bitand_impl(p, pOp, aMem))
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_BitOr",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
+        "body": """\
+if (vdbe_op_bitor_impl(p, pOp, aMem))
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_BitNot",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
+        "body": """\
+if (vdbe_op_bitnot_impl(p, pOp, aMem))
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_ShiftLeft",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
+        "body": """\
+if (vdbe_op_shiftleft_impl(p, pOp, aMem))
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_ShiftRight",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": True,
+        "body": """\
+if (vdbe_op_shiftright_impl(p, pOp, aMem))
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
         "name": "OP_Goto",
         "kind": "CNP_FRAG_JUMP_P2",
         "tail_fallthrough": False,

@@ -54,6 +54,12 @@ struct CnpStubOp {
 #define VDBE_CNP_INLINE static inline
 #endif
 
+VDBE_CNP_INLINE bool
+vdbe_cnp_mem_is_plain_uint(const Mem *mem)
+{
+	return mem->type == MEM_TYPE_UINT && !mem_is_metatype(mem);
+}
+
 VDBE_CNP_INLINE int
 vdbe_op_integer_impl(Vdbe *p, Op *pOp, Mem *aMem)
 {
@@ -150,6 +156,25 @@ vdbe_op_bitand_impl(Vdbe *p, Op *pOp, Mem *aMem)
 	Mem *pIn1 = &aMem[pOp->p1];
 	Mem *pIn2 = &aMem[pOp->p2];
 	Mem *pOut = &aMem[pOp->p3];
+	if (mem_is_any_null(pIn1, pIn2)) {
+		mem_set_null(pOut);
+		return 0;
+	}
+	if (vdbe_cnp_mem_is_plain_uint(pIn1) &&
+	    vdbe_cnp_mem_is_plain_uint(pIn2)) {
+		uint64_t lhs = pIn1->u.u;
+		uint64_t rhs = pIn2->u.u;
+		if (lhs == 1023) {
+			mem_set_uint(pOut, rhs & 1023);
+			return 0;
+		}
+		if (rhs == 1023) {
+			mem_set_uint(pOut, lhs & 1023);
+			return 0;
+		}
+		mem_set_uint(pOut, lhs & rhs);
+		return 0;
+	}
 	if (mem_bit_and(pIn2, pIn1, pOut) != 0)
 		return -1;
 	assert(pOut->type == MEM_TYPE_UINT || pOut->type == MEM_TYPE_NULL);
@@ -163,6 +188,25 @@ vdbe_op_bitor_impl(Vdbe *p, Op *pOp, Mem *aMem)
 	Mem *pIn1 = &aMem[pOp->p1];
 	Mem *pIn2 = &aMem[pOp->p2];
 	Mem *pOut = &aMem[pOp->p3];
+	if (mem_is_any_null(pIn1, pIn2)) {
+		mem_set_null(pOut);
+		return 0;
+	}
+	if (vdbe_cnp_mem_is_plain_uint(pIn1) &&
+	    vdbe_cnp_mem_is_plain_uint(pIn2)) {
+		uint64_t lhs = pIn1->u.u;
+		uint64_t rhs = pIn2->u.u;
+		if (lhs == 255) {
+			mem_set_uint(pOut, rhs | 255);
+			return 0;
+		}
+		if (rhs == 255) {
+			mem_set_uint(pOut, lhs | 255);
+			return 0;
+		}
+		mem_set_uint(pOut, lhs | rhs);
+		return 0;
+	}
 	if (mem_bit_or(pIn2, pIn1, pOut) != 0)
 		return -1;
 	assert(pOut->type == MEM_TYPE_UINT || pOut->type == MEM_TYPE_NULL);
@@ -175,7 +219,75 @@ vdbe_op_bitnot_impl(Vdbe *p, Op *pOp, Mem *aMem)
 	(void)p;
 	Mem *pIn1 = &aMem[pOp->p1];
 	Mem *pOut = &aMem[pOp->p2];
+	if (mem_is_null(pIn1)) {
+		mem_set_null(pOut);
+		return 0;
+	}
+	if (vdbe_cnp_mem_is_plain_uint(pIn1)) {
+		mem_set_uint(pOut, ~pIn1->u.u);
+		return 0;
+	}
 	return mem_bit_not(pIn1, pOut) != 0 ? -1 : 0;
+}
+
+VDBE_CNP_INLINE int
+vdbe_op_shiftleft_impl(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	(void)p;
+	Mem *pShift = &aMem[pOp->p1];
+	Mem *pValue = &aMem[pOp->p2];
+	Mem *pOut = &aMem[pOp->p3];
+	if (mem_is_any_null(pShift, pValue)) {
+		mem_set_null(pOut);
+		return 0;
+	}
+	if (vdbe_cnp_mem_is_plain_uint(pShift) &&
+	    vdbe_cnp_mem_is_plain_uint(pValue)) {
+		uint64_t shift = pShift->u.u;
+		uint64_t value = pValue->u.u;
+		if (shift == 1) {
+			mem_set_uint(pOut, value << 1);
+			return 0;
+		}
+		if (shift == 2) {
+			mem_set_uint(pOut, value << 2);
+			return 0;
+		}
+		mem_set_uint(pOut, shift >= 64 ? 0 : value << shift);
+		return 0;
+	}
+	if (mem_shift_left(pValue, pShift, pOut) != 0)
+		return -1;
+	assert(pOut->type == MEM_TYPE_UINT || pOut->type == MEM_TYPE_NULL);
+	return 0;
+}
+
+VDBE_CNP_INLINE int
+vdbe_op_shiftright_impl(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	(void)p;
+	Mem *pShift = &aMem[pOp->p1];
+	Mem *pValue = &aMem[pOp->p2];
+	Mem *pOut = &aMem[pOp->p3];
+	if (mem_is_any_null(pShift, pValue)) {
+		mem_set_null(pOut);
+		return 0;
+	}
+	if (vdbe_cnp_mem_is_plain_uint(pShift) &&
+	    vdbe_cnp_mem_is_plain_uint(pValue)) {
+		uint64_t shift = pShift->u.u;
+		uint64_t value = pValue->u.u;
+		if (shift == 1) {
+			mem_set_uint(pOut, value >> 1);
+			return 0;
+		}
+		mem_set_uint(pOut, shift >= 64 ? 0 : value >> shift);
+		return 0;
+	}
+	if (mem_shift_right(pValue, pShift, pOut) != 0)
+		return -1;
+	assert(pOut->type == MEM_TYPE_UINT || pOut->type == MEM_TYPE_NULL);
+	return 0;
 }
 
 #if !defined(VDBE_CNP_STUB_BUILD)
