@@ -15,7 +15,7 @@ The benchmark harness used for these measurements lives at:
 
 ## What is being benchmarked
 
-The current benchmark matrix uses five SQL workload shapes and measures them in
+The current benchmark matrix uses six SQL workload shapes and measures them in
 three execution modes.
 
 | Workload | SQL shape | Purpose |
@@ -23,8 +23,14 @@ three execution modes.
 | `tiny_const` | `SELECT 1 + 2;` | Small constant expression, almost pure overhead |
 | `hot_expr` | `SELECT 1 + 2 + 3 + 4 + 5;` | Small arithmetic expression that exercises the expression evaluator |
 | `point_lookup` | indexed `SELECT ... FROM bench_arith WHERE id = ?` | Lookup with realistic table access plus arithmetic work |
-| `agg_scan` | full-table `sum()` / `count()` / `max()` over `bench_arith` | Heavier numeric aggregation where native execution has more room to win |
-| `builtin_scan` | full-table text builtin scan over `bench_text` | String/integer builtin mix (`length`, `abs`, `instr`) plus aggregation |
+| `agg_scan` | indexed range `sum()` / `count()` / `max()` over `bench_arith` | Heavier numeric aggregation where native execution has more room to win |
+| `builtin_scan` | indexed range text builtin scan over `bench_text` | String/integer builtin mix (`length`, `abs`, `substr`, `upper`, `lower`) plus aggregation |
+| `sort_window` | indexed range subquery with `ORDER BY ... LIMIT` over `bench_arith` | Sorter-heavy top-K workload for profile-driven optimization of sort paths |
+
+`sort_window` was added after the last full published matrix in this document.
+Its focused measurements and profiling are currently being used to guide the
+next sorter-oriented optimization pass; the older result tables below therefore
+do not yet include a `sort_window` row.
 
 | Case | What it measures | Why it matters |
 | --- | --- | --- |
@@ -59,6 +65,7 @@ each run.
 | `point_lookup` | 250 | 100 000 | 100 000 |
 | `agg_scan` | 500 | 5 000 | 5 000 |
 | `builtin_scan` | 300 | 3 000 | 3 000 |
+| `sort_window` | 200 | 2 000 | 2 000 |
 
 `automatic_execute` now uses the same iteration count as `prepared_execute`
 because the auto stmt cache (added in M4) eliminates per-call recompilation,

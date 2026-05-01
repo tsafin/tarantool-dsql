@@ -259,6 +259,51 @@ local function teardown_builtin_scan()
     pcall(box.execute, 'DROP TABLE bench_text')
 end
 
+local sort_window_expected
+
+local function setup_sort_window()
+    setup_point_lookup()
+    sort_window_expected = {}
+    local window = 256
+    local limit = 32
+    for start_id = 1, 1024 do
+        local rows = {}
+        local finish_id = math.min(start_id + window - 1, 1024)
+        for i = start_id, finish_id do
+            local a = i * 10
+            local b = i * 5 + 1
+            local c = i * 2 + 1
+            rows[#rows + 1] = {
+                score = (a * 17 + b * 7 - c * 3) % 257,
+                b = b,
+                id = i,
+            }
+        end
+        table.sort(rows, function(lhs, rhs)
+            if lhs.score ~= rhs.score then
+                return lhs.score > rhs.score
+            end
+            if lhs.b ~= rhs.b then
+                return lhs.b < rhs.b
+            end
+            return lhs.id > rhs.id
+        end)
+        local sum_score = 0
+        local sum_id = 0
+        local top = math.min(limit, #rows)
+        for i = 1, top do
+            sum_score = sum_score + rows[i].score
+            sum_id = sum_id + rows[i].id
+        end
+        sort_window_expected[start_id] = {sum_score, sum_id}
+    end
+end
+
+local function teardown_sort_window()
+    sort_window_expected = nil
+    teardown_point_lookup()
+end
+
 local workloads = {
     {
         name = 'tiny_const',
@@ -383,6 +428,37 @@ local workloads = {
         expected = function(i)
             local start_id = ((i - 1) % 2048) + 1
             return builtin_scan_expected[start_id]
+        end,
+    },
+    {
+        name = 'sort_window',
+        description = 'Indexed range top-K sort with computed keys',
+        sql = [[
+            SELECT sum(score), sum(src_id)
+            FROM (
+                SELECT ((a * 17 + b * 7 - c * 3) % 257) AS score,
+                       id AS src_id
+                FROM bench_arith
+                WHERE id BETWEEN ? AND ?
+                ORDER BY score DESC, b ASC, id DESC
+                LIMIT 32
+            );
+        ]],
+        prepare_iterations = env_int('BENCH_PREPARE_ITERS_SORT', 200),
+        exec_iterations = env_int('BENCH_EXEC_ITERS_SORT', 2000),
+        auto_iterations = env_int('BENCH_AUTO_ITERS_SORT', 2000),
+        setup = setup_sort_window,
+        teardown = teardown_sort_window,
+        args = function(i)
+            local start_id = ((i - 1) % 1024) + 1
+            return {start_id, math.min(start_id + 255, 1024)}
+        end,
+        checksum = function(res)
+            return res.rows[1][1] + res.rows[1][2]
+        end,
+        expected = function(i)
+            local start_id = ((i - 1) % 1024) + 1
+            return sort_window_expected[start_id][1]
         end,
     },
 }
