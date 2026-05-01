@@ -103,6 +103,9 @@ sql_stmt_finalize(struct Vdbe *stmt);
 size_t
 sql_stmt_est_size(const struct Vdbe *stmt);
 
+uint32_t
+sql_stmt_id(const struct Vdbe *stmt);
+
 /**
  * Return string of SQL query.
  */

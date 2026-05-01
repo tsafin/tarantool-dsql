@@ -258,6 +258,37 @@ add    %r15, %rsi
 movslq 0x8(%r14), %rax
 imul   $0x68, %rax, %rdi
 add    %r15, %rdi
+
+## 8. 2026-05-02 status: retain only low-risk prepare-path cleanups
+
+The recent work on prepare-path cost produced two different classes of change:
+
+1. **Keep**
+   - reuse cached `Vdbe.stmt_id` instead of recalculating the SQL hash from
+     `zSql` during prepare export and prepared-statement cache operations;
+   - simplify Lua metadata export by reading `stmt->metadata[i]` directly and
+     evaluating `sql_full_metadata` once per metadata table build.
+
+2. **Drop**
+   - moving prepared-statement methods (`execute`, `unprepare`) to a shared Lua
+     metatable instead of storing them as table fields.
+
+The reason for keeping only the first class is pragmatic: the `stmt_id` reuse
+showed a clear prepare-path win, while the metatable/object-shape experiment
+made matrix results noisier and did not produce a stable benefit.
+
+Important scope clarification:
+
+- `prepare_only` microbenchmarks do **not** exercise `vdbe_cnp_compile()`;
+- `cnp_compile_count` stays zero there;
+- any `prepare_only` movement is therefore parser / planner / Lua prepare export
+  work, not stitched native-code generation.
+
+So the current branch direction is:
+
+- keep execute-path work focused on fragment hot paths;
+- keep prepare-path work limited to low-risk export/bookkeeping cleanups unless
+  a larger parser/planner change is explicitly justified by measurements.
 movslq 0xc(%r14), %rax
 imul   $0x68, %rax, %rdx
 add    %r15, %rdx

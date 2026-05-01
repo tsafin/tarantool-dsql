@@ -97,11 +97,7 @@ static struct stmt_cache_entry *
 stmt_cache_find_entry(uint32_t stmt_id)
 {
 	if (sql_stmt_cache.last_found != NULL) {
-		const char *sql_str =
-			sql_stmt_query_str(sql_stmt_cache.last_found->stmt);
-		uint32_t last_stmt_id = sql_stmt_calculate_id(sql_str,
-							 strlen(sql_str));
-		if (last_stmt_id == stmt_id)
+		if (sql_stmt_id(sql_stmt_cache.last_found->stmt) == stmt_id)
 			return sql_stmt_cache.last_found;
 		/* Fallthrough to slow hash search. */
 	}
@@ -165,9 +161,7 @@ sql_stmt_cache_entry_unref(struct stmt_cache_entry *entry)
 		 * GC cycle (see sql_stmt_cache_insert()).
 		 */
 		struct sql_stmt_cache *cache = &sql_stmt_cache;
-		const char *sql_str = sql_stmt_query_str(entry->stmt);
-		uint32_t stmt_id = sql_stmt_calculate_id(sql_str,
-							 strlen(sql_str));
+		uint32_t stmt_id = sql_stmt_id(entry->stmt);
 		mh_int_t i = mh_i32ptr_find(cache->hash, stmt_id, NULL);
 		assert(i != mh_end(cache->hash));
 		mh_i32ptr_del(cache->hash, i, NULL);
@@ -252,8 +246,7 @@ sql_stmt_cache_insert(struct Vdbe *stmt)
 	struct stmt_cache_entry *entry = sql_cache_entry_new(stmt);
 	if (entry == NULL)
 		return -1;
-	const char *sql_str = sql_stmt_query_str(stmt);
-	uint32_t stmt_id = sql_stmt_calculate_id(sql_str, strlen(sql_str));
+	uint32_t stmt_id = sql_stmt_id(stmt);
 	assert(sql_stmt_cache_find(stmt_id) == NULL);
 	const struct mh_i32ptr_node_t id_node = { stmt_id, entry };
 	struct mh_i32ptr_node_t *old_node = NULL;

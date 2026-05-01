@@ -305,6 +305,12 @@ sql_stmt_est_size(const struct Vdbe *v)
 	return size;
 }
 
+uint32_t
+sql_stmt_id(const struct Vdbe *v)
+{
+	return v->stmt_id;
+}
+
 const char *
 sql_stmt_query_str(const struct Vdbe *v)
 {

@@ -23,15 +23,16 @@ static inline void
 lua_sql_get_metadata(struct Vdbe *stmt, struct lua_State *L, int column_count)
 {
 	assert(column_count > 0);
+	bool is_full = sql_metadata_is_full();
 	lua_createtable(L, column_count, 0);
 	for (int i = 0; i < column_count; ++i) {
-		const char *coll = sql_column_coll(stmt, i);
-		const char *name = sql_column_name(stmt, i);
-		const char *type = sql_column_datatype(stmt, i);
-		const char *span = sql_column_span(stmt, i);
-		int nullable = sql_column_nullable(stmt, i);
-		bool is_autoincrement = sql_column_is_autoincrement(stmt, i);
-		bool is_full = sql_metadata_is_full();
+		const struct sql_column_metadata *metadata = &stmt->metadata[i];
+		const char *coll = metadata->collation;
+		const char *name = metadata->name;
+		const char *type = metadata->type;
+		const char *span = metadata->span;
+		int nullable = metadata->nullable;
+		bool is_autoincrement = metadata->is_actoincrement;
 		size_t table_sz = 2 + (coll != NULL) + (nullable != -1) +
 				  is_autoincrement + is_full;
 		lua_createtable(L, 0, table_sz);
@@ -58,7 +59,7 @@ lua_sql_get_metadata(struct Vdbe *stmt, struct lua_State *L, int column_count)
 			lua_pushboolean(L, true);
 			lua_setfield(L, -2, "is_autoincrement");
 		}
-		if (sql_metadata_is_full()) {
+		if (is_full) {
 			if (span != NULL)
 				lua_pushstring(L, span);
 			else
@@ -91,6 +92,12 @@ lua_sql_get_params_metadata(struct Vdbe *stmt, struct lua_State *L)
 /** Forward declaration to avoid code movement. */
 static int
 lbox_execute(struct lua_State *L);
+
+static int
+lbox_execute_prepared(struct lua_State *L);
+
+static int
+lbox_unprepare(struct lua_State *L);
 
 /**
  * Prepare SQL statement: compile it and save to the cache.
@@ -218,9 +225,7 @@ port_sql_dump_lua(struct port *port, struct lua_State *L,
 		 */
 		lua_createtable(L, 0, 6);
 		/* query_id */
-		const char *sql_str = sql_stmt_query_str(port_sql->stmt);
-		luaL_pushuint64(L, sql_stmt_calculate_id(sql_str,
-							 strlen(sql_str)));
+		luaL_pushuint64(L, sql_stmt_id(port_sql->stmt));
 		lua_setfield(L, -2, "stmt_id");
 		/* param_count */
 		luaL_pushuint64(L, sql_bind_parameter_count(stmt));
@@ -249,9 +254,7 @@ port_sql_dump_lua(struct port *port, struct lua_State *L,
 		 */
 		lua_createtable(L, 0, 5);
 		/* query_id */
-		const char *sql_str = sql_stmt_query_str(port_sql->stmt);
-		luaL_pushuint64(L, sql_stmt_calculate_id(sql_str,
-							 strlen(sql_str)));
+		luaL_pushuint64(L, sql_stmt_id(port_sql->stmt));
 		lua_setfield(L, -2, "stmt_id");
 		/* param_count */
 		luaL_pushuint64(L, sql_bind_parameter_count(stmt));
