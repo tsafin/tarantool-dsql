@@ -305,3 +305,31 @@ The current matrix supports three practical conclusions:
   `bitwise_mix` relative to LLVM MCJIT, and `sort_window/automatic_execute`,
   while any further `point_lookup` work should be a narrow column/field-fetch
   optimization rather than another broad control-flow change.
+
+## Focused follow-up: SQL constant folding
+
+After the matrix above, SQL codegen was taught to fold constant integer
+arithmetic expressions before VDBE bytecode emission. That means tiny traces
+such as:
+
+```sql
+SELECT 1 + 2 + 3 + 4 + 5;
+```
+
+now compile down to a single literal result instead of an `Integer` / `Add`
+chain.
+
+Focused reruns after that change (`BENCH_RUNS=8`) show the expected improvement
+on the tiny arithmetic workloads:
+
+| workload | mode | generated | LLVM MCJIT | CnP |
+| --- | --- | ---: | ---: | ---: |
+| `tiny_const` | `prepared_execute` | `1.026 µs` | `1.026 µs` | **`0.924 µs`** |
+| `tiny_const` | `automatic_execute` | `0.959 µs` | `0.973 µs` | **`0.940 µs`** |
+| `hot_expr` | `prepared_execute` | `0.966 µs` | `1.009 µs` | **`0.918 µs`** |
+| `hot_expr` | `automatic_execute` | `1.038 µs` | **`0.926 µs`** | `0.947 µs` |
+
+So the old `tiny_const/prepared_execute` concern from the full matrix is no
+longer the right optimization target. The SQL frontend now removes most of that
+work before any backend sees it, and CnP stays competitive on the remaining
+tiny-trace cost.

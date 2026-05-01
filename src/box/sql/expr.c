@@ -3309,6 +3309,120 @@ expr_code_map(struct Parse *parser, struct Expr *expr, int reg)
 	sqlVdbeAddOp3(vdbe, OP_Map, len, reg, result_reg);
 }
 
+struct expr_folded_int {
+	int64_t value;
+	bool is_signed;
+};
+
+static bool
+expr_resolve_integer_literal(const struct Expr *expr, struct expr_folded_int *res)
+{
+	assert(expr->op == TK_INTEGER);
+	if ((expr->flags & EP_IntValue) != 0) {
+		res->value = expr->u.iValue;
+		res->is_signed = false;
+		return true;
+	}
+	if (expr->u.zToken == NULL)
+		return false;
+	const char *z = expr->u.zToken;
+	if (z[0] == '0' && (z[1] == 'x' || z[1] == 'X')) {
+		errno = 0;
+		res->value = (int64_t)strtoull(z, NULL, 16);
+		if (errno != 0)
+			return false;
+		res->is_signed = false;
+		return true;
+	}
+	bool is_neg;
+	if (sql_atoi64(z, &res->value, &is_neg, strlen(z)) != 0)
+		return false;
+	res->is_signed = is_neg;
+	return true;
+}
+
+static bool
+expr_fold_int_arith(const struct Expr *expr, struct expr_folded_int *res)
+{
+	if (expr == NULL)
+		return false;
+	struct expr_folded_int lhs, rhs;
+	switch (expr->op) {
+	case TK_INTEGER:
+		return expr_resolve_integer_literal(expr, res);
+	case TK_UPLUS:
+		return expr_fold_int_arith(expr->pLeft, res);
+	case TK_UMINUS:
+		if (!expr_fold_int_arith(expr->pLeft, &rhs))
+			return false;
+		return sql_sub_int(0, false, rhs.value, rhs.is_signed,
+				   &res->value, &res->is_signed) == 0;
+	case TK_PLUS:
+		if (!expr_fold_int_arith(expr->pLeft, &lhs) ||
+		    !expr_fold_int_arith(expr->pRight, &rhs))
+			return false;
+		return sql_add_int(lhs.value, lhs.is_signed, rhs.value,
+				   rhs.is_signed, &res->value,
+				   &res->is_signed) == 0;
+	case TK_MINUS:
+		if (!expr_fold_int_arith(expr->pLeft, &lhs) ||
+		    !expr_fold_int_arith(expr->pRight, &rhs))
+			return false;
+		return sql_sub_int(lhs.value, lhs.is_signed, rhs.value,
+				   rhs.is_signed, &res->value,
+				   &res->is_signed) == 0;
+	case TK_STAR:
+		if (!expr_fold_int_arith(expr->pLeft, &lhs) ||
+		    !expr_fold_int_arith(expr->pRight, &rhs))
+			return false;
+		return sql_mul_int(lhs.value, lhs.is_signed, rhs.value,
+				   rhs.is_signed, &res->value,
+				   &res->is_signed) == 0;
+	case TK_SLASH:
+		if (!expr_fold_int_arith(expr->pLeft, &lhs) ||
+		    !expr_fold_int_arith(expr->pRight, &rhs))
+			return false;
+		if (rhs.value == 0)
+			return false;
+		return sql_div_int(lhs.value, lhs.is_signed, rhs.value,
+				   rhs.is_signed, &res->value,
+				   &res->is_signed) == 0;
+	case TK_REM:
+		if (!expr_fold_int_arith(expr->pLeft, &lhs) ||
+		    !expr_fold_int_arith(expr->pRight, &rhs))
+			return false;
+		if (rhs.value == 0)
+			return false;
+		return sql_rem_int(lhs.value, lhs.is_signed, rhs.value,
+				   rhs.is_signed, &res->value,
+				   &res->is_signed) == 0;
+	default:
+		return false;
+	}
+}
+
+static void
+expr_code_folded_int(struct Parse *parse, const struct expr_folded_int *value,
+		       int mem)
+{
+	struct Vdbe *v = parse->pVdbe;
+	if (value->is_signed) {
+		if (value->value >= INT_MIN && value->value <= INT_MAX) {
+			sqlVdbeAddOp2(v, OP_Integer, (int)value->value, mem);
+			return;
+		}
+		sqlVdbeAddOp4Dup8(v, OP_Int64, 0, mem, 0,
+				  (const u8 *)&value->value, P4_INT64);
+		return;
+	}
+	if ((uint64_t)value->value <= (uint64_t)INT_MAX) {
+		sqlVdbeAddOp2(v, OP_Integer, (int)value->value, mem);
+		return;
+	}
+	sqlVdbeAddOp4Dup8(v, OP_Int64, 0, mem, 0, (const u8 *)&value->value,
+			  P4_UINT64);
+}
+
 /** Generate opcodes for operator []. */
 static void
 expr_code_getitem(struct Parse *parser, struct Expr *expr, int reg)
@@ -3663,6 +3777,11 @@ sqlExprCodeTarget(Parse * pParse, Expr * pExpr, int target)
 	if (pExpr == 0) {
 		op = TK_NULL;
 	} else {
+		struct expr_folded_int folded;
+		if (expr_fold_int_arith(pExpr, &folded)) {
+			expr_code_folded_int(pParse, &folded, target);
+			return target;
+		}
 		op = pExpr->op;
 	}
 	switch (op) {

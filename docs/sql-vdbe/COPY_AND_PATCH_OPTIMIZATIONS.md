@@ -1055,3 +1055,79 @@ Add
 
 into a single constant result, which helps all execution backends instead of
 teaching only CnP to run the unfused bytecode faster.
+
+### 10.12 Prepare-time constant folding for integer arithmetic
+
+That next step is now implemented for integer literal arithmetic trees in SQL
+codegen.
+
+The fold currently covers constant-only trees built from:
+
+- `TK_INTEGER`
+- unary `+` / unary `-`
+- binary `+`, `-`, `*`, `/`, `%`
+
+and uses the same `sql_add_int()` / `sql_sub_int()` / `sql_mul_int()` /
+`sql_div_int()` / `sql_rem_int()` helpers as the runtime fast paths, so
+signedness and overflow handling stay aligned with normal execution.
+
+When folding succeeds, bytecode emission now writes a single literal instead of
+emitting the original arithmetic chain. For example:
+
+```text
+EXPLAIN SELECT 1 + 2 + 3 + 4 + 5;
+
+before:
+  Integer
+  Integer
+  Add
+  Integer
+  Add
+  Integer
+  Add
+  Integer
+  Goto
+  Add
+  ResultRow
+  Halt
+
+after:
+  Init
+  Integer 15
+  ResultRow
+  Halt
+```
+
+Likewise:
+
+```text
+EXPLAIN SELECT 10 - 3, 6 * 7, 21 / 3, 22 % 5;
+```
+
+now emits only literal loads plus `ResultRow`.
+
+The fold is intentionally conservative:
+
+- `SELECT 1 / 0` is **not** folded and still emits `Divide`, so the runtime
+  keeps control of divide-by-zero semantics;
+- overflow / unsupported cases fall back to ordinary expression codegen.
+
+Focused reruns after enabling prepare-time folding (`BENCH_RUNS=8`) show the
+expected cross-backend improvement on the tiny constant workloads:
+
+| workload | mode | generated | LLVM MCJIT | CnP |
+|---|---|---:|---:|---:|
+| `tiny_const` | `prepared_execute` | `1.026 us` | `1.026 us` | **0.924 us** |
+| `tiny_const` | `automatic_execute` | `0.959 us` | `0.973 us` | **0.940 us** |
+| `hot_expr` | `prepared_execute` | `0.966 us` | `1.009 us` | **0.918 us** |
+| `hot_expr` | `automatic_execute` | `1.038 us` | **0.926 us** | `0.947 us` |
+
+This means the original CnP-only constant-specialized arithmetic helpers are no
+longer carrying the whole burden on these traces: the SQL frontend now removes
+most of the redundant arithmetic work before any backend executes the statement.
+
+The SQL validation pass after this change was clean too:
+
+- `sql`: **112 pass**, 6 disabled
+- `sql-tap`: **485 pass**, 45 disabled
+- `sql-luatest`: **48 pass**, 2 disabled

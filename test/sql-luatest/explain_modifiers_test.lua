@@ -36,6 +36,20 @@ g.test_explain_bytecode_and_disassembly = function()
         t.assert_gt(#bytecode.rows, 0)
         t.assert_equals(bytecode.rows[1][1], 0)
         t.assert_equals(type(bytecode.rows[1][2]), 'string')
+        local opcodes = {}
+        local literal_count = 0
+        for _, row in ipairs(bytecode.rows) do
+            opcodes[row[2]] = (opcodes[row[2]] or 0) + 1
+            if row[2] == 'Integer' or row[2] == 'Int64' then
+                literal_count = literal_count + 1
+            end
+        end
+        t.assert_equals(opcodes.Add, nil)
+        t.assert_equals(opcodes.Subtract, nil)
+        t.assert_equals(opcodes.Multiply, nil)
+        t.assert_equals(opcodes.Divide, nil)
+        t.assert_equals(opcodes.Remainder, nil)
+        t.assert_ge(literal_count, 1)
 
         local disassemble = box.execute(
             [[EXPLAIN (disassemble=yes) SELECT 1 + 2 + 3;]]
