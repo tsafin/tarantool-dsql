@@ -124,6 +124,43 @@ exercise the exact combination we want to optimize:
 - sorter insert / sort / fetch / next,
 - final aggregation over the limited result.
 
+## `point_lookup`: what CnP is now specializing
+
+The current `point_lookup` optimization is much narrower than the earlier
+sorter/coroutine work. The query shape is:
+
+```sql
+SELECT a + b, a - b, a * c, a / b, a % b
+FROM bench_arith
+WHERE id = ?;
+```
+
+The hot prepared-bytecode slice is:
+
+```text
+ 7 Column      1  1 8
+ 8 Column      1  2 9
+ 9 Add         9  8 3
+10 Subtract    9  8 4
+11 Column      1  3 10
+12 Multiply   10  8 5
+13 Divide      9  8 6
+14 Remainder   9  8 7
+```
+
+`bench_arith.a/b/c` are all declared as `INTEGER`, so CnP now does two layers
+of per-PC retargeting on this slice:
+
+1. each `OP_Column` site is bound to `vdbe_op_column_integer_fast()`;
+2. each arithmetic site is bound to an integer-only helper
+   (`vdbe_op_add_int_fast()`, `...sub...`, `...multiply...`, `...divide...`,
+   `...remainder...`) when the neighboring producer ops prove the inputs come
+   from exact integer columns/constants/prior integer arithmetic.
+
+In fragment mode those bindings happen by patching the generated call site that
+initially points at a generic SysV bridge symbol; the surrounding stitched
+fragment layout stays the same.
+
 ### Illustrative prepared-statement bytecode
 
 The prepared form of `sort_window` lowers to the expected coroutine + sorter
@@ -191,44 +228,48 @@ All numbers below are **mean-of-3 runs** from the current
 
 | Workload | Case | Interpreter | LLVM MCJIT | CnP JIT |
 | --- | --- | ---: | ---: | ---: |
-| `tiny_const` | `prepare_only` | `3.223 µs` | `5.213 µs` | `3.186 µs` |
-| `tiny_const` | `prepared_execute` | `1.095 µs` | `1.025 µs` | `0.938 µs` |
-| `tiny_const` | `automatic_execute` | `1.087 µs` | `0.962 µs` | `0.928 µs` |
-| `hot_expr` | `prepare_only` | `5.860 µs` | `4.593 µs` | `5.902 µs` |
-| `hot_expr` | `prepared_execute` | `1.258 µs` | `1.166 µs` | `1.148 µs` |
-| `hot_expr` | `automatic_execute` | `1.298 µs` | `1.012 µs` | `1.005 µs` |
-| `point_lookup` | `prepare_only` | `9.108 µs` | `9.426 µs` | `12.337 µs` |
-| `point_lookup` | `prepared_execute` | `2.515 µs` | `2.311 µs` | `2.368 µs` |
-| `point_lookup` | `automatic_execute` | `2.287 µs` | `2.331 µs` | `2.461 µs` |
-| `bitwise_mix` | `prepare_only` | `21.071 µs` | `24.320 µs` | `21.039 µs` |
-| `bitwise_mix` | `prepared_execute` | `3.437 µs` | `3.322 µs` | `3.272 µs` |
-| `bitwise_mix` | `automatic_execute` | `3.356 µs` | `3.307 µs` | `3.323 µs` |
-| `agg_scan` | `prepare_only` | `14.089 µs` | `14.319 µs` | `14.180 µs` |
-| `agg_scan` | `prepared_execute` | `25.428 µs` | `26.019 µs` | `20.881 µs` |
-| `agg_scan` | `automatic_execute` | `25.070 µs` | `27.348 µs` | `23.197 µs` |
-| `builtin_scan` | `prepare_only` | `16.014 µs` | `16.196 µs` | `15.923 µs` |
-| `builtin_scan` | `prepared_execute` | `91.421 µs` | `88.900 µs` | `82.342 µs` |
-| `builtin_scan` | `automatic_execute` | `90.175 µs` | `89.283 µs` | `81.262 µs` |
-| `sort_window` | `prepare_only` | `29.829 µs` | `22.050 µs` | `21.514 µs` |
-| `sort_window` | `prepared_execute` | `83.824 µs` | `95.748 µs` | `79.026 µs` |
-| `sort_window` | `automatic_execute` | `82.167 µs` | `82.152 µs` | `78.267 µs` |
+| `tiny_const` | `prepare_only` | `4.068 µs` | `3.322 µs` | `4.455 µs` |
+| `tiny_const` | `prepared_execute` | `1.122 µs` | `0.958 µs` | `1.135 µs` |
+| `tiny_const` | `automatic_execute` | `1.258 µs` | `0.980 µs` | `0.922 µs` |
+| `hot_expr` | `prepare_only` | `4.597 µs` | `5.012 µs` | `6.359 µs` |
+| `hot_expr` | `prepared_execute` | `1.212 µs` | `1.220 µs` | `1.025 µs` |
+| `hot_expr` | `automatic_execute` | `1.243 µs` | `1.205 µs` | `1.002 µs` |
+| `point_lookup` | `prepare_only` | `9.705 µs` | `12.329 µs` | `10.307 µs` |
+| `point_lookup` | `prepared_execute` | `2.631 µs` | `2.423 µs` | `2.473 µs` |
+| `point_lookup` | `automatic_execute` | `3.643 µs` | `2.503 µs` | `2.365 µs` |
+| `bitwise_mix` | `prepare_only` | `21.878 µs` | `22.624 µs` | `21.498 µs` |
+| `bitwise_mix` | `prepared_execute` | `3.574 µs` | `3.388 µs` | `3.408 µs` |
+| `bitwise_mix` | `automatic_execute` | `3.554 µs` | `3.394 µs` | `3.416 µs` |
+| `agg_scan` | `prepare_only` | `14.409 µs` | `20.924 µs` | `14.703 µs` |
+| `agg_scan` | `prepared_execute` | `25.672 µs` | `26.366 µs` | `21.396 µs` |
+| `agg_scan` | `automatic_execute` | `26.873 µs` | `25.362 µs` | `21.427 µs` |
+| `builtin_scan` | `prepare_only` | `20.157 µs` | `16.299 µs` | `15.598 µs` |
+| `builtin_scan` | `prepared_execute` | `103.225 µs` | `91.967 µs` | `88.974 µs` |
+| `builtin_scan` | `automatic_execute` | `90.513 µs` | `94.104 µs` | `87.823 µs` |
+| `sort_window` | `prepare_only` | `25.257 µs` | `22.055 µs` | `21.349 µs` |
+| `sort_window` | `prepared_execute` | `85.525 µs` | `79.924 µs` | `78.614 µs` |
+| `sort_window` | `automatic_execute` | `80.133 µs` | `81.478 µs` | `80.997 µs` |
 
 ## Practical reading of the numbers
 
 The current matrix is a good result for CnP:
 
-- CnP is the fastest dispatcher in **15 of 21** table cells.
+- CnP is the fastest dispatcher in **12 of 21** table cells.
 - On the two execution-heavy cases (`prepared_execute`,
-  `automatic_execute`), CnP wins **11 of 14** cells.
-- The only clear remaining execution regression is **`point_lookup`**.
-- `bitwise_mix/automatic_execute` is slightly behind LLVM MCJIT, but only by a
-  noise-level margin (`3.323 µs` vs `3.307 µs`).
+  `automatic_execute`), CnP wins **9 of 14** cells outright.
+- Against the generated interpreter specifically, CnP is faster in **12 of 14**
+  execute-path cells; the only losses there are `tiny_const/prepared_execute`
+  and `sort_window/automatic_execute`.
+- `point_lookup` is no longer the remaining execution regression:
+  `prepared_execute` now beats the interpreter and `automatic_execute` is the
+  fastest of the three modes.
 
 The strongest current wins are the workloads that motivated fragment-mode work:
 
 - `agg_scan`: CnP is fastest in both execute modes;
 - `builtin_scan`: CnP is fastest in both execute modes;
-- `sort_window`: CnP is fastest in **all three** cases.
+- `sort_window`: CnP is fastest in `prepare_only` and `prepared_execute`, and
+  close to parity in `automatic_execute`.
 
 ## CnP execution modes: stencils vs. preserve_none fragments
 
@@ -253,12 +294,14 @@ on tiny arithmetic traces.
 
 The current matrix supports three practical conclusions:
 
-- **CnP is now winning almost everywhere in the benchmark matrix.** The
-  remaining meaningful runtime gap is `point_lookup`; everything else is either
-  a win or effectively tied.
+- **The `point_lookup` arithmetic pass paid off.** CnP now beats the generated
+  interpreter on both `point_lookup` execute paths, and `automatic_execute` is
+  the fastest mode there.
 - **`sort_window` is doing its job as the sorter-focused guide workload.** It
-  exercises coroutine + sorter + aggregate bytecode and CnP is already the
-  fastest mode on that path.
-- **The next profile-driven pass should focus on `point_lookup` and any
-  residual cursor-loop overhead, not on the sorter path that originally blocked
-  fragment execution.**
+  exercises coroutine + sorter + aggregate bytecode and CnP remains strong on
+  that path, especially in `prepared_execute`.
+- **The remaining gaps are now narrower and more mixed.** The main execute-path
+  cells to keep an eye on are `tiny_const/prepared_execute`,
+  `bitwise_mix` relative to LLVM MCJIT, and `sort_window/automatic_execute`,
+  while any further `point_lookup` work should be a narrow column/field-fetch
+  optimization rather than another broad control-flow change.

@@ -22,6 +22,9 @@
 #   -w, --workload <name>    BENCH_ONLY_WORKLOAD for --bench
 #   -C, --case <name>        BENCH_ONLY_CASE for --bench
 #   -n, --runs <count>       BENCH_RUNS for --bench
+#   Benchmark mode also sets BENCH_DISCARD_RESULTS=1 by default so perf
+#   profiles focus on SQL execution instead of Lua result materialization.
+#   Override with BENCH_DISCARD_RESULTS=0 if needed.
 #   -e, --event <event>      perf event(s) (default: cycles)
 #   -g, --callgraph          Record call-graph with DWARF (slower)
 #   -r, --report-args <str>  Extra args passed to perf report
@@ -101,6 +104,11 @@ if [[ "$USE_BENCH" -eq 1 ]]; then
     LUA_SCRIPT="$SCRIPT_DIR/sql_llvm_mcjit_benchmark.lua"
 fi
 
+BENCH_DISCARD_RESULTS_VALUE="${BENCH_DISCARD_RESULTS:-}"
+if [[ "$USE_BENCH" -eq 1 && -z "$BENCH_DISCARD_RESULTS_VALUE" ]]; then
+    BENCH_DISCARD_RESULTS_VALUE="1"
+fi
+
 if [[ -z "$LUA_SCRIPT" ]]; then
     echo "error: no Lua script specified (use --bench or -- <script.lua>)" >&2
     usage 1
@@ -118,6 +126,9 @@ echo "[perf_jit] Script    : $LUA_SCRIPT"
 echo "[perf_jit] Dispatcher: $DISPATCHER  JIT=$JIT_ENABLE"
 if [[ -n "$BENCH_WORKLOAD" || -n "$BENCH_CASE" || -n "$BENCH_RUNS" ]]; then
     echo "[perf_jit] Benchmark : workload=${BENCH_WORKLOAD:-all} case=${BENCH_CASE:-all} runs=${BENCH_RUNS:-default}"
+fi
+if [[ -n "$BENCH_DISCARD_RESULTS_VALUE" ]]; then
+    echo "[perf_jit] Discard   : BENCH_DISCARD_RESULTS=$BENCH_DISCARD_RESULTS_VALUE"
 fi
 echo "[perf_jit] Event     : $PERF_EVENT"
 echo ""
@@ -142,6 +153,9 @@ PERF_ENV+=(
     "BENCH_ONLY_CASE=$BENCH_CASE"
     "BENCH_RUNS=$BENCH_RUNS"
 )
+if [[ -n "$BENCH_DISCARD_RESULTS_VALUE" ]]; then
+    PERF_ENV+=("BENCH_DISCARD_RESULTS=$BENCH_DISCARD_RESULTS_VALUE")
+fi
 
 # Build perf record args
 PERF_RECORD_ARGS=(

@@ -51,6 +51,12 @@ int vdbe_cnp_setdiag_handler(struct Vdbe *p, struct VdbeOp *pOp,
 #include "mem.h"
 #include "vdbe_helpers.h"
 
+int vdbe_op_add_sysv_bridge(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_sub_sysv_bridge(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_multiply_sysv_bridge(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_divide_sysv_bridge(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_remainder_sysv_bridge(Vdbe *p, Op *pOp, Mem *aMem);
+
 #if defined(VDBE_CNP_STUB_BUILD) || defined(VDBE_CNP_FRAGMENT_BUILD)
 #define VDBE_CNP_INLINE static __attribute__((always_inline)) inline
 #else
