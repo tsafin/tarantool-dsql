@@ -169,7 +169,7 @@ if [[ "$DO_REPORT" -eq 1 ]]; then
     echo "           (JIT functions show by name; CnP frames show opcode mnemonics)"
     echo ""
     # shellcheck disable=SC2086
-    perf report -i perf.jit.data $REPORT_ARGS
+    PERF_PAGER=cat perf report -i perf.jit.data $REPORT_ARGS
 fi
 
 echo ""
