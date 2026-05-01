@@ -343,7 +343,7 @@ if(ENABLE_SQL_CNP)
         OUTPUT ${CNP_STUBS_O}
         COMMAND ${CLANG_CNP}
             -O2 -fno-pic -mcmodel=large -fno-asynchronous-unwind-tables -fno-stack-protector
-            -fno-omit-frame-pointer -D_GNU_SOURCE
+            -D_GNU_SOURCE
             ${CNP_COMPILE_DEFS}
             ${CNP_INCLUDE_FLAGS}
             -c ${CNP_STUBS_C}
@@ -357,7 +357,6 @@ if(ENABLE_SQL_CNP)
         COMMAND ${CLANG_CNP}
             -O2 -fno-pic -fno-asynchronous-unwind-tables -fno-stack-protector
             -mcmodel=large
-            -fno-omit-frame-pointer
             -D_GNU_SOURCE
             ${CNP_COMPILE_DEFS}
             ${CNP_INCLUDE_FLAGS}
