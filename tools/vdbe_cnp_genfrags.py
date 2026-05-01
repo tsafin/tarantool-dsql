@@ -56,7 +56,7 @@ if (vdbe_op_int64_impl(p, pOp, aMem))
         "kind": "CNP_FRAG_FALLTHROUGH",
         "tail_fallthrough": True,
         "body": """\
-if (vdbe_op_add_impl(p, pOp, aMem))
+if (vdbe_op_add_sysv_bridge(p, pOp, aMem))
     GOTO_ERROR();""",
         "dispatch_prep": "pOp += 1;",
         "dispatch_transfer": 'JMP_FALLTHROUGH();',
@@ -66,7 +66,7 @@ if (vdbe_op_add_impl(p, pOp, aMem))
         "kind": "CNP_FRAG_FALLTHROUGH",
         "tail_fallthrough": True,
         "body": """\
-if (vdbe_op_sub_impl(p, pOp, aMem))
+if (vdbe_op_sub_sysv_bridge(p, pOp, aMem))
     GOTO_ERROR();""",
         "dispatch_prep": "pOp += 1;",
         "dispatch_transfer": 'JMP_FALLTHROUGH();',
@@ -76,7 +76,7 @@ if (vdbe_op_sub_impl(p, pOp, aMem))
         "kind": "CNP_FRAG_FALLTHROUGH",
         "tail_fallthrough": True,
         "body": """\
-if (vdbe_op_multiply_impl(p, pOp, aMem))
+if (vdbe_op_multiply_sysv_bridge(p, pOp, aMem))
     GOTO_ERROR();""",
         "dispatch_prep": "pOp += 1;",
         "dispatch_transfer": 'JMP_FALLTHROUGH();',
@@ -86,7 +86,7 @@ if (vdbe_op_multiply_impl(p, pOp, aMem))
         "kind": "CNP_FRAG_FALLTHROUGH",
         "tail_fallthrough": True,
         "body": """\
-if (vdbe_op_divide_impl(p, pOp, aMem))
+if (vdbe_op_divide_sysv_bridge(p, pOp, aMem))
     GOTO_ERROR();""",
         "dispatch_prep": "pOp += 1;",
         "dispatch_transfer": 'JMP_FALLTHROUGH();',
@@ -96,7 +96,7 @@ if (vdbe_op_divide_impl(p, pOp, aMem))
         "kind": "CNP_FRAG_FALLTHROUGH",
         "tail_fallthrough": True,
         "body": """\
-if (vdbe_op_remainder_impl(p, pOp, aMem))
+if (vdbe_op_remainder_sysv_bridge(p, pOp, aMem))
     GOTO_ERROR();""",
         "dispatch_prep": "pOp += 1;",
         "dispatch_transfer": 'JMP_FALLTHROUGH();',

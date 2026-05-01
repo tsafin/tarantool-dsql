@@ -475,6 +475,25 @@ improved, to determine whether the remaining losses come from:
 - iterator open / close costs,
 - or the fragment boundary itself.
 
+The current discard-results measurements refine that plan further.
+
+For `point_lookup`, the fragment path is already using the per-PC typed column
+binding introduced later in this document: the three `OP_Column` sites bind to
+`vdbe_op_column_integer_fast()` because `bench_arith.a/b/c` are all
+`INTEGER`. In focused `perf_jit.sh` runs with `BENCH_DISCARD_RESULTS=1`,
+`point_lookup/prepared_execute` is already slightly faster on CnP than on the
+generated interpreter, so the remaining ordinary benchmark gap is not a
+stencil-vs-fragment issue and not primarily a `vdbe_cnp_exec()` problem.
+
+That changes the next `point_lookup`-specific optimization item:
+
+1. first, specialize the arithmetic helpers selected by neighboring bytecode
+   (`Add`, `Subtract`, `Multiply`, `Divide`, `Remainder`) when the producer
+   registers are known to come from exact integer `OP_Column` sites;
+2. only after that, consider a narrower same-cursor multi-column fast path for
+   repeated `Column -> Column -> arithmetic` patterns if
+   `vdbe_op_column_typed_fast()` / `vdbe_field_ref_fetch_*()` still dominate.
+
 ### 10.4 Current scan comparison: `agg_scan` and `builtin_scan`
 
 After fixing the recent scan-fragment correctness bugs, the safe current CnP
@@ -688,3 +707,263 @@ So the current engine-only picture is:
   useful non-scan benchmark for arithmetic/bitwise fragment overhead;
 - the main remaining CnP questions are now narrower throughput issues, not a
   broad inability to compete once front-end overhead is removed.
+
+### 10.8 `point_lookup` discard-mode perf follow-up
+
+The discard-mode matrix already showed that `point_lookup` flips in CnP's favor
+once Lua result materialization is removed. The next focused perf pass confirms
+what that means for the optimization plan.
+
+Focused run (`perf_jit.sh`, `point_lookup/prepared_execute`,
+`BENCH_DISCARD_RESULTS=1`, `BENCH_RUNS=20`):
+
+| mode | mean per-op |
+|---|---:|
+| generated | 0.696 us |
+| cnp | **0.674 us** |
+
+Key observations:
+
+- CnP stays fully in fragment mode here (`cnp_exec_count=200000`,
+  `interpreter_step_count=0`, `cnp_fallback_count=0`);
+- generated still shows `vdbe_exec_generated_dispatcher` in the top symbols,
+  while `vdbe_cnp_exec()` is a small share of the CnP profile;
+- the hot symbols in both modes are dominated by storage / field extraction
+  work (`tree_iterator_start`, tuple key compare, `vdbe_op_column*`,
+  `vdbe_field_ref_fetch_*`), not by the outer fragment/runtime glue.
+
+So the next JIT-specific work for `point_lookup` should be narrow:
+
+1. specialize integer arithmetic helpers chosen from neighboring bytecode, in
+   the same spirit as the existing typed `Column` / `ApplyType` bindings;
+2. if that is not enough, fuse repeated same-cursor integer `Column` fetches
+   into a dedicated CnP-only helper before revisiting any broader control-flow
+   ideas.
+
+### 10.9 `point_lookup`: specialization anatomy
+
+The `point_lookup` query used in the benchmark harness is:
+
+```sql
+SELECT a + b, a - b, a * c, a / b, a % b
+FROM bench_arith
+WHERE id = ?;
+```
+
+Its prepared bytecode is stable and small enough that the specialization logic
+can reason about neighboring producers instead of treating each opcode in
+isolation:
+
+```text
+ 5 SeekGE      1 17 2
+ 6 IdxGT       1 17 2
+ 7 Column      1  1 8
+ 8 Column      1  2 9
+ 9 Add         9  8 3
+10 Subtract    9  8 4
+11 Column      1  3 10
+12 Multiply   10  8 5
+13 Divide      9  8 6
+14 Remainder   9  8 7
+15 ResultRow   3  5 0
+16 Next        1  6 0
+```
+
+`bench_arith` is declared as:
+
+```sql
+CREATE TABLE bench_arith(
+    id INTEGER PRIMARY KEY,
+    a  INTEGER,
+    b  INTEGER,
+    c  INTEGER
+);
+```
+
+So for this statement the hot fragment pattern is:
+
+```text
+SeekGE / IdxGT
+  -> Column(cursor=1, field=1)   ; a
+  -> Column(cursor=1, field=2)   ; b
+  -> Add / Subtract
+  -> Column(cursor=1, field=3)   ; c
+  -> Multiply / Divide / Remainder
+  -> ResultRow
+```
+
+#### 10.9.1 What gets specialized
+
+The runtime now applies two layers of compile-time binding to that bytecode.
+
+1. **Typed column binding**
+
+   `cnp_select_column_handler()` recovers the mapping
+
+   ```text
+   OpenSpace(space_id) -> IteratorOpen(cursor, ..., space_reg) -> Column(cursor, field)
+   ```
+
+   and uses the schema type of `bench_arith.a/b/c` to bind all three `OP_Column`
+   sites to `vdbe_op_column_integer_fast()`.
+
+2. **Neighbor-driven arithmetic binding**
+
+   `cnp_find_last_reg_writer()`, `cnp_find_unique_reg_writer()`, and
+   `cnp_reg_is_likely_int()` propagate the "this register is an exact integer"
+   fact from:
+
+   - exact integer `OP_Column` producers,
+   - integer constants,
+   - and prior integer arithmetic.
+
+   That lets `cnp_select_arith_handler()` / `cnp_select_arith_fragment_handler()`
+   retarget the arithmetic opcodes to:
+
+   - `vdbe_op_add_int_fast()`
+   - `vdbe_op_sub_int_fast()`
+   - `vdbe_op_multiply_int_fast()`
+   - `vdbe_op_divide_int_fast()`
+   - `vdbe_op_remainder_int_fast()`
+
+For the concrete `point_lookup` bytecode above, the patched hot chain is:
+
+| PC | Opcode | Registers | Patched helper |
+|---:|---|---|---|
+| 7 | `Column` | `cursor=1 field=1 -> r8` | `vdbe_op_column_integer_fast` |
+| 8 | `Column` | `cursor=1 field=2 -> r9` | `vdbe_op_column_integer_fast` |
+| 9 | `Add` | `r9, r8 -> r3` | `vdbe_op_add_int_fast` |
+| 10 | `Subtract` | `r9, r8 -> r4` | `vdbe_op_sub_int_fast` |
+| 11 | `Column` | `cursor=1 field=3 -> r10` | `vdbe_op_column_integer_fast` |
+| 12 | `Multiply` | `r10, r8 -> r5` | `vdbe_op_multiply_int_fast` |
+| 13 | `Divide` | `r9, r8 -> r6` | `vdbe_op_divide_int_fast` |
+| 14 | `Remainder` | `r9, r8 -> r7` | `vdbe_op_remainder_int_fast` |
+
+#### 10.9.2 Where the patch points are
+
+For fragment mode, the generated `OP_Add` fragment is compiled with a normal-ABI
+bridge symbol so the runtime can retarget it safely at link time:
+
+```asm
+cnp_frag_sym_OP_Add:
+  push   %rbp
+  mov    %rsp,%rbp
+  movabs $0x0,%rax        # reloc @ +6  -> vdbe_op_add_sysv_bridge
+  mov    %r12,%rdi        # p
+  mov    %r14,%rsi        # pOp
+  mov    %r15,%rdx        # aMem
+  call   *%rax
+  test   %eax,%eax
+  je     .Lok
+  mov    $-1,%rax
+  ret
+.Lok:
+  add    $0x18,%r14       # pOp += 1
+  movabs $0x0,%rax        # reloc @ +44 -> cnp_frag_dispatch_table
+  ...
+  jmp    *%rax
+```
+
+The generated fragment metadata for `OP_Add` records:
+
+```text
+reloc[0] offset=6   symbol=vdbe_op_add_sysv_bridge
+reloc[1] offset=44  symbol=cnp_frag_dispatch_table
+dispatch_offset = 42
+transfer_offset = 79
+```
+
+That means the runtime has two independent patch sites to work with:
+
+```text
+bytes  0..41  : helper call + error check
+bytes 42..78  : dispatch-table lookup block
+bytes 79..end : terminal transfer bytes
+```
+
+Visualized on the `point_lookup` chain:
+
+```text
+pc 7  Column(a)   : call target patched -> vdbe_op_column_integer_fast
+pc 8  Column(b)   : call target patched -> vdbe_op_column_integer_fast
+pc 9  Add         : call target patched -> vdbe_op_add_int_fast
+pc 10 Subtract    : call target patched -> vdbe_op_sub_int_fast
+pc 11 Column(c)   : call target patched -> vdbe_op_column_integer_fast
+pc 12 Multiply    : call target patched -> vdbe_op_multiply_int_fast
+pc 13 Divide      : call target patched -> vdbe_op_divide_int_fast
+pc 14 Remainder   : call target patched -> vdbe_op_remainder_int_fast
+```
+
+So the optimization is not "invent a new super-instruction for the whole
+query." It is: keep the stitched fragment layout, but replace a run of generic
+helper calls with narrower per-PC targets that match what the neighboring
+bytecode proves.
+
+#### 10.9.3 What the specialized helper body looks like
+
+`vdbe_op_add_int_fast()` is still behavior-safe: it is only fast on the exact
+integer path and explicitly falls back to `mem_add()` if runtime values do not
+match the predicted shape.
+
+Representative `objdump` excerpt:
+
+```asm
+vdbe_op_add_int_fast:
+  movslq 0x4(%rsi), %rax      # p1
+  ...                         # compute &aMem[p1]
+  movslq 0x8(%rsi), %rax      # p2
+  ...                         # compute &aMem[p2]
+  movslq 0xc(%rsi), %rax      # p3
+  ...                         # compute &aMem[p3]
+  ...
+  test   ...                  # NULL / metatype checks
+  jne    .Lnull_or_fallback
+  ...
+  callq  sql_add_int          # exact integer arithmetic
+  ...
+  callq  mem_set_int          # write result MEM_TYPE_INT/UINT
+  retq
+
+.Lnull_or_fallback:
+  ...
+  callq  mem_add              # generic SQL semantics fallback
+```
+
+The same structure is used for `Subtract`, `Multiply`, `Divide`, and
+`Remainder`:
+
+- stay on the fast path for exact integer `Mem` cells,
+- preserve `NULL`, signedness, overflow, and divide-by-zero semantics,
+- and fall back to the generic helper when runtime values violate the static
+  prediction.
+
+This is why the optimization is safe to drive from neighboring bytecode:
+compile-time analysis chooses a narrower target, but runtime checks still guard
+correctness.
+
+### 10.10 Full matrix after integer arithmetic specialization
+
+The first item above is now implemented and reflected in the full
+`run_benchmark_matrix.sh` rerun (`BENCH_RUNS=3`).
+
+The most important `point_lookup` effect is that CnP no longer trails the
+generated interpreter on the execute paths:
+
+- `prepared_execute`: `2.631 us` (generated) -> `2.473 us` (CnP)
+  while LLVM MCJIT is `2.423 us`;
+- `automatic_execute`: `3.643 us` (generated) -> `2.365 us` (CnP),
+  which is now the fastest of the three modes.
+
+That changes the broader matrix reading too:
+
+- CnP now wins **9 of 14** execute-path cells outright;
+- against the generated interpreter specifically, CnP is faster in **12 of 14**
+  execute-path cells;
+- the remaining execute-path losses are now narrower and mixed:
+  `tiny_const/prepared_execute`, `bitwise_mix` by a small margin to LLVM MCJIT,
+  and `sort_window/automatic_execute` by a small margin to the interpreter.
+
+So `point_lookup` is no longer the dominant blocker in the benchmark matrix.
+If more work is needed on that workload specifically, the next likely target is
+still the column side (`vdbe_op_column_typed_fast()` /
+`vdbe_field_ref_fetch_*()`), not another broad fragment-control-flow change.

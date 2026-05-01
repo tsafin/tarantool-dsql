@@ -1899,6 +1899,11 @@ cnp_find_last_reg_writer(const struct Vdbe *p, int pc, int reg)
 				return op;
 			break;
 		case OP_Column:
+		case OP_Add:
+		case OP_Subtract:
+		case OP_Multiply:
+		case OP_Divide:
+		case OP_Remainder:
 		case OP_BitAnd:
 		case OP_BitOr:
 		case OP_ShiftLeft:
@@ -1934,6 +1939,11 @@ cnp_find_unique_reg_writer(const struct Vdbe *p, int reg)
 			writes_reg = op->p2 == reg;
 			break;
 		case OP_Column:
+		case OP_Add:
+		case OP_Subtract:
+		case OP_Multiply:
+		case OP_Divide:
+		case OP_Remainder:
 		case OP_BitAnd:
 		case OP_BitOr:
 		case OP_ShiftLeft:
@@ -1990,6 +2000,48 @@ cnp_op_result_is_likely_uint(const struct Vdbe *p, int pc, const Op *op,
 }
 
 static bool
+cnp_reg_is_likely_int(const struct Vdbe *p, int pc, int reg, int depth);
+
+static bool
+cnp_op_result_is_likely_int(const struct Vdbe *p, int pc, const Op *op,
+			    int depth)
+{
+	if (depth <= 0)
+		return false;
+	switch (op->opcode) {
+	case OP_Integer:
+	case OP_Bool:
+	case OP_Int64:
+		return true;
+	case OP_Copy:
+	case OP_SCopy:
+		return cnp_reg_is_likely_int(p, pc, op->p1, depth - 1);
+	case OP_Column: {
+		struct space *space = cnp_find_cursor_space(p, pc, op->p1);
+		if (space == NULL || (uint32_t)op->p2 >= space->def->field_count)
+			return false;
+		enum field_type type = space->def->fields[op->p2].type;
+		return type == FIELD_TYPE_UNSIGNED || type == FIELD_TYPE_INTEGER;
+	}
+	case OP_Add:
+	case OP_Subtract:
+	case OP_Multiply:
+	case OP_Divide:
+	case OP_Remainder:
+		return cnp_reg_is_likely_int(p, pc, op->p1, depth - 1) &&
+		       cnp_reg_is_likely_int(p, pc, op->p2, depth - 1);
+	case OP_BitAnd:
+	case OP_BitOr:
+	case OP_BitNot:
+	case OP_ShiftLeft:
+	case OP_ShiftRight:
+		return cnp_op_result_is_likely_uint(p, pc, op, depth - 1);
+	default:
+		return false;
+	}
+}
+
+static bool
 cnp_reg_is_likely_uint(const struct Vdbe *p, int pc, int reg, int depth)
 {
 	if (depth <= 0)
@@ -2000,6 +2052,19 @@ cnp_reg_is_likely_uint(const struct Vdbe *p, int pc, int reg, int depth)
 	if (def == NULL)
 		return false;
 	return cnp_op_result_is_likely_uint(p, pc, def, depth);
+}
+
+static bool
+cnp_reg_is_likely_int(const struct Vdbe *p, int pc, int reg, int depth)
+{
+	if (depth <= 0)
+		return false;
+	const Op *def = cnp_find_last_reg_writer(p, pc, reg);
+	if (def == NULL)
+		def = cnp_find_unique_reg_writer(p, reg);
+	if (def == NULL)
+		return false;
+	return cnp_op_result_is_likely_int(p, pc, def, depth);
 }
 
 static bool
@@ -2028,6 +2093,66 @@ cnp_resolve_uint_constant(const struct Vdbe *p, int pc, int reg,
 						 depth - 1);
 	default:
 		return false;
+	}
+}
+
+static uintptr_t
+cnp_select_arith_handler(const struct Vdbe *p, int pc)
+{
+	const Op *op = &p->aOp[pc];
+	if (!cnp_reg_is_likely_int(p, pc, op->p1, 16) ||
+	    !cnp_reg_is_likely_int(p, pc, op->p2, 16))
+		return cnp_resolve_handler_by_opcode(op->opcode);
+	switch (op->opcode) {
+	case OP_Add:
+		return (uintptr_t)vdbe_op_add_int_fast;
+	case OP_Subtract:
+		return (uintptr_t)vdbe_op_sub_int_fast;
+	case OP_Multiply:
+		return (uintptr_t)vdbe_op_multiply_int_fast;
+	case OP_Divide:
+		return (uintptr_t)vdbe_op_divide_int_fast;
+	case OP_Remainder:
+		return (uintptr_t)vdbe_op_remainder_int_fast;
+	default:
+		return cnp_resolve_handler_by_opcode(op->opcode);
+	}
+}
+
+static uintptr_t
+cnp_select_arith_fragment_handler(const struct Vdbe *p, int pc)
+{
+	const Op *op = &p->aOp[pc];
+	if (!cnp_reg_is_likely_int(p, pc, op->p1, 16) ||
+	    !cnp_reg_is_likely_int(p, pc, op->p2, 16)) {
+		switch (op->opcode) {
+		case OP_Add:
+			return (uintptr_t)vdbe_op_add_sysv_bridge;
+		case OP_Subtract:
+			return (uintptr_t)vdbe_op_sub_sysv_bridge;
+		case OP_Multiply:
+			return (uintptr_t)vdbe_op_multiply_sysv_bridge;
+		case OP_Divide:
+			return (uintptr_t)vdbe_op_divide_sysv_bridge;
+		case OP_Remainder:
+			return (uintptr_t)vdbe_op_remainder_sysv_bridge;
+		default:
+			return cnp_resolve_handler_by_opcode(op->opcode);
+		}
+	}
+	switch (op->opcode) {
+	case OP_Add:
+		return (uintptr_t)vdbe_op_add_int_fast;
+	case OP_Subtract:
+		return (uintptr_t)vdbe_op_sub_int_fast;
+	case OP_Multiply:
+		return (uintptr_t)vdbe_op_multiply_int_fast;
+	case OP_Divide:
+		return (uintptr_t)vdbe_op_divide_int_fast;
+	case OP_Remainder:
+		return (uintptr_t)vdbe_op_remainder_int_fast;
+	default:
+		return cnp_resolve_handler_by_opcode(op->opcode);
 	}
 }
 
@@ -2411,6 +2536,17 @@ vdbe_cnp_compile_fragments(struct Vdbe *p)
 			else if (aOp[i].opcode == OP_Column &&
 				 strcmp(rel->symbol_name, "vdbe_op_column") == 0)
 				target = cnp_select_column_handler(p, i);
+			else if (((aOp[i].opcode == OP_Add &&
+				   strcmp(rel->symbol_name, "vdbe_op_add_sysv_bridge") == 0) ||
+				  (aOp[i].opcode == OP_Subtract &&
+				   strcmp(rel->symbol_name, "vdbe_op_sub_sysv_bridge") == 0) ||
+				  (aOp[i].opcode == OP_Multiply &&
+				   strcmp(rel->symbol_name, "vdbe_op_multiply_sysv_bridge") == 0) ||
+				  (aOp[i].opcode == OP_Divide &&
+				   strcmp(rel->symbol_name, "vdbe_op_divide_sysv_bridge") == 0) ||
+				  (aOp[i].opcode == OP_Remainder &&
+				   strcmp(rel->symbol_name, "vdbe_op_remainder_sysv_bridge") == 0)))
+				target = cnp_select_arith_fragment_handler(p, i);
 			else if (aOp[i].opcode == OP_ApplyType &&
 				 strcmp(rel->symbol_name, "mem_cast_implicit") == 0)
 				target = cnp_select_applytype_cast_helper(p, i);
@@ -2649,6 +2785,12 @@ vdbe_cnp_compile(struct Vdbe *p)
 			case CNP_HOLE_HANDLER:
 				if (aOp[i].opcode == OP_Column) {
 					target = cnp_select_column_handler(p, i);
+				} else if (aOp[i].opcode == OP_Add ||
+					   aOp[i].opcode == OP_Subtract ||
+					   aOp[i].opcode == OP_Multiply ||
+					   aOp[i].opcode == OP_Divide ||
+					   aOp[i].opcode == OP_Remainder) {
+					target = cnp_select_arith_handler(p, i);
 				} else if (aOp[i].opcode == OP_BitAnd ||
 					   aOp[i].opcode == OP_BitOr ||
 					   aOp[i].opcode == OP_BitNot ||

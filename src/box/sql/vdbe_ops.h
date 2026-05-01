@@ -13,6 +13,16 @@ int SQL_PRESERVE_NONE vdbe_op_jump(Vdbe *p, Op *pOp, Mem *aMem);
 int SQL_PRESERVE_NONE vdbe_op_multiply(Vdbe *p, Op *pOp, Mem *aMem);
 int SQL_PRESERVE_NONE vdbe_op_divide(Vdbe *p, Op *pOp, Mem *aMem);
 int SQL_PRESERVE_NONE vdbe_op_remainder(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_add_int_fast(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_sub_int_fast(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_multiply_int_fast(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_divide_int_fast(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_remainder_int_fast(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_add_sysv_bridge(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_sub_sysv_bridge(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_multiply_sysv_bridge(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_divide_sysv_bridge(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_remainder_sysv_bridge(Vdbe *p, Op *pOp, Mem *aMem);
 /* Data / constant opcodes */
 int SQL_PRESERVE_NONE vdbe_op_integer(Vdbe *p, Op *pOp, Mem *aMem);
 int SQL_PRESERVE_NONE vdbe_op_bool(Vdbe *p, Op *pOp, Mem *aMem);
