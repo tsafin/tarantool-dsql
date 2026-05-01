@@ -1149,7 +1149,7 @@ vdbe_cnp_halt_handler(struct Vdbe *p, struct VdbeOp *pOp, struct Mem *aMem)
  * OP_SetDiag handler: set the diagnostic error and return 1 if P2 != 0
  * (jump to P2), or 0 (fall through).
  */
-static int
+int
 vdbe_cnp_setdiag_handler(struct Vdbe *p, struct VdbeOp *pOp, struct Mem *aMem)
 {
 	(void)p;
@@ -1683,6 +1683,38 @@ cnp_resolve_fragment_symbol(const char *name)
 		return (uintptr_t)vdbe_op_aggfinal;
 	if (strcmp(name, "vdbe_op_builtinfunction") == 0)
 		return (uintptr_t)vdbe_op_builtinfunction;
+	if (strcmp(name, "vdbe_op_decrjumpzero_inline") == 0)
+		return (uintptr_t)vdbe_op_decrjumpzero_inline;
+	if (strcmp(name, "vdbe_cnp_setdiag_handler") == 0)
+		return (uintptr_t)vdbe_cnp_setdiag_handler;
+	if (strcmp(name, "vdbe_op_noop_inline") == 0)
+		return (uintptr_t)vdbe_op_noop_inline;
+	if (strcmp(name, "vdbe_op_eq") == 0)
+		return (uintptr_t)vdbe_op_eq;
+	if (strcmp(name, "vdbe_op_ge") == 0)
+		return (uintptr_t)vdbe_op_ge;
+	if (strcmp(name, "vdbe_op_mustbeint") == 0)
+		return (uintptr_t)vdbe_op_mustbeint;
+	if (strcmp(name, "vdbe_op_makerecord") == 0)
+		return (uintptr_t)vdbe_op_makerecord;
+	if (strcmp(name, "vdbe_op_initcoroutine_jit") == 0)
+		return (uintptr_t)vdbe_op_initcoroutine_jit;
+	if (strcmp(name, "vdbe_op_yield_jit") == 0)
+		return (uintptr_t)vdbe_op_yield_jit;
+	if (strcmp(name, "vdbe_op_endcoroutine_jit") == 0)
+		return (uintptr_t)vdbe_op_endcoroutine_jit;
+	if (strcmp(name, "vdbe_op_sorteropen") == 0)
+		return (uintptr_t)vdbe_op_sorteropen;
+	if (strcmp(name, "vdbe_op_openpseudo_inline") == 0)
+		return (uintptr_t)vdbe_op_openpseudo_inline;
+	if (strcmp(name, "vdbe_op_sorterinsert") == 0)
+		return (uintptr_t)vdbe_op_sorterinsert;
+	if (strcmp(name, "vdbe_op_sorterdata") == 0)
+		return (uintptr_t)vdbe_op_sorterdata;
+	if (strcmp(name, "vdbe_op_sortersort") == 0)
+		return (uintptr_t)vdbe_op_sortersort;
+	if (strcmp(name, "vdbe_op_sorternext_jit") == 0)
+		return (uintptr_t)vdbe_op_sorternext_jit;
 	/* agg_scan / builtin_scan JUMP_P2 cursor handlers */
 	if (strcmp(name, "vdbe_op_rewind") == 0)
 		return (uintptr_t)vdbe_op_rewind;
@@ -1702,6 +1734,8 @@ cnp_resolve_fragment_symbol(const char *name)
 		return (uintptr_t)vdbe_prepare_null_out;
 	if (strcmp(name, "updateMaxBlobsize") == 0)
 		return (uintptr_t)updateMaxBlobsize;
+	if (strcmp(name, "box_error_set") == 0)
+		return (uintptr_t)box_error_set;
 	if (strcmp(name, "mem_set_int") == 0)
 		return (uintptr_t)mem_set_int;
 	if (strcmp(name, "mem_set_bool") == 0)
@@ -1732,6 +1766,8 @@ cnp_resolve_fragment_symbol(const char *name)
 		return (uintptr_t)mem_shift_right;
 	if (strcmp(name, "mem_cast_implicit") == 0)
 		return (uintptr_t)mem_cast_implicit;
+	if (strcmp(name, "mem_cmp") == 0)
+		return (uintptr_t)mem_cmp;
 	if (strcmp(name, "mem_str") == 0)
 		return (uintptr_t)mem_str;
 	if (strcmp(name, "sqlVdbeMemTooBig") == 0)
@@ -2447,8 +2483,9 @@ vdbe_cnp_compile(struct Vdbe *p)
 
 	int nOp = p->nOp;
 	Op *aOp = p->aOp;
+	bool use_fragments = cnp_can_use_fragments(p);
 
-	if (cnp_can_use_fragments(p))
+	if (use_fragments)
 		return vdbe_cnp_compile_fragments(p);
 
 	/*

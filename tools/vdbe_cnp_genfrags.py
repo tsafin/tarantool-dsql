@@ -378,6 +378,215 @@ if (vdbe_op_builtinfunction(p, pOp, aMem) < 0)
         "dispatch_transfer": 'JMP_FALLTHROUGH();',
     },
     {
+        "name": "OP_DecrJumpZero",
+        "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": False,
+        "body": """\
+{
+    int handler_rc = vdbe_op_decrjumpzero_inline(p, pOp, aMem);
+    if (handler_rc < 0)
+        GOTO_ERROR();
+    if (handler_rc == 1)
+        JUMP_P2();
+}""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_SetDiag",
+        "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": False,
+        "body": """\
+{
+    int handler_rc = vdbe_cnp_setdiag_handler(p, pOp, aMem);
+    if (handler_rc < 0)
+        GOTO_ERROR();
+    if (handler_rc == 1)
+        JUMP_P2();
+}""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_Noop",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": False,
+        "body": """\
+if (vdbe_op_noop_inline(p, pOp, aMem) < 0)
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_Eq",
+        "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": False,
+        "body": """\
+{
+    int handler_rc = vdbe_op_eq_impl(p, pOp, aMem);
+    if (handler_rc < 0)
+        GOTO_ERROR();
+    if (handler_rc == 1)
+        JUMP_P2();
+}""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_Ge",
+        "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": False,
+        "body": """\
+{
+    int handler_rc = vdbe_op_ge_impl(p, pOp, aMem);
+    if (handler_rc < 0)
+        GOTO_ERROR();
+    if (handler_rc == 1)
+        JUMP_P2();
+}""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_MustBeInt",
+        "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": False,
+        "body": """\
+{
+    int handler_rc = vdbe_op_mustbeint_sysv_bridge(p, pOp, aMem);
+    if (handler_rc < 0)
+        GOTO_ERROR();
+    if (handler_rc == 1)
+        JUMP_P2();
+}""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_MakeRecord",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": False,
+        "body": """\
+if (vdbe_op_makerecord_sysv_bridge(p, pOp, aMem) < 0)
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_InitCoroutine",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": False,
+        "body": """\
+{
+    p->pc = (int)(pOp - aOp);
+    int target_pc = vdbe_op_initcoroutine_jit(p, pOp, aMem);
+    if (target_pc < 0)
+        GOTO_ERROR();
+    JUMP_PC(target_pc);
+}""",
+        "dispatch_prep": "",
+        "dispatch_transfer": '',
+    },
+    {
+        "name": "OP_Yield",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": False,
+        "body": """\
+{
+    p->pc = (int)(pOp - aOp);
+    int target_pc = vdbe_op_yield_jit(p, pOp, aMem);
+    if (target_pc < 0)
+        GOTO_ERROR();
+    JUMP_PC(target_pc);
+}""",
+        "dispatch_prep": "",
+        "dispatch_transfer": '',
+    },
+    {
+        "name": "OP_EndCoroutine",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": False,
+        "body": """\
+{
+    int target_pc = vdbe_op_endcoroutine_jit(p, pOp, aMem);
+    if (target_pc < 0)
+        GOTO_ERROR();
+    JUMP_PC(target_pc);
+}""",
+        "dispatch_prep": "",
+        "dispatch_transfer": '',
+    },
+    {
+        "name": "OP_SorterOpen",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": False,
+        "body": """\
+if (vdbe_op_sorteropen(p, pOp, aMem) < 0)
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_OpenPseudo",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": False,
+        "body": """\
+if (vdbe_op_openpseudo_inline(p, pOp, aMem) < 0)
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_SorterInsert",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": False,
+        "body": """\
+if (vdbe_op_sorterinsert(p, pOp, aMem) < 0)
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_SorterData",
+        "kind": "CNP_FRAG_FALLTHROUGH",
+        "tail_fallthrough": False,
+        "body": """\
+if (vdbe_op_sorterdata(p, pOp, aMem) < 0)
+    GOTO_ERROR();""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_SorterSort",
+        "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": False,
+        "body": """\
+{
+    int handler_rc = vdbe_op_sortersort(p, pOp, aMem);
+    if (handler_rc < 0)
+        GOTO_ERROR();
+    if (handler_rc == 1)
+        JUMP_P2();
+}""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
+        "name": "OP_SorterNext",
+        "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": False,
+        "body": """\
+{
+    int handler_rc = vdbe_op_sorternext_jit(p, pOp, aMem);
+    if (handler_rc < 0)
+        GOTO_ERROR();
+    if (handler_rc == 1)
+        JUMP_P2();
+}""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
         "name": "OP_Rewind",
         "kind": "CNP_FRAG_JUMP_P2",
         "tail_fallthrough": True,
@@ -563,6 +772,13 @@ extern void **cnp_frag_dispatch_table;
 
 #define JUMP_P2() do {                                         \\
     pOp = &aOp[pOp->p2];                                       \\
+    __attribute__((musttail)) return ((cnp_frag_exec_func_t)   \\
+        cnp_frag_dispatch_table[(size_t)(pOp - aOp)])          \\
+        (p, aOp, pOp, aMem);                                   \\
+} while (0)
+
+#define JUMP_PC(target_pc) do {                                \\
+    pOp = &aOp[(target_pc)];                                   \\
     __attribute__((musttail)) return ((cnp_frag_exec_func_t)   \\
         cnp_frag_dispatch_table[(size_t)(pOp - aOp)])          \\
         (p, aOp, pOp, aMem);                                   \\

@@ -39,6 +39,7 @@ else
         bitwise_mix
         agg_scan
         builtin_scan
+        sort_window
     )
 fi
 
