@@ -44,6 +44,9 @@ struct CnpStubOp {
 #include "sqlInt.h"
 #include "vdbeInt.h"
 #include "vdbe_debug.h"
+
+int vdbe_cnp_setdiag_handler(struct Vdbe *p, struct VdbeOp *pOp,
+			     struct Mem *aMem);
 #endif
 #include "mem.h"
 #include "vdbe_helpers.h"
@@ -462,6 +465,71 @@ vdbe_op_applytype_impl(Vdbe *p, Op *pOp, Mem *aMem)
 		}
 	}
 	return 0;
+}
+
+VDBE_CNP_INLINE int
+vdbe_op_makerecord_impl(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	Mem *pData0;           /* First field to be combined into the record */
+	int nField;            /* Number of fields in the record */
+	u8 bIsEphemeral;
+
+	nField = pOp->p2;
+	bIsEphemeral = pOp->p5;
+	assert(nField > 0 && pOp->p1 >= 0 &&
+	       pOp->p1 + nField <= (p->nMem + 1 - p->nCursor) + 1);
+	pData0 = &aMem[pOp->p1];
+
+	assert(pOp->p3 < pOp->p1 || pOp->p3 >= pOp->p1 + pOp->p2);
+	Mem *pOut = vdbe_prepare_null_out(p, pOp->p3);
+
+	for (int i = 0; i < nField; i++) {
+		if (pData0[i].type == MEM_TYPE_INVALID)
+			mem_set_null(&pData0[i]);
+	}
+
+	struct region *region = &fiber()->gc;
+	size_t used = region_used(region);
+	uint32_t tuple_size;
+	char *tuple = mem_encode_array(pData0, nField, &tuple_size, region);
+	if (tuple == NULL)
+		return -1;
+	if (tuple_size > SQL_MAX_LENGTH) {
+		diag_set(ClientError, ER_SQL_EXECUTE, "string or blob too big");
+		return -1;
+	}
+
+	if (bIsEphemeral) {
+		if (mem_copy_bin(pOut, tuple, tuple_size) != 0)
+			return -1;
+		region_truncate(region, used);
+	} else {
+		mem_destroy(pOut);
+		mem_set_bin_ephemeral(pOut, tuple, tuple_size);
+	}
+#ifdef SQL_DEBUG
+	assert(sqlVdbeCheckMemInvariants(pOut));
+#endif
+	assert(pOp->p3 > 0 && pOp->p3 <= (p->nMem + 1 - p->nCursor));
+	REGISTER_TRACE(p, pOp->p3, pOut);
+	UPDATE_MAX_BLOBSIZE(pOut);
+	return 0;
+}
+
+typedef int (*vdbe_cnp_sysv_op3_f)(Vdbe *, Op *, Mem *);
+
+VDBE_CNP_INLINE int
+vdbe_op_makerecord_sysv_bridge(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	vdbe_cnp_sysv_op3_f fn = (vdbe_cnp_sysv_op3_f)(uintptr_t)vdbe_op_makerecord;
+	return fn(p, pOp, aMem);
+}
+
+VDBE_CNP_INLINE int
+vdbe_op_mustbeint_sysv_bridge(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	vdbe_cnp_sysv_op3_f fn = (vdbe_cnp_sysv_op3_f)(uintptr_t)vdbe_op_mustbeint;
+	return fn(p, pOp, aMem);
 }
 
 VDBE_CNP_INLINE int
