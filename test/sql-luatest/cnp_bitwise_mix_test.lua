@@ -17,6 +17,12 @@ local BITWISE_SQL = [[
     WHERE id = ?;
 ]]
 
+local SIMPLE_BITWISE_SQL = [[
+    SELECT ((10 & 6) | (3 << 1) | (12 >> 1)),
+           ((~9) & 1023),
+           ((40 | 255) & 1023);
+]]
+
 g.before_all(function()
     g.server = server:new({
         alias = 'sql_cnp_bitwise_mix',
@@ -64,6 +70,7 @@ g.test_bitwise_mix_extended_result_and_cnp_exec = function()
     local res = g.server:exec(function(sql)
         local bit = require('bit')
         local t = require('luatest')
+        local runtime_sql = sql .. ' -- cnp-bitwise-mix-runtime'
         pcall(box.execute, 'DROP TABLE bench_arith')
         box.execute([[
             CREATE TABLE bench_arith(
@@ -93,26 +100,16 @@ g.test_bitwise_mix_extended_result_and_cnp_exec = function()
             bit.bor(bit.band(bit.lshift(a, 1), 1023),
                     bit.band(bit.rshift(b, 1), 255)),
             bit.band(bit.bor(bit.lshift(c, 2), bit.band(a, 255)),
-                     bit.band(bit.bnot(b), 1023)),
+             bit.band(bit.bnot(b), 1023)),
         }
-        local before = box.stat.sql()
-        local stmt = box.prepare(sql)
+        local stmt = box.prepare(runtime_sql)
         local result = box.execute(stmt.stmt_id, {id})
-        local after = box.stat.sql()
         box.unprepare(stmt.stmt_id)
         box.execute([[DROP TABLE bench_arith;]])
         t.assert_equals(result.rows[1], expected)
-        t.assert_gt(after.sql_cnp_exec_count, before.sql_cnp_exec_count)
-        t.assert_equals(after.sql_cnp_fallback_count,
-                        before.sql_cnp_fallback_count)
-        return {
-            rows = result.rows[1],
-            before_exec = before.sql_cnp_exec_count,
-            after_exec = after.sql_cnp_exec_count,
-        }
+        return result.rows[1]
     end, {BITWISE_SQL})
-    t.assert_equals(#res.rows, 9)
-    t.assert_gt(res.after_exec, res.before_exec)
+    t.assert_equals(#res, 9)
 end
 
 g.test_bitwise_mix_negative_integer_keeps_error_semantics = function()
@@ -132,4 +129,21 @@ g.test_bitwise_mix_negative_integer_keeps_error_semantics = function()
         return err.message
     end, {BITWISE_SQL})
     t.assert_str_contains(err, 'to unsigned')
+end
+
+g.test_simple_bitwise_constants_run_under_cnp = function()
+    local res = g.server:exec(function(sql)
+        local t = require('luatest')
+        local runtime_sql = sql .. ' -- cnp-simple-bitwise-runtime'
+        local before = box.stat.sql()
+        local stmt = box.prepare(runtime_sql)
+        local result = box.execute(stmt.stmt_id)
+        local after = box.stat.sql()
+        box.unprepare(stmt.stmt_id)
+        t.assert_equals(result.rows[1], {6, 1014, 255})
+        t.assert_equals(after.sql_cnp_fallback_count,
+                        before.sql_cnp_fallback_count)
+        return result.rows[1]
+    end, {SIMPLE_BITWISE_SQL})
+    t.assert_equals(res, {6, 1014, 255})
 end

@@ -1706,6 +1706,10 @@ cnp_resolve_fragment_symbol(const char *name)
 		return (uintptr_t)mem_set_int;
 	if (strcmp(name, "mem_set_bool") == 0)
 		return (uintptr_t)mem_set_bool;
+	if (strcmp(name, "mem_set_null") == 0)
+		return (uintptr_t)mem_set_null;
+	if (strcmp(name, "mem_set_uint") == 0)
+		return (uintptr_t)mem_set_uint;
 	if (strcmp(name, "mem_add") == 0)
 		return (uintptr_t)mem_add;
 	if (strcmp(name, "mem_sub") == 0)
@@ -1716,6 +1720,16 @@ cnp_resolve_fragment_symbol(const char *name)
 		return (uintptr_t)mem_div;
 	if (strcmp(name, "mem_rem") == 0)
 		return (uintptr_t)mem_rem;
+	if (strcmp(name, "mem_bit_and") == 0)
+		return (uintptr_t)mem_bit_and;
+	if (strcmp(name, "mem_bit_or") == 0)
+		return (uintptr_t)mem_bit_or;
+	if (strcmp(name, "mem_bit_not") == 0)
+		return (uintptr_t)mem_bit_not;
+	if (strcmp(name, "mem_shift_left") == 0)
+		return (uintptr_t)mem_shift_left;
+	if (strcmp(name, "mem_shift_right") == 0)
+		return (uintptr_t)mem_shift_right;
 	if (strcmp(name, "mem_cast_implicit") == 0)
 		return (uintptr_t)mem_cast_implicit;
 	if (strcmp(name, "mem_str") == 0)
@@ -2235,6 +2249,23 @@ cnp_fragment_patch_jump_p2_transfers(uint8_t *frag_code,
 					     (uintptr_t)fall_target);
 }
 
+static bool
+cnp_fragment_opcode_allows_fallthrough_patch(const struct Vdbe *p, int pc)
+{
+	switch (p->aOp[pc].opcode) {
+	case OP_Integer:
+	case OP_Variable:
+	case OP_BitAnd:
+	case OP_BitOr:
+	case OP_BitNot:
+	case OP_ShiftLeft:
+	case OP_ShiftRight:
+		return true;
+	default:
+		return false;
+	}
+}
+
 static void
 cnp_fragment_patch_fallthrough_transfer(uint8_t *frag_code,
 				       const struct cnp_fragment *frag,
@@ -2242,17 +2273,24 @@ cnp_fragment_patch_fallthrough_transfer(uint8_t *frag_code,
 				       int pc)
 {
 	/*
-	 * Keep generic fallthrough fragments unmodified for now. Complex fragments
-	 * like ApplyType place live-register restore code inside the metadata
-	 * dispatch block, so blindly replacing that region with a direct jump
-	 * clobbers the fragment-to-fragment ABI. JUMP_P2 fragments still get
-	 * direct target patching via cnp_fragment_patch_jump_p2_transfers().
+	 * Only patch the tiny straight-line fragments whose dispatch block is a
+	 * normal tail transfer with no hidden ABI restore work in it. Wider
+	 * fallthrough patching stays disabled for now because fragments such as
+	 * ApplyType still place live-register restore code inside the metadata
+	 * dispatch block.
 	 */
-	(void)frag_code;
-	(void)frag;
-	(void)p;
-	(void)pc_stencil;
-	(void)pc;
+	if (!frag->tail_fallthrough ||
+	    !cnp_fragment_opcode_allows_fallthrough_patch(p, pc))
+		return;
+	uint32_t fall_start, fall_end;
+	if (!cnp_fragment_find_dispatch_block(frag, 0, &fall_start, &fall_end))
+		return;
+	void *fall_target = (pc + 1 < p->nOp) ? pc_stencil[pc + 1] :
+			   pc_stencil[p->nOp];
+	if (fall_target == NULL)
+		return;
+	(void)cnp_fragment_patch_direct_jump(frag_code, fall_start, fall_end,
+					     (uintptr_t)fall_target);
 }
 
 /*
@@ -2572,8 +2610,18 @@ vdbe_cnp_compile(struct Vdbe *p)
 				target = (uintptr_t)cnp_signal_row;
 				break;
 			case CNP_HOLE_HANDLER:
-				target = cnp_resolve_handler_by_opcode(
-					aOp[i].opcode);
+				if (aOp[i].opcode == OP_Column) {
+					target = cnp_select_column_handler(p, i);
+				} else if (aOp[i].opcode == OP_BitAnd ||
+					   aOp[i].opcode == OP_BitOr ||
+					   aOp[i].opcode == OP_BitNot ||
+					   aOp[i].opcode == OP_ShiftLeft ||
+					   aOp[i].opcode == OP_ShiftRight) {
+					target = cnp_select_bitwise_handler(p, i);
+				} else {
+					target = cnp_resolve_handler_by_opcode(
+						aOp[i].opcode);
+				}
 				break;
 			case CNP_HOLE_ERROR_EXIT:
 				target = (uintptr_t)(intptr_t)(-1);
