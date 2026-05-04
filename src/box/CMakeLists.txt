@@ -182,6 +182,7 @@ endif()
 # Add CnP source file only when CnP is enabled
 if(ENABLE_SQL_CNP)
     list(APPEND sql_sources sql/vdbe_cnp.c)
+    list(APPEND sql_sources sql/vdbe_cnp_disasm_llvm.c)
 endif()
 
 #
@@ -745,11 +746,14 @@ target_link_libraries(box box_error tuple stat xrow xlog vclock crc32 raft
 
 # Link LLVM libraries and set JIT compile definitions
 if(ENABLE_SQL_JIT)
-    target_link_libraries(box PUBLIC ${LLVM_LIBS})
+    target_link_libraries(box ${LLVM_LIBS})
     target_compile_definitions(box PRIVATE
         ENABLE_SQL_JIT
         SQL_JIT_BITCODE_DIR="${PROJECT_BINARY_DIR}/src/box"
     )
+endif()
+if(ENABLE_SQL_CNP AND LLVM_CNP_LIBS)
+    target_link_libraries(box ${LLVM_CNP_LIBS})
 endif()
 
 add_dependencies(box build_bundled_libs vdbe_codegen)

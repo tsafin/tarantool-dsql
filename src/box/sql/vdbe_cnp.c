@@ -50,7 +50,6 @@
 #include "diag.h"
 #include "say.h"
 #include "vdbe_cnp_vdbe_view.h"
-
 extern void
 __assert_fail(const char *assertion, const char *file, unsigned int line,
 	      const char *function) __attribute__((noreturn));
@@ -575,61 +574,6 @@ cnp_build_gdb_symfile(struct Vdbe *p)
 	shdr[SEC_SHSTRTAB].sh_addralign = 1;
 
 	return entry;
-}
-
-static int
-cnp_capture_command_output(char *const argv[], char **out)
-{
-	*out = NULL;
-	int pipefd[2];
-	if (pipe(pipefd) != 0)
-		return -1;
-
-	pid_t pid = fork();
-	if (pid < 0) {
-		close(pipefd[0]);
-		close(pipefd[1]);
-		return -1;
-	}
-	if (pid == 0) {
-		dup2(pipefd[1], STDOUT_FILENO);
-		dup2(pipefd[1], STDERR_FILENO);
-		close(pipefd[0]);
-		close(pipefd[1]);
-		execvp(argv[0], argv);
-		_exit(127);
-	}
-
-	close(pipefd[1]);
-	size_t cap = 4096;
-	size_t len = 0;
-	char *buf = sql_xmalloc(cap);
-	for (;;) {
-		if (len + 2048 + 1 > cap) {
-			cap *= 2;
-			buf = sql_xrealloc(buf, cap);
-		}
-		ssize_t rc = read(pipefd[0], buf + len, cap - len - 1);
-		if (rc <= 0)
-			break;
-		len += (size_t)rc;
-	}
-	close(pipefd[0]);
-
-	int status = 0;
-	if (waitpid(pid, &status, 0) < 0) {
-		sql_xfree(buf);
-		return -1;
-	}
-	buf[len] = '\0';
-	if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
-		if (len == 0) {
-			sql_xfree(buf);
-			return -1;
-		}
-	}
-	*out = buf;
-	return 0;
 }
 
 static void
@@ -3060,62 +3004,6 @@ vdbe_cnp_exec(struct Vdbe *p)
 			return SQL_ROW;
 		}
 	}
-}
-
-int
-vdbe_cnp_disassemble(struct Vdbe *p, char **out)
-{
-	*out = NULL;
-	if (vdbe_cnp_compile(p) != 0 || p->cnp_compiled != CNP_COMPILED)
-		return -1;
-
-	struct cnp_gdb_entry *entry = cnp_build_gdb_symfile(p);
-	if (entry == NULL)
-		return -1;
-
-	char path[] = "/tmp/tarantool-cnp-XXXXXX";
-	int fd = mkstemp(path);
-	if (fd < 0) {
-		free(entry);
-		return -1;
-	}
-	char start_opt[32];
-	char stop_opt[32];
-	snprintf(start_opt, sizeof(start_opt), "--start-address=%lu",
-		 (unsigned long)(uintptr_t)p->cnp_code);
-	snprintf(stop_opt, sizeof(stop_opt), "--stop-address=%lu",
-		 (unsigned long)((uintptr_t)p->cnp_code + p->cnp_size));
-
-	size_t left = entry->symfile_size;
-	uint8_t *ptr = entry->symfile;
-	while (left > 0) {
-		ssize_t rc = write(fd, ptr, left);
-		if (rc <= 0) {
-			close(fd);
-			unlink(path);
-			free(entry);
-			return -1;
-		}
-		ptr += rc;
-		left -= (size_t)rc;
-	}
-	close(fd);
-
-	char *const argv[] = {
-		"objdump",
-		"-d",
-		"-M",
-		"intel",
-		"--no-show-raw-insn",
-		start_opt,
-		stop_opt,
-		path,
-		NULL,
-	};
-	int rc = cnp_capture_command_output(argv, out);
-	unlink(path);
-	free(entry);
-	return rc;
 }
 
 void

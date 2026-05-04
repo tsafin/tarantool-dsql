@@ -54,20 +54,23 @@ The first rows contain the VDBE bytecode section:
 - ['bytecode', 8, 'Gosub            0 1 0  00']
 ```
 
-The following rows contain the native CnP disassembly. A short excerpt:
+The following rows contain the native CnP disassembly. A short excerpt from
+the current LLVM-backed in-process decoder:
 
 ```text
-- ['disassembly', 130727651835904, 'push   rbp']
-- ['disassembly', 130727651835905, 'mov    rbp,rsp']
-- ['disassembly', 130727651835908, 'push   r14']
-- ['disassembly', 130727651835910, 'push   rbx']
-- ['disassembly', 130727651835911, 'sub    rsp,0x100']
-- ['disassembly', 130727651835918, 'movabs rax,0x57c35d497b6b']
-- ['disassembly', 130727651835928, 'call   rax']
-- ['disassembly', 130727651835930, 'jmp    rax']
-- ['disassembly', 130727651835932, 'jmp    76e56740001e <vdbe_cnp_stmt_6584fd07_ops_9+0x1e>']
-- ['disassembly', 130727651835934, 'jmp    76e567400020 <vdbe_cnp_stmt_6584fd07_ops_9+0x20>']
-- ['disassembly', 130727651835936, 'call   76e5674002de <vdbe_cnp_stmt_6584fd07_ops_9+0x2de>']
+- ['disassembly', 0, 'movsxd   rax, dword ptr [r14 + 8]']
+- ['disassembly', 4, 'lea      rcx, [rax + 2*rax]']
+- ['disassembly', 8, 'lea      r14, [8*rcx]']
+- ['disassembly', 16, 'add      r14, r13']
+- ['disassembly', 19, 'movabs   rcx, 102694535504400']
+- ['disassembly', 29, 'mov      rcx, qword ptr [rcx]']
+- ['disassembly', 32, 'mov      rax, qword ptr [rcx + 8*rax]']
+- ['disassembly', 36, 'jmp      rax']
+- ['disassembly', 38, 'push     rax']
+- ['disassembly', 39, 'mov      esi, dword ptr [r14 + 8]']
+- ['disassembly', 43, 'movabs   rax, 102694508699024']
+- ['disassembly', 207, 'L00cf:']
+- ['disassembly', 207, 'jne      L00cf']
 ```
 
 The direct repro script prints the same data as indented JSON, including
@@ -85,14 +88,18 @@ On the current debug build, the combined example produced:
 - total row count: `290`
 - disassembly text bytes: `8715`
 
-The disassembly addresses also stay within the generated code span:
+The disassembly `addr` column is relative to the beginning of the generated
+native code buffer, not an absolute runtime address. That keeps the listing
+stable and readable while preserving instruction order and code span.
 
-- first disassembly address: `130727651835904`
-- last disassembly address: `130727651837116`
-- address span: `1212`
+The offsets also stay within the generated code span:
 
-That discrepancy is expected with the current `objdump`-based output: the
-native program is a bit over one kilobyte, while the textual disassembly
+- first disassembly offset: `0`
+- last disassembly offset: `1212`
+- code span: `1212`
+
+That discrepancy is expected with the current LLVM-backed textual output: the
+native program is a bit over one kilobyte, while the formatted disassembly
 expands it into many more lines.
 
 ## Notes

@@ -45,7 +45,8 @@ vdbe_cnp_exec(struct Vdbe *p);
  * The caller owns *out on success.
  */
 int
-vdbe_cnp_disassemble(struct Vdbe *p, char **out);
+vdbe_cnp_disassemble(struct Vdbe *p, char **out)
+	__attribute__((cold));
 
 /**
  * Release the mmap'd code buffer.

@@ -775,12 +775,22 @@ option(ENABLE_SQL_JIT "Enable SQL JIT compilation using LLVM" OFF)
 option(ENABLE_SQL_CNP "Enable SQL Copy-and-Patch JIT compilation" OFF)
 
 #
-# LLVM for SQL JIT
+# LLVM for SQL JIT / CnP disassembly
 #
-if(ENABLE_SQL_JIT)
+if(ENABLE_SQL_JIT OR ENABLE_SQL_CNP)
     find_package(LLVM REQUIRED CONFIG)
     message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
     message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+
+    # Add LLVM definitions and include directories
+    add_definitions(${LLVM_DEFINITIONS})
+    include_directories(${LLVM_INCLUDE_DIRS})
+endif()
+
+#
+# LLVM for SQL JIT
+#
+if(ENABLE_SQL_JIT)
 
     # Check LLVM version (minimum 11 for development, 12+ recommended)
     if(LLVM_VERSION_MAJOR LESS 11)
@@ -790,10 +800,6 @@ if(ENABLE_SQL_JIT)
     if(LLVM_VERSION_MAJOR LESS 12)
         message(WARNING "LLVM version 12 or higher is recommended for SQL JIT, found ${LLVM_VERSION_MAJOR}.${LLVM_VERSION_MINOR}. Some features may not work correctly.")
     endif()
-
-    # Add LLVM definitions and include directories
-    add_definitions(${LLVM_DEFINITIONS})
-    include_directories(${LLVM_INCLUDE_DIRS})
 
     # Determine native target based on CMAKE_SYSTEM_PROCESSOR
     if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|amd64|AMD64")
@@ -819,6 +825,24 @@ if(ENABLE_SQL_JIT)
 
     message(STATUS "LLVM native target: ${LLVM_NATIVE_TARGET}")
     message(STATUS "LLVM libraries: ${LLVM_LIBS}")
+endif()
+
+if(ENABLE_SQL_CNP)
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|amd64|AMD64|i.86|x86")
+        llvm_map_components_to_libnames(LLVM_CNP_LIBS
+            MCDisassembler
+            MC
+            X86
+            Support
+        )
+        message(STATUS "LLVM CnP disassembler target: X86")
+        message(STATUS
+            "LLVM CnP disassembler libraries: ${LLVM_CNP_LIBS}")
+    else()
+        set(LLVM_CNP_LIBS "")
+        message(STATUS
+            "LLVM CnP disassembler is only wired for X86 in this build")
+    endif()
 endif()
 
 add_subdirectory(src)

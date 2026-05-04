@@ -60,6 +60,8 @@ g.test_explain_bytecode_and_disassembly = function()
             {name = 'detail', type = 'text'},
         })
         t.assert_equals(disassemble.rows[1][1], 'disassembly')
+        t.assert_equals(disassemble.rows[1][2], 0)
+        t.assert_ge(disassemble.rows[#disassemble.rows][2], 0)
 
         local disassembly = {}
         for _, row in ipairs(disassemble.rows) do
@@ -70,14 +72,12 @@ g.test_explain_bytecode_and_disassembly = function()
         t.assert_gt(#disassembly, 3)
 
         local dump = table.concat(disassembly, '\n')
-        t.assert(
-            dump:find('push   rbp', 1, true) ~= nil or
-            dump:find('push   rax', 1, true) ~= nil
-        )
+        t.assert_str_contains(dump, 'movsxd   rax')
+        t.assert_str_contains(dump, 'push     rax')
         t.assert_str_contains(dump, 'ret')
         t.assert_not_str_contains(dump, 'file format elf64-x86-64')
         t.assert_not_str_contains(dump, 'Disassembly of section .text:')
-        t.assert_str_contains(dump, 'vdbe_cnp_stmt_')
+        t.assert_not_str_contains(dump, 'vdbe_cnp_stmt_')
 
         local combined = box.execute(
             [[EXPLAIN (bytecode=yes, disassemble=yes) SELECT 1 + 2 + 3;]]
