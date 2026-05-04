@@ -841,12 +841,14 @@ Two small runtime changes were enough:
 
 That matches the hot scan opcode order well:
 
-- `agg_scan` repeatedly fetches columns `1 -> 3 -> 2`;
-- `builtin_scan` repeatedly fetches `1 -> 2 -> 3 -> 4 -> 1`.
+- `agg_scan` now reaches columns as high as `12`, with repeated accesses to
+  later integer fields such as `j`, `h`, `i`, and `k`;
+- `builtin_scan` now reaches columns as high as `11`, mixing later text and
+  integer fields such as `s3`, `s4`, `n3`, `n4`, `s5`, and `s6`.
 
-The first visit to a row still decodes forward with `mp_next()`, but the common
-monotonic case avoids the extra "find nearest initialized slot" work before the
-walk.
+The first visit to a row still decodes forward with `mp_next()`, but with wider
+tuples and higher field indices the cached offsets now matter much more once the
+later fields in a row have already been visited.
 
 Focused rerun after the field-ref change (`BENCH_RUNS=3`, median per-op, lower
 is better):
@@ -1409,3 +1411,90 @@ The SQL validation pass after this change was clean too:
 - `sql`: **112 pass**, 6 disabled
 - `sql-tap`: **485 pass**, 45 disabled
 - `sql-luatest`: **48 pass**, 2 disabled
+
+### 10.11 Full matrix after widened scan benches
+
+After widening `agg_scan` and `builtin_scan` to reach later tuple fields, the
+full stock matrix was rerun with the existing driver
+(`run_benchmark_matrix.sh`, `BENCH_RUNS=3`). This is the ordinary
+result-materializing matrix over all default workloads, all three exposed cases
+(`prepare_only`, `prepared_execute`, `automatic_execute`), and all three SQL
+engines (`generated` interpreter, LLVM MCJIT, and CnP).
+
+Median per-op times from that rerun:
+
+| workload | prepare generated | prepare mcjit | prepare cnp | exec generated | exec mcjit | exec cnp |
+|---|---:|---:|---:|---:|---:|---:|
+| `tiny_const` | `2.894 us` | `2.841 us` | **`2.797 us`** | `1.032 us` | **`0.880 us`** | `0.929 us` |
+| `hot_expr` | `4.002 us` | **`3.358 us`** | `3.592 us` | `1.114 us` | `0.919 us` | **`0.909 us`** |
+| `point_lookup` | `17.661 us` | `13.226 us` | **`10.079 us`** | `3.128 us` | **`2.322 us`** | `2.425 us` |
+| `bitwise_mix` | `22.993 us` | **`21.068 us`** | `21.578 us` | `3.199 us` | `3.228 us` | **`3.161 us`** |
+| `agg_scan` | **`14.989 us`** | `15.642 us` | `15.235 us` | `36.308 us` | `40.526 us` | **`29.993 us`** |
+| `builtin_scan` | `24.852 us` | **`18.901 us`** | `28.235 us` | `111.925 us` | `111.257 us` | **`104.468 us`** |
+| `sort_window` | `21.155 us` | **`19.057 us`** | `20.504 us` | `82.893 us` | `80.423 us` | **`79.731 us`** |
+
+| workload | auto generated | auto mcjit | auto cnp |
+|---|---:|---:|---:|
+| `tiny_const` | `1.025 us` | **`0.901 us`** | `0.937 us` |
+| `hot_expr` | `1.347 us` | `1.188 us` | **`1.142 us`** |
+| `point_lookup` | **`2.323 us`** | `2.326 us` | `2.333 us` |
+| `bitwise_mix` | `3.287 us` | `3.442 us` | **`3.281 us`** |
+| `agg_scan` | `37.816 us` | `38.992 us` | **`30.707 us`** |
+| `builtin_scan` | `110.572 us` | `108.606 us` | **`100.137 us`** |
+| `sort_window` | `80.536 us` | **`76.483 us`** | `80.029 us` |
+
+The main takeaways from this rerun are:
+
+- the widened scan workloads still behave the way we care about most:
+  **CnP is clearly best on `agg_scan` and `builtin_scan` in both execute
+  cases**;
+- LLVM MCJIT still leads several prepare-heavy or tiny-expression cases;
+- `point_lookup` is no longer a meaningful blocker in execute mode:
+  `prepared_execute` is effectively `mcjit ~= interpreter ~= cnp`, and
+  `automatic_execute` is even tighter (`2.323 / 2.326 / 2.333 us`).
+
+That last point matters for interpreting the newer column-access work. The
+current `point_lookup` query still reads only one row and only the low-numbered
+fields `a`, `b`, and `c`:
+
+```sql
+SELECT a + b, a - b, a * c, a / b, a % b
+FROM bench_arith
+WHERE id = ?;
+```
+
+So execute time there is still dominated by the indexed lookup, arithmetic work,
+and result handling. It is not a workload where wider-row field-offset caching
+should be expected to dominate.
+
+### 10.12 Offset-slot instrumentation on widened scan tables
+
+The next hypothesis after widening the scan workloads was that later field
+indices might finally make tuple field-map / `offset_slot` hints visible enough
+to justify a narrower specialized helper.
+
+Before keeping such a helper, the runtime was instrumented to dump the live
+space format for the benchmark tables at space creation time. The result was
+unambiguous:
+
+- for `bench_arith`, fields `a..k` all keep
+  `offset_slot == TUPLE_OFFSET_SLOT_NIL`;
+- for `bench_text`, fields `s1..s6` and `n1..n4` all keep
+  `offset_slot == TUPLE_OFFSET_SLOT_NIL`;
+- after PK creation, only `id` becomes `is_key_part = 1`, but field `0` still
+  has no offset slot, which matches the tuple rule that the first field does not
+  store one.
+
+So the current widened scan benches do **not** actually exercise tuple field-map
+offset hints on the scanned columns. In other words, the existing scan wins are
+coming from the typed helper binding, CnP stitching, and `vdbe_field_ref`
+offset-cache reuse inside the row walk — **not** from `offset_slot` metadata.
+
+That also explains why the temporary `offset_slot`-specialized helper did not
+produce a trustworthy win: for the current benchmark schema it had no real hint
+coverage to exploit.
+
+The next benchmark step, if we want to evaluate hint-aware column helpers
+seriously, is to make the scan tables contain at least one **non-leading indexed
+field** among the scanned columns, so the tuple format actually allocates real
+`offset_slot` entries for the hot fields.
