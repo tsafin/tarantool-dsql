@@ -1809,15 +1809,15 @@ cnp_select_column_handler(const struct Vdbe *p, int pc)
 		return (uintptr_t)vdbe_op_column;
 	switch (space->def->fields[op->p2].type) {
 	case FIELD_TYPE_UNSIGNED:
-		return (uintptr_t)vdbe_op_column_unsigned_fast;
+		return (uintptr_t)vdbe_op_column_unsigned_exact_fast;
 	case FIELD_TYPE_STRING:
-		return (uintptr_t)vdbe_op_column_string_fast;
+		return (uintptr_t)vdbe_op_column_string_exact_fast;
 	case FIELD_TYPE_DOUBLE:
-		return (uintptr_t)vdbe_op_column_double_fast;
+		return (uintptr_t)vdbe_op_column_double_exact_fast;
 	case FIELD_TYPE_INTEGER:
-		return (uintptr_t)vdbe_op_column_integer_fast;
+		return (uintptr_t)vdbe_op_column_integer_exact_fast;
 	case FIELD_TYPE_BOOLEAN:
-		return (uintptr_t)vdbe_op_column_boolean_fast;
+		return (uintptr_t)vdbe_op_column_boolean_exact_fast;
 	default:
 		return (uintptr_t)vdbe_op_column;
 	}

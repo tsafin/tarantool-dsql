@@ -85,6 +85,11 @@ int vdbe_op_column_string_fast(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_column_double_fast(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_column_integer_fast(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_column_boolean_fast(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_column_unsigned_exact_fast(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_column_string_exact_fast(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_column_double_exact_fast(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_column_integer_exact_fast(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_column_boolean_exact_fast(Vdbe *p, Op *pOp, Mem *aMem);
 int SQL_PRESERVE_NONE vdbe_op_rowdata(Vdbe *p, Op *pOp, Mem *aMem);
 /* Cursor navigation opcodes */
 int vdbe_op_last(Vdbe *p, Op *pOp, Mem *aMem);
