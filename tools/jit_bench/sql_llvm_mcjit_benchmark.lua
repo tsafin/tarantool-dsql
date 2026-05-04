@@ -167,12 +167,31 @@ local function setup_point_lookup()
             id INTEGER PRIMARY KEY,
             a INTEGER,
             b INTEGER,
-            c INTEGER
+            c INTEGER,
+            d INTEGER,
+            e INTEGER,
+            f INTEGER,
+            g INTEGER,
+            h INTEGER,
+            i INTEGER,
+            j INTEGER,
+            k INTEGER
         );
     ]])
     for i = 1, 1024 do
-        box.execute('INSERT INTO bench_arith VALUES (?, ?, ?, ?);',
-                    {i, i * 10, i * 5 + 1, i * 2 + 1})
+        local a = i * 10
+        local b = i * 5 + 1
+        local c = i * 2 + 1
+        local d = i * 3 + 7
+        local e = i * 4 + 9
+        local f = i * 6 + 11
+        local g = i * 8 + 13
+        local h = i * 9 + 15
+        local ii = i * 11 + 17
+        local j = i * 12 + 19
+        local k = i * 14 + 23
+        box.execute('INSERT INTO bench_arith VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
+                    {i, a, b, c, d, e, f, g, h, ii, j, k})
     end
 end
 
@@ -196,10 +215,17 @@ local function setup_agg_scan()
             local a = i * 10
             local b = i * 5 + 1
             local c = i * 2 + 1
-            sum1 = sum1 + (a * c + b)
-            sum2 = sum2 + ((a - b) * (c + 1))
+            local d = i * 3 + 7
+            local e = i * 4 + 9
+            local g = i * 8 + 13
+            local h = i * 9 + 15
+            local ii = i * 11 + 17
+            local j = i * 12 + 19
+            local k = i * 14 + 23
+            sum1 = sum1 + (a * j + h - e)
+            sum2 = sum2 + ((g - b) * (ii + 1) + d)
             cnt = cnt + 1
-            local mod = a % 97
+            local mod = k % 97
             if max_mod == nil or mod > max_mod then
                 max_mod = mod
             end
@@ -223,7 +249,13 @@ local function setup_builtin_scan()
             s1 STRING,
             s2 STRING,
             n1 INTEGER,
-            n2 INTEGER
+            n2 INTEGER,
+            s3 STRING,
+            s4 STRING,
+            n3 INTEGER,
+            n4 INTEGER,
+            s5 STRING,
+            s6 STRING
         );
     ]])
 
@@ -234,9 +266,18 @@ local function setup_builtin_scan()
         local s2 = string.format('alpha-%d-zeta-%d', i % 17, i % 5)
         local n1 = i * 13
         local n2 = i * 7 + 3
-        box.execute('INSERT INTO bench_text VALUES (?, ?, ?, ?, ?);',
-                    {i, s1, s2, n1, n2})
-        rows[i] = {s1 = s1, s2 = s2, n1 = n1, n2 = n2}
+        local s3 = string.format('gamma-%04d-theta-%d', i, i % 13)
+        local s4 = string.format('omega-%d-sigma-%04d', i % 19, i)
+        local n3 = i * 5 + 21
+        local n4 = i * 9 + 29
+        local s5 = string.format('lambda-%d-kappa-%d', i % 23, i % 7)
+        local s6 = string.format('phi-%04d-rho-%d', i, i % 3)
+        box.execute('INSERT INTO bench_text VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
+                    {i, s1, s2, n1, n2, s3, s4, n3, n4, s5, s6})
+        rows[i] = {
+            s1 = s1, s2 = s2, n1 = n1, n2 = n2,
+            s3 = s3, s4 = s4, n3 = n3, n4 = n4, s5 = s5, s6 = s6,
+        }
     end
 
     local window = 128
@@ -245,10 +286,12 @@ local function setup_builtin_scan()
         local finish_id = math.min(start_id + window - 1, 2048)
         for i = start_id, finish_id do
             local row = rows[i]
-            total = total + #string.sub(row.s1, 2, 6) +
-                    #string.upper(row.s2) +
-                    math.abs(row.n1 - row.n2) +
-                    #string.lower(row.s1)
+            total = total + #string.sub(row.s3, 2, 6) +
+                    #string.upper(row.s4) +
+                    math.abs(row.n3 - row.n4) +
+                    #string.lower(row.s5) +
+                    #string.sub(row.s6, 3, 8) +
+                    math.abs(row.n1 - row.n2)
         end
         builtin_scan_expected[start_id] = total
     end
@@ -387,7 +430,10 @@ local workloads = {
         name = 'agg_scan',
         description = 'Indexed range aggregation with arithmetic work',
         sql = [[
-            SELECT sum(a * c + b), sum((a - b) * (c + 1)), count(*), max(a % 97)
+            SELECT sum(a * j + h - e),
+                   sum((g - b) * (i + 1) + d),
+                   count(*),
+                   max(k % 97)
             FROM bench_arith
             WHERE id BETWEEN ? AND ?;
         ]],
@@ -410,8 +456,9 @@ local workloads = {
         name = 'builtin_scan',
         description = 'Indexed range text builtin scan with aggregation',
         sql = [[
-            SELECT sum(length(substr(s1, 2, 5)) + length(upper(s2)) +
-                       abs(n1 - n2) + length(lower(s1)))
+            SELECT sum(length(substr(s3, 2, 5)) + length(upper(s4)) +
+                       abs(n3 - n4) + length(lower(s5)) +
+                       length(substr(s6, 3, 6)) + abs(n1 - n2))
             FROM bench_text
             WHERE id BETWEEN ? AND ?;
         ]],
