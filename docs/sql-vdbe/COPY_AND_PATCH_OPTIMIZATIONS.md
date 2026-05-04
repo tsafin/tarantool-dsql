@@ -565,6 +565,203 @@ This changes the optimization priority for scan-heavy paths:
 - generic fallthrough fusion should only return once it preserves internal cold
   branches and late register restores in complex fragments such as `ApplyType`.
 
+2026-05-05 follow-up:
+
+- the scan-loop `JUMP_P2` transfer rewrite now matches the extracted fragment
+  tail shape (`pop r64; jmp *%rax`) and updates the fragment `pOp` live-in
+  before jumping to the stitched target;
+- focused reruns moved `agg_scan/prepared_execute` to `22.161 us`
+  (generated `30.129 us`, LLVM MCJIT `27.689 us`) and
+  `builtin_scan/prepared_execute` to `79.892 us`
+  (generated `90.601 us`, LLVM MCJIT `85.464 us`);
+- after that pass, `perf_jit.sh` on `agg_scan/prepared_execute` points first at
+  `vdbe_op_column_typed_fast()` and the `vdbe_field_ref_*()` helpers, with
+  `AggStep` / `AggFinal` no longer the first item to inline.
+
+### 10.4.1 What the scan-loop `JUMP_P2` rewrite actually means
+
+This subsection is intentionally written for an external reader who is learning
+how the stitched CnP fragments work.
+
+#### The high-level idea
+
+Some VDBE opcodes have a conditional control-flow shape:
+
+- if the condition is true, jump to bytecode address `P2`;
+- otherwise continue with the next opcode.
+
+In the interpreter this is expressed with the familiar `JUMP_P2()` macro. In
+the fragment pipeline, those opcodes are tagged as `CNP_FRAG_JUMP_P2`.
+
+Before the recent scan-loop rewrite, even a *known* scan-loop branch still ended
+with a generic "find the next fragment in the dispatch table" sequence. The
+branch target itself was known at compile time, but the native code still did a
+table lookup at runtime.
+
+The rewrite changes only that last transfer step:
+
+1. keep the handler logic exactly as before;
+2. keep row / done / error exits explicit as before;
+3. replace the generic dispatch-table lookup on the hot taken/fallthrough paths
+   with a direct jump to the already-known stitched fragment;
+4. explicitly restore the fragment live-in `r14 = pOp` before that direct jump.
+
+So the rewrite is **not** "new SQL semantics". It is only a cheaper native
+handoff between already-correct fragment bodies.
+
+#### The two important live-ins
+
+For the samples below, the important registers are:
+
+- `r13 = aOp` — pointer to the first VDBE opcode;
+- `r14 = pOp` — pointer to the current VDBE opcode.
+
+When a fragment jumps to another fragment, the target fragment expects `r14` to
+already point at the correct `VdbeOp`. That is why the rewrite is not just
+"jump to a label": it also has to preserve the `pOp` live-in contract.
+
+#### Old shape: explicit dispatch-table lookup
+
+Here is the current disassembly shape of an **unrewritten** `OP_Init` transfer
+from `EXPLAIN (disassemble=yes)`. `OP_Init` is useful as a teaching example
+because it still shows the old generic `JUMP_P2` pattern clearly:
+
+```asm
+movsxd   rax, dword ptr [r14 + 8]      ; load P2
+lea      rcx, [rax + 2*rax]
+lea      r14, [8*rcx]
+add      r14, r13                      ; r14 = &aOp[P2]
+movabs   rcx, <cnp_frag_dispatch_table>
+mov      rcx, qword ptr [rcx]
+mov      rax, qword ptr [rcx + 8*rax]  ; load fragment entry for opcode P2
+jmp      rax
+```
+
+What this means:
+
+1. Load `P2` from the current opcode.
+2. Convert that opcode index into a `VdbeOp *` and place it in `r14`.
+3. Use the dispatch table to map bytecode PC -> fragment entry address.
+4. Jump indirectly through that table entry.
+
+It works, but the last two memory-dependent steps are unnecessary when the
+compiler already knows the exact stitched target fragment.
+
+#### Rewritten taken branch: direct `P2` handoff
+
+Now compare that with the **rewritten** taken branch from a scan-loop
+`OP_SeekGE` fragment in the same kind of `EXPLAIN (disassemble=yes)` output:
+
+```asm
+call     <vdbe_op_seekge>
+cmp      eax, 1
+jne      L01ad
+
+movsxd   rax, dword ptr [r14 + 8]      ; P2
+lea      rcx, [rax + 2*rax]
+lea      r14, [8*rcx]
+add      r14, r13                      ; logical target is &aOp[P2]
+
+movabs   r14, <known VdbeOp* for P2>   ; restate pOp live-in explicitly
+pop      rcx
+jmp      L1454                         ; jump directly to stitched target
+```
+
+What changed:
+
+- there is **no dispatch-table load**;
+- there is **no indirect `jmp *table[index]`**;
+- the branch jumps straight to the already-stitched native block for the `P2`
+  target;
+- immediately before that jump, the patched block writes the target `pOp`
+  value into `r14`, so the next fragment sees the exact live-in it expects.
+
+The `movabs r14, <known VdbeOp*>` may look redundant because the original code
+has just computed `&aOp[P2]`. That redundancy is acceptable here: the goal of
+this patch is a small, explicit, obviously-correct transfer block. The constant
+write makes the target fragment contract visible in one place.
+
+#### Rewritten fallthrough side: direct "next opcode" handoff
+
+The same `OP_SeekGE` fragment also has a fallthrough path when the branch is not
+taken. Before rewriting, the fallthrough side used the same generic lookup shape
+as any other fragment:
+
+```asm
+add      r14, 24
+movabs   rax, <cnp_frag_dispatch_table>
+mov      rax, qword ptr [rax]
+mov      rcx, r14
+sub      rcx, r13
+movabs   rdx, -6148914691236517205
+imul     rdx, rcx                      ; strength-reduced divide by sizeof(Op)=24
+mov      rax, qword ptr [rax + rdx]
+pop      rcx
+jmp      rax
+```
+
+After rewriting, the same fallthrough becomes:
+
+```asm
+test     eax, eax
+js       L01dd
+add      r14, 24
+movabs   r14, <known VdbeOp* for pc + 1>
+pop      rcx
+jmp      L01e6
+```
+
+So the native code now says, in effect:
+
+- "the next bytecode opcode is known to be `pc + 1`";
+- "the next stitched native block is known to be `L01e6`";
+- "set `r14` to the matching `VdbeOp *` and jump there directly".
+
+That is the whole rewrite in one sentence: **replace "look up where to go" with
+"we already know where to go"**.
+
+#### Why this is safe for scan loops but not yet for everything
+
+This pass was intentionally restricted to scan-loop `CNP_FRAG_JUMP_P2` opcodes:
+
+- `Rewind`
+- `SeekGE`, `SeekLE`, `SeekLT`, `SeekGT`
+- `IdxLE`, `IdxGT`, `IdxGE`, `IdxLT`
+- `Next`
+
+Those fragments have a simple enough transfer shape that the patcher can safely
+rewrite the hot taken/fallthrough exits without disturbing cold error branches
+or hidden register-restore work.
+
+That restriction matters because earlier generic fallthrough rewriting attempts
+ran into exactly those problems in more complex fragments such as `ApplyType`.
+
+#### What to look for in future disassembly
+
+When reading a CnP `EXPLAIN (disassemble=yes)` listing, a scan-loop
+`JUMP_P2` rewrite is visible when you see this pattern near a branch exit:
+
+```asm
+movabs   r14, <some constant>
+pop      rcx
+jmp      L....
+```
+
+and do **not** see the old table-based tail:
+
+```asm
+movabs   rax/rcx, <cnp_frag_dispatch_table>
+...
+mov      rax, qword ptr [table + index]
+jmp      rax
+```
+
+One final note for students: the absolute addresses and local labels in these
+samples change from run to run. The stable part is the **shape**:
+
+- old shape = compute target PC -> consult dispatch table -> indirect jump;
+- new shape = set `r14 = target pOp` -> direct jump to the stitched fragment.
+
 ### 10.5 Typed scan helper binding in CnP fragments
 
 The next step after the safe scan baseline was **not** another fallthrough-tail

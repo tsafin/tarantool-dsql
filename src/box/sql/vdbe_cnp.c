@@ -79,6 +79,8 @@ _Static_assert(offsetof(struct Vdbe, iCompare) ==
 enum {
 	X86_MOVABS_RAX_PREFIX_0 = 0x48,
 	X86_MOVABS_RAX_PREFIX_1 = 0xB8,
+	X86_MOVABS_R14_PREFIX_0 = 0x49,
+	X86_MOVABS_R14_PREFIX_1 = 0xBE,
 	X86_CALL_REL32_OPCODE = 0xE8,
 	X86_JMP_REL32_OPCODE = 0xE9,
 	X86_JCC_REL32_PREFIX = 0x0F,
@@ -86,12 +88,15 @@ enum {
 	X86_JCC_REL32_MAX_OPCODE = 0x8F,
 	X86_JMP_RAX_OPCODE_0 = 0xFF,
 	X86_JMP_RAX_OPCODE_1 = 0xE0,
-	X86_POP_RBP_OPCODE = 0x5D,
+	X86_POP_R64_MIN_OPCODE = 0x58,
+	X86_POP_R64_MAX_OPCODE = 0x5F,
 	X86_NOP_OPCODE = 0x90,
 };
 
 enum {
 	X86_MOVABS_RAX_SIZE = 10,
+	X86_MOVABS_R14_SIZE = 10,
+	X86_JMP_REL32_SIZE = 5,
 	X86_JMP_RAX_SIZE = 2,
 };
 
@@ -1481,6 +1486,31 @@ cnp_emit_movabs_rax(uint8_t *dst, uint64_t value)
 	memcpy(dst + 2, &value, sizeof(value));
 }
 
+static inline void
+cnp_emit_movabs_r14(uint8_t *dst, uint64_t value)
+{
+	dst[0] = X86_MOVABS_R14_PREFIX_0;
+	dst[1] = X86_MOVABS_R14_PREFIX_1;
+	memcpy(dst + 2, &value, sizeof(value));
+}
+
+static inline bool
+cnp_can_emit_rel32_jump(uint8_t *jmp_insn, uintptr_t target)
+{
+	int64_t delta = (int64_t)target -
+			(int64_t)(uintptr_t)(jmp_insn + X86_JMP_REL32_SIZE);
+	return delta >= INT32_MIN && delta <= INT32_MAX;
+}
+
+static inline void
+cnp_emit_jmp_rel32(uint8_t *dst, uintptr_t target)
+{
+	dst[0] = X86_JMP_REL32_OPCODE;
+	int32_t delta = (int32_t)((int64_t)target -
+				 (int64_t)(uintptr_t)(dst + X86_JMP_REL32_SIZE));
+	memcpy(dst + 1, &delta, sizeof(delta));
+}
+
 static void
 cnp_emit_abs_jmp_thunk(uint8_t *dst, uintptr_t target)
 {
@@ -2362,7 +2392,8 @@ cnp_reloc_needs_thunk(const uint8_t *code, size_t size, uint32_t offset,
 
 static bool
 cnp_fragment_find_dispatch_block(const struct cnp_fragment *frag, int dispatch_idx,
-				 uint32_t *block_start, uint32_t *block_end)
+				 uint32_t *block_start, uint32_t *block_end,
+				 uint8_t *pop_opcode)
 {
 	int dispatch_seen = 0;
 	for (uint32_t i = 0; i < frag->num_relocs; i++) {
@@ -2382,11 +2413,13 @@ cnp_fragment_find_dispatch_block(const struct cnp_fragment *frag, int dispatch_i
 		    movabs < 0xB8 || movabs > 0xBF)
 			return false;
 		for (uint32_t j = rel->offset + 8; j + 2 < frag->size; j++) {
-			if (frag->bytes[j] == X86_POP_RBP_OPCODE &&
+			if (frag->bytes[j] >= X86_POP_R64_MIN_OPCODE &&
+			    frag->bytes[j] <= X86_POP_R64_MAX_OPCODE &&
 			    frag->bytes[j + 1] == X86_JMP_RAX_OPCODE_0 &&
 			    frag->bytes[j + 2] == X86_JMP_RAX_OPCODE_1) {
 				*block_start = start;
 				*block_end = j + 3;
+				*pop_opcode = frag->bytes[j];
 				return true;
 			}
 		}
@@ -2397,17 +2430,58 @@ cnp_fragment_find_dispatch_block(const struct cnp_fragment *frag, int dispatch_i
 
 static bool
 cnp_fragment_patch_direct_jump(uint8_t *frag_code, uint32_t block_start,
-			       uint32_t block_end, uintptr_t target)
+			       uint32_t block_end, uint8_t pop_opcode,
+			       uintptr_t next_pOp, uintptr_t target)
 {
 	uint32_t block_len = block_end - block_start;
-	if (block_len < X86_MOVABS_RAX_SIZE + 3)
-		return false;
 	memset(frag_code + block_start, X86_NOP_OPCODE, block_len);
-	cnp_emit_movabs_rax(frag_code + block_start, target);
-	frag_code[block_start + X86_MOVABS_RAX_SIZE] = X86_POP_RBP_OPCODE;
-	frag_code[block_start + X86_MOVABS_RAX_SIZE + 1] = X86_JMP_RAX_OPCODE_0;
-	frag_code[block_start + X86_MOVABS_RAX_SIZE + 2] = X86_JMP_RAX_OPCODE_1;
+
+	uint32_t pos = block_start;
+	if (next_pOp != 0) {
+		if (block_len < X86_MOVABS_R14_SIZE + 1 + X86_JMP_REL32_SIZE &&
+		    block_len < X86_MOVABS_R14_SIZE + X86_MOVABS_RAX_SIZE + 1 +
+				X86_JMP_RAX_SIZE)
+			return false;
+		cnp_emit_movabs_r14(frag_code + pos, next_pOp);
+		pos += X86_MOVABS_R14_SIZE;
+	}
+
+	if (pos + 1 + X86_JMP_REL32_SIZE <= block_start + block_len &&
+	    cnp_can_emit_rel32_jump(frag_code + pos + 1, target)) {
+		frag_code[pos] = pop_opcode;
+		cnp_emit_jmp_rel32(frag_code + pos + 1, target);
+		return true;
+	}
+
+	if (pos + X86_MOVABS_RAX_SIZE + 1 + X86_JMP_RAX_SIZE >
+	    block_start + block_len)
+		return false;
+	cnp_emit_movabs_rax(frag_code + pos, target);
+	pos += X86_MOVABS_RAX_SIZE;
+	frag_code[pos++] = pop_opcode;
+	frag_code[pos++] = X86_JMP_RAX_OPCODE_0;
+	frag_code[pos++] = X86_JMP_RAX_OPCODE_1;
 	return true;
+}
+
+static bool
+cnp_fragment_opcode_allows_jump_p2_patch(const struct Vdbe *p, int pc)
+{
+	switch (p->aOp[pc].opcode) {
+	case OP_Rewind:
+	case OP_SeekGE:
+	case OP_SeekLE:
+	case OP_SeekLT:
+	case OP_SeekGT:
+	case OP_IdxLE:
+	case OP_IdxGT:
+	case OP_IdxGE:
+	case OP_IdxLT:
+	case OP_Next:
+		return true;
+	default:
+		return false;
+	}
 }
 
 static void
@@ -2419,21 +2493,32 @@ cnp_fragment_patch_jump_p2_transfers(uint8_t *frag_code,
 	if (frag->kind != CNP_FRAG_JUMP_P2 || !frag->tail_fallthrough)
 		return;
 	uint32_t jump_start, jump_end, fall_start, fall_end;
-	if (!cnp_fragment_find_dispatch_block(frag, 0, &jump_start, &jump_end) ||
-	    !cnp_fragment_find_dispatch_block(frag, 1, &fall_start, &fall_end))
+	uint8_t jump_pop, fall_pop;
+	if (!cnp_fragment_opcode_allows_jump_p2_patch(p, pc))
+		return;
+	if (!cnp_fragment_find_dispatch_block(frag, 0, &jump_start, &jump_end,
+					      &jump_pop) ||
+	    !cnp_fragment_find_dispatch_block(frag, 1, &fall_start, &fall_end,
+					      &fall_pop))
 		return;
 	int jump_pc = p->aOp[pc].p2;
 	void *jump_target = (jump_pc >= 0 && jump_pc < p->nOp) ?
 			    pc_stencil[jump_pc] :
 			    pc_stencil[p->nOp + 1];
 	void *fall_target = (pc + 1 < p->nOp) ? pc_stencil[pc + 1] :
-			   pc_stencil[p->nOp + 1];
+			   pc_stencil[p->nOp];
 	if (jump_target == NULL || fall_target == NULL)
 		return;
+	uintptr_t jump_pOp = (jump_pc >= 0 && jump_pc <= p->nOp) ?
+			     (uintptr_t)&p->aOp[jump_pc] : 0;
+	uintptr_t fall_pOp = (uintptr_t)&p->aOp[(pc + 1 <= p->nOp) ? pc + 1 :
+						      p->nOp];
 	if (!cnp_fragment_patch_direct_jump(frag_code, jump_start, jump_end,
+					    jump_pop, jump_pOp,
 					    (uintptr_t)jump_target))
 		return;
 	(void)cnp_fragment_patch_direct_jump(frag_code, fall_start, fall_end,
+					     fall_pop, fall_pOp,
 					     (uintptr_t)fall_target);
 }
 
@@ -2471,13 +2556,18 @@ cnp_fragment_patch_fallthrough_transfer(uint8_t *frag_code,
 	    !cnp_fragment_opcode_allows_fallthrough_patch(p, pc))
 		return;
 	uint32_t fall_start, fall_end;
-	if (!cnp_fragment_find_dispatch_block(frag, 0, &fall_start, &fall_end))
+	uint8_t fall_pop;
+	if (!cnp_fragment_find_dispatch_block(frag, 0, &fall_start, &fall_end,
+					      &fall_pop))
 		return;
 	void *fall_target = (pc + 1 < p->nOp) ? pc_stencil[pc + 1] :
 			   pc_stencil[p->nOp];
 	if (fall_target == NULL)
 		return;
 	(void)cnp_fragment_patch_direct_jump(frag_code, fall_start, fall_end,
+					     fall_pop,
+					     (uintptr_t)&p->aOp[(pc + 1 <= p->nOp) ?
+							      pc + 1 : p->nOp],
 					     (uintptr_t)fall_target);
 }
 
