@@ -880,8 +880,58 @@ So the current scan picture is:
 - typed helper binding removed the generic materialize/cast overhead;
 - this field-ref pass trimmed the remaining tuple-slot traversal cost;
 - the next scan work, if any, should be even narrower (for example more
-  specialized typed `OP_Column` helpers), not a return to risky generic tail
-  fusion.
+   specialized typed `OP_Column` helpers), not a return to risky generic tail
+   fusion.
+
+### 10.6.1 Exact typed `OP_Column` helpers for resolved scan cursors
+
+After the scan-loop `JUMP_P2` rewrite, the hottest helper in focused discard-mode
+profiles was still `vdbe_op_column_typed_fast()`. At that point the branch
+already knew the `OpenSpace -> IteratorOpen -> Column` mapping for the hot scan
+statements, so the remaining generic type recheck inside that helper had become
+mostly redundant work.
+
+The follow-up pass keeps the existing typed binding logic, but makes the CnP
+binding one step narrower:
+
+1. when `cnp_select_column_handler()` resolves a stable Tarantool cursor and an
+   exact schema type, it now binds an `*_exact_fast` helper instead of the older
+   generic typed helper;
+2. that exact helper still preserves the same observable behavior, but it skips
+   the per-call schema-type equality branch and inlines the local
+   `vdbe_field_ref_fetch_data()` walk into the same translation unit.
+
+This is intentionally a small execute-path cleanup rather than a new fragment
+control-flow experiment. The fragment ABI, relocations, and stitched transfer
+logic stay unchanged.
+
+Focused discard-mode reruns after the exact-helper change (`BENCH_RUNS=5`,
+prepared execute only, lower is better):
+
+| workload | generated | LLVM MCJIT | CnP exact column |
+|---|---:|---:|---:|
+| `agg_scan/prepared_execute` | `25.181 us` | `24.543 us` | **`21.184 us`** |
+| `builtin_scan/prepared_execute` | `96.185 us` | `85.645 us` | **`77.579 us`** |
+
+Against the previous post-`JUMP_P2` CnP baseline:
+
+- `agg_scan`: `22.161 us` -> `21.184 us` (**4.4% faster**).
+- `builtin_scan`: `79.892 us` -> `77.579 us` (**2.9% faster**).
+
+The perf follow-up on `agg_scan/prepared_execute` also shifts in the expected
+direction:
+
+- the old `vdbe_op_column_typed_fast()` hotspot becomes
+  `vdbe_op_column_typed_exact_fast()` instead;
+- standalone `vdbe_field_ref_fetch_data()` no longer appears as a top symbol,
+  which is exactly what we wanted from this first-level helper inlining pass;
+- the remaining visible field-ref cost is now mostly
+  `vdbe_field_ref_prepare_tuple()` plus a smaller `vdbe_field_ref_fetch_field()`
+  / `tuple_field()` share.
+
+So the next scan step is narrower again: not more control-flow work, and not a
+return to generic `OP_Column`, but reducing the remaining tuple-backed metadata
+and field-descriptor overhead around the exact typed helper path.
 
 ### 10.7 Discard-results benchmark mode
 
