@@ -264,7 +264,7 @@ endif()
 if(ENABLE_SQL_CNP)
     # Require clang-19+ for preserve_none-based CnP compilation
     unset(CLANG_CNP CACHE)
-    find_program(CLANG_CNP NAMES clang clang-19 clang-20 clang-21 clang-22)
+    find_program(CLANG_CNP NAMES clang-19 clang-20 clang-21 clang-22 clang)
     if(NOT CLANG_CNP)
         message(FATAL_ERROR "ENABLE_SQL_CNP requires clang-19+")
     endif()
