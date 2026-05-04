@@ -2865,7 +2865,8 @@ mem_cast_implicit_unsigned_fast(struct Mem *mem, enum field_type type)
 {
 	if (mem->type == MEM_TYPE_NULL || type == field_type_MAX)
 		return 0;
-	if (type == FIELD_TYPE_UNSIGNED && mem->type == MEM_TYPE_UINT) {
+	if (!mem_is_metatype(mem) && type == FIELD_TYPE_UNSIGNED &&
+	    mem->type == MEM_TYPE_UINT) {
 		mem->flags = 0;
 		return 0;
 	}
@@ -2877,7 +2878,8 @@ mem_cast_implicit_string_fast(struct Mem *mem, enum field_type type)
 {
 	if (mem->type == MEM_TYPE_NULL || type == field_type_MAX)
 		return 0;
-	if (type == FIELD_TYPE_STRING && mem->type == MEM_TYPE_STR) {
+	if (!mem_is_metatype(mem) && type == FIELD_TYPE_STRING &&
+	    mem->type == MEM_TYPE_STR) {
 		mem->flags &= ~(MEM_Scalar | MEM_Any);
 		return 0;
 	}
@@ -2889,7 +2891,8 @@ mem_cast_implicit_double_fast(struct Mem *mem, enum field_type type)
 {
 	if (mem->type == MEM_TYPE_NULL || type == field_type_MAX)
 		return 0;
-	if (type == FIELD_TYPE_DOUBLE && mem->type == MEM_TYPE_DOUBLE) {
+	if (!mem_is_metatype(mem) && type == FIELD_TYPE_DOUBLE &&
+	    mem->type == MEM_TYPE_DOUBLE) {
 		mem->flags = 0;
 		return 0;
 	}
@@ -2901,7 +2904,7 @@ mem_cast_implicit_integer_fast(struct Mem *mem, enum field_type type)
 {
 	if (mem->type == MEM_TYPE_NULL || type == field_type_MAX)
 		return 0;
-	if (type == FIELD_TYPE_INTEGER &&
+	if (!mem_is_metatype(mem) && type == FIELD_TYPE_INTEGER &&
 	    (mem->type & (MEM_TYPE_INT | MEM_TYPE_UINT)) != 0) {
 		mem->flags = 0;
 		return 0;
@@ -2914,7 +2917,8 @@ mem_cast_implicit_boolean_fast(struct Mem *mem, enum field_type type)
 {
 	if (mem->type == MEM_TYPE_NULL || type == field_type_MAX)
 		return 0;
-	if (type == FIELD_TYPE_BOOLEAN && mem->type == MEM_TYPE_BOOL) {
+	if (!mem_is_metatype(mem) && type == FIELD_TYPE_BOOLEAN &&
+	    mem->type == MEM_TYPE_BOOL) {
 		mem->flags = 0;
 		return 0;
 	}
@@ -2926,7 +2930,8 @@ mem_cast_implicit_number_fast(struct Mem *mem, enum field_type type)
 {
 	if (mem->type == MEM_TYPE_NULL || type == field_type_MAX)
 		return 0;
-	if (type == FIELD_TYPE_NUMBER && mem_is_num(mem)) {
+	if (!mem_is_metatype(mem) && type == FIELD_TYPE_NUMBER &&
+	    mem_is_num(mem)) {
 		mem->flags = MEM_Number;
 		return 0;
 	}

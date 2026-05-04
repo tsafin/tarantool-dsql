@@ -466,8 +466,10 @@ vdbe_op_count_inline(Vdbe *p, Op *pOp, Mem *aMem)
 	/* Get record count based on cursor type */
 	if (pCrsr->curFlags & BTCF_TaCursor) {
 		nEntry = tarantoolsqlCount(pCrsr);
+	} else if (pCrsr->curFlags & BTCF_TEphemCursor) {
+		nEntry = tarantoolsqlEphemeralCount(pCrsr);
 	} else {
-		nEntry = 0;
+		return -1;
 	}
 
 	/* Store the count in output register P2 */

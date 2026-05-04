@@ -47,6 +47,10 @@ struct CnpStubOp {
 
 int vdbe_cnp_setdiag_handler(struct Vdbe *p, struct VdbeOp *pOp,
 			     struct Mem *aMem);
+int vdbe_cnp_init_handler(struct Vdbe *p, struct VdbeOp *pOp,
+			  struct Mem *aMem);
+int vdbe_cnp_halt_handler(struct Vdbe *p, struct VdbeOp *pOp,
+			  struct Mem *aMem);
 #endif
 #include "mem.h"
 #include "vdbe_helpers.h"
@@ -534,8 +538,12 @@ vdbe_op_makerecord_sysv_bridge(Vdbe *p, Op *pOp, Mem *aMem)
 VDBE_CNP_INLINE int
 vdbe_op_mustbeint_sysv_bridge(Vdbe *p, Op *pOp, Mem *aMem)
 {
-	vdbe_cnp_sysv_op3_f fn = (vdbe_cnp_sysv_op3_f)(uintptr_t)vdbe_op_mustbeint;
-	return fn(p, pOp, aMem);
+	/*
+	 * MustBeInt is tiny and self-contained, so keep the fragment on the
+	 * inline implementation path instead of bouncing through the preserve_none
+	 * wrapper. That avoids ABI-sensitive mismatches on the error branch.
+	 */
+	return vdbe_op_mustbeint_impl(p, pOp, aMem);
 }
 
 VDBE_CNP_INLINE int

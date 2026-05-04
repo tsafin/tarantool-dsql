@@ -278,8 +278,7 @@ int
 sql_vdbe_prepare(struct Vdbe *vdbe)
 {
 	assert(vdbe != NULL);
-	struct txn *txn = in_txn();
-	vdbe->auto_commit = txn == NULL;
+	vdbe->auto_commit = in_txn() == NULL;
 	return 0;
 }
 

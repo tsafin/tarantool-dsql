@@ -1046,7 +1046,6 @@ cnp_fragment_enter(void *target, struct Vdbe *p, VdbeOp *aOp, VdbeOp *pOp,
 }
 #endif
 
-#if SQL_VDBE_OP_PROFILE
 static int
 cnp_find_pc_for_func(struct Vdbe *p, cnp_stencil_func_t func)
 {
@@ -1057,7 +1056,6 @@ cnp_find_pc_for_func(struct Vdbe *p, cnp_stencil_func_t func)
 	}
 	return -1;
 }
-#endif
 
 /*
  * Threshold: return values below this are status/PC codes, not addresses.
@@ -1095,7 +1093,6 @@ cnp_frag_terminal_row(struct Vdbe *p, VdbeOp *aOp, VdbeOp *pOp, Mem *aMem)
 static int64_t __attribute__((preserve_none))
 cnp_frag_terminal_done(struct Vdbe *p, VdbeOp *aOp, VdbeOp *pOp, Mem *aMem)
 {
-	(void)p;
 	(void)aOp;
 	(void)pOp;
 	(void)aMem;
@@ -1142,6 +1139,7 @@ static int
 vdbe_cnp_halt_handler(struct Vdbe *p, struct VdbeOp *pOp, struct Mem *aMem)
 {
 	(void)aMem;
+	p->pc = (int)(pOp - p->aOp);
 	if (pOp->p1 != 0)
 		p->is_aborted = true;
 	p->errorAction = (uint8_t)pOp->p2;
@@ -1656,6 +1654,10 @@ cnp_resolve_fragment_symbol(const char *name)
 		return (uintptr_t)vdbe_op_shiftleft_imm2_fast;
 	if (strcmp(name, "vdbe_op_shiftright_imm1_fast") == 0)
 		return (uintptr_t)vdbe_op_shiftright_imm1_fast;
+	if (strcmp(name, "vdbe_cnp_halt_handler") == 0)
+		return (uintptr_t)vdbe_cnp_halt_handler;
+	if (strcmp(name, "vdbe_cnp_init_handler") == 0)
+		return (uintptr_t)vdbe_cnp_init_handler;
 	/* agg_scan / builtin_scan fallthrough handlers */
 	if (strcmp(name, "vdbe_op_null") == 0)
 		return (uintptr_t)vdbe_op_null;
@@ -1794,7 +1796,6 @@ cnp_resolve_fragment_symbol(const char *name)
 		return (uintptr_t)__errno_location;
 	if (strcmp(name, "__assert_fail") == 0)
 		return (uintptr_t)__assert_fail;
-
 	return 0;
 }
 
@@ -2052,8 +2053,6 @@ cnp_reg_is_likely_uint(const struct Vdbe *p, int pc, int reg, int depth)
 		return false;
 	const Op *def = cnp_find_last_reg_writer(p, pc, reg);
 	if (def == NULL)
-		def = cnp_find_unique_reg_writer(p, reg);
-	if (def == NULL)
 		return false;
 	return cnp_op_result_is_likely_uint(p, pc, def, depth);
 }
@@ -2064,8 +2063,6 @@ cnp_reg_is_likely_int(const struct Vdbe *p, int pc, int reg, int depth)
 	if (depth <= 0)
 		return false;
 	const Op *def = cnp_find_last_reg_writer(p, pc, reg);
-	if (def == NULL)
-		def = cnp_find_unique_reg_writer(p, reg);
 	if (def == NULL)
 		return false;
 	return cnp_op_result_is_likely_int(p, pc, def, depth);
@@ -2078,8 +2075,6 @@ cnp_resolve_uint_constant(const struct Vdbe *p, int pc, int reg,
 	if (depth <= 0)
 		return false;
 	const Op *def = cnp_find_last_reg_writer(p, pc, reg);
-	if (def == NULL)
-		def = cnp_find_unique_reg_writer(p, reg);
 	if (def == NULL)
 		return false;
 	switch (def->opcode) {
@@ -2107,8 +2102,6 @@ cnp_resolve_int_constant(const struct Vdbe *p, int pc, int reg, int64_t *value,
 	if (depth <= 0)
 		return false;
 	const Op *def = cnp_find_last_reg_writer(p, pc, reg);
-	if (def == NULL)
-		def = cnp_find_unique_reg_writer(p, reg);
 	if (def == NULL)
 		return false;
 	switch (def->opcode) {
@@ -2944,6 +2937,7 @@ vdbe_cnp_exec(struct Vdbe *p)
 	if (p->cnp_mode == CNP_MODE_FRAGMENTS) {
 		cnp_fragment_func_t func;
 		VdbeOp *entry_pOp;
+		VdbeOp *current_pOp;
 
 		cnp_frag_p = p;
 		cnp_frag_aOp = p->aOp;
@@ -2958,28 +2952,17 @@ vdbe_cnp_exec(struct Vdbe *p)
 			cnp_frag_pOp = (VdbeOp *)p->cnp_resume_func;
 			p->cnp_resume_func = NULL;
 		} else {
-			cnp_frag_pOp = p->aOp;
+			cnp_frag_pOp = &p->aOp[p->pc];
 		}
 		entry_pOp = cnp_frag_pOp;
 		/*
 		 * Common single-row tail: OP_ResultRow sets p->pc to the next
 		 * opcode, and many scalar / aggregate statements resume directly at
-		 * OP_Halt. Handle that final step in C so the next sql_step() call
-		 * does not pay another fragment-entry bridge just to finish.
+		 * OP_Halt. The terminal fragment handles the halt cleanup itself.
 		 */
-		if (entry_pOp >= p->aOp && entry_pOp < p->aOp + p->nOp &&
-		    entry_pOp->opcode == OP_Halt) {
-			sql_cnp_step_count++;
-			int rc = vdbe_cnp_halt_handler(p, entry_pOp, p->aMem);
-			if (rc > 0) {
-				sql_cnp_done_return_count++;
-				return SQL_DONE;
-			}
-			sql_cnp_error_return_count++;
-			return -1;
-		}
 		func = (cnp_fragment_func_t)
 			p->cnp_pc_stencil[(size_t)(entry_pOp - p->aOp)];
+		current_pOp = entry_pOp;
 
 		int64_t result = cnp_fragment_enter((void *)func, p, p->aOp,
 						      entry_pOp, p->aMem);
@@ -2991,10 +2974,21 @@ vdbe_cnp_exec(struct Vdbe *p)
 				p->cnp_resume_func = NULL;
 			return SQL_ROW;
 		}
-		if (result == SQL_DONE)
+		if (result == SQL_DONE) {
+			if (current_pOp->opcode == OP_Halt) {
+				int rc = vdbe_cnp_halt_handler(p, current_pOp,
+							      p->aMem);
+				if (rc > 0) {
+					sql_cnp_done_return_count++;
+					return SQL_DONE;
+				}
+				sql_cnp_error_return_count++;
+				return -1;
+			}
 			sql_cnp_done_return_count++;
-		else if (result < 0)
+		} else if (result < 0) {
 			sql_cnp_error_return_count++;
+		}
 		return (int)result;
 	}
 
@@ -3003,18 +2997,14 @@ vdbe_cnp_exec(struct Vdbe *p)
  * returned SQL_ROW.
  */
 	cnp_stencil_func_t func;
-#if SQL_VDBE_OP_PROFILE
-	int current_pc = 0;
-#endif
+	int current_pc = p->pc;
 	if (p->cnp_resume_func != NULL) {
 		sql_cnp_resume_count++;
 		func = (cnp_stencil_func_t)p->cnp_resume_func;
 		p->cnp_resume_func = NULL;
-#if SQL_VDBE_OP_PROFILE
 		current_pc = cnp_find_pc_for_func(p, func);
-#endif
 	} else {
-		func = (cnp_stencil_func_t)p->cnp_code;
+		func = (cnp_stencil_func_t)p->cnp_pc_stencil[current_pc];
 	}
 
 	int64_t result;
@@ -3034,9 +3024,7 @@ vdbe_cnp_exec(struct Vdbe *p)
 		if (result >= (int64_t)CNP_ADDR_THRESHOLD) {
 			/* Normal: result is the address of the next stencil. */
 			func = (cnp_stencil_func_t)result;
-#if SQL_VDBE_OP_PROFILE
 			current_pc = cnp_find_pc_for_func(p, func);
-#endif
 		} else if (result >= CNP_PC_JUMP_BASE) {
 			sql_cnp_pc_jump_count++;
 			/*
@@ -3051,9 +3039,7 @@ vdbe_cnp_exec(struct Vdbe *p)
 				return -1;
 			}
 			func = (cnp_stencil_func_t)p->cnp_pc_stencil[pc];
-#if SQL_VDBE_OP_PROFILE
 			current_pc = pc;
-#endif
 		} else {
 			/* Terminal status code (SQL_ROW, SQL_DONE, or -1). */
 			if (result == SQL_DONE)
