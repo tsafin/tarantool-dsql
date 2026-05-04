@@ -159,11 +159,10 @@ def extract_stencils(obj_path, opcodes_header_path):
                     if sym_name in HOLE_MAP:
                         kind = HOLE_MAP[sym_name]
                     else:
-                        # Unknown relocation — skip with warning
-                        print(f"  WARNING: unknown reloc target "
-                              f"'{sym_name}' in {op_name} at offset "
-                              f"{rel_offset}", file=sys.stderr)
-                        continue
+                        raise RuntimeError(
+                            f"unknown reloc target '{sym_name}' in "
+                            f"{op_name} at offset {rel_offset}"
+                        )
 
                     holes.append({
                         "offset": rel_offset,

@@ -264,9 +264,22 @@ endif()
 if(ENABLE_SQL_CNP)
     # Require clang-19+ for preserve_none-based CnP compilation
     unset(CLANG_CNP CACHE)
-    find_program(CLANG_CNP clang-19 REQUIRED)
+    find_program(CLANG_CNP NAMES clang clang-19 clang-20 clang-21 clang-22)
     if(NOT CLANG_CNP)
-        message(FATAL_ERROR "ENABLE_SQL_CNP requires clang-19")
+        message(FATAL_ERROR "ENABLE_SQL_CNP requires clang-19+")
+    endif()
+    execute_process(
+        COMMAND ${CLANG_CNP} --version
+        OUTPUT_VARIABLE CLANG_CNP_VERSION_OUTPUT
+        ERROR_VARIABLE CLANG_CNP_VERSION_OUTPUT
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    string(REGEX MATCH "clang version ([0-9]+)" _ "${CLANG_CNP_VERSION_OUTPUT}")
+    set(CLANG_CNP_VERSION_MAJOR "${CMAKE_MATCH_1}")
+    if(NOT CLANG_CNP_VERSION_MAJOR OR CLANG_CNP_VERSION_MAJOR LESS 19)
+        message(FATAL_ERROR
+            "ENABLE_SQL_CNP requires clang-19+; found ${CLANG_CNP}: "
+            "${CLANG_CNP_VERSION_OUTPUT}")
     endif()
     message(STATUS "SQL CnP: Using ${CLANG_CNP} for stencil compilation")
 
