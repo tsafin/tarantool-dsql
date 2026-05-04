@@ -936,7 +936,7 @@ bytecode proves.
 integer path and explicitly falls back to `mem_add()` if runtime values do not
 match the predicted shape.
 
-Representative `objdump` excerpt:
+Representative LLVM disassembly excerpt:
 
 ```asm
 vdbe_op_add_int_fast:
