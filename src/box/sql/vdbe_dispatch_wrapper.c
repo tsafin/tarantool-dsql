@@ -1409,6 +1409,33 @@ vdbe_exec_cnp_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 {
 #ifdef ENABLE_SQL_CNP
 	extern int64_t sql_cnp_fallback_count;
+	if (p->pc == 0 && p->nOp > 0 && p->aOp[0].opcode == OP_Init) {
+		char *zTrace;
+		int i;
+		struct sql *db = sql_get();
+		assert(aOp == p->aOp);
+		if (p->pFrame == NULL && sql_vdbe_prepare(p) != 0)
+			return -1;
+		if ((db->mTrace & SQL_TRACE_STMT) != 0 && !p->doingRerun &&
+		    (zTrace = (p->aOp[0].p4.z ? p->aOp[0].p4.z : p->zSql)) != 0) {
+			(void)db->xTrace(SQL_TRACE_STMT, db->pTraceArg, p, zTrace);
+		}
+#ifdef SQL_DEBUG
+		if ((p->sql_flags & SQL_SqlTrace) != 0 &&
+		    (zTrace = (p->aOp[0].p4.z ? p->aOp[0].p4.z : p->zSql)) != 0)
+			sqlDebugPrintf("SQL-trace: %s\n", zTrace);
+#endif /* SQL_DEBUG */
+		assert(p->aOp[0].p2 > 0);
+		if (p->aOp[0].p1 >= sqlGlobalConfig.iOnceResetThreshold) {
+			for (i = 1; i < p->nOp; i++) {
+				if (p->aOp[i].opcode == OP_Once)
+					p->aOp[i].p1 = 0;
+			}
+			p->aOp[0].p1 = 0;
+		}
+		p->aOp[0].p1++;
+		p->pc = p->aOp[0].p2;
+	}
 	if (p->cnp_compiled != CNP_COMPILED) {
 		if (vdbe_cnp_compile(p) != 0) {
 			sql_cnp_fallback_count++;

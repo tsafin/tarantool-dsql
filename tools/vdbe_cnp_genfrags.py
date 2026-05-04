@@ -208,7 +208,12 @@ if (vdbe_op_shiftright_impl(p, pOp, aMem))
         "name": "OP_Halt",
         "kind": "CNP_FRAG_TERMINAL",
         "tail_fallthrough": False,
-        "body": "",
+        "body": """\
+{
+    int handler_rc = vdbe_cnp_halt_handler(p, pOp, aMem);
+    if (handler_rc < 0)
+        GOTO_ERROR();
+}""",
         "dispatch_prep": "",
         "dispatch_transfer": 'GOTO_DONE();',
     },
