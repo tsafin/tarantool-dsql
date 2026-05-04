@@ -489,7 +489,6 @@ sql_prepare_and_execute(const char *sql, int len, const struct sql_bind *bind,
 		 * (which only applies to non-prepared stmts), recompile with
 		 * the prepared-stmt path so the cached copy runs natively.
 		 */
-		vdbe_jit_compile_cached(stmt);
 		if (!cached) {
 			/*
 			 * Transient stmt: port takes ownership (auto_destroy).
@@ -507,6 +506,7 @@ sql_prepare_and_execute(const char *sql, int len, const struct sql_bind *bind,
 			}
 			return rc;
 		}
+		vdbe_jit_compile_cached(stmt);
 	} else {
 		/* Clear state left over from the previous execution cycle. */
 		sql_unbind(stmt);

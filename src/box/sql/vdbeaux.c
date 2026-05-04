@@ -1374,7 +1374,9 @@ sqlVdbeList(Vdbe * p)
 		} else {
 			char *addr = sql_xstrndup(first_tab + 1,
 						  second_tab - first_tab - 1);
-			uint64_t value = strtoull(addr, NULL, 16);
+			int base = (first_tab - row == 8 &&
+				    memcmp(row, "bytecode", 8) == 0) ? 10 : 16;
+			uint64_t value = strtoull(addr, NULL, base);
 			mem_set_uint(pMem, value);
 			sql_xfree(addr);
 		}

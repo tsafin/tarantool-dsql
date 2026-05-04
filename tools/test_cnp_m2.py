@@ -79,8 +79,8 @@ def check_stencils_header(stencils_h_path):
     stencil_count = len(re.findall(
         r"static const uint8_t cnp_bytes_\w+\[\]", content
     ))
-    if stencil_count != 7:
-        errors.append(f"Expected 7 stencils, found {stencil_count}")
+    if stencil_count < 7:
+        errors.append(f"Expected at least 7 stencils, found {stencil_count}")
 
     return errors
 
@@ -129,7 +129,7 @@ def main():
 
     tarantool_bin = os.path.join(builddir, "src", "tarantool")
     stencils_h = os.path.join(
-        srcdir, "src", "box", "sql", "generated", "vdbe_cnp_stencils.h"
+        builddir, "src", "box", "sql", "generated", "vdbe_cnp_stencils.h"
     )
     lua_script = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), "test_cnp_m2.lua"

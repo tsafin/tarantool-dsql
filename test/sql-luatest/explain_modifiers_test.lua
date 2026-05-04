@@ -90,10 +90,11 @@ g.test_explain_bytecode_and_disassembly = function()
         t.assert_equals(combined.rows[1][1], 'bytecode')
         t.assert_equals(combined.rows[#combined.rows][1], 'disassembly')
 
-        local ok, err = pcall(function()
-            box.execute([[EXPLAIN (unknown=yes) SELECT 1;]])
-        end)
+        local ok, res, err = pcall(box.execute,
+                                   [[EXPLAIN (unknown=yes) SELECT 1;]])
         t.assert_equals(ok, true)
-        t.assert_equals(err, nil)
+        t.assert_equals(res, nil)
+        t.assert(err ~= nil)
+        t.assert_str_contains(err.message, 'Syntax error')
     end)
 end

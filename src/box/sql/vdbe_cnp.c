@@ -2943,8 +2943,8 @@ vdbe_cnp_exec(struct Vdbe *p)
 		cnp_frag_aOp = p->aOp;
 		cnp_frag_aMem = p->aMem;
 		cnp_frag_dispatch_table = p->cnp_pc_stencil;
-		cnp_frag_row_target = p->cnp_pc_stencil[p->nOp];
-		cnp_frag_done_target = p->cnp_pc_stencil[p->nOp + 1];
+		cnp_frag_done_target = p->cnp_pc_stencil[p->nOp];
+		cnp_frag_row_target = p->cnp_pc_stencil[p->nOp + 1];
 		cnp_frag_error_target = p->cnp_pc_stencil[p->nOp + 2];
 
 		if (p->cnp_resume_func != NULL) {
