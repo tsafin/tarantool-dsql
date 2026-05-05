@@ -46,6 +46,7 @@
 #include "vdbe_helpers.h"
 #include "box/error.h"
 #include "box/field_def.h"
+#include "box/tuple_format.h"
 #include "box/space_cache.h"
 #include "diag.h"
 #include "say.h"
@@ -635,6 +636,14 @@ cnp_invalidate_program(struct Vdbe *p)
 	if (p->cnp_arith_imm != NULL) {
 		free(p->cnp_arith_imm);
 		p->cnp_arith_imm = NULL;
+	}
+	if (p->cnp_column_group != NULL) {
+		free(p->cnp_column_group);
+		p->cnp_column_group = NULL;
+	}
+	if (p->cnp_column_path != NULL) {
+		free(p->cnp_column_path);
+		p->cnp_column_path = NULL;
 	}
 	if (p->cnp_pc_stencil != NULL) {
 		free(p->cnp_pc_stencil);
@@ -1784,11 +1793,16 @@ cnp_find_last_opcode_before(const struct Vdbe *p, int pc, int opcode, int p1)
 	return NULL;
 }
 
+static const Op *
+cnp_find_cursor_iterator(const struct Vdbe *p, int pc, int cursor_id)
+{
+	return cnp_find_last_opcode_before(p, pc, OP_IteratorOpen, cursor_id);
+}
+
 static struct space *
 cnp_find_cursor_space(const struct Vdbe *p, int pc, int cursor_id)
 {
-	const Op *iter = cnp_find_last_opcode_before(p, pc, OP_IteratorOpen,
-						      cursor_id);
+	const Op *iter = cnp_find_cursor_iterator(p, pc, cursor_id);
 	if (iter == NULL)
 		return NULL;
 	const Op *open = cnp_find_last_opcode_before(p, iter - p->aOp + 1,
@@ -1798,26 +1812,180 @@ cnp_find_cursor_space(const struct Vdbe *p, int pc, int cursor_id)
 	return space_by_id(open->p2);
 }
 
-static uintptr_t
-cnp_select_column_handler(const struct Vdbe *p, int pc)
+enum {
+	CNP_COLUMN_GROUP_MIN_COUNT = 3,
+	CNP_COLUMN_GROUP_MAX_SPAN = 12,
+	CNP_COLUMN_GROUP_MAX_SLACK = 3,
+};
+
+static void
+cnp_configure_column_group(struct Vdbe *p, int pc, struct space *space,
+			   bool allow_static_offset_slot)
 {
-	const Op *op = &p->aOp[pc];
+	struct cnp_column_group *group = &p->cnp_column_group[pc];
+	memset(group, 0, sizeof(*group));
+
+	Op *op = &p->aOp[pc];
+	if (pc > 0) {
+		const Op *prev = &p->aOp[pc - 1];
+		if (prev->opcode == OP_Column && prev->p1 == op->p1)
+			return;
+	}
+
+	uint32_t min_field = (uint32_t)op->p2;
+	uint32_t max_field = (uint32_t)op->p2;
+	int count = 0;
+	for (int i = pc; i < p->nOp; i++) {
+		const Op *it = &p->aOp[i];
+		if (it->opcode != OP_Column || it->p1 != op->p1)
+			break;
+		if (it->p2 < 0 || (uint32_t)it->p2 >= space->def->field_count)
+			return;
+		uint32_t field = (uint32_t)it->p2;
+		if (field < min_field)
+			min_field = field;
+		if (field > max_field)
+			max_field = field;
+		count++;
+	}
+
+	uint32_t span = max_field - min_field + 1;
+	if (count < CNP_COLUMN_GROUP_MIN_COUNT || span > CNP_COLUMN_GROUP_MAX_SPAN ||
+	    span > (uint32_t)(count + CNP_COLUMN_GROUP_MAX_SLACK))
+		return;
+
+	group->enabled = true;
+	group->min_field = min_field;
+	group->max_field = max_field;
+	group->min_offset_slot = TUPLE_OFFSET_SLOT_NIL;
+	if (allow_static_offset_slot && space->format != NULL && min_field > 0 &&
+	    min_field < tuple_format_field_count(space->format)) {
+		struct tuple_field *field = tuple_format_field(space->format,
+							       min_field);
+		group->min_offset_slot = field->offset_slot;
+	}
+}
+
+static void
+cnp_configure_column_path(struct Vdbe *p, int pc, struct space *space,
+			  bool allow_static_offset_slot)
+{
+	struct cnp_column_path *path = &p->cnp_column_path[pc];
+	memset(path, 0, sizeof(*path));
+
+	Op *op = &p->aOp[pc];
+	uint32_t fieldno = (uint32_t)op->p2;
+	if (fieldno == 0 || space->format == NULL)
+		return;
+	if (fieldno < tuple_format_field_count(space->format)) {
+		struct tuple_field *field = tuple_format_field(space->format,
+							       fieldno);
+		if (field != NULL && field->offset_slot != TUPLE_OFFSET_SLOT_NIL)
+			return;
+	}
+	for (uint32_t anchor = fieldno - 1; anchor > 0; anchor--) {
+		if (anchor >= tuple_format_field_count(space->format))
+			continue;
+		struct tuple_field *field = tuple_format_field(space->format,
+							       anchor);
+		if (field == NULL || field->offset_slot == TUPLE_OFFSET_SLOT_NIL)
+			continue;
+		path->enabled = true;
+		path->anchor_field = anchor;
+		path->hop_count = fieldno - anchor;
+		path->offset_slot = allow_static_offset_slot ?
+			field->offset_slot : TUPLE_OFFSET_SLOT_NIL;
+		return;
+	}
+}
+
+/*
+ * Pick the CnP helper for one OP_Column site and populate any per-PC metadata
+ * that the helper will need at runtime.
+ *
+ * The selection policy is:
+ * 1. Bail out to generic vdbe_op_column() if we cannot recover the cursor's
+ *    iterator or space, or if the field number is out of range.
+ * 2. Precompute row-local metadata shared by the fast helpers:
+ *    - cnp_column_group[pc] for contiguous OP_Column runs on one cursor;
+ *    - cnp_column_path[pc] for "jump to hinted anchor, then hop right" paths.
+ * 3. Decide whether this site should use the offset-slot family or the exact
+ *    family of typed helpers.
+ *
+ * The offset-slot family covers two cases:
+ * - primary-space scans where we can encode this field's offset slot directly
+ *   into OP.p5;
+ * - covering / secondary-index scans where the offset slot must be resolved
+ *   from the runtime tuple format, but the helper family is still the same.
+ *
+ * If neither direct offset-slot access nor an anchored hint path is available,
+ * use the exact typed helper instead.
+ */
+static uintptr_t
+cnp_select_column_handler(struct Vdbe *p, int pc)
+{
+	Op *op = &p->aOp[pc];
+	const Op *iter = cnp_find_cursor_iterator(p, pc, op->p1);
 	struct space *space = cnp_find_cursor_space(p, pc, op->p1);
-	if (space == NULL)
+	op->p5 &= ~OPFLAG_CNP_COLUMN_OFFSET_SLOT_MASK;
+	memset(&p->cnp_column_group[pc], 0, sizeof(p->cnp_column_group[pc]));
+	memset(&p->cnp_column_path[pc], 0, sizeof(p->cnp_column_path[pc]));
+	if (space == NULL || iter == NULL)
 		return (uintptr_t)vdbe_op_column;
 	if ((uint32_t)op->p2 >= space->def->field_count)
 		return (uintptr_t)vdbe_op_column;
+	bool allow_static_offset_slot = iter->p2 == 0;
+	cnp_configure_column_group(p, pc, space, allow_static_offset_slot);
+	cnp_configure_column_path(p, pc, space, allow_static_offset_slot);
+	/*
+	 * "offset-slot helper" means "use the family that can navigate from an
+	 * offset slot or anchored hint path", not necessarily "the slot number is
+	 * statically embedded in OP.p5". Covering scans also land here, but they
+	 * resolve the slot from the runtime tuple format.
+	 */
+	bool use_offset_slot_helper = false;
+	int32_t offset_slot = TUPLE_OFFSET_SLOT_NIL;
+	if (!allow_static_offset_slot) {
+		/* Secondary / covering scan: runtime tuple format decides the slot. */
+		use_offset_slot_helper = true;
+	} else if (space->format != NULL &&
+	    (uint32_t)op->p2 < tuple_format_field_count(space->format) &&
+	    op->p2 > 0) {
+		struct tuple_field *field = tuple_format_field(space->format,
+							       op->p2);
+		offset_slot = field->offset_slot;
+		if (offset_slot != TUPLE_OFFSET_SLOT_NIL &&
+		    -offset_slot < (1 << (16 - OPFLAG_CNP_COLUMN_OFFSET_SLOT_SHIFT))) {
+			/* Primary scan: stash the static slot directly in OP.p5. */
+			op->p5 |= (uint16_t)(-offset_slot)
+				<< OPFLAG_CNP_COLUMN_OFFSET_SLOT_SHIFT;
+			use_offset_slot_helper = true;
+		}
+	}
+	/* No direct slot, but we can still reach the field via anchor + hops. */
+	if (!use_offset_slot_helper && p->cnp_column_path[pc].enabled)
+		use_offset_slot_helper = true;
 	switch (space->def->fields[op->p2].type) {
 	case FIELD_TYPE_UNSIGNED:
-		return (uintptr_t)vdbe_op_column_unsigned_exact_fast;
+		return (uintptr_t)(use_offset_slot_helper ?
+			vdbe_op_column_unsigned_offset_slot_fast :
+			vdbe_op_column_unsigned_exact_fast);
 	case FIELD_TYPE_STRING:
-		return (uintptr_t)vdbe_op_column_string_exact_fast;
+		return (uintptr_t)(use_offset_slot_helper ?
+			vdbe_op_column_string_offset_slot_fast :
+			vdbe_op_column_string_exact_fast);
 	case FIELD_TYPE_DOUBLE:
-		return (uintptr_t)vdbe_op_column_double_exact_fast;
+		return (uintptr_t)(use_offset_slot_helper ?
+			vdbe_op_column_double_offset_slot_fast :
+			vdbe_op_column_double_exact_fast);
 	case FIELD_TYPE_INTEGER:
-		return (uintptr_t)vdbe_op_column_integer_exact_fast;
+		return (uintptr_t)(use_offset_slot_helper ?
+			vdbe_op_column_integer_offset_slot_fast :
+			vdbe_op_column_integer_exact_fast);
 	case FIELD_TYPE_BOOLEAN:
-		return (uintptr_t)vdbe_op_column_boolean_exact_fast;
+		return (uintptr_t)(use_offset_slot_helper ?
+			vdbe_op_column_boolean_offset_slot_fast :
+			vdbe_op_column_boolean_exact_fast);
 	default:
 		return (uintptr_t)vdbe_op_column;
 	}
@@ -2740,6 +2908,22 @@ vdbe_cnp_compile(struct Vdbe *p)
 						       sizeof(*p->cnp_arith_imm));
 	if (p->cnp_arith_imm == NULL)
 		return -1;
+	p->cnp_column_group = (struct cnp_column_group *)calloc(
+		nOp, sizeof(*p->cnp_column_group));
+	if (p->cnp_column_group == NULL) {
+		free(p->cnp_arith_imm);
+		p->cnp_arith_imm = NULL;
+		return -1;
+	}
+	p->cnp_column_path = (struct cnp_column_path *)calloc(
+		nOp, sizeof(*p->cnp_column_path));
+	if (p->cnp_column_path == NULL) {
+		free(p->cnp_column_group);
+		p->cnp_column_group = NULL;
+		free(p->cnp_arith_imm);
+		p->cnp_arith_imm = NULL;
+		return -1;
+	}
 	bool use_fragments = cnp_can_use_fragments(p);
 
 	if (use_fragments)

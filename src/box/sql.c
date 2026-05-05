@@ -1349,9 +1349,11 @@ sql_template_space_new(Parse *parser, const char *name)
  */
 static void
 vdbe_field_ref_fill(struct vdbe_field_ref *field_ref, struct tuple *tuple,
-		    uint32_t mp_count, const char *data, uint32_t data_sz)
+		    uint32_t mp_count, const char *data, uint32_t data_sz,
+		    uint32_t field0_offset)
 {
 	field_ref->tuple = tuple;
+	field_ref->field0_offset = field0_offset;
 	field_ref->data = data;
 	field_ref->data_sz = data_sz;
 
@@ -1372,7 +1374,7 @@ vdbe_field_ref_prepare_data(struct vdbe_field_ref *field_ref, const char *data,
 	const char *field0 = data;
 	uint32_t mp_count = mp_decode_array(&field0);
 	vdbe_field_ref_fill(field_ref, NULL, mp_count, field0,
-			    (uint32_t)(field0 - data) + data_sz);
+			    (uint32_t)(field0 - data) + data_sz, 0);
 }
 
 void
@@ -1384,14 +1386,15 @@ vdbe_field_ref_prepare_tuple(struct vdbe_field_ref *field_ref,
 	const char *field0 = data;
 	uint32_t mp_count = mp_decode_array(&field0);
 	vdbe_field_ref_fill(field_ref, tuple, mp_count, field0,
-			    (uint32_t)(field0 - data) + data_sz);
+			    (uint32_t)(field0 - data) + data_sz,
+			    (uint32_t)(field0 - data));
 }
 
 void
 vdbe_field_ref_prepare_array(struct vdbe_field_ref *ref, uint32_t field_count,
 			     const char *data, uint32_t data_sz)
 {
-	return vdbe_field_ref_fill(ref, NULL, field_count, data, data_sz);
+	return vdbe_field_ref_fill(ref, NULL, field_count, data, data_sz, 0);
 }
 
 void

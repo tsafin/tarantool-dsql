@@ -212,6 +212,57 @@ vdbe_op_column_decode_fast(struct Mem *mem, const char *data,
 }
 
 static inline const char *
+vdbe_field_ref_scan_forward_inline(struct vdbe_field_ref *field_ref,
+				   uint32_t prev, uint32_t fieldno)
+{
+	assert(prev < fieldno);
+	const char *field_begin = field_ref->data + field_ref->slots[prev];
+	for (prev++; prev < fieldno; prev++) {
+		mp_next(&field_begin);
+		field_ref->slots[prev] =
+			(uint32_t)(field_begin - field_ref->data);
+		bitmask64_set_bit(&field_ref->slot_bitmask, prev);
+	}
+	mp_next(&field_begin);
+	field_ref->slots[fieldno] = (uint32_t)(field_begin - field_ref->data);
+	bitmask64_set_bit(&field_ref->slot_bitmask, fieldno);
+	if (fieldno > field_ref->rightmost_slot)
+		field_ref->rightmost_slot = fieldno;
+	return field_begin;
+}
+
+static inline uint32_t
+vdbe_field_ref_find_prev_slotno_inline(struct vdbe_field_ref *field_ref,
+				       uint32_t fieldno)
+{
+	uint32_t prev;
+	if (fieldno > field_ref->rightmost_slot) {
+		prev = field_ref->rightmost_slot;
+	} else {
+		prev = vdbe_field_ref_closest_slotno(field_ref, fieldno);
+	}
+	if (fieldno >= 64) {
+		for (uint32_t it = fieldno - 1; it > prev; it--) {
+			if (field_ref->slots[it] == 0)
+				continue;
+			prev = it;
+			break;
+		}
+	}
+	return prev;
+}
+
+/*
+ * Fetch a field by jumping straight to a known offset slot. If the tuple's
+ * field_map does not contain the slot for this row shape, fall back to the
+ * generic fetch path so sparse / optional fields still behave correctly.
+ */
+static inline const char *
+vdbe_field_ref_fetch_data_offset_slot_inline(struct vdbe_field_ref *field_ref,
+					     int32_t offset_slot,
+					     uint32_t fieldno);
+
+static inline const char *
 vdbe_field_ref_fetch_data_inline(struct vdbe_field_ref *field_ref,
 				 uint32_t fieldno)
 {
@@ -224,28 +275,10 @@ vdbe_field_ref_fetch_data_inline(struct vdbe_field_ref *field_ref,
 	if (field != NULL && field->offset_slot != TUPLE_OFFSET_SLOT_NIL) {
 		field_begin = tuple_field(field_ref->tuple, fieldno);
 	} else {
-		uint32_t prev;
-		if (fieldno > field_ref->rightmost_slot) {
-			prev = field_ref->rightmost_slot;
-		} else {
-			prev = vdbe_field_ref_closest_slotno(field_ref, fieldno);
-		}
-		if (fieldno >= 64) {
-			for (uint32_t it = fieldno - 1; it > prev; it--) {
-				if (field_ref->slots[it] == 0)
-					continue;
-				prev = it;
-				break;
-			}
-		}
-		field_begin = field_ref->data + field_ref->slots[prev];
-		for (prev++; prev < fieldno; prev++) {
-			mp_next(&field_begin);
-			field_ref->slots[prev] =
-				(uint32_t)(field_begin - field_ref->data);
-			bitmask64_set_bit(&field_ref->slot_bitmask, prev);
-		}
-		mp_next(&field_begin);
+		uint32_t prev =
+			vdbe_field_ref_find_prev_slotno_inline(field_ref, fieldno);
+		return vdbe_field_ref_scan_forward_inline(field_ref, prev,
+							 fieldno);
 	}
 	field_ref->slots[fieldno] = (uint32_t)(field_begin - field_ref->data);
 	bitmask64_set_bit(&field_ref->slot_bitmask, fieldno);
@@ -253,6 +286,181 @@ vdbe_field_ref_fetch_data_inline(struct vdbe_field_ref *field_ref,
 		field_ref->rightmost_slot = fieldno;
 	return field_begin;
 }
+
+static inline const char *
+vdbe_field_ref_fetch_data_offset_slot_inline(struct vdbe_field_ref *field_ref,
+					     int32_t offset_slot,
+					     uint32_t fieldno)
+{
+	if (field_ref->slots[fieldno] != 0 || fieldno == 0)
+		return field_ref->data + field_ref->slots[fieldno];
+
+	assert(field_ref->tuple != NULL);
+	assert(offset_slot != TUPLE_OFFSET_SLOT_NIL);
+	const uint32_t *field_map = tuple_field_map(field_ref->tuple);
+	uint32_t offset = field_map_get_offset(field_map, offset_slot,
+					       MULTIKEY_NONE);
+	if (offset == 0)
+		return vdbe_field_ref_fetch_data_inline(field_ref, fieldno);
+	assert(offset >= field_ref->field0_offset);
+	const uint32_t field_offset = offset - field_ref->field0_offset;
+	const char *field_begin = field_ref->data + field_offset;
+	field_ref->slots[fieldno] = field_offset;
+	bitmask64_set_bit(&field_ref->slot_bitmask, fieldno);
+	if (fieldno > field_ref->rightmost_slot)
+		field_ref->rightmost_slot = fieldno;
+	return field_begin;
+}
+
+static inline int32_t
+vdbe_op_column_offset_slot(const Op *pOp)
+{
+	uint16_t encoded = (pOp->p5 & OPFLAG_CNP_COLUMN_OFFSET_SLOT_MASK) >>
+		OPFLAG_CNP_COLUMN_OFFSET_SLOT_SHIFT;
+	return encoded == 0 ? TUPLE_OFFSET_SLOT_NIL : -(int32_t)encoded;
+}
+
+#ifdef ENABLE_SQL_CNP
+static inline const struct cnp_column_path *
+cnp_column_path(const Vdbe *p, const Op *pOp)
+{
+	if (p == NULL || p->cnp_column_path == NULL || p->aOp == NULL)
+		return NULL;
+	int pc = (int)(pOp - p->aOp);
+	if (pc < 0 || pc >= p->nOp)
+		return NULL;
+	const struct cnp_column_path *path = &p->cnp_column_path[pc];
+	return path->enabled ? path : NULL;
+}
+
+static inline const struct cnp_column_group *
+cnp_column_group(const Vdbe *p, const Op *pOp)
+{
+	if (p == NULL || p->cnp_column_group == NULL || p->aOp == NULL)
+		return NULL;
+	int pc = (int)(pOp - p->aOp);
+	if (pc < 0 || pc >= p->nOp)
+		return NULL;
+	const struct cnp_column_group *group = &p->cnp_column_group[pc];
+	return group->enabled ? group : NULL;
+}
+
+/*
+ * Seed one dense OP_Column cluster so later columns in the group can hit the
+ * cached slots[] array instead of re-walking the tuple.
+ */
+static inline void
+vdbe_field_ref_preload_group_inline(struct vdbe_field_ref *field_ref,
+				    const struct cnp_column_group *group)
+{
+	if (group == NULL || field_ref->field_count == 0)
+		return;
+	if (group->min_field >= field_ref->field_count)
+		return;
+
+	uint32_t min_field = group->min_field;
+	uint32_t max_field = MIN(group->max_field, field_ref->field_count - 1);
+	if (group->min_offset_slot != TUPLE_OFFSET_SLOT_NIL)
+		(void)vdbe_field_ref_fetch_data_offset_slot_inline(
+			field_ref, group->min_offset_slot, min_field);
+	else
+		(void)vdbe_field_ref_fetch_data_inline(field_ref, min_field);
+	if (max_field > min_field)
+		(void)vdbe_field_ref_scan_forward_inline(field_ref, min_field,
+							 max_field);
+}
+
+/* Advance a fixed number of fields to the right, caching every intermediate. */
+static inline const char *
+vdbe_field_ref_scan_hops_inline(struct vdbe_field_ref *field_ref,
+				uint32_t fieldno, uint16_t hop_count)
+{
+	assert(hop_count > 0);
+	const char *field_begin = field_ref->data + field_ref->slots[fieldno];
+	for (uint16_t hop = 0; hop < hop_count; hop++) {
+		mp_next(&field_begin);
+		fieldno++;
+		field_ref->slots[fieldno] =
+			(uint32_t)(field_begin - field_ref->data);
+		bitmask64_set_bit(&field_ref->slot_bitmask, fieldno);
+	}
+	if (fieldno > field_ref->rightmost_slot)
+		field_ref->rightmost_slot = fieldno;
+	return field_begin;
+}
+
+/*
+ * Resolve an offset slot from the tuple's active format. This is the covering
+ * scan path, where the helper family is the same, but the slot cannot be baked
+ * from the base space format at compile time.
+ */
+static inline int32_t
+vdbe_field_ref_offset_slot_inline(struct vdbe_field_ref *field_ref,
+				     uint32_t fieldno)
+{
+	const struct tuple_field *field =
+		vdbe_field_ref_fetch_field(field_ref, fieldno);
+	return field == NULL ? TUPLE_OFFSET_SLOT_NIL : field->offset_slot;
+}
+
+/*
+ * Execute the precomputed "anchor + hop_count" route for an unhinted target:
+ * jump to the nearest hinted anchor first, then walk right a fixed number of
+ * MsgPack fields.
+ */
+static inline const char *
+vdbe_field_ref_fetch_data_hint_path_inline(struct vdbe_field_ref *field_ref,
+					   const struct cnp_column_path *path)
+{
+	assert(path != NULL);
+	int32_t offset_slot = path->offset_slot;
+	if (offset_slot == TUPLE_OFFSET_SLOT_NIL) {
+		offset_slot = vdbe_field_ref_offset_slot_inline(field_ref,
+								path->anchor_field);
+	}
+	if (offset_slot == TUPLE_OFFSET_SLOT_NIL) {
+		uint32_t target = path->anchor_field + path->hop_count;
+		return vdbe_field_ref_fetch_data_inline(field_ref, target);
+	}
+	if (path->hop_count == 0) {
+		return vdbe_field_ref_fetch_data_offset_slot_inline(
+			field_ref, offset_slot, path->anchor_field);
+	}
+	(void)vdbe_field_ref_fetch_data_offset_slot_inline(
+		field_ref, offset_slot, path->anchor_field);
+	return vdbe_field_ref_scan_hops_inline(field_ref, path->anchor_field,
+					       path->hop_count);
+}
+#else
+#define cnp_column_group(p, pOp) NULL
+#define cnp_column_path(p, pOp) NULL
+
+static inline void
+vdbe_field_ref_preload_group_inline(struct vdbe_field_ref *field_ref,
+				    const void *group)
+{
+	(void)field_ref;
+	(void)group;
+}
+
+static inline int32_t
+vdbe_field_ref_offset_slot_inline(struct vdbe_field_ref *field_ref,
+				     uint32_t fieldno)
+{
+	(void)field_ref;
+	(void)fieldno;
+	return TUPLE_OFFSET_SLOT_NIL;
+}
+
+static inline const char *
+vdbe_field_ref_fetch_data_hint_path_inline(struct vdbe_field_ref *field_ref,
+					   const void *path)
+{
+	(void)field_ref;
+	(void)path;
+	return NULL;
+}
+#endif
 
 static int
 vdbe_op_column_typed_fast(Vdbe *p, Op *pOp, Mem *aMem,
@@ -377,9 +585,105 @@ vdbe_op_column_typed_exact_fast(Vdbe *p, Op *pOp, Mem *aMem,
 	if (pC->eCurType != CURTYPE_TARANTOOL)
 		return vdbe_op_column(p, pOp, aMem);
 	assert(pC->uc.pCursor->space->def->fields[p2].type == expected_type);
+	vdbe_field_ref_preload_group_inline(&pC->field_ref,
+					    cnp_column_group(p, pOp));
 	if ((uint32_t)p2 < pC->field_ref.field_count) {
 		const char *data = vdbe_field_ref_fetch_data_inline(&pC->field_ref,
 								    p2);
+		int rc = vdbe_op_column_decode_fast(pDest, data, expected_type);
+		if (rc < 0)
+			return -1;
+		if (rc > 0) {
+			uint32_t dummy;
+			if (mem_from_mp(pDest, data, &dummy) != 0)
+				return -1;
+		}
+		UPDATE_MAX_BLOBSIZE(pDest);
+	} else {
+		UPDATE_MAX_BLOBSIZE(pDest);
+	}
+
+	if (mem_is_null(pDest) &&
+	    (uint32_t)p2 >= pC->field_ref.field_count &&
+	    default_val_mem != NULL) {
+		mem_copy_as_ephemeral(pDest, default_val_mem);
+	}
+	if (pDest->type == MEM_TYPE_NULL)
+		goto out;
+	assert(expected_type != FIELD_TYPE_NUMBER);
+out:
+	REGISTER_TRACE(p, pOp->p3, pDest);
+	return 0;
+}
+
+/*
+ * Offset-slot helpers serve both:
+ * - primary scans with a statically encoded slot in OP.p5;
+ * - covering scans, where the slot is resolved from the runtime tuple format;
+ * - anchor+hops paths that still start from a slot-bearing anchor.
+ */
+static int
+vdbe_op_column_typed_offset_slot_fast(Vdbe *p, Op *pOp, Mem *aMem,
+				      enum field_type expected_type)
+{
+	int p2 = pOp->p2;
+	VdbeCursor *pC = p->apCsr[pOp->p1];
+	Mem *pDest;
+	Mem *pReg;
+
+	assert(pOp->p3 > 0 && pOp->p3 <= (p->nMem + 1 - p->nCursor));
+	pDest = vdbe_prepare_null_out(p, pOp->p3);
+	assert(pOp->p1 >= 0 && pOp->p1 < p->nCursor);
+	assert(pC != NULL);
+	assert(p2 < pC->nField);
+	assert(pC->eCurType != CURTYPE_PSEUDO || pC->nullRow);
+	assert(pC->eCurType != CURTYPE_SORTER);
+
+	if (pC->cacheStatus != p->cacheCtr) {
+		if (pC->nullRow) {
+			if (pC->eCurType == CURTYPE_PSEUDO) {
+				assert(pC->uc.pseudoTableReg > 0);
+				pReg = &aMem[pC->uc.pseudoTableReg];
+				assert(mem_is_bin(pReg));
+				assert(memIsValid(pReg));
+				vdbe_field_ref_prepare_data(&pC->field_ref,
+							    pReg->z, pReg->n);
+			} else {
+				goto out;
+			}
+		} else {
+			BtCursor *pCrsr = pC->uc.pCursor;
+			assert(pCrsr != NULL);
+			assert(sqlCursorIsValid(pCrsr));
+			assert(pCrsr->curFlags & BTCF_TaCursor ||
+			       pCrsr->curFlags & BTCF_TEphemCursor);
+			vdbe_field_ref_prepare_tuple(&pC->field_ref,
+						     pCrsr->last_tuple);
+		}
+		pC->cacheStatus = p->cacheCtr;
+	}
+
+	struct Mem *default_val_mem =
+		pOp->p4type == P4_MEM ? pOp->p4.pMem : NULL;
+	if (pC->eCurType != CURTYPE_TARANTOOL)
+		return vdbe_op_column(p, pOp, aMem);
+	int32_t offset_slot = vdbe_op_column_offset_slot(pOp);
+	const struct cnp_column_path *path = cnp_column_path(p, pOp);
+	/* Covering scans discover the slot from the tuple format at runtime. */
+	if (offset_slot == TUPLE_OFFSET_SLOT_NIL && path == NULL)
+		offset_slot = vdbe_field_ref_offset_slot_inline(&pC->field_ref, p2);
+	assert(pC->uc.pCursor->space->def->fields[p2].type == expected_type);
+	if (offset_slot == TUPLE_OFFSET_SLOT_NIL && path == NULL)
+		return vdbe_op_column_typed_exact_fast(p, pOp, aMem,
+						       expected_type);
+	vdbe_field_ref_preload_group_inline(&pC->field_ref,
+					    cnp_column_group(p, pOp));
+	if ((uint32_t)p2 < pC->field_ref.field_count) {
+		const char *data = path != NULL ?
+			vdbe_field_ref_fetch_data_hint_path_inline(&pC->field_ref,
+							       path) :
+			vdbe_field_ref_fetch_data_offset_slot_inline(
+				&pC->field_ref, offset_slot, p2);
 		int rc = vdbe_op_column_decode_fast(pDest, data, expected_type);
 		if (rc < 0)
 			return -1;
@@ -469,6 +773,41 @@ vdbe_op_column_boolean_exact_fast(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_column_typed_exact_fast(p, pOp, aMem,
 					       FIELD_TYPE_BOOLEAN);
+}
+
+int
+vdbe_op_column_unsigned_offset_slot_fast(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_column_typed_offset_slot_fast(p, pOp, aMem,
+						     FIELD_TYPE_UNSIGNED);
+}
+
+int
+vdbe_op_column_string_offset_slot_fast(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_column_typed_offset_slot_fast(p, pOp, aMem,
+						     FIELD_TYPE_STRING);
+}
+
+int
+vdbe_op_column_double_offset_slot_fast(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_column_typed_offset_slot_fast(p, pOp, aMem,
+						     FIELD_TYPE_DOUBLE);
+}
+
+int
+vdbe_op_column_integer_offset_slot_fast(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_column_typed_offset_slot_fast(p, pOp, aMem,
+						     FIELD_TYPE_INTEGER);
+}
+
+int
+vdbe_op_column_boolean_offset_slot_fast(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_column_typed_offset_slot_fast(p, pOp, aMem,
+						     FIELD_TYPE_BOOLEAN);
 }
 
 /* Opcode: RowData P1 P2 * * P5

@@ -342,6 +342,12 @@ sqlSrcListDelete(struct SrcList *list);
 struct vdbe_field_ref {
 	/** Tuple pointer or NULL when undefined. */
 	struct tuple *tuple;
+	/**
+	 * Offset of the first field from the beginning of the underlying
+	 * MessagePack array. Zero for raw field data prepared without an array
+	 * header.
+	 */
+	uint32_t field0_offset;
 	/** Tuple data pointer. */
 	const char *data;
 	/** Tuple data size. */

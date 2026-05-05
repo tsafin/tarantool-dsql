@@ -31,6 +31,98 @@ remaining question is:
   stitched code,
 - while keeping the fragment ABI explicit and extraction robust?
 
+## 1.1 2026-05-06 scan-path status
+
+The current scan-path work has now moved beyond generic helper inlining into
+**explicit per-op metadata for field access planning**.
+
+What is implemented:
+
+1. **Grouped `OP_Column` preload metadata**
+   - detect straight-line same-cursor `OP_Column` runs;
+   - preload a contiguous field span into `vdbe_field_ref`.
+2. **Covering-index-safe typed fast path**
+   - primary scans may still use statically encoded `offset_slot` metadata;
+   - covering scans resolve tuple-format `offset_slot` information at runtime
+     instead of assuming base-space row layout.
+3. **Compile-time hinted-anchor path**
+   - for an unhinted target field, CnP may precompute:
+     - anchor field;
+     - hop count;
+     - optional static anchor `offset_slot`;
+   - runtime then executes:
+     - one anchor jump;
+     - one fixed-count `mp_next()` chain.
+
+This is an important shift in optimization style:
+
+- before: optimize a generic "find field N" helper;
+- now: attach a **route plan** to the opcode itself.
+
+Example route plan:
+
+| target | anchor | hops |
+|---|---:|---:|
+| `38` | `30` | `8` |
+
+Runtime still cannot know the exact byte address of field 38 at compile time,
+because tuple element sizes are data-dependent. But it can know at compile time:
+
+- which hinted anchor to use;
+- how many `mp_next()` operations are needed after the jump.
+
+## 1.2 Current benchmark shape for scan hints
+
+The branch benchmark has also been reshaped so scan-hint evaluation is no longer
+dominated by a small left-prefix access pattern.
+
+Current `agg_scan` characteristics:
+
+- table widened to **50** data fields;
+- sparse access pattern;
+- mostly increasing field order;
+- actual `EXPLAIN` order:
+
+  `3, 20, 29, 37, 41, 46, 48, 49, 50`
+
+- hints placed in the **middle / near-right** area.
+
+Measured CnP results (`BENCH_RUNS=5`):
+
+| mode | hinted | no-hint |
+|---|---:|---:|
+| materialized | **`33.108 us`** | `39.794 us` |
+| discard | **`32.417 us`** | `38.504 us` |
+
+This benchmark now better matches the intended optimization target:
+
+- sparse wide-row access where plain no-hint left-to-right amortization should
+  not dominate by construction.
+
+## 1.3 What still remains open
+
+The compile-time hinted-anchor path is not the final answer for all row-access
+shapes.
+
+It helps on:
+
+- wide sparse scans;
+- covering-index scans where a precomputed anchor+hops route is meaningful.
+
+It is not always best on:
+
+- base-row scans where one ordinary no-hint forward walk naturally seeds a large
+  dense cache prefix and later accesses reuse it.
+
+So the next optimization question is no longer only:
+
+- "how do we reach field N faster?"
+
+but increasingly:
+
+- "how do we organize all row-local field accesses to build the most useful
+  cache state?"
+
 ## 2. Hypothesis: inline the first helper layer into stencils
 
 One concrete idea is to force-inline the first helper layer called by the
@@ -148,6 +240,48 @@ There are three important limits:
 
 So this optimization should be treated as one stage in a larger plan, not the
 only answer.
+
+## 5.1 Likely next planning direction: row-local prefetch hints
+
+The current metadata model is still mostly **per-op**.
+
+That is enough for:
+
+- direct hinted field access;
+- anchor+hops routing for one target field;
+- grouped contiguous preload.
+
+It is probably not enough for the next class of wins, where the right move is to
+plan an entire row-local access cluster.
+
+Example access order:
+
+`1, 2, 11, 3, 5, 7`
+
+The best strategy there may be:
+
+1. detect a hot envelope `[1..11]`;
+2. nominate one access as a **leader**;
+3. have that leader preload or seed cached slots for the cluster in the most
+   profitable order;
+4. treat later accesses as cache hits rather than independent navigation tasks.
+
+That likely needs an explicit planning layer, for example via **special VDBE
+hint tokens / CnP-only metadata** that can describe:
+
+- prefetch envelope;
+- leader field;
+- preferred prefetch order;
+- whether the plan is intended for base rows, covering rows, or both.
+
+In other words, the next likely milestone is not another small helper branch,
+but a way to express:
+
+- "prefetch these row-local fields in this order"
+
+instead of only:
+
+- "access this one field using this helper".
 
 ## 6. Recommendation on ABI changes
 

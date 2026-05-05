@@ -37,7 +37,8 @@ else
         hot_expr
         point_lookup
         bitwise_mix
-        agg_scan
+        wide_scan_nohint
+        wide_scan_hint
         builtin_scan
         sort_window
     )
