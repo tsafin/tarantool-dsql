@@ -2157,6 +2157,8 @@ struct Parse {
 #define OPFLAG_NCHANGE       0x01	/* OP_Insert: Set to update db->nChange */
 				     /* Also used in P2 (not P5) of OP_Delete */
 #define OPFLAG_EPHEM         0x01	/* OP_Column: Ephemeral output is ok */
+#define OPFLAG_CNP_COLUMN_OFFSET_SLOT_SHIFT 8
+#define OPFLAG_CNP_COLUMN_OFFSET_SLOT_MASK  0xff00
 #define OPFLAG_OE_IGNORE    0x200	/* OP_IdxInsert: Ignore flag */
 #define OPFLAG_OE_FAIL      0x400	/* OP_IdxInsert: Fail flag */
 #define OPFLAG_OE_ROLLBACK  0x800	/* OP_IdxInsert: Rollback flag. */

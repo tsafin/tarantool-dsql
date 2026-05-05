@@ -347,6 +347,10 @@ struct Vdbe {
 	void *cnp_gdb_entry;
 	/** Per-PC immediate metadata for constant-specialized arithmetic helpers. */
 	struct cnp_arith_imm *cnp_arith_imm;
+	/** Per-PC metadata for grouped scan-oriented OP_Column preloading. */
+	struct cnp_column_group *cnp_column_group;
+	/** Per-PC metadata for compile-time hinted-anchor column paths. */
+	struct cnp_column_path *cnp_column_path;
 #endif
 };
 
@@ -358,6 +362,21 @@ struct cnp_arith_imm {
 	uint8_t reserved;
 	int64_t p1_value;
 	int64_t p2_value;
+};
+
+struct cnp_column_group {
+	uint32_t min_field;
+	uint32_t max_field;
+	int32_t min_offset_slot;
+	bool enabled;
+};
+
+struct cnp_column_path {
+	uint32_t anchor_field;
+	uint16_t hop_count;
+	bool enabled;
+	uint8_t reserved;
+	int32_t offset_slot;
 };
 
 enum {
