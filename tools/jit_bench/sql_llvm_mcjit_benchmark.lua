@@ -19,6 +19,10 @@ local function env_int(name, default)
     return tonumber(os.getenv(name) or tostring(default))
 end
 
+local function env_int_compat(name, legacy_name, default)
+    return tonumber(os.getenv(name) or os.getenv(legacy_name) or tostring(default))
+end
+
 local function log_progress(fmt, ...)
     io.stderr:write(('[bench] ' .. fmt .. '\n'):format(...))
 end
@@ -160,7 +164,7 @@ local function execute_sql_no_result(target, args)
     return box.internal.execute_no_result(target, args)
 end
 
-local function setup_point_lookup()
+local function setup_bench_arith(with_scan_hint_indexes)
     pcall(box.execute, 'DROP TABLE bench_arith')
     box.execute([[
         CREATE TABLE bench_arith(
@@ -178,6 +182,15 @@ local function setup_point_lookup()
             k INTEGER
         );
     ]])
+    if with_scan_hint_indexes then
+        box.execute('CREATE INDEX bench_arith_d ON bench_arith(d);')
+        box.execute('CREATE INDEX bench_arith_e ON bench_arith(e);')
+        box.execute('CREATE INDEX bench_arith_g ON bench_arith(g);')
+        box.execute('CREATE INDEX bench_arith_h ON bench_arith(h);')
+        box.execute('CREATE INDEX bench_arith_i ON bench_arith(i);')
+        box.execute('CREATE INDEX bench_arith_j ON bench_arith(j);')
+        box.execute('CREATE INDEX bench_arith_k ON bench_arith(k);')
+    end
     for i = 1, 1024 do
         local a = i * 10
         local b = i * 5 + 1
@@ -195,15 +208,56 @@ local function setup_point_lookup()
     end
 end
 
+local function bench_arith_wide_value(i, fieldno)
+    return i * (fieldno + 3) + fieldno * 7 + (fieldno % 5)
+end
+
+local function setup_bench_arith_wide_sparse(with_scan_hint_indexes)
+    pcall(box.execute, 'DROP TABLE bench_arith')
+    local defs = {'id INTEGER PRIMARY KEY'}
+    for fieldno = 1, 50 do
+        defs[#defs + 1] = string.format('f%02d INTEGER', fieldno)
+    end
+    box.execute(string.format([[
+        CREATE TABLE bench_arith(
+            %s
+        );
+    ]], table.concat(defs, ',\n            ')))
+    if with_scan_hint_indexes then
+        box.execute('CREATE INDEX bench_arith_f20 ON bench_arith(f20);')
+        box.execute('CREATE INDEX bench_arith_f24 ON bench_arith(f24);')
+        box.execute('CREATE INDEX bench_arith_f37 ON bench_arith(f37);')
+        box.execute('CREATE INDEX bench_arith_f46 ON bench_arith(f46);')
+        box.execute('CREATE INDEX bench_arith_f48 ON bench_arith(f48);')
+    end
+    local placeholders = {'?'}
+    for fieldno = 1, 50 do
+        placeholders[#placeholders + 1] = '?'
+    end
+    local insert_sql = string.format('INSERT INTO bench_arith VALUES (%s);',
+                                     table.concat(placeholders, ', '))
+    for i = 1, 1024 do
+        local row = {i}
+        for fieldno = 1, 50 do
+            row[#row + 1] = bench_arith_wide_value(i, fieldno)
+        end
+        box.execute(insert_sql, row)
+    end
+end
+
+local function setup_point_lookup()
+    setup_bench_arith(false)
+end
+
 local function teardown_point_lookup()
     pcall(box.execute, 'DROP TABLE bench_arith')
 end
 
-local agg_scan_expected
+local wide_scan_expected
 
-local function setup_agg_scan()
-    setup_point_lookup()
-    agg_scan_expected = {}
+local function setup_wide_scan(with_scan_hint_indexes)
+    setup_bench_arith_wide_sparse(with_scan_hint_indexes)
+    wide_scan_expected = {}
     local window = 128
     for start_id = 1, 1024 do
         local sum1 = 0
@@ -212,32 +266,45 @@ local function setup_agg_scan()
         local max_mod = nil
         local finish_id = math.min(start_id + window - 1, 1024)
         for i = start_id, finish_id do
-            local a = i * 10
-            local b = i * 5 + 1
-            local c = i * 2 + 1
-            local d = i * 3 + 7
-            local e = i * 4 + 9
-            local g = i * 8 + 13
-            local h = i * 9 + 15
-            local ii = i * 11 + 17
-            local j = i * 12 + 19
-            local k = i * 14 + 23
-            sum1 = sum1 + (a * j + h - e)
-            sum2 = sum2 + ((g - b) * (ii + 1) + d)
+            sum1 = sum1 + bench_arith_wide_value(i, 3) +
+                bench_arith_wide_value(i, 20) +
+                bench_arith_wide_value(i, 29) +
+                bench_arith_wide_value(i, 37)
+            sum2 = sum2 + bench_arith_wide_value(i, 41) +
+                bench_arith_wide_value(i, 46) +
+                bench_arith_wide_value(i, 48) +
+                bench_arith_wide_value(i, 49)
             cnt = cnt + 1
-            local mod = k % 97
+            local mod = bench_arith_wide_value(i, 50) % 97
             if max_mod == nil or mod > max_mod then
                 max_mod = mod
             end
         end
-        agg_scan_expected[start_id] = {sum1, sum2, cnt, max_mod}
+        wide_scan_expected[start_id] = {sum1, sum2, cnt, max_mod}
     end
 end
 
-local function teardown_agg_scan()
-    agg_scan_expected = nil
+local function setup_wide_scan_nohint()
+    setup_wide_scan(false)
+end
+
+local function setup_wide_scan_hint()
+    setup_wide_scan(true)
+end
+
+local function teardown_wide_scan()
+    wide_scan_expected = nil
     teardown_point_lookup()
 end
+
+local WIDE_SCAN_SQL = [[
+    SELECT sum(f03 + f20 + f29 + f37),
+           sum(f41 + f46 + f48 + f49),
+           count(*),
+           max(f50 % 97)
+    FROM bench_arith
+    WHERE id BETWEEN ? AND ?;
+]]
 
 local builtin_scan_expected
 
@@ -258,6 +325,14 @@ local function setup_builtin_scan()
             s6 STRING
         );
     ]])
+    box.execute('CREATE INDEX bench_text_s3 ON bench_text(s3);')
+    box.execute('CREATE INDEX bench_text_s4 ON bench_text(s4);')
+    box.execute('CREATE INDEX bench_text_n1 ON bench_text(n1);')
+    box.execute('CREATE INDEX bench_text_n2 ON bench_text(n2);')
+    box.execute('CREATE INDEX bench_text_n3 ON bench_text(n3);')
+    box.execute('CREATE INDEX bench_text_n4 ON bench_text(n4);')
+    box.execute('CREATE INDEX bench_text_s5 ON bench_text(s5);')
+    box.execute('CREATE INDEX bench_text_s6 ON bench_text(s6);')
 
     builtin_scan_expected = {}
     local rows = {}
@@ -427,21 +502,17 @@ local workloads = {
         end,
     },
     {
-        name = 'agg_scan',
-        description = 'Indexed range aggregation with arithmetic work',
-        sql = [[
-            SELECT sum(a * j + h - e),
-                   sum((g - b) * (i + 1) + d),
-                   count(*),
-                   max(k % 97)
-            FROM bench_arith
-            WHERE id BETWEEN ? AND ?;
-        ]],
-        prepare_iterations = env_int('BENCH_PREPARE_ITERS_AGG', 500),
-        exec_iterations = env_int('BENCH_EXEC_ITERS_AGG', 5000),
-        auto_iterations = env_int('BENCH_AUTO_ITERS_AGG', 5000),
-        setup = setup_agg_scan,
-        teardown = teardown_agg_scan,
+        name = 'wide_scan_nohint',
+        description = 'Wide sparse range aggregation without scan hints',
+        sql = WIDE_SCAN_SQL,
+        prepare_iterations = env_int_compat('BENCH_PREPARE_ITERS_WIDE_SCAN',
+                                            'BENCH_PREPARE_ITERS_AGG', 500),
+        exec_iterations = env_int_compat('BENCH_EXEC_ITERS_WIDE_SCAN',
+                                         'BENCH_EXEC_ITERS_AGG', 5000),
+        auto_iterations = env_int_compat('BENCH_AUTO_ITERS_WIDE_SCAN',
+                                         'BENCH_AUTO_ITERS_AGG', 5000),
+        setup = setup_wide_scan_nohint,
+        teardown = teardown_wide_scan,
         args = function(i)
             local start_id = ((i - 1) % 1024) + 1
             return {start_id, math.min(start_id + 127, 1024)}
@@ -449,7 +520,29 @@ local workloads = {
         checksum = function(res) return res.rows[1][1] end,
         expected = function(i)
             local start_id = ((i - 1) % 1024) + 1
-            return agg_scan_expected[start_id][1]
+            return wide_scan_expected[start_id][1]
+        end,
+    },
+    {
+        name = 'wide_scan_hint',
+        description = 'Wide sparse range aggregation with hints for middle/right fields',
+        sql = WIDE_SCAN_SQL,
+        prepare_iterations = env_int_compat('BENCH_PREPARE_ITERS_WIDE_SCAN',
+                                            'BENCH_PREPARE_ITERS_AGG', 500),
+        exec_iterations = env_int_compat('BENCH_EXEC_ITERS_WIDE_SCAN',
+                                         'BENCH_EXEC_ITERS_AGG', 5000),
+        auto_iterations = env_int_compat('BENCH_AUTO_ITERS_WIDE_SCAN',
+                                         'BENCH_AUTO_ITERS_AGG', 5000),
+        setup = setup_wide_scan_hint,
+        teardown = teardown_wide_scan,
+        args = function(i)
+            local start_id = ((i - 1) % 1024) + 1
+            return {start_id, math.min(start_id + 127, 1024)}
+        end,
+        checksum = function(res) return res.rows[1][1] end,
+        expected = function(i)
+            local start_id = ((i - 1) % 1024) + 1
+            return wide_scan_expected[start_id][1]
         end,
     },
     {
