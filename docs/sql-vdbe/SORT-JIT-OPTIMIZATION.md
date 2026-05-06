@@ -31,6 +31,7 @@ Measured `sort_window/prepared_execute` medians across the recent steps:
 | split comparator family with table-driven classification | **`54.28 us`** |
 | direct sorter write from `Mem[]` | **`50.82 us`** |
 | one-pass int-like direct writer | **`50.70 us`** |
+| dedicated integer exact `OP_Column` fast path | **`49.82 us`** |
 
 The current conclusion is:
 
@@ -39,8 +40,15 @@ The current conclusion is:
 - avoiding `MakeRecord` + blob copy on sorter-only sites is also worthwhile;
 - removing the generic direct-writer double walk is structurally correct but
   only a small additional lever on `sort_window`;
-- the next meaningful target is back to the dominant `OP_Column` /
-  field-ref path.
+- the next meaningful target after sorter work really was the dominant
+  `OP_Column` / field-ref path;
+- splitting the shared exact-fast helper by hot field type is worthwhile for
+  integer-heavy workloads like `sort_window`.
+
+The current `generated` dispatcher result on the same workload is
+`58.06 us` median. This path shares the same specialized handler body, but the
+remaining gap is still dominated by generated-dispatch overhead rather than the
+sorter-local helpers themselves.
 
 ## 1. Goal
 

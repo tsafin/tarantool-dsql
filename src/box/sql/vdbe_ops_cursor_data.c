@@ -620,6 +620,107 @@ out:
 	return 0;
 }
 
+static inline int
+vdbe_op_column_decode_integer_exact_fast(struct Mem *mem, const char *data)
+{
+	switch (mp_typeof(*data)) {
+	case MP_NIL:
+		mp_decode_nil(&data);
+		mem_set_null(mem);
+		return 0;
+	case MP_UINT:
+		mem->u.u = mp_decode_uint(&data);
+		mem->type = MEM_TYPE_UINT;
+		mem->flags = 0;
+		return 0;
+	case MP_INT:
+		mem->u.i = mp_decode_int(&data);
+		mem->type = MEM_TYPE_INT;
+		mem->flags = 0;
+		return 0;
+	default:
+		return 1;
+	}
+}
+
+/*
+ * Integer-heavy workloads like sort_window spend enough time in the shared
+ * exact-fast OP_Column helper that it is worth removing the per-type decode
+ * dispatch from the hottest integer-only variant.
+ */
+static int
+vdbe_op_column_integer_exact_fast_impl(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	int p2 = pOp->p2;
+	VdbeCursor *pC = p->apCsr[pOp->p1];
+	Mem *pDest;
+	Mem *pReg;
+
+	assert(pOp->p3 > 0 && pOp->p3 <= (p->nMem + 1 - p->nCursor));
+	pDest = vdbe_prepare_null_out(p, pOp->p3);
+	assert(pOp->p1 >= 0 && pOp->p1 < p->nCursor);
+	assert(pC != NULL);
+	assert(p2 < pC->nField);
+	assert(pC->eCurType != CURTYPE_PSEUDO || pC->nullRow);
+	assert(pC->eCurType != CURTYPE_SORTER);
+
+	if (pC->cacheStatus != p->cacheCtr) {
+		if (pC->nullRow) {
+			if (pC->eCurType == CURTYPE_PSEUDO) {
+				assert(pC->uc.pseudoTableReg > 0);
+				pReg = &aMem[pC->uc.pseudoTableReg];
+				assert(mem_is_bin(pReg));
+				assert(memIsValid(pReg));
+				vdbe_field_ref_prepare_data(&pC->field_ref,
+							    pReg->z, pReg->n);
+			} else {
+				goto out;
+			}
+		} else {
+			BtCursor *pCrsr = pC->uc.pCursor;
+			assert(pCrsr != NULL);
+			assert(sqlCursorIsValid(pCrsr));
+			assert(pCrsr->curFlags & BTCF_TaCursor ||
+			       pCrsr->curFlags & BTCF_TEphemCursor);
+			vdbe_field_ref_prepare_tuple(&pC->field_ref,
+						     pCrsr->last_tuple);
+		}
+		pC->cacheStatus = p->cacheCtr;
+	}
+
+	struct Mem *default_val_mem =
+		pOp->p4type == P4_MEM ? pOp->p4.pMem : NULL;
+	if (pC->eCurType != CURTYPE_TARANTOOL)
+		return vdbe_op_column(p, pOp, aMem);
+	assert(pC->uc.pCursor->space->def->fields[p2].type == FIELD_TYPE_INTEGER);
+	vdbe_field_ref_preload_group_inline(&pC->field_ref,
+					    cnp_column_group(p, pOp));
+	if ((uint32_t)p2 < pC->field_ref.field_count) {
+		const char *data = vdbe_field_ref_fetch_data_inline(&pC->field_ref,
+								    p2);
+		int rc = vdbe_op_column_decode_integer_exact_fast(pDest, data);
+		if (rc < 0)
+			return -1;
+		if (rc > 0) {
+			uint32_t dummy;
+			if (mem_from_mp(pDest, data, &dummy) != 0)
+				return -1;
+		}
+		UPDATE_MAX_BLOBSIZE(pDest);
+	} else {
+		UPDATE_MAX_BLOBSIZE(pDest);
+	}
+
+	if (mem_is_null(pDest) &&
+	    (uint32_t)p2 >= pC->field_ref.field_count &&
+	    default_val_mem != NULL) {
+		mem_copy_as_ephemeral(pDest, default_val_mem);
+	}
+out:
+	REGISTER_TRACE(p, pOp->p3, pDest);
+	return 0;
+}
+
 /*
  * Offset-slot helpers serve both:
  * - primary scans with a statically encoded slot in OP.p5;
@@ -768,8 +869,7 @@ vdbe_op_column_double_exact_fast(Vdbe *p, Op *pOp, Mem *aMem)
 int
 vdbe_op_column_integer_exact_fast(Vdbe *p, Op *pOp, Mem *aMem)
 {
-	return vdbe_op_column_typed_exact_fast(p, pOp, aMem,
-					       FIELD_TYPE_INTEGER);
+	return vdbe_op_column_integer_exact_fast_impl(p, pOp, aMem);
 }
 
 int
