@@ -160,6 +160,66 @@ builds while making it available automatically in debug/JIT verification work.
 The values in `time_us` are accumulated microseconds measured with
 `fiber_clock64()`.
 
+`box.stat.sql()` also exposes the last **native compile failure** recorded by
+each backend:
+
+- `sql_cnp_last_compile_error`
+- `sql_jit_last_compile_error`
+
+These fields are always present, even when opcode profiling is disabled.
+They are meant for the exact case where SQL execution stays correct by falling
+back to the interpreter, but native compilation failed somewhere underneath.
+
+### Native compile error fields
+
+The two fields are **backend-specific** on purpose:
+
+- a CnP fragment/stencil compile failure updates only
+  `sql_cnp_last_compile_error`;
+- an LLVM MCJIT compile failure updates only
+  `sql_jit_last_compile_error`.
+
+A successful compile of that backend clears its own field back to the empty
+string. One backend does not overwrite the other backend's last error.
+
+Typical healthy output looks like this:
+
+```lua
+{
+  sql_cnp_last_compile_error = "",
+  sql_jit_last_compile_error = "",
+}
+```
+
+Typical failure output looks like this:
+
+```lua
+{
+  sql_cnp_last_compile_error =
+    "fragment compile: unresolved symbol 'mem_to_int_precise' for MustBeInt at pc 27",
+  sql_jit_last_compile_error = "",
+}
+```
+
+or:
+
+```lua
+{
+  sql_cnp_last_compile_error = "",
+  sql_jit_last_compile_error =
+    "compile: LLVM module verification failed: PHI node entries do not match predecessors",
+}
+```
+
+The exact message text is intentionally practical rather than stable API. Expect
+it to contain the most useful local detail available at the failure site, such
+as:
+
+- the backend stage (`fragment compile`, `stencil compile`, `compile`);
+- the missing symbol name;
+- the opcode name and PC for CnP relocation failures;
+- the allocation site or LLVM verifier text for MCJIT failures.
+
 ### Coverage
 
 Interpreter profiling covers both execution engines:
@@ -202,6 +262,18 @@ box.execute([[SELECT a + 1 FROM t WHERE id = 2;]])
 print(require('yaml').encode(box.stat.sql()))
 os.exit(0)
 ```
+
+If the statement silently falls back to the interpreter, inspect the last-error
+fields in the same dump before reaching for a debugger. For example, a CnP
+fallback caused by a missing fragment export will usually leave a message like:
+
+```lua
+sql_cnp_last_compile_error =
+  "fragment compile: unresolved symbol 'mem_to_int_precise' for MustBeInt at pc 27"
+```
+
+That is enough to tell you the problem is not SQL prepare and not runtime
+execution, but native code generation for a specific opcode site.
 
 ## Debug Output Types
 
