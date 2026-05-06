@@ -53,11 +53,16 @@ vdbe_op_sorteropen(Vdbe *p, Op *pOp, Mem *aMem)
 	return 0;
 }
 
-/* Opcode: SorterInsert P1 P2 * * *
+/* Opcode: SorterInsert P1 P2 P3 * *
  * Synopsis: key=r[P2]
  *
- * P1 is the index of a sorter cursor. P2 is the index of a memory
- * cell whose value is the key for the sorter entry to be inserted.
+ * P1 is the index of a sorter cursor.
+ *
+ * If P3 is 0, P2 is the index of a memory cell whose value is the
+ * prebuilt key for the sorter entry to be inserted.
+ *
+ * If P3 is not 0, registers r[P2@P3] are encoded directly into the
+ * sorter entry without building an intermediate MakeRecord blob.
  *
  * Insert the record at P2 into the sorter at P1. The record is
  * inserted such that it will be emitted in sorted order by the
@@ -71,12 +76,17 @@ vdbe_op_sorterinsert(Vdbe *p, Op *pOp, Mem *aMem)
 	assert(cursor != NULL);
 	assert(isSorter(cursor));
 
-	Mem *pIn2 = &aMem[pOp->p2];
-	assert(mem_is_bin(pIn2));
-
-	/* Write the record to the sorter */
-	if (sqlVdbeSorterWrite(cursor, pIn2) != 0)
-		return -1;
+	if (pOp->p3 != 0) {
+		assert(pOp->p2 >= 0);
+		if (sqlVdbeSorterWriteFromMems(cursor, &aMem[pOp->p2],
+					       pOp->p3) != 0)
+			return -1;
+	} else {
+		Mem *pIn2 = &aMem[pOp->p2];
+		assert(mem_is_bin(pIn2));
+		if (sqlVdbeSorterWrite(cursor, pIn2) != 0)
+			return -1;
+	}
 
 	return 0;
 }
