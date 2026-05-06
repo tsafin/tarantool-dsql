@@ -29,6 +29,8 @@
  * SUCH DAMAGE.
  */
 #include <assert.h>
+#include <stdarg.h>
+#include <stdio.h>
 #include "field_def.h"
 #include "cfg.h"
 #include "sql.h"
@@ -62,6 +64,41 @@
 static sql *db = NULL;
 
 static const char nil_key[] = { 0x90 }; /* Empty MsgPack array. */
+enum { SQL_LAST_COMPILE_ERROR_MAX = 256 };
+static char sql_jit_last_compile_error[SQL_LAST_COMPILE_ERROR_MAX];
+static char sql_cnp_last_compile_error[SQL_LAST_COMPILE_ERROR_MAX];
+
+static char *
+sql_last_compile_error_buf(enum sql_native_compile_backend backend)
+{
+	switch (backend) {
+	case SQL_NATIVE_COMPILE_JIT:
+		return sql_jit_last_compile_error;
+	case SQL_NATIVE_COMPILE_CNP:
+		return sql_cnp_last_compile_error;
+	default:
+		assert(false);
+		return sql_cnp_last_compile_error;
+	}
+}
+
+void
+sql_set_last_compile_error(enum sql_native_compile_backend backend,
+			      const char *fmt, ...)
+{
+	char *buf = sql_last_compile_error_buf(backend);
+	va_list ap;
+	va_start(ap, fmt);
+	vsnprintf(buf, SQL_LAST_COMPILE_ERROR_MAX, fmt, ap);
+	va_end(ap);
+}
+
+void
+sql_clear_last_compile_error(enum sql_native_compile_backend backend)
+{
+	char *buf = sql_last_compile_error_buf(backend);
+	buf[0] = '\0';
+}
 
 /*
  * Expire all prepared statements when a function is created or dropped.
@@ -1306,6 +1343,10 @@ sql_debug_info(struct info_handler *h)
 	info_append_int(h, "sql_cnp_error_return_count",
 			sql_cnp_error_return_count);
 	info_append_int(h, "sql_cnp_compiled_bytes", sql_cnp_compiled_bytes);
+	info_append_str(h, "sql_jit_last_compile_error",
+			sql_jit_last_compile_error);
+	info_append_str(h, "sql_cnp_last_compile_error",
+			sql_cnp_last_compile_error);
 	sql_vdbe_opcode_profile_append_debug_info(h);
 	info_end(h);
 }

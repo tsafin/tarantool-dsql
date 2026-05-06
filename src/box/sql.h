@@ -64,6 +64,21 @@ sql_init(void);
 struct sql *
 sql_get(void);
 
+enum sql_native_compile_backend {
+	SQL_NATIVE_COMPILE_JIT = 0,
+	SQL_NATIVE_COMPILE_CNP = 1,
+};
+
+/** Record the last hard native compile failure for the selected backend. */
+void
+sql_set_last_compile_error(enum sql_native_compile_backend backend,
+			      const char *fmt, ...)
+	__attribute__((format(printf, 2, 3)));
+
+/** Clear the last hard native compile failure for the selected backend. */
+void
+sql_clear_last_compile_error(enum sql_native_compile_backend backend);
+
 /** Initialize global cache for built-in functions. */
 void
 sql_built_in_functions_cache_init(void);
