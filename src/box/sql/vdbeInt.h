@@ -481,6 +481,7 @@ sqlVdbeSorterNext(const struct VdbeCursor *pCsr, int *pbEof);
 
 int sqlVdbeSorterRewind(const VdbeCursor *, int *);
 int sqlVdbeSorterWrite(const VdbeCursor *, Mem *);
+int sqlVdbeSorterWriteFromMems(const VdbeCursor *, const Mem *, uint32_t);
 int sqlVdbeSorterCompare(const VdbeCursor *, Mem *, int, int *);
 
 int sqlVdbeMemTranslate(Mem *, u8);

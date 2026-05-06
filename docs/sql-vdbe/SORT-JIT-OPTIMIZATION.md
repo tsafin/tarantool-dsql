@@ -12,6 +12,9 @@ What is in place now:
   keys;
 - dedicated `vdbeSorterCompareIntLikeFast()` for all-integer-like keys;
 - wider `vdbeSorterCompareSimpleFast()` for mixed small simple keys;
+- direct sorter-only write path via `OP_SorterInsert P3 != 0`, so sorter sites
+  can encode `Mem[]` values straight into sorter-owned storage without an
+  intermediate `MakeRecord` blob;
 - fallback to the existing unpack-based comparator on unsupported plan shapes
   or runtime MsgPack mismatch.
 
@@ -23,13 +26,15 @@ Measured `sort_window/prepared_execute` medians across the recent steps:
 | first integer-only fast path | `55.51 us` |
 | widened generic simple fast path | `57.90 us` |
 | split comparator family with table-driven classification | **`54.28 us`** |
+| direct sorter write from `Mem[]` | **`50.82 us`** |
 
 The current conclusion is:
 
 - raw sorter compare is clearly worthwhile;
 - integer-heavy keys need a dedicated comparator family;
-- the next optimization target is sorter key write/materialization, not another
-  compare-path widening.
+- avoiding `MakeRecord` + blob copy on sorter-only sites is also worthwhile;
+- the next optimization target is the remaining generic two-pass direct writer
+  cost: `mem_mp_size()` plus `mem_to_mp_buf()`.
 
 ## 1. Goal
 
@@ -415,9 +420,13 @@ Correctness checks:
 3. Preserve the dedicated integer-like comparator family for integer-heavy
    workloads.
 4. Use the wider mixed simple comparator only when needed.
-5. Move to sorter write/materialization optimization next.
-6. Re-profile `sort_window` after write-path changes.
-7. Only after C fast paths on compare and write prove out, add emitted/JIT
+5. Keep the direct sorter-only write path instead of going through
+   `MakeRecord` where possible.
+6. Specialize the direct writer further for small integer-like sorter keys so
+   it stops paying generic `mem_mp_size()` plus `mem_to_mp_buf()` on every
+   field.
+7. Re-profile `sort_window` after that write-path specialization.
+8. Only after C fast paths on compare and write prove out, add emitted/JIT
    comparator generation.
 
 ## 11. Recommended first concrete milestone
@@ -442,9 +451,10 @@ local raw typed compare beats unpack-and-compare on the target workload.
 
 The next concrete milestone should be:
 
-- inspect `OP_MakeRecord`, `OP_SorterInsert`, and `sqlVdbeSorterWrite()`;
-- reduce generic `Mem -> MsgPack` work for small simple sorter keys where
-  possible;
+- keep the new direct `SorterInsert` path for sorter-only sites;
+- add a narrow integer-like direct writer for supported sorter-key shapes;
+- collapse the current `mem_mp_size()` plus `mem_to_mp_buf()` double walk for
+  those shapes;
 - re-profile `sort_window`;
 - only then decide whether the next bottleneck is still sorter-local or has
   moved back to `OP_Column` / field-ref planning.
