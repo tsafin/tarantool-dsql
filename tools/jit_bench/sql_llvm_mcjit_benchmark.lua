@@ -249,6 +249,10 @@ local function setup_point_lookup()
     setup_bench_arith(false)
 end
 
+local function setup_row_prefetch()
+    setup_bench_arith(true)
+end
+
 local function teardown_point_lookup()
     pcall(box.execute, 'DROP TABLE bench_arith')
 end
@@ -499,6 +503,32 @@ local workloads = {
             local c = id * 2 + 1
             return bit.band(bit.bor(bit.band(a, b), c),
                             bit.bor(bit.lshift(a, 1), bit.rshift(b, 1)))
+        end,
+    },
+    {
+        name = 'row_prefetch',
+        description = 'Indexed row lookup with high-field leader and later back-edges',
+        sql = [[
+            SELECT a + b + k + c + e + g
+            FROM bench_arith
+            WHERE id = ?;
+        ]],
+        prepare_iterations = env_int('BENCH_PREPARE_ITERS_ROW_PREFETCH', 2500),
+        exec_iterations = env_int('BENCH_EXEC_ITERS_ROW_PREFETCH', 100000),
+        auto_iterations = env_int('BENCH_AUTO_ITERS_ROW_PREFETCH', 100000),
+        setup = setup_row_prefetch,
+        teardown = teardown_point_lookup,
+        args = function(i) return {((i - 1) % 1024) + 1} end,
+        checksum = function(res) return res.rows[1][1] end,
+        expected = function(i)
+            local id = ((i - 1) % 1024) + 1
+            local a = id * 10
+            local b = id * 5 + 1
+            local c = id * 2 + 1
+            local e = id * 4 + 9
+            local g = id * 8 + 13
+            local k = id * 14 + 23
+            return a + b + k + c + e + g
         end,
     },
     {
