@@ -347,7 +347,7 @@ struct Vdbe {
 	void *cnp_gdb_entry;
 	/** Per-PC immediate metadata for constant-specialized arithmetic helpers. */
 	struct cnp_arith_imm *cnp_arith_imm;
-	/** Per-PC metadata for grouped scan-oriented OP_Column preloading. */
+	/** Per-PC metadata for dense groups and leader-triggered OP_Column prefetch. */
 	struct cnp_column_group *cnp_column_group;
 	/** Per-PC metadata for compile-time hinted-anchor column paths. */
 	struct cnp_column_path *cnp_column_path;
