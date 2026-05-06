@@ -1733,6 +1733,8 @@ cnp_resolve_fragment_symbol(const char *name)
 		return (uintptr_t)mem_set_null;
 	if (strcmp(name, "mem_set_uint") == 0)
 		return (uintptr_t)mem_set_uint;
+	if (strcmp(name, "mem_to_int_precise") == 0)
+		return (uintptr_t)mem_to_int_precise;
 	if (strcmp(name, "mem_add") == 0)
 		return (uintptr_t)mem_add;
 	if (strcmp(name, "mem_sub") == 0)
