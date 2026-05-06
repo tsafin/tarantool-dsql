@@ -1305,6 +1305,7 @@ vdbe_jit_compile(struct Vdbe *p)
 		return 0;
 	}
 	sql_jit_compile_count++;
+	sql_clear_last_compile_error(SQL_NATIVE_COMPILE_JIT);
 
 	/*
 	 * Phase 2: Analyze VDBE program opcodes.
@@ -1467,6 +1468,9 @@ vdbe_jit_compile(struct Vdbe *p)
 		 (unsigned long long)jit_id);
 	LLVMModuleRef module = LLVMModuleCreateWithName(module_name);
 	if (module == NULL) {
+		sql_set_last_compile_error(SQL_NATIVE_COMPILE_JIT,
+			"compile: failed to create LLVM module for %d-op VDBE",
+			p->nOp);
 		diag_set(ClientError, ER_SQL_EXECUTE,
 			 "Failed to create LLVM module for JIT compilation");
 		return -1;
@@ -1536,6 +1540,9 @@ vdbe_jit_compile(struct Vdbe *p)
 	LLVMBasicBlockRef *op_blocks =
 		calloc(p->nOp, sizeof(LLVMBasicBlockRef));
 	if (op_blocks == NULL) {
+		sql_set_last_compile_error(SQL_NATIVE_COMPILE_JIT,
+			"compile: failed to allocate %d opcode blocks",
+			p->nOp);
 		diag_set(OutOfMemory, p->nOp * sizeof(LLVMBasicBlockRef),
 			 "calloc", "op_blocks");
 		LLVMDisposeModule(module);
@@ -1975,6 +1982,9 @@ vdbe_jit_compile(struct Vdbe *p)
 	char *error_msg = NULL;
 	if (LLVMVerifyModule(module, LLVMReturnStatusAction,
 			     &error_msg) != 0) {
+		sql_set_last_compile_error(SQL_NATIVE_COMPILE_JIT,
+			"compile: LLVM module verification failed: %s",
+			error_msg ? error_msg : "unknown");
 		say_error("JIT: module verification failed: %s",
 			  error_msg ? error_msg : "unknown");
 		if (error_msg != NULL)
@@ -2036,6 +2046,9 @@ vdbe_jit_compile(struct Vdbe *p)
 	uint64_t func_addr =
 		LLVMGetFunctionAddress(jit_state.engine, func_name);
 	if (func_addr == 0) {
+		sql_set_last_compile_error(SQL_NATIVE_COMPILE_JIT,
+			"compile: failed to get JIT function address for %s",
+			func_name);
 		diag_set(ClientError, ER_SQL_EXECUTE,
 			 "Failed to get JIT function address");
 		jit_remove_module(module);
@@ -2047,6 +2060,7 @@ vdbe_jit_compile(struct Vdbe *p)
 	p->jit_func = (void *)(uintptr_t)func_addr;
 	p->jit_module = module;
 	p->jit_compiled = 1;
+	sql_clear_last_compile_error(SQL_NATIVE_COMPILE_JIT);
 	sql_jit_compile_success_count++;
 	say_debug("JIT: compiled VDBE %p (%d ops: %d inline, %d call, %d unsupported)",
 		  (void *)p, p->nOp, inline_count, call_count,

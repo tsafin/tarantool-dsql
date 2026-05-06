@@ -2858,12 +2858,20 @@ vdbe_cnp_compile_fragments(struct Vdbe *p)
 	total_size += thunk_count * cnp_abs_jmp_thunk_size();
 
 	uint8_t *code = cnp_arena_alloc(total_size);
-	if (code == NULL)
+	if (code == NULL) {
+		sql_set_last_compile_error(SQL_NATIVE_COMPILE_CNP,
+			"fragment compile: failed to allocate %zu bytes of code",
+			total_size);
 		return -1;
+	}
 
 	void **pc_stencil = (void **)calloc((size_t)nOp + 3, sizeof(void *));
-	if (pc_stencil == NULL)
+	if (pc_stencil == NULL) {
+		sql_set_last_compile_error(SQL_NATIVE_COMPILE_CNP,
+			"fragment compile: failed to allocate pc_stencil for %d ops",
+			nOp);
 		return -1;
+	}
 
 	size_t pos = 0;
 	for (int i = 0; i < nOp; i++) {
@@ -2925,6 +2933,9 @@ vdbe_cnp_compile_fragments(struct Vdbe *p)
 			else
 				target = cnp_resolve_fragment_symbol(rel->symbol_name);
 			if (target == 0) {
+				sql_set_last_compile_error(SQL_NATIVE_COMPILE_CNP,
+					"fragment compile: unresolved symbol '%s' for %s at pc %d",
+					rel->symbol_name, sqlOpcodeName(aOp[i].opcode), i);
 				free(pc_stencil);
 				p->cnp_compiled = CNP_COMPILE_FAILED;
 				return -1;
@@ -2952,6 +2963,7 @@ vdbe_cnp_compile_fragments(struct Vdbe *p)
 	p->cnp_mode = CNP_MODE_FRAGMENTS;
 	p->cnp_pc_stencil = pc_stencil;
 	p->cnp_nop = nOp;
+	sql_clear_last_compile_error(SQL_NATIVE_COMPILE_CNP);
 	sql_cnp_compile_success_count++;
 	sql_cnp_compiled_bytes += thunk_pos;
 
@@ -2974,16 +2986,24 @@ vdbe_cnp_compile(struct Vdbe *p)
 		cnp_invalidate_program(p);
 
 	sql_cnp_compile_count++;
+	sql_clear_last_compile_error(SQL_NATIVE_COMPILE_CNP);
 
 	int nOp = p->nOp;
 	Op *aOp = p->aOp;
 	p->cnp_arith_imm = (struct cnp_arith_imm *)calloc(nOp,
 						       sizeof(*p->cnp_arith_imm));
-	if (p->cnp_arith_imm == NULL)
+	if (p->cnp_arith_imm == NULL) {
+		sql_set_last_compile_error(SQL_NATIVE_COMPILE_CNP,
+			"compile: failed to allocate arithmetic metadata for %d ops",
+			nOp);
 		return -1;
+	}
 	p->cnp_column_group = (struct cnp_column_group *)calloc(
 		nOp, sizeof(*p->cnp_column_group));
 	if (p->cnp_column_group == NULL) {
+		sql_set_last_compile_error(SQL_NATIVE_COMPILE_CNP,
+			"compile: failed to allocate column-group metadata for %d ops",
+			nOp);
 		free(p->cnp_arith_imm);
 		p->cnp_arith_imm = NULL;
 		return -1;
@@ -2991,6 +3011,9 @@ vdbe_cnp_compile(struct Vdbe *p)
 	p->cnp_column_path = (struct cnp_column_path *)calloc(
 		nOp, sizeof(*p->cnp_column_path));
 	if (p->cnp_column_path == NULL) {
+		sql_set_last_compile_error(SQL_NATIVE_COMPILE_CNP,
+			"compile: failed to allocate column-path metadata for %d ops",
+			nOp);
 		free(p->cnp_column_group);
 		p->cnp_column_group = NULL;
 		free(p->cnp_arith_imm);
@@ -3023,6 +3046,9 @@ vdbe_cnp_compile(struct Vdbe *p)
 		int opcode = aOp[i].opcode;
 		if (opcode > CNP_MAX_OPCODE ||
 		    cnp_stencils[opcode].bytes == NULL) {
+			sql_set_last_compile_error(SQL_NATIVE_COMPILE_CNP,
+				"stencil compile: no stencil for %s at pc %d",
+				sqlOpcodeName(opcode), i);
 			p->cnp_compiled = CNP_COMPILE_FAILED;
 			return -1;
 		}
@@ -3034,8 +3060,12 @@ vdbe_cnp_compile(struct Vdbe *p)
 		memset(pc_offset, 0, (nOp + 1) * sizeof(uint32_t));
 	} else {
 		pc_offset = (uint32_t *)calloc(nOp + 1, sizeof(uint32_t));
-		if (pc_offset == NULL)
+		if (pc_offset == NULL) {
+			sql_set_last_compile_error(SQL_NATIVE_COMPILE_CNP,
+				"stencil compile: failed to allocate pc offsets for %d ops",
+				nOp);
 			return -1;
+		}
 		pc_offset_heap = 1;
 	}
 
@@ -3045,6 +3075,9 @@ vdbe_cnp_compile(struct Vdbe *p)
  */
 	uint8_t *code = cnp_arena_alloc(total_size);
 	if (code == NULL) {
+		sql_set_last_compile_error(SQL_NATIVE_COMPILE_CNP,
+			"stencil compile: failed to allocate %u bytes of code",
+			total_size);
 		if (pc_offset_heap)
 			free(pc_offset);
 		return -1;
@@ -3057,6 +3090,9 @@ vdbe_cnp_compile(struct Vdbe *p)
  */
 	void **pc_stencil = (void **)calloc(nOp, sizeof(void *));
 	if (pc_stencil == NULL) {
+		sql_set_last_compile_error(SQL_NATIVE_COMPILE_CNP,
+			"stencil compile: failed to allocate pc_stencil for %d ops",
+			nOp);
 		if (pc_offset_heap)
 			free(pc_offset);
 		return -1;
@@ -3204,6 +3240,7 @@ vdbe_cnp_compile(struct Vdbe *p)
 	p->cnp_mode = CNP_MODE_STENCILS;
 	p->cnp_pc_stencil = pc_stencil;
 	p->cnp_nop = nOp;
+	sql_clear_last_compile_error(SQL_NATIVE_COMPILE_CNP);
 	sql_cnp_compile_success_count++;
 	sql_cnp_compiled_bytes += total_size;
 	cnp_perf_map_add(p, code, total_size);
