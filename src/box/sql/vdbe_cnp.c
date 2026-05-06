@@ -1888,7 +1888,8 @@ cnp_try_configure_dense_column_group(struct Vdbe *p, int pc, struct space *space
  *
  * Without this metadata, field 11 can be fetched as a direct jump and later
  * fields 3/5/7 re-enter the generic scan path. With the leader prefetch, the
- * field-11 site seeds [3..11] once so the later back-edges become cache hits.
+ * field-11 site still fetches 11 directly, but also seeds the follower
+ * envelope [3..7] once so the later back-edges become cache hits.
  */
 static void
 cnp_try_configure_column_prefetch(struct Vdbe *p, int pc, struct space *space,
@@ -1901,6 +1902,7 @@ cnp_try_configure_column_prefetch(struct Vdbe *p, int pc, struct space *space,
 
 	uint32_t leader_field = (uint32_t)op->p2;
 	uint32_t min_follow = leader_field;
+	uint32_t max_follow = 0;
 	int follower_count = 0;
 	for (int i = pc + 1; i < p->nOp; i++) {
 		const Op *it = &p->aOp[i];
@@ -1913,16 +1915,19 @@ cnp_try_configure_column_prefetch(struct Vdbe *p, int pc, struct space *space,
 			continue;
 		if (field < min_follow)
 			min_follow = field;
+		if (follower_count == 0 || field > max_follow)
+			max_follow = field;
 		follower_count++;
 	}
 	if (follower_count < CNP_COLUMN_PREFETCH_MIN_FOLLOWERS)
 		return;
 
-	uint32_t span = leader_field - min_follow + 1;
-	if (span > CNP_COLUMN_GROUP_MAX_SPAN)
+	uint32_t span = max_follow - min_follow + 1;
+	if (span > CNP_COLUMN_GROUP_MAX_SPAN ||
+	    span > (uint32_t)(follower_count + CNP_COLUMN_GROUP_MAX_SLACK))
 		return;
 
-	cnp_configure_column_group_metadata(group, space, min_follow, leader_field,
+	cnp_configure_column_group_metadata(group, space, min_follow, max_follow,
 					       allow_static_offset_slot);
 }
 
