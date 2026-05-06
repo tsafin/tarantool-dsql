@@ -293,15 +293,33 @@ Current prototype:
 
 1. if a later `OP_Column` jumps to a high field;
 2. and later opcodes in the same run come back to smaller fields;
-3. mark that high-field site with a preload envelope `[min_follow .. leader]`;
-4. when the leader executes, seed `vdbe_field_ref.slots[]` for the whole
-   envelope before decoding the leader field.
+3. mark that high-field site with the **follower envelope**
+   `[min_follow .. max_follow]`, not the whole `[min_follow .. leader]` span;
+4. when the leader executes, keep fetching the leader field directly through its
+   offset-slot / hinted path, but seed `vdbe_field_ref.slots[]` for the later
+   follower envelope first.
 
 Example:
 
 - access order: `1, 2, 11, 3, 5, 7`
 - leader: `11`
-- prefetch envelope: `[3 .. 11]`
+- prefetch envelope: `[3 .. 7]`
+
+This shaping matters because the first bridge version over-prefetched all the
+way through the leader field. That helped `prepared_execute`, but it also paid
+for extra `mp_next()` work in `automatic_execute`.
+
+After shrinking the preload range to the actual follower window and gating it
+with the same span/slack rule used by dense groups, the focused rerun in
+`build-jit-relwithdebinfo` moved to:
+
+| workload | mode | generated | CnP |
+|---|---|---:|---:|
+| `row_prefetch` | `prepared_execute` | `1.720 us` | **`1.659 us`** |
+| `row_prefetch` | `automatic_execute` | `1.675 us` | **`1.651 us`** |
+| `point_lookup` | `prepared_execute` | `2.686 us` | **`2.333 us`** |
+| `bitwise_mix` | `prepared_execute` | `3.611 us` | **`3.176 us`** |
+| `sort_window` | `prepared_execute` | `80.308 us` | **`74.364 us`** |
 
 This is intentionally a **CnP-only bridge design**:
 
