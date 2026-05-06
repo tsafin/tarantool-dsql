@@ -37,6 +37,7 @@ else
         hot_expr
         point_lookup
         bitwise_mix
+        row_prefetch
         wide_scan_nohint
         wide_scan_hint
         builtin_scan

@@ -346,8 +346,12 @@ cnp_column_group(const Vdbe *p, const Op *pOp)
 }
 
 /*
- * Seed one dense OP_Column cluster so later columns in the group can hit the
- * cached slots[] array instead of re-walking the tuple.
+ * Seed either:
+ * - one dense OP_Column cluster; or
+ * - one leader-triggered prefetch envelope prepared by the compiler.
+ *
+ * In both cases the goal is the same: fill slots[] once so later column reads
+ * in the same row-local cluster become cache hits.
  */
 static inline void
 vdbe_field_ref_preload_group_inline(struct vdbe_field_ref *field_ref,

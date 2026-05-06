@@ -1816,15 +1816,32 @@ enum {
 	CNP_COLUMN_GROUP_MIN_COUNT = 3,
 	CNP_COLUMN_GROUP_MAX_SPAN = 12,
 	CNP_COLUMN_GROUP_MAX_SLACK = 3,
+	CNP_COLUMN_PREFETCH_MIN_FOLLOWERS = 2,
 };
 
 static void
-cnp_configure_column_group(struct Vdbe *p, int pc, struct space *space,
-			   bool allow_static_offset_slot)
+cnp_configure_column_group_metadata(struct cnp_column_group *group,
+				       struct space *space,
+				       uint32_t min_field, uint32_t max_field,
+				       bool allow_static_offset_slot)
+{
+	group->enabled = true;
+	group->min_field = min_field;
+	group->max_field = max_field;
+	group->min_offset_slot = TUPLE_OFFSET_SLOT_NIL;
+	if (allow_static_offset_slot && space->format != NULL && min_field > 0 &&
+	    min_field < tuple_format_field_count(space->format)) {
+		struct tuple_field *field = tuple_format_field(space->format,
+							       min_field);
+		group->min_offset_slot = field->offset_slot;
+	}
+}
+
+static void
+cnp_try_configure_dense_column_group(struct Vdbe *p, int pc, struct space *space,
+				     bool allow_static_offset_slot)
 {
 	struct cnp_column_group *group = &p->cnp_column_group[pc];
-	memset(group, 0, sizeof(*group));
-
 	Op *op = &p->aOp[pc];
 	if (pc > 0) {
 		const Op *prev = &p->aOp[pc - 1];
@@ -1854,16 +1871,70 @@ cnp_configure_column_group(struct Vdbe *p, int pc, struct space *space,
 	    span > (uint32_t)(count + CNP_COLUMN_GROUP_MAX_SLACK))
 		return;
 
-	group->enabled = true;
-	group->min_field = min_field;
-	group->max_field = max_field;
-	group->min_offset_slot = TUPLE_OFFSET_SLOT_NIL;
-	if (allow_static_offset_slot && space->format != NULL && min_field > 0 &&
-	    min_field < tuple_format_field_count(space->format)) {
-		struct tuple_field *field = tuple_format_field(space->format,
-							       min_field);
-		group->min_offset_slot = field->offset_slot;
+	cnp_configure_column_group_metadata(group, space, min_field, max_field,
+					       allow_static_offset_slot);
+}
+
+/*
+ * A later OP_Column that jumps directly to a high field via offset-slot / hint
+ * path does not seed the intermediate slots[] cache. If the same straight-line
+ * column run later revisits smaller fields, mark the high field as a leader and
+ * preload the useful envelope before decoding it.
+ *
+ * Example:
+ *   1, 2, 11, 3, 5, 7
+ *
+ * Without this metadata, field 11 can be fetched as a direct jump and later
+ * fields 3/5/7 re-enter the generic scan path. With the leader prefetch, the
+ * field-11 site seeds [3..11] once so the later back-edges become cache hits.
+ */
+static void
+cnp_try_configure_column_prefetch(struct Vdbe *p, int pc, struct space *space,
+				  bool allow_static_offset_slot)
+{
+	struct cnp_column_group *group = &p->cnp_column_group[pc];
+	Op *op = &p->aOp[pc];
+	if (op->p2 <= 0)
+		return;
+
+	uint32_t leader_field = (uint32_t)op->p2;
+	uint32_t min_follow = leader_field;
+	int follower_count = 0;
+	for (int i = pc + 1; i < p->nOp; i++) {
+		const Op *it = &p->aOp[i];
+		if (it->opcode != OP_Column || it->p1 != op->p1)
+			break;
+		if (it->p2 < 0 || (uint32_t)it->p2 >= space->def->field_count)
+			return;
+		uint32_t field = (uint32_t)it->p2;
+		if (field >= leader_field)
+			continue;
+		if (field < min_follow)
+			min_follow = field;
+		follower_count++;
 	}
+	if (follower_count < CNP_COLUMN_PREFETCH_MIN_FOLLOWERS)
+		return;
+
+	uint32_t span = leader_field - min_follow + 1;
+	if (span > CNP_COLUMN_GROUP_MAX_SPAN)
+		return;
+
+	cnp_configure_column_group_metadata(group, space, min_follow, leader_field,
+					       allow_static_offset_slot);
+}
+
+static void
+cnp_configure_column_group(struct Vdbe *p, int pc, struct space *space,
+			   bool allow_static_offset_slot)
+{
+	struct cnp_column_group *group = &p->cnp_column_group[pc];
+	memset(group, 0, sizeof(*group));
+	cnp_try_configure_dense_column_group(p, pc, space,
+						 allow_static_offset_slot);
+	if (!group->enabled)
+		cnp_try_configure_column_prefetch(p, pc, space,
+						 allow_static_offset_slot);
 }
 
 static void

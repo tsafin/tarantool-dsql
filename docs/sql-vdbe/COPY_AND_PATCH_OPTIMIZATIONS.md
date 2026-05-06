@@ -283,6 +283,33 @@ instead of only:
 
 - "access this one field using this helper".
 
+### 5.1.1 First prototype: leader-triggered CnP prefetch
+
+The first step does not add new VDBE opcodes yet. Instead, it reuses
+per-`OP_Column` CnP metadata to mark a **leader** inside one straight-line
+column run.
+
+Current prototype:
+
+1. if a later `OP_Column` jumps to a high field;
+2. and later opcodes in the same run come back to smaller fields;
+3. mark that high-field site with a preload envelope `[min_follow .. leader]`;
+4. when the leader executes, seed `vdbe_field_ref.slots[]` for the whole
+   envelope before decoding the leader field.
+
+Example:
+
+- access order: `1, 2, 11, 3, 5, 7`
+- leader: `11`
+- prefetch envelope: `[3 .. 11]`
+
+This is intentionally a **CnP-only bridge design**:
+
+- small enough to prototype quickly;
+- no bytecode format change yet;
+- useful for validating whether row-local planning is worth promoting into more
+  explicit VDBE hint tokens later.
+
 ## 6. Recommendation on ABI changes
 
 The stitched-fragment path now does use an explicit internal ABI, but only
