@@ -331,6 +331,16 @@ struct VdbeSorter {
 	SortSubtask aTask;	/* A single subtask */
 };
 
+enum {
+	/**
+	 * fastCmpPartCount uses low bits for the part count and the high bit to
+	 * distinguish the wider mixed-type fast comparator from the tighter
+	 * all-int-like one.
+	 */
+	VDBE_SORTER_FAST_CMP_PART_COUNT_MASK = 0x7f,
+	VDBE_SORTER_FAST_CMP_MIXED_KIND_FLAG = 0x80,
+};
+
 /*
  * An instance of the following object is used to read records out of a
  * PMA, in sorted order.  The next key to be read is cached in nKey/aKey.
@@ -884,7 +894,8 @@ vdbeSorterInitFastCmpPlan(struct VdbeSorter *pSorter)
 	}
 	pSorter->fastCmpPartCount = (uint8_t)def->part_count;
 	if (!all_intlike)
-		pSorter->fastCmpPartCount |= 0x80U;
+		pSorter->fastCmpPartCount |=
+			VDBE_SORTER_FAST_CMP_MIXED_KIND_FLAG;
 	pSorter->fastCmpDescMask = desc_mask;
 	return true;
 }
@@ -897,7 +908,8 @@ vdbeSorterCompareIntLikeFast(struct SortSubtask *task, bool *key2_cached,
 	const char *field1 = key1;
 	const char *field2 = key2;
 	struct VdbeSorter *sorter = task->pSorter;
-	uint32_t part_count = sorter->fastCmpPartCount & 0x7fU;
+	uint32_t part_count = sorter->fastCmpPartCount &
+			      VDBE_SORTER_FAST_CMP_PART_COUNT_MASK;
 	/*
 	 * Sorter records are MsgPack arrays produced by OP_MakeRecord.
 	 * This narrow fast path handles all-integer-like keys in raw MsgPack:
@@ -933,7 +945,8 @@ vdbeSorterCompareSimpleFast(struct SortSubtask *task, bool *key2_cached,
 	const char *field1 = key1;
 	const char *field2 = key2;
 	struct VdbeSorter *sorter = task->pSorter;
-	uint32_t part_count = sorter->fastCmpPartCount & 0x7fU;
+	uint32_t part_count = sorter->fastCmpPartCount &
+			      VDBE_SORTER_FAST_CMP_PART_COUNT_MASK;
 	/*
 	 * This wider fast path is still raw MsgPack compare, but it supports a
 	 * small mixed set of scalar field kinds. Integer-only keys use the
@@ -1299,7 +1312,7 @@ vdbeSorterGetCompare(VdbeSorter * p)
 {
 	if (p->fastCmpPartCount == 0)
 		return vdbeSorterCompare;
-	if ((p->fastCmpPartCount & 0x80U) == 0)
+	if ((p->fastCmpPartCount & VDBE_SORTER_FAST_CMP_MIXED_KIND_FLAG) == 0)
 		return vdbeSorterCompareIntLikeFast;
 	return vdbeSorterCompareSimpleFast;
 }
@@ -1727,11 +1740,45 @@ sqlVdbeSorterWriteFromMems(const VdbeCursor *pCsr, const Mem *mems,
 	assert(pCsr->eCurType == CURTYPE_SORTER);
 	VdbeSorter *pSorter = pCsr->uc.pSorter;
 	assert(pSorter);
-	uint32_t total = mp_sizeof_array(count);
+	uint32_t total;
+	SorterRecord *pNew;
+	int rc;
+	uint32_t part_count = pSorter->fastCmpPartCount &
+			      VDBE_SORTER_FAST_CMP_PART_COUNT_MASK;
+	if (part_count == count && pSorter->fastCmpPartCount != 0 &&
+	    (pSorter->fastCmpPartCount & VDBE_SORTER_FAST_CMP_MIXED_KIND_FLAG) == 0) {
+		total = mp_sizeof_array(count);
+		for (const Mem *mem = mems; mem < mems + count; mem++) {
+			switch (mem->type) {
+			case MEM_TYPE_INT:
+				total += mp_sizeof_int(mem->u.i);
+				break;
+			case MEM_TYPE_UINT:
+				total += mp_sizeof_uint(mem->u.u);
+				break;
+			default:
+				goto generic;
+			}
+		}
+		rc = vdbeSorterWriteBegin(pSorter, total, &pNew);
+		if (rc != 0)
+			return rc;
+		char *pos = mp_encode_array(SRVAL(pNew), count);
+		for (const Mem *mem = mems; mem < mems + count; mem++) {
+			if (mem->type == MEM_TYPE_INT)
+				pos = mp_encode_int(pos, mem->u.i);
+			else
+				pos = mp_encode_uint(pos, mem->u.u);
+		}
+		assert((uint32_t)(pos - SRVAL(pNew)) == total);
+		mp_tuple_assert(SRVAL(pNew), pos);
+		return 0;
+	}
+generic:
+	total = mp_sizeof_array(count);
 	for (const Mem *mem = mems; mem < mems + count; mem++)
 		total += mem_mp_size(mem);
-	SorterRecord *pNew;
-	int rc = vdbeSorterWriteBegin(pSorter, total, &pNew);
+	rc = vdbeSorterWriteBegin(pSorter, total, &pNew);
 	if (rc != 0)
 		return rc;
 	char *pos = mp_encode_array(SRVAL(pNew), count);
