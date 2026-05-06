@@ -315,6 +315,17 @@ struct VdbeSorter {
 	SorterList list;	/* List of in-memory records */
 	int iMemory;		/* Offset of free space in list.aMemory */
 	int nMemory;		/* Size of list.aMemory allocation in bytes */
+	/*
+	 * Sorter-local fast-compare plan for small simple ORDER BY keys.
+	 * fastCmpPartCount == 0 means "use the generic unpack-based path".
+	 * Otherwise bits [0..6] store the part count and bit 7 selects the
+	 * wider mixed-type comparator over the tighter all-int-like one.
+	 */
+	uint8_t fastCmpPartCount;
+	/* DESC bits for parts [0..fastCmpPartCount). */
+	uint8_t fastCmpDescMask;
+	/* Per-part comparison kind for the mixed simple-typed fast path. */
+	uint8_t fastCmpPartKind[8];
 	u8 bUsePMA;		/* True if one or more PMAs created */
 	SortSubtask aTask;	/* A single subtask */
 };
@@ -775,6 +786,239 @@ vdbeSorterCompare(struct SortSubtask *task, bool *key2_cached,
 	return sqlVdbeRecordCompareMsgpack(key1, r2);
 }
 
+enum vdbe_sorter_fast_cmp_kind {
+	VDBE_SORTER_FAST_CMP_UNSUPPORTED = 0,
+	VDBE_SORTER_FAST_CMP_INTLIKE,
+	VDBE_SORTER_FAST_CMP_STRING,
+	VDBE_SORTER_FAST_CMP_VARBINARY,
+	VDBE_SORTER_FAST_CMP_BOOL,
+	VDBE_SORTER_FAST_CMP_DOUBLE,
+};
+
+static const uint8_t vdbe_sorter_fast_cmp_kind_by_type[field_type_MAX] = {
+	[FIELD_TYPE_UNSIGNED] = VDBE_SORTER_FAST_CMP_INTLIKE,
+	[FIELD_TYPE_STRING] = VDBE_SORTER_FAST_CMP_STRING,
+	[FIELD_TYPE_DOUBLE] = VDBE_SORTER_FAST_CMP_DOUBLE,
+	[FIELD_TYPE_INTEGER] = VDBE_SORTER_FAST_CMP_INTLIKE,
+	[FIELD_TYPE_BOOLEAN] = VDBE_SORTER_FAST_CMP_BOOL,
+	[FIELD_TYPE_VARBINARY] = VDBE_SORTER_FAST_CMP_VARBINARY,
+	[FIELD_TYPE_INT8] = VDBE_SORTER_FAST_CMP_INTLIKE,
+	[FIELD_TYPE_UINT8] = VDBE_SORTER_FAST_CMP_INTLIKE,
+	[FIELD_TYPE_INT16] = VDBE_SORTER_FAST_CMP_INTLIKE,
+	[FIELD_TYPE_UINT16] = VDBE_SORTER_FAST_CMP_INTLIKE,
+	[FIELD_TYPE_INT32] = VDBE_SORTER_FAST_CMP_INTLIKE,
+	[FIELD_TYPE_UINT32] = VDBE_SORTER_FAST_CMP_INTLIKE,
+	[FIELD_TYPE_INT64] = VDBE_SORTER_FAST_CMP_INTLIKE,
+	[FIELD_TYPE_UINT64] = VDBE_SORTER_FAST_CMP_INTLIKE,
+	[FIELD_TYPE_FLOAT32] = VDBE_SORTER_FAST_CMP_DOUBLE,
+	[FIELD_TYPE_FLOAT64] = VDBE_SORTER_FAST_CMP_DOUBLE,
+};
+
+static inline enum vdbe_sorter_fast_cmp_kind
+vdbeSorterFastCmpKind(enum field_type type)
+{
+	assert(type >= 0);
+	assert(type < field_type_MAX);
+	return (enum vdbe_sorter_fast_cmp_kind)
+		vdbe_sorter_fast_cmp_kind_by_type[type];
+}
+
+static inline int
+vdbeSorterCompareIntLikeValues(enum mp_type t1, const char **field1,
+			       enum mp_type t2, const char **field2)
+{
+	if (t1 == MP_UINT) {
+		uint64_t v1 = mp_decode_uint(field1);
+		if (t2 == MP_UINT) {
+			uint64_t v2 = mp_decode_uint(field2);
+			return v1 < v2 ? -1 : v1 > v2 ? 1 : 0;
+		}
+		if (t2 != MP_INT)
+			return -2;
+		int64_t v2 = mp_decode_int(field2);
+		return v2 < 0 ? 1 : v1 < (uint64_t)v2 ? -1 :
+		       v1 > (uint64_t)v2 ? 1 : 0;
+	}
+	if (t1 != MP_INT)
+		return -2;
+	int64_t v1 = mp_decode_int(field1);
+	if (t2 == MP_UINT) {
+		uint64_t v2 = mp_decode_uint(field2);
+		return v1 < 0 ? -1 : (uint64_t)v1 < v2 ? -1 :
+		       (uint64_t)v1 > v2 ? 1 : 0;
+	}
+	if (t2 != MP_INT)
+		return -2;
+	int64_t v2 = mp_decode_int(field2);
+	return v1 < v2 ? -1 : v1 > v2 ? 1 : 0;
+}
+
+static bool
+vdbeSorterInitFastCmpPlan(struct VdbeSorter *pSorter)
+{
+	struct key_def *def = pSorter->key_def;
+	/*
+	 * Keep the fast path intentionally narrow: only short keys with simple
+	 * fixed comparison rules, no collation, and no nullable semantics.
+	 * Everything else stays on the proven generic comparator.
+	 */
+	if (def->part_count == 0 || def->part_count > 8 ||
+	    key_def_has_collation(def))
+		return false;
+	uint8_t desc_mask = 0;
+	bool all_intlike = true;
+	for (uint32_t i = 0; i < def->part_count; ++i) {
+		struct key_part *part = &def->parts[i];
+		enum vdbe_sorter_fast_cmp_kind kind =
+			vdbeSorterFastCmpKind(part->type);
+		if (key_part_is_nullable(part))
+			return false;
+		if (kind == VDBE_SORTER_FAST_CMP_UNSUPPORTED)
+			return false;
+		pSorter->fastCmpPartKind[i] = (uint8_t)kind;
+		if (kind != VDBE_SORTER_FAST_CMP_INTLIKE)
+			all_intlike = false;
+		if (part->sort_order == SORT_ORDER_DESC)
+			desc_mask |= (uint8_t)(1U << i);
+	}
+	pSorter->fastCmpPartCount = (uint8_t)def->part_count;
+	if (!all_intlike)
+		pSorter->fastCmpPartCount |= 0x80U;
+	pSorter->fastCmpDescMask = desc_mask;
+	return true;
+}
+
+static int
+vdbeSorterCompareIntLikeFast(struct SortSubtask *task, bool *key2_cached,
+			     const void *key1, const void *key2)
+{
+	(void)key2_cached;
+	const char *field1 = key1;
+	const char *field2 = key2;
+	struct VdbeSorter *sorter = task->pSorter;
+	uint32_t part_count = sorter->fastCmpPartCount & 0x7fU;
+	/*
+	 * Sorter records are MsgPack arrays produced by OP_MakeRecord.
+	 * This narrow fast path handles all-integer-like keys in raw MsgPack:
+	 *   - skip the outer array headers once;
+	 *   - decode only the compared fields;
+	 *   - return on the first mismatch.
+	 *
+	 * If the runtime record shape does not match the prepare-time plan,
+	 * immediately fall back to the generic unpack-based comparator.
+	 */
+	if (mp_decode_array(&field1) < part_count || mp_decode_array(&field2) < part_count)
+		return vdbeSorterCompare(task, key2_cached, key1, key2);
+
+	for (uint32_t i = 0; i < part_count; ++i) {
+		int rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
+							mp_typeof(*field2), &field2);
+		if (rc == -2)
+			return vdbeSorterCompare(task, key2_cached, key1, key2);
+		if (rc != 0) {
+			if ((sorter->fastCmpDescMask & (uint8_t)(1U << i)) != 0)
+				rc = -rc;
+			return rc;
+		}
+	}
+	return 0;
+}
+
+static int
+vdbeSorterCompareSimpleFast(struct SortSubtask *task, bool *key2_cached,
+			    const void *key1, const void *key2)
+{
+	(void)key2_cached;
+	const char *field1 = key1;
+	const char *field2 = key2;
+	struct VdbeSorter *sorter = task->pSorter;
+	uint32_t part_count = sorter->fastCmpPartCount & 0x7fU;
+	/*
+	 * This wider fast path is still raw MsgPack compare, but it supports a
+	 * small mixed set of scalar field kinds. Integer-only keys use the
+	 * dedicated comparator above to avoid this per-part kind dispatch.
+	 */
+	if (mp_decode_array(&field1) < part_count || mp_decode_array(&field2) < part_count)
+		return vdbeSorterCompare(task, key2_cached, key1, key2);
+
+	for (uint32_t i = 0; i < part_count; ++i) {
+		int rc;
+		enum vdbe_sorter_fast_cmp_kind kind =
+			(enum vdbe_sorter_fast_cmp_kind)sorter->fastCmpPartKind[i];
+		switch (kind) {
+		case VDBE_SORTER_FAST_CMP_INTLIKE:
+			rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
+							    mp_typeof(*field2), &field2);
+			if (rc == -2)
+				return vdbeSorterCompare(task, key2_cached, key1, key2);
+			break;
+		case VDBE_SORTER_FAST_CMP_STRING: {
+			if (mp_typeof(*field1) != MP_STR || mp_typeof(*field2) != MP_STR)
+				return vdbeSorterCompare(task, key2_cached, key1, key2);
+			uint32_t len1 = mp_decode_strl(&field1);
+			uint32_t len2 = mp_decode_strl(&field2);
+			uint32_t len = MIN(len1, len2);
+			rc = memcmp(field1, field2, len);
+			if (rc == 0)
+				rc = len1 < len2 ? -1 : len1 > len2 ? 1 : 0;
+			field1 += len1;
+			field2 += len2;
+			break;
+		}
+		case VDBE_SORTER_FAST_CMP_VARBINARY: {
+			if (mp_typeof(*field1) != MP_BIN || mp_typeof(*field2) != MP_BIN)
+				return vdbeSorterCompare(task, key2_cached, key1, key2);
+			uint32_t len1 = mp_decode_binl(&field1);
+			uint32_t len2 = mp_decode_binl(&field2);
+			uint32_t len = MIN(len1, len2);
+			rc = memcmp(field1, field2, len);
+			if (rc == 0)
+				rc = len1 < len2 ? -1 : len1 > len2 ? 1 : 0;
+			field1 += len1;
+			field2 += len2;
+			break;
+		}
+		case VDBE_SORTER_FAST_CMP_BOOL: {
+			if (mp_typeof(*field1) != MP_BOOL || mp_typeof(*field2) != MP_BOOL)
+				return vdbeSorterCompare(task, key2_cached, key1, key2);
+			bool v1 = mp_decode_bool(&field1);
+			bool v2 = mp_decode_bool(&field2);
+			rc = v1 == v2 ? 0 : v1 ? 1 : -1;
+			break;
+		}
+		case VDBE_SORTER_FAST_CMP_DOUBLE: {
+			double v1, v2;
+			enum mp_type t1 = mp_typeof(*field1);
+			enum mp_type t2 = mp_typeof(*field2);
+			if (t1 == MP_FLOAT)
+				v1 = mp_decode_float(&field1);
+			else if (t1 == MP_DOUBLE)
+				v1 = mp_decode_double(&field1);
+			else
+				return vdbeSorterCompare(task, key2_cached, key1, key2);
+			if (t2 == MP_FLOAT)
+				v2 = mp_decode_float(&field2);
+			else if (t2 == MP_DOUBLE)
+				v2 = mp_decode_double(&field2);
+			else
+				return vdbeSorterCompare(task, key2_cached, key1, key2);
+			rc = v1 < v2 ? -1 : v1 > v2 ? 1 : 0;
+			break;
+		}
+		default:
+			return vdbeSorterCompare(task, key2_cached, key1, key2);
+		}
+		if (rc != 0) {
+			/* DESC handling is baked into a compact per-part bitmask. */
+			if ((sorter->fastCmpDescMask & (uint8_t)(1U << i)) != 0)
+				rc = -rc;
+			return rc;
+		}
+	}
+	/* The compared prefix is identical, so the sorter keys are equal. */
+	return 0;
+}
+
 int
 sqlVdbeSorterInit(struct VdbeCursor *pCsr)
 {
@@ -791,6 +1035,7 @@ sqlVdbeSorterInit(struct VdbeCursor *pCsr)
 	pSorter->key_def = pCsr->key_def;
 	pSorter->pgsz = pgsz = 1024;
 	pSorter->aTask.pSorter = pSorter;
+	(void)vdbeSorterInitFastCmpPlan(pSorter);
 
 	/* Cache size in bytes */
 	i64 mxCache;
@@ -1051,8 +1296,11 @@ vdbeSorterMerge(SortSubtask * pTask,	/* Calling thread context */
 static SorterCompare
 vdbeSorterGetCompare(VdbeSorter * p)
 {
-	(void)p;
-	return vdbeSorterCompare;
+	if (p->fastCmpPartCount == 0)
+		return vdbeSorterCompare;
+	if ((p->fastCmpPartCount & 0x80U) == 0)
+		return vdbeSorterCompareIntLikeFast;
+	return vdbeSorterCompareSimpleFast;
 }
 
 /*
