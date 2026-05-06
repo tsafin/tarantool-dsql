@@ -950,6 +950,14 @@ mem_from_mp(struct Mem *mem, const char *buf, uint32_t *len);
 void
 mem_to_mpstream(const struct Mem *var, struct mpstream *stream);
 
+/** Return MsgPack size for a MEM value. */
+uint32_t
+mem_mp_size(const struct Mem *mem);
+
+/** Encode MEM as msgpack value into caller-provided buffer. */
+char *
+mem_to_mp_buf(const struct Mem *mem, char *buf);
+
 /** Encode MEM as msgpack value on region. */
 char *
 mem_to_mp(const struct Mem *mem, uint32_t *size, struct region *region);

@@ -3281,7 +3281,7 @@ mem_to_mpstream(const struct Mem *var, struct mpstream *stream)
 	}
 }
 
-static uint32_t
+uint32_t
 mem_mp_size(const struct Mem *mem)
 {
 	assert(memIsValid(mem));
@@ -3316,7 +3316,7 @@ mem_mp_size(const struct Mem *mem)
 	}
 }
 
-static char *
+char *
 mem_to_mp_buf(const struct Mem *mem, char *buf)
 {
 	assert(memIsValid(mem));

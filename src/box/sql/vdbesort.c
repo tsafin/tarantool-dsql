@@ -154,6 +154,7 @@
 #include "sqlInt.h"
 #include "mem.h"
 #include "vdbeInt.h"
+#include "box/tuple.h"
 
 /*
  * Hard-coded maximum amount of data to accumulate in memory before flushing
@@ -1616,24 +1617,14 @@ vdbeSorterFlushPMA(VdbeSorter * pSorter)
 	return vdbeSorterListToPMA(&pSorter->aTask, &pSorter->list);
 }
 
-/*
- * Add a record to the sorter.
- */
-int
-sqlVdbeSorterWrite(const VdbeCursor * pCsr,	/* Sorter cursor */
-		       Mem * pVal	/* Memory cell containing record */
-    )
+static int
+vdbeSorterWriteBegin(VdbeSorter *pSorter, int record_size, SorterRecord **out)
 {
-	VdbeSorter *pSorter;
 	int rc = 0;	/* Return Code */
 	SorterRecord *pNew;	/* New list element */
 	int bFlush;		/* True to flush contents of memory to PMA */
 	int nReq;		/* Bytes of memory required */
 	int nPMA;		/* Bytes of PMA space required */
-
-	assert(pCsr->eCurType == CURTYPE_SORTER);
-	pSorter = pCsr->uc.pSorter;
-	assert(pSorter);
 
 	/* Figure out whether or not the current contents of memory should be
 	 * flushed to a PMA before continuing. If so, do so.
@@ -1648,8 +1639,8 @@ sqlVdbeSorterWrite(const VdbeCursor * pCsr,	/* Sorter cursor */
 	 *   * The total memory allocated for the in-memory list is greater
 	 *     than (page-size * cache-size), or
 	 */
-	nReq = pVal->n + sizeof(SorterRecord);
-	nPMA = pVal->n + sqlVarintLen(pVal->n);
+	nReq = record_size + sizeof(SorterRecord);
+	nPMA = record_size + sqlVarintLen(record_size);
 	if (pSorter->mxPmaSize) {
 		if (pSorter->list.aMemory) {
 			bFlush = pSorter->iMemory
@@ -1704,12 +1695,51 @@ sqlVdbeSorterWrite(const VdbeCursor * pCsr,	/* Sorter cursor */
 		pNew = xmalloc(nReq);
 		pNew->u.pNext = pSorter->list.pList;
 	}
-
-	memcpy(SRVAL(pNew), pVal->z, pVal->n);
-	pNew->nVal = pVal->n;
+	pNew->nVal = record_size;
 	pSorter->list.pList = pNew;
-
+	*out = pNew;
 	return rc;
+}
+
+/*
+ * Add a record to the sorter.
+ */
+int
+sqlVdbeSorterWrite(const VdbeCursor * pCsr,	/* Sorter cursor */
+		       Mem * pVal	/* Memory cell containing record */
+    )
+{
+	assert(pCsr->eCurType == CURTYPE_SORTER);
+	VdbeSorter *pSorter = pCsr->uc.pSorter;
+	assert(pSorter);
+	SorterRecord *pNew;
+	int rc = vdbeSorterWriteBegin(pSorter, pVal->n, &pNew);
+	if (rc != 0)
+		return rc;
+	memcpy(SRVAL(pNew), pVal->z, pVal->n);
+	return 0;
+}
+
+int
+sqlVdbeSorterWriteFromMems(const VdbeCursor *pCsr, const Mem *mems,
+			   uint32_t count)
+{
+	assert(pCsr->eCurType == CURTYPE_SORTER);
+	VdbeSorter *pSorter = pCsr->uc.pSorter;
+	assert(pSorter);
+	uint32_t total = mp_sizeof_array(count);
+	for (const Mem *mem = mems; mem < mems + count; mem++)
+		total += mem_mp_size(mem);
+	SorterRecord *pNew;
+	int rc = vdbeSorterWriteBegin(pSorter, total, &pNew);
+	if (rc != 0)
+		return rc;
+	char *pos = mp_encode_array(SRVAL(pNew), count);
+	for (const Mem *mem = mems; mem < mems + count; mem++)
+		pos = mem_to_mp_buf(mem, pos);
+	assert((uint32_t)(pos - SRVAL(pNew)) == total);
+	mp_tuple_assert(SRVAL(pNew), pos);
+	return 0;
 }
 
 /*

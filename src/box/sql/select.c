@@ -973,8 +973,6 @@ pushOntoSorter(Parse * pParse,		/* Parser context */
 		sqlExprCodeMove(pParse, regData, regBase + nExpr + bSeq,
 				    nData);
 	}
-	sqlVdbeAddOp3(v, OP_MakeRecord, regBase + nOBSat, nBase - nOBSat,
-			  regRecord);
 	if (nOBSat > 0) {
 		int regPrevKey;	/* The first nOBSat columns of the previous row */
 		int addrFirst;	/* Address of the OP_IfNot opcode */
@@ -1043,10 +1041,12 @@ pushOntoSorter(Parse * pParse,		/* Parser context */
 		sqlVdbeJumpHere(v, addrJmp);
 	}
 	if (pSort->sortFlags & SORTFLAG_UseSorter) {
-		sqlVdbeAddOp2(v, OP_SorterInsert, pSort->iECursor,
-				  regRecord);
+		sqlVdbeAddOp3(v, OP_SorterInsert, pSort->iECursor,
+				  regBase + nOBSat, nBase - nOBSat);
 		return;
 	}
+	sqlVdbeAddOp3(v, OP_MakeRecord, regBase + nOBSat, nBase - nOBSat,
+			  regRecord);
 	sqlVdbeAddOp2(v, OP_IdxInsert, regRecord, pSort->reg_eph);
 
 	if (iLimit) {
@@ -6328,13 +6328,9 @@ sqlSelect(Parse * pParse,		/* The parser context */
 						j++;
 					}
 				}
-				regRecord = sqlGetTempReg(pParse);
-				sqlVdbeAddOp3(v, OP_MakeRecord, regBase,
-						  nCol, regRecord);
-				sqlVdbeAddOp2(v, OP_SorterInsert,
+				sqlVdbeAddOp3(v, OP_SorterInsert,
 						  sAggInfo.sortingIdx,
-						  regRecord);
-				sqlReleaseTempReg(pParse, regRecord);
+						  regBase, nCol);
 				sqlReleaseTempRange(pParse, regBase, nCol);
 				sqlWhereEnd(pWInfo);
 				sAggInfo.sortingIdxPTab = sortPTab =
