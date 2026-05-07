@@ -46,6 +46,7 @@
 #include "vdbe_helpers.h"
 #include "box/error.h"
 #include "box/field_def.h"
+#include "box/key_def.h"
 #include "box/tuple_format.h"
 #include "box/space_cache.h"
 #include "diag.h"
@@ -2463,6 +2464,56 @@ cnp_select_arith_fragment_handler(struct Vdbe *p, int pc)
 	}
 }
 
+static bool
+cnp_sortercompare_is_intlike_shape(const struct key_def *def, uint32_t part_count)
+{
+	if (def == NULL || part_count == 0 || part_count > 4 ||
+	    key_def_has_collation(def) || def->part_count < part_count)
+		return false;
+	for (uint32_t i = 0; i < part_count; i++) {
+		const struct key_part *part = &def->parts[i];
+		switch (part->type) {
+		case FIELD_TYPE_INT8:
+		case FIELD_TYPE_INT16:
+		case FIELD_TYPE_INT32:
+		case FIELD_TYPE_INT64:
+		case FIELD_TYPE_UINT8:
+		case FIELD_TYPE_UINT16:
+		case FIELD_TYPE_UINT32:
+		case FIELD_TYPE_UINT64:
+			break;
+		default:
+			return false;
+		}
+		if (key_part_is_nullable(part))
+			return false;
+	}
+	return true;
+}
+
+static uintptr_t
+cnp_select_sortercompare_fragment_handler(struct Vdbe *p, int pc)
+{
+	const Op *op = &p->aOp[pc];
+	VdbeCursor *pC = p->apCsr[op->p1];
+	if (op->p4type != P4_INT32 || pC == NULL || !isSorter(pC) ||
+	    pC->key_def == NULL)
+		return (uintptr_t)vdbe_op_sortercompare;
+	uint32_t part_count = (uint32_t)op->p4.i;
+	if (!cnp_sortercompare_is_intlike_shape(pC->key_def, part_count))
+		return (uintptr_t)vdbe_op_sortercompare_fast;
+	switch (part_count) {
+	case 2:
+		return (uintptr_t)vdbe_op_sortercompare_intlike2;
+	case 3:
+		return (uintptr_t)vdbe_op_sortercompare_intlike3;
+	case 4:
+		return (uintptr_t)vdbe_op_sortercompare_intlike4;
+	default:
+		return (uintptr_t)vdbe_op_sortercompare_fast;
+	}
+}
+
 static uintptr_t
 cnp_select_bitwise_handler(const struct Vdbe *p, int pc)
 {
@@ -2911,6 +2962,9 @@ vdbe_cnp_compile_fragments(struct Vdbe *p)
 			else if (aOp[i].opcode == OP_Column &&
 				 strcmp(rel->symbol_name, "vdbe_op_column") == 0)
 				target = cnp_select_column_handler(p, i);
+			else if (aOp[i].opcode == OP_SorterCompare &&
+				 strcmp(rel->symbol_name, "vdbe_op_sortercompare") == 0)
+				target = cnp_select_sortercompare_fragment_handler(p, i);
 			else if (((aOp[i].opcode == OP_Add &&
 				   strcmp(rel->symbol_name, "vdbe_op_add_sysv_bridge") == 0) ||
 				  (aOp[i].opcode == OP_Subtract &&

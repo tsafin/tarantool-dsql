@@ -204,6 +204,10 @@ int vdbe_op_sorternext(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterNext */
 int vdbe_op_sorternext_jit(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterNext */
 int vdbe_op_sorterdata(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterData */
 int vdbe_op_sortercompare(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterCompare */
+int vdbe_op_sortercompare_fast(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterCompare */
+int vdbe_op_sortercompare_intlike2(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterCompare */
+int vdbe_op_sortercompare_intlike3(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterCompare */
+int vdbe_op_sortercompare_intlike4(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterCompare */
 int vdbe_op_sortersort(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterSort */
 /* Phase 5.8: Remaining opcodes - misc data, DDL, and field access */
 int vdbe_op_elsenoteq_inline(Vdbe *p, Op *pOp, Mem *aMem);          /* ElseNotEq */

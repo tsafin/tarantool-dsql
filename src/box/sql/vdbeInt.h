@@ -474,6 +474,7 @@ void
 sqlVdbeSorterClose(struct VdbeCursor *pCsr);
 
 int sqlVdbeSorterRowkey(const VdbeCursor *, Mem *);
+const void *sqlVdbeSorterRowkeyRaw(const VdbeCursor *, int *);
 
 /** Advance to the next element in the sorter. */
 int
@@ -483,6 +484,14 @@ int sqlVdbeSorterRewind(const VdbeCursor *, int *);
 int sqlVdbeSorterWrite(const VdbeCursor *, Mem *);
 int sqlVdbeSorterWriteFromMems(const VdbeCursor *, const Mem *, uint32_t);
 int sqlVdbeSorterCompare(const VdbeCursor *, Mem *, int, int *);
+int sqlVdbeSorterCompareRawKey(const VdbeSorter *, uint32_t, const void *,
+			       const void *, bool);
+int sqlVdbeSorterCompareRawKeyIntLike2(const VdbeSorter *, const void *,
+				       const void *, bool);
+int sqlVdbeSorterCompareRawKeyIntLike3(const VdbeSorter *, const void *,
+				       const void *, bool);
+int sqlVdbeSorterCompareRawKeyIntLike4(const VdbeSorter *, const void *,
+				       const void *, bool);
 
 int sqlVdbeMemTranslate(Mem *, u8);
 #ifdef SQL_DEBUG
