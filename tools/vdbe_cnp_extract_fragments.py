@@ -100,6 +100,8 @@ PILOT_FRAGMENTS = [
     {"name": "OP_OpenPseudo", "kind_num": 1, "tail_fallthrough": False},
     {"name": "OP_SorterInsert", "kind_num": 1, "tail_fallthrough": False},
     {"name": "OP_SorterData", "kind_num": 1, "tail_fallthrough": False},
+    # sort_window sorter comparator fragment
+    {"name": "OP_SorterCompare", "kind_num": 2, "tail_fallthrough": True},
     {"name": "OP_SorterSort", "kind_num": 2, "tail_fallthrough": False},
     {"name": "OP_SorterNext", "kind_num": 2, "tail_fallthrough": False},
     # agg_scan / builtin_scan JUMP_P2 cursor opcodes

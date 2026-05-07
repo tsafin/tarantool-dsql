@@ -2064,6 +2064,10 @@ cnp_select_column_handler(struct Vdbe *p, int pc)
 		return (uintptr_t)(use_offset_slot_helper ?
 			vdbe_op_column_boolean_offset_slot_fast :
 			vdbe_op_column_boolean_exact_fast);
+	case FIELD_TYPE_NUMBER:
+		return (uintptr_t)(use_offset_slot_helper ?
+			vdbe_op_column_number_offset_slot_fast :
+			vdbe_op_column_number_exact_fast);
 	default:
 		return (uintptr_t)vdbe_op_column;
 	}

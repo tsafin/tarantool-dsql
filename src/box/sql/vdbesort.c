@@ -1001,6 +1001,101 @@ vdbeSorterCompareRawKey(const struct VdbeSorter *sorter, uint32_t part_count,
 	return 0;
 }
 
+static inline int
+vdbeSorterCompareRawKeyIntLike3(const struct VdbeSorter *sorter,
+				const void *key1, const void *key2,
+				bool right_null_is_less)
+{
+	const char *field1 = key1;
+	const char *field2 = key2;
+	if (mp_decode_array(&field1) < 3 || mp_decode_array(&field2) < 3)
+		return -2;
+	if (right_null_is_less && mp_typeof(*field2) == MP_NIL)
+		return -1;
+	int rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
+						mp_typeof(*field2), &field2);
+	if (rc == -2)
+		return -2;
+	if (rc != 0) {
+		if ((sorter->fastCmpDescMask & (uint8_t)(1U << 0)) != 0)
+			rc = -rc;
+		return rc;
+	}
+	if (right_null_is_less && mp_typeof(*field2) == MP_NIL)
+		return -1;
+	rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
+					    mp_typeof(*field2), &field2);
+	if (rc == -2)
+		return -2;
+	if (rc != 0) {
+		if ((sorter->fastCmpDescMask & (uint8_t)(1U << 1)) != 0)
+			rc = -rc;
+		return rc;
+	}
+	if (right_null_is_less && mp_typeof(*field2) == MP_NIL)
+		return -1;
+	rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
+					    mp_typeof(*field2), &field2);
+	if (rc == -2)
+		return -2;
+	if (rc != 0) {
+		if ((sorter->fastCmpDescMask & (uint8_t)(1U << 2)) != 0)
+			rc = -rc;
+		return rc;
+	}
+	return 0;
+}
+
+static inline int
+vdbeSorterCompareRawKeyIntLike2(const struct VdbeSorter *sorter,
+				const void *key1, const void *key2,
+				bool right_null_is_less)
+{
+	const char *field1 = key1;
+	const char *field2 = key2;
+	if (mp_decode_array(&field1) < 2 || mp_decode_array(&field2) < 2)
+		return -2;
+	for (uint32_t i = 0; i < 2; i++) {
+		if (right_null_is_less && mp_typeof(*field2) == MP_NIL)
+			return -1;
+		int rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
+							mp_typeof(*field2), &field2);
+		if (rc == -2)
+			return -2;
+		if (rc != 0) {
+			if ((sorter->fastCmpDescMask & (uint8_t)(1U << i)) != 0)
+				rc = -rc;
+			return rc;
+		}
+	}
+	return 0;
+}
+
+static inline int
+vdbeSorterCompareRawKeyIntLike4(const struct VdbeSorter *sorter,
+				const void *key1, const void *key2,
+				bool right_null_is_less)
+{
+	const char *field1 = key1;
+	const char *field2 = key2;
+	if (mp_decode_array(&field1) < 4 || mp_decode_array(&field2) < 4)
+		return -2;
+	for (uint32_t i = 0; i < 4; i++) {
+		if (right_null_is_less && mp_typeof(*field2) == MP_NIL)
+			return -1;
+		int rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
+							mp_typeof(*field2), &field2);
+		if (rc == -2)
+			return -2;
+		if (rc != 0) {
+			if ((sorter->fastCmpDescMask & (uint8_t)(1U << i)) != 0)
+				rc = -rc;
+			return rc;
+		}
+	}
+	return 0;
+}
+
 static int
 vdbeSorterCompareIntLikeFast(struct SortSubtask *task, bool *key2_cached,
 			     const void *key1, const void *key2)
@@ -1025,6 +1120,100 @@ vdbeSorterCompareIntLikeFast(struct SortSubtask *task, bool *key2_cached,
 		return vdbeSorterCompare(task, key2_cached, key1, key2);
 
 	for (uint32_t i = 0; i < part_count; ++i) {
+		int rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
+							mp_typeof(*field2), &field2);
+		if (rc == -2)
+			return vdbeSorterCompare(task, key2_cached, key1, key2);
+		if (rc != 0) {
+			if ((sorter->fastCmpDescMask & (uint8_t)(1U << i)) != 0)
+				rc = -rc;
+			return rc;
+		}
+	}
+	return 0;
+}
+
+static int
+vdbeSorterCompareIntLike2Fast(struct SortSubtask *task, bool *key2_cached,
+			      const void *key1, const void *key2)
+{
+	(void)key2_cached;
+	const char *field1 = key1;
+	const char *field2 = key2;
+	struct VdbeSorter *sorter = task->pSorter;
+	if (mp_decode_array(&field1) < 2 || mp_decode_array(&field2) < 2)
+		return vdbeSorterCompare(task, key2_cached, key1, key2);
+	for (uint32_t i = 0; i < 2; i++) {
+		int rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
+							mp_typeof(*field2), &field2);
+		if (rc == -2)
+			return vdbeSorterCompare(task, key2_cached, key1, key2);
+		if (rc != 0) {
+			if ((sorter->fastCmpDescMask & (uint8_t)(1U << i)) != 0)
+				rc = -rc;
+			return rc;
+		}
+	}
+	return 0;
+}
+
+static int
+vdbeSorterCompareIntLike3Fast(struct SortSubtask *task, bool *key2_cached,
+			      const void *key1, const void *key2)
+{
+	(void)key2_cached;
+	const char *field1 = key1;
+	const char *field2 = key2;
+	struct VdbeSorter *sorter = task->pSorter;
+	/*
+	 * Specialize the hottest sorter shape as a fixed three-part integer
+	 * comparator. The prepared plan already guaranteed that each part is
+	 * integer-like and non-nullable, so the body only has to decode and
+	 * compare the exact three fields.
+	 */
+	if (mp_decode_array(&field1) < 3 || mp_decode_array(&field2) < 3)
+		return vdbeSorterCompare(task, key2_cached, key1, key2);
+	int rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
+						mp_typeof(*field2), &field2);
+	if (rc == -2)
+		return vdbeSorterCompare(task, key2_cached, key1, key2);
+	if (rc != 0) {
+		if ((sorter->fastCmpDescMask & (uint8_t)(1U << 0)) != 0)
+			rc = -rc;
+		return rc;
+	}
+	rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
+					    mp_typeof(*field2), &field2);
+	if (rc == -2)
+		return vdbeSorterCompare(task, key2_cached, key1, key2);
+	if (rc != 0) {
+		if ((sorter->fastCmpDescMask & (uint8_t)(1U << 1)) != 0)
+			rc = -rc;
+		return rc;
+	}
+	rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
+					    mp_typeof(*field2), &field2);
+	if (rc == -2)
+		return vdbeSorterCompare(task, key2_cached, key1, key2);
+	if (rc != 0) {
+		if ((sorter->fastCmpDescMask & (uint8_t)(1U << 2)) != 0)
+			rc = -rc;
+		return rc;
+	}
+	return 0;
+}
+
+static int
+vdbeSorterCompareIntLike4Fast(struct SortSubtask *task, bool *key2_cached,
+			      const void *key1, const void *key2)
+{
+	(void)key2_cached;
+	const char *field1 = key1;
+	const char *field2 = key2;
+	struct VdbeSorter *sorter = task->pSorter;
+	if (mp_decode_array(&field1) < 4 || mp_decode_array(&field2) < 4)
+		return vdbeSorterCompare(task, key2_cached, key1, key2);
+	for (uint32_t i = 0; i < 4; i++) {
 		int rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
 							mp_typeof(*field2), &field2);
 		if (rc == -2)
@@ -1413,8 +1602,19 @@ vdbeSorterGetCompare(VdbeSorter * p)
 {
 	if (p->fastCmpPartCount == 0)
 		return vdbeSorterCompare;
-	if ((p->fastCmpPartCount & VDBE_SORTER_FAST_CMP_MIXED_KIND_FLAG) == 0)
-		return vdbeSorterCompareIntLikeFast;
+	if ((p->fastCmpPartCount & VDBE_SORTER_FAST_CMP_MIXED_KIND_FLAG) == 0) {
+		switch (p->fastCmpPartCount &
+			VDBE_SORTER_FAST_CMP_PART_COUNT_MASK) {
+		case 2:
+			return vdbeSorterCompareIntLike2Fast;
+		case 3:
+			return vdbeSorterCompareIntLike3Fast;
+		case 4:
+			return vdbeSorterCompareIntLike4Fast;
+		default:
+			return vdbeSorterCompareIntLikeFast;
+		}
+	}
 	return vdbeSorterCompareSimpleFast;
 }
 
@@ -2541,8 +2741,32 @@ sqlVdbeSorterCompare(const VdbeCursor * pCsr,	/* Sorter cursor */
 		uint32_t part_count = pSorter->fastCmpPartCount &
 				      VDBE_SORTER_FAST_CMP_PART_COUNT_MASK;
 		if ((uint32_t)nKeyCol <= part_count) {
-			int rc = vdbeSorterCompareRawKey(pSorter, (uint32_t)nKeyCol,
-							 pVal->z, pKey, true);
+			int rc;
+			if ((pSorter->fastCmpPartCount &
+			     VDBE_SORTER_FAST_CMP_MIXED_KIND_FLAG) == 0) {
+				switch (nKeyCol) {
+				case 2:
+					rc = vdbeSorterCompareRawKeyIntLike2(
+						pSorter, pVal->z, pKey, true);
+					break;
+				case 3:
+					rc = vdbeSorterCompareRawKeyIntLike3(
+						pSorter, pVal->z, pKey, true);
+					break;
+				case 4:
+					rc = vdbeSorterCompareRawKeyIntLike4(
+						pSorter, pVal->z, pKey, true);
+					break;
+				default:
+					rc = vdbeSorterCompareRawKey(
+						pSorter, (uint32_t)nKeyCol, pVal->z,
+						pKey, true);
+					break;
+				}
+			} else {
+				rc = vdbeSorterCompareRawKey(pSorter, (uint32_t)nKeyCol,
+							     pVal->z, pKey, true);
+			}
 			if (rc != -2) {
 				*pRes = rc;
 				return 0;
