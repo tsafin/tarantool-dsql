@@ -562,6 +562,22 @@ if (vdbe_op_sorterdata(p, pOp, aMem) < 0)
         "dispatch_transfer": 'JMP_FALLTHROUGH();',
     },
     {
+        # sort_window sorter comparator fragment
+        "name": "OP_SorterCompare",
+        "kind": "CNP_FRAG_JUMP_P2",
+        "tail_fallthrough": True,
+        "body": """\
+{
+    int handler_rc = vdbe_op_sortercompare(p, pOp, aMem);
+    if (handler_rc < 0)
+        GOTO_ERROR();
+    if (handler_rc == 1)
+        JUMP_P2();
+}""",
+        "dispatch_prep": "pOp += 1;",
+        "dispatch_transfer": 'JMP_FALLTHROUGH();',
+    },
+    {
         "name": "OP_SorterSort",
         "kind": "CNP_FRAG_JUMP_P2",
         "tail_fallthrough": False,

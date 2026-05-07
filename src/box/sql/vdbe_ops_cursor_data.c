@@ -154,7 +154,8 @@ vdbe_op_column_decode_fast(struct Mem *mem, const char *data,
 		return 0;
 	case MP_UINT:
 		if (field_type == FIELD_TYPE_INTEGER ||
-		    field_type == FIELD_TYPE_UNSIGNED) {
+		    field_type == FIELD_TYPE_UNSIGNED ||
+		    field_type == FIELD_TYPE_NUMBER) {
 			mem->u.u = mp_decode_uint(&data);
 			mem->type = MEM_TYPE_UINT;
 			mem->flags = 0;
@@ -162,7 +163,8 @@ vdbe_op_column_decode_fast(struct Mem *mem, const char *data,
 		}
 		return 1;
 	case MP_INT:
-		if (field_type == FIELD_TYPE_INTEGER) {
+		if (field_type == FIELD_TYPE_INTEGER ||
+		    field_type == FIELD_TYPE_NUMBER) {
 			mem->u.i = mp_decode_int(&data);
 			mem->type = MEM_TYPE_INT;
 			mem->flags = 0;
@@ -185,7 +187,8 @@ vdbe_op_column_decode_fast(struct Mem *mem, const char *data,
 		mem->flags = 0;
 		return 0;
 	case MP_FLOAT:
-		if (field_type != FIELD_TYPE_DOUBLE)
+		if (field_type != FIELD_TYPE_DOUBLE &&
+		    field_type != FIELD_TYPE_NUMBER)
 			return 1;
 		mem->u.r = mp_decode_float(&data);
 		if (sqlIsNaN(mem->u.r))
@@ -196,7 +199,8 @@ vdbe_op_column_decode_fast(struct Mem *mem, const char *data,
 		}
 		return 0;
 	case MP_DOUBLE:
-		if (field_type != FIELD_TYPE_DOUBLE)
+		if (field_type != FIELD_TYPE_DOUBLE &&
+		    field_type != FIELD_TYPE_NUMBER)
 			return 1;
 		mem->u.r = mp_decode_double(&data);
 		if (sqlIsNaN(mem->u.r))
@@ -614,7 +618,8 @@ vdbe_op_column_typed_exact_fast(Vdbe *p, Op *pOp, Mem *aMem,
 	}
 	if (pDest->type == MEM_TYPE_NULL)
 		goto out;
-	assert(expected_type != FIELD_TYPE_NUMBER);
+	if (expected_type == FIELD_TYPE_NUMBER)
+		pDest->flags |= MEM_Number;
 out:
 	REGISTER_TRACE(p, pOp->p3, pDest);
 	return 0;
@@ -880,6 +885,13 @@ vdbe_op_column_boolean_exact_fast(Vdbe *p, Op *pOp, Mem *aMem)
 }
 
 int
+vdbe_op_column_number_exact_fast(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_column_typed_exact_fast(p, pOp, aMem,
+					       FIELD_TYPE_NUMBER);
+}
+
+int
 vdbe_op_column_unsigned_offset_slot_fast(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_column_typed_offset_slot_fast(p, pOp, aMem,
@@ -912,6 +924,13 @@ vdbe_op_column_boolean_offset_slot_fast(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_column_typed_offset_slot_fast(p, pOp, aMem,
 						     FIELD_TYPE_BOOLEAN);
+}
+
+int
+vdbe_op_column_number_offset_slot_fast(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_column_typed_offset_slot_fast(p, pOp, aMem,
+						     FIELD_TYPE_NUMBER);
 }
 
 /* Opcode: RowData P1 P2 * * P5

@@ -11,9 +11,14 @@ What is in place now:
 - table-driven `field_type -> compare kind` mapping for supported small simple
   keys;
 - dedicated `vdbeSorterCompareIntLikeFast()` for all-integer-like keys;
+- fixed-count integer specializations for the hot `sort_window` shape family;
 - wider `vdbeSorterCompareSimpleFast()` for mixed small simple keys;
 - a raw-key prefix compare in `sqlVdbeSorterCompare()` for supported static
   shapes;
+- type-specific `FIELD_TYPE_NUMBER` column stencils in the CnP path;
+- a threaded CnP fragment entry for `OP_SorterCompare`, so the sort-window
+  compare opcode can now participate in the fragment pilot instead of falling
+  back to the generic dispatch path;
 - direct sorter-only write path via `OP_SorterInsert P3 != 0`, so sorter sites
   can encode `Mem[]` values straight into sorter-owned storage without an
   intermediate `MakeRecord` blob;
@@ -34,6 +39,7 @@ Measured `sort_window/prepared_execute` medians across the recent steps:
 | direct sorter write from `Mem[]` | **`50.82 us`** |
 | one-pass int-like direct writer | **`50.70 us`** |
 | dedicated integer exact `OP_Column` fast path | **`49.82 us`** |
+| fixed-count 2/3/4 integer specializations | **`49.89 us`** |
 
 The current conclusion is:
 
@@ -48,21 +54,23 @@ The current conclusion is:
   integer-heavy workloads like `sort_window`.
 
 The current `generated` dispatcher result on the same workload is
-`58.06 us` median. This path shares the same specialized handler body, but the
+`60.43 us` median. This path shares the same specialized handler body, but the
 remaining gap is still dominated by generated-dispatch overhead rather than the
 sorter-local helpers themselves.
 
 Latest `perf` profile on `sort_window/prepared_execute`:
 
-- generated: `vdbeSorterCompareIntLikeFast` is still the top sorter symbol,
-  with `vdbe_op_column`, `sqlVdbeSorterWriteFromMems`, and
-  `vdbe_field_ref_fetch_data` next in line;
-- CnP: `vdbe_op_column_integer_exact_fast` and
-  `vdbeSorterCompareIntLikeFast` lead, followed by
+- generated: `vdbeSorterCompareIntLike3Fast` is the top sorter symbol, with
+  `sqlVdbeSorterWriteFromMems` and `vdbe_field_ref_fetch_data` next in line;
+- CnP: `vdbeSorterCompareIntLike3Fast` and
+  `vdbe_op_column_integer_exact_fast` lead, followed by
   `sqlVdbeSorterWriteFromMems`, `vdbeSorterMerge`, and
   `vdbe_field_ref_prepare_tuple`;
 - the remaining sorter-local cost is now mostly compare/write/merge, while the
   CnP-specific gap is also carrying `vdbe_op_column_*` and bridge overhead.
+
+The next comparator step is to keep the raw fallback in place while widening the
+typed sorter compare family to more fixed integer shapes.
 
 ## 1. Goal
 
