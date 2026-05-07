@@ -379,6 +379,114 @@ After integer-only shapes are stable, extend to:
 Do not add locale/collation-sensitive generated compare first. That belongs in
 slow path until the simple shapes are clearly paying off.
 
+### Stage 7: Emit a single shape-specialized sorter fragment
+
+Move the proven C comparator shapes into the threaded fragment pilot, but keep
+the fragment granularity at one opcode-sized comparator body per shape.
+
+Planned fragment inputs:
+
+- prepare-time `key_def` summary;
+- `part_count`;
+- per-part `field_type`;
+- per-part `sort_order`;
+- collation / nullable rejection flags.
+
+Planned emitted shapes:
+
+- all-integer-like keys, unrolled for hot part counts such as 2/3/4;
+- small mixed scalar keys with a fixed per-part decode sequence;
+- binary string / varbinary keys where payload can be compared directly;
+- generic fallback fragment for unsupported shapes.
+
+Fragment body rules:
+
+1. decode the MsgPack array header once;
+2. compare fields left-to-right;
+3. invert only the DESC parts;
+4. return immediately on the first mismatch;
+5. fall back to the existing unpack-based comparator when runtime MsgPack
+   values do not match the prepared shape.
+
+The fragment should not be split into per-field runtime subfragments. The
+efficient form is a single straight-line fragment with type-specific helper
+calls or inline decode sequences.
+
+### Stage 8: Wire the planner to fragment selection
+
+After the shape-specific fragment bodies exist, connect them to a sorter-local
+plan selector so `OP_SorterCompare` can choose between:
+
+- the generic unpack-based comparator;
+- the current raw C fast-path comparator family;
+- a generated fragment for a supported shape.
+
+Selection rules:
+
+1. only choose fragment mode when the `key_def` shape is fully classified;
+2. prefer the smallest shape that matches the exact part/type/signature vector;
+3. keep DESC/nullable/collation rejection explicit rather than inferred later;
+4. preserve the current generic fallback when runtime MsgPack validation fails.
+
+This keeps the fragment pipeline narrow and makes it easy to extend shape by
+shape without changing SQL semantics.
+
+Current implementation note:
+
+- `OP_SorterCompare` now resolves to raw-sorter wrappers instead of the generic
+  handler when the sorter key is a supported intlike shape;
+- 2-, 3- and 4-part integer keys get dedicated raw compare wrappers;
+- those wrappers are normal functions, not inlined bodies, so the generated ASM
+  still has a call into the chosen wrapper;
+- the win comes from compile-time wrapper selection and fixed-count compare
+  shapes, not from pasting the whole comparator into the fragment;
+- other supported sorter shapes stay on the generic raw wrapper, which still
+  falls back to the unpack-based comparator on runtime mismatch.
+
+Assembler-level effect:
+
+| item | before | after |
+|---|---|---|
+| compare target | generic `vdbe_op_sortercompare` | `vdbe_op_sortercompare_fast` / `..._intlike2` / `..._intlike3` / `..._intlike4` |
+| shape choice | checked per execution | fixed from `key_def` at fragment compile time |
+| control flow | generic handler + runtime shape checks | direct call to the selected wrapper |
+| multi-column intlike path | loop-based helper body | fixed-count 2/3/4-part helper |
+| win source | dispatch and selection overhead | earlier specialization and fewer branches |
+
+Pseudo-asm shape:
+
+```asm
+; before
+call vdbe_op_sortercompare
+test eax, eax
+jne  jump_target
+
+; after
+call vdbe_op_sortercompare_intlike3
+test eax, eax
+jne  jump_target
+```
+
+The fragment still contains a call, but the target is now shape-specific.
+The main reduction is in dispatch and shape-selection code around the compare,
+not inlining of the whole comparator body.
+
+Current baseline `sort_window` rerun with this selector in place:
+
+| shape | median |
+|---|---:|
+| generated prepared | `68.32 us` |
+| generated automatic | `63.36 us` |
+| CnP prepared | **`59.39 us`** |
+| CnP automatic | **`52.58 us`** |
+
+Delta vs generated:
+
+| shape | delta |
+|---|---:|
+| prepared | `-8.93 us` (`-13.1%`) |
+| automatic | `-10.78 us` (`-17.0%`) |
+
 ## 7. Why generic `key_compare()` is not the first backend
 
 There is an existing raw key comparator in the tuple layer, but it is not the

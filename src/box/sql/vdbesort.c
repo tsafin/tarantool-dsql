@@ -970,10 +970,10 @@ vdbeSorterCompareRawField(const struct VdbeSorter *sorter, uint32_t part_no,
 	}
 }
 
-static inline int
-vdbeSorterCompareRawKey(const struct VdbeSorter *sorter, uint32_t part_count,
-			const void *key1, const void *key2,
-			bool right_null_is_less)
+int
+sqlVdbeSorterCompareRawKey(const struct VdbeSorter *sorter, uint32_t part_count,
+			   const void *key1, const void *key2,
+			   bool right_null_is_less)
 {
 	/*
 	 * Compare a whole sorter key in raw MsgPack, one field at a time.
@@ -1001,10 +1001,10 @@ vdbeSorterCompareRawKey(const struct VdbeSorter *sorter, uint32_t part_count,
 	return 0;
 }
 
-static inline int
-vdbeSorterCompareRawKeyIntLike3(const struct VdbeSorter *sorter,
-				const void *key1, const void *key2,
-				bool right_null_is_less)
+int
+sqlVdbeSorterCompareRawKeyIntLike3(const struct VdbeSorter *sorter,
+				   const void *key1, const void *key2,
+				   bool right_null_is_less)
 {
 	const char *field1 = key1;
 	const char *field2 = key2;
@@ -1046,10 +1046,10 @@ vdbeSorterCompareRawKeyIntLike3(const struct VdbeSorter *sorter,
 	return 0;
 }
 
-static inline int
-vdbeSorterCompareRawKeyIntLike2(const struct VdbeSorter *sorter,
-				const void *key1, const void *key2,
-				bool right_null_is_less)
+int
+sqlVdbeSorterCompareRawKeyIntLike2(const struct VdbeSorter *sorter,
+				   const void *key1, const void *key2,
+				   bool right_null_is_less)
 {
 	const char *field1 = key1;
 	const char *field2 = key2;
@@ -1071,10 +1071,10 @@ vdbeSorterCompareRawKeyIntLike2(const struct VdbeSorter *sorter,
 	return 0;
 }
 
-static inline int
-vdbeSorterCompareRawKeyIntLike4(const struct VdbeSorter *sorter,
-				const void *key1, const void *key2,
-				bool right_null_is_less)
+int
+sqlVdbeSorterCompareRawKeyIntLike4(const struct VdbeSorter *sorter,
+				   const void *key1, const void *key2,
+				   bool right_null_is_less)
 {
 	const char *field1 = key1;
 	const char *field2 = key2;
@@ -2681,6 +2681,13 @@ vdbeSorterRowkey(const VdbeSorter * pSorter,	/* Sorter object */
 	return pKey;
 }
 
+const void *
+sqlVdbeSorterRowkeyRaw(const VdbeCursor *pCsr, int *pnKey)
+{
+	assert(pCsr->eCurType == CURTYPE_SORTER);
+	return vdbeSorterRowkey(pCsr->uc.pSorter, pnKey);
+}
+
 /*
  * Copy the current sorter key into the memory cell pOut.
  */
@@ -2732,47 +2739,6 @@ sqlVdbeSorterCompare(const VdbeCursor * pCsr,	/* Sorter cursor */
 	assert(pCsr->eCurType == CURTYPE_SORTER);
 	pSorter = pCsr->uc.pSorter;
 	pKey = vdbeSorterRowkey(pSorter, &nKey);
-	/*
-	 * Try the sorter-local raw comparator first. The compare uses the
-	 * static key shape derived from key_def and falls back only if the
-	 * runtime record shape does not match the plan.
-	 */
-	if (pSorter->fastCmpPartCount != 0) {
-		uint32_t part_count = pSorter->fastCmpPartCount &
-				      VDBE_SORTER_FAST_CMP_PART_COUNT_MASK;
-		if ((uint32_t)nKeyCol <= part_count) {
-			int rc;
-			if ((pSorter->fastCmpPartCount &
-			     VDBE_SORTER_FAST_CMP_MIXED_KIND_FLAG) == 0) {
-				switch (nKeyCol) {
-				case 2:
-					rc = vdbeSorterCompareRawKeyIntLike2(
-						pSorter, pVal->z, pKey, true);
-					break;
-				case 3:
-					rc = vdbeSorterCompareRawKeyIntLike3(
-						pSorter, pVal->z, pKey, true);
-					break;
-				case 4:
-					rc = vdbeSorterCompareRawKeyIntLike4(
-						pSorter, pVal->z, pKey, true);
-					break;
-				default:
-					rc = vdbeSorterCompareRawKey(
-						pSorter, (uint32_t)nKeyCol, pVal->z,
-						pKey, true);
-					break;
-				}
-			} else {
-				rc = vdbeSorterCompareRawKey(pSorter, (uint32_t)nKeyCol,
-							     pVal->z, pKey, true);
-			}
-			if (rc != -2) {
-				*pRes = rc;
-				return 0;
-			}
-		}
-	}
 
 	r2 = pSorter->pUnpacked;
 	if (r2 == 0) {

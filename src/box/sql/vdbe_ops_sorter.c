@@ -11,6 +11,7 @@
 #include "sqlInt.h"
 #include "vdbeInt.h"
 #include "mem.h"
+#include "key_def.h"
 #include "vdbe_ops.h"
 #include "vdbe_debug.h"
 
@@ -192,6 +193,56 @@ vdbe_op_sortercompare(Vdbe *p, Op *pOp, Mem *aMem)
 
 	/* Return 1 to jump if different, 0 to continue */
 	return res != 0 ? 1 : 0;
+}
+
+static int
+vdbe_op_sortercompare_raw(Vdbe *p, Op *pOp, Mem *aMem,
+			  int (*cmp_fn)(const VdbeSorter *, uint32_t,
+					const void *, const void *, bool),
+			  uint32_t part_count)
+{
+	VdbeCursor *pC = p->apCsr[pOp->p1];
+	assert(isSorter(pC));
+	assert(pOp->p4type == P4_INT32);
+	Mem *pIn3 = &aMem[pOp->p3];
+	if (!mem_is_bin(pIn3))
+		return vdbe_op_sortercompare(p, pOp, aMem);
+	int nKey = 0;
+	const void *pKey = sqlVdbeSorterRowkeyRaw(pC, &nKey);
+	if (pKey == NULL)
+		return -1;
+	int rc = cmp_fn(pC->uc.pSorter, part_count, pIn3->z, pKey, true);
+	if (rc == -2)
+		return vdbe_op_sortercompare(p, pOp, aMem);
+	return rc != 0 ? 1 : 0;
+}
+
+int
+vdbe_op_sortercompare_fast(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_sortercompare_raw(p, pOp, aMem, sqlVdbeSorterCompareRawKey,
+					 (uint32_t)pOp->p4.i);
+}
+
+int
+vdbe_op_sortercompare_intlike2(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_sortercompare_raw(p, pOp, aMem,
+					 sqlVdbeSorterCompareRawKeyIntLike2, 2);
+}
+
+int
+vdbe_op_sortercompare_intlike3(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_sortercompare_raw(p, pOp, aMem,
+					 sqlVdbeSorterCompareRawKeyIntLike3, 3);
+}
+
+int
+vdbe_op_sortercompare_intlike4(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_sortercompare_raw(p, pOp, aMem,
+					 sqlVdbeSorterCompareRawKeyIntLike4, 4);
 }
 
 /* Opcode: SorterSort P1 P2 * * *
