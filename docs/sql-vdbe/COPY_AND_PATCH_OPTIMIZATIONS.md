@@ -328,6 +328,10 @@ This is intentionally a **CnP-only bridge design**:
 - useful for validating whether row-local planning is worth promoting into more
   explicit VDBE hint tokens later.
 
+The sorter work now follows the same direction at a smaller scale: supported
+sorter shapes use static `key_def` metadata to try a raw-key multi-column
+compare before unpacked fallback.
+
 ## 6. Recommendation on ABI changes
 
 The stitched-fragment path now does use an explicit internal ABI, but only

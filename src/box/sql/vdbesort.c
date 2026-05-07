@@ -900,6 +900,107 @@ vdbeSorterInitFastCmpPlan(struct VdbeSorter *pSorter)
 	return true;
 }
 
+static inline int
+vdbeSorterCompareRawField(const struct VdbeSorter *sorter, uint32_t part_no,
+			  const char **field1, const char **field2)
+{
+	/*
+	 * Compare one sorter key part directly from raw MsgPack.
+	 * The caller selects the part shape from prepare-time key_def
+	 * metadata; returning -2 tells the caller to fall back to the
+	 * unpacked generic comparator for unsupported runtime values.
+	 */
+	switch ((enum vdbe_sorter_fast_cmp_kind)sorter->fastCmpPartKind[part_no]) {
+	case VDBE_SORTER_FAST_CMP_INTLIKE:
+		return vdbeSorterCompareIntLikeValues(mp_typeof(*field1), field1,
+						      mp_typeof(*field2), field2);
+	case VDBE_SORTER_FAST_CMP_STRING: {
+		if (mp_typeof(*field1) != MP_STR || mp_typeof(*field2) != MP_STR)
+			return -2;
+		uint32_t len1 = mp_decode_strl(field1);
+		uint32_t len2 = mp_decode_strl(field2);
+		uint32_t len = MIN(len1, len2);
+		int rc = memcmp(*field1, *field2, len);
+		if (rc == 0)
+			rc = len1 < len2 ? -1 : len1 > len2 ? 1 : 0;
+		*field1 += len1;
+		*field2 += len2;
+		return rc;
+	}
+	case VDBE_SORTER_FAST_CMP_VARBINARY: {
+		if (mp_typeof(*field1) != MP_BIN || mp_typeof(*field2) != MP_BIN)
+			return -2;
+		uint32_t len1 = mp_decode_binl(field1);
+		uint32_t len2 = mp_decode_binl(field2);
+		uint32_t len = MIN(len1, len2);
+		int rc = memcmp(*field1, *field2, len);
+		if (rc == 0)
+			rc = len1 < len2 ? -1 : len1 > len2 ? 1 : 0;
+		*field1 += len1;
+		*field2 += len2;
+		return rc;
+	}
+	case VDBE_SORTER_FAST_CMP_BOOL: {
+		if (mp_typeof(*field1) != MP_BOOL || mp_typeof(*field2) != MP_BOOL)
+			return -2;
+		bool v1 = mp_decode_bool(field1);
+		bool v2 = mp_decode_bool(field2);
+		return v1 == v2 ? 0 : v1 ? 1 : -1;
+	}
+	case VDBE_SORTER_FAST_CMP_DOUBLE: {
+		double v1, v2;
+		enum mp_type t1 = mp_typeof(*field1);
+		enum mp_type t2 = mp_typeof(*field2);
+		if (t1 == MP_FLOAT)
+			v1 = mp_decode_float(field1);
+		else if (t1 == MP_DOUBLE)
+			v1 = mp_decode_double(field1);
+		else
+			return -2;
+		if (t2 == MP_FLOAT)
+			v2 = mp_decode_float(field2);
+		else if (t2 == MP_DOUBLE)
+			v2 = mp_decode_double(field2);
+		else
+			return -2;
+		return v1 < v2 ? -1 : v1 > v2 ? 1 : 0;
+	}
+	default:
+		return -2;
+	}
+}
+
+static inline int
+vdbeSorterCompareRawKey(const struct VdbeSorter *sorter, uint32_t part_count,
+			const void *key1, const void *key2,
+			bool right_null_is_less)
+{
+	/*
+	 * Compare a whole sorter key in raw MsgPack, one field at a time.
+	 * This keeps the hot path in sequential decode order and preserves
+	 * a clean fallback to the existing unpacked-record comparator when
+	 * the record shape does not match the static plan.
+	 */
+	const char *field1 = key1;
+	const char *field2 = key2;
+	if (mp_decode_array(&field1) < part_count ||
+	    mp_decode_array(&field2) < part_count)
+		return -2;
+	for (uint32_t i = 0; i < part_count; ++i) {
+		if (right_null_is_less && mp_typeof(*field2) == MP_NIL)
+			return -1;
+		int rc = vdbeSorterCompareRawField(sorter, i, &field1, &field2);
+		if (rc == -2)
+			return -2;
+		if (rc != 0) {
+			if ((sorter->fastCmpDescMask & (uint8_t)(1U << i)) != 0)
+				rc = -rc;
+			return rc;
+		}
+	}
+	return 0;
+}
+
 static int
 vdbeSorterCompareIntLikeFast(struct SortSubtask *task, bool *key2_cached,
 			     const void *key1, const void *key2)
@@ -2430,6 +2531,25 @@ sqlVdbeSorterCompare(const VdbeCursor * pCsr,	/* Sorter cursor */
 
 	assert(pCsr->eCurType == CURTYPE_SORTER);
 	pSorter = pCsr->uc.pSorter;
+	pKey = vdbeSorterRowkey(pSorter, &nKey);
+	/*
+	 * Try the sorter-local raw comparator first. The compare uses the
+	 * static key shape derived from key_def and falls back only if the
+	 * runtime record shape does not match the plan.
+	 */
+	if (pSorter->fastCmpPartCount != 0) {
+		uint32_t part_count = pSorter->fastCmpPartCount &
+				      VDBE_SORTER_FAST_CMP_PART_COUNT_MASK;
+		if ((uint32_t)nKeyCol <= part_count) {
+			int rc = vdbeSorterCompareRawKey(pSorter, (uint32_t)nKeyCol,
+							 pVal->z, pKey, true);
+			if (rc != -2) {
+				*pRes = rc;
+				return 0;
+			}
+		}
+	}
+
 	r2 = pSorter->pUnpacked;
 	if (r2 == 0) {
 		r2 = sqlVdbeAllocUnpackedRecord(pCsr->key_def);
@@ -2437,8 +2557,6 @@ sqlVdbeSorterCompare(const VdbeCursor * pCsr,	/* Sorter cursor */
 		r2->nField = nKeyCol;
 	}
 	assert(r2->nField == nKeyCol);
-
-	pKey = vdbeSorterRowkey(pSorter, &nKey);
 	sqlVdbeRecordUnpackMsgpack(pCsr->key_def, pKey, r2);
 	for (i = 0; i < nKeyCol; i++) {
 		if (mem_is_null(&r2->aMem[i])) {

@@ -12,6 +12,8 @@ What is in place now:
   keys;
 - dedicated `vdbeSorterCompareIntLikeFast()` for all-integer-like keys;
 - wider `vdbeSorterCompareSimpleFast()` for mixed small simple keys;
+- a raw-key prefix compare in `sqlVdbeSorterCompare()` for supported static
+  shapes;
 - direct sorter-only write path via `OP_SorterInsert P3 != 0`, so sorter sites
   can encode `Mem[]` values straight into sorter-owned storage without an
   intermediate `MakeRecord` blob;
@@ -49,6 +51,18 @@ The current `generated` dispatcher result on the same workload is
 `58.06 us` median. This path shares the same specialized handler body, but the
 remaining gap is still dominated by generated-dispatch overhead rather than the
 sorter-local helpers themselves.
+
+Latest `perf` profile on `sort_window/prepared_execute`:
+
+- generated: `vdbeSorterCompareIntLikeFast` is still the top sorter symbol,
+  with `vdbe_op_column`, `sqlVdbeSorterWriteFromMems`, and
+  `vdbe_field_ref_fetch_data` next in line;
+- CnP: `vdbe_op_column_integer_exact_fast` and
+  `vdbeSorterCompareIntLikeFast` lead, followed by
+  `sqlVdbeSorterWriteFromMems`, `vdbeSorterMerge`, and
+  `vdbe_field_ref_prepare_tuple`;
+- the remaining sorter-local cost is now mostly compare/write/merge, while the
+  CnP-specific gap is also carrying `vdbe_op_column_*` and bridge overhead.
 
 ## 1. Goal
 
