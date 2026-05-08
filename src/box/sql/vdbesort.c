@@ -327,6 +327,13 @@ struct VdbeSorter {
 	uint8_t fastCmpDescMask;
 	/* Per-part comparison kind for the mixed simple-typed fast path. */
 	uint8_t fastCmpPartKind[8];
+	/*
+	 * CnP-only equality shape for OP_SorterCompare prefixes. This is
+	 * prepare-time metadata derived from key_def and lets the fragment
+	 * selector bind exact typed equality handlers without re-classifying
+	 * the prefix at execution time.
+	 */
+	uint8_t cnpEqShapeByCount[5];
 	u8 bUsePMA;		/* True if one or more PMAs created */
 	SortSubtask aTask;	/* A single subtask */
 };
@@ -900,6 +907,70 @@ vdbeSorterInitFastCmpPlan(struct VdbeSorter *pSorter)
 	return true;
 }
 
+static inline bool
+vdbeSorterFieldTypeIsSigned(enum field_type type)
+{
+	switch (type) {
+	case FIELD_TYPE_INT8:
+	case FIELD_TYPE_INT16:
+	case FIELD_TYPE_INT32:
+	case FIELD_TYPE_INT64:
+	case FIELD_TYPE_INTEGER:
+		return true;
+	default:
+		return false;
+	}
+}
+
+static inline bool
+vdbeSorterFieldTypeIsUnsigned(enum field_type type)
+{
+	switch (type) {
+	case FIELD_TYPE_UINT8:
+	case FIELD_TYPE_UINT16:
+	case FIELD_TYPE_UINT32:
+	case FIELD_TYPE_UINT64:
+	case FIELD_TYPE_UNSIGNED:
+		return true;
+	default:
+		return false;
+	}
+}
+
+static void
+vdbeSorterInitCnpEqPlan(struct VdbeSorter *pSorter)
+{
+	struct key_def *def = pSorter->key_def;
+	if (def->part_count < 2 || key_def_has_collation(def))
+		return;
+	bool prefix_signed = true;
+	bool prefix_unsigned = true;
+	uint32_t limit = MIN(def->part_count, 4);
+	for (uint32_t i = 0; i < limit; ++i) {
+		struct key_part *part = &def->parts[i];
+		if (key_part_is_nullable(part))
+			return;
+		prefix_signed = prefix_signed &&
+			vdbeSorterFieldTypeIsSigned(part->type);
+		prefix_unsigned = prefix_unsigned &&
+			vdbeSorterFieldTypeIsUnsigned(part->type);
+		uint32_t count = i + 1;
+		if (count < 2)
+			continue;
+		if (prefix_signed) {
+			pSorter->cnpEqShapeByCount[count] =
+				(uint8_t)(count == 2 ? VDBE_SORTER_CNP_EQ_SHAPE_SIGNED2 :
+					  count == 3 ? VDBE_SORTER_CNP_EQ_SHAPE_SIGNED3 :
+						       VDBE_SORTER_CNP_EQ_SHAPE_SIGNED4);
+		} else if (prefix_unsigned) {
+			pSorter->cnpEqShapeByCount[count] =
+				(uint8_t)(count == 2 ? VDBE_SORTER_CNP_EQ_SHAPE_UNSIGNED2 :
+					  count == 3 ? VDBE_SORTER_CNP_EQ_SHAPE_UNSIGNED3 :
+						       VDBE_SORTER_CNP_EQ_SHAPE_UNSIGNED4);
+		}
+	}
+}
+
 static inline int
 vdbeSorterCompareRawField(const struct VdbeSorter *sorter, uint32_t part_no,
 			  const char **field1, const char **field2)
@@ -1340,6 +1411,7 @@ sqlVdbeSorterInit(struct VdbeCursor *pCsr)
 	pSorter->pgsz = pgsz = 1024;
 	pSorter->aTask.pSorter = pSorter;
 	(void)vdbeSorterInitFastCmpPlan(pSorter);
+	vdbeSorterInitCnpEqPlan(pSorter);
 
 	/* Cache size in bytes */
 	i64 mxCache;
@@ -2757,4 +2829,14 @@ sqlVdbeSorterCompare(const VdbeCursor * pCsr,	/* Sorter cursor */
 
 	*pRes = sqlVdbeRecordCompareMsgpack(pVal->z, r2);
 	return 0;
+}
+
+enum vdbe_sorter_cnp_eq_shape
+sqlVdbeSorterCnpEqShape(const VdbeCursor *pCsr, uint32_t part_count)
+{
+	assert(pCsr->eCurType == CURTYPE_SORTER);
+	if (part_count >= lengthof(pCsr->uc.pSorter->cnpEqShapeByCount))
+		return VDBE_SORTER_CNP_EQ_SHAPE_NONE;
+	return (enum vdbe_sorter_cnp_eq_shape)
+		pCsr->uc.pSorter->cnpEqShapeByCount[part_count];
 }

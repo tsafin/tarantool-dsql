@@ -436,12 +436,12 @@ Current implementation note:
 - `OP_SorterCompare` now resolves to raw-sorter wrappers instead of the generic
   handler when the sorter key is a supported intlike shape;
 - 2-, 3- and 4-part integer keys get dedicated raw compare wrappers;
-- the fragment selector now also splits those wrappers by signed vs unsigned
-  intlike family when the prepared `key_def` proves the column types up front;
+- the current branch intentionally does not keep an extra signed-vs-unsigned
+  wrapper family on top of that split;
 - those wrappers are normal functions, not inlined bodies, so the generated ASM
   still has a call into the chosen wrapper;
-- the win comes from compile-time wrapper selection and fixed-count compare
-  shapes, not from pasting the whole comparator into the fragment;
+- the current win comes from compile-time wrapper selection and fixed-count
+  compare shapes, not from pasting the whole comparator into the fragment;
 - other supported sorter shapes stay on the generic raw wrapper, which still
   falls back to the unpack-based comparator on runtime mismatch.
 
@@ -452,7 +452,7 @@ Assembler-level effect:
 | compare target | generic `vdbe_op_sortercompare` | `vdbe_op_sortercompare_fast` / `..._intlike2` / `..._intlike3` / `..._intlike4` |
 | shape choice | checked per execution | fixed from `key_def` at fragment compile time |
 | control flow | generic handler + runtime shape checks | direct call to the selected wrapper |
-| multi-column intlike path | loop-based helper body | fixed-count 2/3/4-part helper, split by signed/unsigned family |
+| multi-column intlike path | loop-based helper body | fixed-count 2/3/4-part helper |
 | win source | dispatch and selection overhead | earlier specialization and fewer branches |
 
 Pseudo-asm shape:
@@ -472,6 +472,32 @@ jne  jump_target
 The fragment still contains a call, but the target is now shape-specific.
 The main reduction is in dispatch and shape-selection code around the compare,
 not inlining of the whole comparator body.
+
+That is also the current limitation:
+
+- selecting a better wrapper is still weaker than emitting the actual
+  comparator body from the static shape;
+- the wrapper-level approach does not change the hotter sorter merge compare
+  path in `vdbesort.c`;
+- extra CnP-only wrapper families quickly duplicate semantics without moving the
+  real hotspot enough.
+
+The first emitted-shape follow-up is now in place too:
+
+- the sorter records a prepare-time CnP-only equality shape for 2/3/4-part
+  signed and unsigned prefixes;
+- `OP_SorterCompare` can bind exact equality handlers from that shape;
+- those handlers intentionally ignore ASC/DESC because the opcode only needs
+  equality, not full ordering.
+
+Measured outcome on `sort_window/prepared_execute`:
+
+- the change is functionally correct but only moves the focused benchmark by a
+  noise-level amount;
+- that indicates opcode-side compare specialization is nearly exhausted here;
+- the next meaningful sorter-specific gain should likely come from the hotter
+  merge-path comparator in `vdbesort.c`, not another `OP_SorterCompare`
+  selector refinement.
 
 Current discard-mode `sort_window` rerun with this selector in place:
 
@@ -578,10 +604,13 @@ Correctness checks:
    `MakeRecord` where possible.
 6. Keep the one-pass int-like direct writer for small all-integer-like sorter
    keys.
-7. Return to `OP_Column` / field-ref work once sorter-local writer costs stop
-   being a large lever.
-8. Only after C fast paths on compare and write prove out, add emitted/JIT
-   comparator generation.
+7. Add prepare-time shape objects for comparator emission, with per-column type
+   and direction instead of whole-key family buckets.
+8. Keep the equality-only `OP_SorterCompare` shape binding as the opcode-side
+   endpoint for now.
+9. Return to `OP_Column` / field-ref work if sorter work stops paying.
+10. If sorter compare is still leading after opcode-side emission, target the
+    merge-path comparator in `vdbesort.c` next.
 
 ## 11. Recommended first concrete milestone
 
@@ -605,8 +634,11 @@ local raw typed compare beats unpack-and-compare on the target workload.
 
 The next concrete milestone should be:
 
-- keep the new direct `SorterInsert` path for sorter-only sites;
-- keep the one-pass integer-like direct writer for supported sorter-key shapes;
-- re-profile `sort_window`;
-- with `OP_Column` still dominant, move back to row-local `OP_Column` /
-  field-ref planning for the next code change.
+- keep the committed direct `SorterInsert` path for sorter-only sites;
+- keep the current raw sorter compare family as the reference behavior;
+- keep the new prepare-time comparator shape descriptor derived from `key_def`;
+- keep the equality-only `OP_SorterCompare` handlers as the narrow opcode-side
+  specialization layer;
+- re-profile `sort_window/prepared_execute`;
+- if sorter compare is still on top, move the next effort to the merge-path
+  comparator instead of adding more opcode-side wrapper variants.

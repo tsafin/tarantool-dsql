@@ -2500,6 +2500,22 @@ cnp_select_sortercompare_fragment_handler(struct Vdbe *p, int pc)
 	    pC->key_def == NULL)
 		return (uintptr_t)vdbe_op_sortercompare;
 	uint32_t part_count = (uint32_t)op->p4.i;
+	switch (sqlVdbeSorterCnpEqShape(pC, part_count)) {
+	case VDBE_SORTER_CNP_EQ_SHAPE_SIGNED2:
+		return (uintptr_t)vdbe_op_sortercompare_eq_signed2;
+	case VDBE_SORTER_CNP_EQ_SHAPE_SIGNED3:
+		return (uintptr_t)vdbe_op_sortercompare_eq_signed3;
+	case VDBE_SORTER_CNP_EQ_SHAPE_SIGNED4:
+		return (uintptr_t)vdbe_op_sortercompare_eq_signed4;
+	case VDBE_SORTER_CNP_EQ_SHAPE_UNSIGNED2:
+		return (uintptr_t)vdbe_op_sortercompare_eq_unsigned2;
+	case VDBE_SORTER_CNP_EQ_SHAPE_UNSIGNED3:
+		return (uintptr_t)vdbe_op_sortercompare_eq_unsigned3;
+	case VDBE_SORTER_CNP_EQ_SHAPE_UNSIGNED4:
+		return (uintptr_t)vdbe_op_sortercompare_eq_unsigned4;
+	case VDBE_SORTER_CNP_EQ_SHAPE_NONE:
+		break;
+	}
 	if (!cnp_sortercompare_is_intlike_shape(pC->key_def, part_count))
 		return (uintptr_t)vdbe_op_sortercompare_fast;
 	switch (part_count) {

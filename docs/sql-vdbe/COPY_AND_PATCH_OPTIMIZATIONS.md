@@ -332,6 +332,17 @@ The sorter work now follows the same direction at a smaller scale: supported
 sorter shapes use static `key_def` metadata to try a raw-key multi-column
 compare before unpacked fallback.
 
+Nearest-term comparator plan:
+
+- keep that committed raw-sorter path as the semantic baseline;
+- stop growing CnP-only wrapper families around `OP_SorterCompare`;
+- keep the new prepare-time equality-shape binding for `OP_SorterCompare` as
+  the current opcode-side endpoint;
+- move the next sorter-specific CnP step closer to the hotter merge-path
+  comparator if `sort_window` still points there;
+- keep runtime fallback to the existing raw/unpacked comparator on mismatch so
+  generated interpreter behavior does not change.
+
 ## 6. Recommendation on ABI changes
 
 The stitched-fragment path now does use an explicit internal ABI, but only
