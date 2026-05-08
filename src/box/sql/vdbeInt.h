@@ -56,6 +56,16 @@ typedef unsigned Bool;
 /* Opaque type used by code in vdbesort.c */
 typedef struct VdbeSorter VdbeSorter;
 
+enum vdbe_sorter_cnp_eq_shape {
+	VDBE_SORTER_CNP_EQ_SHAPE_NONE = 0,
+	VDBE_SORTER_CNP_EQ_SHAPE_SIGNED2,
+	VDBE_SORTER_CNP_EQ_SHAPE_SIGNED3,
+	VDBE_SORTER_CNP_EQ_SHAPE_SIGNED4,
+	VDBE_SORTER_CNP_EQ_SHAPE_UNSIGNED2,
+	VDBE_SORTER_CNP_EQ_SHAPE_UNSIGNED3,
+	VDBE_SORTER_CNP_EQ_SHAPE_UNSIGNED4,
+};
+
 /* Types of VDBE cursors */
 #define CURTYPE_TARANTOOL   0
 #define CURTYPE_SORTER      1
@@ -484,6 +494,8 @@ int sqlVdbeSorterRewind(const VdbeCursor *, int *);
 int sqlVdbeSorterWrite(const VdbeCursor *, Mem *);
 int sqlVdbeSorterWriteFromMems(const VdbeCursor *, const Mem *, uint32_t);
 int sqlVdbeSorterCompare(const VdbeCursor *, Mem *, int, int *);
+enum vdbe_sorter_cnp_eq_shape
+sqlVdbeSorterCnpEqShape(const VdbeCursor *, uint32_t);
 int sqlVdbeSorterCompareRawKey(const VdbeSorter *, uint32_t, const void *,
 			       const void *, bool);
 int sqlVdbeSorterCompareRawKeyIntLike2(const VdbeSorter *, const void *,

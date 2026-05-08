@@ -217,6 +217,138 @@ vdbe_op_sortercompare_raw(Vdbe *p, Op *pOp, Mem *aMem,
 	return rc != 0 ? 1 : 0;
 }
 
+static inline int
+vdbe_sortercompare_eq_signed_field(const char **field1, const char **field2)
+{
+	if (mp_typeof(*field1) != MP_INT || mp_typeof(*field2) != MP_INT)
+		return -2;
+	return mp_decode_int(field1) == mp_decode_int(field2) ? 0 : 1;
+}
+
+static inline int
+vdbe_sortercompare_eq_unsigned_field(const char **field1, const char **field2)
+{
+	if (mp_typeof(*field1) != MP_UINT || mp_typeof(*field2) != MP_UINT)
+		return -2;
+	return mp_decode_uint(field1) == mp_decode_uint(field2) ? 0 : 1;
+}
+
+static inline int
+vdbe_sortercompare_eq_signed2_raw(const void *key1, const void *key2)
+{
+	const char *field1 = key1;
+	const char *field2 = key2;
+	if (mp_decode_array(&field1) < 2 || mp_decode_array(&field2) < 2)
+		return -2;
+	int rc = vdbe_sortercompare_eq_signed_field(&field1, &field2);
+	if (rc != 0)
+		return rc;
+	return vdbe_sortercompare_eq_signed_field(&field1, &field2);
+}
+
+static inline int
+vdbe_sortercompare_eq_signed3_raw(const void *key1, const void *key2)
+{
+	const char *field1 = key1;
+	const char *field2 = key2;
+	if (mp_decode_array(&field1) < 3 || mp_decode_array(&field2) < 3)
+		return -2;
+	int rc = vdbe_sortercompare_eq_signed_field(&field1, &field2);
+	if (rc != 0)
+		return rc;
+	rc = vdbe_sortercompare_eq_signed_field(&field1, &field2);
+	if (rc != 0)
+		return rc;
+	return vdbe_sortercompare_eq_signed_field(&field1, &field2);
+}
+
+static inline int
+vdbe_sortercompare_eq_signed4_raw(const void *key1, const void *key2)
+{
+	const char *field1 = key1;
+	const char *field2 = key2;
+	if (mp_decode_array(&field1) < 4 || mp_decode_array(&field2) < 4)
+		return -2;
+	int rc = vdbe_sortercompare_eq_signed_field(&field1, &field2);
+	if (rc != 0)
+		return rc;
+	rc = vdbe_sortercompare_eq_signed_field(&field1, &field2);
+	if (rc != 0)
+		return rc;
+	rc = vdbe_sortercompare_eq_signed_field(&field1, &field2);
+	if (rc != 0)
+		return rc;
+	return vdbe_sortercompare_eq_signed_field(&field1, &field2);
+}
+
+static inline int
+vdbe_sortercompare_eq_unsigned2_raw(const void *key1, const void *key2)
+{
+	const char *field1 = key1;
+	const char *field2 = key2;
+	if (mp_decode_array(&field1) < 2 || mp_decode_array(&field2) < 2)
+		return -2;
+	int rc = vdbe_sortercompare_eq_unsigned_field(&field1, &field2);
+	if (rc != 0)
+		return rc;
+	return vdbe_sortercompare_eq_unsigned_field(&field1, &field2);
+}
+
+static inline int
+vdbe_sortercompare_eq_unsigned3_raw(const void *key1, const void *key2)
+{
+	const char *field1 = key1;
+	const char *field2 = key2;
+	if (mp_decode_array(&field1) < 3 || mp_decode_array(&field2) < 3)
+		return -2;
+	int rc = vdbe_sortercompare_eq_unsigned_field(&field1, &field2);
+	if (rc != 0)
+		return rc;
+	rc = vdbe_sortercompare_eq_unsigned_field(&field1, &field2);
+	if (rc != 0)
+		return rc;
+	return vdbe_sortercompare_eq_unsigned_field(&field1, &field2);
+}
+
+static inline int
+vdbe_sortercompare_eq_unsigned4_raw(const void *key1, const void *key2)
+{
+	const char *field1 = key1;
+	const char *field2 = key2;
+	if (mp_decode_array(&field1) < 4 || mp_decode_array(&field2) < 4)
+		return -2;
+	int rc = vdbe_sortercompare_eq_unsigned_field(&field1, &field2);
+	if (rc != 0)
+		return rc;
+	rc = vdbe_sortercompare_eq_unsigned_field(&field1, &field2);
+	if (rc != 0)
+		return rc;
+	rc = vdbe_sortercompare_eq_unsigned_field(&field1, &field2);
+	if (rc != 0)
+		return rc;
+	return vdbe_sortercompare_eq_unsigned_field(&field1, &field2);
+}
+
+static int
+vdbe_op_sortercompare_eq_raw(Vdbe *p, Op *pOp, Mem *aMem,
+			     int (*eq_fn)(const void *, const void *))
+{
+	VdbeCursor *pC = p->apCsr[pOp->p1];
+	assert(isSorter(pC));
+	assert(pOp->p4type == P4_INT32);
+	Mem *pIn3 = &aMem[pOp->p3];
+	if (!mem_is_bin(pIn3))
+		return vdbe_op_sortercompare(p, pOp, aMem);
+	int nKey = 0;
+	const void *pKey = sqlVdbeSorterRowkeyRaw(pC, &nKey);
+	if (pKey == NULL)
+		return -1;
+	int rc = eq_fn(pIn3->z, pKey);
+	if (rc == -2)
+		return vdbe_op_sortercompare(p, pOp, aMem);
+	return rc;
+}
+
 int
 vdbe_op_sortercompare_fast(Vdbe *p, Op *pOp, Mem *aMem)
 {
@@ -243,6 +375,48 @@ vdbe_op_sortercompare_intlike4(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_sortercompare_raw(p, pOp, aMem,
 					 sqlVdbeSorterCompareRawKeyIntLike4, 4);
+}
+
+int
+vdbe_op_sortercompare_eq_signed2(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_sortercompare_eq_raw(p, pOp, aMem,
+					 vdbe_sortercompare_eq_signed2_raw);
+}
+
+int
+vdbe_op_sortercompare_eq_signed3(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_sortercompare_eq_raw(p, pOp, aMem,
+					 vdbe_sortercompare_eq_signed3_raw);
+}
+
+int
+vdbe_op_sortercompare_eq_signed4(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_sortercompare_eq_raw(p, pOp, aMem,
+					 vdbe_sortercompare_eq_signed4_raw);
+}
+
+int
+vdbe_op_sortercompare_eq_unsigned2(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_sortercompare_eq_raw(p, pOp, aMem,
+					 vdbe_sortercompare_eq_unsigned2_raw);
+}
+
+int
+vdbe_op_sortercompare_eq_unsigned3(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_sortercompare_eq_raw(p, pOp, aMem,
+					 vdbe_sortercompare_eq_unsigned3_raw);
+}
+
+int
+vdbe_op_sortercompare_eq_unsigned4(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	return vdbe_op_sortercompare_eq_raw(p, pOp, aMem,
+					 vdbe_sortercompare_eq_unsigned4_raw);
 }
 
 /* Opcode: SorterSort P1 P2 * * *
