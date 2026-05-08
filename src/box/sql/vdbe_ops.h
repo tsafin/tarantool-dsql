@@ -208,6 +208,12 @@ int vdbe_op_sortercompare_fast(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterCompare *
 int vdbe_op_sortercompare_intlike2(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterCompare */
 int vdbe_op_sortercompare_intlike3(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterCompare */
 int vdbe_op_sortercompare_intlike4(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterCompare */
+int vdbe_op_sortercompare_eq_signed2(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterCompare */
+int vdbe_op_sortercompare_eq_signed3(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterCompare */
+int vdbe_op_sortercompare_eq_signed4(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterCompare */
+int vdbe_op_sortercompare_eq_unsigned2(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterCompare */
+int vdbe_op_sortercompare_eq_unsigned3(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterCompare */
+int vdbe_op_sortercompare_eq_unsigned4(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterCompare */
 int vdbe_op_sortersort(Vdbe *p, Op *pOp, Mem *aMem);  /* SorterSort */
 /* Phase 5.8: Remaining opcodes - misc data, DDL, and field access */
 int vdbe_op_elsenoteq_inline(Vdbe *p, Op *pOp, Mem *aMem);          /* ElseNotEq */
