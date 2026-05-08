@@ -488,7 +488,12 @@ The first emitted-shape follow-up is now in place too:
   signed and unsigned prefixes;
 - `OP_SorterCompare` can bind exact equality handlers from that shape;
 - those handlers intentionally ignore ASC/DESC because the opcode only needs
-  equality, not full ordering.
+  equality, not full ordering;
+- generic SQL `INTEGER` / `UNSIGNED` affinities are intentionally excluded
+  from those exact shapes, because runtime sorter keys for those affinities may
+  still serialize as either `MP_INT` or `MP_UINT`;
+- only fixed-width integer field types are safe for exact signed/unsigned
+  equality-shape binding.
 
 Measured outcome on `sort_window/prepared_execute`:
 
@@ -503,10 +508,8 @@ Current discard-mode `sort_window` rerun with this selector in place:
 
 | shape | median |
 |---|---:|
-| generated prepared | `58.27 us` |
-| generated automatic | `59.28 us` |
-| CnP prepared | **`50.50 us`** |
-| CnP automatic | **`51.09 us`** |
+| generated prepared | `61.49 us` |
+| CnP prepared | **`53.33 us`** |
 
 Current discard-mode profile on `sort_window/prepared_execute`:
 
@@ -520,8 +523,7 @@ Delta vs generated:
 
 | shape | delta |
 |---|---:|
-| prepared | `-7.77 us` (`-13.3%`) |
-| automatic | `-8.19 us` (`-13.8%`) |
+| prepared | `-8.16 us` (`-13.3%`) |
 
 ## 7. Why generic `key_compare()` is not the first backend
 

@@ -338,6 +338,10 @@ Nearest-term comparator plan:
 - stop growing CnP-only wrapper families around `OP_SorterCompare`;
 - keep the new prepare-time equality-shape binding for `OP_SorterCompare` as
   the current opcode-side endpoint;
+- keep exact signed/unsigned shape binding restricted to fixed-width integer
+  field types; generic SQL `INTEGER` / `UNSIGNED` affinities should stay on the
+  mixed intlike path because runtime sorter keys may encode them as either
+  `MP_INT` or `MP_UINT`;
 - move the next sorter-specific CnP step closer to the hotter merge-path
   comparator if `sort_window` still points there;
 - keep runtime fallback to the existing raw/unpacked comparator on mismatch so

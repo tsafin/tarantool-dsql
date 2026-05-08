@@ -915,7 +915,6 @@ vdbeSorterFieldTypeIsSigned(enum field_type type)
 	case FIELD_TYPE_INT16:
 	case FIELD_TYPE_INT32:
 	case FIELD_TYPE_INT64:
-	case FIELD_TYPE_INTEGER:
 		return true;
 	default:
 		return false;
@@ -930,7 +929,6 @@ vdbeSorterFieldTypeIsUnsigned(enum field_type type)
 	case FIELD_TYPE_UINT16:
 	case FIELD_TYPE_UINT32:
 	case FIELD_TYPE_UINT64:
-	case FIELD_TYPE_UNSIGNED:
 		return true;
 	default:
 		return false;
@@ -950,6 +948,12 @@ vdbeSorterInitCnpEqPlan(struct VdbeSorter *pSorter)
 		struct key_part *part = &def->parts[i];
 		if (key_part_is_nullable(part))
 			return;
+		/*
+		 * SQL INTEGER / UNSIGNED affinities still admit both MP_INT and
+		 * MP_UINT at runtime, so keep them on the generic intlike path.
+		 * Exact signed/unsigned shapes are only safe for fixed-width
+		 * integer field types.
+		 */
 		prefix_signed = prefix_signed &&
 			vdbeSorterFieldTypeIsSigned(part->type);
 		prefix_unsigned = prefix_unsigned &&
