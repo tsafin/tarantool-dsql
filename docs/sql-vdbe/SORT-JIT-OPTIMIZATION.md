@@ -436,6 +436,8 @@ Current implementation note:
 - `OP_SorterCompare` now resolves to raw-sorter wrappers instead of the generic
   handler when the sorter key is a supported intlike shape;
 - 2-, 3- and 4-part integer keys get dedicated raw compare wrappers;
+- the fragment selector now also splits those wrappers by signed vs unsigned
+  intlike family when the prepared `key_def` proves the column types up front;
 - those wrappers are normal functions, not inlined bodies, so the generated ASM
   still has a call into the chosen wrapper;
 - the win comes from compile-time wrapper selection and fixed-count compare
@@ -450,7 +452,7 @@ Assembler-level effect:
 | compare target | generic `vdbe_op_sortercompare` | `vdbe_op_sortercompare_fast` / `..._intlike2` / `..._intlike3` / `..._intlike4` |
 | shape choice | checked per execution | fixed from `key_def` at fragment compile time |
 | control flow | generic handler + runtime shape checks | direct call to the selected wrapper |
-| multi-column intlike path | loop-based helper body | fixed-count 2/3/4-part helper |
+| multi-column intlike path | loop-based helper body | fixed-count 2/3/4-part helper, split by signed/unsigned family |
 | win source | dispatch and selection overhead | earlier specialization and fewer branches |
 
 Pseudo-asm shape:
@@ -471,21 +473,29 @@ The fragment still contains a call, but the target is now shape-specific.
 The main reduction is in dispatch and shape-selection code around the compare,
 not inlining of the whole comparator body.
 
-Current baseline `sort_window` rerun with this selector in place:
+Current discard-mode `sort_window` rerun with this selector in place:
 
 | shape | median |
 |---|---:|
-| generated prepared | `68.32 us` |
-| generated automatic | `63.36 us` |
-| CnP prepared | **`59.39 us`** |
-| CnP automatic | **`52.58 us`** |
+| generated prepared | `58.27 us` |
+| generated automatic | `59.28 us` |
+| CnP prepared | **`50.50 us`** |
+| CnP automatic | **`51.09 us`** |
+
+Current discard-mode profile on `sort_window/prepared_execute`:
+
+- `vdbeSorterCompareIntLike3Fast` remains the sorter hotspot;
+- `vdbeSorterCompareIntLikeValuesFast` now covers the common same-type integer
+  path before falling back to the mixed-type comparator;
+- `vdbe_op_column_integer_exact_fast` and `sqlVdbeSorterWriteFromMems` remain
+  the next largest SQL-side costs.
 
 Delta vs generated:
 
 | shape | delta |
 |---|---:|
-| prepared | `-8.93 us` (`-13.1%`) |
-| automatic | `-10.78 us` (`-17.0%`) |
+| prepared | `-7.77 us` (`-13.3%`) |
+| automatic | `-8.19 us` (`-13.8%`) |
 
 ## 7. Why generic `key_compare()` is not the first backend
 
