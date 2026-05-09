@@ -283,8 +283,8 @@ struct MergeEngine {
  * each thread requires its own UnpackedRecord object to unpack records in
  * as part of comparison operations.
  */
-typedef int (*SorterCompare) (SortSubtask *, bool *, const void *,
-			      const void *);
+typedef int (*SorterCompare) (SortSubtask *, bool *, const void *, uint8_t,
+			      const void *, uint8_t);
 struct SortSubtask {
 	VdbeSorter *pSorter;	/* Sorter that owns this sub-task */
 	UnpackedRecord *pUnpacked;	/* Space to unpack a record */
@@ -348,6 +348,14 @@ enum {
 	VDBE_SORTER_FAST_CMP_MIXED_KIND_FLAG = 0x80,
 };
 
+enum {
+	VDBE_SORTER_TYPE_MASK_UNKNOWN = 0,
+	VDBE_SORTER_TYPE_MASK_INT = 1,
+	VDBE_SORTER_TYPE_MASK_UINT = 2,
+	VDBE_SORTER_TYPE_MASK_BITS = 2,
+	VDBE_SORTER_TYPE_MASK_MAX_PARTS = 4,
+};
+
 /*
  * An instance of the following object is used to read records out of a
  * PMA, in sorted order.  The next key to be read is cached in nKey/aKey.
@@ -362,6 +370,7 @@ struct PmaReader {
 	i64 iEof;		/* 1 byte past EOF for this PmaReader */
 	int nAlloc;		/* Bytes of space at aAlloc */
 	int nKey;		/* Number of bytes in key */
+	uint8_t typeMask;	/* Cached runtime intlike type mask for aKey */
 	sql_file *pFd;	/* File handle we are reading from */
 	u8 *aAlloc;		/* Space for aKey if aBuffer and pMap wont work */
 	u8 *aKey;		/* Pointer to current key */
@@ -451,6 +460,7 @@ struct PmaWriter {
  */
 struct SorterRecord {
 	int nVal;		/* Size of the record in bytes */
+	uint8_t typeMask;	/* Cached runtime intlike type mask */
 	union {
 		SorterRecord *pNext;	/* Pointer to next record in list */
 		int iNext;	/* Offset within aMemory of next record */
@@ -727,6 +737,12 @@ vdbePmaReaderNext(PmaReader * pReadr)
 	if (rc == 0)
 		rc = vdbePmaReadVarint(pReadr, &nRec);
 	if (rc == 0) {
+		u8 *aTypeMask;
+		rc = vdbePmaReadBlob(pReadr, 1, &aTypeMask);
+		if (rc == 0)
+			pReadr->typeMask = aTypeMask[0];
+	}
+	if (rc == 0) {
 		pReadr->nKey = (int)nRec;
 		rc = vdbePmaReadBlob(pReadr, (int)nRec, &pReadr->aKey);
 	}
@@ -793,8 +809,11 @@ vdbePmaReaderInit(SortSubtask * pTask,	/* Task context */
  */
 static int
 vdbeSorterCompare(struct SortSubtask *task, bool *key2_cached,
-		  const void *key1, const void *key2)
+		  const void *key1, uint8_t key1_type_mask,
+		  const void *key2, uint8_t key2_type_mask)
 {
+	(void)key1_type_mask;
+	(void)key2_type_mask;
 	struct UnpackedRecord *r2 = task->pUnpacked;
 	if (!*key2_cached) {
 		sqlVdbeRecordUnpackMsgpack(task->pSorter->key_def,
@@ -866,6 +885,71 @@ vdbeSorterCompareIntLikeValues(enum mp_type t1, const char **field1,
 		       (uint64_t)v1 > v2 ? 1 : 0;
 	}
 	if (t2 != MP_INT)
+		return -2;
+	int64_t v2 = mp_decode_int(field2);
+	return v1 < v2 ? -1 : v1 > v2 ? 1 : 0;
+}
+
+static inline uint8_t
+vdbeSorterTypeMaskGetPart(uint8_t mask, uint32_t part_no)
+{
+	return (mask >> (part_no * VDBE_SORTER_TYPE_MASK_BITS)) & 0x3;
+}
+
+static inline uint8_t
+vdbeSorterTypeMaskFromMems(const struct VdbeSorter *sorter, const Mem *mems,
+			   uint32_t count)
+{
+	uint32_t part_count = sorter->fastCmpPartCount &
+			      VDBE_SORTER_FAST_CMP_PART_COUNT_MASK;
+	if (part_count != count || part_count == 0 ||
+	    part_count > VDBE_SORTER_TYPE_MASK_MAX_PARTS ||
+	    sorter->fastCmpPartCount == 0 ||
+	    (sorter->fastCmpPartCount & VDBE_SORTER_FAST_CMP_MIXED_KIND_FLAG) != 0)
+		return 0;
+	uint8_t mask = 0;
+	for (uint32_t i = 0; i < count; ++i) {
+		uint8_t type_bits;
+		switch (mems[i].type) {
+		case MEM_TYPE_INT:
+			type_bits = VDBE_SORTER_TYPE_MASK_INT;
+			break;
+		case MEM_TYPE_UINT:
+			type_bits = VDBE_SORTER_TYPE_MASK_UINT;
+			break;
+		default:
+			return 0;
+		}
+		mask |= type_bits << (i * VDBE_SORTER_TYPE_MASK_BITS);
+	}
+	return mask;
+}
+
+static inline int
+vdbeSorterCompareIntLikeMaskedValues(uint8_t type1, const char **field1,
+				     uint8_t type2, const char **field2)
+{
+	if (type1 == VDBE_SORTER_TYPE_MASK_UINT) {
+		uint64_t v1 = mp_decode_uint(field1);
+		if (type2 == VDBE_SORTER_TYPE_MASK_UINT) {
+			uint64_t v2 = mp_decode_uint(field2);
+			return v1 < v2 ? -1 : v1 > v2 ? 1 : 0;
+		}
+		if (type2 != VDBE_SORTER_TYPE_MASK_INT)
+			return -2;
+		int64_t v2 = mp_decode_int(field2);
+		return v2 < 0 ? 1 : v1 < (uint64_t)v2 ? -1 :
+		       v1 > (uint64_t)v2 ? 1 : 0;
+	}
+	if (type1 != VDBE_SORTER_TYPE_MASK_INT)
+		return -2;
+	int64_t v1 = mp_decode_int(field1);
+	if (type2 == VDBE_SORTER_TYPE_MASK_UINT) {
+		uint64_t v2 = mp_decode_uint(field2);
+		return v1 < 0 ? -1 : (uint64_t)v1 < v2 ? -1 :
+		       (uint64_t)v1 > v2 ? 1 : 0;
+	}
+	if (type2 != VDBE_SORTER_TYPE_MASK_INT)
 		return -2;
 	int64_t v2 = mp_decode_int(field2);
 	return v1 < v2 ? -1 : v1 > v2 ? 1 : 0;
@@ -1173,7 +1257,8 @@ sqlVdbeSorterCompareRawKeyIntLike4(const struct VdbeSorter *sorter,
 
 static int
 vdbeSorterCompareIntLikeFast(struct SortSubtask *task, bool *key2_cached,
-			     const void *key1, const void *key2)
+			     const void *key1, uint8_t key1_type_mask,
+			     const void *key2, uint8_t key2_type_mask)
 {
 	(void)key2_cached;
 	const char *field1 = key1;
@@ -1192,13 +1277,23 @@ vdbeSorterCompareIntLikeFast(struct SortSubtask *task, bool *key2_cached,
 	 * immediately fall back to the generic unpack-based comparator.
 	 */
 	if (mp_decode_array(&field1) < part_count || mp_decode_array(&field2) < part_count)
-		return vdbeSorterCompare(task, key2_cached, key1, key2);
+		return vdbeSorterCompare(task, key2_cached, key1, key1_type_mask,
+					 key2, key2_type_mask);
 
 	for (uint32_t i = 0; i < part_count; ++i) {
-		int rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
-							mp_typeof(*field2), &field2);
+		int rc;
+		if (key1_type_mask != 0 && key2_type_mask != 0) {
+			rc = vdbeSorterCompareIntLikeMaskedValues(
+				vdbeSorterTypeMaskGetPart(key1_type_mask, i), &field1,
+				vdbeSorterTypeMaskGetPart(key2_type_mask, i), &field2);
+		} else {
+			rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
+							    mp_typeof(*field2), &field2);
+		}
 		if (rc == -2)
-			return vdbeSorterCompare(task, key2_cached, key1, key2);
+			return vdbeSorterCompare(task, key2_cached, key1,
+						 key1_type_mask, key2,
+						 key2_type_mask);
 		if (rc != 0) {
 			if ((sorter->fastCmpDescMask & (uint8_t)(1U << i)) != 0)
 				rc = -rc;
@@ -1210,19 +1305,30 @@ vdbeSorterCompareIntLikeFast(struct SortSubtask *task, bool *key2_cached,
 
 static int
 vdbeSorterCompareIntLike2Fast(struct SortSubtask *task, bool *key2_cached,
-			      const void *key1, const void *key2)
+			      const void *key1, uint8_t key1_type_mask,
+			      const void *key2, uint8_t key2_type_mask)
 {
 	(void)key2_cached;
 	const char *field1 = key1;
 	const char *field2 = key2;
 	struct VdbeSorter *sorter = task->pSorter;
 	if (mp_decode_array(&field1) < 2 || mp_decode_array(&field2) < 2)
-		return vdbeSorterCompare(task, key2_cached, key1, key2);
+		return vdbeSorterCompare(task, key2_cached, key1, key1_type_mask,
+					 key2, key2_type_mask);
 	for (uint32_t i = 0; i < 2; i++) {
-		int rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
-							mp_typeof(*field2), &field2);
+		int rc;
+		if (key1_type_mask != 0 && key2_type_mask != 0) {
+			rc = vdbeSorterCompareIntLikeMaskedValues(
+				vdbeSorterTypeMaskGetPart(key1_type_mask, i), &field1,
+				vdbeSorterTypeMaskGetPart(key2_type_mask, i), &field2);
+		} else {
+			rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
+							    mp_typeof(*field2), &field2);
+		}
 		if (rc == -2)
-			return vdbeSorterCompare(task, key2_cached, key1, key2);
+			return vdbeSorterCompare(task, key2_cached, key1,
+						 key1_type_mask, key2,
+						 key2_type_mask);
 		if (rc != 0) {
 			if ((sorter->fastCmpDescMask & (uint8_t)(1U << i)) != 0)
 				rc = -rc;
@@ -1234,7 +1340,8 @@ vdbeSorterCompareIntLike2Fast(struct SortSubtask *task, bool *key2_cached,
 
 static int
 vdbeSorterCompareIntLike3Fast(struct SortSubtask *task, bool *key2_cached,
-			      const void *key1, const void *key2)
+			      const void *key1, uint8_t key1_type_mask,
+			      const void *key2, uint8_t key2_type_mask)
 {
 	(void)key2_cached;
 	const char *field1 = key1;
@@ -1247,29 +1354,52 @@ vdbeSorterCompareIntLike3Fast(struct SortSubtask *task, bool *key2_cached,
 	 * compare the exact three fields.
 	 */
 	if (mp_decode_array(&field1) < 3 || mp_decode_array(&field2) < 3)
-		return vdbeSorterCompare(task, key2_cached, key1, key2);
-	int rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
-						mp_typeof(*field2), &field2);
+		return vdbeSorterCompare(task, key2_cached, key1, key1_type_mask,
+					 key2, key2_type_mask);
+	int rc;
+	if (key1_type_mask != 0 && key2_type_mask != 0) {
+		rc = vdbeSorterCompareIntLikeMaskedValues(
+			vdbeSorterTypeMaskGetPart(key1_type_mask, 0), &field1,
+			vdbeSorterTypeMaskGetPart(key2_type_mask, 0), &field2);
+	} else {
+		rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
+						    mp_typeof(*field2), &field2);
+	}
 	if (rc == -2)
-		return vdbeSorterCompare(task, key2_cached, key1, key2);
+		return vdbeSorterCompare(task, key2_cached, key1, key1_type_mask,
+					 key2, key2_type_mask);
 	if (rc != 0) {
 		if ((sorter->fastCmpDescMask & (uint8_t)(1U << 0)) != 0)
 			rc = -rc;
 		return rc;
 	}
-	rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
-					    mp_typeof(*field2), &field2);
+	if (key1_type_mask != 0 && key2_type_mask != 0) {
+		rc = vdbeSorterCompareIntLikeMaskedValues(
+			vdbeSorterTypeMaskGetPart(key1_type_mask, 1), &field1,
+			vdbeSorterTypeMaskGetPart(key2_type_mask, 1), &field2);
+	} else {
+		rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
+						    mp_typeof(*field2), &field2);
+	}
 	if (rc == -2)
-		return vdbeSorterCompare(task, key2_cached, key1, key2);
+		return vdbeSorterCompare(task, key2_cached, key1, key1_type_mask,
+					 key2, key2_type_mask);
 	if (rc != 0) {
 		if ((sorter->fastCmpDescMask & (uint8_t)(1U << 1)) != 0)
 			rc = -rc;
 		return rc;
 	}
-	rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
-					    mp_typeof(*field2), &field2);
+	if (key1_type_mask != 0 && key2_type_mask != 0) {
+		rc = vdbeSorterCompareIntLikeMaskedValues(
+			vdbeSorterTypeMaskGetPart(key1_type_mask, 2), &field1,
+			vdbeSorterTypeMaskGetPart(key2_type_mask, 2), &field2);
+	} else {
+		rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
+						    mp_typeof(*field2), &field2);
+	}
 	if (rc == -2)
-		return vdbeSorterCompare(task, key2_cached, key1, key2);
+		return vdbeSorterCompare(task, key2_cached, key1, key1_type_mask,
+					 key2, key2_type_mask);
 	if (rc != 0) {
 		if ((sorter->fastCmpDescMask & (uint8_t)(1U << 2)) != 0)
 			rc = -rc;
@@ -1280,19 +1410,30 @@ vdbeSorterCompareIntLike3Fast(struct SortSubtask *task, bool *key2_cached,
 
 static int
 vdbeSorterCompareIntLike4Fast(struct SortSubtask *task, bool *key2_cached,
-			      const void *key1, const void *key2)
+			      const void *key1, uint8_t key1_type_mask,
+			      const void *key2, uint8_t key2_type_mask)
 {
 	(void)key2_cached;
 	const char *field1 = key1;
 	const char *field2 = key2;
 	struct VdbeSorter *sorter = task->pSorter;
 	if (mp_decode_array(&field1) < 4 || mp_decode_array(&field2) < 4)
-		return vdbeSorterCompare(task, key2_cached, key1, key2);
+		return vdbeSorterCompare(task, key2_cached, key1, key1_type_mask,
+					 key2, key2_type_mask);
 	for (uint32_t i = 0; i < 4; i++) {
-		int rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
-							mp_typeof(*field2), &field2);
+		int rc;
+		if (key1_type_mask != 0 && key2_type_mask != 0) {
+			rc = vdbeSorterCompareIntLikeMaskedValues(
+				vdbeSorterTypeMaskGetPart(key1_type_mask, i), &field1,
+				vdbeSorterTypeMaskGetPart(key2_type_mask, i), &field2);
+		} else {
+			rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
+							    mp_typeof(*field2), &field2);
+		}
 		if (rc == -2)
-			return vdbeSorterCompare(task, key2_cached, key1, key2);
+			return vdbeSorterCompare(task, key2_cached, key1,
+						 key1_type_mask, key2,
+						 key2_type_mask);
 		if (rc != 0) {
 			if ((sorter->fastCmpDescMask & (uint8_t)(1U << i)) != 0)
 				rc = -rc;
@@ -1304,9 +1445,12 @@ vdbeSorterCompareIntLike4Fast(struct SortSubtask *task, bool *key2_cached,
 
 static int
 vdbeSorterCompareSimpleFast(struct SortSubtask *task, bool *key2_cached,
-			    const void *key1, const void *key2)
+			    const void *key1, uint8_t key1_type_mask,
+			    const void *key2, uint8_t key2_type_mask)
 {
 	(void)key2_cached;
+	(void)key1_type_mask;
+	(void)key2_type_mask;
 	const char *field1 = key1;
 	const char *field2 = key2;
 	struct VdbeSorter *sorter = task->pSorter;
@@ -1318,7 +1462,8 @@ vdbeSorterCompareSimpleFast(struct SortSubtask *task, bool *key2_cached,
 	 * dedicated comparator above to avoid this per-part kind dispatch.
 	 */
 	if (mp_decode_array(&field1) < part_count || mp_decode_array(&field2) < part_count)
-		return vdbeSorterCompare(task, key2_cached, key1, key2);
+		return vdbeSorterCompare(task, key2_cached, key1, key1_type_mask,
+					 key2, key2_type_mask);
 
 	for (uint32_t i = 0; i < part_count; ++i) {
 		int rc;
@@ -1329,11 +1474,15 @@ vdbeSorterCompareSimpleFast(struct SortSubtask *task, bool *key2_cached,
 			rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
 							    mp_typeof(*field2), &field2);
 			if (rc == -2)
-				return vdbeSorterCompare(task, key2_cached, key1, key2);
+				return vdbeSorterCompare(task, key2_cached, key1,
+							 key1_type_mask, key2,
+							 key2_type_mask);
 			break;
 		case VDBE_SORTER_FAST_CMP_STRING: {
 			if (mp_typeof(*field1) != MP_STR || mp_typeof(*field2) != MP_STR)
-				return vdbeSorterCompare(task, key2_cached, key1, key2);
+				return vdbeSorterCompare(task, key2_cached, key1,
+							 key1_type_mask, key2,
+							 key2_type_mask);
 			uint32_t len1 = mp_decode_strl(&field1);
 			uint32_t len2 = mp_decode_strl(&field2);
 			uint32_t len = MIN(len1, len2);
@@ -1346,7 +1495,9 @@ vdbeSorterCompareSimpleFast(struct SortSubtask *task, bool *key2_cached,
 		}
 		case VDBE_SORTER_FAST_CMP_VARBINARY: {
 			if (mp_typeof(*field1) != MP_BIN || mp_typeof(*field2) != MP_BIN)
-				return vdbeSorterCompare(task, key2_cached, key1, key2);
+				return vdbeSorterCompare(task, key2_cached, key1,
+							 key1_type_mask, key2,
+							 key2_type_mask);
 			uint32_t len1 = mp_decode_binl(&field1);
 			uint32_t len2 = mp_decode_binl(&field2);
 			uint32_t len = MIN(len1, len2);
@@ -1359,7 +1510,9 @@ vdbeSorterCompareSimpleFast(struct SortSubtask *task, bool *key2_cached,
 		}
 		case VDBE_SORTER_FAST_CMP_BOOL: {
 			if (mp_typeof(*field1) != MP_BOOL || mp_typeof(*field2) != MP_BOOL)
-				return vdbeSorterCompare(task, key2_cached, key1, key2);
+				return vdbeSorterCompare(task, key2_cached, key1,
+							 key1_type_mask, key2,
+							 key2_type_mask);
 			bool v1 = mp_decode_bool(&field1);
 			bool v2 = mp_decode_bool(&field2);
 			rc = v1 == v2 ? 0 : v1 ? 1 : -1;
@@ -1374,18 +1527,24 @@ vdbeSorterCompareSimpleFast(struct SortSubtask *task, bool *key2_cached,
 			else if (t1 == MP_DOUBLE)
 				v1 = mp_decode_double(&field1);
 			else
-				return vdbeSorterCompare(task, key2_cached, key1, key2);
+				return vdbeSorterCompare(task, key2_cached, key1,
+							 key1_type_mask, key2,
+							 key2_type_mask);
 			if (t2 == MP_FLOAT)
 				v2 = mp_decode_float(&field2);
 			else if (t2 == MP_DOUBLE)
 				v2 = mp_decode_double(&field2);
 			else
-				return vdbeSorterCompare(task, key2_cached, key1, key2);
+				return vdbeSorterCompare(task, key2_cached, key1,
+							 key1_type_mask, key2,
+							 key2_type_mask);
 			rc = v1 < v2 ? -1 : v1 > v2 ? 1 : 0;
 			break;
 		}
 		default:
-			return vdbeSorterCompare(task, key2_cached, key1, key2);
+			return vdbeSorterCompare(task, key2_cached, key1,
+						 key1_type_mask, key2,
+						 key2_type_mask);
 		}
 		if (rc != 0) {
 			/* DESC handling is baked into a compact per-part bitmask. */
@@ -1642,10 +1801,9 @@ vdbeSorterMerge(SortSubtask * pTask,	/* Calling thread context */
 
 	assert(p1 != 0 && p2 != 0);
 	for (;;) {
-		int res;
-		res =
-		    pTask->xCompare(pTask, &bCached, SRVAL(p1),
-				    SRVAL(p2));
+		int res = pTask->xCompare(pTask, &bCached, SRVAL(p1),
+					  p1->typeMask, SRVAL(p2),
+					  p2->typeMask);
 
 		if (res <= 0) {
 			*pp = p1;
@@ -1899,6 +2057,7 @@ vdbeSorterListToPMA(SortSubtask * pTask, SorterList * pList)
 		for (p = pList->pList; p; p = pNext) {
 			pNext = p->u.pNext;
 			vdbePmaWriteVarint(&writer, p->nVal);
+			vdbePmaWriteBlob(&writer, &p->typeMask, 1);
 			vdbePmaWriteBlob(&writer, SRVAL(p), p->nVal);
 			if (pList->aMemory == 0)
 				free(p);
@@ -1944,18 +2103,20 @@ vdbeMergeEngineStep(MergeEngine * pMerger,	/* The merge engine to advance to the
 		pReadr1 = &pMerger->aReadr[(iPrev & 0xFFFE)];
 		pReadr2 = &pMerger->aReadr[(iPrev | 0x0001)];
 
-		for (i = (pMerger->nTree + iPrev) / 2; i > 0; i = i / 2) {
-			/* Compare pReadr1 and pReadr2. Store the result in variable iRes. */
-			int iRes;
-			if (pReadr1->pFd == 0) {
-				iRes = +1;
-			} else if (pReadr2->pFd == 0) {
-				iRes = -1;
-			} else {
-				iRes = pTask->xCompare(pTask, &bCached,
-						       pReadr1->aKey,
-						       pReadr2->aKey);
-			}
+			for (i = (pMerger->nTree + iPrev) / 2; i > 0; i = i / 2) {
+				/* Compare pReadr1 and pReadr2. Store the result in variable iRes. */
+				int iRes;
+				if (pReadr1->pFd == 0) {
+					iRes = +1;
+				} else if (pReadr2->pFd == 0) {
+					iRes = -1;
+				} else {
+					iRes = pTask->xCompare(pTask, &bCached,
+							       pReadr1->aKey,
+							       pReadr1->typeMask,
+							       pReadr2->aKey,
+							       pReadr2->typeMask);
+				}
 
 			/* If pReadr1 contained the smaller value, set aTree[i] to its index.
 			 * Then set pReadr2 to the next PmaReader to compare to pReadr1. In this
@@ -2030,7 +2191,7 @@ vdbeSorterWriteBegin(VdbeSorter *pSorter, int record_size, SorterRecord **out)
 	 *     than (page-size * cache-size), or
 	 */
 	nReq = record_size + sizeof(SorterRecord);
-	nPMA = record_size + sqlVarintLen(record_size);
+	nPMA = record_size + sqlVarintLen(record_size) + 1;
 	if (pSorter->mxPmaSize) {
 		if (pSorter->list.aMemory) {
 			bFlush = pSorter->iMemory
@@ -2086,6 +2247,7 @@ vdbeSorterWriteBegin(VdbeSorter *pSorter, int record_size, SorterRecord **out)
 		pNew->u.pNext = pSorter->list.pList;
 	}
 	pNew->nVal = record_size;
+	pNew->typeMask = 0;
 	pSorter->list.pList = pNew;
 	*out = pNew;
 	return rc;
@@ -2106,6 +2268,7 @@ sqlVdbeSorterWrite(const VdbeCursor * pCsr,	/* Sorter cursor */
 	int rc = vdbeSorterWriteBegin(pSorter, pVal->n, &pNew);
 	if (rc != 0)
 		return rc;
+	pNew->typeMask = 0;
 	memcpy(SRVAL(pNew), pVal->z, pVal->n);
 	return 0;
 }
@@ -2120,6 +2283,7 @@ sqlVdbeSorterWriteFromMems(const VdbeCursor *pCsr, const Mem *mems,
 	uint32_t total;
 	SorterRecord *pNew;
 	int rc;
+	uint8_t type_mask = vdbeSorterTypeMaskFromMems(pSorter, mems, count);
 	uint32_t part_count = pSorter->fastCmpPartCount &
 			      VDBE_SORTER_FAST_CMP_PART_COUNT_MASK;
 	if (part_count == count && pSorter->fastCmpPartCount != 0 &&
@@ -2140,6 +2304,7 @@ sqlVdbeSorterWriteFromMems(const VdbeCursor *pCsr, const Mem *mems,
 		rc = vdbeSorterWriteBegin(pSorter, total, &pNew);
 		if (rc != 0)
 			return rc;
+		pNew->typeMask = type_mask;
 		char *pos = mp_encode_array(SRVAL(pNew), count);
 		for (const Mem *mem = mems; mem < mems + count; mem++) {
 			if (mem->type == MEM_TYPE_INT)
@@ -2158,6 +2323,7 @@ generic:
 	rc = vdbeSorterWriteBegin(pSorter, total, &pNew);
 	if (rc != 0)
 		return rc;
+	pNew->typeMask = type_mask;
 	char *pos = mp_encode_array(SRVAL(pNew), count);
 	for (const Mem *mem = mems; mem < mems + count; mem++)
 		pos = mem_to_mp_buf(mem, pos);
@@ -2195,12 +2361,13 @@ vdbeIncrPopulate(IncrMerger * pIncr)
 		 */
 		if (pReader->pFd == 0)
 			break;
-		if ((iEof + nKey + sqlVarintLen(nKey)) >
+		if ((iEof + nKey + sqlVarintLen(nKey) + 1) >
 		    (iStart + pIncr->mxSz))
 			break;
 
 		/* Write the next key to the output. */
 		vdbePmaWriteVarint(&writer, nKey);
+		vdbePmaWriteBlob(&writer, &pReader->typeMask, 1);
 		vdbePmaWriteBlob(&writer, pReader->aKey, nKey);
 		assert(pIncr->pMerger->pTask == pTask);
 		rc = vdbeMergeEngineStep(pIncr->pMerger, &dummy);
@@ -2302,8 +2469,9 @@ vdbeMergeEngineCompare(MergeEngine * pMerger,	/* Merge engine containing PmaRead
 		bool cached = false;
 		int res;
 		assert(pTask->pUnpacked != 0);	/* from vdbeSortSubtaskMain() */
-		res =
-		    pTask->xCompare(pTask, &cached, p1->aKey, p2->aKey);
+		res = pTask->xCompare(pTask, &cached, p1->aKey,
+				      p1->typeMask, p2->aKey,
+				      p2->typeMask);
 		if (res <= 0) {
 			iRes = i1;
 		} else {
