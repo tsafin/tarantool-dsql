@@ -369,6 +369,27 @@ Nearest-term comparator plan:
 - keep runtime fallback to the existing raw/unpacked comparator on mismatch so
   generated interpreter behavior does not change.
 
+Sorter/CnP retrospective summary:
+
+| change | area | structure impact | result | status |
+|---|---|---|---|---|
+| Prepare-time `OP_SorterCompare` equality-shape binding | opcode-side CnP selection | add `cnpEqShapeByCount[]` prepare-time shape cache | useful but small/noise-level on `sort_window`; did not move the real merge hotspot | kept |
+| Restrict exact signed/unsigned equality binding to fixed-width integer field types | opcode-side CnP selection | none | semantic narrowing for generic SQL `INTEGER`/`UNSIGNED` keys | kept |
+| Cached per-row runtime intlike mask | sorter write/read/merge | add `SorterRecord.typeMask`, `PmaReader.typeMask`, PMA row byte | best proven sorter-specific gain so far: about `53.33 us -> 52.54 us` CnP on `sort_window` | kept |
+| Same-type branch in 3-part merge helper | merge comparator | none | regressed | reverted |
+| Out-of-line C++ pair-mask helper | merge comparator | none kept | regressed and showed helper overhead in `perf` | reverted |
+| Local same-TU pair-mask table | merge comparator | none kept | structurally better than helper form but still too unstable to beat the runtime-mask baseline | reverted |
+
+Current recommendation:
+
+- treat the runtime-mask merge path as the sorter baseline, not the abandoned
+  matrix prototypes;
+- keep `OP_SorterCompare` specialization and merge-comparator optimization as
+  separate tracks;
+- if the matrix idea returns, prefer a direct JIT-style entry/jump shape over
+  helper-style dispatch;
+- keep the next benchmarking focus on `sort_window/prepared_execute`.
+
 ## 6. Recommendation on ABI changes
 
 The stitched-fragment path now does use an explicit internal ABI, but only

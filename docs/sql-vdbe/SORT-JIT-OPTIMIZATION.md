@@ -563,38 +563,57 @@ Delta vs generated:
 |---|---:|
 | prepared | `-8.16 us` (`-13.3%`) |
 
-Nearest-term follow-up from this runtime-mask base:
+Sorter/CnP retrospective:
 
-- do not treat the one-byte per-row mask as a new prepare-time JIT selector;
-  it is runtime data, so keep the high-level comparator family selection
-  coarse and localize the new specialization inside the sorter compare body;
-- the useful specialization space is now a pair-mask matrix, not just a
-  single-row mask count: for `N` intlike parts each row has `2^N` exact
-  `INT`/`UINT` masks, and the compare matrix over two rows therefore has
-  `4^N` exact combinations;
-- for the hot fixed-width sorter families that means `16` exact compare bodies
-  for 2-part keys, `64` for 3-part keys, and `256` for 4-part keys;
-- that full `2/3/4` matrix is probably too much code size to land blindly, so
-  the first implementation step should target only the hot 3-part case used by
-  `sort_window`;
-- implement that 3-part exact pair-mask matrix in a small `.cc` helper using
-  templates so each body bakes in the three `INT`/`UINT` decode choices and
-  leaves only one dispatch at comparator entry;
-- keep all other arities and any mask mismatch on the current C fallback path
-  until the 3-part matrix is measured.
+| change | area | data structure impact | measured result on `sort_window` | status |
+|---|---|---|---:|---|
+| Prepare-time `OP_SorterCompare` equality shapes | `vdbe_cnp.c`, `vdbe_ops_sorter.c`, `vdbesort.c` | add `VdbeSorter.cnpEqShapeByCount[5]` prepare-time metadata only | small/noise-level opcode-side gain; real hotspot stayed in merge compare | kept |
+| Restrict exact signed/unsigned equality binding to fixed-width integer field types | same | no row-format change | correctness fix; avoided over-specializing generic SQL `INTEGER`/`UNSIGNED` keys | kept |
+| Cached runtime intlike row mask | `vdbesort.c` merge/write/read paths | `SorterRecord.typeMask`, `PmaReader.typeMask`, PMA row format adds `1` byte after record length | `53.33 us -> 52.54 us` for CnP (`~1.5%`) | kept |
+| Same-type `MP_INT` / `MP_UINT` branch inside `vdbeSorterCompareIntLike3Fast()` | merge comparator | none | regressed focused benchmark | reverted |
+| Out-of-line C++ 3-part pair-mask helper | separate `.cc` helper | no lasting row-format change | reruns around `60.14 us` and `61.80 us`; helper itself showed up in `perf` | reverted |
+| Local same-TU 3-part pair-mask table | `vdbesort.c` only | none | one rerun at `55.04 us`, next at `57.48 us`; too unstable and not better than last proven baseline | reverted |
 
-First result from that experiment:
+Surviving sorter data-flow / storage changes:
 
-- a narrow 3-part C++ pair-mask helper was tried and then removed;
-- on two focused `sort_window/prepared_execute` reruns it moved CnP medians to
-  about `60.14 us` and `61.80 us`, both worse than the last good runtime-mask
-  baseline (`52.54 us`), though those batches also showed noisy absolute
-  timings and WAL stalls;
-- `perf_jit.sh` still made the useful conclusion clear: the new C++ dispatch
-  helper itself showed up directly in the sorter hot path
-  (`vdbe_sorter_compare_intlike3_matrix` and its template dispatch layers),
-  so this out-of-line bridge shape is not the right way to materialize the
-  matrix.
+- sorter rows now carry a one-byte cached runtime intlike mask in both
+  in-memory `SorterRecord` objects and PMA records;
+- PMA row layout is now `varint(length) + 1-byte mask + raw MsgPack row`;
+- sorter merge comparator callbacks now see both row masks in addition to the
+  raw row pointers;
+- `OP_SorterCompare` CnP specialization keeps only prepare-time shape metadata
+  in `cnpEqShapeByCount[]`; it does not depend on the per-row runtime mask.
+
+What the experiments clarified:
+
+- the opcode-side `OP_SorterCompare` JIT/CnP work is useful but not the main
+  remaining source of sorter cost on `sort_window`;
+- the runtime-mask merge comparator work is the only sorter-specific change so
+  far with a clear, repeatable positive delta;
+- the bad result from the out-of-line C++ helper does not disprove a
+  specialization matrix in general, only that helper/bridge shape;
+- the local same-translation-unit matrix removed the visible helper-boundary
+  cost in `perf`, but its benchmark result was still too unstable to keep.
+
+Nearest-term plan from the current runtime-mask baseline:
+
+- keep the one-byte per-row runtime mask and the current masked merge compare
+  path as the proven sorter baseline;
+- do not treat the runtime mask as a new prepare-time JIT selector; it remains
+  runtime data;
+- keep the high-level opcode-side CnP selector coarse and separate from merge
+  comparator work;
+- if we revisit specialization matrices, target only the hot 3-part intlike
+  merge comparator first;
+- for an `N`-part intlike key the exact row-pair matrix has `4^N` shapes, so
+  the practical first target remains the 3-part `sort_window` case (`64`
+  exact bodies);
+- any future JIT-shaped matrix attempt has to avoid a helper/bridge cost per
+  compare and should look more like a direct jump into an exact body than a
+  normal out-of-line helper call;
+- other high-value unexplored areas remain `sqlVdbeSorterWriteFromMems()`,
+  `vdbe_op_column_integer_exact_fast`, and sustained-shape dispatch designs
+  that move the runtime shape choice farther out of the hottest compare loop.
 
 ## 7. Why generic `key_compare()` is not the first backend
 
