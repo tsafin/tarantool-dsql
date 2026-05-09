@@ -360,6 +360,10 @@ Nearest-term comparator plan:
 - use a narrow `.cc` helper for that matrix so templates can bake the per-part
   `INT`/`UINT` decode paths while the existing C sorter still owns storage,
   PMA format, and generic fallback;
+- the first such `.cc` prototype for the 3-part case regressed `sort_window`
+  and was removed again; `perf` showed the out-of-line matrix dispatcher
+  itself in the hot path, so any future matrix attempt has to avoid paying a
+  separate helper/bridge cost per compare;
 - rows without such a mask still stay on the previous raw/unpacked fallback
   path, so SQL semantics and generic sorter behavior do not change;
 - keep runtime fallback to the existing raw/unpacked comparator on mismatch so
