@@ -342,8 +342,26 @@ Nearest-term comparator plan:
   field types; generic SQL `INTEGER` / `UNSIGNED` affinities should stay on the
   mixed intlike path because runtime sorter keys may encode them as either
   `MP_INT` or `MP_UINT`;
-- move the next sorter-specific CnP step closer to the hotter merge-path
-  comparator if `sort_window` still points there;
+- do not keep adding same-type branches inside the current 3-part merge helper;
+  a direct `MP_UINT` / `MP_INT` subpath experiment regressed `sort_window`;
+- move the next sorter-specific CnP step to cached per-row runtime type masks
+  captured during `Mem[] -> MsgPack` sorter writes, so merge compare can pick
+  exact same-type paths without re-reading MsgPack tags on each compare;
+- the first runtime-mask slice now does exactly that for short all-intlike
+  sorter keys by storing a one-byte mask beside each sorter row and threading
+  it through PMA write/read;
+- the next experiment should use those cached masks only at runtime and build a
+  local exact pair-mask matrix for the hottest fixed arity, not a larger
+  prepare-time fragment taxonomy;
+- for an `N`-part intlike key that matrix has `4^N` exact compare shapes over
+  the two row masks, so the practical first target is the 3-part
+  `sort_window` case (`64` exact bodies) rather than trying to materialize the
+  whole `2/3/4` family at once;
+- use a narrow `.cc` helper for that matrix so templates can bake the per-part
+  `INT`/`UINT` decode paths while the existing C sorter still owns storage,
+  PMA format, and generic fallback;
+- rows without such a mask still stay on the previous raw/unpacked fallback
+  path, so SQL semantics and generic sorter behavior do not change;
 - keep runtime fallback to the existing raw/unpacked comparator on mismatch so
   generated interpreter behavior does not change.
 
