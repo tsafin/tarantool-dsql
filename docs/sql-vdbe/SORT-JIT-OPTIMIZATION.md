@@ -583,6 +583,19 @@ Nearest-term follow-up from this runtime-mask base:
 - keep all other arities and any mask mismatch on the current C fallback path
   until the 3-part matrix is measured.
 
+First result from that experiment:
+
+- a narrow 3-part C++ pair-mask helper was tried and then removed;
+- on two focused `sort_window/prepared_execute` reruns it moved CnP medians to
+  about `60.14 us` and `61.80 us`, both worse than the last good runtime-mask
+  baseline (`52.54 us`), though those batches also showed noisy absolute
+  timings and WAL stalls;
+- `perf_jit.sh` still made the useful conclusion clear: the new C++ dispatch
+  helper itself showed up directly in the sorter hot path
+  (`vdbe_sorter_compare_intlike3_matrix` and its template dispatch layers),
+  so this out-of-line bridge shape is not the right way to materialize the
+  matrix.
+
 ## 7. Why generic `key_compare()` is not the first backend
 
 There is an existing raw key comparator in the tuple layer, but it is not the
