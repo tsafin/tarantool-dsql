@@ -500,9 +500,13 @@ Measured outcome on `sort_window/prepared_execute`:
 - the change is functionally correct but only moves the focused benchmark by a
   noise-level amount;
 - that indicates opcode-side compare specialization is nearly exhausted here;
-- the next meaningful sorter-specific gain should likely come from the hotter
+- the next meaningful sorter-specific gain should come from the hotter
   merge-path comparator in `vdbesort.c`, not another `OP_SorterCompare`
-  selector refinement.
+  selector refinement;
+- a follow-up attempt to add a same-type `MP_UINT` / `MP_INT` subpath inside
+  `vdbeSorterCompareIntLike3Fast()` was reverted after a small regression on
+  `sort_window`, so adding more per-compare type checks inside that helper is
+  not the preferred direction.
 
 Current discard-mode `sort_window` rerun with this selector in place:
 
@@ -519,11 +523,65 @@ Current discard-mode profile on `sort_window/prepared_execute`:
 - `vdbe_op_column_integer_exact_fast` and `sqlVdbeSorterWriteFromMems` remain
   the next largest SQL-side costs.
 
+Next comparator direction:
+
+- capture a tiny runtime type mask per sorter row at
+  `sqlVdbeSorterWriteFromMems()` time, while the exact `Mem.type` values are
+  still available;
+- use that cached mask in the merge comparator to choose exact integer decode
+  paths without re-reading MsgPack tags on every compare;
+- keep the raw MsgPack row as the canonical sorter storage format, so PMA spill
+  and merge behavior stay unchanged;
+- keep the existing mixed-intlike and generic unpacked fallbacks for any row
+  shape that does not match the cached fast mask.
+
+That first runtime-mask slice is now implemented:
+
+- sorter rows now carry a one-byte intlike runtime type mask alongside the raw
+  MsgPack row in both in-memory `SorterRecord` objects and PMA records;
+- the mask is produced once from exact `Mem.type` values during
+  `sqlVdbeSorterWriteFromMems()`;
+- `vdbeSorterCompareIntLike{2,3,4}Fast()` and the generic intlike fast compare
+  path now use the cached mask when both compared rows have it, and fall back
+  to the old `mp_typeof()`-driven logic otherwise;
+- prebuilt sorter rows and non-intlike shapes still carry mask `0`, which keeps
+  them on the old path with unchanged behavior.
+
+Measured outcome of the first runtime-mask slice on `sort_window`:
+
+| shape | before | after |
+|---|---:|---:|
+| generated prepared | `61.49 us` | `55.58 us` |
+| CnP prepared | `53.33 us` | **`52.54 us`** |
+
+So this first slice improves the last good CnP baseline by about `0.79 us`
+(`~1.5%`) on `sort_window/prepared_execute`.
+
 Delta vs generated:
 
 | shape | delta |
 |---|---:|
 | prepared | `-8.16 us` (`-13.3%`) |
+
+Nearest-term follow-up from this runtime-mask base:
+
+- do not treat the one-byte per-row mask as a new prepare-time JIT selector;
+  it is runtime data, so keep the high-level comparator family selection
+  coarse and localize the new specialization inside the sorter compare body;
+- the useful specialization space is now a pair-mask matrix, not just a
+  single-row mask count: for `N` intlike parts each row has `2^N` exact
+  `INT`/`UINT` masks, and the compare matrix over two rows therefore has
+  `4^N` exact combinations;
+- for the hot fixed-width sorter families that means `16` exact compare bodies
+  for 2-part keys, `64` for 3-part keys, and `256` for 4-part keys;
+- that full `2/3/4` matrix is probably too much code size to land blindly, so
+  the first implementation step should target only the hot 3-part case used by
+  `sort_window`;
+- implement that 3-part exact pair-mask matrix in a small `.cc` helper using
+  templates so each body bakes in the three `INT`/`UINT` decode choices and
+  leaves only one dispatch at comparator entry;
+- keep all other arities and any mask mismatch on the current C fallback path
+  until the 3-part matrix is measured.
 
 ## 7. Why generic `key_compare()` is not the first backend
 
