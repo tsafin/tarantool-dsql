@@ -382,6 +382,8 @@ local function teardown_builtin_scan()
 end
 
 local sort_window_expected
+local sort_payload_expected
+local sort_text_window_expected
 
 local function setup_sort_window()
     setup_point_lookup()
@@ -424,6 +426,118 @@ end
 local function teardown_sort_window()
     sort_window_expected = nil
     teardown_point_lookup()
+end
+
+local function setup_sort_payload()
+    setup_point_lookup()
+    sort_payload_expected = {}
+    local window = 256
+    local limit = 32
+    for start_id = 1, 1024 do
+        local rows = {}
+        local finish_id = math.min(start_id + window - 1, 1024)
+        for i = start_id, finish_id do
+            local a = i * 10
+            local b = i * 5 + 1
+            local c = i * 2 + 1
+            local d = i * 3 + 7
+            local g = i * 8 + 13
+            local k = i * 14 + 23
+            rows[#rows + 1] = {
+                score = (a * 17 + b * 7 - c * 3) % 257,
+                b = b,
+                id = i,
+                d = d,
+                g = g,
+                k = k,
+            }
+        end
+        table.sort(rows, function(lhs, rhs)
+            if lhs.score ~= rhs.score then
+                return lhs.score > rhs.score
+            end
+            if lhs.b ~= rhs.b then
+                return lhs.b < rhs.b
+            end
+            return lhs.id > rhs.id
+        end)
+        local sum_score = 0
+        local sum_mix = 0
+        local top = math.min(limit, #rows)
+        for i = 1, top do
+            local row = rows[i]
+            sum_score = sum_score + row.score
+            sum_mix = sum_mix + row.id + row.d + row.g + row.k
+        end
+        sort_payload_expected[start_id] = {sum_score, sum_mix}
+    end
+end
+
+local function teardown_sort_payload()
+    sort_payload_expected = nil
+    teardown_point_lookup()
+end
+
+local function setup_sort_text_window()
+    setup_builtin_scan()
+    sort_text_window_expected = {}
+    local rows = {}
+    for i = 1, 2048 do
+        rows[i] = {
+            id = i,
+            s1 = string.format('row-%04d-xx-%d', i, i % 11),
+            s2 = string.format('alpha-%d-zeta-%d', i % 17, i % 5),
+            n1 = i * 13,
+            n2 = i * 7 + 3,
+            s3 = string.format('gamma-%04d-theta-%d', i, i % 13),
+            s4 = string.format('omega-%d-sigma-%04d', i % 19, i),
+            n3 = i * 5 + 21,
+            n4 = i * 9 + 29,
+            s5 = string.format('lambda-%d-kappa-%d', i % 23, i % 7),
+            s6 = string.format('phi-%04d-rho-%d', i, i % 3),
+        }
+    end
+    local window = 192
+    local limit = 32
+    for start_id = 1, 2048 do
+        local slice = {}
+        local finish_id = math.min(start_id + window - 1, 2048)
+        for i = start_id, finish_id do
+            local row = rows[i]
+            slice[#slice + 1] = {
+                id = row.id,
+                n1 = row.n1,
+                sort_tag = string.sub(row.s3, 7, 12),
+                tie_tag = row.s5,
+                n4 = row.n4,
+            }
+        end
+        table.sort(slice, function(lhs, rhs)
+            if lhs.sort_tag ~= rhs.sort_tag then
+                return lhs.sort_tag > rhs.sort_tag
+            end
+            if lhs.n4 ~= rhs.n4 then
+                return lhs.n4 < rhs.n4
+            end
+            if lhs.tie_tag ~= rhs.tie_tag then
+                return lhs.tie_tag > rhs.tie_tag
+            end
+            return lhs.id < rhs.id
+        end)
+        local sum_id = 0
+        local sum_n1 = 0
+        local top = math.min(limit, #slice)
+        for i = 1, top do
+            sum_id = sum_id + slice[i].id
+            sum_n1 = sum_n1 + slice[i].n1
+        end
+        sort_text_window_expected[start_id] = {sum_id, sum_n1}
+    end
+end
+
+local function teardown_sort_text_window()
+    sort_text_window_expected = nil
+    teardown_builtin_scan()
 end
 
 local workloads = {
@@ -629,6 +743,68 @@ local workloads = {
         expected = function(i)
             local start_id = ((i - 1) % 1024) + 1
             return sort_window_expected[start_id][1]
+        end,
+    },
+    {
+        name = 'sort_payload',
+        description = 'Indexed range top-K sort with computed keys and wider carried payload',
+        sql = [[
+            SELECT sum(score), sum(payload_sum)
+            FROM (
+                SELECT ((a * 17 + b * 7 - c * 3) % 257) AS score,
+                       id AS src_id,
+                       id + d + g + k AS payload_sum
+                FROM bench_arith
+                WHERE id BETWEEN ? AND ?
+                ORDER BY score DESC, b ASC, id DESC
+                LIMIT 32
+            );
+        ]],
+        prepare_iterations = env_int('BENCH_PREPARE_ITERS_SORT_PAYLOAD', 200),
+        exec_iterations = env_int('BENCH_EXEC_ITERS_SORT_PAYLOAD', 2000),
+        auto_iterations = env_int('BENCH_AUTO_ITERS_SORT_PAYLOAD', 2000),
+        setup = setup_sort_payload,
+        teardown = teardown_sort_payload,
+        args = function(i)
+            local start_id = ((i - 1) % 1024) + 1
+            return {start_id, math.min(start_id + 255, 1024)}
+        end,
+        checksum = function(res)
+            return res.rows[1][1] + res.rows[1][2]
+        end,
+        expected = function(i)
+            local start_id = ((i - 1) % 1024) + 1
+            return sort_payload_expected[start_id][1]
+        end,
+    },
+    {
+        name = 'sort_text_window',
+        description = 'Indexed range mixed string/integer top-K sort with bounded output',
+        sql = [[
+            SELECT sum(id), sum(n1)
+            FROM (
+                SELECT id, n1
+                FROM bench_text
+                WHERE id BETWEEN ? AND ?
+                ORDER BY substr(s3, 7, 6) DESC, n4 ASC, s5 DESC, id ASC
+                LIMIT 32
+            );
+        ]],
+        prepare_iterations = env_int('BENCH_PREPARE_ITERS_SORT_TEXT', 150),
+        exec_iterations = env_int('BENCH_EXEC_ITERS_SORT_TEXT', 1500),
+        auto_iterations = env_int('BENCH_AUTO_ITERS_SORT_TEXT', 1500),
+        setup = setup_sort_text_window,
+        teardown = teardown_sort_text_window,
+        args = function(i)
+            local start_id = ((i - 1) % 2048) + 1
+            return {start_id, math.min(start_id + 191, 2048)}
+        end,
+        checksum = function(res)
+            return res.rows[1][1] + res.rows[1][2]
+        end,
+        expected = function(i)
+            local start_id = ((i - 1) % 2048) + 1
+            return sort_text_window_expected[start_id][1]
         end,
     },
 }
