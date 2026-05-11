@@ -570,6 +570,7 @@ Sorter/CnP retrospective:
 | Prepare-time `OP_SorterCompare` equality shapes | `vdbe_cnp.c`, `vdbe_ops_sorter.c`, `vdbesort.c` | add `VdbeSorter.cnpEqShapeByCount[5]` prepare-time metadata only | small/noise-level opcode-side gain; real hotspot stayed in merge compare | kept |
 | Restrict exact signed/unsigned equality binding to fixed-width integer field types | same | no row-format change | correctness fix; avoided over-specializing generic SQL `INTEGER`/`UNSIGNED` keys | kept |
 | Cached runtime intlike row mask | `vdbesort.c` merge/write/read paths | `SorterRecord.typeMask`, `PmaReader.typeMask`, PMA row format adds `1` byte after record length | `53.33 us -> 52.54 us` for CnP (`~1.5%`) | kept |
+| Recoverable key-part offset cache | `vdbesort.c` merge/write/read paths | add transient `partOffsets[]` / `offsetPartCount` to in-memory `SorterRecord` and current `PmaReader`; PMA row format unchanged | `52.54 us -> 52.57 us` on the confirming rerun (`~flat`) | kept |
 | Same-type `MP_INT` / `MP_UINT` branch inside `vdbeSorterCompareIntLike3Fast()` | merge comparator | none | regressed focused benchmark | reverted |
 | Out-of-line C++ 3-part pair-mask helper | separate `.cc` helper | no lasting row-format change | reruns around `60.14 us` and `61.80 us`; helper itself showed up in `perf` | reverted |
 | Local same-TU 3-part pair-mask table | `vdbesort.c` only | none | one rerun at `55.04 us`, next at `57.48 us`; too unstable and not better than last proven baseline | reverted |
@@ -579,8 +580,11 @@ Surviving sorter data-flow / storage changes:
 - sorter rows now carry a one-byte cached runtime intlike mask in both
   in-memory `SorterRecord` objects and PMA records;
 - PMA row layout is now `varint(length) + 1-byte mask + raw MsgPack row`;
+- in-memory sorter rows and current PMA-reader rows now also cache recoverable
+  offsets of the hot key parts; these offsets are rebuilt from the raw row
+  bytes after spill and are not serialized into PMAs;
 - sorter merge comparator callbacks now see both row masks in addition to the
-  raw row pointers;
+  raw row pointers and optional per-row part-offset arrays;
 - `OP_SorterCompare` CnP specialization keeps only prepare-time shape metadata
   in `cnpEqShapeByCount[]`; it does not depend on the per-row runtime mask.
 
@@ -590,6 +594,10 @@ What the experiments clarified:
   remaining source of sorter cost on `sort_window`;
 - the runtime-mask merge comparator work is the only sorter-specific change so
   far with a clear, repeatable positive delta;
+- a recoverable offset cache does remove repeated left-to-right field walking
+  for the same sorter row, but by itself it is essentially neutral on
+  `sort_window`; the remaining cost is still in per-field decode and compare
+  logic, not only in rescanning to field boundaries;
 - the bad result from the out-of-line C++ helper does not disprove a
   specialization matrix in general, only that helper/bridge shape;
 - the local same-translation-unit matrix removed the visible helper-boundary
@@ -599,10 +607,15 @@ Nearest-term plan from the current runtime-mask baseline:
 
 - keep the one-byte per-row runtime mask and the current masked merge compare
   path as the proven sorter baseline;
+- keep the recoverable per-row offset cache as cheap infrastructure, but do not
+  treat it as a proven standalone speedup;
 - do not treat the runtime mask as a new prepare-time JIT selector; it remains
   runtime data;
 - keep the high-level opcode-side CnP selector coarse and separate from merge
   comparator work;
+- do not add a heavier decoded-value cache next; the offset-cache result says
+  the next sorter-specific gain, if any, needs to reduce compare/decode logic
+  itself rather than only field-boundary rescans;
 - if we revisit specialization matrices, target only the hot 3-part intlike
   merge comparator first;
 - for an `N`-part intlike key the exact row-pair matrix has `4^N` shapes, so

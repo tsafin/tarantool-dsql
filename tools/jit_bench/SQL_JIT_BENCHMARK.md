@@ -20,7 +20,7 @@ The benchmark harness used for these measurements lives at:
 
 ## What is being benchmarked
 
-The current default matrix uses seven workload shapes and measures them in
+The current default matrix uses ten workload shapes and measures them in
 three execution modes.
 
 | Workload | SQL shape | Purpose |
@@ -32,6 +32,8 @@ three execution modes.
 | `agg_scan` | indexed range `sum()` / `count()` / `max()` over `bench_arith` | Heavier numeric aggregation where native execution has more room to win |
 | `builtin_scan` | indexed range text builtin scan over `bench_text` | String/integer builtin mix (`length`, `abs`, `substr`, `upper`, `lower`) plus aggregation |
 | `sort_window` | indexed range subquery with `ORDER BY ... LIMIT` over `bench_arith` | Sorter-heavy top-K workload for profile-driven optimization of sort paths |
+| `sort_payload` | indexed range subquery with `ORDER BY ... LIMIT` over `bench_arith` and wider carried payload | Separates sorter compare cost from extra carried row payload in a still-integer-heavy top-K case |
+| `sort_text_window` | indexed range subquery with mixed string/integer `ORDER BY ... LIMIT` over `bench_text` | More realistic mixed-type top-K sort with bounded output and text compare work |
 
 | Case | What it measures | Why it matters |
 | --- | --- | --- |
@@ -64,6 +66,8 @@ each run.
 | `agg_scan` | 500 | 5 000 | 5 000 |
 | `builtin_scan` | 300 | 3 000 | 3 000 |
 | `sort_window` | 200 | 2 000 | 2 000 |
+| `sort_payload` | 200 | 2 000 | 2 000 |
+| `sort_text_window` | 150 | 1 500 | 1 500 |
 
 For most workloads, `automatic_execute` uses the same iteration count as
 `prepared_execute` because the auto stmt cache eliminates per-call
@@ -123,6 +127,14 @@ exercise the exact combination we want to optimize:
 - coroutine-driven subquery execution,
 - sorter insert / sort / fetch / next,
 - final aggregation over the limited result.
+
+Two adjacent sorter workloads now complement it:
+
+- `sort_payload` keeps the same integer-heavy top-K ordering, but carries a
+  wider payload through the sorter so sorter-row size matters more;
+- `sort_text_window` keeps the bounded top-K shape but moves the ordering logic
+  into a mixed string/integer comparator over `bench_text`, which is closer to
+  application-style ORDER BY than the pure integer stress case.
 
 ## `point_lookup`: what CnP is now specializing
 
