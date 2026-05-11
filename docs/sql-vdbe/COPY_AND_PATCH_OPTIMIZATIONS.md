@@ -350,6 +350,10 @@ Nearest-term comparator plan:
 - the first runtime-mask slice now does exactly that for short all-intlike
   sorter keys by storing a one-byte mask beside each sorter row and threading
   it through PMA write/read;
+- the next recoverable-cache slice now also keeps per-row key-part offsets for
+  the hot sorter shapes, but only in memory: `SorterRecord` stores them for
+  in-memory sorts and `PmaReader` rebuilds them once per current PMA row after
+  spill, leaving the PMA row format unchanged;
 - the next experiment should use those cached masks only at runtime and build a
   local exact pair-mask matrix for the hottest fixed arity, not a larger
   prepare-time fragment taxonomy;
@@ -376,16 +380,20 @@ Sorter/CnP retrospective summary:
 | Prepare-time `OP_SorterCompare` equality-shape binding | opcode-side CnP selection | add `cnpEqShapeByCount[]` prepare-time shape cache | useful but small/noise-level on `sort_window`; did not move the real merge hotspot | kept |
 | Restrict exact signed/unsigned equality binding to fixed-width integer field types | opcode-side CnP selection | none | semantic narrowing for generic SQL `INTEGER`/`UNSIGNED` keys | kept |
 | Cached per-row runtime intlike mask | sorter write/read/merge | add `SorterRecord.typeMask`, `PmaReader.typeMask`, PMA row byte | best proven sorter-specific gain so far: about `53.33 us -> 52.54 us` CnP on `sort_window` | kept |
+| Recoverable per-row key-part offsets | sorter write/read/merge | add transient `SorterRecord.partOffsets[]` and `PmaReader.partOffsets[]`; PMA row format unchanged | essentially flat: `52.54 us -> 52.57 us` on the confirming CnP rerun | kept |
 | Same-type branch in 3-part merge helper | merge comparator | none | regressed | reverted |
 | Out-of-line C++ pair-mask helper | merge comparator | none kept | regressed and showed helper overhead in `perf` | reverted |
 | Local same-TU pair-mask table | merge comparator | none kept | structurally better than helper form but still too unstable to beat the runtime-mask baseline | reverted |
 
 Current recommendation:
 
-- treat the runtime-mask merge path as the sorter baseline, not the abandoned
-  matrix prototypes;
+- treat the runtime-mask merge path as the sorter baseline and the recoverable
+  offset cache as neutral infrastructure, not as a proven standalone win;
 - keep `OP_SorterCompare` specialization and merge-comparator optimization as
   separate tracks;
+- do not add a decoded-value sidecar next; the offset cache confirms that
+  avoiding only boundary rescans is not enough to move `sort_window`
+  materially;
 - if the matrix idea returns, prefer a direct JIT-style entry/jump shape over
   helper-style dispatch;
 - keep the next benchmarking focus on `sort_window/prepared_execute`.

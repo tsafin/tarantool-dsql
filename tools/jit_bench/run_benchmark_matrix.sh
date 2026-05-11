@@ -42,6 +42,8 @@ else
         wide_scan_hint
         builtin_scan
         sort_window
+        sort_payload
+        sort_text_window
     )
 fi
 
