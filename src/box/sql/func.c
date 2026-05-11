@@ -721,6 +721,7 @@ func_substr_characters(struct sql_context *ctx, int argc, const
 	}
 
 	const char *str = argv[0].z;
+	bool out_aliases_input = ctx->pOut == &argv[0];
 	int32_t pos = 0;
 	int32_t end = argv[0].n;
 	if (argc == 2) {
@@ -732,8 +733,13 @@ func_substr_characters(struct sql_context *ctx, int argc, const
 		}
 		if (pos == end)
 			return mem_set_str_static(ctx->pOut, "", 0);
-		if (mem_copy_str(ctx->pOut, str + pos, end - pos) != 0)
-			ctx->is_aborted = true;
+		if (out_aliases_input) {
+			if (mem_copy_str(ctx->pOut, str + pos, end - pos) != 0)
+				ctx->is_aborted = true;
+		} else {
+			mem_set_str_ephemeral(ctx->pOut, (char *)str + pos,
+					      end - pos);
+		}
 		return;
 	}
 
@@ -770,8 +776,12 @@ func_substr_characters(struct sql_context *ctx, int argc, const
 		U8_NEXT((uint8_t *)str, cur, end, c);
 	}
 	assert(cur > pos);
-	if (mem_copy_str(ctx->pOut, str + pos, cur - pos) != 0)
-		ctx->is_aborted = true;
+	if (out_aliases_input) {
+		if (mem_copy_str(ctx->pOut, str + pos, cur - pos) != 0)
+			ctx->is_aborted = true;
+	} else {
+		mem_set_str_ephemeral(ctx->pOut, (char *)str + pos, cur - pos);
+	}
 }
 
 /**
