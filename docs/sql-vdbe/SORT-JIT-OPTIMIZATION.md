@@ -766,3 +766,50 @@ Text-sort checkpoint:
   generated `46.49 us`, MCJIT `51.69 us`, CnP `42.38 us`;
 - latest validation reruns on the integer-heavy sorter cases remained healthy:
   `sort_window` CnP `50.17 us`, `sort_payload` CnP `65.14 us`.
+
+Hybrid specialization plan:
+
+- do not keep growing a hand-written list of exact mixed-shape comparator
+  helpers;
+- instead, preinstantiate a small bounded set of compile-time specializations
+  for shapes that are both hot and structurally stable;
+- the current examples are the all-intlike `2/3/4` families and the mixed
+  `[str, intlike, str, intlike]` sorter shape from `sort_text_window`;
+- use C++ templates or an equivalent compile-time generator so those fixed
+  shapes share one implementation scheme instead of many ad hoc bodies;
+- for shapes outside that bounded set, prefer exact JIT/CnP-emitted comparator
+  bodies when prepare-time shape analysis says they are specialization-worthy;
+- keep the existing generic mixed fast comparator and unpacked fallback as the
+  semantic safety net.
+
+Recommended next architecture:
+
+1. precompiled tier:
+   a small global matrix of hot sorter comparator layouts;
+2. JIT tier:
+   exact per-statement comparator emission for the long tail of clean mixed
+   scalar shapes;
+3. fallback tier:
+   the current generic mixed comparator and final generic unpack path.
+
+Current hybrid checkpoint:
+
+- the static tier now routes the current `[str, intlike, str, intlike]`
+  comparator through a template-instantiated C++ body instead of a handwritten
+  one-off implementation;
+- two focused fallback workloads now exist:
+  - `sort_text_shape_fallback` keeps the text top-K shape but uses a mixed key
+    layout outside the static template set, so compare falls back to the
+    generic mixed fast comparator;
+  - `sort_text_substr_fallback` keeps the comparator shape but switches to
+    `substr(s3, 7)`, so the producer falls back to the generic builtin path;
+- latest discard-mode medians:
+  - `sort_text_window`: generated `51.63 us`, MCJIT `50.88 us`,
+    CnP `44.61 us`;
+  - `sort_text_shape_fallback`: generated `52.07 us`, MCJIT `53.67 us`,
+    CnP `45.10 us`;
+  - `sort_text_substr_fallback`: generated `51.53 us`, MCJIT `53.97 us`,
+    CnP `48.25 us`;
+- the current template-backed static tier is architecturally correct, but on
+  the handled case it is roughly neutral versus the earlier handwritten helper,
+  not a fresh speedup by itself.

@@ -384,6 +384,79 @@ end
 local sort_window_expected
 local sort_payload_expected
 local sort_text_window_expected
+local sort_text_shape_fallback_expected
+local sort_text_substr_fallback_expected
+
+local function build_sort_text_rows()
+    local rows = {}
+    for i = 1, 2048 do
+        rows[i] = {
+            id = i,
+            s1 = string.format('row-%04d-xx-%d', i, i % 11),
+            s2 = string.format('alpha-%d-zeta-%d', i % 17, i % 5),
+            n1 = i * 13,
+            n2 = i * 7 + 3,
+            s3 = string.format('gamma-%04d-theta-%d', i, i % 13),
+            s4 = string.format('omega-%d-sigma-%04d', i % 19, i),
+            n3 = i * 5 + 21,
+            n4 = i * 9 + 29,
+            s5 = string.format('lambda-%d-kappa-%d', i % 23, i % 7),
+            s6 = string.format('phi-%04d-rho-%d', i, i % 3),
+        }
+    end
+    return rows
+end
+
+local function compute_sort_text_expected(rows, mode)
+    local expected = {}
+    local window = 192
+    local limit = 32
+    for start_id = 1, 2048 do
+        local slice = {}
+        local finish_id = math.min(start_id + window - 1, 2048)
+        for i = start_id, finish_id do
+            local row = rows[i]
+            slice[#slice + 1] = {
+                id = row.id,
+                n1 = row.n1,
+                sort_tag = mode == 'substr_fallback' and
+                    string.sub(row.s3, 7) or string.sub(row.s3, 7, 12),
+                tie_tag = row.s5,
+                n4 = row.n4,
+            }
+        end
+        table.sort(slice, function(lhs, rhs)
+            if lhs.sort_tag ~= rhs.sort_tag then
+                return lhs.sort_tag > rhs.sort_tag
+            end
+            if mode == 'shape_fallback' then
+                if lhs.tie_tag ~= rhs.tie_tag then
+                    return lhs.tie_tag > rhs.tie_tag
+                end
+                if lhs.n4 ~= rhs.n4 then
+                    return lhs.n4 < rhs.n4
+                end
+            else
+                if lhs.n4 ~= rhs.n4 then
+                    return lhs.n4 < rhs.n4
+                end
+                if lhs.tie_tag ~= rhs.tie_tag then
+                    return lhs.tie_tag > rhs.tie_tag
+                end
+            end
+            return lhs.id < rhs.id
+        end)
+        local sum_id = 0
+        local sum_n1 = 0
+        local top = math.min(limit, #slice)
+        for i = 1, top do
+            sum_id = sum_id + slice[i].id
+            sum_n1 = sum_n1 + slice[i].n1
+        end
+        expected[start_id] = {sum_id, sum_n1}
+    end
+    return expected
+end
 
 local function setup_sort_window()
     setup_point_lookup()
@@ -478,65 +551,34 @@ local function teardown_sort_payload()
     teardown_point_lookup()
 end
 
-local function setup_sort_text_window()
+local function setup_sort_text_case(mode)
     setup_builtin_scan()
-    sort_text_window_expected = {}
-    local rows = {}
-    for i = 1, 2048 do
-        rows[i] = {
-            id = i,
-            s1 = string.format('row-%04d-xx-%d', i, i % 11),
-            s2 = string.format('alpha-%d-zeta-%d', i % 17, i % 5),
-            n1 = i * 13,
-            n2 = i * 7 + 3,
-            s3 = string.format('gamma-%04d-theta-%d', i, i % 13),
-            s4 = string.format('omega-%d-sigma-%04d', i % 19, i),
-            n3 = i * 5 + 21,
-            n4 = i * 9 + 29,
-            s5 = string.format('lambda-%d-kappa-%d', i % 23, i % 7),
-            s6 = string.format('phi-%04d-rho-%d', i, i % 3),
-        }
+    local rows = build_sort_text_rows()
+    if mode == 'template' then
+        sort_text_window_expected = compute_sort_text_expected(rows, mode)
+    elseif mode == 'shape_fallback' then
+        sort_text_shape_fallback_expected = compute_sort_text_expected(rows, mode)
+    else
+        sort_text_substr_fallback_expected = compute_sort_text_expected(rows, mode)
     end
-    local window = 192
-    local limit = 32
-    for start_id = 1, 2048 do
-        local slice = {}
-        local finish_id = math.min(start_id + window - 1, 2048)
-        for i = start_id, finish_id do
-            local row = rows[i]
-            slice[#slice + 1] = {
-                id = row.id,
-                n1 = row.n1,
-                sort_tag = string.sub(row.s3, 7, 12),
-                tie_tag = row.s5,
-                n4 = row.n4,
-            }
-        end
-        table.sort(slice, function(lhs, rhs)
-            if lhs.sort_tag ~= rhs.sort_tag then
-                return lhs.sort_tag > rhs.sort_tag
-            end
-            if lhs.n4 ~= rhs.n4 then
-                return lhs.n4 < rhs.n4
-            end
-            if lhs.tie_tag ~= rhs.tie_tag then
-                return lhs.tie_tag > rhs.tie_tag
-            end
-            return lhs.id < rhs.id
-        end)
-        local sum_id = 0
-        local sum_n1 = 0
-        local top = math.min(limit, #slice)
-        for i = 1, top do
-            sum_id = sum_id + slice[i].id
-            sum_n1 = sum_n1 + slice[i].n1
-        end
-        sort_text_window_expected[start_id] = {sum_id, sum_n1}
-    end
+end
+
+local function setup_sort_text_window()
+    setup_sort_text_case('template')
+end
+
+local function setup_sort_text_shape_fallback()
+    setup_sort_text_case('shape_fallback')
+end
+
+local function setup_sort_text_substr_fallback()
+    setup_sort_text_case('substr_fallback')
 end
 
 local function teardown_sort_text_window()
     sort_text_window_expected = nil
+    sort_text_shape_fallback_expected = nil
+    sort_text_substr_fallback_expected = nil
     teardown_builtin_scan()
 end
 
@@ -805,6 +847,66 @@ local workloads = {
         expected = function(i)
             local start_id = ((i - 1) % 2048) + 1
             return sort_text_window_expected[start_id][1]
+        end,
+    },
+    {
+        name = 'sort_text_shape_fallback',
+        description = 'Mixed string top-K sort with non-templated key layout fallback',
+        sql = [[
+            SELECT sum(id), sum(n1)
+            FROM (
+                SELECT id, n1
+                FROM bench_text
+                WHERE id BETWEEN ? AND ?
+                ORDER BY substr(s3, 7, 6) DESC, s5 DESC, n4 ASC, id ASC
+                LIMIT 32
+            );
+        ]],
+        prepare_iterations = env_int('BENCH_PREPARE_ITERS_SORT_TEXT_FALLBACK', 150),
+        exec_iterations = env_int('BENCH_EXEC_ITERS_SORT_TEXT_FALLBACK', 1500),
+        auto_iterations = env_int('BENCH_AUTO_ITERS_SORT_TEXT_FALLBACK', 1500),
+        setup = setup_sort_text_shape_fallback,
+        teardown = teardown_sort_text_window,
+        args = function(i)
+            local start_id = ((i - 1) % 2048) + 1
+            return {start_id, math.min(start_id + 191, 2048)}
+        end,
+        checksum = function(res)
+            return res.rows[1][1] + res.rows[1][2]
+        end,
+        expected = function(i)
+            local start_id = ((i - 1) % 2048) + 1
+            return sort_text_shape_fallback_expected[start_id][1]
+        end,
+    },
+    {
+        name = 'sort_text_substr_fallback',
+        description = 'Mixed string top-K sort with generic builtin substr fallback',
+        sql = [[
+            SELECT sum(id), sum(n1)
+            FROM (
+                SELECT id, n1
+                FROM bench_text
+                WHERE id BETWEEN ? AND ?
+                ORDER BY substr(s3, 7) DESC, n4 ASC, s5 DESC, id ASC
+                LIMIT 32
+            );
+        ]],
+        prepare_iterations = env_int('BENCH_PREPARE_ITERS_SORT_TEXT_SUBSTR_FALLBACK', 150),
+        exec_iterations = env_int('BENCH_EXEC_ITERS_SORT_TEXT_SUBSTR_FALLBACK', 1500),
+        auto_iterations = env_int('BENCH_AUTO_ITERS_SORT_TEXT_SUBSTR_FALLBACK', 1500),
+        setup = setup_sort_text_substr_fallback,
+        teardown = teardown_sort_text_window,
+        args = function(i)
+            local start_id = ((i - 1) % 2048) + 1
+            return {start_id, math.min(start_id + 191, 2048)}
+        end,
+        checksum = function(res)
+            return res.rows[1][1] + res.rows[1][2]
+        end,
+        expected = function(i)
+            local start_id = ((i - 1) % 2048) + 1
+            return sort_text_substr_fallback_expected[start_id][1]
         end,
     },
 }
