@@ -2580,6 +2580,24 @@ cnp_select_bitwise_handler(const struct Vdbe *p, int pc)
 	}
 }
 
+static uintptr_t
+cnp_select_builtinfunction_handler(const struct Vdbe *p, int pc)
+{
+	const Op *op = &p->aOp[pc];
+	if (op->p4type != P4_FUNCCTX || op->p4.pCtx == NULL)
+		return (uintptr_t)vdbe_op_builtinfunction;
+	if (op->p1 != 3)
+		return (uintptr_t)vdbe_op_builtinfunction;
+	struct func *func = op->p4.pCtx->func;
+	if (func == NULL || func->def == NULL)
+		return (uintptr_t)vdbe_op_builtinfunction;
+	if (func->def->returns != FIELD_TYPE_STRING)
+		return (uintptr_t)vdbe_op_builtinfunction;
+	if (strcmp(func->def->name, "SUBSTR") != 0)
+		return (uintptr_t)vdbe_op_builtinfunction;
+	return (uintptr_t)vdbe_op_builtinfunction_substr3_string_fast;
+}
+
 static bool
 cnp_fragment_find_hot_jmp(const struct cnp_fragment *frag, uint32_t *jmp_offset)
 {
@@ -2981,6 +2999,9 @@ vdbe_cnp_compile_fragments(struct Vdbe *p)
 			else if (aOp[i].opcode == OP_SorterCompare &&
 				 strcmp(rel->symbol_name, "vdbe_op_sortercompare") == 0)
 				target = cnp_select_sortercompare_fragment_handler(p, i);
+			else if (aOp[i].opcode == OP_BuiltinFunction &&
+				 strcmp(rel->symbol_name, "vdbe_op_builtinfunction") == 0)
+				target = cnp_select_builtinfunction_handler(p, i);
 			else if (((aOp[i].opcode == OP_Add &&
 				   strcmp(rel->symbol_name, "vdbe_op_add_sysv_bridge") == 0) ||
 				  (aOp[i].opcode == OP_Subtract &&
@@ -3278,6 +3299,9 @@ vdbe_cnp_compile(struct Vdbe *p)
 			case CNP_HOLE_HANDLER:
 				if (aOp[i].opcode == OP_Column) {
 					target = cnp_select_column_handler(p, i);
+				} else if (aOp[i].opcode == OP_BuiltinFunction) {
+					target = cnp_select_builtinfunction_handler(
+						p, i);
 				} else if (aOp[i].opcode == OP_Add ||
 					   aOp[i].opcode == OP_Subtract ||
 					   aOp[i].opcode == OP_Multiply ||

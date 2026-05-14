@@ -195,6 +195,7 @@ int vdbe_op_openpseudo_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* OpenPseudo */
 int vdbe_op_count_inline(Vdbe *p, Op *pOp, Mem *aMem);  /* Count */
 /* Function and session control opcodes */
 int vdbe_op_builtinfunction(Vdbe *p, Op *pOp, Mem *aMem);  /* BuiltinFunction */
+int vdbe_op_builtinfunction_substr3_string_fast(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_functionbyname(Vdbe *p, Op *pOp, Mem *aMem);  /* FunctionByName */
 int vdbe_op_setsession(Vdbe *p, Op *pOp, Mem *aMem);  /* SetSession */
 /* Sorter/ephemeral table opcodes */
