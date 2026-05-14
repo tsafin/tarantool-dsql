@@ -396,7 +396,22 @@ Current recommendation:
   materially;
 - if the matrix idea returns, prefer a direct JIT-style entry/jump shape over
   helper-style dispatch;
-- keep the next benchmarking focus on `sort_window/prepared_execute`.
+- keep `sort_window/prepared_execute` as the primary integer-heavy sorter
+  target, but validate computed text-key work on `sort_text_window`.
+
+Recent text-key checkpoint:
+
+- the current useful CnP gain came from specializing the producer side of
+  `ORDER BY substr(s3, 7, 6)`, not from adding another text comparator family;
+- `OP_BuiltinFunction` can now route `SUBSTR(3)` to a narrow CnP handler that
+  keeps the result as an ephemeral slice when safe and falls back to the
+  generic builtin path otherwise;
+- the handler currently keeps a cheap ASCII-prefix fast path and preserves
+  generic behavior for NULL, aliased-output, and non-ASCII cases;
+- latest discard-mode `sort_text_window/prepared_execute` medians:
+  generated `48.74 us`, MCJIT `50.01 us`, CnP `44.57 us`;
+- current regression checks stayed healthy on the integer-heavy sorter cases:
+  `sort_window` CnP `50.17 us`, `sort_payload` CnP `65.14 us`.
 
 ## 6. Recommendation on ABI changes
 

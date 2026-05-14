@@ -680,6 +680,8 @@ Primary benchmark:
 Secondary validation:
 
 - `sort_window/automatic_execute`
+- `sort_payload/prepared_execute`
+- `sort_text_window/prepared_execute`
 - other sorter-using ORDER BY workloads if available
 - regression checks for scan-heavy and non-sorter workloads
 
@@ -697,6 +699,7 @@ Correctness checks:
 - negative integers and uint/int mixtures
 - NULL handling fallback correctness
 - binary string compare fallback correctness
+- non-ASCII substring fallback correctness
 
 ## 10. Suggested implementation order
 
@@ -747,3 +750,16 @@ The next concrete milestone should be:
 - re-profile `sort_window/prepared_execute`;
 - if sorter compare is still on top, move the next effort to the merge-path
   comparator instead of adding more opcode-side wrapper variants.
+
+Text-sort checkpoint:
+
+- `sort_text_window` is now the useful validation case for computed text keys;
+- the current win there came from narrowing the producer path before sorter
+  insert, not from another sorter comparator family;
+- the current CnP-side `SUBSTR(3)` specialization keeps generic behavior by
+  falling back for non-string, NULL, aliased-output, or non-ASCII-prefix
+  cases;
+- latest discard-mode medians on `sort_text_window/prepared_execute`:
+  generated `48.74 us`, MCJIT `50.01 us`, CnP `44.57 us`;
+- latest validation reruns on the integer-heavy sorter cases remained healthy:
+  `sort_window` CnP `50.17 us`, `sort_payload` CnP `65.14 us`.

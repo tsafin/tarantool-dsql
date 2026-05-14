@@ -17,6 +17,16 @@
 #include "box/func.h"
 #include "box/func_cache.h"
 
+static inline bool
+vdbe_is_ascii_prefix(const char *str, uint64_t limit)
+{
+	for (uint64_t i = 0; i < limit; ++i) {
+		if (((unsigned char)str[i] & 0x80) != 0)
+			return false;
+	}
+	return true;
+}
+
 /* Opcode: BuiltinFunction P1 P2 P3 P4 *
  * Synopsis: r[P3]=builtin_func(r[P2@P1])
  *
@@ -62,6 +72,59 @@ vdbe_op_builtinfunction(Vdbe *p, Op *pOp, Mem *aMem)
 
 	REGISTER_TRACE(p, P3, pCtx->pOut);
 	UPDATE_MAX_BLOBSIZE(pCtx->pOut);
+	return 0;
+}
+
+int
+vdbe_op_builtinfunction_substr3_string_fast(Vdbe *p, Op *pOp, Mem *aMem)
+{
+	assert(pOp->p4type == P4_FUNCCTX);
+	if (pOp->p1 != 3)
+		return vdbe_op_builtinfunction(p, pOp, aMem);
+
+	sql_context *pCtx = pOp->p4.pCtx;
+	Mem *args = &aMem[pOp->p2];
+	Mem *pOut = vdbe_prepare_null_out(p, pOp->p3);
+	if (pCtx->pOut != pOut)
+		pCtx->pOut = pOut;
+
+#ifdef SQL_DEBUG
+	for (int i = 0; i < pOp->p1; i++) {
+		assert(memIsValid(&aMem[pOp->p2 + i]));
+		REGISTER_TRACE(p, pOp->p2 + i, &aMem[pOp->p2 + i]);
+	}
+#endif
+
+	pCtx->is_aborted = false;
+	if (mem_is_any_null(&args[0], &args[1]) || mem_is_null(&args[2]))
+		goto done;
+	if (!mem_is_str(&args[0]) || !mem_is_uint(&args[1]) ||
+	    !mem_is_uint(&args[2]) || args[1].u.u == 0 ||
+	    pOut == &args[0] || args[0].n > SQL_MAX_LENGTH)
+		return vdbe_op_builtinfunction(p, pOp, aMem);
+
+	uint64_t start = args[1].u.u - 1;
+	uint64_t length = args[2].u.u;
+	if (length == 0 || start >= (uint64_t)args[0].n) {
+		mem_set_str_static(pOut, "", 0);
+		goto done;
+	}
+	uint64_t inspect = start + length;
+	if (inspect > (uint64_t)args[0].n)
+		inspect = args[0].n;
+	if (!vdbe_is_ascii_prefix(args[0].z, inspect))
+		return vdbe_op_builtinfunction(p, pOp, aMem);
+
+	uint64_t len = (uint64_t)args[0].n - start;
+	if (len > length)
+		len = length;
+	mem_set_str_ephemeral(pOut, args[0].z + start, len);
+
+done:
+	if (mem_is_bytes(pOut) && sqlVdbeMemTooBig(pOut))
+		return -1;
+	REGISTER_TRACE(p, pOp->p3, pOut);
+	UPDATE_MAX_BLOBSIZE(pOut);
 	return 0;
 }
 
