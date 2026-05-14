@@ -408,8 +408,10 @@ Recent text-key checkpoint:
   generic builtin path otherwise;
 - the handler currently keeps a cheap ASCII-prefix fast path and preserves
   generic behavior for NULL, aliased-output, and non-ASCII cases;
+- the mixed text sorter now also has a fixed raw comparator for the exact
+  `[str, intlike, str, intlike]` key shape used by `sort_text_window`;
 - latest discard-mode `sort_text_window/prepared_execute` medians:
-  generated `48.74 us`, MCJIT `50.01 us`, CnP `44.57 us`;
+  generated `46.49 us`, MCJIT `51.69 us`, CnP `42.38 us`;
 - current regression checks stayed healthy on the integer-heavy sorter cases:
   `sort_window` CnP `50.17 us`, `sort_payload` CnP `65.14 us`.
 
