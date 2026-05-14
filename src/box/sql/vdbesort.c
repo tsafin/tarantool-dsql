@@ -1557,6 +1557,67 @@ vdbeSorterCompareIntLike4Fast(struct SortSubtask *task, bool *key2_cached,
 	return 0;
 }
 
+static inline int
+vdbeSorterCompareStringValues(const char **field1, const char **field2)
+{
+	if (mp_typeof(**field1) != MP_STR || mp_typeof(**field2) != MP_STR)
+		return -2;
+	uint32_t len1 = mp_decode_strl(field1);
+	uint32_t len2 = mp_decode_strl(field2);
+	uint32_t len = MIN(len1, len2);
+	int rc = memcmp(*field1, *field2, len);
+	if (rc == 0)
+		rc = len1 < len2 ? -1 : len1 > len2 ? 1 : 0;
+	*field1 += len1;
+	*field2 += len2;
+	return rc;
+}
+
+static int
+vdbeSorterCompareStrIntStrInt4Fast(struct SortSubtask *task, bool *key2_cached,
+				   const void *key1, uint8_t key1_type_mask,
+				   const uint16_t *key1_offsets, const void *key2,
+				   uint8_t key2_type_mask,
+				   const uint16_t *key2_offsets)
+{
+	(void)key2_cached;
+	(void)key1_type_mask;
+	(void)key2_type_mask;
+	const char *field1 = key1;
+	const char *field2 = key2;
+	struct VdbeSorter *sorter = task->pSorter;
+	bool use_offsets = key1_offsets != NULL && key2_offsets != NULL;
+	if (!use_offsets && (mp_decode_array(&field1) < 4 || mp_decode_array(&field2) < 4))
+		return vdbeSorterCompare(task, key2_cached, key1, key1_type_mask,
+					 key1_offsets, key2, key2_type_mask,
+					 key2_offsets);
+
+	for (uint32_t i = 0; i < 4; ++i) {
+		int rc;
+		if (use_offsets) {
+			field1 = (const char *)key1 + key1_offsets[i];
+			field2 = (const char *)key2 + key2_offsets[i];
+		}
+		if ((i & 1U) == 0) {
+			rc = vdbeSorterCompareStringValues(&field1, &field2);
+		} else {
+			rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
+							    mp_typeof(*field2), &field2);
+		}
+		if (rc == -2)
+			return vdbeSorterCompare(task, key2_cached, key1,
+						 key1_type_mask, key1_offsets,
+						 key2, key2_type_mask,
+						 key2_offsets);
+		if (rc != 0) {
+			if ((sorter->fastCmpDescMask & (uint8_t)(1U << i)) != 0)
+				rc = -rc;
+			return rc;
+		}
+	}
+	return 0;
+}
+
 static int
 vdbeSorterCompareSimpleFast(struct SortSubtask *task, bool *key2_cached,
 			    const void *key1, uint8_t key1_type_mask,
@@ -1602,22 +1663,14 @@ vdbeSorterCompareSimpleFast(struct SortSubtask *task, bool *key2_cached,
 							 key2, key2_type_mask,
 							 key2_offsets);
 			break;
-		case VDBE_SORTER_FAST_CMP_STRING: {
-			if (mp_typeof(*field1) != MP_STR || mp_typeof(*field2) != MP_STR)
+		case VDBE_SORTER_FAST_CMP_STRING:
+			rc = vdbeSorterCompareStringValues(&field1, &field2);
+			if (rc == -2)
 				return vdbeSorterCompare(task, key2_cached, key1,
 							 key1_type_mask, key1_offsets,
 							 key2, key2_type_mask,
 							 key2_offsets);
-			uint32_t len1 = mp_decode_strl(&field1);
-			uint32_t len2 = mp_decode_strl(&field2);
-			uint32_t len = MIN(len1, len2);
-			rc = memcmp(field1, field2, len);
-			if (rc == 0)
-				rc = len1 < len2 ? -1 : len1 > len2 ? 1 : 0;
-			field1 += len1;
-			field2 += len2;
 			break;
-		}
 		case VDBE_SORTER_FAST_CMP_VARBINARY: {
 			if (mp_typeof(*field1) != MP_BIN || mp_typeof(*field2) != MP_BIN)
 				return vdbeSorterCompare(task, key2_cached, key1,
@@ -1983,6 +2036,12 @@ vdbeSorterGetCompare(VdbeSorter * p)
 			return vdbeSorterCompareIntLikeFast;
 		}
 	}
+	if ((p->fastCmpPartCount & VDBE_SORTER_FAST_CMP_PART_COUNT_MASK) == 4 &&
+	    p->fastCmpPartKind[0] == VDBE_SORTER_FAST_CMP_STRING &&
+	    p->fastCmpPartKind[1] == VDBE_SORTER_FAST_CMP_INTLIKE &&
+	    p->fastCmpPartKind[2] == VDBE_SORTER_FAST_CMP_STRING &&
+	    p->fastCmpPartKind[3] == VDBE_SORTER_FAST_CMP_INTLIKE)
+		return vdbeSorterCompareStrIntStrInt4Fast;
 	return vdbeSorterCompareSimpleFast;
 }
 

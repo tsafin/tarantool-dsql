@@ -759,7 +759,10 @@ Text-sort checkpoint:
 - the current CnP-side `SUBSTR(3)` specialization keeps generic behavior by
   falling back for non-string, NULL, aliased-output, or non-ASCII-prefix
   cases;
+- the mixed text sorter now also has an exact raw comparator for the current
+  4-part `[str, intlike, str, intlike]` key shape, so it no longer pays the
+  generic per-part kind switch in `vdbeSorterCompareSimpleFast`;
 - latest discard-mode medians on `sort_text_window/prepared_execute`:
-  generated `48.74 us`, MCJIT `50.01 us`, CnP `44.57 us`;
+  generated `46.49 us`, MCJIT `51.69 us`, CnP `42.38 us`;
 - latest validation reruns on the integer-heavy sorter cases remained healthy:
   `sort_window` CnP `50.17 us`, `sort_payload` CnP `65.14 us`.
