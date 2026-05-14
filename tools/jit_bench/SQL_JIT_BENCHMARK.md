@@ -20,7 +20,7 @@ The benchmark harness used for these measurements lives at:
 
 ## What is being benchmarked
 
-The current default matrix uses ten workload shapes and measures them in
+The current default matrix uses eleven workload shapes and measures them in
 three execution modes.
 
 | Workload | SQL shape | Purpose |
@@ -34,6 +34,8 @@ three execution modes.
 | `sort_window` | indexed range subquery with `ORDER BY ... LIMIT` over `bench_arith` | Sorter-heavy top-K workload for profile-driven optimization of sort paths |
 | `sort_payload` | indexed range subquery with `ORDER BY ... LIMIT` over `bench_arith` and wider carried payload | Separates sorter compare cost from extra carried row payload in a still-integer-heavy top-K case |
 | `sort_text_window` | indexed range subquery with mixed string/integer `ORDER BY ... LIMIT` over `bench_text` | More realistic mixed-type top-K sort with bounded output and text compare work |
+| `sort_text_shape_fallback` | indexed range subquery with reordered mixed string/integer `ORDER BY ... LIMIT` over `bench_text` | Forces the mixed sorter comparator to fall back from the static template set to the generic mixed fast comparator |
+| `sort_text_substr_fallback` | indexed range subquery with `substr(s3, 7)` in `ORDER BY ... LIMIT` over `bench_text` | Forces the text-key producer to fall back from the specialized `SUBSTR(3)` CnP path to the generic builtin path |
 
 | Case | What it measures | Why it matters |
 | --- | --- | --- |
@@ -68,6 +70,8 @@ each run.
 | `sort_window` | 200 | 2 000 | 2 000 |
 | `sort_payload` | 200 | 2 000 | 2 000 |
 | `sort_text_window` | 150 | 1 500 | 1 500 |
+| `sort_text_shape_fallback` | 150 | 1 500 | 1 500 |
+| `sort_text_substr_fallback` | 150 | 1 500 | 1 500 |
 
 For most workloads, `automatic_execute` uses the same iteration count as
 `prepared_execute` because the auto stmt cache eliminates per-call
@@ -135,6 +139,11 @@ Two adjacent sorter workloads now complement it:
 - `sort_text_window` keeps the bounded top-K shape but moves the ordering logic
   into a mixed string/integer comparator over `bench_text`, which is closer to
   application-style ORDER BY than the pure integer stress case.
+- `sort_text_shape_fallback` keeps the same dataset, but changes the ORDER BY
+  layout so it is not covered by the current static mixed-key comparator set;
+- `sort_text_substr_fallback` keeps the mixed `[str, intlike, str, intlike]`
+  comparator shape, but switches to `substr(s3, 7)` so the builtin producer
+  path falls back to the generic implementation.
 
 ## `point_lookup`: what CnP is now specializing
 

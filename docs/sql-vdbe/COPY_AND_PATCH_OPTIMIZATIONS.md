@@ -361,11 +361,8 @@ Nearest-term comparator plan:
   the two row masks, so the practical first target is the 3-part
   `sort_window` case (`64` exact bodies) rather than trying to materialize the
   whole `2/3/4` family at once;
-- use a narrow `.cc` helper for that matrix so templates can bake the per-part
-  `INT`/`UINT` decode paths while the existing C sorter still owns storage,
-  PMA format, and generic fallback;
-- the first such `.cc` prototype for the 3-part case regressed `sort_window`
-  and was removed again; `perf` showed the out-of-line matrix dispatcher
+- the first out-of-line `.cc` helper prototype for that matrix regressed
+  `sort_window` and was removed again; `perf` showed the helper/dispatcher
   itself in the hot path, so any future matrix attempt has to avoid paying a
   separate helper/bridge cost per compare;
 - rows without such a mask still stay on the previous raw/unpacked fallback
@@ -414,6 +411,51 @@ Recent text-key checkpoint:
   generated `46.49 us`, MCJIT `51.69 us`, CnP `42.38 us`;
 - current regression checks stayed healthy on the integer-heavy sorter cases:
   `sort_window` CnP `50.17 us`, `sort_payload` CnP `65.14 us`.
+
+Nearest-term comparator plan:
+
+- treat the current exact mixed-shape helpers as proof of value, not as the
+  final maintenance model;
+- move toward a hybrid specialization scheme:
+  - preinstantiate a small compile-time matrix for the limited set of hot,
+    structurally stable sorter key layouts;
+  - generate exact comparator bodies via JIT/CnP for the longer tail of mixed
+    shapes that are still clean enough to specialize;
+  - keep the current mixed fast comparator and generic fallback for everything
+    else;
+- the static matrix should stay intentionally small:
+  - keep the existing all-intlike `2/3/4` families;
+  - keep only benchmark-proven mixed layouts such as
+    `[str, intlike, str, intlike]`;
+- prefer C++ template instantiation or an equivalent generator for the static
+  tier so new hot layouts do not become another set of ad hoc handwritten
+  compare functions.
+
+Current hybrid checkpoint:
+
+- the current static mixed-text tier no longer uses a handwritten
+  `vdbeSorterCompareStrIntStrInt4Fast()` body; it routes that handled shape
+  through a template-instantiated C++ implementation and keeps the existing C
+  sorter entrypoint as a thin wrapper;
+- the handled template example today is the current `sort_text_window` key
+  layout `[str, intlike, str, intlike]`;
+- explicit fallback examples now exist too:
+  - `sort_text_shape_fallback` keeps the text top-K scenario, but changes the
+    key layout to `[str, str, intlike, intlike]`, so compare falls back to the
+    generic mixed fast comparator outside the static template set;
+  - `sort_text_substr_fallback` keeps the handled comparator layout, but uses
+    `substr(s3, 7)` and therefore falls back from the specialized `SUBSTR(3)`
+    producer path to the generic builtin path;
+- latest discard-mode medians:
+  - `sort_text_window`: generated `51.63 us`, MCJIT `50.88 us`,
+    CnP `44.61 us`;
+  - `sort_text_shape_fallback`: generated `52.07 us`, MCJIT `53.67 us`,
+    CnP `45.10 us`;
+  - `sort_text_substr_fallback`: generated `51.53 us`, MCJIT `53.97 us`,
+    CnP `48.25 us`;
+- the current template-backed static tier is architecturally correct, but on
+  the handled case it is roughly neutral versus the earlier handwritten helper,
+  not a fresh speedup by itself.
 
 ## 6. Recommendation on ABI changes
 

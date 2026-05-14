@@ -154,6 +154,7 @@
 #include "sqlInt.h"
 #include "mem.h"
 #include "vdbeInt.h"
+#include "vdbesort_templates.h"
 #include "box/tuple.h"
 
 /*
@@ -848,15 +849,6 @@ vdbeSorterCompare(struct SortSubtask *task, bool *key2_cached,
 	}
 	return sqlVdbeRecordCompareMsgpack(key1, r2);
 }
-
-enum vdbe_sorter_fast_cmp_kind {
-	VDBE_SORTER_FAST_CMP_UNSUPPORTED = 0,
-	VDBE_SORTER_FAST_CMP_INTLIKE,
-	VDBE_SORTER_FAST_CMP_STRING,
-	VDBE_SORTER_FAST_CMP_VARBINARY,
-	VDBE_SORTER_FAST_CMP_BOOL,
-	VDBE_SORTER_FAST_CMP_DOUBLE,
-};
 
 static const uint8_t vdbe_sorter_fast_cmp_kind_by_type[field_type_MAX] = {
 	[FIELD_TYPE_UNSIGNED] = VDBE_SORTER_FAST_CMP_INTLIKE,
@@ -1580,42 +1572,11 @@ vdbeSorterCompareStrIntStrInt4Fast(struct SortSubtask *task, bool *key2_cached,
 				   uint8_t key2_type_mask,
 				   const uint16_t *key2_offsets)
 {
-	(void)key2_cached;
-	(void)key1_type_mask;
-	(void)key2_type_mask;
-	const char *field1 = key1;
-	const char *field2 = key2;
 	struct VdbeSorter *sorter = task->pSorter;
-	bool use_offsets = key1_offsets != NULL && key2_offsets != NULL;
-	if (!use_offsets && (mp_decode_array(&field1) < 4 || mp_decode_array(&field2) < 4))
-		return vdbeSorterCompare(task, key2_cached, key1, key1_type_mask,
-					 key1_offsets, key2, key2_type_mask,
-					 key2_offsets);
-
-	for (uint32_t i = 0; i < 4; ++i) {
-		int rc;
-		if (use_offsets) {
-			field1 = (const char *)key1 + key1_offsets[i];
-			field2 = (const char *)key2 + key2_offsets[i];
-		}
-		if ((i & 1U) == 0) {
-			rc = vdbeSorterCompareStringValues(&field1, &field2);
-		} else {
-			rc = vdbeSorterCompareIntLikeValues(mp_typeof(*field1), &field1,
-							    mp_typeof(*field2), &field2);
-		}
-		if (rc == -2)
-			return vdbeSorterCompare(task, key2_cached, key1,
-						 key1_type_mask, key1_offsets,
-						 key2, key2_type_mask,
-						 key2_offsets);
-		if (rc != 0) {
-			if ((sorter->fastCmpDescMask & (uint8_t)(1U << i)) != 0)
-				rc = -rc;
-			return rc;
-		}
-	}
-	return 0;
+	return vdbeSorterCompareTemplateStrIntStrInt4(
+		task, key2_cached, key1, key1_type_mask, key1_offsets, key2,
+		key2_type_mask, key2_offsets, sorter->fastCmpDescMask,
+		vdbeSorterCompare);
 }
 
 static int
