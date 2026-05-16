@@ -4,6 +4,10 @@
 
 #include "vdbeInt.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Handler prototypes return int (0 on success, non-zero on error).
  * Implementations live in vdbe_ops_*.c files. */
 int SQL_PRESERVE_NONE vdbe_op_noop(Vdbe *p, Op *pOp, Mem *aMem);
@@ -93,10 +97,43 @@ int vdbe_op_column_boolean_exact_fast(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_column_number_exact_fast(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_column_unsigned_offset_slot_fast(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_column_string_offset_slot_fast(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_column_string_offset_slot_static_fast(Vdbe *p, Op *pOp,
+						  Mem *aMem);
+int vdbe_op_column_string_offset_slot_static_group_fast(Vdbe *p, Op *pOp,
+							Mem *aMem);
+int vdbe_op_column_string_offset_slot_path_fast(Vdbe *p, Op *pOp,
+						Mem *aMem);
+int vdbe_op_column_string_offset_slot_path_group_fast(Vdbe *p, Op *pOp,
+						      Mem *aMem);
+int vdbe_op_column_string_offset_slot_runtime_fast(Vdbe *p, Op *pOp,
+						   Mem *aMem);
 int vdbe_op_column_double_offset_slot_fast(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_column_integer_offset_slot_fast(Vdbe *p, Op *pOp, Mem *aMem);
+int vdbe_op_column_integer_offset_slot_static_fast(Vdbe *p, Op *pOp,
+						   Mem *aMem);
+int vdbe_op_column_integer_offset_slot_static_group_fast(Vdbe *p, Op *pOp,
+							 Mem *aMem);
+int vdbe_op_column_integer_offset_slot_path_fast(Vdbe *p, Op *pOp,
+						 Mem *aMem);
+int vdbe_op_column_integer_offset_slot_path_group_fast(Vdbe *p, Op *pOp,
+						       Mem *aMem);
+int vdbe_op_column_integer_offset_slot_runtime_fast(Vdbe *p, Op *pOp,
+						    Mem *aMem);
 int vdbe_op_column_boolean_offset_slot_fast(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_column_number_offset_slot_fast(Vdbe *p, Op *pOp, Mem *aMem);
+const struct cnp_column_group *vdbe_cnp_column_group_get(const Vdbe *p,
+							 const Op *pOp);
+const struct cnp_column_path *vdbe_cnp_column_path_get(const Vdbe *p,
+						       const Op *pOp);
+void vdbe_field_ref_preload_group_fast(struct vdbe_field_ref *field_ref,
+					 const struct cnp_column_group *group);
+int32_t vdbe_field_ref_offset_slot_fast(struct vdbe_field_ref *field_ref,
+					  uint32_t fieldno);
+const char *vdbe_field_ref_fetch_data_hint_path_fast(
+	struct vdbe_field_ref *field_ref, const struct cnp_column_path *path);
+const char *vdbe_field_ref_fetch_data_offset_slot_fast(
+	struct vdbe_field_ref *field_ref, int32_t offset_slot,
+	uint32_t fieldno);
 int SQL_PRESERVE_NONE vdbe_op_rowdata(Vdbe *p, Op *pOp, Mem *aMem);
 /* Cursor navigation opcodes */
 int vdbe_op_last(Vdbe *p, Op *pOp, Mem *aMem);
@@ -233,5 +270,9 @@ int vdbe_op_renametable_inline(Vdbe *p, Op *pOp, Mem *aMem);        /* RenameTab
  * semantics. The JIT reuses dedicated helpers for these opcodes so it can
  * jump to an absolute runtime pc, and OP_Program can hand control back to the
  * interpreter after switching into a child frame. */
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* SRC_BOX_SQL_VDBE_OPS_H */

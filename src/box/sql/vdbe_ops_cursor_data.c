@@ -322,8 +322,8 @@ vdbe_op_column_offset_slot(const Op *pOp)
 }
 
 #ifdef ENABLE_SQL_CNP
-static inline const struct cnp_column_path *
-cnp_column_path(const Vdbe *p, const Op *pOp)
+const struct cnp_column_path *
+vdbe_cnp_column_path_get(const Vdbe *p, const Op *pOp)
 {
 	if (p == NULL || p->cnp_column_path == NULL || p->aOp == NULL)
 		return NULL;
@@ -334,8 +334,8 @@ cnp_column_path(const Vdbe *p, const Op *pOp)
 	return path->enabled ? path : NULL;
 }
 
-static inline const struct cnp_column_group *
-cnp_column_group(const Vdbe *p, const Op *pOp)
+const struct cnp_column_group *
+vdbe_cnp_column_group_get(const Vdbe *p, const Op *pOp)
 {
 	if (p == NULL || p->cnp_column_group == NULL || p->aOp == NULL)
 		return NULL;
@@ -375,6 +375,13 @@ vdbe_field_ref_preload_group_inline(struct vdbe_field_ref *field_ref,
 							 max_field);
 }
 
+void
+vdbe_field_ref_preload_group_fast(struct vdbe_field_ref *field_ref,
+				      const struct cnp_column_group *group)
+{
+	vdbe_field_ref_preload_group_inline(field_ref, group);
+}
+
 /* Advance a fixed number of fields to the right, caching every intermediate. */
 static inline const char *
 vdbe_field_ref_scan_hops_inline(struct vdbe_field_ref *field_ref,
@@ -408,6 +415,13 @@ vdbe_field_ref_offset_slot_inline(struct vdbe_field_ref *field_ref,
 	return field == NULL ? TUPLE_OFFSET_SLOT_NIL : field->offset_slot;
 }
 
+int32_t
+vdbe_field_ref_offset_slot_fast(struct vdbe_field_ref *field_ref,
+				    uint32_t fieldno)
+{
+	return vdbe_field_ref_offset_slot_inline(field_ref, fieldno);
+}
+
 /*
  * Execute the precomputed "anchor + hop_count" route for an unhinted target:
  * jump to the nearest hinted anchor first, then walk right a fixed number of
@@ -436,13 +450,51 @@ vdbe_field_ref_fetch_data_hint_path_inline(struct vdbe_field_ref *field_ref,
 	return vdbe_field_ref_scan_hops_inline(field_ref, path->anchor_field,
 					       path->hop_count);
 }
+
+const char *
+vdbe_field_ref_fetch_data_hint_path_fast(struct vdbe_field_ref *field_ref,
+					    const struct cnp_column_path *path)
+{
+	return vdbe_field_ref_fetch_data_hint_path_inline(field_ref, path);
+}
+
+const char *
+vdbe_field_ref_fetch_data_offset_slot_fast(struct vdbe_field_ref *field_ref,
+					      int32_t offset_slot,
+					      uint32_t fieldno)
+{
+	return vdbe_field_ref_fetch_data_offset_slot_inline(field_ref,
+							    offset_slot,
+							    fieldno);
+}
 #else
-#define cnp_column_group(p, pOp) NULL
-#define cnp_column_path(p, pOp) NULL
+const struct cnp_column_group *
+vdbe_cnp_column_group_get(const Vdbe *p, const Op *pOp)
+{
+	(void)p;
+	(void)pOp;
+	return NULL;
+}
+
+const struct cnp_column_path *
+vdbe_cnp_column_path_get(const Vdbe *p, const Op *pOp)
+{
+	(void)p;
+	(void)pOp;
+	return NULL;
+}
 
 static inline void
 vdbe_field_ref_preload_group_inline(struct vdbe_field_ref *field_ref,
 				    const void *group)
+{
+	(void)field_ref;
+	(void)group;
+}
+
+void
+vdbe_field_ref_preload_group_fast(struct vdbe_field_ref *field_ref,
+				      const struct cnp_column_group *group)
 {
 	(void)field_ref;
 	(void)group;
@@ -457,12 +509,41 @@ vdbe_field_ref_offset_slot_inline(struct vdbe_field_ref *field_ref,
 	return TUPLE_OFFSET_SLOT_NIL;
 }
 
+int32_t
+vdbe_field_ref_offset_slot_fast(struct vdbe_field_ref *field_ref,
+				    uint32_t fieldno)
+{
+	(void)field_ref;
+	(void)fieldno;
+	return TUPLE_OFFSET_SLOT_NIL;
+}
+
 static inline const char *
 vdbe_field_ref_fetch_data_hint_path_inline(struct vdbe_field_ref *field_ref,
 					   const void *path)
 {
 	(void)field_ref;
 	(void)path;
+	return NULL;
+}
+
+const char *
+vdbe_field_ref_fetch_data_hint_path_fast(struct vdbe_field_ref *field_ref,
+					    const struct cnp_column_path *path)
+{
+	(void)field_ref;
+	(void)path;
+	return NULL;
+}
+
+const char *
+vdbe_field_ref_fetch_data_offset_slot_fast(struct vdbe_field_ref *field_ref,
+					      int32_t offset_slot,
+					      uint32_t fieldno)
+{
+	(void)field_ref;
+	(void)offset_slot;
+	(void)fieldno;
 	return NULL;
 }
 #endif
@@ -591,7 +672,7 @@ vdbe_op_column_typed_exact_fast(Vdbe *p, Op *pOp, Mem *aMem,
 		return vdbe_op_column(p, pOp, aMem);
 	assert(pC->uc.pCursor->space->def->fields[p2].type == expected_type);
 	vdbe_field_ref_preload_group_inline(&pC->field_ref,
-					    cnp_column_group(p, pOp));
+					    vdbe_cnp_column_group_get(p, pOp));
 	if ((uint32_t)p2 < pC->field_ref.field_count) {
 		const char *data = vdbe_field_ref_fetch_data_inline(&pC->field_ref,
 								    p2);
@@ -696,7 +777,7 @@ vdbe_op_column_integer_exact_fast_impl(Vdbe *p, Op *pOp, Mem *aMem)
 		return vdbe_op_column(p, pOp, aMem);
 	assert(pC->uc.pCursor->space->def->fields[p2].type == FIELD_TYPE_INTEGER);
 	vdbe_field_ref_preload_group_inline(&pC->field_ref,
-					    cnp_column_group(p, pOp));
+					    vdbe_cnp_column_group_get(p, pOp));
 	if ((uint32_t)p2 < pC->field_ref.field_count) {
 		const char *data = vdbe_field_ref_fetch_data_inline(&pC->field_ref,
 								    p2);
@@ -775,7 +856,7 @@ vdbe_op_column_typed_offset_slot_fast(Vdbe *p, Op *pOp, Mem *aMem,
 	if (pC->eCurType != CURTYPE_TARANTOOL)
 		return vdbe_op_column(p, pOp, aMem);
 	int32_t offset_slot = vdbe_op_column_offset_slot(pOp);
-	const struct cnp_column_path *path = cnp_column_path(p, pOp);
+	const struct cnp_column_path *path = vdbe_cnp_column_path_get(p, pOp);
 	/* Covering scans discover the slot from the tuple format at runtime. */
 	if (offset_slot == TUPLE_OFFSET_SLOT_NIL && path == NULL)
 		offset_slot = vdbe_field_ref_offset_slot_inline(&pC->field_ref, p2);
@@ -784,7 +865,7 @@ vdbe_op_column_typed_offset_slot_fast(Vdbe *p, Op *pOp, Mem *aMem,
 		return vdbe_op_column_typed_exact_fast(p, pOp, aMem,
 						       expected_type);
 	vdbe_field_ref_preload_group_inline(&pC->field_ref,
-					    cnp_column_group(p, pOp));
+					    vdbe_cnp_column_group_get(p, pOp));
 	if ((uint32_t)p2 < pC->field_ref.field_count) {
 		const char *data = path != NULL ?
 			vdbe_field_ref_fetch_data_hint_path_inline(&pC->field_ref,

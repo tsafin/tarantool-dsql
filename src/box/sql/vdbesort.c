@@ -154,6 +154,7 @@
 #include "sqlInt.h"
 #include "mem.h"
 #include "vdbeInt.h"
+#include "vdbe_dispatch_interface.h"
 #include "vdbesort_templates.h"
 #include "box/tuple.h"
 
@@ -1759,15 +1760,18 @@ sqlVdbeSorterInit(struct VdbeCursor *pCsr)
 	pSorter->pgsz = pgsz = 1024;
 	pSorter->aTask.pSorter = pSorter;
 	(void)vdbeSorterInitFastCmpPlan(pSorter);
-	if (pSorter->fastCmpPartCount != 0 &&
+	if (vdbe_get_dispatcher_mode() == VDBE_DISPATCH_CNP &&
+	    pSorter->fastCmpPartCount != 0 &&
 	    (pSorter->fastCmpPartCount & VDBE_SORTER_FAST_CMP_MIXED_KIND_FLAG) != 0) {
 		uint32_t part_count = pSorter->fastCmpPartCount &
 				      VDBE_SORTER_FAST_CMP_PART_COUNT_MASK;
 		/*
 		 * For mixed scalar keys outside the small static template tier,
 		 * try to build one stitched fragment body for the exact sorter
-		 * shape and cache it on the sorter. Unsupported shapes stay on
-		 * the generic mixed comparator path.
+		 * shape and cache it on the sorter. This sorter-local native
+		 * path is enabled only under the Copy-and-Patch dispatcher so
+		 * generated/old interpreter modes never execute sorter CnP code.
+		 * Unsupported shapes stay on the generic mixed comparator path.
 		 */
 		pSorter->fastCmpCnpCode = vdbeSorterCompareCnpCodeGet(
 			part_count, pSorter->fastCmpDescMask, pSorter->fastCmpPartKind);
