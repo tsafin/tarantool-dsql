@@ -386,6 +386,7 @@ local sort_payload_expected
 local sort_text_window_expected
 local sort_text_shape_fallback_expected
 local sort_text_substr_fallback_expected
+local sort_text_wide_jit_expected
 
 local function build_sort_text_rows()
     local rows = {}
@@ -416,16 +417,62 @@ local function compute_sort_text_expected(rows, mode)
         local finish_id = math.min(start_id + window - 1, 2048)
         for i = start_id, finish_id do
             local row = rows[i]
-            slice[#slice + 1] = {
-                id = row.id,
-                n1 = row.n1,
-                sort_tag = mode == 'substr_fallback' and
-                    string.sub(row.s3, 7) or string.sub(row.s3, 7, 12),
-                tie_tag = row.s5,
-                n4 = row.n4,
-            }
+            if mode == 'wide_jit' then
+                slice[#slice + 1] = {
+                    id = row.id,
+                    n1 = row.n1,
+                    s1 = row.s1,
+                    sort_tag = string.sub(row.s3, 7, 12),
+                    n4 = row.n4,
+                    s5 = row.s5,
+                    n2 = row.n2,
+                    s2 = row.s2,
+                    n3 = row.n3,
+                    s6 = row.s6,
+                    s4 = row.s4,
+                }
+            else
+                slice[#slice + 1] = {
+                    id = row.id,
+                    n1 = row.n1,
+                    sort_tag = mode == 'substr_fallback' and
+                        string.sub(row.s3, 7) or string.sub(row.s3, 7, 12),
+                    tie_tag = row.s5,
+                    n4 = row.n4,
+                }
+            end
         end
         table.sort(slice, function(lhs, rhs)
+            if mode == 'wide_jit' then
+                if lhs.s1 ~= rhs.s1 then
+                    return lhs.s1 < rhs.s1
+                end
+                if lhs.sort_tag ~= rhs.sort_tag then
+                    return lhs.sort_tag > rhs.sort_tag
+                end
+                if lhs.n4 ~= rhs.n4 then
+                    return lhs.n4 < rhs.n4
+                end
+                if lhs.s5 ~= rhs.s5 then
+                    return lhs.s5 > rhs.s5
+                end
+                if lhs.n2 ~= rhs.n2 then
+                    return lhs.n2 < rhs.n2
+                end
+                if lhs.s2 ~= rhs.s2 then
+                    return lhs.s2 > rhs.s2
+                end
+                if lhs.n3 ~= rhs.n3 then
+                    return lhs.n3 < rhs.n3
+                end
+                if lhs.s6 ~= rhs.s6 then
+                    return lhs.s6 > rhs.s6
+                end
+                if lhs.id ~= rhs.id then
+                    return lhs.id < rhs.id
+                end
+                return lhs.s4 < rhs.s4
+            end
             if lhs.sort_tag ~= rhs.sort_tag then
                 return lhs.sort_tag > rhs.sort_tag
             end
@@ -558,6 +605,8 @@ local function setup_sort_text_case(mode)
         sort_text_window_expected = compute_sort_text_expected(rows, mode)
     elseif mode == 'shape_fallback' then
         sort_text_shape_fallback_expected = compute_sort_text_expected(rows, mode)
+    elseif mode == 'wide_jit' then
+        sort_text_wide_jit_expected = compute_sort_text_expected(rows, mode)
     else
         sort_text_substr_fallback_expected = compute_sort_text_expected(rows, mode)
     end
@@ -575,10 +624,15 @@ local function setup_sort_text_substr_fallback()
     setup_sort_text_case('substr_fallback')
 end
 
+local function setup_sort_text_wide_jit()
+    setup_sort_text_case('wide_jit')
+end
+
 local function teardown_sort_text_window()
     sort_text_window_expected = nil
     sort_text_shape_fallback_expected = nil
     sort_text_substr_fallback_expected = nil
+    sort_text_wide_jit_expected = nil
     teardown_builtin_scan()
 end
 
@@ -907,6 +961,45 @@ local workloads = {
         expected = function(i)
             local start_id = ((i - 1) % 2048) + 1
             return sort_text_substr_fallback_expected[start_id][1]
+        end,
+    },
+    {
+        name = 'sort_text_wide_jit',
+        description = 'Wide mixed string/integer top-K sort for generated mixed comparator',
+        sql = [[
+            SELECT sum(id), sum(n1)
+            FROM (
+                SELECT id, n1
+                FROM bench_text
+                WHERE id BETWEEN ? AND ?
+                ORDER BY s1 ASC,
+                         substr(s3, 7, 6) DESC,
+                         n4 ASC,
+                         s5 DESC,
+                         n2 ASC,
+                         s2 DESC,
+                         n3 ASC,
+                         s6 DESC,
+                         id ASC,
+                         s4 ASC
+                LIMIT 32
+            );
+        ]],
+        prepare_iterations = env_int('BENCH_PREPARE_ITERS_SORT_TEXT_WIDE_JIT', 120),
+        exec_iterations = env_int('BENCH_EXEC_ITERS_SORT_TEXT_WIDE_JIT', 1200),
+        auto_iterations = env_int('BENCH_AUTO_ITERS_SORT_TEXT_WIDE_JIT', 1200),
+        setup = setup_sort_text_wide_jit,
+        teardown = teardown_sort_text_window,
+        args = function(i)
+            local start_id = ((i - 1) % 2048) + 1
+            return {start_id, math.min(start_id + 191, 2048)}
+        end,
+        checksum = function(res)
+            return res.rows[1][1] + res.rows[1][2]
+        end,
+        expected = function(i)
+            local start_id = ((i - 1) % 2048) + 1
+            return sort_text_wide_jit_expected[start_id][1]
         end,
     },
 }

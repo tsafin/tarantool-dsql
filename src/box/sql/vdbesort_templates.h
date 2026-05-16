@@ -2,6 +2,7 @@
 #define TARANTOOL_BOX_SQL_VDBESORT_TEMPLATES_H_INCLUDED
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 typedef struct SortSubtask SortSubtask;
@@ -15,10 +16,14 @@ enum vdbe_sorter_fast_cmp_kind {
 	VDBE_SORTER_FAST_CMP_DOUBLE,
 };
 
-typedef int (*VdbeSorterCompareFallback)(SortSubtask *, bool *, const void *,
-					      uint8_t, const uint16_t *,
-					      const void *, uint8_t,
-					      const uint16_t *);
+enum {
+	VDBE_SORTER_FAST_CMP_MAX_PARTS = 16,
+};
+
+typedef int (*VdbeSorterCompareFunc)(SortSubtask *, bool *, const void *,
+					     uint8_t, const uint16_t *,
+					     const void *, uint8_t,
+					     const uint16_t *);
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,8 +37,13 @@ vdbeSorterCompareTemplateStrIntStrInt4(SortSubtask *task, bool *key2_cached,
 					    const void *key2,
 					    uint8_t key2_type_mask,
 					    const uint16_t *key2_offsets,
-					    uint8_t desc_mask,
-					    VdbeSorterCompareFallback fallback);
+					    uint16_t desc_mask,
+					    VdbeSorterCompareFunc fallback);
+
+VdbeSorterCompareFunc
+vdbeSorterGetJitMixedCompare(uint32_t part_count, uint16_t desc_mask,
+			     const uint8_t *part_kind,
+			     VdbeSorterCompareFunc fallback);
 
 #ifdef __cplusplus
 }
