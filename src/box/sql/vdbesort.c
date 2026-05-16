@@ -284,7 +284,9 @@ struct MergeEngine {
  * each thread requires its own UnpackedRecord object to unpack records in
  * as part of comparison operations.
  */
-typedef VdbeSorterCompareFunc SorterCompare;
+typedef int (*SorterCompare) (SortSubtask *, bool *, const void *, uint8_t,
+			      const uint16_t *, const void *, uint8_t,
+			      const uint16_t *);
 struct SortSubtask {
 	VdbeSorter *pSorter;	/* Sorter that owns this sub-task */
 	UnpackedRecord *pUnpacked;	/* Space to unpack a record */
@@ -327,6 +329,8 @@ struct VdbeSorter {
 	uint16_t fastCmpDescMask;
 	/* Per-part comparison kind for the mixed simple-typed fast path. */
 	uint8_t fastCmpPartKind[VDBE_SORTER_FAST_CMP_MAX_PARTS];
+	/* Stitched mixed-key comparator body for wider CnP-managed shapes. */
+	void *fastCmpCnpCode;
 	/*
 	 * CnP-only equality shape for OP_SorterCompare prefixes. This is
 	 * prepare-time metadata derived from key_def and lets the fragment
@@ -1579,6 +1583,44 @@ vdbeSorterCompareStrIntStrInt4Fast(struct SortSubtask *task, bool *key2_cached,
 }
 
 static int
+vdbeSorterCompareMixedCnpFast(struct SortSubtask *task, bool *key2_cached,
+			      const void *key1, uint8_t key1_type_mask,
+			      const uint16_t *key1_offsets, const void *key2,
+			      uint8_t key2_type_mask,
+			      const uint16_t *key2_offsets)
+{
+	struct VdbeSorter *sorter = task->pSorter;
+	if (sorter->fastCmpCnpCode == NULL || key1_offsets != NULL ||
+	    key2_offsets != NULL) {
+		return vdbeSorterCompare(task, key2_cached, key1, key1_type_mask,
+					 key1_offsets, key2, key2_type_mask,
+					 key2_offsets);
+	}
+	const char *field1 = (const char *)key1;
+	const char *field2 = (const char *)key2;
+	uint32_t part_count = sorter->fastCmpPartCount &
+			      VDBE_SORTER_FAST_CMP_PART_COUNT_MASK;
+	if (mp_decode_array(&field1) < part_count ||
+	    mp_decode_array(&field2) < part_count) {
+		return vdbeSorterCompare(task, key2_cached, key1, key1_type_mask,
+					 key1_offsets, key2, key2_type_mask,
+					 key2_offsets);
+	}
+	/*
+	 * The stitched body only sees the payload field cursors. Array-header
+	 * decode stays in C so the copied fragments can be simple per-part
+	 * compare blocks with one shared entry ABI.
+	 */
+	int rc = vdbeSorterCompareCnpEnter(sorter->fastCmpCnpCode, field1, field2);
+	if (rc == VDBE_SORTER_COMPARE_CNP_FALLBACK) {
+		return vdbeSorterCompare(task, key2_cached, key1, key1_type_mask,
+					 key1_offsets, key2, key2_type_mask,
+					 key2_offsets);
+	}
+	return rc;
+}
+
+static int
 vdbeSorterCompareSimpleFast(struct SortSubtask *task, bool *key2_cached,
 			    const void *key1, uint8_t key1_type_mask,
 			    const uint16_t *key1_offsets, const void *key2,
@@ -1717,6 +1759,19 @@ sqlVdbeSorterInit(struct VdbeCursor *pCsr)
 	pSorter->pgsz = pgsz = 1024;
 	pSorter->aTask.pSorter = pSorter;
 	(void)vdbeSorterInitFastCmpPlan(pSorter);
+	if (pSorter->fastCmpPartCount != 0 &&
+	    (pSorter->fastCmpPartCount & VDBE_SORTER_FAST_CMP_MIXED_KIND_FLAG) != 0) {
+		uint32_t part_count = pSorter->fastCmpPartCount &
+				      VDBE_SORTER_FAST_CMP_PART_COUNT_MASK;
+		/*
+		 * For mixed scalar keys outside the small static template tier,
+		 * try to build one stitched fragment body for the exact sorter
+		 * shape and cache it on the sorter. Unsupported shapes stay on
+		 * the generic mixed comparator path.
+		 */
+		pSorter->fastCmpCnpCode = vdbeSorterCompareCnpCodeGet(
+			part_count, pSorter->fastCmpDescMask, pSorter->fastCmpPartKind);
+	}
 	vdbeSorterInitCnpEqPlan(pSorter);
 
 	/* Cache size in bytes */
@@ -2002,13 +2057,8 @@ vdbeSorterGetCompare(VdbeSorter * p)
 	    p->fastCmpPartKind[2] == VDBE_SORTER_FAST_CMP_STRING &&
 	    p->fastCmpPartKind[3] == VDBE_SORTER_FAST_CMP_INTLIKE)
 		return vdbeSorterCompareStrIntStrInt4Fast;
-	uint32_t part_count = p->fastCmpPartCount &
-			      VDBE_SORTER_FAST_CMP_PART_COUNT_MASK;
-	SorterCompare jit_compare = vdbeSorterGetJitMixedCompare(
-		part_count, p->fastCmpDescMask, p->fastCmpPartKind,
-		vdbeSorterCompare);
-	if (jit_compare != NULL)
-		return jit_compare;
+	if (p->fastCmpCnpCode != NULL)
+		return vdbeSorterCompareMixedCnpFast;
 	return vdbeSorterCompareSimpleFast;
 }
 

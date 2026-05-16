@@ -36,7 +36,7 @@ three execution modes.
 | `sort_text_window` | indexed range subquery with mixed string/integer `ORDER BY ... LIMIT` over `bench_text` | More realistic mixed-type top-K sort with bounded output and text compare work |
 | `sort_text_shape_fallback` | indexed range subquery with reordered mixed string/integer `ORDER BY ... LIMIT` over `bench_text` | Forces the mixed sorter comparator to fall back from the static template set to the generic mixed fast comparator |
 | `sort_text_substr_fallback` | indexed range subquery with `substr(s3, 7)` in `ORDER BY ... LIMIT` over `bench_text` | Forces the text-key producer to fall back from the specialized `SUBSTR(3)` CnP path to the generic builtin path |
-| `sort_text_wide_jit` | indexed range subquery with a 10-part mixed string/integer `ORDER BY ... LIMIT` over `bench_text` | Exercises the generated long-tail mixed sorter comparator beyond the bounded static template set |
+| `sort_text_wide_probe` | indexed range subquery with a 10-part mixed string/integer `ORDER BY ... LIMIT` over `bench_text` | Probe workload for the stitched long-tail mixed comparator path beyond the bounded static fast-path set |
 
 | Case | What it measures | Why it matters |
 | --- | --- | --- |
@@ -73,7 +73,7 @@ each run.
 | `sort_text_window` | 150 | 1 500 | 1 500 |
 | `sort_text_shape_fallback` | 150 | 1 500 | 1 500 |
 | `sort_text_substr_fallback` | 150 | 1 500 | 1 500 |
-| `sort_text_wide_jit` | 120 | 1 200 | 1 200 |
+| `sort_text_wide_probe` | 120 | 1 200 | 1 200 |
 
 For most workloads, `automatic_execute` uses the same iteration count as
 `prepared_execute` because the auto stmt cache eliminates per-call
@@ -146,9 +146,9 @@ Two adjacent sorter workloads now complement it:
 - `sort_text_substr_fallback` keeps the mixed `[str, intlike, str, intlike]`
   comparator shape, but switches to `substr(s3, 7)` so the builtin producer
   path falls back to the generic implementation.
-- `sort_text_wide_jit` extends the mixed key to ten parts so the sorter can
-  exercise the generated long-tail mixed comparator instead of either the
-  static template set or the generic per-part kind switch.
+- `sort_text_wide_probe` extends the mixed key to ten parts so the sorter can
+  exercise the stitched long-tail mixed comparator path and keep a stable
+  regression target beyond the bounded static fast-path set.
 
 ## `point_lookup`: what CnP is now specializing
 
