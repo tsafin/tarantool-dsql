@@ -284,9 +284,7 @@ struct MergeEngine {
  * each thread requires its own UnpackedRecord object to unpack records in
  * as part of comparison operations.
  */
-typedef int (*SorterCompare) (SortSubtask *, bool *, const void *, uint8_t,
-			      const uint16_t *, const void *, uint8_t,
-			      const uint16_t *);
+typedef VdbeSorterCompareFunc SorterCompare;
 struct SortSubtask {
 	VdbeSorter *pSorter;	/* Sorter that owns this sub-task */
 	UnpackedRecord *pUnpacked;	/* Space to unpack a record */
@@ -326,9 +324,9 @@ struct VdbeSorter {
 	 */
 	uint8_t fastCmpPartCount;
 	/* DESC bits for parts [0..fastCmpPartCount). */
-	uint8_t fastCmpDescMask;
+	uint16_t fastCmpDescMask;
 	/* Per-part comparison kind for the mixed simple-typed fast path. */
-	uint8_t fastCmpPartKind[8];
+	uint8_t fastCmpPartKind[VDBE_SORTER_FAST_CMP_MAX_PARTS];
 	/*
 	 * CnP-only equality shape for OP_SorterCompare prefixes. This is
 	 * prepare-time metadata derived from key_def and lets the fragment
@@ -1026,10 +1024,11 @@ vdbeSorterInitFastCmpPlan(struct VdbeSorter *pSorter)
 	 * fixed comparison rules, no collation, and no nullable semantics.
 	 * Everything else stays on the proven generic comparator.
 	 */
-	if (def->part_count == 0 || def->part_count > 8 ||
+	if (def->part_count == 0 ||
+	    def->part_count > VDBE_SORTER_FAST_CMP_MAX_PARTS ||
 	    key_def_has_collation(def))
 		return false;
-	uint8_t desc_mask = 0;
+	uint16_t desc_mask = 0;
 	bool all_intlike = true;
 	for (uint32_t i = 0; i < def->part_count; ++i) {
 		struct key_part *part = &def->parts[i];
@@ -1043,7 +1042,7 @@ vdbeSorterInitFastCmpPlan(struct VdbeSorter *pSorter)
 		if (kind != VDBE_SORTER_FAST_CMP_INTLIKE)
 			all_intlike = false;
 		if (part->sort_order == SORT_ORDER_DESC)
-			desc_mask |= (uint8_t)(1U << i);
+			desc_mask |= (uint16_t)(1U << i);
 	}
 	pSorter->fastCmpPartCount = (uint8_t)def->part_count;
 	if (!all_intlike)
@@ -1214,7 +1213,7 @@ sqlVdbeSorterCompareRawKey(const struct VdbeSorter *sorter, uint32_t part_count,
 		if (rc == -2)
 			return -2;
 		if (rc != 0) {
-			if ((sorter->fastCmpDescMask & (uint8_t)(1U << i)) != 0)
+			if ((sorter->fastCmpDescMask & (uint16_t)(1U << i)) != 0)
 				rc = -rc;
 			return rc;
 		}
@@ -1238,7 +1237,7 @@ sqlVdbeSorterCompareRawKeyIntLike3(const struct VdbeSorter *sorter,
 	if (rc == -2)
 		return -2;
 	if (rc != 0) {
-		if ((sorter->fastCmpDescMask & (uint8_t)(1U << 0)) != 0)
+		if ((sorter->fastCmpDescMask & (uint16_t)(1U << 0)) != 0)
 			rc = -rc;
 		return rc;
 	}
@@ -1249,7 +1248,7 @@ sqlVdbeSorterCompareRawKeyIntLike3(const struct VdbeSorter *sorter,
 	if (rc == -2)
 		return -2;
 	if (rc != 0) {
-		if ((sorter->fastCmpDescMask & (uint8_t)(1U << 1)) != 0)
+		if ((sorter->fastCmpDescMask & (uint16_t)(1U << 1)) != 0)
 			rc = -rc;
 		return rc;
 	}
@@ -1260,7 +1259,7 @@ sqlVdbeSorterCompareRawKeyIntLike3(const struct VdbeSorter *sorter,
 	if (rc == -2)
 		return -2;
 	if (rc != 0) {
-		if ((sorter->fastCmpDescMask & (uint8_t)(1U << 2)) != 0)
+		if ((sorter->fastCmpDescMask & (uint16_t)(1U << 2)) != 0)
 			rc = -rc;
 		return rc;
 	}
@@ -1284,7 +1283,7 @@ sqlVdbeSorterCompareRawKeyIntLike2(const struct VdbeSorter *sorter,
 		if (rc == -2)
 			return -2;
 		if (rc != 0) {
-			if ((sorter->fastCmpDescMask & (uint8_t)(1U << i)) != 0)
+			if ((sorter->fastCmpDescMask & (uint16_t)(1U << i)) != 0)
 				rc = -rc;
 			return rc;
 		}
@@ -1309,7 +1308,7 @@ sqlVdbeSorterCompareRawKeyIntLike4(const struct VdbeSorter *sorter,
 		if (rc == -2)
 			return -2;
 		if (rc != 0) {
-			if ((sorter->fastCmpDescMask & (uint8_t)(1U << i)) != 0)
+			if ((sorter->fastCmpDescMask & (uint16_t)(1U << i)) != 0)
 				rc = -rc;
 			return rc;
 		}
@@ -1367,7 +1366,7 @@ vdbeSorterCompareIntLikeFast(struct SortSubtask *task, bool *key2_cached,
 						 key2, key2_type_mask,
 						 key2_offsets);
 		if (rc != 0) {
-			if ((sorter->fastCmpDescMask & (uint8_t)(1U << i)) != 0)
+			if ((sorter->fastCmpDescMask & (uint16_t)(1U << i)) != 0)
 				rc = -rc;
 			return rc;
 		}
@@ -1410,7 +1409,7 @@ vdbeSorterCompareIntLike2Fast(struct SortSubtask *task, bool *key2_cached,
 						 key2, key2_type_mask,
 						 key2_offsets);
 		if (rc != 0) {
-			if ((sorter->fastCmpDescMask & (uint8_t)(1U << i)) != 0)
+			if ((sorter->fastCmpDescMask & (uint16_t)(1U << i)) != 0)
 				rc = -rc;
 			return rc;
 		}
@@ -1457,7 +1456,7 @@ vdbeSorterCompareIntLike3Fast(struct SortSubtask *task, bool *key2_cached,
 					 key1_offsets, key2, key2_type_mask,
 					 key2_offsets);
 	if (rc != 0) {
-		if ((sorter->fastCmpDescMask & (uint8_t)(1U << 0)) != 0)
+		if ((sorter->fastCmpDescMask & (uint16_t)(1U << 0)) != 0)
 			rc = -rc;
 		return rc;
 	}
@@ -1478,7 +1477,7 @@ vdbeSorterCompareIntLike3Fast(struct SortSubtask *task, bool *key2_cached,
 					 key1_offsets, key2, key2_type_mask,
 					 key2_offsets);
 	if (rc != 0) {
-		if ((sorter->fastCmpDescMask & (uint8_t)(1U << 1)) != 0)
+		if ((sorter->fastCmpDescMask & (uint16_t)(1U << 1)) != 0)
 			rc = -rc;
 		return rc;
 	}
@@ -1499,7 +1498,7 @@ vdbeSorterCompareIntLike3Fast(struct SortSubtask *task, bool *key2_cached,
 					 key1_offsets, key2, key2_type_mask,
 					 key2_offsets);
 	if (rc != 0) {
-		if ((sorter->fastCmpDescMask & (uint8_t)(1U << 2)) != 0)
+		if ((sorter->fastCmpDescMask & (uint16_t)(1U << 2)) != 0)
 			rc = -rc;
 		return rc;
 	}
@@ -1541,7 +1540,7 @@ vdbeSorterCompareIntLike4Fast(struct SortSubtask *task, bool *key2_cached,
 						 key2, key2_type_mask,
 						 key2_offsets);
 		if (rc != 0) {
-			if ((sorter->fastCmpDescMask & (uint8_t)(1U << i)) != 0)
+			if ((sorter->fastCmpDescMask & (uint16_t)(1U << i)) != 0)
 				rc = -rc;
 			return rc;
 		}
@@ -1692,7 +1691,7 @@ vdbeSorterCompareSimpleFast(struct SortSubtask *task, bool *key2_cached,
 		}
 		if (rc != 0) {
 			/* DESC handling is baked into a compact per-part bitmask. */
-			if ((sorter->fastCmpDescMask & (uint8_t)(1U << i)) != 0)
+			if ((sorter->fastCmpDescMask & (uint16_t)(1U << i)) != 0)
 				rc = -rc;
 			return rc;
 		}
@@ -2003,6 +2002,13 @@ vdbeSorterGetCompare(VdbeSorter * p)
 	    p->fastCmpPartKind[2] == VDBE_SORTER_FAST_CMP_STRING &&
 	    p->fastCmpPartKind[3] == VDBE_SORTER_FAST_CMP_INTLIKE)
 		return vdbeSorterCompareStrIntStrInt4Fast;
+	uint32_t part_count = p->fastCmpPartCount &
+			      VDBE_SORTER_FAST_CMP_PART_COUNT_MASK;
+	SorterCompare jit_compare = vdbeSorterGetJitMixedCompare(
+		part_count, p->fastCmpDescMask, p->fastCmpPartKind,
+		vdbeSorterCompare);
+	if (jit_compare != NULL)
+		return jit_compare;
 	return vdbeSorterCompareSimpleFast;
 }
 
