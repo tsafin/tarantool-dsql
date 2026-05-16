@@ -1,6 +1,7 @@
 #include "vdbesort_templates.h"
 
 extern "C" {
+#include "generated/vdbe_sorter_cnp_fragments.h"
 #include "msgpuck.h"
 }
 
@@ -8,16 +9,20 @@ extern "C" {
 #include <cstdint>
 #include <cstring>
 #include <sys/mman.h>
-#include <vector>
 
 enum class VdbeSorterFastKind : uint8_t {
 	IntLike = VDBE_SORTER_FAST_CMP_INTLIKE,
 	String = VDBE_SORTER_FAST_CMP_STRING,
-	Varbinary = VDBE_SORTER_FAST_CMP_VARBINARY,
-	Bool = VDBE_SORTER_FAST_CMP_BOOL,
-	Double = VDBE_SORTER_FAST_CMP_DOUBLE,
 };
 
+/*
+ * Static template tier for small hot mixed layouts.
+ *
+ * This is the bounded precompiled matrix used by vdbeSorterGetCompare() for
+ * very common layouts such as [str, intlike, str, intlike]. It stays separate
+ * from the stitched long-tail path below because these helpers are ordinary
+ * C++ functions selected directly at prepare time.
+ */
 static inline int
 vdbeSorterCompareTemplateIntLike(enum mp_type t1, const char **field1,
 				 enum mp_type t2, const char **field2)
@@ -64,70 +69,27 @@ vdbeSorterCompareTemplateString(const char **field1, const char **field2)
 	return rc;
 }
 
-static inline int
-vdbeSorterCompareTemplateVarbinary(const char **field1, const char **field2)
-{
-	if (mp_typeof(**field1) != MP_BIN || mp_typeof(**field2) != MP_BIN)
-		return -2;
-	uint32_t len1 = mp_decode_binl(field1);
-	uint32_t len2 = mp_decode_binl(field2);
-	uint32_t len = len1 < len2 ? len1 : len2;
-	int rc = std::memcmp(*field1, *field2, len);
-	if (rc == 0)
-		rc = len1 < len2 ? -1 : len1 > len2 ? 1 : 0;
-	*field1 += len1;
-	*field2 += len2;
-	return rc;
-}
-
-static inline int
-vdbeSorterCompareTemplateBool(const char **field1, const char **field2)
-{
-	if (mp_typeof(**field1) != MP_BOOL || mp_typeof(**field2) != MP_BOOL)
-		return -2;
-	bool v1 = mp_decode_bool(field1);
-	bool v2 = mp_decode_bool(field2);
-	return v1 == v2 ? 0 : v1 ? 1 : -1;
-}
-
-static inline int
-vdbeSorterCompareTemplateDouble(const char **field1, const char **field2)
-{
-	double v1, v2;
-	enum mp_type t1 = mp_typeof(**field1);
-	enum mp_type t2 = mp_typeof(**field2);
-	if (t1 == MP_FLOAT)
-		v1 = mp_decode_float(field1);
-	else if (t1 == MP_DOUBLE)
-		v1 = mp_decode_double(field1);
-	else
-		return -2;
-	if (t2 == MP_FLOAT)
-		v2 = mp_decode_float(field2);
-	else if (t2 == MP_DOUBLE)
-		v2 = mp_decode_double(field2);
-	else
-		return -2;
-	return v1 < v2 ? -1 : v1 > v2 ? 1 : 0;
-}
-
 template <VdbeSorterFastKind Kind>
-static inline int
-vdbeSorterCompareTemplateField(const char **field1, const char **field2)
-{
-	if constexpr (Kind == VdbeSorterFastKind::String) {
+struct VdbeSorterCompareField;
+
+template <>
+struct VdbeSorterCompareField<VdbeSorterFastKind::String> {
+	static inline int
+	exec(const char **field1, const char **field2)
+	{
 		return vdbeSorterCompareTemplateString(field1, field2);
-	} else if constexpr (Kind == VdbeSorterFastKind::IntLike) {
+	}
+};
+
+template <>
+struct VdbeSorterCompareField<VdbeSorterFastKind::IntLike> {
+	static inline int
+	exec(const char **field1, const char **field2)
+	{
 		return vdbeSorterCompareTemplateIntLike(mp_typeof(**field1), field1,
 							mp_typeof(**field2), field2);
-	} else if constexpr (Kind == VdbeSorterFastKind::Varbinary) {
-		return vdbeSorterCompareTemplateVarbinary(field1, field2);
-	} else if constexpr (Kind == VdbeSorterFastKind::Bool) {
-		return vdbeSorterCompareTemplateBool(field1, field2);
-	} else {
-		return vdbeSorterCompareTemplateDouble(field1, field2);
 	}
-}
+};
 
 template <std::size_t PartNo>
 static inline int
@@ -136,45 +98,75 @@ vdbeSorterCompareTemplateFallback(SortSubtask *task, bool *key2_cached,
 				  const uint16_t *key1_offsets,
 				  const void *key2, uint8_t key2_type_mask,
 				  const uint16_t *key2_offsets,
-				  VdbeSorterCompareFunc fallback)
+				  VdbeSorterCompareFallback fallback)
 {
+	(void)PartNo;
 	return fallback(task, key2_cached, key1, key1_type_mask, key1_offsets,
 			key2, key2_type_mask, key2_offsets);
 }
 
-template <std::size_t PartNo, VdbeSorterFastKind Kind, VdbeSorterFastKind... Rest>
-static int
-vdbeSorterCompareTemplateParts(SortSubtask *task, bool *key2_cached,
-			       const void *key1, uint8_t key1_type_mask,
-			       const uint16_t *key1_offsets, const void *key2,
-			       uint8_t key2_type_mask,
-			       const uint16_t *key2_offsets, uint16_t desc_mask,
-			       VdbeSorterCompareFunc fallback, bool use_offsets,
-			       const char *field1, const char *field2)
-{
-	if (use_offsets) {
-		field1 = static_cast<const char *>(key1) + key1_offsets[PartNo];
-		field2 = static_cast<const char *>(key2) + key2_offsets[PartNo];
-	}
-	int rc = vdbeSorterCompareTemplateField<Kind>(&field1, &field2);
-	if (rc == -2)
-		return vdbeSorterCompareTemplateFallback<PartNo>(
-			task, key2_cached, key1, key1_type_mask, key1_offsets, key2,
-			key2_type_mask, key2_offsets, fallback);
-	if (rc != 0) {
-		if ((desc_mask & static_cast<uint16_t>(1U << PartNo)) != 0)
+template <std::size_t PartNo, VdbeSorterFastKind... Kinds>
+struct VdbeSorterCompareParts;
+
+template <std::size_t PartNo, VdbeSorterFastKind Kind>
+struct VdbeSorterCompareParts<PartNo, Kind> {
+	static int
+	exec(SortSubtask *task, bool *key2_cached, const void *key1,
+	     uint8_t key1_type_mask, const uint16_t *key1_offsets,
+	     const void *key2, uint8_t key2_type_mask,
+	     const uint16_t *key2_offsets, uint8_t desc_mask,
+	     VdbeSorterCompareFallback fallback, bool use_offsets,
+	     const char *field1, const char *field2)
+	{
+		if (use_offsets) {
+			field1 = static_cast<const char *>(key1) + key1_offsets[PartNo];
+			field2 = static_cast<const char *>(key2) + key2_offsets[PartNo];
+		}
+		int rc = VdbeSorterCompareField<Kind>::exec(&field1, &field2);
+		if (rc == -2) {
+			return vdbeSorterCompareTemplateFallback<PartNo>(
+				task, key2_cached, key1, key1_type_mask, key1_offsets,
+				key2, key2_type_mask, key2_offsets, fallback);
+		}
+		if (rc != 0 &&
+		    (desc_mask & static_cast<uint8_t>(1U << PartNo)) != 0)
 			rc = -rc;
 		return rc;
 	}
-	if constexpr (sizeof...(Rest) == 0) {
-		return 0;
-	} else {
-		return vdbeSorterCompareTemplateParts<PartNo + 1, Rest...>(
+};
+
+template <std::size_t PartNo, VdbeSorterFastKind Kind, VdbeSorterFastKind Next,
+	  VdbeSorterFastKind... Rest>
+struct VdbeSorterCompareParts<PartNo, Kind, Next, Rest...> {
+	static int
+	exec(SortSubtask *task, bool *key2_cached, const void *key1,
+	     uint8_t key1_type_mask, const uint16_t *key1_offsets,
+	     const void *key2, uint8_t key2_type_mask,
+	     const uint16_t *key2_offsets, uint8_t desc_mask,
+	     VdbeSorterCompareFallback fallback, bool use_offsets,
+	     const char *field1, const char *field2)
+	{
+		if (use_offsets) {
+			field1 = static_cast<const char *>(key1) + key1_offsets[PartNo];
+			field2 = static_cast<const char *>(key2) + key2_offsets[PartNo];
+		}
+		int rc = VdbeSorterCompareField<Kind>::exec(&field1, &field2);
+		if (rc == -2) {
+			return vdbeSorterCompareTemplateFallback<PartNo>(
+				task, key2_cached, key1, key1_type_mask, key1_offsets,
+				key2, key2_type_mask, key2_offsets, fallback);
+		}
+		if (rc != 0) {
+			if ((desc_mask & static_cast<uint8_t>(1U << PartNo)) != 0)
+				rc = -rc;
+			return rc;
+		}
+		return VdbeSorterCompareParts<PartNo + 1, Next, Rest...>::exec(
 			task, key2_cached, key1, key1_type_mask, key1_offsets, key2,
 			key2_type_mask, key2_offsets, desc_mask, fallback, use_offsets,
 			field1, field2);
 	}
-}
+};
 
 template <VdbeSorterFastKind... Kinds>
 static int
@@ -182,8 +174,8 @@ vdbeSorterCompareTemplateFixed(SortSubtask *task, bool *key2_cached,
 			       const void *key1, uint8_t key1_type_mask,
 			       const uint16_t *key1_offsets, const void *key2,
 			       uint8_t key2_type_mask,
-			       const uint16_t *key2_offsets, uint16_t desc_mask,
-			       VdbeSorterCompareFunc fallback)
+			       const uint16_t *key2_offsets, uint8_t desc_mask,
+			       VdbeSorterCompareFallback fallback)
 {
 	const char *field1 = static_cast<const char *>(key1);
 	const char *field2 = static_cast<const char *>(key2);
@@ -194,7 +186,7 @@ vdbeSorterCompareTemplateFixed(SortSubtask *task, bool *key2_cached,
 		return fallback(task, key2_cached, key1, key1_type_mask,
 				key1_offsets, key2, key2_type_mask, key2_offsets);
 	}
-	return vdbeSorterCompareTemplateParts<0, Kinds...>(
+	return VdbeSorterCompareParts<0, Kinds...>::exec(
 		task, key2_cached, key1, key1_type_mask, key1_offsets, key2,
 		key2_type_mask, key2_offsets, desc_mask, fallback, use_offsets,
 		field1, field2);
@@ -208,8 +200,8 @@ vdbeSorterCompareTemplateStrIntStrInt4(SortSubtask *task, bool *key2_cached,
 				       const void *key2,
 				       uint8_t key2_type_mask,
 				       const uint16_t *key2_offsets,
-				       uint16_t desc_mask,
-				       VdbeSorterCompareFunc fallback)
+				       uint8_t desc_mask,
+				       VdbeSorterCompareFallback fallback)
 {
 	return vdbeSorterCompareTemplateFixed<VdbeSorterFastKind::String,
 					      VdbeSorterFastKind::IntLike,
@@ -219,411 +211,341 @@ vdbeSorterCompareTemplateStrIntStrInt4(SortSubtask *task, bool *key2_cached,
 		key2_type_mask, key2_offsets, desc_mask, fallback);
 }
 
-#if defined(__x86_64__)
-
-static bool
-vdbeSorterCompareJitInitFields(const void *key1, const void *key2,
-			       uint32_t part_count, const char **field1,
-			       const char **field2)
-{
-	*field1 = static_cast<const char *>(key1);
-	*field2 = static_cast<const char *>(key2);
-	return mp_decode_array(field1) >= part_count &&
-	       mp_decode_array(field2) >= part_count;
-}
-
-static int
-vdbeSorterCompareJitFieldIntLike(const char **field1, const char **field2)
-{
-	return vdbeSorterCompareTemplateIntLike(mp_typeof(**field1), field1,
-						 mp_typeof(**field2), field2);
-}
-
-static int
-vdbeSorterCompareJitFieldString(const char **field1, const char **field2)
+extern "C" int
+vdbeSorterCompareCnpFieldString(const char **field1, const char **field2)
 {
 	return vdbeSorterCompareTemplateString(field1, field2);
 }
 
-static int
-vdbeSorterCompareJitFieldVarbinary(const char **field1, const char **field2)
+extern "C" int
+vdbeSorterCompareCnpFieldIntLike(const char **field1, const char **field2)
 {
-	return vdbeSorterCompareTemplateVarbinary(field1, field2);
+	return vdbeSorterCompareTemplateIntLike(mp_typeof(**field1), field1,
+						mp_typeof(**field2), field2);
 }
 
-static int
-vdbeSorterCompareJitFieldBool(const char **field1, const char **field2)
+enum {
+	VDBE_SORTER_CNP_ARENA_SIZE = 128 * 1024,
+	CNP_R_X86_64_64 = 1,
+	CNP_R_X86_64_PC32 = 2,
+	CNP_R_X86_64_PLT32 = 4,
+	CNP_R_X86_64_32 = 10,
+	CNP_R_X86_64_32S = 11,
+};
+
+extern "C" int vdbeSorterCompareCnpTerminalEqualEntry(void);
+extern "C" int vdbeSorterCompareCnpTerminalFallbackEntry(void);
+
+/*
+ * Cache one stitched body per mixed-key shape. The key is fully determined by
+ * part count, DESC mask, and the per-part kind vector already derived from
+ * key_def at sorter init time.
+ */
+struct VdbeSorterCnpShape {
+	uint32_t part_count;
+	uint16_t desc_mask;
+	uint8_t part_kind[VDBE_SORTER_FAST_CMP_MAX_PARTS];
+	void *code;
+	VdbeSorterCnpShape *next;
+};
+
+static VdbeSorterCnpShape *g_sorter_cnp_shapes = nullptr;
+static uint8_t *g_sorter_cnp_arena = nullptr;
+static size_t g_sorter_cnp_arena_pos = 0;
+
+static uint8_t *
+vdbeSorterCnpArenaAlloc(size_t nbytes)
 {
-	return vdbeSorterCompareTemplateBool(field1, field2);
+	nbytes = (nbytes + 15) & ~(size_t)15;
+	if (g_sorter_cnp_arena == nullptr) {
+		void *ptr = mmap(nullptr, VDBE_SORTER_CNP_ARENA_SIZE,
+				 PROT_READ | PROT_WRITE | PROT_EXEC,
+				 MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		if (ptr == MAP_FAILED)
+			return nullptr;
+		g_sorter_cnp_arena = static_cast<uint8_t *>(ptr);
+		g_sorter_cnp_arena_pos = 0;
+	}
+	if (g_sorter_cnp_arena_pos + nbytes > VDBE_SORTER_CNP_ARENA_SIZE)
+		return nullptr;
+	uint8_t *res = g_sorter_cnp_arena + g_sorter_cnp_arena_pos;
+	g_sorter_cnp_arena_pos += nbytes;
+	return res;
 }
 
-static int
-vdbeSorterCompareJitFieldDouble(const char **field1, const char **field2)
+/*
+ * Minimal relocation patcher shared by the sorter-specific stitching path.
+ *
+ * Unlike the rejected raw-emitter approach, this code never invents new x86
+ * instructions. It only copies bytes produced by clang from preserve-none
+ * fragment templates and patches the extracted relocations.
+ */
+static void
+vdbeSorterCnpPatch(uint8_t *patch_addr, uintptr_t target, uint8_t reloc_type,
+		   int addend)
 {
-	return vdbeSorterCompareTemplateDouble(field1, field2);
+	switch (reloc_type) {
+	case CNP_R_X86_64_64: {
+		uint64_t value = (uint64_t)(target + (uintptr_t)addend);
+		std::memcpy(patch_addr, &value, sizeof(value));
+		break;
+	}
+	case CNP_R_X86_64_PC32:
+	case CNP_R_X86_64_PLT32: {
+		int64_t disp = (int64_t)target + addend -
+			      ((int64_t)(uintptr_t)patch_addr + 4);
+		int32_t value = (int32_t)disp;
+		std::memcpy(patch_addr, &value, sizeof(value));
+		break;
+	}
+	case CNP_R_X86_64_32: {
+		uint32_t value = (uint32_t)(target + (uintptr_t)addend);
+		std::memcpy(patch_addr, &value, sizeof(value));
+		break;
+	}
+	case CNP_R_X86_64_32S: {
+		int32_t value = (int32_t)((intptr_t)target + addend);
+		std::memcpy(patch_addr, &value, sizeof(value));
+		break;
+	}
+	default:
+		break;
+	}
 }
 
-static void *
-vdbeSorterCompareJitFieldHelper(uint8_t kind)
+/*
+ * Pick one build-generated fragment template for a single key part.
+ *
+ * Today the long-tail stitched path only accepts STRING and INTLIKE parts.
+ * Everything else stays on the generic mixed comparator until we add more
+ * fragment kinds.
+ */
+static const struct sorter_cnp_fragment *
+vdbeSorterCnpSelectFragment(uint8_t part_kind, bool is_desc)
 {
-	switch (kind) {
-	case VDBE_SORTER_FAST_CMP_INTLIKE:
-		return reinterpret_cast<void *>(vdbeSorterCompareJitFieldIntLike);
+	switch (part_kind) {
 	case VDBE_SORTER_FAST_CMP_STRING:
-		return reinterpret_cast<void *>(vdbeSorterCompareJitFieldString);
-	case VDBE_SORTER_FAST_CMP_VARBINARY:
-		return reinterpret_cast<void *>(vdbeSorterCompareJitFieldVarbinary);
-	case VDBE_SORTER_FAST_CMP_BOOL:
-		return reinterpret_cast<void *>(vdbeSorterCompareJitFieldBool);
-	case VDBE_SORTER_FAST_CMP_DOUBLE:
-		return reinterpret_cast<void *>(vdbeSorterCompareJitFieldDouble);
+		return &sorter_cnp_fragments[is_desc ? SORTER_CNP_FRAG_STRING_DESC :
+						      SORTER_CNP_FRAG_STRING_ASC];
+	case VDBE_SORTER_FAST_CMP_INTLIKE:
+		return &sorter_cnp_fragments[is_desc ? SORTER_CNP_FRAG_INTLIKE_DESC :
+						      SORTER_CNP_FRAG_INTLIKE_ASC];
 	default:
 		return nullptr;
 	}
 }
 
-struct VdbeSorterJitShape {
-	uint32_t part_count;
-	uint16_t desc_mask;
-	uint8_t part_kind[VDBE_SORTER_FAST_CMP_MAX_PARTS];
-	VdbeSorterCompareFunc func;
-	VdbeSorterJitShape *next;
-};
-
-struct VdbeSorterJitArena {
-	uint8_t *base;
-	size_t size;
-	size_t pos;
-};
-
-static VdbeSorterJitShape *g_vdbe_sorter_jit_shapes = nullptr;
-static VdbeSorterJitArena g_vdbe_sorter_jit_arena = {nullptr, 0, 0};
-
-enum {
-	VDBE_SORTER_JIT_ARENA_SIZE = 256 * 1024,
-};
-
-static uint8_t *
-vdbeSorterJitArenaAlloc(size_t nbytes)
+/*
+ * Resolve the three relocation classes used by sorter fragments:
+ *
+ * 1. helper entry: string/intlike field comparator;
+ * 2. next fragment: equal-prefix fallthrough to the next key part;
+ * 3. fallback entry: escape back to the generic mixed comparator when a
+ *    runtime value shape is not handled by the specialized path.
+ */
+static uintptr_t
+vdbeSorterCnpResolveReloc(const struct sorter_cnp_fragment_reloc *rel,
+			  void **part_addr, uint32_t part_count,
+			  uint32_t part_no)
 {
-	nbytes = (nbytes + 15) & ~static_cast<size_t>(15);
-	if (g_vdbe_sorter_jit_arena.base == nullptr) {
-		void *ptr = mmap(nullptr, VDBE_SORTER_JIT_ARENA_SIZE,
-				 PROT_READ | PROT_WRITE | PROT_EXEC,
-				 MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-		if (ptr == MAP_FAILED)
-			return nullptr;
-		g_vdbe_sorter_jit_arena.base = static_cast<uint8_t *>(ptr);
-		g_vdbe_sorter_jit_arena.size = VDBE_SORTER_JIT_ARENA_SIZE;
-		g_vdbe_sorter_jit_arena.pos = 0;
+	if (std::strcmp(rel->symbol_name, "sorter_cnp_frag_next") == 0) {
+		if (part_no + 1 < part_count)
+			return (uintptr_t)part_addr[part_no + 1];
+		return (uintptr_t)(void *)vdbeSorterCompareCnpTerminalEqualEntry;
 	}
-	if (g_vdbe_sorter_jit_arena.pos + nbytes > g_vdbe_sorter_jit_arena.size)
-		return nullptr;
-	uint8_t *res = g_vdbe_sorter_jit_arena.base + g_vdbe_sorter_jit_arena.pos;
-	g_vdbe_sorter_jit_arena.pos += nbytes;
-	return res;
+	if (std::strcmp(rel->symbol_name, "sorter_cnp_frag_fallback") == 0)
+		return (uintptr_t)(void *)vdbeSorterCompareCnpTerminalFallbackEntry;
+	if (std::strcmp(rel->symbol_name, "vdbeSorterCompareCnpFieldString") == 0)
+		return (uintptr_t)(void *)vdbeSorterCompareCnpFieldString;
+	if (std::strcmp(rel->symbol_name, "vdbeSorterCompareCnpFieldIntLike") == 0)
+		return (uintptr_t)(void *)vdbeSorterCompareCnpFieldIntLike;
+	return 0;
 }
 
-struct VdbeSorterJitEmitter {
-	std::vector<uint8_t> code;
-
-	void
-	emit8(uint8_t v)
-	{
-		code.push_back(v);
-	}
-
-	void
-	emit32(int32_t v)
-	{
-		uint8_t bytes[sizeof(v)];
-		std::memcpy(bytes, &v, sizeof(v));
-		code.insert(code.end(), bytes, bytes + sizeof(v));
-	}
-
-	void
-	emit64(uint64_t v)
-	{
-		uint8_t bytes[sizeof(v)];
-		std::memcpy(bytes, &v, sizeof(v));
-		code.insert(code.end(), bytes, bytes + sizeof(v));
-	}
-
-	size_t
-	pos() const
-	{
-		return code.size();
-	}
-
-	size_t
-	emitJe()
-	{
-		emit8(0x0f);
-		emit8(0x84);
-		size_t at = pos();
-		emit32(0);
-		return at;
-	}
-
-	size_t
-	emitJne()
-	{
-		emit8(0x0f);
-		emit8(0x85);
-		size_t at = pos();
-		emit32(0);
-		return at;
-	}
-
-	size_t
-	emitJmp()
-	{
-		emit8(0xe9);
-		size_t at = pos();
-		emit32(0);
-		return at;
-	}
-
-	void
-	patchRel32(size_t at, size_t target)
-	{
-		int32_t disp = static_cast<int32_t>(target - (at + 4));
-		std::memcpy(code.data() + at, &disp, sizeof(disp));
-	}
-
-	void
-	emitMovAbsRax(void *ptr)
-	{
-		emit8(0x48);
-		emit8(0xb8);
-		emit64(reinterpret_cast<uint64_t>(ptr));
-	}
-
-	void
-	emitCallAbs(void *ptr)
-	{
-		emitMovAbsRax(ptr);
-		emit8(0xff);
-		emit8(0xd0);
-	}
-
-	void
-	emitPrologue()
-	{
-		emit8(0x55); /* push %rbp */
-		emit8(0x48);
-		emit8(0x89);
-		emit8(0xe5); /* mov %rsp, %rbp */
-		emit8(0x57); /* push %rdi */
-		emit8(0x56); /* push %rsi */
-		emit8(0x52); /* push %rdx */
-		emit8(0x51); /* push %rcx */
-		emit8(0x41);
-		emit8(0x50); /* push %r8 */
-		emit8(0x41);
-		emit8(0x51); /* push %r9 */
-		emit8(0x48);
-		emit8(0x83);
-		emit8(0xec);
-		emit8(0x10); /* sub $16, %rsp */
-	}
-
-	void
-	emitEpilogue()
-	{
-		emit8(0xc9); /* leave */
-		emit8(0xc3); /* ret */
-	}
-};
-
-static VdbeSorterCompareFunc
-vdbeSorterCompileJitMixedCompare(uint32_t part_count, uint16_t desc_mask,
-				 const uint8_t *part_kind,
-				 VdbeSorterCompareFunc fallback)
+/*
+ * Stitch one straight-line comparator body for an exact mixed sorter key.
+ *
+ * Each copied fragment keeps three logical exits:
+ * - equal: jump to the next fragment;
+ * - unsupported runtime shape: jump to fallback;
+ * - ordered: return rc immediately.
+ *
+ * That is why the disassembly shows many small retq blocks: lexicographic
+ * compare exits as soon as any part decides the ordering.
+ */
+static void *
+vdbeSorterCnpCompile(uint32_t part_count, uint16_t desc_mask,
+		     const uint8_t *part_kind)
 {
-	VdbeSorterJitEmitter e;
-	e.code.reserve(256 + part_count * 48);
-	e.emitPrologue();
+	const struct sorter_cnp_fragment *parts[VDBE_SORTER_FAST_CMP_MAX_PARTS];
+	void *part_addr[VDBE_SORTER_FAST_CMP_MAX_PARTS];
+	size_t total_size = 0;
 
-	/* Bail out to the generic comparator if offset caches are in play. */
-	e.emit8(0x48);
-	e.emit8(0x83);
-	e.emit8(0x7d);
-	e.emit8(0xd8); /* [rbp-40] == saved r8 == key1_offsets */
-	e.emit8(0x00);
-	size_t key1_offsets_jne = e.emitJne();
-	e.emit8(0x48);
-	e.emit8(0x83);
-	e.emit8(0x7d);
-	e.emit8(0x18); /* [rbp+24] == key2_offsets */
-	e.emit8(0x00);
-	size_t key2_offsets_jne = e.emitJne();
+	/* Select one precompiled fragment template per key part. */
+	for (uint32_t i = 0; i < part_count; ++i) {
+		bool is_desc = (desc_mask & (uint16_t)(1U << i)) != 0;
+		parts[i] = vdbeSorterCnpSelectFragment(part_kind[i], is_desc);
+		if (parts[i] == nullptr)
+			return nullptr;
+		total_size += parts[i]->size;
+	}
 
-	/* Initialize field1/field2 after the MsgPack array header. */
-	e.emit8(0x48);
-	e.emit8(0x8b);
-	e.emit8(0x7d);
-	e.emit8(0xe8); /* mov -24(%rbp), %rdi */
-	e.emit8(0x48);
-	e.emit8(0x8b);
-	e.emit8(0x75);
-	e.emit8(0xd0); /* mov -48(%rbp), %rsi */
-	e.emit8(0xba);
-	e.emit32(static_cast<int32_t>(part_count)); /* mov imm32, %edx */
-	e.emit8(0x48);
-	e.emit8(0x8d);
-	e.emit8(0x4d);
-	e.emit8(0xc8); /* lea -56(%rbp), %rcx */
-	e.emit8(0x4c);
-	e.emit8(0x8d);
-	e.emit8(0x45);
-	e.emit8(0xc0); /* lea -64(%rbp), %r8 */
-	e.emitCallAbs(reinterpret_cast<void *>(vdbeSorterCompareJitInitFields));
-	e.emit8(0x85);
-	e.emit8(0xc0); /* test %eax, %eax */
-	size_t init_je = e.emitJe();
+	uint8_t *code = vdbeSorterCnpArenaAlloc(total_size);
+	if (code == nullptr)
+		return nullptr;
 
-	std::vector<size_t> fallback_patches;
-	fallback_patches.push_back(key1_offsets_jne);
-	fallback_patches.push_back(key2_offsets_jne);
-	fallback_patches.push_back(init_je);
-	std::vector<size_t> return_patches;
+	size_t pos = 0;
+	/* First lay fragments out back-to-back, then patch their relocations. */
+	for (uint32_t i = 0; i < part_count; ++i) {
+		part_addr[i] = code + pos;
+		std::memcpy(code + pos, parts[i]->bytes, parts[i]->size);
+		pos += parts[i]->size;
+	}
 
 	for (uint32_t i = 0; i < part_count; ++i) {
-		void *helper = vdbeSorterCompareJitFieldHelper(part_kind[i]);
-		if (helper == nullptr)
-			return nullptr;
-
-		e.emit8(0x48);
-		e.emit8(0x8d);
-		e.emit8(0x7d);
-		e.emit8(0xc8); /* lea -56(%rbp), %rdi */
-		e.emit8(0x48);
-		e.emit8(0x8d);
-		e.emit8(0x75);
-		e.emit8(0xc0); /* lea -64(%rbp), %rsi */
-		e.emitCallAbs(helper);
-		e.emit8(0x83);
-		e.emit8(0xf8);
-		e.emit8(0xfe); /* cmp $-2, %eax */
-		fallback_patches.push_back(e.emitJe());
-		e.emit8(0x85);
-		e.emit8(0xc0); /* test %eax, %eax */
-		size_t next_je = e.emitJe();
-		if ((desc_mask & static_cast<uint16_t>(1U << i)) != 0) {
-			e.emit8(0xf7);
-			e.emit8(0xd8); /* neg %eax */
+		uint8_t *frag_code = static_cast<uint8_t *>(part_addr[i]);
+		const struct sorter_cnp_fragment *frag = parts[i];
+		/*
+		 * Patch each copied template so:
+		 * - helper calls point at the shared typed field comparators;
+		 * - equal-prefix exits jump to the next copied fragment;
+		 * - unsupported runtime values jump to the shared fallback entry.
+		 */
+		for (uint32_t r = 0; r < frag->num_relocs; ++r) {
+			const struct sorter_cnp_fragment_reloc *rel = &frag->relocs[r];
+			uintptr_t target = vdbeSorterCnpResolveReloc(rel, part_addr,
+								 part_count, i);
+			if (target == 0)
+				return nullptr;
+			vdbeSorterCnpPatch(frag_code + rel->offset, target,
+					   rel->reloc_type, rel->addend);
 		}
-		return_patches.push_back(e.emitJmp());
-		e.patchRel32(next_je, e.pos());
 	}
 
-	e.emit8(0x31);
-	e.emit8(0xc0); /* xor %eax, %eax */
-	size_t success_pos = e.pos();
-	e.emitEpilogue();
-
-	size_t fallback_pos = e.pos();
-	for (size_t at : fallback_patches)
-		e.patchRel32(at, fallback_pos);
-
-	/*
-	 * Restore the original compare signature and tail out to the generic
-	 * fallback. key2_type_mask and key2_offsets are the caller stack args.
-	 */
-	e.emit8(0x48);
-	e.emit8(0x8b);
-	e.emit8(0x7d);
-	e.emit8(0xf8); /* mov -8(%rbp), %rdi */
-	e.emit8(0x48);
-	e.emit8(0x8b);
-	e.emit8(0x75);
-	e.emit8(0xf0); /* mov -16(%rbp), %rsi */
-	e.emit8(0x48);
-	e.emit8(0x8b);
-	e.emit8(0x55);
-	e.emit8(0xe8); /* mov -24(%rbp), %rdx */
-	e.emit8(0x48);
-	e.emit8(0x8b);
-	e.emit8(0x4d);
-	e.emit8(0xe0); /* mov -32(%rbp), %rcx */
-	e.emit8(0x4c);
-	e.emit8(0x8b);
-	e.emit8(0x45);
-	e.emit8(0xd8); /* mov -40(%rbp), %r8 */
-	e.emit8(0x4c);
-	e.emit8(0x8b);
-	e.emit8(0x4d);
-	e.emit8(0xd0); /* mov -48(%rbp), %r9 */
-	e.emit8(0x48);
-	e.emit8(0x8b);
-	e.emit8(0x45);
-	e.emit8(0x18); /* mov 24(%rbp), %rax */
-	e.emit8(0x50); /* push %rax (arg8) */
-	e.emit8(0x48);
-	e.emit8(0x8b);
-	e.emit8(0x45);
-	e.emit8(0x10); /* mov 16(%rbp), %rax */
-	e.emit8(0x50); /* push %rax (arg7) */
-	e.emitCallAbs(reinterpret_cast<void *>(fallback));
-	e.emit8(0x48);
-	e.emit8(0x83);
-	e.emit8(0xc4);
-	e.emit8(0x10); /* add $16, %rsp */
-	e.emitEpilogue();
-
-	for (size_t at : return_patches)
-		e.patchRel32(at, success_pos);
-
-	uint8_t *mem = vdbeSorterJitArenaAlloc(e.code.size());
-	if (mem == nullptr)
-		return nullptr;
-	std::memcpy(mem, e.code.data(), e.code.size());
-	return reinterpret_cast<VdbeSorterCompareFunc>(mem);
+	__builtin___clear_cache((char *)code, (char *)(code + total_size));
+	return code;
 }
 
-extern "C" VdbeSorterCompareFunc
-vdbeSorterGetJitMixedCompare(uint32_t part_count, uint16_t desc_mask,
-			     const uint8_t *part_kind,
-			     VdbeSorterCompareFunc fallback)
+extern "C" void *
+vdbeSorterCompareCnpCodeGet(uint32_t part_count, uint16_t desc_mask,
+			    const uint8_t *part_kind)
 {
+	/*
+	 * The stitched tier only covers the long tail beyond the small static
+	 * template matrix. Shorter hot shapes stay on direct C++ template
+	 * entrypoints, and wider mixed layouts reuse one cached stitched body
+	 * per exact sorter shape.
+	 */
 	if (part_count <= 4 || part_count > VDBE_SORTER_FAST_CMP_MAX_PARTS)
 		return nullptr;
-	for (VdbeSorterJitShape *it = g_vdbe_sorter_jit_shapes; it != nullptr;
+	for (uint32_t i = 0; i < part_count; ++i) {
+		if (part_kind[i] != VDBE_SORTER_FAST_CMP_STRING &&
+		    part_kind[i] != VDBE_SORTER_FAST_CMP_INTLIKE)
+			return nullptr;
+	}
+	for (VdbeSorterCnpShape *it = g_sorter_cnp_shapes; it != nullptr;
 	     it = it->next) {
 		if (it->part_count != part_count || it->desc_mask != desc_mask)
 			continue;
 		if (std::memcmp(it->part_kind, part_kind, part_count) == 0)
-			return it->func;
+			return it->code;
 	}
-	VdbeSorterCompareFunc func =
-		vdbeSorterCompileJitMixedCompare(part_count, desc_mask, part_kind,
-						fallback);
-	if (func == nullptr)
+
+	void *code = vdbeSorterCnpCompile(part_count, desc_mask, part_kind);
+	if (code == nullptr)
 		return nullptr;
-	VdbeSorterJitShape *shape = new VdbeSorterJitShape();
+	VdbeSorterCnpShape *shape = new VdbeSorterCnpShape();
 	shape->part_count = part_count;
 	shape->desc_mask = desc_mask;
 	std::memset(shape->part_kind, 0, sizeof(shape->part_kind));
 	std::memcpy(shape->part_kind, part_kind, part_count);
-	shape->func = func;
-	shape->next = g_vdbe_sorter_jit_shapes;
-	g_vdbe_sorter_jit_shapes = shape;
-	return func;
+	shape->code = code;
+	shape->next = g_sorter_cnp_shapes;
+	g_sorter_cnp_shapes = shape;
+	return code;
 }
 
-#else
-
-extern "C" VdbeSorterCompareFunc
-vdbeSorterGetJitMixedCompare(uint32_t part_count, uint16_t desc_mask,
-			     const uint8_t *part_kind,
-			     VdbeSorterCompareFunc fallback)
+#if defined(__x86_64__)
+/*
+ * Tiny terminal entries used as relocation targets for the last fragment.
+ *
+ * They intentionally use the same preserve-none register world as the copied
+ * fragment bodies, so the last stitched fragment can tail-jump here without
+ * going through any extra C ABI bridge.
+ */
+extern "C" int __attribute__((naked))
+vdbeSorterCompareCnpTerminalEqualEntry(void)
 {
-	(void)part_count;
-	(void)desc_mask;
-	(void)part_kind;
-	(void)fallback;
-	return nullptr;
+	__asm__ volatile(
+		/* All stitched fragments matched, so the sorter keys are equal. */
+		"xor %eax, %eax\n\t"
+		"ret\n\t");
 }
 
+extern "C" int __attribute__((naked))
+vdbeSorterCompareCnpTerminalFallbackEntry(void)
+{
+	__asm__ volatile(
+		/* Return the out-of-line fallback sentinel to the C caller. */
+		"mov $0x7fffffff, %eax\n\t"
+		"ret\n\t");
+}
+
+extern "C" int __attribute__((naked))
+vdbeSorterCompareCnpEnter(void *target, const char *field1, const char *field2)
+{
+	/*
+	 * Bridge from normal SysV C into the sorter fragment ABI.
+	 *
+	 * The copied fragment bodies expect:
+	 *   r12 = &field1
+	 *   r13 = &field2
+	 *
+	 * The wide mixed comparator path passes raw MsgPack field cursors by
+	 * address so helper calls can advance them in place across fragments.
+	 */
+	__asm__ volatile(
+		"push %rbx\n\t"
+		"push %rbp\n\t"
+		"push %r12\n\t"
+		"push %r13\n\t"
+		"push %r14\n\t"
+		"push %r15\n\t"
+		"sub $24, %rsp\n\t"
+		"mov %rdi, %rax\n\t"
+		"mov %rsi, (%rsp)\n\t"
+		"mov %rdx, 8(%rsp)\n\t"
+		"lea (%rsp), %r12\n\t"
+		"lea 8(%rsp), %r13\n\t"
+		"call *%rax\n\t"
+		"add $24, %rsp\n\t"
+		"pop %r15\n\t"
+		"pop %r14\n\t"
+		"pop %r13\n\t"
+		"pop %r12\n\t"
+		"pop %rbp\n\t"
+		"pop %rbx\n\t"
+		"ret\n\t");
+}
+#else
+extern "C" int
+vdbeSorterCompareCnpEnter(void *target, const char *field1, const char *field2)
+{
+	(void)target;
+	(void)field1;
+	(void)field2;
+	return VDBE_SORTER_COMPARE_CNP_FALLBACK;
+}
+
+extern "C" int
+vdbeSorterCompareCnpTerminalEqualEntry(void)
+{
+	return 0;
+}
+
+extern "C" int
+vdbeSorterCompareCnpTerminalFallbackEntry(void)
+{
+	return VDBE_SORTER_COMPARE_CNP_FALLBACK;
+}
 #endif
