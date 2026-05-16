@@ -23,6 +23,15 @@ local function env_int_compat(name, legacy_name, default)
     return tonumber(os.getenv(name) or os.getenv(legacy_name) or tostring(default))
 end
 
+-- Keep the wide mixed sorter probe materially heavier than the smaller text
+-- sort cases so profile runs spend multiple seconds in steady-state compare /
+-- write / column work and not mostly in setup noise.
+local SORT_TEXT_ROW_COUNT = env_int('BENCH_SORT_TEXT_ROW_COUNT', 2048)
+local SORT_TEXT_WINDOW = env_int('BENCH_SORT_TEXT_WINDOW', 1024)
+local SORT_TEXT_WIDE_PROBE_WINDOW =
+    env_int('BENCH_SORT_TEXT_WIDE_PROBE_WINDOW', 1024)
+local SORT_ARITH_WINDOW = env_int('BENCH_SORT_ARITH_WINDOW', 2048)
+
 local function log_progress(fmt, ...)
     io.stderr:write(('[bench] ' .. fmt .. '\n'):format(...))
 end
@@ -340,7 +349,7 @@ local function setup_builtin_scan()
 
     builtin_scan_expected = {}
     local rows = {}
-    for i = 1, 2048 do
+    for i = 1, SORT_TEXT_ROW_COUNT do
         local s1 = string.format('row-%04d-xx-%d', i, i % 11)
         local s2 = string.format('alpha-%d-zeta-%d', i % 17, i % 5)
         local n1 = i * 13
@@ -360,9 +369,9 @@ local function setup_builtin_scan()
     end
 
     local window = 128
-    for start_id = 1, 2048 do
+    for start_id = 1, SORT_TEXT_ROW_COUNT do
         local total = 0
-        local finish_id = math.min(start_id + window - 1, 2048)
+        local finish_id = math.min(start_id + window - 1, SORT_TEXT_ROW_COUNT)
         for i = start_id, finish_id do
             local row = rows[i]
             total = total + #string.sub(row.s3, 2, 6) +
@@ -390,7 +399,7 @@ local sort_text_wide_probe_expected
 
 local function build_sort_text_rows()
     local rows = {}
-    for i = 1, 2048 do
+    for i = 1, SORT_TEXT_ROW_COUNT do
         rows[i] = {
             id = i,
             s1 = string.format('row-%04d-xx-%d', i, i % 11),
@@ -410,11 +419,13 @@ end
 
 local function compute_sort_text_expected(rows, mode)
     local expected = {}
-    local window = 192
+    local default_window = SORT_TEXT_WINDOW
     local limit = 32
-    for start_id = 1, 2048 do
+    for start_id = 1, SORT_TEXT_ROW_COUNT do
         local slice = {}
-        local finish_id = math.min(start_id + window - 1, 2048)
+        local window = mode == 'wide_probe' and
+            SORT_TEXT_WIDE_PROBE_WINDOW or default_window
+        local finish_id = math.min(start_id + window - 1, SORT_TEXT_ROW_COUNT)
         for i = start_id, finish_id do
             local row = rows[i]
             if mode == 'wide_probe' then
@@ -508,7 +519,7 @@ end
 local function setup_sort_window()
     setup_point_lookup()
     sort_window_expected = {}
-    local window = 256
+    local window = SORT_ARITH_WINDOW
     local limit = 32
     for start_id = 1, 1024 do
         local rows = {}
@@ -551,7 +562,7 @@ end
 local function setup_sort_payload()
     setup_point_lookup()
     sort_payload_expected = {}
-    local window = 256
+    local window = SORT_ARITH_WINDOW
     local limit = 32
     for start_id = 1, 1024 do
         local rows = {}
@@ -801,12 +812,12 @@ local workloads = {
         setup = setup_builtin_scan,
         teardown = teardown_builtin_scan,
         args = function(i)
-            local start_id = ((i - 1) % 2048) + 1
-            return {start_id, math.min(start_id + 127, 2048)}
+            local start_id = ((i - 1) % SORT_TEXT_ROW_COUNT) + 1
+            return {start_id, math.min(start_id + 127, SORT_TEXT_ROW_COUNT)}
         end,
         checksum = function(res) return res.rows[1][1] end,
         expected = function(i)
-            local start_id = ((i - 1) % 2048) + 1
+            local start_id = ((i - 1) % SORT_TEXT_ROW_COUNT) + 1
             return builtin_scan_expected[start_id]
         end,
     },
@@ -825,13 +836,14 @@ local workloads = {
             );
         ]],
         prepare_iterations = env_int('BENCH_PREPARE_ITERS_SORT', 200),
-        exec_iterations = env_int('BENCH_EXEC_ITERS_SORT', 2000),
-        auto_iterations = env_int('BENCH_AUTO_ITERS_SORT', 2000),
+        exec_iterations = env_int('BENCH_EXEC_ITERS_SORT', 10000),
+        auto_iterations = env_int('BENCH_AUTO_ITERS_SORT', 10000),
         setup = setup_sort_window,
         teardown = teardown_sort_window,
         args = function(i)
             local start_id = ((i - 1) % 1024) + 1
-            return {start_id, math.min(start_id + 255, 1024)}
+            return {start_id, math.min(start_id + SORT_ARITH_WINDOW - 1,
+                                        1024)}
         end,
         checksum = function(res)
             return res.rows[1][1] + res.rows[1][2]
@@ -857,13 +869,14 @@ local workloads = {
             );
         ]],
         prepare_iterations = env_int('BENCH_PREPARE_ITERS_SORT_PAYLOAD', 200),
-        exec_iterations = env_int('BENCH_EXEC_ITERS_SORT_PAYLOAD', 2000),
-        auto_iterations = env_int('BENCH_AUTO_ITERS_SORT_PAYLOAD', 2000),
+        exec_iterations = env_int('BENCH_EXEC_ITERS_SORT_PAYLOAD', 10000),
+        auto_iterations = env_int('BENCH_AUTO_ITERS_SORT_PAYLOAD', 10000),
         setup = setup_sort_payload,
         teardown = teardown_sort_payload,
         args = function(i)
             local start_id = ((i - 1) % 1024) + 1
-            return {start_id, math.min(start_id + 255, 1024)}
+            return {start_id, math.min(start_id + SORT_ARITH_WINDOW - 1,
+                                        1024)}
         end,
         checksum = function(res)
             return res.rows[1][1] + res.rows[1][2]
@@ -887,19 +900,20 @@ local workloads = {
             );
         ]],
         prepare_iterations = env_int('BENCH_PREPARE_ITERS_SORT_TEXT', 150),
-        exec_iterations = env_int('BENCH_EXEC_ITERS_SORT_TEXT', 1500),
-        auto_iterations = env_int('BENCH_AUTO_ITERS_SORT_TEXT', 1500),
+        exec_iterations = env_int('BENCH_EXEC_ITERS_SORT_TEXT', 10000),
+        auto_iterations = env_int('BENCH_AUTO_ITERS_SORT_TEXT', 10000),
         setup = setup_sort_text_window,
         teardown = teardown_sort_text_window,
         args = function(i)
-            local start_id = ((i - 1) % 2048) + 1
-            return {start_id, math.min(start_id + 191, 2048)}
+            local start_id = ((i - 1) % SORT_TEXT_ROW_COUNT) + 1
+            return {start_id, math.min(start_id + SORT_TEXT_WINDOW - 1,
+                                        SORT_TEXT_ROW_COUNT)}
         end,
         checksum = function(res)
             return res.rows[1][1] + res.rows[1][2]
         end,
         expected = function(i)
-            local start_id = ((i - 1) % 2048) + 1
+            local start_id = ((i - 1) % SORT_TEXT_ROW_COUNT) + 1
             return sort_text_window_expected[start_id][1]
         end,
     },
@@ -917,19 +931,20 @@ local workloads = {
             );
         ]],
         prepare_iterations = env_int('BENCH_PREPARE_ITERS_SORT_TEXT_FALLBACK', 150),
-        exec_iterations = env_int('BENCH_EXEC_ITERS_SORT_TEXT_FALLBACK', 1500),
-        auto_iterations = env_int('BENCH_AUTO_ITERS_SORT_TEXT_FALLBACK', 1500),
+        exec_iterations = env_int('BENCH_EXEC_ITERS_SORT_TEXT_FALLBACK', 10000),
+        auto_iterations = env_int('BENCH_AUTO_ITERS_SORT_TEXT_FALLBACK', 10000),
         setup = setup_sort_text_shape_fallback,
         teardown = teardown_sort_text_window,
         args = function(i)
-            local start_id = ((i - 1) % 2048) + 1
-            return {start_id, math.min(start_id + 191, 2048)}
+            local start_id = ((i - 1) % SORT_TEXT_ROW_COUNT) + 1
+            return {start_id, math.min(start_id + SORT_TEXT_WINDOW - 1,
+                                        SORT_TEXT_ROW_COUNT)}
         end,
         checksum = function(res)
             return res.rows[1][1] + res.rows[1][2]
         end,
         expected = function(i)
-            local start_id = ((i - 1) % 2048) + 1
+            local start_id = ((i - 1) % SORT_TEXT_ROW_COUNT) + 1
             return sort_text_shape_fallback_expected[start_id][1]
         end,
     },
@@ -947,19 +962,20 @@ local workloads = {
             );
         ]],
         prepare_iterations = env_int('BENCH_PREPARE_ITERS_SORT_TEXT_SUBSTR_FALLBACK', 150),
-        exec_iterations = env_int('BENCH_EXEC_ITERS_SORT_TEXT_SUBSTR_FALLBACK', 1500),
-        auto_iterations = env_int('BENCH_AUTO_ITERS_SORT_TEXT_SUBSTR_FALLBACK', 1500),
+        exec_iterations = env_int('BENCH_EXEC_ITERS_SORT_TEXT_SUBSTR_FALLBACK', 10000),
+        auto_iterations = env_int('BENCH_AUTO_ITERS_SORT_TEXT_SUBSTR_FALLBACK', 10000),
         setup = setup_sort_text_substr_fallback,
         teardown = teardown_sort_text_window,
         args = function(i)
-            local start_id = ((i - 1) % 2048) + 1
-            return {start_id, math.min(start_id + 191, 2048)}
+            local start_id = ((i - 1) % SORT_TEXT_ROW_COUNT) + 1
+            return {start_id, math.min(start_id + SORT_TEXT_WINDOW - 1,
+                                        SORT_TEXT_ROW_COUNT)}
         end,
         checksum = function(res)
             return res.rows[1][1] + res.rows[1][2]
         end,
         expected = function(i)
-            local start_id = ((i - 1) % 2048) + 1
+            local start_id = ((i - 1) % SORT_TEXT_ROW_COUNT) + 1
             return sort_text_substr_fallback_expected[start_id][1]
         end,
     },
@@ -986,19 +1002,23 @@ local workloads = {
             );
         ]],
         prepare_iterations = env_int('BENCH_PREPARE_ITERS_SORT_TEXT_WIDE_PROBE', 120),
-        exec_iterations = env_int('BENCH_EXEC_ITERS_SORT_TEXT_WIDE_PROBE', 1200),
-        auto_iterations = env_int('BENCH_AUTO_ITERS_SORT_TEXT_WIDE_PROBE', 1200),
+        exec_iterations = env_int('BENCH_EXEC_ITERS_SORT_TEXT_WIDE_PROBE', 20000),
+        auto_iterations = env_int('BENCH_AUTO_ITERS_SORT_TEXT_WIDE_PROBE', 20000),
         setup = setup_sort_text_wide_probe,
         teardown = teardown_sort_text_window,
         args = function(i)
-            local start_id = ((i - 1) % 2048) + 1
-            return {start_id, math.min(start_id + 191, 2048)}
+            local start_id = ((i - 1) % SORT_TEXT_ROW_COUNT) + 1
+            return {
+                start_id,
+                math.min(start_id + SORT_TEXT_WIDE_PROBE_WINDOW - 1,
+                         SORT_TEXT_ROW_COUNT),
+            }
         end,
         checksum = function(res)
             return res.rows[1][1] + res.rows[1][2]
         end,
         expected = function(i)
-            local start_id = ((i - 1) % 2048) + 1
+            local start_id = ((i - 1) % SORT_TEXT_ROW_COUNT) + 1
             return sort_text_wide_probe_expected[start_id][1]
         end,
     },

@@ -804,16 +804,25 @@ Current hybrid checkpoint:
   - `sort_text_substr_fallback` keeps the comparator shape but switches to
     `substr(s3, 7)`, so the producer falls back to the generic builtin path;
 - and a wide probe workload now exists too:
-  - `sort_text_wide_probe` uses a ten-part mixed key and now exercises the
-    stitched long-tail mixed comparator path built from generated
-    string/intlike fragments;
-- latest discard-mode medians:
+- `sort_text_wide_probe` uses a ten-part mixed key and now exercises the
+  stitched long-tail mixed comparator path built from generated
+  string/intlike fragments;
+- it now also runs with a much heavier default execute loop and a much wider
+  text window, so profiler runs spend multiple seconds in steady-state
+  compare/write/column work instead of mostly in setup noise;
+- latest heavy-run `sort_text_wide_probe/prepared_execute` medians after
+  gating stitched sorter code to `VDBE_DISPATCHER=cnp` only:
+  - pre-template specialized `OP_Column` split:
+    - `generated`: `341.85 us`;
+    - `CnP`: `354.82 us`;
+  - after the C++ `if constexpr` offset-slot refactor:
+    - focused rerun: `generated` `332.53 us`, `CnP` `324.60 us`;
+    - perf-backed rerun: `generated` `348.12 us`, `CnP` `336.29 us`;
+- latest smaller adjacent text-sort medians:
   - `sort_text_window`: generated `51.38 us`, MCJIT `51.20 us`,
     CnP `45.10 us`;
   - `sort_text_shape_fallback`: generated `52.29 us`, MCJIT `52.48 us`,
     CnP `44.11 us`;
-  - `sort_text_wide_probe`: generated `91.70 us`, MCJIT `87.92 us`,
-    CnP `90.08 us`;
 - the current template-backed static tier is architecturally correct, but on
   the handled case it is roughly neutral versus the earlier handwritten helper,
   not a fresh speedup by itself;
@@ -869,10 +878,61 @@ Annotated wide mixed disassembly:
 
 - Why the debugger was used instead of `EXPLAIN (disassembly = true)`:
   - `EXPLAIN` currently disassembles VDBE bytecode and the main VDBE CnP
-    fragments attached to opcode PCs;
+  fragments attached to opcode PCs;
   - the sorter merge comparator is a separate runtime-stitched artifact owned
-    by `VdbeSorter`, so it is not visible to `EXPLAIN` today;
+  by `VdbeSorter`, so it is not visible to `EXPLAIN` today;
   - the live runtime bytes therefore have to be inspected from memory.
+
+Heavy-run profile split after gating:
+
+- generated `sort_text_wide_probe` now spends most of its time in the generic
+  decode and compare stack:
+  - `vdbe_field_ref_fetch_data` `12.44%`
+  - `mem_from_mp_ephemeral` `10.89%`
+  - `vdbe_op_column` `6.79%`
+  - `mem_to_mp_buf` `5.71%`
+  - `vdbeSorterCompareSimpleFast` `5.31%`
+  - `vdbe_exec_generated_dispatcher` `4.29%`
+- CnP before the template refactor spent that time differently:
+  - `vdbe_op_column_typed_offset_slot_fast` `25.61%`
+  - `mem_to_mp_buf` `4.86%`
+  - `mem_mp_size` `4.02%`
+  - `vdbeSorterCompareCnpFieldString` `3.64%`
+  - `sqlVdbeSorterWriteFromMems` `3.34%`
+  - `vdbeSorterCompareMixedCnpFast` `1.91%`
+- CnP after the template refactor no longer pays through one monolithic
+  offset-slot helper. The largest remaining buckets are:
+  - `vdbe_field_ref_preload_group_fast` `16.07%`
+  - `mem_to_mp_buf` `5.55%`
+  - `vdbe_op_column_string_offset_slot_static_fast` `4.17%`
+  - `mem_mp_size` `3.97%`
+  - `vdbeSorterCompareCnpFieldString` `3.73%`
+  - `sqlVdbeSorterWriteFromMems` `3.40%`
+  - `vdbe_op_column_integer_offset_slot_static_group_fast` `2.16%`
+  - `vdbe_op_column_typed_exact_fast` `2.03%`
+
+Why `mem_from_mp_ephemeral` disappears on the CnP side:
+
+- generated still reaches many text fields through the generic `OP_Column`
+  decode path, so `mem_from_mp_ephemeral()` remains visible;
+- CnP typed column helpers bypass that generic decoder and materialize the
+  result directly with exact typed setters such as string-ephemeral and
+  integer-fast paths;
+- so the missing `mem_from_mp_ephemeral` symbol is not a regression: it is a
+  sign that the generic decode path was successfully avoided.
+
+Current reading of the wide mixed case:
+
+- the template refactor is mechanically doing the right thing:
+  `static` / `path` / `runtime` and `group` / `no-group` shapes now compile to
+  distinct bodies, and the runtime nav/group branches are gone from the
+  corresponding entrypoints;
+- this is enough to move `sort_text_wide_probe` from slightly slower than
+  generated to roughly flat or modestly ahead on the heavy steady-state run;
+- the next largest remaining scan-side bucket is no longer the old monolithic
+  helper, but `vdbe_field_ref_preload_group_fast`, so future work should stay
+  on field-ref/group mechanics rather than adding more wrapper-style `OP_Column`
+  entrypoints.
 
 Next step for later: expose sorter JIT disassembly in `EXPLAIN`
 

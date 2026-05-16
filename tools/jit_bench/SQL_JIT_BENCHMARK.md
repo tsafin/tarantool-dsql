@@ -31,12 +31,12 @@ three execution modes.
 | `bitwise_mix` | mixed integer bitwise expression over bound values | Integer-heavy ALU / comparison path with little storage work |
 | `agg_scan` | indexed range `sum()` / `count()` / `max()` over `bench_arith` | Heavier numeric aggregation where native execution has more room to win |
 | `builtin_scan` | indexed range text builtin scan over `bench_text` | String/integer builtin mix (`length`, `abs`, `substr`, `upper`, `lower`) plus aggregation |
-| `sort_window` | indexed range subquery with `ORDER BY ... LIMIT` over `bench_arith` | Sorter-heavy top-K workload for profile-driven optimization of sort paths |
-| `sort_payload` | indexed range subquery with `ORDER BY ... LIMIT` over `bench_arith` and wider carried payload | Separates sorter compare cost from extra carried row payload in a still-integer-heavy top-K case |
-| `sort_text_window` | indexed range subquery with mixed string/integer `ORDER BY ... LIMIT` over `bench_text` | More realistic mixed-type top-K sort with bounded output and text compare work |
-| `sort_text_shape_fallback` | indexed range subquery with reordered mixed string/integer `ORDER BY ... LIMIT` over `bench_text` | Forces the mixed sorter comparator to fall back from the static template set to the generic mixed fast comparator |
-| `sort_text_substr_fallback` | indexed range subquery with `substr(s3, 7)` in `ORDER BY ... LIMIT` over `bench_text` | Forces the text-key producer to fall back from the specialized `SUBSTR(3)` CnP path to the generic builtin path |
-| `sort_text_wide_probe` | indexed range subquery with a 10-part mixed string/integer `ORDER BY ... LIMIT` over `bench_text` | Probe workload for the stitched long-tail mixed comparator path beyond the bounded static fast-path set |
+| `sort_window` | indexed range subquery with `ORDER BY ... LIMIT` over `bench_arith` | Heavier sorter-heavy top-K workload for profile-driven optimization of sort paths |
+| `sort_payload` | indexed range subquery with `ORDER BY ... LIMIT` over `bench_arith` and wider carried payload | Heavier variant separating sorter compare cost from extra carried row payload in a still-integer-heavy top-K case |
+| `sort_text_window` | indexed range subquery with mixed string/integer `ORDER BY ... LIMIT` over `bench_text` | Heavier realistic mixed-type top-K sort with bounded output and text compare work |
+| `sort_text_shape_fallback` | indexed range subquery with reordered mixed string/integer `ORDER BY ... LIMIT` over `bench_text` | Heavier fallback case for the generic mixed fast comparator |
+| `sort_text_substr_fallback` | indexed range subquery with `substr(s3, 7)` in `ORDER BY ... LIMIT` over `bench_text` | Heavier fallback case for the generic builtin producer path |
+| `sort_text_wide_probe` | indexed range subquery with a 10-part mixed string/integer `ORDER BY ... LIMIT` over `bench_text` | Heavier probe workload for the stitched long-tail mixed comparator path beyond the bounded static fast-path set |
 
 | Case | What it measures | Why it matters |
 | --- | --- | --- |
@@ -68,12 +68,12 @@ each run.
 | `bitwise_mix` | 2 500 | 100 000 | 20 000 |
 | `agg_scan` | 500 | 5 000 | 5 000 |
 | `builtin_scan` | 300 | 3 000 | 3 000 |
-| `sort_window` | 200 | 2 000 | 2 000 |
-| `sort_payload` | 200 | 2 000 | 2 000 |
-| `sort_text_window` | 150 | 1 500 | 1 500 |
-| `sort_text_shape_fallback` | 150 | 1 500 | 1 500 |
-| `sort_text_substr_fallback` | 150 | 1 500 | 1 500 |
-| `sort_text_wide_probe` | 120 | 1 200 | 1 200 |
+| `sort_window` | 200 | 10 000 | 10 000 |
+| `sort_payload` | 200 | 10 000 | 10 000 |
+| `sort_text_window` | 150 | 10 000 | 10 000 |
+| `sort_text_shape_fallback` | 150 | 10 000 | 10 000 |
+| `sort_text_substr_fallback` | 150 | 10 000 | 10 000 |
+| `sort_text_wide_probe` | 120 | 20 000 | 20 000 |
 
 For most workloads, `automatic_execute` uses the same iteration count as
 `prepared_execute` because the auto stmt cache eliminates per-call
@@ -148,7 +148,13 @@ Two adjacent sorter workloads now complement it:
   path falls back to the generic implementation.
 - `sort_text_wide_probe` extends the mixed key to ten parts so the sorter can
   exercise the stitched long-tail mixed comparator path and keep a stable
-  regression target beyond the bounded static fast-path set.
+  regression target beyond the bounded static fast-path set;
+- it also runs over a much wider default text window than the smaller text
+  sort cases, so perf-backed runs spend multiple seconds in steady-state
+  compare/write/column work instead of mostly in setup noise.
+- all sorter workloads now use wider default windows and longer execute loops
+  than the earlier micro versions, so profiler runs are dominated by steady
+  state behavior instead of prepare/setup noise.
 
 ## `point_lookup`: what CnP is now specializing
 
