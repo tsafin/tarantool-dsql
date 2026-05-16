@@ -797,33 +797,102 @@ Current hybrid checkpoint:
 - the static tier now routes the current `[str, intlike, str, intlike]`
   comparator through a template-instantiated C++ body instead of a handwritten
   one-off implementation;
-- the next JIT tier now also exists for the longer mixed-shape tail:
-  when a simple mixed scalar key is wider than the bounded static set, the
-  sorter can generate a shape-specific x86-64 comparator thunk that removes
-  the generic per-part kind switch from the merge path;
 - two focused fallback workloads now exist:
   - `sort_text_shape_fallback` keeps the text top-K shape but uses a mixed key
     layout outside the static template set, so compare falls back to the
     generic mixed fast comparator;
   - `sort_text_substr_fallback` keeps the comparator shape but switches to
     `substr(s3, 7)`, so the producer falls back to the generic builtin path;
-- a wide handled example now exists too:
-  - `sort_text_wide_jit` uses a ten-part mixed key, so compare is selected
-    from the generated long-tail tier rather than the static template set;
+- and a wide probe workload now exists too:
+  - `sort_text_wide_probe` uses a ten-part mixed key and now exercises the
+    stitched long-tail mixed comparator path built from generated
+    string/intlike fragments;
 - latest discard-mode medians:
-  - `sort_text_window`: generated `48.62 us`, MCJIT `49.36 us`,
-    CnP `44.50 us`;
-  - `sort_text_shape_fallback`: generated `50.07 us`, MCJIT `50.68 us`,
-    CnP `43.86 us`;
-  - `sort_text_substr_fallback`: generated `51.83 us`, MCJIT `50.97 us`,
-    CnP `47.40 us`;
-  - `sort_text_wide_jit`: generated `83.27 us`, MCJIT `84.58 us`,
-    CnP `83.64 us`;
+  - `sort_text_window`: generated `51.38 us`, MCJIT `51.20 us`,
+    CnP `45.10 us`;
+  - `sort_text_shape_fallback`: generated `52.29 us`, MCJIT `52.48 us`,
+    CnP `44.11 us`;
+  - `sort_text_wide_probe`: generated `91.70 us`, MCJIT `87.92 us`,
+    CnP `90.08 us`;
 - the current template-backed static tier is architecturally correct, but on
   the handled case it is roughly neutral versus the earlier handwritten helper,
   not a fresh speedup by itself;
-- the first generated long-tail comparator slice is also architecturally
-  correct, but on the current ten-part benchmark it is roughly neutral versus
-  the generic mixed fast path, so the next gains are more likely to come from
-  better per-field fragments or tighter helper boundaries than from shape
-  selection alone.
+- the long-tail mixed comparator now follows the same copy-and-patch mechanics
+  as the rest of CnP:
+  - build-time generated preserve-none fragment bodies;
+  - extracted reloc metadata;
+  - one shared ABI bridge;
+  - stitched next/fallback/helper relocations at runtime;
+  - no raw x86 byte emission in the sorter path.
+
+Annotated wide mixed disassembly:
+
+- The current `sort_text_wide_probe` stitched body begins like this:
+
+```asm
+0x...c000: push   %rax
+0x...c001: movabs $vdbeSorterCompareCnpFieldString,%rax
+0x...c00b: mov    %r12,%rdi
+0x...c00e: mov    %r13,%rsi
+0x...c011: callq  *%rax
+0x...c013: test   %eax,%eax
+0x...c015: je     0x...c029
+0x...c017: cmp    $0xfffffffe,%eax
+0x...c01a: jne    0x...c036
+0x...c01c: movabs $fallback_entry,%rax
+0x...c026: pop    %rcx
+0x...c027: jmpq   *%rax
+0x...c029: movabs $next_fragment,%rax
+0x...c033: pop    %rcx
+0x...c034: jmpq   *%rax
+0x...c036: pop    %rcx
+0x...c037: retq
+```
+
+- Meaning of the three exits:
+  - `rc == 0`: this key part is equal, jump to the next stitched fragment;
+  - `rc == -2`: runtime type/value shape is outside the specialized path, jump
+    to the generic fallback comparator;
+  - any other `rc`: ordering is decided, return immediately from the whole
+    comparator.
+
+- Why there are many `retq`:
+  - each key-part fragment is an early-exit point for lexicographic compare;
+  - once one part decides ordering, the rest of the key must not execute.
+
+- Why there are many `push %rax` / `pop %rcx` pairs:
+  - they are emitted by clang from the preserve-none fragment templates;
+  - they are only stack-balance glue around the helper-call shape and the
+    patched tail jumps;
+  - `pop %rcx` is just a scratch discard to undo the push before `jmp`/`ret`,
+    not a logical restore of `rcx`.
+
+- Why the debugger was used instead of `EXPLAIN (disassembly = true)`:
+  - `EXPLAIN` currently disassembles VDBE bytecode and the main VDBE CnP
+    fragments attached to opcode PCs;
+  - the sorter merge comparator is a separate runtime-stitched artifact owned
+    by `VdbeSorter`, so it is not visible to `EXPLAIN` today;
+  - the live runtime bytes therefore have to be inspected from memory.
+
+Next step for later: expose sorter JIT disassembly in `EXPLAIN`
+
+1. Store persistent sorter-compare compile metadata on the statement side.
+   Needed fields:
+   - comparator mode: static template / stitched mixed / generic;
+   - part count, part kinds, DESC mask;
+   - fragment sequence for the stitched case;
+   - code pointer and size after stitching.
+2. Register sorter comparator code spans in the same debug/disasm registry used
+   by the main CnP path.
+   This lets tooling address a sorter comparator as a named compiled artifact,
+   not as anonymous executable memory.
+3. Extend `EXPLAIN (disassembly = true)` with an auxiliary compiled-artifacts
+   section.
+   For sorters, print:
+   - key shape summary;
+   - whether static or stitched path was selected;
+   - fragment order for stitched mixed comparators;
+   - final native disassembly.
+4. Keep fragment-boundary annotations.
+   A flat instruction dump is not enough for review; we want `part 0`, `part 1`
+   and `fallback` boundaries visible in the `EXPLAIN` output.

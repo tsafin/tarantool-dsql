@@ -439,10 +439,6 @@ Current hybrid checkpoint:
   sorter entrypoint as a thin wrapper;
 - the handled template example today is the current `sort_text_window` key
   layout `[str, intlike, str, intlike]`;
-- the next JIT tier now also exists for longer mixed keys:
-  if a simple mixed scalar sorter shape is wider than the bounded static
-  template set, the sorter can generate a shape-specific x86-64 comparator
-  thunk instead of dropping immediately to the generic mixed comparator;
 - explicit fallback examples now exist too:
   - `sort_text_shape_fallback` keeps the text top-K scenario, but changes the
     key layout to `[str, str, intlike, intlike]`, so compare falls back to the
@@ -450,25 +446,27 @@ Current hybrid checkpoint:
   - `sort_text_substr_fallback` keeps the handled comparator layout, but uses
     `substr(s3, 7)` and therefore falls back from the specialized `SUBSTR(3)`
     producer path to the generic builtin path;
-- and a wide handled example now exists:
-  - `sort_text_wide_jit` uses a ten-part mixed key, so compare is selected
-    from the generated long-tail tier instead of the static template set;
+- and a wide probe workload now exists too:
+  - `sort_text_wide_probe` uses a ten-part mixed key and now exercises the
+    stitched long-tail mixed comparator path built from generated
+    string/intlike fragments;
 - latest discard-mode medians:
-  - `sort_text_window`: generated `48.62 us`, MCJIT `49.36 us`,
-    CnP `44.50 us`;
-  - `sort_text_shape_fallback`: generated `50.07 us`, MCJIT `50.68 us`,
-    CnP `43.86 us`;
-  - `sort_text_substr_fallback`: generated `51.83 us`, MCJIT `50.97 us`,
-    CnP `47.40 us`;
-  - `sort_text_wide_jit`: generated `83.27 us`, MCJIT `84.58 us`,
-    CnP `83.64 us`;
+  - `sort_text_window`: generated `51.38 us`, MCJIT `51.20 us`,
+    CnP `45.10 us`;
+  - `sort_text_shape_fallback`: generated `52.29 us`, MCJIT `52.48 us`,
+    CnP `44.11 us`;
+  - `sort_text_wide_probe`: generated `91.70 us`, MCJIT `87.92 us`,
+    CnP `90.08 us`;
 - the current template-backed static tier is architecturally correct, but on
   the handled case it is roughly neutral versus the earlier handwritten helper,
   not a fresh speedup by itself;
-- the first generated long-tail tier is also neutral on its first benchmarked
-  ten-part mixed case, so the remaining opportunity is likely inside the
-  emitted field fragments and helper boundaries rather than in shape selection
-  by itself.
+- the long-tail mixed comparator now follows the same copy-and-patch mechanics
+  as the rest of CnP:
+  - build-time generated preserve-none fragment bodies;
+  - extracted reloc metadata;
+  - one shared ABI bridge;
+  - stitched next/fallback/helper relocations at runtime;
+  - no raw x86 byte emission in the sorter path.
 
 ## 6. Recommendation on ABI changes
 
