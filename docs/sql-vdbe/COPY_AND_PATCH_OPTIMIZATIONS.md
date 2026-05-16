@@ -450,13 +450,21 @@ Current hybrid checkpoint:
   - `sort_text_wide_probe` uses a ten-part mixed key and now exercises the
     stitched long-tail mixed comparator path built from generated
     string/intlike fragments;
-- latest discard-mode medians:
+  - it now also uses a much heavier default execute loop and a much wider text
+    window so profile runs are dominated by steady-state execution;
+- latest heavy-run `sort_text_wide_probe/prepared_execute` medians after
+  restricting sorter stitched code to `VDBE_DISPATCHER=cnp` only:
+  - pre-template specialized `OP_Column` split:
+    - `generated`: `341.85 us`
+    - `CnP`: `354.82 us`
+  - after the C++ `if constexpr` offset-slot refactor:
+    - focused rerun: `generated` `332.53 us`, `CnP` `324.60 us`
+    - perf-backed rerun: `generated` `348.12 us`, `CnP` `336.29 us`
+- latest smaller adjacent text-sort medians:
   - `sort_text_window`: generated `51.38 us`, MCJIT `51.20 us`,
     CnP `45.10 us`;
   - `sort_text_shape_fallback`: generated `52.29 us`, MCJIT `52.48 us`,
     CnP `44.11 us`;
-  - `sort_text_wide_probe`: generated `91.70 us`, MCJIT `87.92 us`,
-    CnP `90.08 us`;
 - the current template-backed static tier is architecturally correct, but on
   the handled case it is roughly neutral versus the earlier handwritten helper,
   not a fresh speedup by itself;
@@ -466,7 +474,35 @@ Current hybrid checkpoint:
   - extracted reloc metadata;
   - one shared ABI bridge;
   - stitched next/fallback/helper relocations at runtime;
-  - no raw x86 byte emission in the sorter path.
+- no raw x86 byte emission in the sorter path.
+
+Heavy-run profile split now also makes the remaining generated-vs-CnP
+difference easier to read:
+
+- generated still pays a generic decode stack led by
+  `vdbe_field_ref_fetch_data`, `mem_from_mp_ephemeral`, `vdbe_op_column`,
+  `mem_to_mp_buf`, and `vdbeSorterCompareSimpleFast`;
+- CnP before the template refactor spent that time in the monolithic
+  `vdbe_op_column_typed_offset_slot_fast` helper;
+- CnP after the refactor instead spends it across the actual remaining scan
+  pieces:
+  - `vdbe_field_ref_preload_group_fast` `16.07%`
+  - `vdbe_op_column_string_offset_slot_static_fast` `4.17%`
+  - `vdbe_op_column_integer_offset_slot_static_group_fast` `2.16%`
+  - `vdbe_op_column_typed_exact_fast` `2.03%`
+  - plus the shared sorter writer / compare costs;
+- the fact that `mem_from_mp_ephemeral` largely disappears from the CnP hot
+  set is expected, because typed CnP column helpers bypass the generic
+  MsgPack-to-`Mem` decode function.
+
+Current conclusion for the wide mixed case:
+
+- shape-specific compile-time `OP_Column` helpers are worth doing, but only as
+  real specialized bodies;
+- thin wrappers around one runtime-switched helper were not enough;
+- the C++ template split removed the old monolithic `offset_slot_fast`
+  bottleneck and made the remaining scan-side costs visible by name, which is
+  the correct base for further field-ref/group optimization work.
 
 ## 6. Recommendation on ABI changes
 

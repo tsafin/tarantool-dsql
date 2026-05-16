@@ -141,6 +141,7 @@ set(sql_sources
     sql/vdbe_ops_aggregate.c
     sql/vdbe_ops_functions.c
     sql/vdbe_ops_cursor_data.c
+    sql/vdbe_ops_column_templates.cc
     sql/vdbe_ops_cursor_nav.c
     sql/vdbe_ops_cursor_seek.c
     sql/vdbe_ops_index.c
@@ -483,6 +484,9 @@ include_directories(${EXTRA_BOX_INCLUDE_DIRS})
 
 add_library(box_error STATIC error.cc errcode.c mp_error.cc)
 target_link_libraries(box_error core stat mpstream vclock)
+
+set_source_files_properties(sql/vdbe_ops_column_templates.cc PROPERTIES
+    COMPILE_FLAGS "-std=c++17")
 
 add_library(node_name STATIC node_name.c)
 

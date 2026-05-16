@@ -2044,23 +2044,58 @@ cnp_select_column_handler(struct Vdbe *p, int pc)
 	/* No direct slot, but we can still reach the field via anchor + hops. */
 	if (!use_offset_slot_helper && p->cnp_column_path[pc].enabled)
 		use_offset_slot_helper = true;
+	bool use_group = p->cnp_column_group[pc].enabled;
+	bool use_path = p->cnp_column_path[pc].enabled;
+	bool use_runtime_slot = !allow_static_offset_slot;
+	bool use_static_slot = !use_runtime_slot && offset_slot != TUPLE_OFFSET_SLOT_NIL &&
+			       (op->p5 & OPFLAG_CNP_COLUMN_OFFSET_SLOT_MASK) != 0;
 	switch (space->def->fields[op->p2].type) {
 	case FIELD_TYPE_UNSIGNED:
 		return (uintptr_t)(use_offset_slot_helper ?
 			vdbe_op_column_unsigned_offset_slot_fast :
 			vdbe_op_column_unsigned_exact_fast);
 	case FIELD_TYPE_STRING:
-		return (uintptr_t)(use_offset_slot_helper ?
-			vdbe_op_column_string_offset_slot_fast :
-			vdbe_op_column_string_exact_fast);
+		if (!use_offset_slot_helper)
+			return (uintptr_t)vdbe_op_column_string_exact_fast;
+		if (use_path) {
+			return (uintptr_t)(use_group ?
+				vdbe_op_column_string_offset_slot_path_group_fast :
+				vdbe_op_column_string_offset_slot_path_fast);
+		}
+		if (use_runtime_slot) {
+			return (uintptr_t)(use_group ?
+				vdbe_op_column_string_offset_slot_fast :
+				vdbe_op_column_string_offset_slot_runtime_fast);
+		}
+		if (use_static_slot) {
+			return (uintptr_t)(use_group ?
+				vdbe_op_column_string_offset_slot_static_group_fast :
+				vdbe_op_column_string_offset_slot_static_fast);
+		}
+		return (uintptr_t)vdbe_op_column_string_offset_slot_fast;
 	case FIELD_TYPE_DOUBLE:
 		return (uintptr_t)(use_offset_slot_helper ?
 			vdbe_op_column_double_offset_slot_fast :
 			vdbe_op_column_double_exact_fast);
 	case FIELD_TYPE_INTEGER:
-		return (uintptr_t)(use_offset_slot_helper ?
-			vdbe_op_column_integer_offset_slot_fast :
-			vdbe_op_column_integer_exact_fast);
+		if (!use_offset_slot_helper)
+			return (uintptr_t)vdbe_op_column_integer_exact_fast;
+		if (use_path) {
+			return (uintptr_t)(use_group ?
+				vdbe_op_column_integer_offset_slot_path_group_fast :
+				vdbe_op_column_integer_offset_slot_path_fast);
+		}
+		if (use_runtime_slot) {
+			return (uintptr_t)(use_group ?
+				vdbe_op_column_integer_offset_slot_fast :
+				vdbe_op_column_integer_offset_slot_runtime_fast);
+		}
+		if (use_static_slot) {
+			return (uintptr_t)(use_group ?
+				vdbe_op_column_integer_offset_slot_static_group_fast :
+				vdbe_op_column_integer_offset_slot_static_fast);
+		}
+		return (uintptr_t)vdbe_op_column_integer_offset_slot_fast;
 	case FIELD_TYPE_BOOLEAN:
 		return (uintptr_t)(use_offset_slot_helper ?
 			vdbe_op_column_boolean_offset_slot_fast :
