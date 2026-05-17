@@ -1822,6 +1822,63 @@ enum {
 	CNP_COLUMN_PREFETCH_MIN_FOLLOWERS = 2,
 };
 
+static bool
+cnp_column_has_static_offset_slot(struct space *space, uint32_t fieldno,
+				      bool allow_static_offset_slot)
+{
+	if (!allow_static_offset_slot || space->format == NULL || fieldno == 0)
+		return false;
+	if (fieldno >= tuple_format_field_count(space->format))
+		return false;
+	struct tuple_field *field = tuple_format_field(space->format, fieldno);
+	if (field == NULL || field->offset_slot == TUPLE_OFFSET_SLOT_NIL)
+		return false;
+	return -field->offset_slot <
+	       (1 << (16 - OPFLAG_CNP_COLUMN_OFFSET_SLOT_SHIFT));
+}
+
+static bool
+cnp_column_has_hint_path(struct space *space, uint32_t fieldno)
+{
+	if (space->format == NULL || fieldno == 0)
+		return false;
+	for (uint32_t anchor = fieldno - 1; anchor > 0; anchor--) {
+		if (anchor >= tuple_format_field_count(space->format))
+			continue;
+		struct tuple_field *field = tuple_format_field(space->format,
+							       anchor);
+		if (field != NULL &&
+		    field->offset_slot != TUPLE_OFFSET_SLOT_NIL)
+			return true;
+	}
+	return false;
+}
+
+/*
+ * Dense/prefetch groups should only compensate for OP_Column sites that would
+ * otherwise fall back to sequential vdbe_field_ref_fetch_data_inline().
+ *
+ * Sites that can already reach the target via:
+ * - a statically encoded offset slot;
+ * - a covering/runtime offset slot; or
+ * - a precomputed anchor+hops path
+ *
+ * do not need the broad row-local slots[] cache envelope.
+ */
+static bool
+cnp_column_needs_group_cache(struct space *space, uint32_t fieldno,
+				 bool allow_static_offset_slot)
+{
+	if (!allow_static_offset_slot)
+		return false;
+	if (cnp_column_has_static_offset_slot(space, fieldno,
+					      allow_static_offset_slot))
+		return false;
+	if (cnp_column_has_hint_path(space, fieldno))
+		return false;
+	return true;
+}
+
 static void
 cnp_configure_column_group_metadata(struct cnp_column_group *group,
 				       struct space *space,
@@ -1862,6 +1919,9 @@ cnp_try_configure_dense_column_group(struct Vdbe *p, int pc, struct space *space
 		if (it->p2 < 0 || (uint32_t)it->p2 >= space->def->field_count)
 			return;
 		uint32_t field = (uint32_t)it->p2;
+		if (!cnp_column_needs_group_cache(space, field,
+						  allow_static_offset_slot))
+			continue;
 		if (field < min_field)
 			min_field = field;
 		if (field > max_field)
@@ -1913,6 +1973,9 @@ cnp_try_configure_column_prefetch(struct Vdbe *p, int pc, struct space *space,
 			return;
 		uint32_t field = (uint32_t)it->p2;
 		if (field >= leader_field)
+			continue;
+		if (!cnp_column_needs_group_cache(space, field,
+						  allow_static_offset_slot))
 			continue;
 		if (field < min_follow)
 			min_follow = field;
