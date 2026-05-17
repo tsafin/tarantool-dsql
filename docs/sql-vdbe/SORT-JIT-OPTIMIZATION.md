@@ -810,19 +810,31 @@ Current hybrid checkpoint:
 - it now also runs with a much heavier default execute loop and a much wider
   text window, so profiler runs spend multiple seconds in steady-state
   compare/write/column work instead of mostly in setup noise;
-- latest heavy-run `sort_text_wide_probe/prepared_execute` medians after
-  gating stitched sorter code to `VDBE_DISPATCHER=cnp` only:
+- latest wide-probe checkpoints after gating stitched sorter code to
+  `VDBE_DISPATCHER=cnp` only:
   - pre-template specialized `OP_Column` split:
     - `generated`: `341.85 us`;
     - `CnP`: `354.82 us`;
   - after the C++ `if constexpr` offset-slot refactor:
     - focused rerun: `generated` `332.53 us`, `CnP` `324.60 us`;
     - perf-backed rerun: `generated` `348.12 us`, `CnP` `336.29 us`;
-- latest smaller adjacent text-sort medians:
-  - `sort_text_window`: generated `51.38 us`, MCJIT `51.20 us`,
-    CnP `45.10 us`;
-  - `sort_text_shape_fallback`: generated `52.29 us`, MCJIT `52.48 us`,
-    CnP `44.11 us`;
+- after narrowing column-group formation to only the sites that still need
+  sequential field-ref cache seeding:
+  - clean CnP-only wide-probe rerun improved from about `353.05 us` to
+    `336.40 us`;
+  - the corresponding CnP `perf` run dropped
+    `vdbe_field_ref_preload_group_fast` from `16.27%` to `6.22%`;
+- refreshed heavy sort matrix, `prepared_execute`, discard mode, `runs=3`:
+
+| workload | generated | MCJIT | CnP |
+| --- | ---: | ---: | ---: |
+| `sort_window` | `135.16 us` | `126.33 us` | `119.43 us` |
+| `sort_payload` | `181.17 us` | `184.13 us` | `161.44 us` |
+| `sort_text_window` | `200.49 us` | `220.91 us` | `167.91 us` |
+| `sort_text_shape_fallback` | `212.60 us` | `203.24 us` | `177.29 us` |
+| `sort_text_substr_fallback` | `214.29 us` | `216.54 us` | `187.52 us` |
+| `sort_text_wide_probe` | `342.42 us` | `343.92 us` | `335.06 us` |
+
 - the current template-backed static tier is architecturally correct, but on
   the handled case it is roughly neutral versus the earlier handwritten helper,
   not a fresh speedup by itself;
@@ -910,6 +922,19 @@ Heavy-run profile split after gating:
   - `sqlVdbeSorterWriteFromMems` `3.40%`
   - `vdbe_op_column_integer_offset_slot_static_group_fast` `2.16%`
   - `vdbe_op_column_typed_exact_fast` `2.03%`
+- after teaching the compiler to form dense/prefetch groups only for the
+  fields that still fall back to sequential `vdbe_field_ref_fetch_data_inline()`
+  work:
+  - `vdbe_field_ref_preload_group_fast` `6.22%`
+  - `mem_to_mp_buf` `5.10%`
+  - `vdbe_field_ref_fetch_data_offset_slot_fast` `4.83%`
+  - `mem_mp_size` `4.09%`
+  - `vdbe_op_column_string_offset_slot_static_fast` `3.88%`
+  - `sqlVdbeSorterWriteFromMems` `3.87%`
+  - `vdbeSorterCompareCnpFieldString` `3.67%`
+  - `vdbe_op_column_typed_exact_fast` `3.59%`
+  - `vdbe_op_column_integer_offset_slot_static_fast` `2.36%`
+  - `vdbe_cnp_column_group_get` `2.12%`
 
 Why `mem_from_mp_ephemeral` disappears on the CnP side:
 
@@ -927,12 +952,12 @@ Current reading of the wide mixed case:
   `static` / `path` / `runtime` and `group` / `no-group` shapes now compile to
   distinct bodies, and the runtime nav/group branches are gone from the
   corresponding entrypoints;
-- this is enough to move `sort_text_wide_probe` from slightly slower than
-  generated to roughly flat or modestly ahead on the heavy steady-state run;
-- the next largest remaining scan-side bucket is no longer the old monolithic
-  helper, but `vdbe_field_ref_preload_group_fast`, so future work should stay
-  on field-ref/group mechanics rather than adding more wrapper-style `OP_Column`
-  entrypoints.
+- the next necessary step was to stop forming broad dense/preload envelopes for
+  sites that already have direct static-slot or anchor+hops navigation;
+- that refinement is now in place, and it materially reduced the row-local
+  preload cost on `sort_text_wide_probe`;
+- the next largest scan-side buckets are now the actual direct navigation and
+  encode pieces, not the old monolithic helper or the broad preload loop.
 
 Next step for later: expose sorter JIT disassembly in `EXPLAIN`
 
