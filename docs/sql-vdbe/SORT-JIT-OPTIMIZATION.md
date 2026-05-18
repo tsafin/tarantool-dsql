@@ -1,5 +1,76 @@
 # Sort Comparator JIT Optimization Plan
 
+## 2026-05-19 update
+
+The latest sorter checkpoint replaces the weak runtime-generic mixed writer
+prototype with the same bounded static-template policy already used for hot
+mixed comparators.
+
+What changed:
+
+- sorter initialization now selects a static mixed-key writer template when the
+  sorter shape is benchmark-proven and fully described by
+  `fastCmpPartKind[]`;
+- the current handled writer layouts are:
+  - `[str, intlike, str, intlike]`;
+  - `[str, str, intlike, str, intlike, str, intlike, str, intlike, str]`;
+- those writers are instantiated in C++ templates and use compile-time kind
+  recursion to:
+  - size the MsgPack row;
+  - encode each field;
+  - populate the optional offset cache;
+- unsupported mixed shapes stay on the generic writer path:
+  `mem_mp_size()` plus `mem_to_mp_buf()`.
+
+Why the earlier runtime-generic writer was rejected:
+
+- it still executed a per-part runtime `kind` loop;
+- it only replaced one dynamic encode loop with another;
+- its profile movement was too small and too noisy to justify keeping it.
+
+Why the template writer is the right generic form:
+
+- it matches the comparator-side static tier structurally;
+- the compiler can drop per-kind branching entirely inside the writer body;
+- entrypoints stay bounded and explicit instead of growing another list of ad
+  hoc mixed helpers.
+
+Current focused results on the current build:
+
+| workload | generated | CnP |
+|---|---:|---:|
+| `sort_text_wide_probe` | `321.74 us` | **`312.61 us`** |
+| `sort_payload` | `171.65 us` | **`154.33 us`** |
+| `sort_text_window` | `188.27 us` | **`156.47 us`** |
+
+Interpretation:
+
+- the wide mixed probe is now slightly ahead in CnP on like-for-like reruns;
+- generated also improves, because sorter write is shared below the dispatcher
+  layer;
+- the write-path gain is real, but scan-side field-ref work still dominates the
+  remaining profile.
+
+Current `perf` readout on `sort_text_wide_probe` after the writer-template
+change:
+
+- `vdbe_field_ref_preload_group_fast` `6.33%`
+- `mem_to_mp_buf` `5.11%`
+- `vdbe_field_ref_fetch_data_offset_slot_fast` `5.07%`
+- `vdbe_op_column_string_offset_slot_static_fast` `3.91%`
+- `mem_mp_size` `3.84%`
+- `vdbeSorterCompareCnpFieldString` `3.74%`
+- `sqlVdbeSorterWriteFromMems` `3.63%`
+
+Current near-term plan:
+
+1. Keep the bounded static writer-template tier for hot stable shapes.
+2. Extend it only when a benchmark proves a new layout is both hot and common.
+3. Keep the generic writer as the semantic fallback for the long tail.
+4. If long-tail mixed writer work becomes necessary later, follow the same
+   copy-and-patch fragment mechanics used on the compare side instead of
+   adding another runtime-generic mixed writer loop.
+
 ## Current status
 
 The first sorter-local raw MsgPack comparator pass is implemented in

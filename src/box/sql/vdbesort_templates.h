@@ -6,6 +6,8 @@
 #include <stdint.h>
 
 typedef struct SortSubtask SortSubtask;
+struct Mem;
+struct VdbeSorter;
 
 enum vdbe_sorter_fast_cmp_kind {
 	VDBE_SORTER_FAST_CMP_UNSUPPORTED = 0,
@@ -30,6 +32,8 @@ typedef int (*VdbeSorterCompareFallback)(SortSubtask *, bool *, const void *,
 					      uint8_t, const uint16_t *,
 					      const void *, uint8_t,
 					      const uint16_t *);
+typedef int (*VdbeSorterWriteTemplate)(struct VdbeSorter *, const struct Mem *,
+					    uint32_t);
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,6 +64,25 @@ vdbeSorterCompareCnpFieldIntLike(const char **field1, const char **field2);
 void *
 vdbeSorterCompareCnpCodeGet(uint32_t part_count, uint16_t desc_mask,
 			    const uint8_t *part_kind);
+
+/*
+ * Return a compile-time instantiated mixed-key writer for hot sorter layouts.
+ * Unsupported shapes return NULL and stay on sqlVdbeSorterWriteFromMems().
+ */
+VdbeSorterWriteTemplate
+vdbeSorterWriterTemplateGet(uint32_t part_count, const uint8_t *part_kind);
+
+/*
+ * Reserve sorter storage for a template-backed writer and initialize the
+ * record metadata shared by all mixed-key writer specializations.
+ */
+int
+vdbeSorterWriteTemplateBegin(struct VdbeSorter *sorter, int record_size,
+			     uint8_t type_mask, uint8_t offset_part_count,
+			     char **out_payload, uint16_t **out_offsets);
+
+uint32_t
+vdbeSorterOffsetCachePartCount(const struct VdbeSorter *sorter);
 
 /*
  * Bridge from the normal C call site into the stitched fragment ABI.

@@ -332,6 +332,8 @@ struct VdbeSorter {
 	uint8_t fastCmpPartKind[VDBE_SORTER_FAST_CMP_MAX_PARTS];
 	/* Stitched mixed-key comparator body for wider CnP-managed shapes. */
 	void *fastCmpCnpCode;
+	/* Static mixed-key writer selected for this sorter shape, if any. */
+	VdbeSorterWriteTemplate fastWriteTemplate;
 	/*
 	 * CnP-only equality shape for OP_SorterCompare prefixes. This is
 	 * prepare-time metadata derived from key_def and lets the fragment
@@ -362,7 +364,7 @@ enum {
 	VDBE_SORTER_OFFSET_CACHE_MAX_PARTS = 4,
 };
 
-static inline uint32_t
+uint32_t
 vdbeSorterOffsetCachePartCount(const struct VdbeSorter *sorter);
 static inline void
 vdbeSorterOffsetCacheClear(uint16_t
@@ -917,7 +919,7 @@ vdbeSorterTypeMaskGetPart(uint8_t mask, uint32_t part_no)
 	return (mask >> (part_no * VDBE_SORTER_TYPE_MASK_BITS)) & 0x3;
 }
 
-static inline uint32_t
+uint32_t
 vdbeSorterOffsetCachePartCount(const struct VdbeSorter *sorter)
 {
 	uint32_t part_count = sorter->fastCmpPartCount &
@@ -1776,6 +1778,18 @@ sqlVdbeSorterInit(struct VdbeCursor *pCsr)
 		pSorter->fastCmpCnpCode = vdbeSorterCompareCnpCodeGet(
 			part_count, pSorter->fastCmpDescMask, pSorter->fastCmpPartKind);
 	}
+	if (pSorter->fastCmpPartCount != 0 &&
+	    (pSorter->fastCmpPartCount & VDBE_SORTER_FAST_CMP_MIXED_KIND_FLAG) != 0) {
+		uint32_t part_count = pSorter->fastCmpPartCount &
+				      VDBE_SORTER_FAST_CMP_PART_COUNT_MASK;
+		/*
+		 * The writer uses the same bounded static-template idea as the
+		 * comparator: select a few hot exact mixed layouts up front and
+		 * keep the generic Mem->MsgPack path for everything else.
+		 */
+		pSorter->fastWriteTemplate = vdbeSorterWriterTemplateGet(
+			part_count, pSorter->fastCmpPartKind);
+	}
 	vdbeSorterInitCnpEqPlan(pSorter);
 
 	/* Cache size in bytes */
@@ -2473,6 +2487,23 @@ vdbeSorterWriteBegin(VdbeSorter *pSorter, int record_size, SorterRecord **out)
 	return rc;
 }
 
+int
+vdbeSorterWriteTemplateBegin(VdbeSorter *sorter, int record_size,
+			     uint8_t type_mask, uint8_t offset_part_count,
+			     char **out_payload, uint16_t **out_offsets)
+{
+	/* Shared reservation hook used by all template-backed mixed writers. */
+	SorterRecord *record;
+	int rc = vdbeSorterWriteBegin(sorter, record_size, &record);
+	if (rc != 0)
+		return rc;
+	record->typeMask = type_mask;
+	record->offsetPartCount = offset_part_count;
+	*out_payload = (char *)SRVAL(record);
+	*out_offsets = record->partOffsets;
+	return 0;
+}
+
 /*
  * Add a record to the sorter.
  */
@@ -2546,6 +2577,12 @@ sqlVdbeSorterWriteFromMems(const VdbeCursor *pCsr, const Mem *mems,
 		mp_tuple_assert(SRVAL(pNew), pos);
 		return 0;
 	}
+	/*
+	 * Mixed writer templates only cover sorter shapes that were classified
+	 * at prepare time and mapped to one static C++ instantiation.
+	 */
+	if (part_count == count && pSorter->fastWriteTemplate != NULL)
+		return pSorter->fastWriteTemplate(pSorter, mems, count);
 generic:
 	total = mp_sizeof_array(count);
 	for (const Mem *mem = mems; mem < mems + count; mem++)

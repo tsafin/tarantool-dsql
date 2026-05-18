@@ -452,6 +452,14 @@ Current hybrid checkpoint:
     string/intlike fragments;
   - it now also uses a much heavier default execute loop and a much wider text
     window so profile runs are dominated by steady-state execution;
+- the sorter writer now follows the same bounded-static-tier rule as the
+  comparator side:
+  - the weak runtime-generic mixed writer loop was rejected because it still
+    kept a per-part runtime kind dispatch;
+  - the current implementation instead preinstantiates only benchmark-proven
+    hot mixed writer layouts in C++ templates;
+  - unsupported mixed shapes stay on the generic
+    `mem_mp_size()` + `mem_to_mp_buf()` writer path;
 - latest heavy-run `sort_text_wide_probe/prepared_execute` medians after
   restricting sorter stitched code to `VDBE_DISPATCHER=cnp` only:
   - pre-template specialized `OP_Column` split:
@@ -475,6 +483,20 @@ Current hybrid checkpoint:
   - one shared ABI bridge;
   - stitched next/fallback/helper relocations at runtime;
 - no raw x86 byte emission in the sorter path.
+
+Latest focused reruns after the static writer-template tier:
+
+- `sort_text_wide_probe`: generated `321.74 us`, CnP `312.61 us`;
+- `sort_payload`: generated `171.65 us`, CnP `154.33 us`;
+- `sort_text_window`: generated `188.27 us`, CnP `156.47 us`.
+
+Current generic policy:
+
+- preinstantiate only a small compile-time writer matrix for hot stable
+  layouts;
+- keep the generic writer for the long tail;
+- if long-tail writer specialization becomes necessary later, follow the same
+  copy-and-patch mechanics as compare, not another runtime-kind loop.
 
 Heavy-run profile split now also makes the remaining generated-vs-CnP
 difference easier to read:
