@@ -1,4 +1,6 @@
 #include "vdbesort_templates.h"
+#include "sqlInt.h"
+#include "mem.h"
 
 extern "C" {
 #include "generated/vdbe_sorter_cnp_fragments.h"
@@ -6,6 +8,7 @@ extern "C" {
 }
 
 #include <cstddef>
+#include <cassert>
 #include <cstdint>
 #include <cstring>
 #include <sys/mman.h>
@@ -13,6 +16,9 @@ extern "C" {
 enum class VdbeSorterFastKind : uint8_t {
 	IntLike = VDBE_SORTER_FAST_CMP_INTLIKE,
 	String = VDBE_SORTER_FAST_CMP_STRING,
+	Varbinary = VDBE_SORTER_FAST_CMP_VARBINARY,
+	Bool = VDBE_SORTER_FAST_CMP_BOOL,
+	Double = VDBE_SORTER_FAST_CMP_DOUBLE,
 };
 
 /*
@@ -72,12 +78,33 @@ vdbeSorterCompareTemplateString(const char **field1, const char **field2)
 template <VdbeSorterFastKind Kind>
 struct VdbeSorterCompareField;
 
+template <VdbeSorterFastKind Kind>
+struct VdbeSorterWriteField;
+
 template <>
 struct VdbeSorterCompareField<VdbeSorterFastKind::String> {
 	static inline int
 	exec(const char **field1, const char **field2)
 	{
 		return vdbeSorterCompareTemplateString(field1, field2);
+	}
+};
+
+template <>
+struct VdbeSorterWriteField<VdbeSorterFastKind::String> {
+	static inline bool
+	measure(const struct Mem *mem, uint32_t *size)
+	{
+		if (!mem_is_str(mem) || mem_is_metatype(mem))
+			return false;
+		*size = mp_sizeof_str((uint32_t)mem->n);
+		return true;
+	}
+
+	static inline char *
+	encode(const struct Mem *mem, char *pos)
+	{
+		return mp_encode_str(pos, mem->z, (uint32_t)mem->n);
 	}
 };
 
@@ -90,6 +117,196 @@ struct VdbeSorterCompareField<VdbeSorterFastKind::IntLike> {
 							mp_typeof(**field2), field2);
 	}
 };
+
+template <>
+struct VdbeSorterWriteField<VdbeSorterFastKind::IntLike> {
+	static inline bool
+	measure(const struct Mem *mem, uint32_t *size)
+	{
+		if (mem->type == MEM_TYPE_INT) {
+			*size = mp_sizeof_int(mem->u.i);
+			return true;
+		}
+		if (mem->type == MEM_TYPE_UINT) {
+			*size = mp_sizeof_uint(mem->u.u);
+			return true;
+		}
+		return false;
+	}
+
+	static inline char *
+	encode(const struct Mem *mem, char *pos)
+	{
+		return mem->type == MEM_TYPE_INT ?
+		       mp_encode_int(pos, mem->u.i) :
+		       mp_encode_uint(pos, mem->u.u);
+	}
+};
+
+template <>
+struct VdbeSorterWriteField<VdbeSorterFastKind::Varbinary> {
+	static inline bool
+	measure(const struct Mem *mem, uint32_t *size)
+	{
+		if (!mem_is_bin(mem) || mem_is_metatype(mem))
+			return false;
+		*size = mp_sizeof_bin((uint32_t)mem->n);
+		return true;
+	}
+
+	static inline char *
+	encode(const struct Mem *mem, char *pos)
+	{
+		return mp_encode_bin(pos, mem->z, (uint32_t)mem->n);
+	}
+};
+
+template <>
+struct VdbeSorterWriteField<VdbeSorterFastKind::Bool> {
+	static inline bool
+	measure(const struct Mem *mem, uint32_t *size)
+	{
+		if (!mem_is_bool(mem))
+			return false;
+		*size = mp_sizeof_bool(mem->u.b);
+		return true;
+	}
+
+	static inline char *
+	encode(const struct Mem *mem, char *pos)
+	{
+		return mp_encode_bool(pos, mem->u.b);
+	}
+};
+
+template <>
+struct VdbeSorterWriteField<VdbeSorterFastKind::Double> {
+	static inline bool
+	measure(const struct Mem *mem, uint32_t *size)
+	{
+		if (!mem_is_double(mem))
+			return false;
+		*size = mp_sizeof_double(mem->u.r);
+		return true;
+	}
+
+	static inline char *
+	encode(const struct Mem *mem, char *pos)
+	{
+		return mp_encode_double(pos, mem->u.r);
+	}
+};
+
+template <std::size_t PartNo, VdbeSorterFastKind... Kinds>
+struct VdbeSorterWriteParts;
+
+template <std::size_t PartNo, VdbeSorterFastKind Kind>
+struct VdbeSorterWriteParts<PartNo, Kind> {
+	static inline bool
+	measure(const struct Mem *mems, uint32_t *total)
+	{
+		uint32_t part_size;
+		if (!VdbeSorterWriteField<Kind>::measure(&mems[PartNo], &part_size))
+			return false;
+		*total += part_size;
+		return true;
+	}
+
+	static inline char *
+	encode(const struct Mem *mems, uint32_t offset_part_count,
+		       uint16_t *offsets, char *base, char *pos)
+	{
+		if (PartNo < offset_part_count)
+			offsets[PartNo] = (uint16_t)(pos - base);
+		return VdbeSorterWriteField<Kind>::encode(&mems[PartNo], pos);
+	}
+};
+
+template <std::size_t PartNo, VdbeSorterFastKind Kind, VdbeSorterFastKind Next,
+	  VdbeSorterFastKind... Rest>
+struct VdbeSorterWriteParts<PartNo, Kind, Next, Rest...> {
+	static inline bool
+	measure(const struct Mem *mems, uint32_t *total)
+	{
+		uint32_t part_size;
+		if (!VdbeSorterWriteField<Kind>::measure(&mems[PartNo], &part_size))
+			return false;
+		*total += part_size;
+		return VdbeSorterWriteParts<PartNo + 1, Next, Rest...>::measure(
+			mems, total);
+	}
+
+	static inline char *
+	encode(const struct Mem *mems, uint32_t offset_part_count,
+		       uint16_t *offsets, char *base, char *pos)
+	{
+		if (PartNo < offset_part_count)
+			offsets[PartNo] = (uint16_t)(pos - base);
+		pos = VdbeSorterWriteField<Kind>::encode(&mems[PartNo], pos);
+		return VdbeSorterWriteParts<PartNo + 1, Next, Rest...>::encode(
+			mems, offset_part_count, offsets, base, pos);
+	}
+};
+
+template <VdbeSorterFastKind... Kinds>
+static int
+vdbeSorterWriteTemplateFixed(struct VdbeSorter *sorter, const struct Mem *mems,
+			     uint32_t count)
+{
+	(void)count;
+	assert(count == sizeof...(Kinds));
+	/*
+	 * This stays intentionally simple: keep the generic reservation logic in
+	 * C and only specialize the per-part sizing/encoding work here so the
+	 * compiler can drop Kind-dependent branching with if-constexpr/template
+	 * instantiation.
+	 */
+	uint32_t total = mp_sizeof_array(sizeof...(Kinds));
+	if (!VdbeSorterWriteParts<0, Kinds...>::measure(mems, &total))
+		return 1;
+	uint8_t offset_part_count =
+		(uint8_t)vdbeSorterOffsetCachePartCount(sorter);
+	char *payload;
+	uint16_t *offsets;
+	int rc = vdbeSorterWriteTemplateBegin(sorter, (int)total, 0,
+					      offset_part_count, &payload,
+					      &offsets);
+	if (rc != 0)
+		return rc;
+	char *pos = mp_encode_array(payload, sizeof...(Kinds));
+	pos = VdbeSorterWriteParts<0, Kinds...>::encode(mems, offset_part_count,
+							offsets, payload, pos);
+	assert((uint32_t)(pos - payload) == total);
+	return 0;
+}
+
+extern "C" int
+vdbeSorterWriteTemplateStrStrIntStrIntStrIntStrIntStr10(
+	struct VdbeSorter *sorter, const struct Mem *mems, uint32_t count)
+{
+	return vdbeSorterWriteTemplateFixed<VdbeSorterFastKind::String,
+					    VdbeSorterFastKind::String,
+					    VdbeSorterFastKind::IntLike,
+					    VdbeSorterFastKind::String,
+					    VdbeSorterFastKind::IntLike,
+					    VdbeSorterFastKind::String,
+					    VdbeSorterFastKind::IntLike,
+					    VdbeSorterFastKind::String,
+					    VdbeSorterFastKind::IntLike,
+					    VdbeSorterFastKind::String>(
+		sorter, mems, count);
+}
+
+extern "C" int
+vdbeSorterWriteTemplateStrIntStrInt4(struct VdbeSorter *sorter,
+				     const struct Mem *mems, uint32_t count)
+{
+	return vdbeSorterWriteTemplateFixed<VdbeSorterFastKind::String,
+					    VdbeSorterFastKind::IntLike,
+					    VdbeSorterFastKind::String,
+					    VdbeSorterFastKind::IntLike>(
+		sorter, mems, count);
+}
 
 template <std::size_t PartNo>
 static inline int
@@ -463,6 +680,36 @@ vdbeSorterCompareCnpCodeGet(uint32_t part_count, uint16_t desc_mask,
 	shape->next = g_sorter_cnp_shapes;
 	g_sorter_cnp_shapes = shape;
 	return code;
+}
+
+extern "C" VdbeSorterWriteTemplate
+vdbeSorterWriterTemplateGet(uint32_t part_count, const uint8_t *part_kind)
+{
+	/*
+	 * Bounded static writer tier. Keep only shapes that benchmarks proved
+	 * hot and let the generic writer handle the long tail.
+	 */
+	if (part_count == 4 &&
+	    part_kind[0] == VDBE_SORTER_FAST_CMP_STRING &&
+	    part_kind[1] == VDBE_SORTER_FAST_CMP_INTLIKE &&
+	    part_kind[2] == VDBE_SORTER_FAST_CMP_STRING &&
+	    part_kind[3] == VDBE_SORTER_FAST_CMP_INTLIKE) {
+		return vdbeSorterWriteTemplateStrIntStrInt4;
+	}
+	if (part_count == 10 &&
+	    part_kind[0] == VDBE_SORTER_FAST_CMP_STRING &&
+	    part_kind[1] == VDBE_SORTER_FAST_CMP_STRING &&
+	    part_kind[2] == VDBE_SORTER_FAST_CMP_INTLIKE &&
+	    part_kind[3] == VDBE_SORTER_FAST_CMP_STRING &&
+	    part_kind[4] == VDBE_SORTER_FAST_CMP_INTLIKE &&
+	    part_kind[5] == VDBE_SORTER_FAST_CMP_STRING &&
+	    part_kind[6] == VDBE_SORTER_FAST_CMP_INTLIKE &&
+	    part_kind[7] == VDBE_SORTER_FAST_CMP_STRING &&
+	    part_kind[8] == VDBE_SORTER_FAST_CMP_INTLIKE &&
+	    part_kind[9] == VDBE_SORTER_FAST_CMP_STRING) {
+		return vdbeSorterWriteTemplateStrStrIntStrIntStrIntStrIntStr10;
+	}
+	return nullptr;
 }
 
 #if defined(__x86_64__)
