@@ -301,6 +301,12 @@ if(ENABLE_SQL_CNP)
         "${CNP_GENERATED_DIR}/vdbe_sorter_cnp_fragments.o")
     set(SORTER_CNP_FRAGMENTS_H
         "${CNP_GENERATED_DIR}/vdbe_sorter_cnp_fragments.h")
+    set(SORTER_WRITER_CNP_FRAGMENTS_C
+        "${CNP_GENERATED_DIR}/vdbe_sorter_writer_cnp_fragments.c")
+    set(SORTER_WRITER_CNP_FRAGMENTS_O
+        "${CNP_GENERATED_DIR}/vdbe_sorter_writer_cnp_fragments.o")
+    set(SORTER_WRITER_CNP_FRAGMENTS_H
+        "${CNP_GENERATED_DIR}/vdbe_sorter_writer_cnp_fragments.h")
     set(CNP_GENSTUBS "${PROJECT_SOURCE_DIR}/tools/vdbe_cnp_genstubs.py")
     set(CNP_GENFRAGS "${PROJECT_SOURCE_DIR}/tools/vdbe_cnp_genfrags.py")
     set(CNP_EXTRACT "${PROJECT_SOURCE_DIR}/tools/vdbe_cnp_extract.py")
@@ -310,6 +316,10 @@ if(ENABLE_SQL_CNP)
         "${PROJECT_SOURCE_DIR}/tools/vdbe_sorter_cnp_genfrags.py")
     set(SORTER_CNP_EXTRACT
         "${PROJECT_SOURCE_DIR}/tools/vdbe_sorter_cnp_extract.py")
+    set(SORTER_WRITER_CNP_GENFRAGS
+        "${PROJECT_SOURCE_DIR}/tools/vdbe_sorter_writer_cnp_genfrags.py")
+    set(SORTER_WRITER_CNP_EXTRACT
+        "${PROJECT_SOURCE_DIR}/tools/vdbe_sorter_writer_cnp_extract.py")
     set(CNP_OPCODES_YAML "${PROJECT_SOURCE_DIR}/tools/vdbe_dsl/opcodes.yaml")
     set(CNP_OPCODES_H "${PROJECT_BINARY_DIR}/src/box/sql/opcodes.h")
 
@@ -372,6 +382,14 @@ if(ENABLE_SQL_CNP)
         COMMENT "Generating sorter CnP fragment source"
     )
 
+    add_custom_command(
+        OUTPUT ${SORTER_WRITER_CNP_FRAGMENTS_C}
+        COMMAND ${CMAKE_COMMAND} -E env python3 ${SORTER_WRITER_CNP_GENFRAGS}
+            --output ${SORTER_WRITER_CNP_FRAGMENTS_C}
+        DEPENDS ${SORTER_WRITER_CNP_GENFRAGS}
+        COMMENT "Generating sorter writer CnP fragment source"
+    )
+
     # Step 2: Compile stubs to relocatable object
     add_custom_command(
         OUTPUT ${CNP_STUBS_O}
@@ -418,6 +436,21 @@ if(ENABLE_SQL_CNP)
         COMMENT "Compiling sorter CnP fragment source to object file"
     )
 
+    add_custom_command(
+        OUTPUT ${SORTER_WRITER_CNP_FRAGMENTS_O}
+        COMMAND ${CLANG_CNP}
+            -O2 -fno-pic -fno-asynchronous-unwind-tables -fno-stack-protector
+            -mcmodel=large
+            -D_GNU_SOURCE
+            ${CNP_COMPILE_DEFS}
+            ${CNP_INCLUDE_FLAGS}
+            -c ${SORTER_WRITER_CNP_FRAGMENTS_C}
+            -o ${SORTER_WRITER_CNP_FRAGMENTS_O}
+        DEPENDS ${SORTER_WRITER_CNP_FRAGMENTS_C}
+            ${PROJECT_SOURCE_DIR}/src/box/sql/vdbesort_templates.h
+        COMMENT "Compiling sorter writer CnP fragment source to object file"
+    )
+
     # Step 3: Extract stencils from object file
     add_custom_command(
         OUTPUT ${CNP_STENCILS_H}
@@ -448,6 +481,15 @@ if(ENABLE_SQL_CNP)
         COMMENT "Extracting sorter CnP fragments from object file"
     )
 
+    add_custom_command(
+        OUTPUT ${SORTER_WRITER_CNP_FRAGMENTS_H}
+        COMMAND python3 ${SORTER_WRITER_CNP_EXTRACT}
+            --input ${SORTER_WRITER_CNP_FRAGMENTS_O}
+            --output ${SORTER_WRITER_CNP_FRAGMENTS_H}
+        DEPENDS ${SORTER_WRITER_CNP_FRAGMENTS_O} ${SORTER_WRITER_CNP_EXTRACT}
+        COMMENT "Extracting sorter writer CnP fragments from object file"
+    )
+
     # Convenience target
     add_custom_target(cnp_stencils
         DEPENDS ${CNP_STENCILS_H}
@@ -463,6 +505,10 @@ if(ENABLE_SQL_CNP)
 
     add_custom_target(sorter_cnp_fragment_headers
         DEPENDS ${SORTER_CNP_FRAGMENTS_H}
+    )
+
+    add_custom_target(sorter_writer_cnp_fragment_headers
+        DEPENDS ${SORTER_WRITER_CNP_FRAGMENTS_H}
     )
 
     # Make sure stencils are built before the box library
@@ -711,7 +757,8 @@ endif()
 
 if(ENABLE_SQL_CNP)
     add_dependencies(box cnp_stencils cnp_fragment_headers
-                         sorter_cnp_fragment_headers)
+                         sorter_cnp_fragment_headers
+                         sorter_writer_cnp_fragment_headers)
 endif()
 
 set(EXT_SRC_DIR ${PROJECT_SOURCE_DIR}/extra)

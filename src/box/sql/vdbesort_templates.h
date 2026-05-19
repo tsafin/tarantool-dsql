@@ -26,12 +26,24 @@ enum {
 	 * comparison through the generic sorter comparator.
 	 */
 	VDBE_SORTER_COMPARE_CNP_FALLBACK = 0x7fffffff,
+	VDBE_SORTER_WRITE_CNP_FALLBACK = 0x7ffffffe,
+};
+
+struct vdbe_sorter_cnp_write_state {
+	const struct Mem *mem;
+	char *pos;
+	uint32_t total;
 };
 
 typedef int (*VdbeSorterCompareFallback)(SortSubtask *, bool *, const void *,
 					      uint8_t, const uint16_t *,
 					      const void *, uint8_t,
 					      const uint16_t *);
+typedef int (*VdbeSorterCompareTemplate)(SortSubtask *, bool *, const void *,
+					      uint8_t, const uint16_t *,
+					      const void *, uint8_t,
+					      const uint16_t *, uint8_t,
+					      VdbeSorterCompareFallback);
 typedef int (*VdbeSorterWriteTemplate)(struct VdbeSorter *, const struct Mem *,
 					    uint32_t);
 
@@ -39,16 +51,14 @@ typedef int (*VdbeSorterWriteTemplate)(struct VdbeSorter *, const struct Mem *,
 extern "C" {
 #endif
 
-int
-vdbeSorterCompareTemplateStrIntStrInt4(SortSubtask *task, bool *key2_cached,
-				       const void *key1,
-				       uint8_t key1_type_mask,
-				       const uint16_t *key1_offsets,
-				       const void *key2,
-				       uint8_t key2_type_mask,
-				       const uint16_t *key2_offsets,
-				       uint8_t desc_mask,
-				       VdbeSorterCompareFallback fallback);
+/*
+ * Return a compile-time instantiated mixed-key comparator for small hot
+ * string/intlike layouts. Unsupported shapes return NULL and stay on the
+ * generic sorter compare path (or on the stitched long-tail path for wider
+ * mixed keys).
+ */
+VdbeSorterCompareTemplate
+vdbeSorterCompareTemplateGet(uint32_t part_count, const uint8_t *part_kind);
 
 int
 vdbeSorterCompareCnpFieldString(const char **field1, const char **field2);
@@ -73,6 +83,15 @@ VdbeSorterWriteTemplate
 vdbeSorterWriterTemplateGet(uint32_t part_count, const uint8_t *part_kind);
 
 /*
+ * Return stitched CnP writer bodies for the given mixed sorter shape. The two
+ * returned bodies form a measure pass and an encode pass respectively.
+ * Unsupported shapes return NULL code pointers.
+ */
+void
+vdbeSorterWriterCnpCodeGet(uint32_t part_count, const uint8_t *part_kind,
+			   void **out_measure_code, void **out_encode_code);
+
+/*
  * Reserve sorter storage for a template-backed writer and initialize the
  * record metadata shared by all mixed-key writer specializations.
  */
@@ -92,6 +111,9 @@ vdbeSorterOffsetCachePartCount(const struct VdbeSorter *sorter);
  */
 int
 vdbeSorterCompareCnpEnter(void *target, const char *field1, const char *field2);
+
+int
+vdbeSorterWriteCnpEnter(void *target, struct vdbe_sorter_cnp_write_state *state);
 
 #ifdef __cplusplus
 }
