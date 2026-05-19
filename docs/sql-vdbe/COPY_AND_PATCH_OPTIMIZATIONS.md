@@ -452,22 +452,29 @@ Current hybrid checkpoint:
     string/intlike fragments;
   - it now also uses a much heavier default execute loop and a much wider text
     window so profile runs are dominated by steady-state execution;
-- the sorter writer now follows the same bounded-static-tier rule as the
-  comparator side:
-  - the weak runtime-generic mixed writer loop was rejected because it still
-    kept a per-part runtime kind dispatch;
-  - the current implementation instead preinstantiates only benchmark-proven
-    hot mixed writer layouts in C++ templates;
-  - unsupported mixed shapes stay on the generic
-    `mem_mp_size()` + `mem_to_mp_buf()` writer path;
-- latest heavy-run `sort_text_wide_probe/prepared_execute` medians after
-  restricting sorter stitched code to `VDBE_DISPATCHER=cnp` only:
-  - pre-template specialized `OP_Column` split:
-    - `generated`: `341.85 us`
-    - `CnP`: `354.82 us`
-  - after the C++ `if constexpr` offset-slot refactor:
-    - focused rerun: `generated` `332.53 us`, `CnP` `324.60 us`
-    - perf-backed rerun: `generated` `348.12 us`, `CnP` `336.29 us`
+- the sorter writer now follows the full three-tier policy:
+  - preinstantiate the complete string/intlike matrix for `1..4` parts in C++
+    templates;
+  - use stitched CnP writer fragments for clean string/intlike shapes with
+    `5..16` parts;
+  - fall back to generic `mem_mp_size()` + `mem_to_mp_buf()` for everything
+    else;
+- the weak runtime-generic mixed writer loop was rejected because it still
+  kept a per-part runtime kind dispatch and only replaced one dynamic loop
+  with another;
+- the earlier benchmark-shaped static writer list was also rejected as
+  non-general policy;
+- latest heavy sequential sort-only matrix medians on the current build:
+  - `sort_window`: generated `137.07 us`, MCJIT `168.43 us`, CnP `134.21 us`;
+  - `sort_payload`: generated `202.06 us`, MCJIT `224.63 us`, CnP `188.94 us`;
+  - `sort_text_window`: generated `365.30 us`, MCJIT `232.53 us`,
+    CnP `189.06 us`;
+  - `sort_text_shape_fallback`: generated `241.42 us`, MCJIT `241.28 us`,
+    CnP `191.88 us`;
+  - `sort_text_substr_fallback`: generated `248.32 us`, MCJIT `243.10 us`,
+    CnP `209.41 us`;
+  - `sort_text_wide_probe`: generated `402.90 us`, MCJIT `377.27 us`,
+    CnP `316.99 us`;
 - latest smaller adjacent text-sort medians:
   - `sort_text_window`: generated `51.38 us`, MCJIT `51.20 us`,
     CnP `45.10 us`;
@@ -484,19 +491,14 @@ Current hybrid checkpoint:
   - stitched next/fallback/helper relocations at runtime;
 - no raw x86 byte emission in the sorter path.
 
-Latest focused reruns after the static writer-template tier:
-
-- `sort_text_wide_probe`: generated `321.74 us`, CnP `312.61 us`;
-- `sort_payload`: generated `171.65 us`, CnP `154.33 us`;
-- `sort_text_window`: generated `188.27 us`, CnP `156.47 us`.
-
 Current generic policy:
 
-- preinstantiate only a small compile-time writer matrix for hot stable
-  layouts;
-- keep the generic writer for the long tail;
-- if long-tail writer specialization becomes necessary later, follow the same
-  copy-and-patch mechanics as compare, not another runtime-kind loop.
+- preinstantiate the full string/intlike shape matrix for `1..4` parts;
+- use exact CnP-generated measure/encode writer bodies for clean supported
+  shapes with `5..16` parts;
+- keep generic writer fallback for the rest;
+- do not add more benchmark-shaped static one-offs now that the CnP long-tail
+  path exists.
 
 Heavy-run profile split now also makes the remaining generated-vs-CnP
 difference easier to read:

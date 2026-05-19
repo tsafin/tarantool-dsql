@@ -2,74 +2,87 @@
 
 ## 2026-05-19 update
 
-The latest sorter checkpoint replaces the weak runtime-generic mixed writer
-prototype with the same bounded static-template policy already used for hot
-mixed comparators.
+The latest sorter checkpoint finishes the mixed sorter-writer policy:
+
+- preinstantiate the full string/intlike static matrix for `1..4` parts;
+- generate exact CnP writer bodies for clean string/intlike shapes with
+  `5..16` parts;
+- fall back to the generic `mem_mp_size()` + `mem_to_mp_buf()` writer path for
+  everything else.
 
 What changed:
 
-- sorter initialization now selects a static mixed-key writer template when the
-  sorter shape is benchmark-proven and fully described by
-  `fastCmpPartKind[]`;
-- the current handled writer layouts are:
-  - `[str, intlike, str, intlike]`;
-  - `[str, str, intlike, str, intlike, str, intlike, str, intlike, str]`;
-- those writers are instantiated in C++ templates and use compile-time kind
-  recursion to:
-  - size the MsgPack row;
-  - encode each field;
-  - populate the optional offset cache;
-- unsupported mixed shapes stay on the generic writer path:
-  `mem_mp_size()` plus `mem_to_mp_buf()`.
+- sorter initialization now uses one generic shape-bit lookup for every
+  string/intlike layout up to four parts on both compare and write paths;
+- the old benchmark-shaped static writer bodies were removed;
+- for wider clean mixed shapes, CnP now stitches two long-tail writer bodies:
+  - a measure pass;
+  - an encode pass;
+- those writer bodies are assembled from build-generated preserve-none
+  fragments and entered through one small shared bridge, matching the sorter
+  compare CnP mechanics;
+- the long-tail writer tier is enabled only for `VDBE_DISPATCHER=cnp`;
+- unsupported kinds, unsupported arities, or runtime type mismatches fall back
+  directly to the generic writer.
 
-Why the earlier runtime-generic writer was rejected:
+Why the old approaches were rejected:
 
-- it still executed a per-part runtime `kind` loop;
-- it only replaced one dynamic encode loop with another;
-- its profile movement was too small and too noisy to justify keeping it.
+- the earlier runtime-generic mixed writer still executed a per-part runtime
+  `kind` loop and only replaced one dynamic encode loop with another;
+- the earlier benchmark-shaped static writer list was not maintainable and did
+  not provide a real policy for ordinary layouts.
 
-Why the template writer is the right generic form:
+Why the current split is the right generic form:
 
-- it matches the comparator-side static tier structurally;
-- the compiler can drop per-kind branching entirely inside the writer body;
-- entrypoints stay bounded and explicit instead of growing another list of ad
-  hoc mixed helpers.
+- the `<= 4` static tier is complete for the supported string/intlike shape
+  space instead of growing ad hoc names;
+- the compiler removes per-kind branching entirely inside those template
+  bodies;
+- the `5..16` tier uses actual copy-and-patch fragment stitching instead of
+  helper-call thunks or runtime byte emission;
+- the generic path remains the semantic safety net.
 
 Current focused results on the current build:
 
-| workload | generated | CnP |
-|---|---:|---:|
-| `sort_text_wide_probe` | `321.74 us` | **`312.61 us`** |
-| `sort_payload` | `171.65 us` | **`154.33 us`** |
-| `sort_text_window` | `188.27 us` | **`156.47 us`** |
+| workload | generated | MCJIT | CnP |
+|---|---:|---:|---:|
+| `sort_window` | `137.07 us` | `168.43 us` | **`134.21 us`** |
+| `sort_payload` | `202.06 us` | `224.63 us` | **`188.94 us`** |
+| `sort_text_window` | `365.30 us` | `232.53 us` | **`189.06 us`** |
+| `sort_text_shape_fallback` | `241.42 us` | `241.28 us` | **`191.88 us`** |
+| `sort_text_substr_fallback` | `248.32 us` | `243.10 us` | **`209.41 us`** |
+| `sort_text_wide_probe` | `402.90 us` | `377.27 us` | **`316.99 us`** |
 
 Interpretation:
 
-- the wide mixed probe is now slightly ahead in CnP on like-for-like reruns;
-- generated also improves, because sorter write is shared below the dispatcher
-  layer;
-- the write-path gain is real, but scan-side field-ref work still dominates the
-  remaining profile.
+- the long-tail mixed writer tier now creates a real end-to-end CnP gain on
+  the wide 10-part probe, not just a cleaner architecture;
+- the static `<= 4` matrix still covers the regular narrow text/int cases
+  cleanly;
+- the remaining cost center is no longer the wide mixed writer decision itself,
+  but scan-side field-ref work plus the still-generic parts of sorter write.
 
 Current `perf` readout on `sort_text_wide_probe` after the writer-template
-change:
+and long-tail writer-fragment change:
 
-- `vdbe_field_ref_preload_group_fast` `6.33%`
-- `mem_to_mp_buf` `5.11%`
-- `vdbe_field_ref_fetch_data_offset_slot_fast` `5.07%`
-- `vdbe_op_column_string_offset_slot_static_fast` `3.91%`
-- `mem_mp_size` `3.84%`
-- `vdbeSorterCompareCnpFieldString` `3.74%`
-- `sqlVdbeSorterWriteFromMems` `3.63%`
+- `vdbe_field_ref_preload_group_fast` `6.49%`
+- `vdbe_field_ref_fetch_data_offset_slot_fast` `5.46%`
+- `mem_to_mp_buf` `5.32%`
+- `vdbe_op_column_string_offset_slot_static_fast` `3.94%`
+- `mem_mp_size` `3.91%`
+- `vdbeSorterCompareTemplateString` `3.73%`
+- `sqlVdbeSorterWriteFromMems` `3.59%`
+- `vdbe_op_column_typed_exact_fast` `3.38%`
 
 Current near-term plan:
 
-1. Keep the bounded static writer-template tier for hot stable shapes.
-2. Extend it only when a benchmark proves a new layout is both hot and common.
-3. Keep the generic writer as the semantic fallback for the long tail.
-4. If long-tail mixed writer work becomes necessary later, follow the same
-   copy-and-patch fragment mechanics used on the compare side instead of
-   adding another runtime-generic mixed writer loop.
+1. Keep the complete static string/intlike matrix for `1..4` parts.
+2. Keep the CnP long-tail writer generator for clean string/intlike shapes with
+   `5..16` parts.
+3. Keep generic runtime fallback for all unsupported or unprofitable shapes.
+4. Push next on scan-side field-ref work and remaining writer-side generic
+   buckets (`mem_to_mp_buf`, `mem_mp_size`) rather than adding more ad hoc
+   static shapes.
 
 ## Current status
 
