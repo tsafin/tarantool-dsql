@@ -4,12 +4,14 @@
 
 extern "C" {
 #include "generated/vdbe_sorter_cnp_fragments.h"
+#include "generated/vdbe_sorter_writer_cnp_fragments.h"
 #include "msgpuck.h"
 }
 
 #include <cstddef>
 #include <cassert>
 #include <cstdint>
+#include <array>
 #include <cstring>
 #include <sys/mman.h>
 
@@ -19,6 +21,22 @@ enum class VdbeSorterFastKind : uint8_t {
 	Varbinary = VDBE_SORTER_FAST_CMP_VARBINARY,
 	Bool = VDBE_SORTER_FAST_CMP_BOOL,
 	Double = VDBE_SORTER_FAST_CMP_DOUBLE,
+};
+
+enum {
+	VDBE_SORTER_STATIC_TEMPLATE_MAX_PARTS = 4,
+};
+
+template <std::size_t... I>
+struct VdbeSorterIndexSequence {};
+
+template <std::size_t N, std::size_t... I>
+struct VdbeSorterMakeIndexSequence :
+	VdbeSorterMakeIndexSequence<N - 1, N - 1, I...> {};
+
+template <std::size_t... I>
+struct VdbeSorterMakeIndexSequence<0, I...> {
+	typedef VdbeSorterIndexSequence<I...> type;
 };
 
 /*
@@ -280,32 +298,48 @@ vdbeSorterWriteTemplateFixed(struct VdbeSorter *sorter, const struct Mem *mems,
 	return 0;
 }
 
-extern "C" int
-vdbeSorterWriteTemplateStrStrIntStrIntStrIntStrIntStr10(
-	struct VdbeSorter *sorter, const struct Mem *mems, uint32_t count)
+template <uint32_t ShapeBits, std::size_t PartNo>
+struct VdbeSorterShapeKind {
+	static constexpr VdbeSorterFastKind value =
+		((ShapeBits >> PartNo) & 1U) != 0 ?
+		VdbeSorterFastKind::String : VdbeSorterFastKind::IntLike;
+};
+
+static inline uint32_t
+vdbeSorterStaticShapeBitsGet(uint32_t part_count, const uint8_t *part_kind)
 {
-	return vdbeSorterWriteTemplateFixed<VdbeSorterFastKind::String,
-					    VdbeSorterFastKind::String,
-					    VdbeSorterFastKind::IntLike,
-					    VdbeSorterFastKind::String,
-					    VdbeSorterFastKind::IntLike,
-					    VdbeSorterFastKind::String,
-					    VdbeSorterFastKind::IntLike,
-					    VdbeSorterFastKind::String,
-					    VdbeSorterFastKind::IntLike,
-					    VdbeSorterFastKind::String>(
-		sorter, mems, count);
+	if (part_count == 0 || part_count > VDBE_SORTER_STATIC_TEMPLATE_MAX_PARTS)
+		return UINT32_MAX;
+	uint32_t bits = 0;
+	for (uint32_t i = 0; i < part_count; ++i) {
+		if (part_kind[i] == VDBE_SORTER_FAST_CMP_STRING) {
+			bits |= (1U << i);
+			continue;
+		}
+		if (part_kind[i] != VDBE_SORTER_FAST_CMP_INTLIKE)
+			return UINT32_MAX;
+	}
+	return bits;
 }
 
-extern "C" int
-vdbeSorterWriteTemplateStrIntStrInt4(struct VdbeSorter *sorter,
-				     const struct Mem *mems, uint32_t count)
+template <uint32_t Count, uint32_t ShapeBits, std::size_t... I>
+static int
+vdbeSorterWriteTemplateStaticImpl(struct VdbeSorter *sorter,
+				  const struct Mem *mems, uint32_t count,
+				  VdbeSorterIndexSequence<I...>)
 {
-	return vdbeSorterWriteTemplateFixed<VdbeSorterFastKind::String,
-					    VdbeSorterFastKind::IntLike,
-					    VdbeSorterFastKind::String,
-					    VdbeSorterFastKind::IntLike>(
-		sorter, mems, count);
+	return vdbeSorterWriteTemplateFixed<
+		VdbeSorterShapeKind<ShapeBits, I>::value...>(sorter, mems, count);
+}
+
+template <uint32_t Count, uint32_t ShapeBits>
+static int
+vdbeSorterWriteTemplateStatic(struct VdbeSorter *sorter, const struct Mem *mems,
+			      uint32_t count)
+{
+	return vdbeSorterWriteTemplateStaticImpl<Count, ShapeBits>(
+		sorter, mems, count,
+		typename VdbeSorterMakeIndexSequence<Count>::type());
 }
 
 template <std::size_t PartNo>
@@ -409,23 +443,36 @@ vdbeSorterCompareTemplateFixed(SortSubtask *task, bool *key2_cached,
 		field1, field2);
 }
 
-extern "C" int
-vdbeSorterCompareTemplateStrIntStrInt4(SortSubtask *task, bool *key2_cached,
-				       const void *key1,
-				       uint8_t key1_type_mask,
-				       const uint16_t *key1_offsets,
-				       const void *key2,
-				       uint8_t key2_type_mask,
-				       const uint16_t *key2_offsets,
-				       uint8_t desc_mask,
-				       VdbeSorterCompareFallback fallback)
+template <uint32_t Count, uint32_t ShapeBits, std::size_t... I>
+static int
+vdbeSorterCompareTemplateStaticImpl(SortSubtask *task, bool *key2_cached,
+				    const void *key1, uint8_t key1_type_mask,
+				    const uint16_t *key1_offsets,
+				    const void *key2, uint8_t key2_type_mask,
+				    const uint16_t *key2_offsets,
+				    uint8_t desc_mask,
+				    VdbeSorterCompareFallback fallback,
+				    VdbeSorterIndexSequence<I...>)
 {
-	return vdbeSorterCompareTemplateFixed<VdbeSorterFastKind::String,
-					      VdbeSorterFastKind::IntLike,
-					      VdbeSorterFastKind::String,
-					      VdbeSorterFastKind::IntLike>(
+	return vdbeSorterCompareTemplateFixed<
+		VdbeSorterShapeKind<ShapeBits, I>::value...>(
 		task, key2_cached, key1, key1_type_mask, key1_offsets, key2,
 		key2_type_mask, key2_offsets, desc_mask, fallback);
+}
+
+template <uint32_t Count, uint32_t ShapeBits>
+static int
+vdbeSorterCompareTemplateStatic(SortSubtask *task, bool *key2_cached,
+				const void *key1, uint8_t key1_type_mask,
+				const uint16_t *key1_offsets, const void *key2,
+				uint8_t key2_type_mask,
+				const uint16_t *key2_offsets, uint8_t desc_mask,
+				VdbeSorterCompareFallback fallback)
+{
+	return vdbeSorterCompareTemplateStaticImpl<Count, ShapeBits>(
+		task, key2_cached, key1, key1_type_mask, key1_offsets, key2,
+		key2_type_mask, key2_offsets, desc_mask, fallback,
+		typename VdbeSorterMakeIndexSequence<Count>::type());
 }
 
 extern "C" int
@@ -452,6 +499,8 @@ enum {
 
 extern "C" int vdbeSorterCompareCnpTerminalEqualEntry(void);
 extern "C" int vdbeSorterCompareCnpTerminalFallbackEntry(void);
+extern "C" int vdbeSorterWriteCnpTerminalSuccessEntry(void);
+extern "C" int vdbeSorterWriteCnpTerminalFallbackEntry(void);
 
 /*
  * Cache one stitched body per mixed-key shape. The key is fully determined by
@@ -466,7 +515,16 @@ struct VdbeSorterCnpShape {
 	VdbeSorterCnpShape *next;
 };
 
+struct VdbeSorterWriterCnpShape {
+	uint32_t part_count;
+	uint8_t part_kind[VDBE_SORTER_FAST_CMP_MAX_PARTS];
+	void *measure_code;
+	void *encode_code;
+	VdbeSorterWriterCnpShape *next;
+};
+
 static VdbeSorterCnpShape *g_sorter_cnp_shapes = nullptr;
+static VdbeSorterWriterCnpShape *g_sorter_writer_cnp_shapes = nullptr;
 static uint8_t *g_sorter_cnp_arena = nullptr;
 static size_t g_sorter_cnp_arena_pos = 0;
 
@@ -552,6 +610,23 @@ vdbeSorterCnpSelectFragment(uint8_t part_kind, bool is_desc)
 	}
 }
 
+static const struct sorter_writer_cnp_fragment *
+vdbeSorterWriterCnpSelectFragment(uint8_t part_kind, bool is_encode)
+{
+	switch (part_kind) {
+	case VDBE_SORTER_FAST_CMP_STRING:
+		return &sorter_writer_cnp_fragments[
+			is_encode ? SORTER_WRITER_CNP_FRAG_ENCODE_STRING :
+				    SORTER_WRITER_CNP_FRAG_MEASURE_STRING];
+	case VDBE_SORTER_FAST_CMP_INTLIKE:
+		return &sorter_writer_cnp_fragments[
+			is_encode ? SORTER_WRITER_CNP_FRAG_ENCODE_INTLIKE :
+				    SORTER_WRITER_CNP_FRAG_MEASURE_INTLIKE];
+	default:
+		return nullptr;
+	}
+}
+
 /*
  * Resolve the three relocation classes used by sorter fragments:
  *
@@ -576,6 +651,21 @@ vdbeSorterCnpResolveReloc(const struct sorter_cnp_fragment_reloc *rel,
 		return (uintptr_t)(void *)vdbeSorterCompareCnpFieldString;
 	if (std::strcmp(rel->symbol_name, "vdbeSorterCompareCnpFieldIntLike") == 0)
 		return (uintptr_t)(void *)vdbeSorterCompareCnpFieldIntLike;
+	return 0;
+}
+
+static uintptr_t
+vdbeSorterWriterCnpResolveReloc(const struct sorter_writer_cnp_fragment_reloc *rel,
+				void **part_addr, uint32_t part_count,
+				uint32_t part_no)
+{
+	if (std::strcmp(rel->symbol_name, "sorter_writer_cnp_frag_next") == 0) {
+		if (part_no + 1 < part_count)
+			return (uintptr_t)part_addr[part_no + 1];
+		return (uintptr_t)(void *)vdbeSorterWriteCnpTerminalSuccessEntry;
+	}
+	if (std::strcmp(rel->symbol_name, "sorter_writer_cnp_frag_fallback") == 0)
+		return (uintptr_t)(void *)vdbeSorterWriteCnpTerminalFallbackEntry;
 	return 0;
 }
 
@@ -643,6 +733,108 @@ vdbeSorterCnpCompile(uint32_t part_count, uint16_t desc_mask,
 	return code;
 }
 
+static void *
+vdbeSorterWriterCnpCompile(uint32_t part_count, const uint8_t *part_kind,
+			   bool is_encode)
+{
+	const struct sorter_writer_cnp_fragment *parts[VDBE_SORTER_FAST_CMP_MAX_PARTS];
+	void *part_addr[VDBE_SORTER_FAST_CMP_MAX_PARTS];
+	size_t total_size = 0;
+	for (uint32_t i = 0; i < part_count; ++i) {
+		parts[i] = vdbeSorterWriterCnpSelectFragment(part_kind[i], is_encode);
+		if (parts[i] == nullptr)
+			return nullptr;
+		total_size += parts[i]->size;
+	}
+	uint8_t *code = vdbeSorterCnpArenaAlloc(total_size);
+	if (code == nullptr)
+		return nullptr;
+	size_t pos = 0;
+	for (uint32_t i = 0; i < part_count; ++i) {
+		part_addr[i] = code + pos;
+		std::memcpy(code + pos, parts[i]->bytes, parts[i]->size);
+		pos += parts[i]->size;
+	}
+	for (uint32_t i = 0; i < part_count; ++i) {
+		uint8_t *frag_code = static_cast<uint8_t *>(part_addr[i]);
+		const struct sorter_writer_cnp_fragment *frag = parts[i];
+		for (uint32_t r = 0; r < frag->num_relocs; ++r) {
+			const struct sorter_writer_cnp_fragment_reloc *rel =
+				&frag->relocs[r];
+			uintptr_t target = vdbeSorterWriterCnpResolveReloc(
+				rel, part_addr, part_count, i);
+			if (target == 0)
+				return nullptr;
+			vdbeSorterCnpPatch(frag_code + rel->offset, target,
+					   rel->reloc_type, rel->addend);
+		}
+	}
+	__builtin___clear_cache((char *)code, (char *)(code + total_size));
+	return code;
+}
+
+template <uint32_t Count, std::size_t... ShapeBits>
+static constexpr std::array<VdbeSorterCompareTemplate, (1U << Count)>
+vdbeSorterMakeCompareTable(VdbeSorterIndexSequence<ShapeBits...>)
+{
+	return { &vdbeSorterCompareTemplateStatic<Count,
+						  (uint32_t)ShapeBits>... };
+}
+
+template <uint32_t Count, std::size_t... ShapeBits>
+static constexpr std::array<VdbeSorterWriteTemplate, (1U << Count)>
+vdbeSorterMakeWriteTable(VdbeSorterIndexSequence<ShapeBits...>)
+{
+	return { &vdbeSorterWriteTemplateStatic<Count,
+						(uint32_t)ShapeBits>... };
+}
+
+static constexpr auto g_vdbeSorterCompareTable1 =
+	vdbeSorterMakeCompareTable<1>(
+		typename VdbeSorterMakeIndexSequence<(1U << 1)>::type());
+static constexpr auto g_vdbeSorterCompareTable2 =
+	vdbeSorterMakeCompareTable<2>(
+		typename VdbeSorterMakeIndexSequence<(1U << 2)>::type());
+static constexpr auto g_vdbeSorterCompareTable3 =
+	vdbeSorterMakeCompareTable<3>(
+		typename VdbeSorterMakeIndexSequence<(1U << 3)>::type());
+static constexpr auto g_vdbeSorterCompareTable4 =
+	vdbeSorterMakeCompareTable<4>(
+		typename VdbeSorterMakeIndexSequence<(1U << 4)>::type());
+
+static constexpr auto g_vdbeSorterWriteTable1 =
+	vdbeSorterMakeWriteTable<1>(
+		typename VdbeSorterMakeIndexSequence<(1U << 1)>::type());
+static constexpr auto g_vdbeSorterWriteTable2 =
+	vdbeSorterMakeWriteTable<2>(
+		typename VdbeSorterMakeIndexSequence<(1U << 2)>::type());
+static constexpr auto g_vdbeSorterWriteTable3 =
+	vdbeSorterMakeWriteTable<3>(
+		typename VdbeSorterMakeIndexSequence<(1U << 3)>::type());
+static constexpr auto g_vdbeSorterWriteTable4 =
+	vdbeSorterMakeWriteTable<4>(
+		typename VdbeSorterMakeIndexSequence<(1U << 4)>::type());
+
+extern "C" VdbeSorterCompareTemplate
+vdbeSorterCompareTemplateGet(uint32_t part_count, const uint8_t *part_kind)
+{
+	uint32_t shape_bits = vdbeSorterStaticShapeBitsGet(part_count, part_kind);
+	if (shape_bits == UINT32_MAX)
+		return nullptr;
+	switch (part_count) {
+	case 1:
+		return g_vdbeSorterCompareTable1[shape_bits];
+	case 2:
+		return g_vdbeSorterCompareTable2[shape_bits];
+	case 3:
+		return g_vdbeSorterCompareTable3[shape_bits];
+	case 4:
+		return g_vdbeSorterCompareTable4[shape_bits];
+	default:
+		return nullptr;
+	}
+}
+
 extern "C" void *
 vdbeSorterCompareCnpCodeGet(uint32_t part_count, uint16_t desc_mask,
 			    const uint8_t *part_kind)
@@ -685,31 +877,60 @@ vdbeSorterCompareCnpCodeGet(uint32_t part_count, uint16_t desc_mask,
 extern "C" VdbeSorterWriteTemplate
 vdbeSorterWriterTemplateGet(uint32_t part_count, const uint8_t *part_kind)
 {
-	/*
-	 * Bounded static writer tier. Keep only shapes that benchmarks proved
-	 * hot and let the generic writer handle the long tail.
-	 */
-	if (part_count == 4 &&
-	    part_kind[0] == VDBE_SORTER_FAST_CMP_STRING &&
-	    part_kind[1] == VDBE_SORTER_FAST_CMP_INTLIKE &&
-	    part_kind[2] == VDBE_SORTER_FAST_CMP_STRING &&
-	    part_kind[3] == VDBE_SORTER_FAST_CMP_INTLIKE) {
-		return vdbeSorterWriteTemplateStrIntStrInt4;
+	uint32_t shape_bits = vdbeSorterStaticShapeBitsGet(part_count, part_kind);
+	if (shape_bits == UINT32_MAX)
+		return nullptr;
+	switch (part_count) {
+	case 1:
+		return g_vdbeSorterWriteTable1[shape_bits];
+	case 2:
+		return g_vdbeSorterWriteTable2[shape_bits];
+	case 3:
+		return g_vdbeSorterWriteTable3[shape_bits];
+	case 4:
+		return g_vdbeSorterWriteTable4[shape_bits];
+	default:
+		return nullptr;
 	}
-	if (part_count == 10 &&
-	    part_kind[0] == VDBE_SORTER_FAST_CMP_STRING &&
-	    part_kind[1] == VDBE_SORTER_FAST_CMP_STRING &&
-	    part_kind[2] == VDBE_SORTER_FAST_CMP_INTLIKE &&
-	    part_kind[3] == VDBE_SORTER_FAST_CMP_STRING &&
-	    part_kind[4] == VDBE_SORTER_FAST_CMP_INTLIKE &&
-	    part_kind[5] == VDBE_SORTER_FAST_CMP_STRING &&
-	    part_kind[6] == VDBE_SORTER_FAST_CMP_INTLIKE &&
-	    part_kind[7] == VDBE_SORTER_FAST_CMP_STRING &&
-	    part_kind[8] == VDBE_SORTER_FAST_CMP_INTLIKE &&
-	    part_kind[9] == VDBE_SORTER_FAST_CMP_STRING) {
-		return vdbeSorterWriteTemplateStrStrIntStrIntStrIntStrIntStr10;
+}
+
+extern "C" void
+vdbeSorterWriterCnpCodeGet(uint32_t part_count, const uint8_t *part_kind,
+			   void **out_measure_code, void **out_encode_code)
+{
+	*out_measure_code = nullptr;
+	*out_encode_code = nullptr;
+	if (part_count <= 4 || part_count > VDBE_SORTER_FAST_CMP_MAX_PARTS)
+		return;
+	for (uint32_t i = 0; i < part_count; ++i) {
+		if (part_kind[i] != VDBE_SORTER_FAST_CMP_STRING &&
+		    part_kind[i] != VDBE_SORTER_FAST_CMP_INTLIKE)
+			return;
 	}
-	return nullptr;
+	for (VdbeSorterWriterCnpShape *it = g_sorter_writer_cnp_shapes;
+	     it != nullptr; it = it->next) {
+		if (it->part_count != part_count)
+			continue;
+		if (std::memcmp(it->part_kind, part_kind, part_count) == 0) {
+			*out_measure_code = it->measure_code;
+			*out_encode_code = it->encode_code;
+			return;
+		}
+	}
+	void *measure_code = vdbeSorterWriterCnpCompile(part_count, part_kind, false);
+	void *encode_code = vdbeSorterWriterCnpCompile(part_count, part_kind, true);
+	if (measure_code == nullptr || encode_code == nullptr)
+		return;
+	VdbeSorterWriterCnpShape *shape = new VdbeSorterWriterCnpShape();
+	shape->part_count = part_count;
+	std::memset(shape->part_kind, 0, sizeof(shape->part_kind));
+	std::memcpy(shape->part_kind, part_kind, part_count);
+	shape->measure_code = measure_code;
+	shape->encode_code = encode_code;
+	shape->next = g_sorter_writer_cnp_shapes;
+	g_sorter_writer_cnp_shapes = shape;
+	*out_measure_code = measure_code;
+	*out_encode_code = encode_code;
 }
 
 #if defined(__x86_64__)
@@ -735,6 +956,22 @@ vdbeSorterCompareCnpTerminalFallbackEntry(void)
 	__asm__ volatile(
 		/* Return the out-of-line fallback sentinel to the C caller. */
 		"mov $0x7fffffff, %eax\n\t"
+		"ret\n\t");
+}
+
+extern "C" int __attribute__((naked))
+vdbeSorterWriteCnpTerminalSuccessEntry(void)
+{
+	__asm__ volatile(
+		"xor %eax, %eax\n\t"
+		"ret\n\t");
+}
+
+extern "C" int __attribute__((naked))
+vdbeSorterWriteCnpTerminalFallbackEntry(void)
+{
+	__asm__ volatile(
+		"mov $0x7ffffffe, %eax\n\t"
 		"ret\n\t");
 }
 
@@ -774,6 +1011,28 @@ vdbeSorterCompareCnpEnter(void *target, const char *field1, const char *field2)
 		"pop %rbx\n\t"
 		"ret\n\t");
 }
+
+extern "C" int __attribute__((naked))
+vdbeSorterWriteCnpEnter(void *target, struct vdbe_sorter_cnp_write_state *state)
+{
+	__asm__ volatile(
+		"push %rbx\n\t"
+		"push %rbp\n\t"
+		"push %r12\n\t"
+		"push %r13\n\t"
+		"push %r14\n\t"
+		"push %r15\n\t"
+		"mov %rdi, %rax\n\t"
+		"mov %rsi, %r12\n\t"
+		"call *%rax\n\t"
+		"pop %r15\n\t"
+		"pop %r14\n\t"
+		"pop %r13\n\t"
+		"pop %r12\n\t"
+		"pop %rbp\n\t"
+		"pop %rbx\n\t"
+		"ret\n\t");
+}
 #else
 extern "C" int
 vdbeSorterCompareCnpEnter(void *target, const char *field1, const char *field2)
@@ -794,5 +1053,25 @@ extern "C" int
 vdbeSorterCompareCnpTerminalFallbackEntry(void)
 {
 	return VDBE_SORTER_COMPARE_CNP_FALLBACK;
+}
+
+extern "C" int
+vdbeSorterWriteCnpEnter(void *target, struct vdbe_sorter_cnp_write_state *state)
+{
+	(void)target;
+	(void)state;
+	return VDBE_SORTER_WRITE_CNP_FALLBACK;
+}
+
+extern "C" int
+vdbeSorterWriteCnpTerminalSuccessEntry(void)
+{
+	return 0;
+}
+
+extern "C" int
+vdbeSorterWriteCnpTerminalFallbackEntry(void)
+{
+	return VDBE_SORTER_WRITE_CNP_FALLBACK;
 }
 #endif

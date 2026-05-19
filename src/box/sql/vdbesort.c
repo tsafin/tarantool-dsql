@@ -330,10 +330,15 @@ struct VdbeSorter {
 	uint16_t fastCmpDescMask;
 	/* Per-part comparison kind for the mixed simple-typed fast path. */
 	uint8_t fastCmpPartKind[VDBE_SORTER_FAST_CMP_MAX_PARTS];
+	/* Static mixed-key comparator template selected for this sorter shape. */
+	VdbeSorterCompareTemplate fastCmpTemplate;
 	/* Stitched mixed-key comparator body for wider CnP-managed shapes. */
 	void *fastCmpCnpCode;
 	/* Static mixed-key writer selected for this sorter shape, if any. */
 	VdbeSorterWriteTemplate fastWriteTemplate;
+	/* Stitched long-tail mixed writer bodies for CnP-managed shapes. */
+	void *fastWriteCnpMeasureCode;
+	void *fastWriteCnpEncodeCode;
 	/*
 	 * CnP-only equality shape for OP_SorterCompare prefixes. This is
 	 * prepare-time metadata derived from key_def and lets the fragment
@@ -1572,17 +1577,18 @@ vdbeSorterCompareStringValues(const char **field1, const char **field2)
 }
 
 static int
-vdbeSorterCompareStrIntStrInt4Fast(struct SortSubtask *task, bool *key2_cached,
-				   const void *key1, uint8_t key1_type_mask,
-				   const uint16_t *key1_offsets, const void *key2,
-				   uint8_t key2_type_mask,
-				   const uint16_t *key2_offsets)
+vdbeSorterCompareTemplateFast(struct SortSubtask *task, bool *key2_cached,
+			      const void *key1, uint8_t key1_type_mask,
+			      const uint16_t *key1_offsets, const void *key2,
+			      uint8_t key2_type_mask,
+			      const uint16_t *key2_offsets)
 {
 	struct VdbeSorter *sorter = task->pSorter;
-	return vdbeSorterCompareTemplateStrIntStrInt4(
-		task, key2_cached, key1, key1_type_mask, key1_offsets, key2,
-		key2_type_mask, key2_offsets, sorter->fastCmpDescMask,
-		vdbeSorterCompare);
+	assert(sorter->fastCmpTemplate != NULL);
+	return sorter->fastCmpTemplate(task, key2_cached, key1, key1_type_mask,
+				       key1_offsets, key2, key2_type_mask,
+				       key2_offsets, sorter->fastCmpDescMask,
+				       vdbeSorterCompare);
 }
 
 static int
@@ -1762,6 +1768,13 @@ sqlVdbeSorterInit(struct VdbeCursor *pCsr)
 	pSorter->pgsz = pgsz = 1024;
 	pSorter->aTask.pSorter = pSorter;
 	(void)vdbeSorterInitFastCmpPlan(pSorter);
+	if (pSorter->fastCmpPartCount != 0 &&
+	    (pSorter->fastCmpPartCount & VDBE_SORTER_FAST_CMP_MIXED_KIND_FLAG) != 0) {
+		uint32_t part_count = pSorter->fastCmpPartCount &
+				      VDBE_SORTER_FAST_CMP_PART_COUNT_MASK;
+		pSorter->fastCmpTemplate = vdbeSorterCompareTemplateGet(
+			part_count, pSorter->fastCmpPartKind);
+	}
 	if (vdbe_get_dispatcher_mode() == VDBE_DISPATCH_CNP &&
 	    pSorter->fastCmpPartCount != 0 &&
 	    (pSorter->fastCmpPartCount & VDBE_SORTER_FAST_CMP_MIXED_KIND_FLAG) != 0) {
@@ -1775,8 +1788,11 @@ sqlVdbeSorterInit(struct VdbeCursor *pCsr)
 		 * generated/old interpreter modes never execute sorter CnP code.
 		 * Unsupported shapes stay on the generic mixed comparator path.
 		 */
-		pSorter->fastCmpCnpCode = vdbeSorterCompareCnpCodeGet(
-			part_count, pSorter->fastCmpDescMask, pSorter->fastCmpPartKind);
+		if (pSorter->fastCmpTemplate == NULL) {
+			pSorter->fastCmpCnpCode = vdbeSorterCompareCnpCodeGet(
+				part_count, pSorter->fastCmpDescMask,
+				pSorter->fastCmpPartKind);
+		}
 	}
 	if (pSorter->fastCmpPartCount != 0 &&
 	    (pSorter->fastCmpPartCount & VDBE_SORTER_FAST_CMP_MIXED_KIND_FLAG) != 0) {
@@ -1789,6 +1805,12 @@ sqlVdbeSorterInit(struct VdbeCursor *pCsr)
 		 */
 		pSorter->fastWriteTemplate = vdbeSorterWriterTemplateGet(
 			part_count, pSorter->fastCmpPartKind);
+		if (vdbe_get_dispatcher_mode() == VDBE_DISPATCH_CNP &&
+		    pSorter->fastWriteTemplate == NULL) {
+			vdbeSorterWriterCnpCodeGet(part_count, pSorter->fastCmpPartKind,
+						   &pSorter->fastWriteCnpMeasureCode,
+						   &pSorter->fastWriteCnpEncodeCode);
+		}
 	}
 	vdbeSorterInitCnpEqPlan(pSorter);
 
@@ -2069,12 +2091,8 @@ vdbeSorterGetCompare(VdbeSorter * p)
 			return vdbeSorterCompareIntLikeFast;
 		}
 	}
-	if ((p->fastCmpPartCount & VDBE_SORTER_FAST_CMP_PART_COUNT_MASK) == 4 &&
-	    p->fastCmpPartKind[0] == VDBE_SORTER_FAST_CMP_STRING &&
-	    p->fastCmpPartKind[1] == VDBE_SORTER_FAST_CMP_INTLIKE &&
-	    p->fastCmpPartKind[2] == VDBE_SORTER_FAST_CMP_STRING &&
-	    p->fastCmpPartKind[3] == VDBE_SORTER_FAST_CMP_INTLIKE)
-		return vdbeSorterCompareStrIntStrInt4Fast;
+	if (p->fastCmpTemplate != NULL)
+		return vdbeSorterCompareTemplateFast;
 	if (p->fastCmpCnpCode != NULL)
 		return vdbeSorterCompareMixedCnpFast;
 	return vdbeSorterCompareSimpleFast;
@@ -2582,7 +2600,38 @@ sqlVdbeSorterWriteFromMems(const VdbeCursor *pCsr, const Mem *mems,
 	 * at prepare time and mapped to one static C++ instantiation.
 	 */
 	if (part_count == count && pSorter->fastWriteTemplate != NULL)
-		return pSorter->fastWriteTemplate(pSorter, mems, count);
+	{
+		rc = pSorter->fastWriteTemplate(pSorter, mems, count);
+		if (rc == 0)
+			return 0;
+		if (rc != VDBE_SORTER_WRITE_CNP_FALLBACK)
+			return rc;
+	}
+	if (part_count == count && pSorter->fastWriteCnpMeasureCode != NULL &&
+	    pSorter->fastWriteCnpEncodeCode != NULL) {
+		struct vdbe_sorter_cnp_write_state state;
+		state.mem = mems;
+		state.pos = NULL;
+		state.total = mp_sizeof_array(count);
+		rc = vdbeSorterWriteCnpEnter(pSorter->fastWriteCnpMeasureCode, &state);
+		if (rc == 0) {
+			char *payload;
+			uint16_t *offsets;
+			rc = vdbeSorterWriteTemplateBegin(pSorter, (int)state.total, 0,
+							  0, &payload, &offsets);
+			(void)offsets;
+			if (rc != 0)
+				return rc;
+			state.mem = mems;
+			state.pos = mp_encode_array(payload, count);
+			rc = vdbeSorterWriteCnpEnter(pSorter->fastWriteCnpEncodeCode,
+						     &state);
+			if (rc == 0)
+				return 0;
+		}
+		if (rc != VDBE_SORTER_WRITE_CNP_FALLBACK)
+			return rc;
+	}
 generic:
 	total = mp_sizeof_array(count);
 	for (const Mem *mem = mems; mem < mems + count; mem++)
