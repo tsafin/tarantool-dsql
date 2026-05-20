@@ -946,6 +946,7 @@ pushOntoSorter(Parse * pParse,		/* Parser context */
 	int nExpr = pSort->pOrderBy->nExpr;	/* No. of ORDER BY terms */
 	int nBase = nExpr + bSeq + nData;	/* Fields in sorter record */
 	int regBase;		/* Regs for sorter record */
+	int regTail = 0;	/* Stable copy of sorter tail across block flush */
 	int regRecord = ++pParse->nMem;	/* Assembled sorter record */
 	int nOBSat = pSort->nOBSat;	/* ORDER BY terms to skip */
 	int iLimit;		/* LIMIT counter */
@@ -972,6 +973,20 @@ pushOntoSorter(Parse * pParse,		/* Parser context */
 	if (nPrefixReg == 0 && nData > 0) {
 		sqlExprCodeMove(pParse, regData, regBase + nExpr + bSeq,
 				    nData);
+	}
+	/*
+	 * Block sorting may flush the previous prefix group via Gosub before
+	 * the current row reaches OP_SorterInsert. The flush subroutine uses
+	 * ordinary VDBE registers for output and can overwrite the live tail
+	 * registers (remaining ORDER BY terms + payload). Keep a stable copy
+	 * for the current row so the first row of the next prefix group does
+	 * not inherit stale values from the flushed group.
+	 */
+	if ((pSort->sortFlags & SORTFLAG_UseSorter) != 0 && nOBSat > 0) {
+		regTail = pParse->nMem + 1;
+		pParse->nMem += nBase - nOBSat;
+		sqlExprCodeMove(pParse, regBase + nOBSat, regTail,
+				nBase - nOBSat);
 	}
 	if (nOBSat > 0) {
 		int regPrevKey;	/* The first nOBSat columns of the previous row */
@@ -1042,7 +1057,8 @@ pushOntoSorter(Parse * pParse,		/* Parser context */
 	}
 	if (pSort->sortFlags & SORTFLAG_UseSorter) {
 		sqlVdbeAddOp3(v, OP_SorterInsert, pSort->iECursor,
-				  regBase + nOBSat, nBase - nOBSat);
+				  regTail != 0 ? regTail : regBase + nOBSat,
+				  nBase - nOBSat);
 		return;
 	}
 	sqlVdbeAddOp3(v, OP_MakeRecord, regBase + nOBSat, nBase - nOBSat,
