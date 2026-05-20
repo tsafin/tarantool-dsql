@@ -281,7 +281,7 @@ vdbeSorterWriteTemplateFixed(struct VdbeSorter *sorter, const struct Mem *mems,
 	 */
 	uint32_t total = mp_sizeof_array(sizeof...(Kinds));
 	if (!VdbeSorterWriteParts<0, Kinds...>::measure(mems, &total))
-		return 1;
+		return VDBE_SORTER_WRITE_CNP_FALLBACK;
 	uint8_t offset_part_count =
 		(uint8_t)vdbeSorterOffsetCachePartCount(sorter);
 	char *payload;
