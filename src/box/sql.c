@@ -1412,6 +1412,11 @@ void
 vdbe_field_ref_prepare_data(struct vdbe_field_ref *field_ref, const char *data,
 			    uint32_t data_sz)
 {
+	static const char empty_mp_array[] = "\x90";
+	if (data == NULL && data_sz == 0) {
+		vdbe_field_ref_fill(field_ref, NULL, 0, empty_mp_array + 1, 1, 0);
+		return;
+	}
 	const char *field0 = data;
 	uint32_t mp_count = mp_decode_array(&field0);
 	vdbe_field_ref_fill(field_ref, NULL, mp_count, field0,

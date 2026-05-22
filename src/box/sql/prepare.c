@@ -38,6 +38,22 @@
 #include "tarantoolInt.h"
 #include "vdbeInt.h"
 #include "box/sql_stmt_cache.h"
+
+void
+sql_diag_keyword_is_reserved(struct Parse *parse, const Token *token)
+{
+	char keyword[128];
+	int keyword_len = token->n;
+	if (keyword_len >= (int)sizeof(keyword))
+		keyword_len = (int)sizeof(keyword) - 1;
+	memcpy(keyword, token->z, keyword_len);
+	keyword[keyword_len] = '\0';
+	diag_set(ClientError, ER_SQL_PARSER_GENERIC_WITH_POS,
+		 parse->line_count, parse->line_pos,
+		 tt_sprintf("keyword '%s' is reserved. Please use double "
+			    "quotes if '%s' is an identifier.",
+			    keyword, keyword));
+}
 #include "box/space.h"
 #include "box/session.h"
 
@@ -103,10 +119,8 @@ sql_stmt_compile(const char *zSql, int nBytes, struct Vdbe *pReprepare,
 		if (e != NULL && e->code == ER_SQL_SYNTAX_NEAR_TOKEN &&
 		    sParse.sLastToken.isReserved) {
 			diag_clear(diag_get());
-			diag_set(ClientError, ER_SQL_KEYWORD_IS_RESERVED,
-				 sParse.line_count, sParse.line_pos,
-				 sParse.sLastToken.n, sParse.sLastToken.z,
-				 sParse.sLastToken.n, sParse.sLastToken.z);
+			sql_diag_keyword_is_reserved(&sParse,
+						     &sParse.sLastToken);
 		}
 	}
 	if (sParse.is_aborted)

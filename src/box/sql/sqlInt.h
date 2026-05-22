@@ -4135,6 +4135,16 @@ int
 sql_token(const char *z, int *type, bool *is_reserved);
 
 /**
+ * Report a reserved-keyword parser diagnostic using a copied token string.
+ *
+ * Some callers pass token slices backed by short-lived SQL/Lua buffers, so
+ * build the final message from a local nul-terminated copy instead of keeping
+ * the `%.*s` varargs form in the error object.
+ */
+void
+sql_diag_keyword_is_reserved(struct Parse *parse, const Token *token);
+
+/**
  * Mark every prepared statement as expired.
  *
  * An expired statement means that recompilation of the statement is

@@ -572,6 +572,22 @@ vdbe_exec_generated_dispatcher(struct Vdbe *p, VdbeOp *aOp, Mem *aMem)
 		continue;
 	}
 
+	case OP_Program: {
+		/*
+		 * Enter trigger subprogram. On success the active register/opcode
+		 * arrays move to the child frame and execution must restart from the
+		 * child OP_Init at pc=0.
+		 */
+		int handler_rc = op_program_enter(p, pOp, aMem, aOp);
+		if (handler_rc > 0) { rc = -1; break; }
+		if (handler_rc < 0) { pc++; continue; }
+		aMem = p->aMem;
+		aOp = p->aOp;
+		nOp = p->nOp;
+		pc = 0;
+		continue;
+	}
+
 	case OP_IfNot: {
 		/* Jump if register value is false */
 		int handler_rc = vdbe_op_ifnot_inline(p, pOp, aMem);

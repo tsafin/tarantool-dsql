@@ -33,8 +33,7 @@
   UNUSED_PARAMETER(yymajor);  /* Silence some compiler warnings */
   assert( TOKEN.z[0] );  /* The tokenizer always gives us a token */
   if (yypParser->is_fallback_failed && TOKEN.isReserved) {
-    diag_set(ClientError, ER_SQL_KEYWORD_IS_RESERVED, pParse->line_count,
-             pParse->line_pos, TOKEN.n, TOKEN.z, TOKEN.n, TOKEN.z);
+    sql_diag_keyword_is_reserved(pParse, &TOKEN);
   } else {
     diag_set(ClientError, ER_SQL_SYNTAX_NEAR_TOKEN, pParse->line_count, TOKEN.n,
              TOKEN.z);
@@ -315,8 +314,7 @@ columnlist ::= tcons.
 %type nm {Token}
 nm(A) ::= id(A). {
   if(A.isReserved) {
-    diag_set(ClientError, ER_SQL_KEYWORD_IS_RESERVED, pParse->line_count,
-             pParse->line_pos, A.n, A.z, A.n, A.z);
+    sql_diag_keyword_is_reserved(pParse, &A);
     pParse->is_aborted = true;
   }
 }
