@@ -982,7 +982,7 @@ pushOntoSorter(Parse * pParse,		/* Parser context */
 	 * for the current row so the first row of the next prefix group does
 	 * not inherit stale values from the flushed group.
 	 */
-	if ((pSort->sortFlags & SORTFLAG_UseSorter) != 0 && nOBSat > 0) {
+	if (nOBSat > 0) {
 		regTail = pParse->nMem + 1;
 		pParse->nMem += nBase - nOBSat;
 		sqlExprCodeMove(pParse, regBase + nOBSat, regTail,
@@ -1061,7 +1061,9 @@ pushOntoSorter(Parse * pParse,		/* Parser context */
 				  nBase - nOBSat);
 		return;
 	}
-	sqlVdbeAddOp3(v, OP_MakeRecord, regBase + nOBSat, nBase - nOBSat,
+	sqlVdbeAddOp3(v, OP_MakeRecord,
+			  regTail != 0 ? regTail : regBase + nOBSat,
+			  nBase - nOBSat,
 			  regRecord);
 	sqlVdbeAddOp2(v, OP_IdxInsert, regRecord, pSort->reg_eph);
 
@@ -1082,7 +1084,14 @@ pushOntoSorter(Parse * pParse,		/* Parser context */
 		}
 		if (pSort->bOrderedInnerLoop) {
 			r1 = ++pParse->nMem;
-			sqlVdbeAddOp3(v, OP_Column, pSort->iECursor, nExpr,
+			/*
+			 * Block-sort rows only store the unsatisfied ORDER BY suffix,
+			 * then the sequence column, then payload. Once nOBSat prefix
+			 * terms are stripped, the sequence field shifts left with the
+			 * remaining suffix.
+			 */
+			sqlVdbeAddOp3(v, OP_Column, pSort->iECursor,
+					  nExpr - nOBSat,
 					  r1);
 			VdbeComment((v, "seq"));
 		}
@@ -6118,6 +6127,23 @@ sqlSelect(Parse * pParse,		/* The parser context */
 			sSort.nOBSat = sqlWhereIsOrdered(pWInfo);
 			sSort.bOrderedInnerLoop =
 			    sqlWhereOrderedInnerLoop(pWInfo);
+			/*
+			 * The ephemeral top-N path (OpenTEphemeral + IdxInsert +
+			 * Last/Delete) does not tolerate block-sort flushes when
+			 * only an ORDER BY prefix is satisfied. A prefix break may
+			 * invoke the output subroutine immediately after top-N
+			 * maintenance on the same ephemeral cursor, and the current
+			 * implementation can lose rows. Fall back to the ordinary
+			 * ephemeral top-N path for that shape: keep LIMIT, but stop
+			 * splitting rows into prefix groups.
+			 */
+			if ((sSort.sortFlags & SORTFLAG_UseSorter) == 0 &&
+			    p->iLimit != 0 &&
+			    sSort.nOBSat > 0 &&
+			    sSort.nOBSat < sSort.pOrderBy->nExpr) {
+				sSort.nOBSat = 0;
+				sSort.bOrderedInnerLoop = 0;
+			}
 			if (sSort.nOBSat == sSort.pOrderBy->nExpr) {
 				sSort.pOrderBy = 0;
 			}

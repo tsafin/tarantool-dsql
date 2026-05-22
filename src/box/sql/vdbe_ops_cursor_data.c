@@ -91,17 +91,18 @@ int vdbe_op_column(Vdbe *p, Op *pOp, Mem *aMem)
 	assert(pC->eCurType != CURTYPE_SORTER);
 
 	if (pC->cacheStatus != p->cacheCtr) {                /*OPTIMIZATION-IF-FALSE*/
-		if (pC->nullRow) {
-			if (pC->eCurType == CURTYPE_PSEUDO) {
-				assert(pC->uc.pseudoTableReg > 0);
-				pReg = &aMem[pC->uc.pseudoTableReg];
-				assert(mem_is_bin(pReg));
-				assert(memIsValid(pReg));
-				vdbe_field_ref_prepare_data(&pC->field_ref,
-							    pReg->z, pReg->n);
-			} else {
-				goto op_column_out;
-			}
+			if (pC->nullRow) {
+				if (pC->eCurType == CURTYPE_PSEUDO) {
+					assert(pC->uc.pseudoTableReg > 0);
+					pReg = &aMem[pC->uc.pseudoTableReg];
+					assert(memIsValid(pReg));
+					if (!mem_is_bin(pReg))
+						goto op_column_out;
+					vdbe_field_ref_prepare_data(&pC->field_ref,
+								    pReg->z, pReg->n);
+				} else {
+					goto op_column_out;
+				}
 		} else {
 			pCrsr = pC->uc.pCursor;
 			assert(pC->eCurType == CURTYPE_TARANTOOL);
@@ -120,7 +121,6 @@ int vdbe_op_column(Vdbe *p, Op *pOp, Mem *aMem)
 		pOp->p4type == P4_MEM ? pOp->p4.pMem : NULL;
 	if (vdbe_field_ref_fetch(&pC->field_ref, p2, pDest) != 0)
 		return -1;
-
 	if (mem_is_null(pDest) &&
 	    (uint32_t) p2  >= pC->field_ref.field_count &&
 	    default_val_mem != NULL) {
@@ -565,18 +565,19 @@ vdbe_op_column_typed_fast(Vdbe *p, Op *pOp, Mem *aMem,
 	assert(pC->eCurType != CURTYPE_PSEUDO || pC->nullRow);
 	assert(pC->eCurType != CURTYPE_SORTER);
 
-	if (pC->cacheStatus != p->cacheCtr) {
-		if (pC->nullRow) {
-			if (pC->eCurType == CURTYPE_PSEUDO) {
-				assert(pC->uc.pseudoTableReg > 0);
-				pReg = &aMem[pC->uc.pseudoTableReg];
-				assert(mem_is_bin(pReg));
-				assert(memIsValid(pReg));
-				vdbe_field_ref_prepare_data(&pC->field_ref,
-							    pReg->z, pReg->n);
-			} else {
-				goto out;
-			}
+		if (pC->cacheStatus != p->cacheCtr) {
+			if (pC->nullRow) {
+				if (pC->eCurType == CURTYPE_PSEUDO) {
+					assert(pC->uc.pseudoTableReg > 0);
+					pReg = &aMem[pC->uc.pseudoTableReg];
+					assert(memIsValid(pReg));
+					if (!mem_is_bin(pReg))
+						goto out;
+					vdbe_field_ref_prepare_data(&pC->field_ref,
+								    pReg->z, pReg->n);
+				} else {
+					goto out;
+				}
 		} else {
 			BtCursor *pCrsr = pC->uc.pCursor;
 			assert(pC->eCurType == CURTYPE_TARANTOOL);
@@ -642,18 +643,19 @@ vdbe_op_column_typed_exact_fast(Vdbe *p, Op *pOp, Mem *aMem,
 	assert(pC->eCurType != CURTYPE_PSEUDO || pC->nullRow);
 	assert(pC->eCurType != CURTYPE_SORTER);
 
-	if (pC->cacheStatus != p->cacheCtr) {
-		if (pC->nullRow) {
-			if (pC->eCurType == CURTYPE_PSEUDO) {
-				assert(pC->uc.pseudoTableReg > 0);
-				pReg = &aMem[pC->uc.pseudoTableReg];
-				assert(mem_is_bin(pReg));
-				assert(memIsValid(pReg));
-				vdbe_field_ref_prepare_data(&pC->field_ref,
-							    pReg->z, pReg->n);
-			} else {
-				goto out;
-			}
+		if (pC->cacheStatus != p->cacheCtr) {
+			if (pC->nullRow) {
+				if (pC->eCurType == CURTYPE_PSEUDO) {
+					assert(pC->uc.pseudoTableReg > 0);
+					pReg = &aMem[pC->uc.pseudoTableReg];
+					assert(memIsValid(pReg));
+					if (!mem_is_bin(pReg))
+						goto out;
+					vdbe_field_ref_prepare_data(&pC->field_ref,
+								    pReg->z, pReg->n);
+				} else {
+					goto out;
+				}
 		} else {
 			BtCursor *pCrsr = pC->uc.pCursor;
 			assert(pCrsr != NULL);
@@ -747,18 +749,19 @@ vdbe_op_column_integer_exact_fast_impl(Vdbe *p, Op *pOp, Mem *aMem)
 	assert(pC->eCurType != CURTYPE_PSEUDO || pC->nullRow);
 	assert(pC->eCurType != CURTYPE_SORTER);
 
-	if (pC->cacheStatus != p->cacheCtr) {
-		if (pC->nullRow) {
-			if (pC->eCurType == CURTYPE_PSEUDO) {
-				assert(pC->uc.pseudoTableReg > 0);
-				pReg = &aMem[pC->uc.pseudoTableReg];
-				assert(mem_is_bin(pReg));
-				assert(memIsValid(pReg));
-				vdbe_field_ref_prepare_data(&pC->field_ref,
-							    pReg->z, pReg->n);
-			} else {
-				goto out;
-			}
+		if (pC->cacheStatus != p->cacheCtr) {
+			if (pC->nullRow) {
+				if (pC->eCurType == CURTYPE_PSEUDO) {
+					assert(pC->uc.pseudoTableReg > 0);
+					pReg = &aMem[pC->uc.pseudoTableReg];
+					assert(memIsValid(pReg));
+					if (!mem_is_bin(pReg))
+						goto out;
+					vdbe_field_ref_prepare_data(&pC->field_ref,
+								    pReg->z, pReg->n);
+				} else {
+					goto out;
+				}
 		} else {
 			BtCursor *pCrsr = pC->uc.pCursor;
 			assert(pCrsr != NULL);
@@ -827,18 +830,19 @@ vdbe_op_column_typed_offset_slot_fast(Vdbe *p, Op *pOp, Mem *aMem,
 	assert(pC->eCurType != CURTYPE_PSEUDO || pC->nullRow);
 	assert(pC->eCurType != CURTYPE_SORTER);
 
-	if (pC->cacheStatus != p->cacheCtr) {
-		if (pC->nullRow) {
-			if (pC->eCurType == CURTYPE_PSEUDO) {
-				assert(pC->uc.pseudoTableReg > 0);
-				pReg = &aMem[pC->uc.pseudoTableReg];
-				assert(mem_is_bin(pReg));
-				assert(memIsValid(pReg));
-				vdbe_field_ref_prepare_data(&pC->field_ref,
-							    pReg->z, pReg->n);
-			} else {
-				goto out;
-			}
+		if (pC->cacheStatus != p->cacheCtr) {
+			if (pC->nullRow) {
+				if (pC->eCurType == CURTYPE_PSEUDO) {
+					assert(pC->uc.pseudoTableReg > 0);
+					pReg = &aMem[pC->uc.pseudoTableReg];
+					assert(memIsValid(pReg));
+					if (!mem_is_bin(pReg))
+						goto out;
+					vdbe_field_ref_prepare_data(&pC->field_ref,
+								    pReg->z, pReg->n);
+				} else {
+					goto out;
+				}
 		} else {
 			BtCursor *pCrsr = pC->uc.pCursor;
 			assert(pCrsr != NULL);
