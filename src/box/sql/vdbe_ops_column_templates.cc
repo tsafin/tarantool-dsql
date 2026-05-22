@@ -76,16 +76,17 @@ vdbeOpColumnRefreshCache(Vdbe *p, Op *pOp, Mem *aMem, VdbeCursor *pC)
 	(void)pOp;
 	if (pC->cacheStatus == p->cacheCtr)
 		return 0;
-	if (pC->nullRow) {
-		if (pC->eCurType == CURTYPE_PSEUDO) {
-			assert(pC->uc.pseudoTableReg > 0);
-			Mem *pReg = &aMem[pC->uc.pseudoTableReg];
-			assert(mem_is_bin(pReg));
-			assert(memIsValid(pReg));
-			vdbe_field_ref_prepare_data(&pC->field_ref, pReg->z,
-						    pReg->n);
-		} else {
-			return 1;
+		if (pC->nullRow) {
+			if (pC->eCurType == CURTYPE_PSEUDO) {
+				assert(pC->uc.pseudoTableReg > 0);
+				Mem *pReg = &aMem[pC->uc.pseudoTableReg];
+				assert(memIsValid(pReg));
+				if (!mem_is_bin(pReg))
+					return 1;
+				vdbe_field_ref_prepare_data(&pC->field_ref, pReg->z,
+							    pReg->n);
+			} else {
+				return 1;
 		}
 	} else {
 		BtCursor *pCrsr = pC->uc.pCursor;
