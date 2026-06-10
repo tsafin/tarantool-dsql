@@ -1,96 +1,176 @@
-Target OS: MacOS X "High Sierra"
+Building Tarantool on macOS
+===========================
 
-In the Homebrew environment, you can download the latest tarantool package
-with a single command:
-
-brew install tarantool
-
-This downloads an already built release version of tarantool.
-
-If you want to manually build tarantool from sources, read the following
-instructions on how to do it using either the default Apple developer software
-(Xcode Tools), or external package managers (Homebrew or MacPorts).
-
-1. Install necessary packages
--------------
-
-For the default Xcode Tools by Apple:
-sudo xcode-select --install
-sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
-
-For Homebrew:
-brew install openssl readline curl icu4c libiconv zlib cmake python3
-
-For MacPorts:
-port install binutils cmake ncurses zlib readline openssl python37
+Tested on: macOS 15 Sequoia, arm64 (Apple M-series), Apple clang 21, CMake 4.x.
+Should work on macOS 13+ with Homebrew. MacPorts instructions are in section 4.
 
 
-2. Install test-required packages and modules for Python 3.x
--------------
+1. Quick start (Homebrew)
+--------------------------
 
-You need: pyYAML, python-daemon, gevent, six
+Run the dependency installer from the repository root:
 
-To install these packages, we recommend easy_install, pip, or setup.py.
+    # Build dependencies only:
+    bash tools/install-deps-macosx.sh
 
-For easy_install:
-sudo easy_install pyyaml
-sudo easy_install argparse
-sudo easy_install gevent
-sudo easy_install six
+    # Build + LLVM JIT support:
+    bash tools/install-deps-macosx.sh --jit
 
-For pip:
-sudo pip install -r test-run/requirements.txt
+    # Build + test harness dependencies:
+    bash tools/install-deps-macosx.sh --test
 
-For setup.py:
-tar -xzf module.tar.gz
-cd module-dir
-sudo python setup.py install
+    # Everything:
+    bash tools/install-deps-macosx.sh --all
 
-where 'module' is the name of the installed python module and 'module-dir'
-is the name of the directory where the module's archive is deflated into.
+Then build:
 
-3. Download & build tarantool source code
--------------
+    mkdir -p build && cd build
+    cmake .. \
+        -DCMAKE_BUILD_TYPE=Debug \
+        -DCMAKE_PREFIX_PATH="$(brew --prefix openssl@3);$(brew --prefix readline);$(brew --prefix icu4c);$(brew --prefix libiconv);$(brew --prefix zlib)" \
+        -DDARWIN_BUILD_TYPE=None \
+        -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+    make -j$(sysctl -n hw.ncpu) tarantool
 
-Download tarantool source code from the repository at GitHub:
 
-git clone https://github.com/tarantool/tarantool.git --recursive
-git submodule update --init
+2. Manual dependency installation (Homebrew)
+---------------------------------------------
 
-Create a build directory and build the tarantool project manually, for example:
+2.1 Build dependencies
 
-cd tarantool
-mkdir build && cd build
-cmake .. \
--DCMAKE_BUILD_TYPE=RelWithDebInfo \
--DCURL_INCLUDE_DIR=$(xcode-select --sdk macosx --show-sdk-path)/usr/include \
--DCURL_LIBRARY=/usr/lib/libcurl.dylib \
--DDARWIN_BUILD_TYPE=Ports
-make
+    brew install cmake make openssl@3 readline icu4c libiconv zlib python3
 
-In this example, we are making a developer's build (-DCMAKE_BUILD_TYPE=RelWithDebInfo)
-with cmake using MacPorts (-DDARWIN_BUILD_TYPE=Ports). To build a release version,
-set -DCMAKE_BUILD_TYPE=Release.
+2.2 LLVM (only needed for ENABLE_SQL_JIT or ENABLE_SQL_CNP)
 
-Remember also to set up the cmake's flag -DDARWIN_BUILD_TYPE depending on the package
-manager you use ('-DDARWIN_BUILD_TYPE=None' for Xcode Tools and Homebrew, and
-'-DDARWIN_BUILD_TYPE=Ports' for MacPorts). It is set to None by default.
+    brew install llvm
 
-Some Homebrew formulas are "keg-only", which means that they're not
-symlinked into `/usr/local`. So, if you have used Homebrew for
-dependencies, you would need following flags for it to find `openssl`
-and GNU `readline`:
+    llvm is keg-only (not symlinked into /opt/homebrew). Pass the LLVM cmake
+    directory explicitly; see section 3.3.
 
--DOPENSSL_ROOT_DIR=$(brew --prefix openssl) -DREADLINE_ROOT=$(brew --prefix readline)
+    Note: ENABLE_SQL_CNP disassembler support is wired for x86 only. On arm64
+    LLVM is still required so cmake can find the package, but no x86 libraries
+    are linked in.
 
-4. Run tarantool test suite
--------------
+2.3 Python packages (for the test harness)
 
-To run all tests, execute:
+    pip3 install pyyaml gevent python-daemon six msgpack tarantool
 
-make test
+2.4 Git submodules
+
+    git submodule update --init --recursive
+    # test-run has its own nested submodules:
+    git -C test-run submodule update --init
+
+2.5 Git tag (required for cmake version detection)
+
+    cmake reads `git describe --long HEAD` to set the build version. If the
+    repository has no annotated tags (e.g. a private fork), this fails. Create
+    a placeholder tag:
+
+        git tag -a 2.11.0 -m "placeholder version tag" HEAD
+
+
+3. CMake configuration
+-----------------------
+
+3.1 Basic debug build (interpreter only)
+
+    mkdir -p build && cd build
+    cmake .. \
+        -DCMAKE_BUILD_TYPE=Debug \
+        -DCMAKE_PREFIX_PATH="$(brew --prefix openssl@3);$(brew --prefix readline);$(brew --prefix icu4c);$(brew --prefix libiconv);$(brew --prefix zlib)" \
+        -DDARWIN_BUILD_TYPE=None \
+        -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+    make -j$(sysctl -n hw.ncpu) tarantool
+
+3.2 RelWithDebInfo build
+
+    Replace -DCMAKE_BUILD_TYPE=Debug with -DCMAKE_BUILD_TYPE=RelWithDebInfo.
+
+3.3 With LLVM JIT (ENABLE_SQL_JIT)
+
+    cmake .. \
+        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+        -DENABLE_SQL_JIT=ON \
+        -DLLVM_DIR=/opt/homebrew/opt/llvm/lib/cmake/llvm \
+        -DCMAKE_PREFIX_PATH="$(brew --prefix openssl@3);$(brew --prefix readline);$(brew --prefix icu4c);$(brew --prefix libiconv);$(brew --prefix zlib);$(brew --prefix llvm)" \
+        -DDARWIN_BUILD_TYPE=None \
+        -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+
+3.4 With Copy-and-Patch JIT (ENABLE_SQL_CNP)
+
+    ENABLE_SQL_CNP requires clang-19+ and is currently x86-only for stencil
+    generation. On arm64 the flag can be set but no stencils are produced;
+    LLVM is still required for the package to be found by cmake.
+
+        cmake .. \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DENABLE_SQL_CNP=ON \
+            -DLLVM_DIR=/opt/homebrew/opt/llvm/lib/cmake/llvm \
+            -DCMAKE_PREFIX_PATH="..." \
+            -DDARWIN_BUILD_TYPE=None \
+            -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+
+3.5 Why -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+
+    The top-level CMakeLists.txt declares cmake_minimum_required(VERSION 2.8),
+    which CMake 4.x rejects. This flag suppresses the error without modifying
+    source files.
+
+3.6 MacPorts
+
+    Replace -DDARWIN_BUILD_TYPE=None with -DDARWIN_BUILD_TYPE=Ports.
+    MacPorts installs into /opt/local; cmake will find headers and libraries
+    there automatically.
+
+
+4. Running the test suites
+---------------------------
+
+Always run suites sequentially — test-run workers share ports and temp dirs.
+
+    BUILDDIR=/path/to/build  # absolute path required
+
+    # sql suite
+    python3 test/test-run.py --builddir $BUILDDIR --suite sql --force -j 1
+
+    # sql-tap suite (exclude known pre-existing failures)
+    python3 test/test-run.py --builddir $BUILDDIR --suite sql-tap --force -j 1 \
+        --exclude default.test.lua \
+        --exclude gh-2579-custom-aggregate.test.lua \
+        --exclude gh-2723-concurrency.test.lua
+
+    # sql-luatest suite
+    python3 test/test-run.py --builddir $BUILDDIR --suite sql-luatest --force -j 1
+
+Use --force -j 1 on macOS. Without --force, gevent workers stop on the first
+failure, leaving the remaining tests unreported as "undone".
+
+4.1 JIT / dispatcher test modes
+
+Pass environment variables before python3:
+
+    VDBE_DISPATCHER=generated python3 test/test-run.py ...   # generated interpreter
+    SQL_JIT_ENABLE=1 VDBE_DISPATCHER=generated python3 ...  # LLVM MCJIT
+    VDBE_DISPATCHER=cnp python3 test/test-run.py ...         # Copy-and-Patch JIT
+
+
+5. Known issues on macOS
+--------------------------
+
+- Apple clang 21 (Xcode 26) is stricter than earlier versions. The source
+  tree includes fixes for -Wgnu-alignof-expression, -Wvla-extension-static-
+  assert, -Wunterminated-string-initialization, and -Wsometimes-uninitialized.
+
+- CMake 4.x removes compatibility with cmake_minimum_required < 3.5. Use
+  -DCMAKE_POLICY_VERSION_MINIMUM=3.5 as a workaround until the CMakeLists
+  minimum version is bumped.
+
+- expr(1) on macOS uses BSD syntax. The `expr match str pat` form (GNU-only)
+  has been replaced with `expr "$str" : "pat"` in extra/mkopcodeh.sh.
+
+- The ZLIB::ZLIB cmake target may be created twice (once by LLVMConfig.cmake,
+  once by the project's own FindZLIB.cmake). cmake/FindZLIB.cmake guards
+  against this with an if(TARGET) check.
 
 -- EOF
-
-
-
