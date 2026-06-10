@@ -1261,6 +1261,7 @@ sql_debug_info(struct info_handler *h)
 	extern int64_t sql_jit_fallback_count;
 	extern int64_t sql_jit_resume_skip_count;
 	extern int64_t sql_jit_guard_skip_count;
+#ifdef ENABLE_SQL_CNP
 	extern int64_t sql_cnp_compile_count;
 	extern int64_t sql_cnp_compile_success_count;
 	extern int64_t sql_cnp_exec_count;
@@ -1272,6 +1273,7 @@ sql_debug_info(struct info_handler *h)
 	extern int64_t sql_cnp_done_return_count;
 	extern int64_t sql_cnp_error_return_count;
 	extern int64_t sql_cnp_compiled_bytes;
+#endif
 	extern void sql_vdbe_opcode_profile_append_debug_info(struct info_handler *);
 	info_begin(h);
 	info_append_int(h, "sql_search_count", sql_search_count);
@@ -1291,6 +1293,7 @@ sql_debug_info(struct info_handler *h)
 			sql_jit_resume_skip_count);
 	info_append_int(h, "sql_jit_guard_skip_count",
 			sql_jit_guard_skip_count);
+#ifdef ENABLE_SQL_CNP
 	info_append_int(h, "sql_cnp_compile_count", sql_cnp_compile_count);
 	info_append_int(h, "sql_cnp_compile_success_count",
 			sql_cnp_compile_success_count);
@@ -1306,6 +1309,7 @@ sql_debug_info(struct info_handler *h)
 	info_append_int(h, "sql_cnp_error_return_count",
 			sql_cnp_error_return_count);
 	info_append_int(h, "sql_cnp_compiled_bytes", sql_cnp_compiled_bytes);
+#endif
 	sql_vdbe_opcode_profile_append_debug_info(h);
 	info_end(h);
 }
