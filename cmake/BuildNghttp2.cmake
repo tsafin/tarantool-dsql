@@ -50,6 +50,7 @@ macro(nghttp2_build)
     # the cmake checks don't work without -fPIC.
     list(APPEND NGHTTP2_CMAKE_FLAGS "-DCMAKE_REQUIRED_FLAGS=-fPIC")
     list(APPEND NGHTTP2_CMAKE_FLAGS "-DCMAKE_POSITION_INDEPENDENT_CODE=ON")
+    list(APPEND NGHTTP2_CMAKE_FLAGS "-DCMAKE_POLICY_VERSION_MINIMUM=3.5")
 
     include(ExternalProject)
     ExternalProject_Add(

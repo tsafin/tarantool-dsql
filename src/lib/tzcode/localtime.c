@@ -307,7 +307,7 @@ union input_buffer {
 };
 
 /* TZDIR with a trailing '/' rather than a trailing '\0'.  */
-static char const tzdirslash[sizeof TZDIR] = TZDIR "/";
+static char const tzdirslash[sizeof TZDIR] __attribute__((nonstring)) = TZDIR "/";
 
 /* Local storage needed for 'tzloadbody'.  */
 union local_storage {

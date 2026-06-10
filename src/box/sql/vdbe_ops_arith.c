@@ -11,6 +11,7 @@ mem_is_plain_int(const struct Mem *mem)
 	return mem_is_int(mem) && !mem_is_metatype(mem);
 }
 
+#ifdef ENABLE_SQL_CNP
 static inline const struct cnp_arith_imm *
 cnp_arith_imm(const Vdbe *p, const Op *pOp)
 {
@@ -94,6 +95,7 @@ set_null:
 	mem_set_null(pOut);
 	return 0;
 }
+#endif /* ENABLE_SQL_CNP */
 
 /* No-op handler */
 int SQL_PRESERVE_NONE vdbe_op_noop(Vdbe *p, Op *pOp, Mem *aMem)
@@ -144,12 +146,14 @@ vdbe_op_add_int_fast(Vdbe *p, Op *pOp, Mem *aMem)
 	return 0;
 }
 
+#ifdef ENABLE_SQL_CNP
 int
 vdbe_op_add_const_fast(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_arith_const_fast(p, pOp, aMem, OP_Add, sql_add_int,
 					vdbe_op_add_impl);
 }
+#endif
 
 /* Opcode: Subtract P1 P2 P3 * *
  * Synopsis: r[P3]=r[P2]-r[P1]
@@ -191,12 +195,14 @@ vdbe_op_sub_int_fast(Vdbe *p, Op *pOp, Mem *aMem)
 	return 0;
 }
 
+#ifdef ENABLE_SQL_CNP
 int
 vdbe_op_sub_const_fast(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_arith_const_fast(p, pOp, aMem, OP_Subtract, sql_sub_int,
 					vdbe_op_sub_impl);
 }
+#endif
 
 /* Jump handler placeholder */
 int SQL_PRESERVE_NONE vdbe_op_jump(Vdbe *p, Op *pOp, Mem *aMem)
@@ -248,12 +254,14 @@ vdbe_op_multiply_int_fast(Vdbe *p, Op *pOp, Mem *aMem)
 	return 0;
 }
 
+#ifdef ENABLE_SQL_CNP
 int
 vdbe_op_multiply_const_fast(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_arith_const_fast(p, pOp, aMem, OP_Multiply, sql_mul_int,
 					vdbe_op_multiply_impl);
 }
+#endif
 
 /* Opcode: Divide P1 P2 P3 * *
  * Synopsis: r[P3]=r[P2]/r[P1]
@@ -298,12 +306,14 @@ vdbe_op_divide_int_fast(Vdbe *p, Op *pOp, Mem *aMem)
 	return 0;
 }
 
+#ifdef ENABLE_SQL_CNP
 int
 vdbe_op_divide_const_fast(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_arith_const_fast(p, pOp, aMem, OP_Divide, sql_div_int,
 					vdbe_op_divide_impl);
 }
+#endif
 
 /* Opcode: Remainder P1 P2 P3 * *
  * Synopsis: r[P3]=r[P2]%r[P1]
@@ -348,9 +358,11 @@ vdbe_op_remainder_int_fast(Vdbe *p, Op *pOp, Mem *aMem)
 	return 0;
 }
 
+#ifdef ENABLE_SQL_CNP
 int
 vdbe_op_remainder_const_fast(Vdbe *p, Op *pOp, Mem *aMem)
 {
 	return vdbe_op_arith_const_fast(p, pOp, aMem, OP_Remainder, sql_rem_int,
 					vdbe_op_remainder_impl);
 }
+#endif

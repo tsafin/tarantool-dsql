@@ -38,6 +38,7 @@ macro(ares_build)
     # In hardened mode, which enables -fPIE by default,
     # the cmake checks don't work without -fPIC.
     list(APPEND ARES_CMAKE_FLAGS "-DCMAKE_REQUIRED_FLAGS=-fPIC")
+    list(APPEND ARES_CMAKE_FLAGS "-DCMAKE_POLICY_VERSION_MINIMUM=3.5")
 
     include(ExternalProject)
     ExternalProject_Add(

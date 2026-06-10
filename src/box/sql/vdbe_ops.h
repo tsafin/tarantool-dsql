@@ -18,11 +18,13 @@ int vdbe_op_sub_int_fast(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_multiply_int_fast(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_divide_int_fast(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_remainder_int_fast(Vdbe *p, Op *pOp, Mem *aMem);
+#ifdef ENABLE_SQL_CNP
 int vdbe_op_add_const_fast(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_sub_const_fast(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_multiply_const_fast(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_divide_const_fast(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_remainder_const_fast(Vdbe *p, Op *pOp, Mem *aMem);
+#endif
 int vdbe_op_add_sysv_bridge(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_sub_sysv_bridge(Vdbe *p, Op *pOp, Mem *aMem);
 int vdbe_op_multiply_sysv_bridge(Vdbe *p, Op *pOp, Mem *aMem);

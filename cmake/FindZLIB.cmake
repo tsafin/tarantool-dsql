@@ -21,6 +21,9 @@ find_package_handle_standard_args(ZLIB REQUIRED_VARS
 
 mark_as_advanced(ZLIB_LIBRARY ZLIB_INCLUDE_DIR)
 
+if(TARGET ZLIB::ZLIB)
+    return()
+endif()
 add_library(ZLIB::ZLIB UNKNOWN IMPORTED)
 set_target_properties(ZLIB::ZLIB PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES "${ZLIB_INCLUDE_DIRS}")

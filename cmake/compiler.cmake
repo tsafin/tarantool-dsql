@@ -12,7 +12,7 @@ endif()
 # We support building with Clang and gcc. First check 
 # what we're using for build.
 #
-if (CMAKE_C_COMPILER_ID STREQUAL Clang)
+if (CMAKE_C_COMPILER_ID STREQUAL Clang OR CMAKE_C_COMPILER_ID STREQUAL AppleClang)
     set(CMAKE_COMPILER_IS_CLANG  ON)
     set(CMAKE_COMPILER_IS_GNUCC  OFF)
     set(CMAKE_COMPILER_IS_GNUCXX OFF)
@@ -279,9 +279,10 @@ macro(enable_tnt_compile_flags)
         add_compile_flags("CXX"
             "-Wno-invalid-offsetof"
         )
-        # gnu-alignof-expression is clang-specific, not supported by GCC
+        # gnu-alignof-expression and vla-extension-static-assert are clang-specific
         if (CMAKE_COMPILER_IS_CLANG)
             add_compile_flags("C;CXX" "-Wno-gnu-alignof-expression")
+            add_compile_flags("CXX" "-Wno-vla-extension-static-assert")
         endif()
     endif()
 

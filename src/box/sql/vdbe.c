@@ -466,6 +466,10 @@ int sqlVdbeExec(Vdbe *p)
 	int rc = 0;        /* Value to return */
 	Op *aOp = p->aOp;          /* Copy of p->aOp */
 	Mem *aMem = p->aMem;       /* Copy of p->aMem */
+#if SQL_VDBE_OP_PROFILE
+	int vdbe_profile_opcode = -1;
+	int64_t vdbe_profile_start_us = 0;
+#endif
 
 	/*** INSERT STACK UNION HERE ***/
 
@@ -609,10 +613,6 @@ int sqlVdbeExec(Vdbe *p)
 	Mem *pIn3 = 0;             /* 3rd input operand */
 	Mem *pOut = 0;             /* Output operand */
 	int *aPermute = 0;         /* Permutation of columns for OP_Compare */
-#if SQL_VDBE_OP_PROFILE
-	int vdbe_profile_opcode = -1;
-	int64_t vdbe_profile_start_us = 0;
-#endif
 
 	assert(pOp>=aOp && pOp<&aOp[p->nOp]);
 
