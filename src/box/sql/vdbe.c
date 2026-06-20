@@ -3171,22 +3171,30 @@ next_tail:
 	DISPATCH();
 }
 
-/* Opcode: SorterInsert P1 P2 * * *
+/* Opcode: SorterInsert P1 P2 P3 * *
  * Synopsis: key=r[P2]
  *
- * Register P2 holds an SQL index key made using the
- * MakeRecord instructions.  This opcode writes that key
- * into the sorter P1.  Data for the entry is nil.
+ * If P3 is 0, register P2 holds a prebuilt SQL index key (made by
+ * MakeRecord) that is written into sorter P1.
+ *
+ * If P3 is not 0, registers r[P2@P3] are encoded directly into the
+ * sorter entry without building an intermediate MakeRecord blob.
  */
-EXECUTE(OP_SorterInsert,(P1,P2)): {      /* in2 */
+EXECUTE(OP_SorterInsert,(P1,P2,P3)): {   /* in2 */
 	assert(P1 >= 0 && P1 < p->nCursor);
 	struct VdbeCursor *cursor = p->apCsr[P1];
 	assert(cursor != NULL);
 	assert(isSorter(cursor));
-	pIn2 = &aMem[P2];
-	assert(mem_is_bin(pIn2));
-	if (sqlVdbeSorterWrite(cursor, pIn2) != 0)
-		goto abort_due_to_error;
+	if (P3 != 0) {
+		assert(P2 >= 0);
+		if (sqlVdbeSorterWriteFromMems(cursor, &aMem[P2], P3) != 0)
+			goto abort_due_to_error;
+	} else {
+		pIn2 = &aMem[P2];
+		assert(mem_is_bin(pIn2));
+		if (sqlVdbeSorterWrite(cursor, pIn2) != 0)
+			goto abort_due_to_error;
+	}
 	DISPATCH();
 }
 

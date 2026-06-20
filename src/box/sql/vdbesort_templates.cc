@@ -12,6 +12,7 @@ extern "C" {
 #include <cassert>
 #include <cstdint>
 #include <array>
+#include <cstdio>
 #include <cstring>
 #include <sys/mman.h>
 
@@ -584,6 +585,9 @@ vdbeSorterCnpPatch(uint8_t *patch_addr, uintptr_t target, uint8_t reloc_type,
 		break;
 	}
 	default:
+		std::fprintf(stderr,
+			     "cnp: sorter unsupported reloc type %d\n",
+			     reloc_type);
 		break;
 	}
 }
