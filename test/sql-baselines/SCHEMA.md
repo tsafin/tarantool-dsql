@@ -61,7 +61,7 @@ test/sql-baselines/
 │   └── sql-luatest/
 │       └── ...
 ├── forensics/                         L6 traces (M0.3)
-│   └── <suite>/<test>/q<N>.<engine>.<dispatcher>.trace
+│   └── <suite>/<test>/q<N>.<engine>.<dispatcher>.trace-query
 └── perf/                              L7 CSVs (M0.7)
     └── <YYYY-MM-DD>-<commit_sha>.csv
 ```
@@ -70,7 +70,10 @@ test/sql-baselines/
 
 - `<suite>` is `sql`, `sql-tap`, or `sql-luatest`.
 - `<test>` is the test file basename without `.test.lua` / `.lua`.
-- `<N>` is a 2-digit zero-padded query index within the test file.
+- `<N>` is a zero-padded query index within the test file. Format is
+  `%02d` by default (`q01`, `q02`, ... `q99`). Tooling MUST handle 3+ digit
+  forms gracefully (`q100`, `q1000`) — the corpus has long-tailed test files
+  and the limit is not artificial.
 - `<engine>` is `memtx` or `vinyl`.
 - `<dispatcher>` (forensics only) is `generated`, `cnp`, or `llvm`.
 
@@ -215,8 +218,11 @@ Adding a reason code is append-only and does NOT bump `schema_version`.
 ## L6 forensic trace format
 
 L6 traces are NOT in the snapshot YAML. They live under
-`test/sql-baselines/forensics/<suite>/<test>/q<N>.<engine>.<dispatcher>.trace`
+`test/sql-baselines/forensics/<suite>/<test>/q<N>.<engine>.<dispatcher>.trace-query`
 and are written only when the diff tool detects an L1 or L2 mismatch.
+
+The `.trace-query` extension distinguishes per-query VDBE traces from any
+other Tarantool trace artifacts that might land in the same directory tree.
 
 Format: one VDBE opcode per line, comma-separated:
 
@@ -273,26 +279,35 @@ collisions:
 `s0/audit` does NOT depend on this schema and can start in parallel
 without waiting.
 
+## Resolved decisions
+
+- **Language: Lua, not Python.** Tarantool is a Lua shop with embedded LuaJIT.
+  Modern Tarantool tests use `luatest`. The harness, classifier, diff tool,
+  and CI integration are all written in Lua. The in-Tarantool capture helper
+  runs natively; the diff/classifier tools run via standalone `tarantool`
+  binary if needed outside the test harness. YAML serialization uses a
+  vendored canonical-YAML implementation (or `lua-yaml` with explicit
+  sort-keys pass) — NOT PyYAML.
+- **Feature tags: denormalized per snapshot** (full tag set copied from
+  `classification.yaml` into each snapshot's `test.feature_tags`). Adds
+  ~5-10 short strings per file; gives self-contained replay so a snapshot
+  can be inspected without the classification index.
+- **Primary dispatcher: `generated`.** The reference L1+L2 are captured under
+  the generated interpreter; CnP and LLVM are parity-checked against it.
+
 ## Open questions
 
 Deferred to M0 implementation. Document final decisions here as they are
 made.
 
-- **Q1.** What library emits canonical YAML? Python `yaml.dump(sort_keys=True)`
-  is the obvious choice for tools written in Python. Lua tooling needs
-  a stable serializer too. Provisional: standardize on Python for harness +
-  diff + classifier, keep Lua only for the in-Tarantool capture helper.
-- **Q2.** Should `feature_tags` in each snapshot be the full tag set from
-  `classification.yaml` or a subset? Provisional: full set, denormalized into
-  snapshot for self-contained replay. ~5-10 short strings per file.
-- **Q3.** When a test errors during setup (before any query runs), what
+- **Q1.** When a test errors during setup (before any query runs), what
   snapshot is produced? Provisional: emit one snapshot file with
   `query_index: 0`, `l1_result.ok: false`, error in `l2_diagnostic`.
-- **Q4.** How do we handle tests that produce *random* output (e.g. tests
+- **Q2.** How do we handle tests that produce *random* output (e.g. tests
   using `random()` without seeding)? Provisional: exclude from corpus via
   classifier tag `nondeterministic`, list in `classification.yaml` with
   reason.
-- **Q5.** Does the harness need to invoke `box.snapshot()` between tests to
+- **Q3.** Does the harness need to invoke `box.snapshot()` between tests to
   ensure clean state, or is `rm -f *.snap *.xlog` between runs sufficient?
   Provisional: `rm -f` between runs, matches CLAUDE.md guidance.
 
