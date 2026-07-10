@@ -198,7 +198,7 @@ content for each.
 
 | Milestone | Scope | Status (see roadmap) |
 | --- | --- | --- |
-| S0 audit | inventory disabled/scaffold code and current estimates; documented reuse/delete decisions | NOT-STARTED |
+| S0 audit | inventory disabled/scaffold code and current estimates; documented reuse/delete decisions | SPEC-DRAFTED (report at `docs/vdbe/s0_audit_report.md`) |
 | S1 relation/index basics | cardinality semantics, width, index-prefix facts; versioned persistence; snapshot API; budgets; current-planner compatibility adapter into `where.c` | NOT-STARTED |
 | S2 columns | null fraction, NDV (HLL), MCV (SpaceSaving), histograms; memtx/Vinyl sampling; stale/confidence policy; selectivity estimator | NOT-STARTED |
 

@@ -126,7 +126,12 @@ to avoid drift.
 gated on "no result regression, no diagnostic regression, no path-class
 regression."
 
-**State:** `NOT-STARTED`
+**State:** `PROTOTYPE` — M0.1–M0.7 code landed on staging branch
+`tsafin/nextgen_sql` (mine-secret remote) as of 2026-07-11. M0.5/M0.6 CI
+workflows are wired but carry `TODO(m0.2-merge)` stubs where the harness
+invocation replaces the placeholder echo — one-line-per-stub edit at the
+llvm_jit integration point. M0.8 (snapshot bootstrap) is the remaining step
+that lifts M0 to `FEATURE-GATED`.
 
 **Scope (B-light):** capture L1 result rows, L2 diagnostic, L3 path_class
 per (test × engine). Dispatcher dimension is a runtime parity check, not a
@@ -143,27 +148,44 @@ shape) deferred to M3 when the descriptor exists naturally.
 
 **Subtasks:**
 
-- [ ] **M0.1** Test auto-classifier — `test/sql-baselines/classify.py`. Scans
-  `*.test.lua`, regex-detects feature markers (JOIN, WITH RECURSIVE, CREATE
-  TRIGGER, EXPLAIN, ANALYZE, aggregate, DML kind), writes
-  `test/sql-baselines/classification.yaml`. *parallel: yes* (new file tree).
-- [ ] **M0.2** Snapshot harness — captures L1/L2/L3 per (test, engine), writes
-  YAML under `test/sql-baselines/snapshots/<suite>/<test>/q<N>.<engine>.yaml`.
-  Runs each query under the primary dispatcher (generated). *parallel: yes*.
-- [ ] **M0.3** Forensic L6 capture — optional VDBE opcode trace, written only
-  on snapshot diff to `test/sql-baselines/forensics/`. *parallel: yes*.
-- [ ] **M0.4** Diff tool — `test/sql-baselines/diff.py`. Compares two snapshot
-  trees, reports drift classified as result / diagnostic / path-class.
-  *parallel: yes*.
-- [ ] **M0.5** CI: snapshot diff job — runs on PRs touching `src/box/sql/` or
-  the baseline tree itself. *parallel: yes*.
-- [ ] **M0.6** CI: dispatcher parity job — runs the corpus under all three
-  dispatchers, diffs L1+L2 against the stored (generated) snapshot, fails
-  with `JIT-CORRECTNESS-REGRESSION:<dispatcher>` on divergence.
-  *parallel: yes*.
-- [ ] **M0.7** Perf-trail emitter — per-CI-run CSV with
-  `(test, engine, dispatcher, time_p50, time_p95)`. Stored as CI artifact.
-  Not gated. *parallel: yes*.
+- [x] **M0.1** Test auto-classifier — `test/sql-baselines/classify.lua`.
+  Scans `*.test.lua` across sql / sql-tap / sql-luatest, regex-detects
+  feature markers per `docs/vdbe/current_sql_feature_matrix.md`, writes
+  `test/sql-baselines/classification.yaml` (381 entries on nextgen_sql
+  HEAD). Landed at nextgen_sql `f8ae5a0ddd`, expanded at `02fdfbe2d3`
+  (canonical_yaml.lua scalar coverage).
+- [x] **M0.2** Snapshot harness — `test/sql-baselines/harness/run.lua`
+  monkey-patches `box.execute`, dofiles the test file, writes one snapshot
+  per captured query at `test/sql-baselines/snapshots/<suite>/<test>/q%02d.<engine>.yaml`
+  per SCHEMA.md v1. Landed at nextgen_sql `4f8dc74e0b`. Verified end-to-end
+  on a 7-statement mini SQL test.
+- [x] **M0.3** Forensic L6 capture — `test/sql-baselines/harness/forensic.lua`
+  writes a marked placeholder to `test/sql-baselines/forensics/`.
+  Per-statement VDBE opcode trace requires a Lua-accessible hook in
+  `src/box/sql/vdbe.c` that does not yet exist; module header documents three
+  C-side implementation options for follow-up work. Landed with M0.2.
+- [x] **M0.4** Diff tool — `test/sql-baselines/diff.lua`. Compares two
+  snapshot trees, classifies drift as RESULT-REGRESSION / DIAGNOSTIC-CHANGE
+  / PATH-CLASS-SHIFT (hard gates) or SOFT-DRIFT (advisory). Emits text /
+  yaml / json; exit 1 on any hard-gate. Landed at nextgen_sql `a3c6dbf191`.
+  Verified: identical inputs → 0 hard, 0 soft, all-MATCH exit 0; mutated
+  row → RESULT-REGRESSION exit 1.
+- [x] **M0.5** CI: snapshot diff job — `.github/workflows/parity-corpus.yml`
+  builds PR head and merge-base, runs the harness on both, diffs via
+  `diff.lua`. Landed with M0.4. Carries `TODO(m0.2-merge)` where the real
+  harness invocation replaces the stub echo.
+- [x] **M0.6** CI: dispatcher parity job —
+  `.github/workflows/dispatcher-parity.yml`. Matrix
+  `{memtx, vinyl} × {generated, cnp, llvm}`. Compares CnP and LLVM outputs
+  against generated; fails with `JIT-CORRECTNESS-REGRESSION:<dispatcher>` on
+  any L1 or L2 divergence. Landed with M0.4. Same `TODO(m0.2-merge)` stub
+  pattern as M0.5.
+- [x] **M0.7** Perf-trail emitter — `test/sql-baselines/perf/emit.lua`
+  records timing via `fiber.clock64()`, writes one CSV per CI run at
+  `test/sql-baselines/perf/<YYYY-MM-DD>-<sha>.csv`. Accompanying
+  `perf/aggregate.lua` reads a directory of those CSVs and emits a markdown
+  trend table. `sample.csv` aligned with SCHEMA.md §L7 exemplar. Landed at
+  nextgen_sql `b33719055e` + `1a9c7933b6` (gitignore).
 - [ ] **M0.8** Snapshot bootstrap — run the harness against `master`, commit
   initial snapshots as the parity baseline. *parallel: no* (single commit
   ground-truth). This is the merge-point that closes M0.
@@ -175,7 +197,13 @@ shape) deferred to M3 when the descriptor exists naturally.
 **Goal:** decide reuse/delete per file for the historical `_sql_stat1` /
 `_sql_stat4` scaffolding before designing the new system spaces.
 
-**State:** `NOT-STARTED`
+**State:** `SPEC-DRAFTED` — audit landed as `docs/vdbe/s0_audit_report.md`
+on `tsafin/llvm_jit` at commit `de57e09edd` (2026-06-21). Report finds the
+historical `_sql_stat1` / `_sql_stat4` scaffolding is almost entirely
+vestigial text: no `analyze.c`, no ANALYZE grammar in `parse.y`, and
+`OP_LoadAnalysis` is a triply-registered no-op. 3 DELETE / 2
+KEEP-AS-REFERENCE / 1 EXTRACT-HELPER / 11 REWRITE dispositions recorded.
+S1 can start against this baseline.
 
 **Exit criteria:**
 
@@ -184,12 +212,12 @@ shape) deferred to M3 when the descriptor exists naturally.
 
 **Subtasks:**
 
-- [ ] **S0.1** Inventory disabled analyze tests in `test/sql-tap/suite.ini`
-  and the dead bodies of `OP_LoadAnalysis` and friends. *parallel: yes*.
-- [ ] **S0.2** Inventory `_sql_stat1` / `_sql_stat4` references in
-  `src/box/sql/*` and decide per-file reuse/delete. *parallel: yes*.
-- [ ] **S0.3** Write `docs/vdbe/s0_audit_report.md` summarizing findings,
-  with explicit per-item disposition. *parallel: yes*.
+- [x] **S0.1** Inventory disabled analyze tests in `test/sql-tap/suite.ini`
+  and the dead bodies of `OP_LoadAnalysis` and friends.
+- [x] **S0.2** Inventory `_sql_stat1` / `_sql_stat4` references in
+  `src/box/sql/*` and decide per-file reuse/delete.
+- [x] **S0.3** Write `docs/vdbe/s0_audit_report.md` summarizing findings,
+  with explicit per-item disposition.
 
 ---
 
