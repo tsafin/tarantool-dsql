@@ -3,8 +3,14 @@
 # Schema: test/sql-baselines/SCHEMA.md
 #
 classification_version: 1
-generated_at: '2026-07-10T20:31:42Z'
+generated_at: '2026-07-10T21:49:32Z'
 tests:
+  - feature_tags: [ddl]
+    file: autoincrement.test.lua
+    suite: sql
+  - feature_tags: [ddl, filter, insert, projection, single_table_select, values]
+    file: bind.test.lua
+    suite: sql
   - feature_tags:
       - cte
       - ddl
@@ -20,6 +26,26 @@ tests:
       - values
     file: check-clear-ephemeral.test.lua
     suite: sql
+  - feature_tags: [check_constraint, ddl, delete, insert, projection, single_table_select, values]
+    file: clear.test.lua
+    suite: sql
+  - feature_tags:
+      - collation
+      - ddl
+      - distinct
+      - filter
+      - foreign_key
+      - insert
+      - limit
+      - offset
+      - order_by
+      - projection
+      - single_table_select
+      - union
+      - update
+      - values
+    file: collation.test.lua
+    suite: sql
   - feature_tags:
       - aggregate
       - check_constraint
@@ -30,6 +56,9 @@ tests:
       - trigger
       - values
     file: ddl.test.lua
+    suite: sql
+  - feature_tags: [ddl, delete, filter, insert, projection, single_table_select, values]
+    file: delete-multiple-idx.test.lua
     suite: sql
   - feature_tags:
       - ddl
@@ -45,14 +74,163 @@ tests:
       - view
     file: delete.test.lua
     suite: sql
+  - feature_tags: [ddl, insert, values]
+    file: drop-index.test.lua
+    suite: sql
+  - feature_tags: [ddl, foreign_key, insert, values]
+    file: drop-table.test.lua
+    suite: sql
+  - feature_tags: [ddl]
+    file: engine.test.lua
+    suite: sql
+  - disabled: true
+    feature_tags:
+      - ddl
+      - delete
+      - distinct
+      - insert
+      - projection
+      - replace
+      - single_table_select
+      - transaction
+      - trigger
+      - values
+    file: errinj.test.lua
+    suite: sql
+  - feature_tags: [collation, ddl, filter, insert, projection, single_table_select, values, view]
+    file: full_metadata.test.lua
+    suite: sql
+  - feature_tags: [projection]
+    file: func-recreate.test.lua
+    suite: sql
+  - feature_tags: [ddl, filter, insert, projection, single_table_select, values, view]
+    file: gh-2362-select-access-rights.test.lua
+    suite: sql
+  - feature_tags: [ddl]
+    file: gh-2929-primary-key.test.lua
+    suite: sql
+  - feature_tags: [check_constraint, ddl, insert, values]
+    file: gh-2981-check-autoinc.test.lua
+    suite: sql
+  - feature_tags: [cross_join, ddl, filter, insert, order_by, projection, values]
+    file: gh-3199-no-mem-leaks.test.lua
+    suite: sql
+  - feature_tags: [ddl]
+    file: gh-3613-idx-alter-update-2.test.lua
+    suite: sql
+  - feature_tags: [ddl]
+    file: gh-3613-idx-alter-update.test.lua
+    suite: sql
+  - feature_tags: [projection, values]
+    file: gh-3888-values-blob-assert.test.lua
+    suite: sql
+  - feature_tags: [cross_join, ddl, insert, projection, single_table_select, values, view]
+    file: gh-4104-view-access-check.test.lua
+    suite: sql
+  - feature_tags: [aggregate, filter, projection, single_table_select, view]
+    file: gh-4111-format-in-sysview.test.lua
+    suite: sql
+  - feature_tags: [ddl]
+    file: gh-4546-sql-drop-grants.test.lua
+    suite: sql
+  - feature_tags: []
+    file: gh-4745-table-info-assertion.test.lua
+    suite: sql
+  - feature_tags: [collation, ddl, projection, single_table_select]
+    file: gh-4755-scalar-collation-metadata.test.lua
+    suite: sql
+  - feature_tags: [aggregate, ddl, filter, insert, order_by, values]
+    file: gh-5427-lua-func-changes-result.test.lua
+    suite: sql
+  - feature_tags: [ddl, projection, single_table_select, transaction, trigger, update]
+    file: gh2141-delete-trigger-drop-table.test.lua
+    suite: sql
+  - feature_tags:
+      - correlated_subquery
+      - ddl
+      - filter
+      - in_subquery
+      - insert
+      - projection
+      - scalar_subquery
+      - single_table_select
+      - update
+      - values
+    file: gh2251-multiple-update.test.lua
+    suite: sql
+  - feature_tags: [ddl, insert, projection, values]
+    file: gh2483-remote-persistency-check.test.lua
+    suite: sql
+  - feature_tags: [ddl, insert, projection, values]
+    file: gh2808-inline-unique-persistency-check.test.lua
+    suite: sql
   - feature_tags: [projection, single_table_select]
     file: icu-upper-lower.test.lua
+    suite: sql
+  - feature_tags: [ddl, insert, values]
+    file: insert-unique.test.lua
     suite: sql
   - feature_tags: [cast, ddl, projection, single_table_select]
     file: integer-overflow.test.lua
     suite: sql
+  - feature_tags:
+      - aggregate
+      - ddl
+      - delete
+      - explain
+      - filter
+      - foreign_key
+      - insert
+      - limit
+      - nondeterministic
+      - offset
+      - projection
+      - replace
+      - single_table_select
+      - transaction
+      - trigger
+      - update
+      - values
+      - view
+    file: iproto.test.lua
+    nondeterministic: true
+    suite: sql
   - feature_tags: [aggregate, ddl, insert, projection, single_table_select, values]
     file: max-on-index.test.lua
+    suite: sql
+  - feature_tags: [ddl]
+    file: message-func-indexes.test.lua
+    suite: sql
+  - feature_tags:
+      - aggregate
+      - collation
+      - cross_join
+      - ddl
+      - explain
+      - filter
+      - group_by
+      - index_hint
+      - insert
+      - offset
+      - projection
+      - single_table_select
+      - update
+      - values
+    file: misc.test.lua
+    suite: sql
+  - feature_tags: [delete, insert, projection, single_table_select, values]
+    file: no-pk-space.test.lua
+    suite: sql
+  - feature_tags:
+      - check_constraint
+      - ddl
+      - insert
+      - projection
+      - replace
+      - single_table_select
+      - update
+      - values
+    file: on-conflict.test.lua
     suite: sql
   - feature_tags:
       - aggregate
@@ -76,6 +254,28 @@ tests:
     suite: sql
   - feature_tags:
       - aggregate
+      - cast
+      - cross_join
+      - cte
+      - ddl
+      - delete
+      - explain
+      - filter
+      - foreign_key
+      - group_by
+      - insert
+      - projection
+      - recursive_cte
+      - single_table_select
+      - transaction
+      - trigger
+      - union
+      - values
+      - view
+    file: prepared.test.lua
+    suite: sql
+  - feature_tags:
+      - aggregate
       - check_constraint
       - ddl
       - delete
@@ -91,8 +291,17 @@ tests:
       - values
     file: row-count.test.lua
     suite: sql
+  - feature_tags: [transaction]
+    file: savepoints.test.lua
+    suite: sql
+  - feature_tags: [ddl, insert, projection, single_table_select, values]
+    file: select-null.test.lua
+    suite: sql
   - feature_tags: [ddl, insert, projection, single_table_select, values]
     file: sql-statN-index-drop.test.lua
+    suite: sql
+  - feature_tags: [ddl, filter, insert, projection, single_table_select, trigger, values]
+    file: tokenizer.test.lua
     suite: sql
   - feature_tags:
       - aggregate
@@ -107,6 +316,24 @@ tests:
       - single_table_select
       - values
     file: transition.test.lua
+    suite: sql
+  - feature_tags: [ddl, insert, transaction, values]
+    file: transitive-transactions.test.lua
+    suite: sql
+  - feature_tags:
+      - analyze
+      - ddl
+      - delete
+      - filter
+      - insert
+      - projection
+      - single_table_select
+      - transaction
+      - trigger
+      - update
+      - values
+      - view
+    file: triggers.test.lua
     suite: sql
   - feature_tags:
       - aggregate
@@ -131,8 +358,41 @@ tests:
     file: types.test.lua
     nondeterministic: true
     suite: sql
-  - disabled: true
-    feature_tags: [ddl, projection, single_table_select, transaction, view]
+  - feature_tags:
+      - correlated_subquery
+      - ddl
+      - filter
+      - in_subquery
+      - insert
+      - projection
+      - scalar_subquery
+      - single_table_select
+      - update
+      - values
+    file: update-with-nested-select.test.lua
+    suite: sql
+  - feature_tags: [ddl, insert, projection, single_table_select, transaction, trigger, values]
+    file: upgrade.test.lua
+    suite: sql
+  - feature_tags:
+      - aggregate
+      - correlated_subquery
+      - ddl
+      - delete
+      - filter
+      - in_subquery
+      - insert
+      - projection
+      - scalar_subquery
+      - single_table_select
+      - transaction
+      - trigger
+      - update
+      - values
+      - view
+    file: view.test.lua
+    suite: sql
+  - feature_tags: [ddl, projection, single_table_select, transaction, view]
     file: view_delayed_wal.test.lua
     suite: sql
   - feature_tags: [ddl]
@@ -714,6 +974,9 @@ tests:
   - feature_tags: [aggregate, ddl, delete, filter, insert, projection, single_table_select, values]
     file: delete1.test.lua
     suite: sql-tap
+  - feature_tags: [aggregate, ddl, delete, filter, insert, projection, single_table_select, values]
+    file: delete3.test.lua
+    suite: sql-tap
   - feature_tags:
       - ddl
       - delete
@@ -944,6 +1207,9 @@ tests:
   - feature_tags: [ddl, delete, filter, index_hint, insert, projection, single_table_select, update]
     file: gh-2996-indexed-by.test.lua
     suite: sql-tap
+  - feature_tags: [ddl, filter, insert, projection, single_table_select, values]
+    file: gh-3083-ephemeral-unref-tuples.test.lua
+    suite: sql-tap
   - feature_tags: [collation, projection, single_table_select]
     file: gh-3251-string-pattern-comparison.test.lua
     suite: sql-tap
@@ -960,6 +1226,9 @@ tests:
     suite: sql-tap
   - feature_tags: [ddl, insert, projection, replace, single_table_select, transaction, values]
     file: gh-3307-xfer-optimization-issue.test.lua
+    suite: sql-tap
+  - feature_tags: [ddl, filter, insert, limit, order_by, projection, single_table_select, values]
+    file: gh-3332-tuple-format-leak.test.lua
     suite: sql-tap
   - disabled: true
     feature_tags:
@@ -1120,6 +1389,17 @@ tests:
       - update
       - values
     file: in1.test.lua
+    suite: sql-tap
+  - feature_tags:
+      - correlated_subquery
+      - ddl
+      - filter
+      - in_subquery
+      - insert
+      - projection
+      - scalar_subquery
+      - values
+    file: in2.test.lua
     suite: sql-tap
   - feature_tags:
       - aggregate
@@ -3107,7 +3387,7 @@ tests:
       - values
     file: types2.test.lua
     suite: sql-tap
-  - feature_tags: {}
+  - feature_tags: []
     file: unicode.test.lua
     suite: sql-tap
   - feature_tags: [ddl, insert, order_by, projection, single_table_select, values]
@@ -3405,48 +3685,13 @@ tests:
       - view
     file: with2.test.lua
     suite: sql-tap
-  - feature_tags: [ddl]
-    file: alter_table_test.lua
-    suite: sql-luatest
-  - feature_tags: {}
-    file: array_test.lua
-    suite: sql-luatest
-  - feature_tags:
-      - aggregate
-      - check_constraint
-      - ddl
-      - insert
-      - projection
-      - single_table_select
-      - transaction
-      - trigger
-      - values
-    file: autoincrement_test.lua
-    suite: sql-luatest
-  - feature_tags: [ddl, filter, insert, limit, projection, single_table_select, values]
+  - feature_tags: []
     file: bind_test.lua
     suite: sql-luatest
-  - feature_tags: [ddl, insert, order_by, projection, single_table_select, values]
-    file: boolean_test.lua
+  - feature_tags: [ddl, explain, filter, insert, projection, single_table_select, values]
+    file: cnp_bitwise_mix_test.lua
     suite: sql-luatest
-  - feature_tags: [projection]
-    file: builtin_test.lua
-    suite: sql-luatest
-  - feature_tags:
-      - collation
-      - ddl
-      - distinct
-      - filter
-      - foreign_key
-      - insert
-      - limit
-      - offset
-      - order_by
-      - projection
-      - single_table_select
-      - union
-      - update
-      - values
+  - feature_tags: [collation, ddl, projection, single_table_select, union]
     file: collation_test.lua
     suite: sql-luatest
   - feature_tags: [projection]
@@ -3466,9 +3711,6 @@ tests:
     suite: sql-luatest
   - feature_tags: [cast, projection]
     file: containers_test.lua
-    suite: sql-luatest
-  - feature_tags: [aggregate, check_constraint, ddl, foreign_key]
-    file: create_table_test.lua
     suite: sql-luatest
   - feature_tags:
       - aggregate
@@ -3500,37 +3742,8 @@ tests:
   - feature_tags: [ddl, insert, projection, values]
     file: defaults_test.lua
     suite: sql-luatest
-  - feature_tags: [ddl, delete, filter, insert, projection, single_table_select, values]
-    file: delete_test.lua
-    suite: sql-luatest
-  - feature_tags: [ddl, insert, values]
-    file: drop_table_test.lua
-    suite: sql-luatest
-  - feature_tags:
-      - ddl
-      - delete
-      - distinct
-      - insert
-      - projection
-      - replace
-      - single_table_select
-      - transaction
-      - trigger
-      - values
-    file: errinj_test.lua
-    suite: sql-luatest
-  - feature_tags: [filter, projection]
-    file: gh_10132_mp_int_bugs_test.lua
-    suite: sql-luatest
-  - feature_tags: [nondeterministic, projection]
-    file: gh_10243_varbinary_bound_variable_test.lua
-    nondeterministic: true
-    suite: sql-luatest
-  - feature_tags: [cross_join, ddl, filter, insert, order_by, projection, values]
-    file: gh_3199_no_mem_leaks_test.lua
-    suite: sql-luatest
-  - feature_tags: [projection, single_table_select, values]
-    file: gh_3888_values_blob_assert_test.lua
+  - feature_tags: [explain, projection, single_table_select]
+    file: explain_modifiers_test.lua
     suite: sql-luatest
   - feature_tags:
       - aggregate
@@ -3573,7 +3786,7 @@ tests:
   - feature_tags: [projection]
     file: gh_6572_nan_is_not_null_test.lua
     suite: sql-luatest
-  - feature_tags: {}
+  - feature_tags: []
     file: gh_6575_assertion_in_modulo_test.lua
     suite: sql-luatest
   - feature_tags: [projection]
@@ -3642,7 +3855,7 @@ tests:
   - feature_tags: [ddl, inner_join, insert, projection, values]
     file: gh_9445_wrong_arguments_order_test.lua
     suite: sql-luatest
-  - feature_tags: {}
+  - feature_tags: [ddl]
     file: gh_9469_too_big_decimals_test.lua
     suite: sql-luatest
   - feature_tags: [aggregate, ddl, insert, nondeterministic, projection, values]
@@ -3663,12 +3876,6 @@ tests:
     suite: sql-luatest
   - feature_tags: [projection, single_table_select]
     file: ghs_122_allocations_in_printf_test.lua
-    suite: sql-luatest
-  - feature_tags: [check_constraint, ddl, insert, values]
-    file: index_test.lua
-    suite: sql-luatest
-  - feature_tags: [ddl, insert, projection, replace, single_table_select, update, values]
-    file: insert_test.lua
     suite: sql-luatest
   - feature_tags:
       - aggregate
@@ -3696,91 +3903,8 @@ tests:
     file: interval_test.lua
     nondeterministic: true
     suite: sql-luatest
-  - feature_tags:
-      - aggregate
-      - ddl
-      - delete
-      - explain
-      - filter
-      - foreign_key
-      - insert
-      - limit
-      - nondeterministic
-      - offset
-      - projection
-      - replace
-      - single_table_select
-      - transaction
-      - trigger
-      - update
-      - values
-      - view
-    file: iproto_test.lua
-    nondeterministic: true
-    suite: sql-luatest
-  - feature_tags: [aggregate, ddl, filter, insert, order_by, projection, values]
-    file: lua_func_test.lua
-    suite: sql-luatest
   - feature_tags: [cast, correlated_subquery, derived_table, projection, scalar_subquery]
     file: map_test.lua
-    suite: sql-luatest
-  - feature_tags: [collation, ddl, insert, projection, single_table_select, values, view]
-    file: metadata_test.lua
-    suite: sql-luatest
-  - feature_tags:
-      - aggregate
-      - collation
-      - cross_join
-      - ddl
-      - explain
-      - filter
-      - group_by
-      - index_hint
-      - insert
-      - offset
-      - projection
-      - single_table_select
-      - update
-      - values
-    file: misc_test.lua
-    suite: sql-luatest
-  - feature_tags: [ddl, insert, projection, values]
-    file: persistency_test.lua
-    suite: sql-luatest
-  - feature_tags:
-      - aggregate
-      - cast
-      - cross_join
-      - cte
-      - ddl
-      - delete
-      - explain
-      - filter
-      - foreign_key
-      - group_by
-      - insert
-      - limit
-      - projection
-      - recursive_cte
-      - single_table_select
-      - transaction
-      - trigger
-      - union
-      - values
-      - view
-    file: prepared_test.lua
-    suite: sql-luatest
-  - feature_tags: [ddl, delete, insert, projection, values]
-    file: primary_key_test.lua
-    suite: sql-luatest
-  - feature_tags: [ddl, filter, insert, projection, single_table_select, values, view]
-    file: privileges_test.lua
-    suite: sql-luatest
-  - feature_tags: [transaction]
-    file: savepoints_test.lua
-    suite: sql-luatest
-  - feature_tags: [ddl, insert, projection, single_table_select, values]
-    file: select_test.lua
     suite: sql-luatest
   - feature_tags:
       - aggregate
@@ -3802,56 +3926,26 @@ tests:
   - feature_tags: [ddl, limit, projection, scalar_subquery]
     file: sql_func_expr_test.lua
     suite: sql-luatest
-  - feature_tags: [ddl, filter, insert, projection, single_table_select, trigger, values]
-    file: tokenizer_test.lua
-    suite: sql-luatest
-  - feature_tags:
-      - ddl
-      - delete
-      - filter
-      - insert
-      - projection
-      - single_table_select
-      - transaction
-      - trigger
-      - update
-      - values
-      - view
-    file: triggers_test.lua
-    suite: sql-luatest
-  - feature_tags:
-      - correlated_subquery
-      - ddl
-      - filter
-      - in_subquery
-      - insert
-      - projection
-      - scalar_subquery
-      - single_table_select
-      - update
-      - values
-    file: update_test.lua
-    suite: sql-luatest
-  - feature_tags: [ddl, insert, projection, transaction, trigger, values]
-    file: upgrade_test.lua
-    suite: sql-luatest
   - feature_tags:
       - aggregate
+      - cast
       - correlated_subquery
-      - cross_join
       - ddl
-      - delete
+      - derived_table
+      - exists
       - filter
-      - in_subquery
       - insert
+      - limit
+      - offset
+      - order_by
       - projection
       - scalar_subquery
       - single_table_select
       - transaction
       - trigger
+      - union
       - update
       - values
-      - view
-    file: view_test.lua
+    file: sql_stats_test.lua
     suite: sql-luatest
-total_tests: 361
+total_tests: 381
