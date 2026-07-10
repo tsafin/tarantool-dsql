@@ -1,0 +1,181 @@
+name: dispatcher-parity
+
+# M0.6 — Dispatcher parity job.
+# Runs on EVERY PR.  For each (engine, dispatcher) combination in
+#   {memtx, vinyl} x {generated, cnp, llvm}
+# runs the SQL baseline harness and compares each JIT/CnP output
+# against the generated-dispatcher output.
+# Fails with JIT-CORRECTNESS-REGRESSION:<dispatcher> on any L1 or L2 divergence.
+#
+# This job does NOT compare against stored baseline snapshots;
+# it only checks that all dispatchers agree with each other.
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ format('{0}-{1}-dispatcher-parity', github.workflow, github.ref) }}
+  cancel-in-progress: true
+
+jobs:
+  dispatcher-parity:
+    # Skip if the 'notest' label is present.
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      !contains(github.event.pull_request.labels.*.name, 'notest')
+
+    runs-on: ubuntu-20.04-self-hosted
+
+    timeout-minutes: 60
+
+    container:
+      image: docker.io/tarantool/testing:ubuntu-focal
+      options: '--init --privileged'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [memtx, vinyl]
+
+    steps:
+      - name: Prepare checkout
+        uses: tarantool/actions/prepare-checkout@master
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Set environment
+        uses: ./.github/actions/environment
+
+      - name: Install deps
+        uses: ./.github/actions/install-deps-debian
+
+      # Build once; all dispatcher modes share the same binary.
+      # The VDBE_DISPATCHER env var selects the dispatcher at runtime.
+      - name: Build tarantool
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DENABLE_SQL_JIT=ON \
+            -DENABLE_BACKTRACE=ON
+          cmake --build build --target tarantool -- -j$(nproc)
+
+      # Run harness for each dispatcher.
+      # STUB: replace each run_harness.lua invocation with the real M0.2 harness
+      # once that worktree is merged.  The harness should accept:
+      #   --engine=<memtx|vinyl>  --out=<dir>
+      # and write one YAML file per query into <dir>/.
+
+      - name: Run harness (generated dispatcher)
+        env:
+          VDBE_DISPATCHER: generated
+          ENGINE: ${{ matrix.engine }}
+        run: |
+          mkdir -p /tmp/snap-${{ matrix.engine }}-generated
+          # TODO(m0.2-merge):
+          #   build/src/tarantool test/sql-baselines/run_harness.lua \
+          #     --engine=${{ matrix.engine }} \
+          #     --out=/tmp/snap-${{ matrix.engine }}-generated
+          echo "stub: generated dispatcher run not yet implemented" >&2
+          touch /tmp/snap-${{ matrix.engine }}-generated/.placeholder
+
+      - name: Run harness (cnp dispatcher)
+        env:
+          VDBE_DISPATCHER: cnp
+          ENGINE: ${{ matrix.engine }}
+        run: |
+          mkdir -p /tmp/snap-${{ matrix.engine }}-cnp
+          # TODO(m0.2-merge):
+          #   build/src/tarantool test/sql-baselines/run_harness.lua \
+          #     --engine=${{ matrix.engine }} \
+          #     --out=/tmp/snap-${{ matrix.engine }}-cnp
+          echo "stub: cnp dispatcher run not yet implemented" >&2
+          touch /tmp/snap-${{ matrix.engine }}-cnp/.placeholder
+
+      - name: Run harness (llvm dispatcher)
+        env:
+          SQL_JIT_ENABLE: "1"
+          VDBE_DISPATCHER: generated
+          ENGINE: ${{ matrix.engine }}
+        run: |
+          mkdir -p /tmp/snap-${{ matrix.engine }}-llvm
+          # TODO(m0.2-merge):
+          #   SQL_JIT_ENABLE=1 VDBE_DISPATCHER=generated \
+          #   build/src/tarantool test/sql-baselines/run_harness.lua \
+          #     --engine=${{ matrix.engine }} \
+          #     --out=/tmp/snap-${{ matrix.engine }}-llvm
+          echo "stub: llvm dispatcher run not yet implemented" >&2
+          touch /tmp/snap-${{ matrix.engine }}-llvm/.placeholder
+
+      # Compare cnp vs generated (L1+L2 only — use --strict for soft gates too,
+      # but only hard-gate failure fails the build).
+      - name: Diff cnp vs generated (${{ matrix.engine }})
+        id: diff-cnp
+        run: |
+          build/src/tarantool test/sql-baselines/diff.lua \
+            /tmp/snap-${{ matrix.engine }}-generated \
+            /tmp/snap-${{ matrix.engine }}-cnp \
+            --format=json \
+          | tee /tmp/diff-${{ matrix.engine }}-cnp.json
+          build/src/tarantool test/sql-baselines/diff.lua \
+            /tmp/snap-${{ matrix.engine }}-generated \
+            /tmp/snap-${{ matrix.engine }}-cnp \
+            --format=text
+        continue-on-error: true
+
+      - name: Check cnp parity (${{ matrix.engine }})
+        run: |
+          PASSED=$(jq -r '.summary.passed // "false"' \
+            /tmp/diff-${{ matrix.engine }}-cnp.json 2>/dev/null || echo "false")
+          if [ "$PASSED" != "true" ]; then
+            echo "JIT-CORRECTNESS-REGRESSION:cnp engine=${{ matrix.engine }}"
+            echo "CnP dispatcher diverges from generated dispatcher."
+            echo "See dispatcher-parity-artifacts for the full diff."
+            exit 1
+          fi
+
+      # Compare llvm vs generated.
+      - name: Diff llvm vs generated (${{ matrix.engine }})
+        id: diff-llvm
+        run: |
+          build/src/tarantool test/sql-baselines/diff.lua \
+            /tmp/snap-${{ matrix.engine }}-generated \
+            /tmp/snap-${{ matrix.engine }}-llvm \
+            --format=json \
+          | tee /tmp/diff-${{ matrix.engine }}-llvm.json
+          build/src/tarantool test/sql-baselines/diff.lua \
+            /tmp/snap-${{ matrix.engine }}-generated \
+            /tmp/snap-${{ matrix.engine }}-llvm \
+            --format=text
+        continue-on-error: true
+
+      - name: Check llvm parity (${{ matrix.engine }})
+        run: |
+          PASSED=$(jq -r '.summary.passed // "false"' \
+            /tmp/diff-${{ matrix.engine }}-llvm.json 2>/dev/null || echo "false")
+          if [ "$PASSED" != "true" ]; then
+            echo "JIT-CORRECTNESS-REGRESSION:llvm engine=${{ matrix.engine }}"
+            echo "LLVM MCJIT dispatcher diverges from generated dispatcher."
+            echo "See dispatcher-parity-artifacts for the full diff."
+            exit 1
+          fi
+
+      - name: Upload parity diff artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dispatcher-parity-${{ matrix.engine }}
+          path: |
+            /tmp/diff-${{ matrix.engine }}-cnp.json
+            /tmp/diff-${{ matrix.engine }}-llvm.json
+          retention-days: 14
+
+      - name: Send VK Teams message on failure
+        if: failure()
+        uses: ./.github/actions/report-job-status
+        with:
+          bot-token: ${{ secrets.VKTEAMS_BOT_TOKEN }}

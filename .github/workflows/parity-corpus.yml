@@ -1,0 +1,177 @@
+name: parity-corpus
+
+# M0.5 — Snapshot diff job.
+# Runs on PRs that touch SQL source or the baseline corpus itself.
+# Compares snapshots generated from PR head vs merge-base to detect
+# regressions or diagnostic changes in the SQL baseline corpus.
+
+on:
+  pull_request:
+    paths:
+      - 'src/box/sql/**'
+      - 'test/sql-baselines/**'
+  workflow_dispatch:
+    inputs:
+      base_ref:
+        description: 'Base git ref to compare against (default: merge-base with master)'
+        required: false
+        default: ''
+
+concurrency:
+  group: ${{ format('{0}-{1}-parity-corpus', github.workflow, github.ref) }}
+  cancel-in-progress: true
+
+jobs:
+  snapshot-diff:
+    # Skip if the 'notest' label is present.
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      !contains(github.event.pull_request.labels.*.name, 'notest')
+
+    runs-on: ubuntu-20.04-self-hosted
+
+    timeout-minutes: 45
+
+    container:
+      image: docker.io/tarantool/testing:ubuntu-focal
+      options: '--init --privileged'
+
+    steps:
+      - name: Prepare checkout
+        uses: tarantool/actions/prepare-checkout@master
+
+      # Check out the PR head.
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          path: tarantool-head
+
+      # Determine the merge-base commit between PR head and master.
+      - name: Determine merge-base
+        id: mergebase
+        working-directory: tarantool-head
+        run: |
+          BASE_REF="${{ inputs.base_ref }}"
+          if [ -z "$BASE_REF" ]; then
+            git fetch origin master --depth=50
+            BASE_SHA=$(git merge-base HEAD origin/master)
+          else
+            git fetch origin "$BASE_REF" --depth=50
+            BASE_SHA=$(git rev-parse FETCH_HEAD)
+          fi
+          echo "sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
+          echo "Merge-base: $BASE_SHA"
+
+      # Check out the merge-base separately.
+      - name: Checkout merge-base
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.mergebase.outputs.sha }}
+          fetch-depth: 0
+          submodules: recursive
+          path: tarantool-base
+
+      - name: Set environment
+        uses: ./.github/actions/environment
+        with:
+          working-directory: tarantool-head
+
+      - name: Install deps
+        uses: ./.github/actions/install-deps-debian
+        with:
+          working-directory: tarantool-head
+
+      # Build PR head.
+      - name: Build tarantool (PR head)
+        working-directory: tarantool-head
+        run: |
+          cmake -S . -B build-head \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DENABLE_BACKTRACE=ON
+          cmake --build build-head --target tarantool -- -j$(nproc)
+
+      # Build merge-base.
+      - name: Build tarantool (merge-base)
+        working-directory: tarantool-base
+        run: |
+          cmake -S . -B build-base \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DENABLE_BACKTRACE=ON
+          cmake --build build-base --target tarantool -- -j$(nproc)
+
+      # Run the M0.2 harness against merge-base to produce baseline snapshots.
+      # STUB: replace with actual M0.2 harness invocation once merged.
+      # The harness is expected to be at test/sql-baselines/run_harness.lua,
+      # produced by the m0.2 worktree.
+      - name: Run harness against merge-base
+        working-directory: tarantool-base
+        run: |
+          mkdir -p /tmp/snapshots-base
+          # TODO(m0.2-merge): replace stub with real harness call:
+          #   build-base/src/tarantool \
+          #     ../tarantool-head/test/sql-baselines/run_harness.lua \
+          #     --engine=memtx \
+          #     --out=/tmp/snapshots-base
+          echo "stub: merge-base snapshot generation not yet implemented" >&2
+          echo "Replace this step once M0.2 harness is merged." >&2
+          # Create an empty placeholder so the diff step doesn't fail on missing dir.
+          touch /tmp/snapshots-base/.placeholder
+
+      # Run the M0.2 harness against PR head to produce candidate snapshots.
+      - name: Run harness against PR head
+        working-directory: tarantool-head
+        run: |
+          mkdir -p /tmp/snapshots-head
+          # TODO(m0.2-merge): replace stub with real harness call:
+          #   build-head/src/tarantool \
+          #     test/sql-baselines/run_harness.lua \
+          #     --engine=memtx \
+          #     --out=/tmp/snapshots-head
+          echo "stub: PR head snapshot generation not yet implemented" >&2
+          echo "Replace this step once M0.2 harness is merged." >&2
+          touch /tmp/snapshots-head/.placeholder
+
+      # Run the diff tool.  Fail on hard-gate mismatches; upload summary as artifact.
+      - name: Run snapshot diff
+        id: diff
+        working-directory: tarantool-head
+        run: |
+          build-head/src/tarantool test/sql-baselines/diff.lua \
+            /tmp/snapshots-base \
+            /tmp/snapshots-head \
+            --format=json \
+          | tee /tmp/diff-summary.json
+          # Also emit human-readable text for the step log.
+          build-head/src/tarantool test/sql-baselines/diff.lua \
+            /tmp/snapshots-base \
+            /tmp/snapshots-head \
+            --format=text \
+            --show-matches
+        # Allow continue-on-error so we can always upload the artifact,
+        # but we propagate the failure via the check step below.
+        continue-on-error: true
+
+      - name: Upload diff summary artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: snapshot-diff-summary
+          path: /tmp/diff-summary.json
+          retention-days: 14
+
+      # Re-fail the job if the diff tool exited non-zero.
+      - name: Check diff result
+        run: |
+          PASSED=$(jq -r '.summary.passed // "false"' /tmp/diff-summary.json 2>/dev/null || echo "false")
+          if [ "$PASSED" != "true" ]; then
+            echo "Hard-gate snapshot regressions detected. See snapshot-diff-summary artifact."
+            exit 1
+          fi
+
+      - name: Send VK Teams message on failure
+        if: failure()
+        uses: ./.github/actions/report-job-status
+        with:
+          bot-token: ${{ secrets.VKTEAMS_BOT_TOKEN }}
