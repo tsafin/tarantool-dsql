@@ -1,108 +1,164 @@
 -- canonical_yaml.lua
--- Minimal canonical-YAML emitter for the M0 parity corpus.
+-- Canonical YAML emitter for the M0 parity corpus.
 --
--- Contract (from SCHEMA.md):
+-- Contract (from test/sql-baselines/SCHEMA.md):
 --   - sorted map keys at every nesting depth
---   - normalized strings (quoted when needed)
---   - LF line endings
---   - single trailing newline at EOF
---   - round-trip stable: parse(emit(parse(x))) == parse(x)
+--   - LF line endings, single trailing newline at EOF
+--   - deterministic scalar formatting:
+--       booleans as "true" / "false"
+--       nil and box.NULL as "null"
+--       integers as tostring(v); int64/uint64 cdata as "!int64 <n>"
+--       floats as string.format("%.15g", v), forced to include "." or "e"
+--       strings quoted (single-quote style) when needed, base64-encoded
+--         with !!binary tag when they contain non-printable bytes
+--   - round-trip stable through Tarantool's yaml.decode
 --
--- This is a *write-only* emitter, not a full YAML library.
--- It handles the value types that appear in classification.yaml and
--- snapshot YAML: strings, numbers, booleans, nil/null, arrays, maps.
--- It does NOT handle anchors, aliases, multi-document streams, or
--- binary/float special tags — those are snapshot harness concerns.
+-- Public API:
+--   M.emit(value)            -- takes any Lua table/scalar, emits "---\n<doc>\n"
+--   M.emit_nodoc(value)      -- same as M.emit without leading "---" marker
+--   M.emit_to_file(v, path)  -- writes M.emit(v) to path
+--
+-- classify.lua uses this for classification.yaml.
+-- The M0.2 harness uses this for per-query snapshot YAML — the SCHEMA.md v1
+-- doc structure emits cleanly under the generic sorted-key contract.
 
 local M = {}
 
 -- ---------------------------------------------------------------------------
--- Helpers
+-- Base64 encoder (used by !!binary blob emission)
 -- ---------------------------------------------------------------------------
 
--- Characters that require quoting in a plain YAML scalar.
-local SAFE_PLAIN = "^[%w%-%._/: ]+$"
+local B64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
--- Keywords that must be quoted to avoid YAML misinterpretation.
+local function base64_encode(data)
+    return ((data:gsub(".", function(x)
+        local r, b = "", x:byte()
+        for i = 8, 1, -1 do
+            r = r .. (b % 2 ^ i - b % 2 ^ (i - 1) > 0 and "1" or "0")
+        end
+        return r
+    end) .. "0000"):gsub("%d%d%d?%d?%d?%d?", function(x)
+        if #x < 6 then return "" end
+        local c = 0
+        for i = 1, 6 do
+            c = c + (x:sub(i, i) == "1" and 2 ^ (6 - i) or 0)
+        end
+        return B64:sub(c + 1, c + 1)
+    end) .. ({ "", "==", "=" })[#data % 3 + 1])
+end
+
+-- ---------------------------------------------------------------------------
+-- Scalar formatting helpers
+-- ---------------------------------------------------------------------------
+
+-- Reserved YAML keywords that must be quoted to avoid misinterpretation.
 local RESERVED = {
     ["true"] = true, ["false"] = true, ["null"] = true,
     ["yes"] = true, ["no"] = true, ["on"] = true, ["off"] = true,
     ["~"] = true,
 }
 
--- Returns true when a string value can be emitted as an unquoted plain scalar.
-local function is_safe_plain(s)
-    if type(s) ~= "string" then return false end
-    if s == "" then return false end
-    if RESERVED[s:lower()] then return false end
-    -- Must not start with special YAML characters
-    local first = s:sub(1, 1)
-    if first == "-" or first == ":" or first == "#" or first == "&"
-        or first == "*" or first == "!" or first == "|" or first == ">"
-        or first == "'" or first == '"' or first == "{"  or first == "["
-        or first == "}" or first == "]" or first == "," or first == "@"
-        or first == "`" or first == "%" then
-        return false
-    end
-    -- Must not look like a number (could be misread)
-    if tonumber(s) ~= nil then return false end
-    -- Must contain only safe characters
-    return s:match(SAFE_PLAIN) ~= nil
-end
+-- Characters that, if present anywhere in a scalar, force quoting.
+local YAML_SPECIAL = "{}[],:#&*!|>'\"%@`"
 
--- Escape a string for double-quoted YAML scalar.
-local function dquote(s)
-    -- Replace backslash first, then special chars
-    s = s:gsub("\\", "\\\\")
-    s = s:gsub('"', '\\"')
-    s = s:gsub("\n", "\\n")
-    s = s:gsub("\r", "\\r")
-    s = s:gsub("\t", "\\t")
-    -- Control chars
-    s = s:gsub("[\0-\31\127]", function(c)
-        return string.format("\\u%04x", string.byte(c))
-    end)
-    return '"' .. s .. '"'
-end
-
--- Emit a scalar value (string, number, boolean, nil).
-local function emit_scalar(v)
-    local t = type(v)
-    if v == nil then
-        return "null"
-    elseif t == "boolean" then
-        return tostring(v)   -- "true" or "false"
-    elseif t == "number" then
-        return tostring(v)
-    elseif t == "string" then
-        if is_safe_plain(v) then
-            return v
-        else
-            return dquote(v)
+-- Returns true when a string has non-printable / non-ASCII bytes and must be
+-- emitted as an !!binary blob. TAB, LF, CR are kept as printable.
+local function is_blob(s)
+    for i = 1, #s do
+        local b = s:byte(i)
+        if b < 0x20 and b ~= 0x09 and b ~= 0x0a and b ~= 0x0d then
+            return true
         end
-    else
-        -- Fallback: stringify whatever it is
-        return dquote(tostring(v))
+        if b > 0x7e then return true end
     end
+    return false
+end
+
+-- Returns true when a plain-scalar string must be quoted.
+local function needs_quoting(s)
+    if s == "" then return true end
+    if RESERVED[s:lower()] then return true end
+    if tonumber(s) ~= nil then return true end
+    if s:match("^%s") or s:match("%s$") then return true end
+    if s:find("\n", 1, true) or s:find("\r", 1, true) then return true end
+    for i = 1, #YAML_SPECIAL do
+        if s:find(YAML_SPECIAL:sub(i, i), 1, true) then return true end
+    end
+    return false
+end
+
+-- Single-quote a string, doubling any embedded single quotes per YAML 1.1.
+local function single_quote(s)
+    return "'" .. s:gsub("'", "''") .. "'"
+end
+
+-- Format a Lua number as either an integer or a %.15g float. Floats are
+-- forced to contain "." or "e" so they can't be re-read as integers.
+local function format_number(v)
+    local mt = math.type and math.type(v)
+    local is_float = mt == "float" or (v ~= math.floor(v))
+    if is_float then
+        local s = string.format("%.15g", v)
+        if not s:find("[%.e]") then
+            s = s .. ".0"
+        end
+        return s
+    end
+    -- Integer path: use %d only when safely within 53-bit float range;
+    -- outside that, fall back to string form with an !int64 tag so
+    -- Tarantool's yaml.decode round-trips into int64.
+    if math.abs(v) > 2 ^ 53 then
+        return "!int64 " .. string.format("%.0f", v)
+    end
+    return tostring(math.floor(v))
+end
+
+-- Emit a Lua value as a YAML scalar string. Handles nil, box.NULL, boolean,
+-- number, cdata (Tarantool int64/uint64), string (plain, quoted, blob).
+local function emit_scalar(v)
+    if v == nil then return "null" end
+    if box and v == box.NULL then return "null" end
+    local t = type(v)
+    if t == "boolean" then
+        return v and "true" or "false"
+    end
+    if t == "number" then
+        return format_number(v)
+    end
+    if t == "cdata" then
+        local s = tostring(v)
+        s = s:gsub("ULL$", ""):gsub("LL$", "")
+        return "!int64 " .. s
+    end
+    if t == "string" then
+        if is_blob(v) then
+            return "!!binary " .. base64_encode(v)
+        end
+        if needs_quoting(v) then
+            return single_quote(v)
+        end
+        return v
+    end
+    -- Fallback: whatever it is, stringify and quote if needed.
+    local s = tostring(v)
+    if needs_quoting(s) then return single_quote(s) end
+    return s
 end
 
 -- ---------------------------------------------------------------------------
--- Core recursive emitter
+-- Recursive emitter — generic path (M.emit, M.emit_nodoc)
 -- ---------------------------------------------------------------------------
 
--- indent_str: the indentation string for the *current* level
--- Returns a table of lines (without trailing newline).
+-- emit_value returns a list of lines. Every line already carries indent_str
+-- as its prefix — callers do NOT re-indent sub-lines.
 local function emit_value(v, indent_str)
-    local t = type(v)
     local lines = {}
 
-    if t == "table" then
-        -- Decide: array or map?
-        -- We treat a table as an array if it has only consecutive integer keys
-        -- starting from 1 and no string keys.
+    if type(v) == "table" then
+        -- Array vs map: array only if keys are 1..N consecutive.
         local is_array = true
         local max_int = 0
-        for k, _ in pairs(v) do
+        for k in pairs(v) do
             if type(k) == "number" and k == math.floor(k) and k >= 1 then
                 if k > max_int then max_int = k end
             else
@@ -110,27 +166,21 @@ local function emit_value(v, indent_str)
                 break
             end
         end
-        if is_array and max_int ~= #v then
-            is_array = false
-        end
+        if is_array and max_int ~= #v then is_array = false end
 
         if is_array and #v == 0 then
-            -- Empty array
             lines[#lines + 1] = indent_str .. "[]"
         elseif is_array then
-            -- Array: each element on its own line with "- " prefix.
-            -- Recursive emit_value bakes child_indent into every returned line;
-            -- we strip that prefix from the first line to replace it with
-            -- "indent_str- ", and keep subsequent lines as-is.
             local child_indent = indent_str .. "  "
             for i = 1, #v do
                 local elem = v[i]
-                local et = type(elem)
-                if et == "table" then
+                if type(elem) == "table" then
                     local sub = emit_value(elem, child_indent)
                     if #sub == 0 then
                         lines[#lines + 1] = indent_str .. "- {}"
                     else
+                        -- Sub[1] carries child_indent; strip it and replace
+                        -- with "indent_str- ". Continuation lines stay as-is.
                         local first = sub[1]:sub(#child_indent + 1)
                         lines[#lines + 1] = indent_str .. "- " .. first
                         for j = 2, #sub do
@@ -142,11 +192,9 @@ local function emit_value(v, indent_str)
                 end
             end
         else
-            -- Map: sort keys alphabetically
+            -- Map: alphabetically sorted keys.
             local keys = {}
-            for k in pairs(v) do
-                keys[#keys + 1] = k
-            end
+            for k in pairs(v) do keys[#keys + 1] = k end
             table.sort(keys, function(a, b)
                 return tostring(a) < tostring(b)
             end)
@@ -158,15 +206,17 @@ local function emit_value(v, indent_str)
                 for _, k in ipairs(keys) do
                     local val = v[k]
                     local key_str = emit_scalar(tostring(k))
-                    local vt = type(val)
-                    if vt == "table" then
-                        -- Check if value is empty
+
+                    if type(val) == "table" then
                         local has_content = false
                         for _ in pairs(val) do has_content = true; break end
                         if not has_content then
-                            lines[#lines + 1] = indent_str .. key_str .. ": {}"
+                            -- Empty table: emit as sequence [] by convention
+                            -- since almost all schema fields with lists default
+                            -- to empty sequences, not empty maps.
+                            lines[#lines + 1] = indent_str .. key_str .. ": []"
                         else
-                            -- Is it a simple inline array of scalars?
+                            -- Try inline [a, b, c] for scalar-only arrays.
                             local short_inline = true
                             if #val > 0 then
                                 for _, elem in ipairs(val) do
@@ -178,19 +228,16 @@ local function emit_value(v, indent_str)
                                 short_inline = false
                             end
 
-                            if short_inline and #val > 0 then
-                                -- Inline array: [a, b, c]
+                            if short_inline then
                                 local parts = {}
                                 for _, elem in ipairs(val) do
                                     parts[#parts + 1] = emit_scalar(elem)
                                 end
                                 local inline = "[" .. table.concat(parts, ", ") .. "]"
-                                -- Keep inline if short enough (<= 100 chars)
                                 local line = indent_str .. key_str .. ": " .. inline
                                 if #line <= 100 then
                                     lines[#lines + 1] = line
                                 else
-                                    -- Fall through to block style
                                     short_inline = false
                                 end
                             end
@@ -217,27 +264,19 @@ local function emit_value(v, indent_str)
 end
 
 -- ---------------------------------------------------------------------------
--- Public API
+-- Public API — generic
 -- ---------------------------------------------------------------------------
 
--- M.emit(value) -> string
--- Serializes `value` as a canonical YAML document (with leading "---\n").
--- The returned string ends with exactly one LF.
 function M.emit(value)
     local lines = emit_value(value, "")
-    local result = "---\n" .. table.concat(lines, "\n") .. "\n"
-    return result
+    return "---\n" .. table.concat(lines, "\n") .. "\n"
 end
 
--- M.emit_nodoc(value) -> string
--- Like emit() but without the leading "---\n". Useful for embedded blocks.
 function M.emit_nodoc(value)
     local lines = emit_value(value, "")
     return table.concat(lines, "\n") .. "\n"
 end
 
--- M.emit_to_file(value, path)
--- Writes canonical YAML to `path`. Raises on I/O error.
 function M.emit_to_file(value, path)
     local f, err = io.open(path, "w")
     if not f then
