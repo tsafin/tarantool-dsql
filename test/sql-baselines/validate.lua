@@ -58,6 +58,7 @@ for _, path in ipairs(manifests) do
            m.cfg_errors ~= 0 or m.snapshot_errors ~= 0 or
            m.skipped_queries ~= 0 or
            m.engine_mismatch ~= false or
+           m.mode_executed ~= true or
            m.runtime_engine ~= m.engine or
            type(m.captured_queries) ~= 'number' or
            m.captured_queries < 1 or
@@ -67,7 +68,9 @@ for _, path in ipairs(manifests) do
            (m.suite ~= 'sql' and m.suite ~= 'sql-tap' and
             m.suite ~= 'sql-luatest') or
            type(m.test_file) ~= 'string' or
-           type(m.dispatcher_requested) ~= 'string' then
+           type(m.dispatcher_requested) ~= 'string' or
+           (m.execution_mode ~= 'generated' and m.execution_mode ~= 'cnp' and
+            m.execution_mode ~= 'llvm') then
         reject(path .. ': invalid identity')
     else
         local basename = m.test_file:match('/([^/]+)%.test%.lua$') or

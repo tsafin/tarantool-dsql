@@ -84,6 +84,13 @@ if cfg.engine ~= 'memtx' and cfg.engine ~= 'vinyl' then
     io.stderr:write('Invalid engine: ' .. tostring(cfg.engine) .. '\n')
     os.exit(2)
 end
+local dispatcher_requested = os.getenv('VDBE_DISPATCHER') or 'generated'
+local llvm_requested = os.getenv('SQL_JIT_ENABLE') == '1'
+if (dispatcher_requested ~= 'generated' and dispatcher_requested ~= 'cnp') or
+   (dispatcher_requested == 'cnp' and llvm_requested) then
+    io.stderr:write('Capture requires generated, cnp, or generated with SQL_JIT_ENABLE=1\n')
+    os.exit(2)
+end
 if cfg.work_dir == nil or cfg.work_dir:sub(1, 1) ~= '/' then
     io.stderr:write('--work-dir must be an absolute, empty directory\n')
     os.exit(2)
@@ -137,6 +144,8 @@ box.cfg {
 -- Enable seq_scan so tests that don't have explicit indexes still work
 box.execute("SET SESSION \"sql_seq_scan\" = true")
 box.space._session_settings:update('sql_default_engine', {{'=', 2, cfg.engine}})
+local stat_before = box.stat.sql()
+local execution_mode = llvm_requested and 'llvm' or dispatcher_requested
 
 -- ── Query interception ────────────────────────────────────────────────────────
 -- We intercept box.execute to capture every SQL statement the test file runs,
@@ -284,6 +293,15 @@ if not ok_load then
 end
 local engine_tuple = box.space._session_settings:get('sql_default_engine')
 local runtime_engine = engine_tuple and engine_tuple[2] or 'unknown'
+local stat_after = box.stat.sql()
+local cnp_exec_delta = tonumber(stat_after.sql_cnp_exec_count or 0) -
+                       tonumber(stat_before.sql_cnp_exec_count or 0)
+local llvm_exec_delta = tonumber(stat_after.sql_jit_exec_count or 0) -
+                        tonumber(stat_before.sql_jit_exec_count or 0)
+local mode_executed = (execution_mode == 'generated' and
+                       cnp_exec_delta == 0 and llvm_exec_delta == 0) or
+                      (execution_mode == 'cnp' and cnp_exec_delta > 0) or
+                      (execution_mode == 'llvm' and llvm_exec_delta > 0)
 if runtime_engine ~= cfg.engine then
     io.stderr:write('[harness] Runtime engine changed to ' .. tostring(runtime_engine) .. '\n')
 end
@@ -300,7 +318,7 @@ local skipped = 0
 local errors_seen = 0
 local test_ok = ok_load and cfg_errors == 0 and test_exit_code == 0 and
                 #captured_queries > 0 and runtime_engine == cfg.engine and
-                not engine_mismatch
+                not engine_mismatch and mode_executed
 
 for seq, q in ipairs(test_ok and captured_queries or {}) do
     -- Skip empty or whitespace-only SQL
@@ -361,8 +379,12 @@ local manifest = {
     suite = suite,
     test_file = source_file,
     engine = cfg.engine,
-    dispatcher_requested = os.getenv('VDBE_DISPATCHER') or 'generated',
-    sql_jit_enable = os.getenv('SQL_JIT_ENABLE') == '1',
+    dispatcher_requested = dispatcher_requested,
+    sql_jit_enable = llvm_requested,
+    execution_mode = execution_mode,
+    mode_executed = mode_executed,
+    cnp_exec_delta = cnp_exec_delta,
+    llvm_exec_delta = llvm_exec_delta,
     runtime_engine = runtime_engine,
     engine_mismatch = engine_mismatch,
     test_exit_code = test_exit_code or 'missing',

@@ -290,17 +290,20 @@ now writes one JSON outcome at
 `manifests/<suite>/<test>.<engine>.json` for every attempted test. Manifest
 v1 contains `manifest_version: 1`, `suite`, `test_file`, `engine`,
 `runtime_engine`, `engine_mismatch`, `dispatcher_requested`, `sql_jit_enable`,
+`execution_mode`, `mode_executed`, `cnp_exec_delta`, `llvm_exec_delta`,
 `test_exit_code` (integer or `"missing"`), `test_load_ok`,
 `test_load_error`, `cfg_errors`, `captured_queries`, `written_snapshots`,
 `skipped_queries`, `snapshot_errors`, and `accepted`. A manifest describes
 one test execution, not an entire suite or an exclusion. Suite inventory,
-explicit exclusion reasons, and dispatcher execution proof are M0-B work.
+explicit exclusion reasons, and per-query dispatcher proof are M0-B work.
 
 The harness requires `--work-dir=<absolute empty directory>` for database
 isolation. It exits nonzero and writes no snapshots when the test load fails,
 TAP exits nonzero or never exits, `box.cfg` fails, no query was captured, or
 the runtime SQL default engine differs from `--engine` at any captured query
-or at test end. Any skipped query or
+or at test end. For CnP and LLVM modes, the appropriate execution counter
+must rise during the test; a build with LLVM disabled therefore cannot
+produce an accepted LLVM capture. Any skipped query or
 snapshot write failure also rejects the run. An unsuccessful run's manifest
 remains for diagnosis. The output tree is not accepted until
 `tarantool test/sql-baselines/validate.lua <capture-root>` succeeds; this
