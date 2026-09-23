@@ -298,12 +298,19 @@ vdbe_field_ref_fetch_data_offset_slot_inline(struct vdbe_field_ref *field_ref,
 
 	assert(field_ref->tuple != NULL);
 	assert(offset_slot != TUPLE_OFFSET_SLOT_NIL);
+	/* A prepared statement may see a tuple with a different format from
+	 * the space format used to bake this slot into the CnP program. */
+	const struct tuple_field *field =
+		vdbe_field_ref_fetch_field(field_ref, fieldno);
+	if (field == NULL || field->offset_slot != offset_slot)
+		return vdbe_field_ref_fetch_data_inline(field_ref, fieldno);
 	const uint32_t *field_map = tuple_field_map(field_ref->tuple);
 	uint32_t offset = field_map_get_offset(field_map, offset_slot,
 					       MULTIKEY_NONE);
 	if (offset == 0)
 		return vdbe_field_ref_fetch_data_inline(field_ref, fieldno);
-	assert(offset >= field_ref->field0_offset);
+	if (offset < field_ref->field0_offset)
+		return vdbe_field_ref_fetch_data_inline(field_ref, fieldno);
 	const uint32_t field_offset = offset - field_ref->field0_offset;
 	const char *field_begin = field_ref->data + field_offset;
 	field_ref->slots[fieldno] = field_offset;
