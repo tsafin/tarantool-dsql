@@ -129,14 +129,19 @@ gated on "no result regression, no diagnostic regression, and reviewed
 planner-path changes."
 
 **State:** `PROTOTYPE` — M0.1–M0.7 code is committed on
-`tsafin/nextgen_sql`. Both CI workflows still have placeholder capture steps.
-The local worktree has an uncommitted harness change and about 132,000
-untracked snapshots (roughly 528 MB), only for `sql-tap`/memtx. They are
-not an accepted baseline. The harness currently ignores test-file load errors
-and suppresses subsequent `box.cfg` errors; those paths can yield a green
-process with incomplete capture. The classifier supplies file-level tags,
-which must not be interpreted as query-level feature coverage. M0-A fixes
-capture validity; M0-B completes coverage and CI.
+`tsafin/nextgen_sql`. M0-A now has fail-closed standalone capture, an
+isolated database directory, per-test manifest v1, a capture validator, and
+execution-counter proof for requested CnP/LLVM modes (`877e740b1c`,
+`bfa67f254c`, `75ff76c7b2`). One passing SQL TAP test was captured under
+generated and CnP on Vinyl; a synthetic memtx query exercised NULL and an
+LLVM-enabled build. A failing TAP test produced a rejected manifest with no
+snapshots. This is seed evidence, not full M0-A acceptance: equivalence to
+the normal test runner, broader result/error coverage, and suite adapters
+remain. Both CI workflows still have placeholder capture steps. The local
+worktree also contains about 132,000 older untracked snapshots (roughly
+528 MB), only for `sql-tap`/memtx; they are not an accepted baseline.
+The classifier supplies file-level tags, which must not be interpreted as
+query-level feature coverage. M0-B completes coverage and CI.
 
 **Scope (B-light):** capture L1 result rows, L2 diagnostic, L3 path_class
 per (test × engine), plus an external run manifest proving coverage and
@@ -205,7 +210,8 @@ are deferred to M3 when the descriptor exists naturally.
   test/query counts and exclusion reasons. Do not accept the current
   untracked snapshot tree as ground truth. The harness contract and manifest
   format are serial integration points; fixtures and diagnostic probes may
-  be built independently.
+  be built independently. Manifest v1 and validator are now committed;
+  normal-runner equivalence and additional seed classes are outstanding.
 - [ ] **M0.8b** Reconcile SCHEMA.md and the tools: file-level versus
   query-level tags, query identity, result order, diagnostic codes,
   metadata that should not affect parity, and schema versioning. Verify
