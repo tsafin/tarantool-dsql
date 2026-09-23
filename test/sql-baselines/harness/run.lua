@@ -173,11 +173,11 @@ local function intercepted_execute(sql, bindings)
 
     -- box.execute distinguishes 1-arg from 2-arg-with-nil (it rejects nil
     -- bindings), so match the caller's argc rather than always passing 2.
-    local ok, res
+    local ok, res, returned_err
     if bindings ~= nil then
-        ok, res = pcall(_real_box_execute, sql, bindings)
+        ok, res, returned_err = pcall(_real_box_execute, sql, bindings)
     else
-        ok, res = pcall(_real_box_execute, sql)
+        ok, res, returned_err = pcall(_real_box_execute, sql)
     end
 
     local profile_delta = nil
@@ -188,12 +188,12 @@ local function intercepted_execute(sql, bindings)
     local rows = nil
     local err = nil
 
-    if ok then
+    if ok and returned_err == nil then
         if res ~= nil and res.rows ~= nil then
             rows = res.rows
         end
     else
-        err = res  -- error object or string
+        err = ok and returned_err or res
     end
 
     -- Record every SQL statement (including DDL / DML setup)
@@ -208,7 +208,7 @@ local function intercepted_execute(sql, bindings)
     if not ok then
         error(res, 0)
     end
-    return res
+    return res, returned_err
 end
 
 -- Patch box.execute globally so the test file's require of sqltester gets it
@@ -216,25 +216,24 @@ box.execute = intercepted_execute
 
 -- ── Run the test file ─────────────────────────────────────────────────────────
 -- We load and execute the test file. sqltester internally calls box.execute,
--- which is now patched. We suppress os.exit() from sqltester.
+-- which is now patched. Turn os.exit() into a private signal so that no code
+-- after finish_test() can run, while retaining its exit status.
 
--- Suppress os.exit so the harness keeps running after the test completes
 local _real_os_exit = os.exit
 local test_exit_code = nil
+local test_finished = false
+local test_exit_signal = {}
 os.exit = function(code)
-    -- sqltester.finish_test() reports failed TAP assertions through this.
     code = code or 0
-    if test_exit_code == nil or code ~= 0 then
-        test_exit_code = code
-    end
+    test_exit_code = code
+    local caller = debug.getinfo(2, 'S')
+    test_finished = caller ~= nil and type(caller.source) == 'string' and
+                    caller.source:match('/sqltester%.lua$') ~= nil
+    error(test_exit_signal, 0)
 end
 
--- box.cfg was already called above with harness defaults; test files and
--- sqltester/test_run sometimes call it again with different options (log,
--- listen, etc.) that Tarantool rejects as "can't set dynamically". Wrap
--- box.cfg so subsequent calls swallow the error and continue; test files
--- that genuinely need reconfig will still get their SQL captured because
--- interception is at box.execute, not box.cfg.
+-- A later box.cfg() failure must retain the normal test behavior. Count it
+-- even when the test catches the exception, and let the exception propagate.
 local _real_box_cfg = box.cfg
 local cfg_errors = 0
 box.cfg = setmetatable({}, {
@@ -242,7 +241,7 @@ box.cfg = setmetatable({}, {
         local ok, err = pcall(_real_box_cfg, opts)
         if not ok then
             cfg_errors = cfg_errors + 1
-            io.stderr:write('[harness] swallowed box.cfg error: ' .. tostring(err) .. '\n')
+            error(err, 0)
         end
     end,
     __index = _real_box_cfg,
@@ -287,10 +286,12 @@ end
 
 -- Execute the test file
 local ok_load, load_err = pcall(dofile, cfg.test_file)
-if not ok_load then
+local exited = not ok_load and load_err == test_exit_signal
+if not ok_load and not exited then
     io.stderr:write('[harness] Test file execution error: ' ..
         tostring(load_err) .. '\n')
 end
+if exited then ok_load = true end
 local engine_tuple = box.space._session_settings:get('sql_default_engine')
 local runtime_engine = engine_tuple and engine_tuple[2] or 'unknown'
 local stat_after = box.stat.sql()
@@ -317,6 +318,7 @@ local written = 0
 local skipped = 0
 local errors_seen = 0
 local test_ok = ok_load and cfg_errors == 0 and test_exit_code == 0 and
+                test_finished and
                 #captured_queries > 0 and runtime_engine == cfg.engine and
                 not engine_mismatch and mode_executed
 
