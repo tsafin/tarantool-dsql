@@ -4,6 +4,7 @@
 #include "mem.h"
 #include "vdbe_ops.h"
 #include "vdbe_ops_cnp_impl.h"
+#include "opcodes.h"
 
 static inline bool
 mem_is_plain_int(const struct Mem *mem)

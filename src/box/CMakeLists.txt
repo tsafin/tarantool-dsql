@@ -191,12 +191,23 @@ endif()
 # SQL JIT: Generate LLVM bitcode for handler files
 #
 if(ENABLE_SQL_JIT)
+    find_program(CLANG_SQL_JIT NAMES clang-${LLVM_VERSION_MAJOR}
+        HINTS ${LLVM_TOOLS_BINARY_DIR})
+    if(NOT CLANG_SQL_JIT)
+        message(FATAL_ERROR "SQL JIT needs clang-${LLVM_VERSION_MAJOR} to match LLVM ${LLVM_VERSION}")
+    endif()
     # List of handler files to compile to bitcode
     set(sql_jit_handler_defs
         -DSQL_TEST=1
+        -DENABLE_SQL_JIT=1
     )
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         list(APPEND sql_jit_handler_defs -DSQL_DEBUG=1)
+    else()
+        list(APPEND sql_jit_handler_defs -DNDEBUG=1)
+    endif()
+    if(ENABLE_SQL_CNP)
+        list(APPEND sql_jit_handler_defs -DENABLE_SQL_CNP=1)
     endif()
     set(sql_jit_handlers
         sql/vdbe_ops_arith.c
@@ -218,7 +229,7 @@ if(ENABLE_SQL_JIT)
         
         add_custom_command(
             OUTPUT ${bitcode_file}
-            COMMAND clang 
+            COMMAND ${CLANG_SQL_JIT}
                 -emit-llvm -c -O2
                 -fno-emulated-tls
                 ${sql_jit_handler_defs}
