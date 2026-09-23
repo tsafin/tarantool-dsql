@@ -144,11 +144,16 @@ box.space._session_settings:update('sql_default_engine', {{'=', 2, cfg.engine}})
 
 local captured_queries = {}  -- list of {sql, rows, err}
 local _real_box_execute = box.execute
+local engine_mismatch = false
 
 local function intercepted_execute(sql, bindings)
     -- Only intercept plain string SQL calls (not prepared statements)
     if type(sql) ~= 'string' then
         return _real_box_execute(sql, bindings)
+    end
+    local setting = box.space._session_settings:get('sql_default_engine')
+    if not setting or setting[2] ~= cfg.engine then
+        engine_mismatch = true
     end
 
     -- Capture before-profile for forensic if enabled
@@ -294,7 +299,8 @@ local written = 0
 local skipped = 0
 local errors_seen = 0
 local test_ok = ok_load and cfg_errors == 0 and test_exit_code == 0 and
-                #captured_queries > 0 and runtime_engine == cfg.engine
+                #captured_queries > 0 and runtime_engine == cfg.engine and
+                not engine_mismatch
 
 for seq, q in ipairs(test_ok and captured_queries or {}) do
     -- Skip empty or whitespace-only SQL
@@ -345,7 +351,8 @@ end
 io.write(string.format('[harness] Done. written=%d skipped=%d errors=%d\n',
     written, skipped, errors_seen))
 
-local rc = (test_ok and errors_seen == 0 and written > 0) and 0 or 1
+local rc = (test_ok and errors_seen == 0 and skipped == 0 and
+            written == #captured_queries) and 0 or 1
 local manifest_path = string.format('%s/manifests/%s/%s.%s.json',
     cfg.baselines_root, suite, test_basename, cfg.engine)
 fio.mktree(manifest_path:match('^(.+)/[^/]+$'))
@@ -357,6 +364,7 @@ local manifest = {
     dispatcher_requested = os.getenv('VDBE_DISPATCHER') or 'generated',
     sql_jit_enable = os.getenv('SQL_JIT_ENABLE') == '1',
     runtime_engine = runtime_engine,
+    engine_mismatch = engine_mismatch,
     test_exit_code = test_exit_code or 'missing',
     test_load_ok = ok_load,
     test_load_error = ok_load and '' or tostring(load_err),

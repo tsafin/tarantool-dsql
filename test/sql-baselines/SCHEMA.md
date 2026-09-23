@@ -48,6 +48,8 @@ bug, not a baseline variant.
 test/sql-baselines/
 ├── SCHEMA.md                          this file
 ├── classification.yaml                M0.1 output, single file
+├── manifests/                         M0-A per-test run outcomes
+│   └── <suite>/<test>.<engine>.json
 ├── snapshots/
 │   ├── sql-tap/
 │   │   ├── select1/
@@ -283,12 +285,27 @@ not a parity gate. Schema changes to the CSV are tracked separately.
 
 ## Baseline acceptance contract (M0-A and M0-B)
 
-The snapshot schema alone cannot prove a complete run. A capture must also
-produce an external manifest covering each declared `(suite, test, engine)`
-attempt: included or excluded with reason, process exit status, test outcome,
-captured query count, written snapshot count, and dispatcher actually used.
-The manifest format is an M0.8b decision; it is separate from per-query v1
-YAML and must be versioned before CI consumes it.
+The snapshot schema alone cannot prove a complete run. The standalone harness
+now writes one JSON outcome at
+`manifests/<suite>/<test>.<engine>.json` for every attempted test. Manifest
+v1 contains `manifest_version: 1`, `suite`, `test_file`, `engine`,
+`runtime_engine`, `engine_mismatch`, `dispatcher_requested`, `sql_jit_enable`,
+`test_exit_code` (integer or `"missing"`), `test_load_ok`,
+`test_load_error`, `cfg_errors`, `captured_queries`, `written_snapshots`,
+`skipped_queries`, `snapshot_errors`, and `accepted`. A manifest describes
+one test execution, not an entire suite or an exclusion. Suite inventory,
+explicit exclusion reasons, and dispatcher execution proof are M0-B work.
+
+The harness requires `--work-dir=<absolute empty directory>` for database
+isolation. It exits nonzero and writes no snapshots when the test load fails,
+TAP exits nonzero or never exits, `box.cfg` fails, no query was captured, or
+the runtime SQL default engine differs from `--engine` at any captured query
+or at test end. Any skipped query or
+snapshot write failure also rejects the run. An unsuccessful run's manifest
+remains for diagnosis. The output tree is not accepted until
+`tarantool test/sql-baselines/validate.lua <capture-root>` succeeds; this
+validator checks nonempty manifests, all run outcomes, contiguous snapshot
+IDs, required v1 fields, and orphan snapshots.
 
 Acceptance requires:
 
@@ -296,7 +313,7 @@ Acceptance requires:
    demonstrated equivalent setup for that test. A load error, failed TAP
    assertion, suppressed `box.cfg` error, write error, or early exit fails
    the run; captured queries from that run are quarantined.
-2. The suite/engine coverage set and query IDs match the manifest on repeat
+2. The suite/engine coverage set and query IDs match the manifests on repeat
    capture. Empty trees, missing tests, truncated runs, and unknown engines
    fail the gate. A deliberate result or diagnostic mutation must fail CI.
 3. Required v1 fields are present. In particular, verify `rows_sorted` is

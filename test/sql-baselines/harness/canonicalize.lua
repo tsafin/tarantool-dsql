@@ -136,6 +136,7 @@ function M.canon_L2(status, err)
         msg = msg:gsub(' at line %d+', '')
     end
 
+    if code ~= nil then code = tostring(code) end
     return {
         status = 'error',
         error_code = code,

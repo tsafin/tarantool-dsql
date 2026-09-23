@@ -1,0 +1,122 @@
+#!/usr/bin/env tarantool
+-- Validate one isolated capture tree before it can be used as a baseline.
+-- Usage: tarantool test/sql-baselines/validate.lua <capture-root>
+
+local fio = require('fio')
+local json = require('json')
+local yaml = require('yaml')
+
+local root = arg[1]
+if not root or not fio.stat(root) or not fio.stat(root):is_dir() then
+    io.stderr:write('Usage: tarantool validate.lua <capture-root>\n')
+    os.exit(2)
+end
+root = fio.abspath(root)
+
+local function walk(path, suffix, result)
+    local st = fio.stat(path)
+    if not st then return end
+    if not st:is_dir() then
+        if path:sub(-#suffix) == suffix then result[#result + 1] = path end
+        return
+    end
+    for _, name in ipairs(fio.listdir(path) or {}) do
+        walk(path .. '/' .. name, suffix, result)
+    end
+end
+
+local function read_document(path, decoder)
+    local file, err = io.open(path, 'r')
+    if not file then return nil, tostring(err) end
+    local data = file:read('*a')
+    file:close()
+    local ok, value = pcall(decoder, data)
+    if not ok or type(value) ~= 'table' then
+        return nil, ok and 'document is not a map' or tostring(value)
+    end
+    return value
+end
+
+local errors = {}
+local function reject(message)
+    errors[#errors + 1] = message
+end
+
+local manifests = {}
+walk(root .. '/manifests', '.json', manifests)
+table.sort(manifests)
+if #manifests == 0 then reject('no manifests found') end
+
+local expected = {}
+local snapshots_checked = 0
+for _, path in ipairs(manifests) do
+    local m, err = read_document(path, json.decode)
+    if not m then
+        reject(path .. ': ' .. err)
+    elseif m.manifest_version ~= 1 or m.accepted ~= true or
+           m.test_load_ok ~= true or m.test_exit_code ~= 0 or
+           m.cfg_errors ~= 0 or m.snapshot_errors ~= 0 or
+           m.skipped_queries ~= 0 or
+           m.engine_mismatch ~= false or
+           m.runtime_engine ~= m.engine or
+           type(m.captured_queries) ~= 'number' or
+           m.captured_queries < 1 or
+           m.written_snapshots ~= m.captured_queries then
+        reject(path .. ': rejected or inconsistent run outcome')
+    elseif (m.engine ~= 'memtx' and m.engine ~= 'vinyl') or
+           (m.suite ~= 'sql' and m.suite ~= 'sql-tap' and
+            m.suite ~= 'sql-luatest') or
+           type(m.test_file) ~= 'string' or
+           type(m.dispatcher_requested) ~= 'string' then
+        reject(path .. ': invalid identity')
+    else
+        local basename = m.test_file:match('/([^/]+)%.test%.lua$') or
+                         m.test_file:match('/([^/]+)%.lua$')
+        if not basename or m.test_file:sub(1, #m.suite + 1) ~= m.suite .. '/' then
+            reject(path .. ': test path and suite disagree')
+        else
+            for index = 1, m.captured_queries do
+                local filename = string.format('q%02d.%s.yaml', index, m.engine)
+                local snapshot_path = root .. '/snapshots/' .. m.suite .. '/' ..
+                                      basename .. '/' .. filename
+                if expected[snapshot_path] then
+                    reject(snapshot_path .. ': duplicate manifest identity')
+                end
+                expected[snapshot_path] = true
+                local s, snapshot_err = read_document(snapshot_path, yaml.decode)
+                if not s then
+                    reject(snapshot_path .. ': ' .. snapshot_err)
+                elseif s.schema_version ~= 1 or s.engine ~= m.engine or
+                       type(s.test) ~= 'table' or
+                       s.test.file ~= m.test_file or
+                       s.test.query_index ~= index or
+                       type(s.test.query_sql) ~= 'string' or
+                       type(s.l1_result) ~= 'table' or
+                       type(s.l1_result.ok) ~= 'boolean' or
+                       type(s.l1_result.rows_sorted) ~= 'boolean' or
+                       type(s.l1_result.rows) ~= 'table' or
+                       type(s.l2_diagnostic) ~= 'table' or
+                       (s.l2_diagnostic.status ~= 'success' and
+                        s.l2_diagnostic.status ~= 'error') or
+                       s.l1_result.ok ~= (s.l2_diagnostic.status == 'success') or
+                       type(s.l3_path_class) ~= 'table' or
+                       type(s.l3_path_class.taken) ~= 'string' then
+                    reject(snapshot_path .. ': missing or inconsistent v1 fields')
+                else
+                    snapshots_checked = snapshots_checked + 1
+                end
+            end
+        end
+    end
+end
+
+local snapshots = {}
+walk(root .. '/snapshots', '.yaml', snapshots)
+for _, path in ipairs(snapshots) do
+    if not expected[path] then reject(path .. ': snapshot has no accepted manifest') end
+end
+
+for _, err in ipairs(errors) do io.stderr:write('[invalid] ' .. err .. '\n') end
+io.write(string.format('manifests=%d snapshots=%d errors=%d\n',
+    #manifests, snapshots_checked, #errors))
+os.exit(#errors == 0 and 0 or 1)
