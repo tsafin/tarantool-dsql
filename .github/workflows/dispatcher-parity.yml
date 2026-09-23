@@ -1,6 +1,6 @@
 name: dispatcher-parity
 
-# M0.6 — Dispatcher parity job.
+# M0.6 — Reviewed seed dispatcher smoke gate; full SQL corpus is pending.
 # Runs on EVERY PR.  For each (engine, dispatcher) combination in
 #   {memtx, vinyl} x {generated, cnp, llvm}
 # runs the SQL baseline harness and compares each JIT/CnP output
@@ -64,52 +64,37 @@ jobs:
             -DENABLE_BACKTRACE=ON
           cmake --build build --target tarantool -- -j$(nproc)
 
-      # Run harness for each dispatcher.
-      # STUB: replace each run_harness.lua invocation with the real M0.2 harness
-      # once that worktree is merged.  The harness should accept:
-      #   --engine=<memtx|vinyl>  --out=<dir>
-      # and write one YAML file per query into <dir>/.
-
       - name: Run harness (generated dispatcher)
-        env:
-          VDBE_DISPATCHER: generated
-          ENGINE: ${{ matrix.engine }}
         run: |
-          mkdir -p /tmp/snap-${{ matrix.engine }}-generated
-          # TODO(m0.2-merge):
-          #   build/src/tarantool test/sql-baselines/run_harness.lua \
-          #     --engine=${{ matrix.engine }} \
-          #     --out=/tmp/snap-${{ matrix.engine }}-generated
-          echo "stub: generated dispatcher run not yet implemented" >&2
-          touch /tmp/snap-${{ matrix.engine }}-generated/.placeholder
+          python3 test/sql-baselines/corpus.py capture \
+            --repo=. --binary=build/src/tarantool \
+            --out=/tmp/snap-${{ matrix.engine }}-generated \
+            --engine=${{ matrix.engine }} --mode=generated
 
       - name: Run harness (cnp dispatcher)
-        env:
-          VDBE_DISPATCHER: cnp
-          ENGINE: ${{ matrix.engine }}
         run: |
-          mkdir -p /tmp/snap-${{ matrix.engine }}-cnp
-          # TODO(m0.2-merge):
-          #   build/src/tarantool test/sql-baselines/run_harness.lua \
-          #     --engine=${{ matrix.engine }} \
-          #     --out=/tmp/snap-${{ matrix.engine }}-cnp
-          echo "stub: cnp dispatcher run not yet implemented" >&2
-          touch /tmp/snap-${{ matrix.engine }}-cnp/.placeholder
+          python3 test/sql-baselines/corpus.py capture \
+            --repo=. --binary=build/src/tarantool \
+            --out=/tmp/snap-${{ matrix.engine }}-cnp \
+            --engine=${{ matrix.engine }} --mode=cnp
 
       - name: Run harness (llvm dispatcher)
-        env:
-          SQL_JIT_ENABLE: "1"
-          VDBE_DISPATCHER: generated
-          ENGINE: ${{ matrix.engine }}
         run: |
-          mkdir -p /tmp/snap-${{ matrix.engine }}-llvm
-          # TODO(m0.2-merge):
-          #   SQL_JIT_ENABLE=1 VDBE_DISPATCHER=generated \
-          #   build/src/tarantool test/sql-baselines/run_harness.lua \
-          #     --engine=${{ matrix.engine }} \
-          #     --out=/tmp/snap-${{ matrix.engine }}-llvm
-          echo "stub: llvm dispatcher run not yet implemented" >&2
-          touch /tmp/snap-${{ matrix.engine }}-llvm/.placeholder
+          python3 test/sql-baselines/corpus.py capture \
+            --repo=. --binary=build/src/tarantool \
+            --out=/tmp/snap-${{ matrix.engine }}-llvm \
+            --engine=${{ matrix.engine }} --mode=llvm
+
+      - name: Check dispatcher manifest coverage equality
+        run: |
+          python3 test/sql-baselines/corpus.py compare-coverage \
+            --repo=. --base=/tmp/snap-${{ matrix.engine }}-generated \
+            --candidate=/tmp/snap-${{ matrix.engine }}-cnp \
+            --engine=${{ matrix.engine }} --candidate-mode=cnp
+          python3 test/sql-baselines/corpus.py compare-coverage \
+            --repo=. --base=/tmp/snap-${{ matrix.engine }}-generated \
+            --candidate=/tmp/snap-${{ matrix.engine }}-llvm \
+            --engine=${{ matrix.engine }} --candidate-mode=llvm
 
       # Compare cnp vs generated (L1+L2 only — use --strict for soft gates too,
       # but only hard-gate failure fails the build).
@@ -117,14 +102,13 @@ jobs:
         id: diff-cnp
         run: |
           build/src/tarantool test/sql-baselines/diff.lua \
-            /tmp/snap-${{ matrix.engine }}-generated \
-            /tmp/snap-${{ matrix.engine }}-cnp \
-            --format=json \
-          | tee /tmp/diff-${{ matrix.engine }}-cnp.json
+            /tmp/snap-${{ matrix.engine }}-generated/snapshots \
+            /tmp/snap-${{ matrix.engine }}-cnp/snapshots \
+            --ignore-path-class --format=json > /tmp/diff-${{ matrix.engine }}-cnp.json
           build/src/tarantool test/sql-baselines/diff.lua \
-            /tmp/snap-${{ matrix.engine }}-generated \
-            /tmp/snap-${{ matrix.engine }}-cnp \
-            --format=text
+            /tmp/snap-${{ matrix.engine }}-generated/snapshots \
+            /tmp/snap-${{ matrix.engine }}-cnp/snapshots \
+            --ignore-path-class --format=text
         continue-on-error: true
 
       - name: Check cnp parity (${{ matrix.engine }})
@@ -143,14 +127,13 @@ jobs:
         id: diff-llvm
         run: |
           build/src/tarantool test/sql-baselines/diff.lua \
-            /tmp/snap-${{ matrix.engine }}-generated \
-            /tmp/snap-${{ matrix.engine }}-llvm \
-            --format=json \
-          | tee /tmp/diff-${{ matrix.engine }}-llvm.json
+            /tmp/snap-${{ matrix.engine }}-generated/snapshots \
+            /tmp/snap-${{ matrix.engine }}-llvm/snapshots \
+            --ignore-path-class --format=json > /tmp/diff-${{ matrix.engine }}-llvm.json
           build/src/tarantool test/sql-baselines/diff.lua \
-            /tmp/snap-${{ matrix.engine }}-generated \
-            /tmp/snap-${{ matrix.engine }}-llvm \
-            --format=text
+            /tmp/snap-${{ matrix.engine }}-generated/snapshots \
+            /tmp/snap-${{ matrix.engine }}-llvm/snapshots \
+            --ignore-path-class --format=text
         continue-on-error: true
 
       - name: Check llvm parity (${{ matrix.engine }})

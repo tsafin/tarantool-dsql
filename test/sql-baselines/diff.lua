@@ -8,6 +8,7 @@
 -- Usage:
 --   tarantool test/sql-baselines/diff.lua <baseline_path> <candidate_path> \
 --       [--format=text|yaml|json] [--show-matches] [--strict]
+--       [--ignore-path-class]
 --
 -- Paths may be:
 --   - A directory produced by the M0.2 harness  (scan all *.yaml inside)
@@ -68,11 +69,13 @@ local function usage()
     io.stderr:write(table.concat({
         "Usage: tarantool test/sql-baselines/diff.lua <baseline> <candidate>",
         "             [--format=text|yaml|json] [--show-matches] [--strict]",
+        "             [--ignore-path-class]",
         "",
         "  baseline   / candidate : path to snapshot directory or single YAML file",
         "  --format   : output format (default: text)",
         "  --show-matches : also list MATCH entries in the output",
         "  --strict   : treat soft-gate drifts as failures too",
+        "  --ignore-path-class : compare L1/L2 for dispatcher parity",
         "",
     }, "\n"))
     os.exit(2)
@@ -82,6 +85,7 @@ local baseline_path, candidate_path
 local output_format  = "text"
 local show_matches   = false
 local strict         = false
+local ignore_path_class = false
 
 local argv = arg or {}
 local positional = {}
@@ -91,6 +95,7 @@ for _, a in ipairs(argv) do
         if k == "format"       then output_format = v
         elseif k == "show-matches" then show_matches = true
         elseif k == "strict"   then strict = true
+        elseif k == "ignore-path-class" then ignore_path_class = true
         else
             io.stderr:write("Unknown option: " .. a .. "\n")
             usage()
@@ -196,6 +201,16 @@ local function load_yaml_file(path)
     local ok, data = pcall(yaml.decode, content)
     if not ok then
         return nil, "YAML parse error in " .. path .. ": " .. tostring(data)
+    end
+    if type(data) ~= "table" or data.schema_version ~= 1 or
+       type(data.test) ~= "table" or type(data.test.query_sql) ~= "string" or
+       type(data.l1_result) ~= "table" or
+       type(data.l1_result.rows) ~= "table" or
+       type(data.l2_diagnostic) ~= "table" or
+       type(data.l2_diagnostic.status) ~= "string" or
+       type(data.l3_path_class) ~= "table" or
+       type(data.l3_path_class.taken) ~= "string" then
+        return nil, "malformed v1 snapshot: " .. path
     end
     return data
 end
@@ -305,7 +320,7 @@ local function compare_snapshots(query_id, base_snap, cand_snap)
     -- L3: l3_path_class.taken (hard gate)
     local base_taken = get(base_snap, "l3_path_class", "taken")
     local cand_taken = get(cand_snap, "l3_path_class", "taken")
-    if not eq(base_taken, cand_taken) then
+    if not ignore_path_class and not eq(base_taken, cand_taken) then
         push_field("l3_path_class.taken", base_taken, cand_taken)
         if category == fmt.MATCH then category = fmt.PATH_CLASS_SHIFT end
     end
@@ -313,7 +328,7 @@ local function compare_snapshots(query_id, base_snap, cand_snap)
     -- L3: l3_path_class.reason (hard gate)
     local base_reason = get(base_snap, "l3_path_class", "reason")
     local cand_reason = get(cand_snap, "l3_path_class", "reason")
-    if not eq(base_reason, cand_reason) then
+    if not ignore_path_class and not eq(base_reason, cand_reason) then
         push_field("l3_path_class.reason", base_reason, cand_reason)
         if category == fmt.MATCH then category = fmt.PATH_CLASS_SHIFT end
     end
@@ -376,6 +391,17 @@ local cand_dir  = is_dir(candidate_path) and candidate_path or (candidate_path:m
 local base_map  = build_map(base_files,  base_dir)
 local cand_map  = build_map(cand_files,  cand_dir)
 
+-- A malformed file must fail even when it exists on only one side.
+for _, files in ipairs({base_files, cand_files}) do
+    for _, path in ipairs(files) do
+        local snapshot, err = load_yaml_file(path)
+        if not snapshot then
+            io.stderr:write("Error: " .. tostring(err) .. "\n")
+            os.exit(2)
+        end
+    end
+end
+
 -- Union of all query IDs.
 local all_ids = {}
 local seen = {}
@@ -389,15 +415,16 @@ table.sort(all_ids)
 
 -- Compare.
 local records = {}
+local malformed = false
 for _, qid in ipairs(all_ids) do
     local base_file = base_map[qid]
     local cand_file = cand_map[qid]
 
     if not base_file then
-        -- Present in candidate but not baseline: treat as new (soft drift).
+        -- An unreviewed addition changes the declared corpus and is a hard gate.
         records[#records + 1] = {
             query_id = qid,
-            category = fmt.SOFT_DRIFT,
+            category = fmt.RESULT_REGRESSION,
             fields   = {{ name = "_presence", baseline = "missing", candidate = "present" }},
         }
     elseif not cand_file then
@@ -412,9 +439,11 @@ for _, qid in ipairs(all_ids) do
         local cand_snap, e2 = load_yaml_file(cand_file)
 
         if not base_snap then
-            io.stderr:write("Warning: cannot load baseline snapshot " .. base_file .. ": " .. tostring(e1) .. "\n")
+            io.stderr:write("Error: cannot load baseline snapshot " .. base_file .. ": " .. tostring(e1) .. "\n")
+            malformed = true
         elseif not cand_snap then
-            io.stderr:write("Warning: cannot load candidate snapshot " .. cand_file .. ": " .. tostring(e2) .. "\n")
+            io.stderr:write("Error: cannot load candidate snapshot " .. cand_file .. ": " .. tostring(e2) .. "\n")
+            malformed = true
         else
             records[#records + 1] = compare_snapshots(qid, base_snap, cand_snap)
         end
@@ -444,7 +473,9 @@ for _, rec in ipairs(records) do
     end
 end
 
-if has_hard then
+if malformed then
+    os.exit(2)
+elseif has_hard then
     os.exit(1)
 elseif strict and has_soft then
     os.exit(1)
