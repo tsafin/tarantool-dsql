@@ -15,7 +15,7 @@ end
 -- Rule 3-7: canonicalize a single cell value
 local function canon_value(v)
     if v == nil or v == box.NULL then
-        return nil  -- will be emitted as null
+        return box.NULL  -- preserve array positions; emitter writes null
     end
     local t = type(v)
     if t == 'boolean' then
@@ -75,7 +75,7 @@ end
 -- Returns: { rows = [...], ordered = bool }
 function M.canon_L1(rows, ordered)
     if rows == nil then
-        return { rows = {}, ordered = ordered or false }
+        return { rows = {}, rows_sorted = not ordered }
     end
 
     -- Flatten box tuples to plain Lua tables
@@ -101,7 +101,7 @@ function M.canon_L1(rows, ordered)
     -- Rule 1: sort if not ordered
     local sorted = sort_rows(canon, ordered or false)
 
-    return { rows = sorted, ordered = ordered or false }
+    return { rows = sorted, rows_sorted = not ordered }
 end
 
 -- Canonicalize L2: normalize error messages

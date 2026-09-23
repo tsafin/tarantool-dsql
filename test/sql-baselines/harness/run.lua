@@ -3,6 +3,7 @@
 --
 -- Usage:
 --   tarantool run.lua <test_file> [--engine=memtx|vinyl] [--out=<baselines_dir>]
+--                          [--work-dir=<empty_database_dir>]
 --                                 [--forensic] [--suite=<name>]
 --
 -- Example:
@@ -38,6 +39,7 @@ local lib_dir = harness_dir .. '/../lib'
 package.path = harness_dir .. '/?.lua;' .. lib_dir .. '/?.lua;' .. package.path
 
 local fio = require('fio')
+local json = require('json')
 local snapshot_mod = require('snapshot')
 local forensic_mod = require('forensic')
 local canonicalize = require('canonicalize')
@@ -51,6 +53,7 @@ local function parse_args(args)
         baselines_root = nil,
         forensic = false,
         suite = nil,
+        work_dir = nil,
     }
     for _, a in ipairs(args) do
         if a:sub(1,1) ~= '-' then
@@ -61,6 +64,8 @@ local function parse_args(args)
             result.baselines_root = a:match('^%-%-out=(.+)')
         elseif a:match('^%-%-suite=(.+)') then
             result.suite = a:match('^%-%-suite=(.+)')
+        elseif a:match('^%-%-work%-dir=(.+)') then
+            result.work_dir = a:match('^%-%-work%-dir=(.+)')
         elseif a == '--forensic' then
             result.forensic = true
         end
@@ -74,6 +79,19 @@ if cfg.test_file == nil then
     io.stderr:write('Usage: tarantool run.lua <test_file> [--engine=memtx|vinyl] ' ..
         '[--out=<baselines_dir>] [--forensic] [--suite=<name>]\n')
     os.exit(1)
+end
+if cfg.engine ~= 'memtx' and cfg.engine ~= 'vinyl' then
+    io.stderr:write('Invalid engine: ' .. tostring(cfg.engine) .. '\n')
+    os.exit(2)
+end
+if cfg.work_dir == nil or cfg.work_dir:sub(1, 1) ~= '/' then
+    io.stderr:write('--work-dir must be an absolute, empty directory\n')
+    os.exit(2)
+end
+if not fio.stat(cfg.work_dir) or not fio.stat(cfg.work_dir):is_dir() or
+   #fio.listdir(cfg.work_dir) ~= 0 then
+    io.stderr:write('--work-dir must exist and be empty: ' .. cfg.work_dir .. '\n')
+    os.exit(2)
 end
 
 -- Resolve absolute path for test file
@@ -108,12 +126,17 @@ io.write(string.format('[harness] baselines_root=%s\n', cfg.baselines_root))
 
 -- box.cfg must come before any box.execute
 box.cfg {
+    work_dir = cfg.work_dir,
     log_level = 2,   -- errors only
     memtx_memory = 128 * 1024 * 1024,
+    memtx_max_tuple_size = 4996109,
+    vinyl_max_tuple_size = 4996109,
+    log = 'tarantool.log',
 }
 
 -- Enable seq_scan so tests that don't have explicit indexes still work
 box.execute("SET SESSION \"sql_seq_scan\" = true")
+box.space._session_settings:update('sql_default_engine', {{'=', 2, cfg.engine}})
 
 -- ── Query interception ────────────────────────────────────────────────────────
 -- We intercept box.execute to capture every SQL statement the test file runs,
@@ -183,26 +206,81 @@ box.execute = intercepted_execute
 
 -- Suppress os.exit so the harness keeps running after the test completes
 local _real_os_exit = os.exit
+local test_exit_code = nil
 os.exit = function(code)
-    -- store the exit code but don't actually exit yet
-    os._harness_exit_code = code
+    -- sqltester.finish_test() reports failed TAP assertions through this.
+    code = code or 0
+    if test_exit_code == nil or code ~= 0 then
+        test_exit_code = code
+    end
 end
+
+-- box.cfg was already called above with harness defaults; test files and
+-- sqltester/test_run sometimes call it again with different options (log,
+-- listen, etc.) that Tarantool rejects as "can't set dynamically". Wrap
+-- box.cfg so subsequent calls swallow the error and continue; test files
+-- that genuinely need reconfig will still get their SQL captured because
+-- interception is at box.execute, not box.cfg.
+local _real_box_cfg = box.cfg
+local cfg_errors = 0
+box.cfg = setmetatable({}, {
+    __call = function(_, opts)
+        local ok, err = pcall(_real_box_cfg, opts)
+        if not ok then
+            cfg_errors = cfg_errors + 1
+            io.stderr:write('[harness] swallowed box.cfg error: ' .. tostring(err) .. '\n')
+        end
+    end,
+    __index = _real_box_cfg,
+    __newindex = _real_box_cfg,
+})
 
 -- Suppress tap output (sqltester uses tap module which writes to stdout)
 -- We redirect by providing a no-op print — actually keep stdout as-is for now;
 -- TAP noise is acceptable since we only care about captured_queries.
 
--- Add sql-tap lua helpers to path so sqltester and sql_tokenizer resolve
+-- Extend package.path so sqltester, sql_tokenizer, and test_run resolve.
+-- test-run.py normally copies these into a temp dir; here we point at their
+-- source locations. sql_tokenizer lives under test/sql/lua/, not test/sql-tap/lua/,
+-- so both need to be on the path when running any sql-tap test. Derive the
+-- repo root from the test file path (test/<suite>/<file>.test.lua → repo).
 local test_dir = cfg.test_file:match('^(.+)/[^/]+$')
+local repo_root = cfg.test_file:match('^(.+)/test/[^/]+/[^/]+%.lua$')
 package.path = test_dir .. '/?.lua;' ..
                test_dir .. '/lua/?.lua;' ..
+               (repo_root and (repo_root .. '/test/sql/lua/?.lua;') or '') ..
+               (repo_root and (repo_root .. '/test/sql-tap/lua/?.lua;') or '') ..
+               (repo_root and (repo_root .. '/test/luatest/?.lua;') or '') ..
                package.path
+-- sqltester obtains its engine from test_run when present. Provide only the
+-- configuration interface needed for standalone capture; tests needing the
+-- full inspector will fail and be excluded until a test-run adapter exists.
+if suite == 'sql-tap' then
+    package.preload.test_run = function()
+        return {new = function()
+            return {get_cfg = function(_, key)
+                if key == 'engine' then return cfg.engine end
+                return nil
+            end}
+        end}
+    end
+end
+-- Do NOT add test-run/ to LUA_PATH: sqltester wraps require('test_run') in
+-- pcall and treats the module as optional. If the require succeeds,
+-- sqltester calls test_run.new() unprotected, which fails standalone with
+-- "Inspector not started". Absence of test_run on the path is the sqltester
+-- convention for "not running under test-run.py."
 
 -- Execute the test file
 local ok_load, load_err = pcall(dofile, cfg.test_file)
 if not ok_load then
-    io.stderr:write('[harness] Test file execution error (non-fatal, continuing with captured queries): ' ..
+    io.stderr:write('[harness] Test file execution error: ' ..
         tostring(load_err) .. '\n')
+end
+local engine_tuple = box.space._session_settings:get('sql_default_engine')
+local runtime_engine = engine_tuple and engine_tuple[2] or 'unknown'
+if runtime_engine ~= cfg.engine then
+    io.stderr:write('[harness] Runtime engine changed to ' .. tostring(runtime_engine) .. '\n')
 end
 
 -- Restore os.exit
@@ -215,8 +293,10 @@ io.write(string.format('[harness] Captured %d SQL statements\n', #captured_queri
 local written = 0
 local skipped = 0
 local errors_seen = 0
+local test_ok = ok_load and cfg_errors == 0 and test_exit_code == 0 and
+                #captured_queries > 0 and runtime_engine == cfg.engine
 
-for seq, q in ipairs(captured_queries) do
+for seq, q in ipairs(test_ok and captured_queries or {}) do
     -- Skip empty or whitespace-only SQL
     local sql_trimmed = q.sql:match('^%s*(.-)%s*$')
     if sql_trimmed == '' then
@@ -265,5 +345,34 @@ end
 io.write(string.format('[harness] Done. written=%d skipped=%d errors=%d\n',
     written, skipped, errors_seen))
 
-local rc = (errors_seen > 0) and 1 or 0
+local rc = (test_ok and errors_seen == 0 and written > 0) and 0 or 1
+local manifest_path = string.format('%s/manifests/%s/%s.%s.json',
+    cfg.baselines_root, suite, test_basename, cfg.engine)
+fio.mktree(manifest_path:match('^(.+)/[^/]+$'))
+local manifest = {
+    manifest_version = 1,
+    suite = suite,
+    test_file = source_file,
+    engine = cfg.engine,
+    dispatcher_requested = os.getenv('VDBE_DISPATCHER') or 'generated',
+    sql_jit_enable = os.getenv('SQL_JIT_ENABLE') == '1',
+    runtime_engine = runtime_engine,
+    test_exit_code = test_exit_code or 'missing',
+    test_load_ok = ok_load,
+    test_load_error = ok_load and '' or tostring(load_err),
+    cfg_errors = cfg_errors,
+    captured_queries = #captured_queries,
+    written_snapshots = written,
+    skipped_queries = skipped,
+    snapshot_errors = errors_seen,
+    accepted = rc == 0,
+}
+local mf, mf_err = io.open(manifest_path, 'w')
+if not mf then
+    io.stderr:write('[harness] Cannot write manifest: ' .. tostring(mf_err) .. '\n')
+    os.exit(1)
+end
+mf:write(json.encode(manifest), '\n')
+mf:close()
+io.write('[harness] manifest=' .. manifest_path .. ' accepted=' .. tostring(rc == 0) .. '\n')
 os.exit(rc)

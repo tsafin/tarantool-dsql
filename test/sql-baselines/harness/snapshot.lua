@@ -11,6 +11,7 @@ local fio = require('fio')
 -- Resolve lib path relative to this file's location
 local harness_dir = debug.getinfo(1, 'S').source:match('^@(.+)/[^/]+$') or '.'
 local lib_dir = harness_dir .. '/../lib'
+local repository_dir = fio.abspath(harness_dir .. '/../../..')
 package.path = package.path .. ';' .. lib_dir .. '/?.lua'
 
 local yaml_emitter = require('canonical_yaml')
@@ -30,9 +31,9 @@ local M = {}
 -- Test basename is the file stem (extension stripped).
 local yaml_decode = require('yaml').decode
 local classification_cache = nil
-local function load_classification(baselines_root)
+local function load_classification()
     if classification_cache ~= nil then return classification_cache end
-    local path = baselines_root .. '/classification.yaml'
+    local path = harness_dir .. '/../classification.yaml'
     local f = io.open(path, 'r')
     if not f then
         io.stderr:write('[WARN] classification.yaml not found at ' .. path ..
@@ -97,7 +98,8 @@ end
 
 -- Return short git commit hash (first 10 chars) or "unknown".
 local function git_commit()
-    local f = io.popen('git rev-parse --short=10 HEAD 2>/dev/null')
+    local f = io.popen('git -C ' .. string.format('%q', repository_dir) ..
+                       ' rev-parse --short=10 HEAD 2>/dev/null')
     if not f then return 'unknown' end
     local s = f:read('*l') or 'unknown'
     f:close()
@@ -135,7 +137,7 @@ function M.write(params)
     local L2 = canonicalize.canon_L2(status, p.err)
 
     -- Load feature tags
-    local cls = load_classification(p.baselines_root)
+    local cls = load_classification()
     local cls_key = p.suite .. '/' .. p.test_basename
     local tags = cls[cls_key] or {}
 
