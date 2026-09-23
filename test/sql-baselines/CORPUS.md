@@ -22,9 +22,10 @@ before `diff.lua` compares snapshots. The workflows run this sequence on both
 memtx and Vinyl. The dispatcher workflow also requires positive CnP/LLVM
 execution counters in manifest v1.
 
-The `gh-2884-forbid-rowid-syntax` seed requires harness semantic fix
-`b1535bb0ba`: `box.execute` can return an error as its second result. Merge
-that fix before enabling this policy. Each future inclusion needs normal-runner
-comparison on every listed engine and a documented reason. Full M0-B acceptance
-also requires a reviewed decision for every pending test, stable recapture,
-and baseline storage review.
+The `gh-2884-forbid-rowid-syntax` seed relies on harness semantic fix
+`b1535bb0ba`: `box.execute` can return an error as its second result. The
+combined native-dispatch build also needs `ENABLE_SQL_CNP=ON` alongside
+`ENABLE_SQL_JIT=ON`. Each future inclusion needs normal-runner comparison on
+every listed engine and a documented reason. Full M0-B acceptance also
+requires a reviewed decision for every pending test, stable recapture, and
+baseline storage review.

@@ -128,20 +128,19 @@ version and acceptance evidence in its review.
 gated on "no result regression, no diagnostic regression, and reviewed
 planner-path changes."
 
-**State:** `PROTOTYPE` — M0.1–M0.7 code is committed on
-`tsafin/nextgen_sql`. M0-A now has fail-closed standalone capture, an
-isolated database directory, per-test manifest v1, a capture validator, and
-execution-counter proof for requested CnP/LLVM modes (`877e740b1c`,
-`bfa67f254c`, `75ff76c7b2`). One passing SQL TAP test was captured under
-generated and CnP on Vinyl; a synthetic memtx query exercised NULL and an
-LLVM-enabled build. A failing TAP test produced a rejected manifest with no
-snapshots. This is seed evidence, not full M0-A acceptance: equivalence to
-the normal test runner, broader result/error coverage, and suite adapters
-remain. Both CI workflows still have placeholder capture steps. The local
-worktree also contains about 132,000 older untracked snapshots (roughly
-528 MB), only for `sql-tap`/memtx; they are not an accepted baseline.
-The classifier supplies file-level tags, which must not be interpreted as
-query-level feature coverage. M0-B completes coverage and CI.
+**State:** `PROTOTYPE` — the standalone capture and manifest-v1 contract are
+fail-closed, and the two CI workflows run a real three-test seed smoke gate.
+The seed policy (`test/sql-baselines/corpus.json`) inventories 385 tests:
+three reviewed inclusions and 382 pending decisions. Normal-runner and
+standalone outcomes agree for the two shared-engine seeds. The local seed
+matrix passes on memtx and Vinyl under generated, CnP, and LLVM dispatch,
+with 69/70 snapshots per mode respectively and zero cross-mode drift; a
+repeat memtx/generated capture also matches. This is **not** M0-B acceptance:
+the pending corpus, other suite adapters, schema/path-policy review, and
+baseline storage decision remain. The local worktree also contains about
+132,000 older untracked snapshots (roughly 528 MB), only for `sql-tap`/memtx;
+they are not an accepted baseline. The classifier supplies file-level tags,
+which must not be interpreted as query-level feature coverage.
 
 **Scope (B-light):** capture L1 result rows, L2 diagnostic, L3 path_class
 per (test × engine), plus an external run manifest proving coverage and
@@ -188,15 +187,15 @@ are deferred to M3 when the descriptor exists naturally.
   row → RESULT-REGRESSION exit 1. M0.8b must replace blanket L3 equality
   with the reviewed path policy before M3 can switch planners.
 - [ ] **M0.5** CI: snapshot diff job — `.github/workflows/parity-corpus.yml`
-  builds PR head and merge-base, runs the harness on both, diffs via
-  `diff.lua`. Landed with M0.4. Carries `TODO(m0.2-merge)` where the real
-  harness invocation replaces the stub echo. Complete under M0.8d.
+  builds PR head and merge-base, runs real isolated seed captures on both
+  engines, checks manifest coverage, then diffs via `diff.lua`. The seed
+  implementation is landed; expand to the accepted full corpus under M0.8d.
 - [ ] **M0.6** CI: dispatcher parity job —
   `.github/workflows/dispatcher-parity.yml`. Matrix
   `{memtx, vinyl} × {generated, cnp, llvm}`. Compares CnP and LLVM outputs
   against generated; fails with `JIT-CORRECTNESS-REGRESSION:<dispatcher>` on
-  any L1 or L2 divergence. Landed with M0.4. Same `TODO(m0.2-merge)` stub
-  pattern as M0.5. Complete under M0.8d.
+  any L1 or L2 divergence. Real seed capture and coverage checks are landed;
+  expand to the accepted full corpus under M0.8d.
 - [x] **M0.7** Perf-trail emitter — `test/sql-baselines/perf/emit.lua`
   records timing via `fiber.clock64()`, writes one CSV per CI run at
   `test/sql-baselines/perf/<YYYY-MM-DD>-<sha>.csv`. Accompanying
@@ -210,8 +209,9 @@ are deferred to M3 when the descriptor exists naturally.
   test/query counts and exclusion reasons. Do not accept the current
   untracked snapshot tree as ground truth. The harness contract and manifest
   format are serial integration points; fixtures and diagnostic probes may
-  be built independently. Manifest v1 and validator are now committed;
-  normal-runner equivalence and additional seed classes are outstanding.
+  be built independently. Manifest v1, validator, runner-equivalent shared-
+  engine seeds, and six-way dispatcher capture are committed. More result/
+  error classes and suite adapters remain before treating M0-A as complete.
 - [ ] **M0.8b** Reconcile SCHEMA.md and the tools: file-level versus
   query-level tags, query identity, result order, diagnostic codes,
   metadata that should not affect parity, and schema versioning. Verify
@@ -223,11 +223,11 @@ are deferred to M3 when the descriptor exists naturally.
   a named integration commit rather than the moving local `master` branch.
   *parallel: yes* for independent suite/engine shards after M0-A, but one
   owner assembles and accepts the manifest and baseline.
-- [ ] **M0.8d** Replace workflow stubs with real isolated invocations.
-  Compare each PR head against the selected baseline with explicit coverage
-  equality; run dispatcher parity on both engines where supported. Keep CI
-  failing on a missing or empty corpus. *parallel: yes* after M0-A contract;
-  integrate once with the accepted baseline.
+- [ ] **M0.8d** Expand the real isolated seed CI invocations to the accepted
+  corpus. Compare each PR head against the selected baseline with explicit
+  coverage equality; run dispatcher parity on both engines where supported.
+  Keep CI failing on a missing or empty corpus. *parallel: yes* after M0-A
+  contract; integrate once with the accepted baseline.
 
 ---
 
