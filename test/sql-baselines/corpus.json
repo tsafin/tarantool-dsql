@@ -1,0 +1,22 @@
+{
+  "policy_version": 1,
+  "scope": "seed-smoke",
+  "pending_reason": "standalone harness equivalence to test-run.py has not been established for this test",
+  "included": [
+    {
+      "test": "sql-tap/gh-6113-assert-in-hex-on-zeroblob.test.lua",
+      "engines": ["vinyl"],
+      "reason": "passing real SQL TAP seed captured and validated on Vinyl"
+    },
+    {
+      "test": "sql-tap/gh-2884-forbid-rowid-syntax.test.lua",
+      "engines": ["memtx", "vinyl"],
+      "reason": "normal runner and fixed harness agree; includes an expected SQL error"
+    },
+    {
+      "test": "sql-tap/null.test.lua",
+      "engines": ["memtx", "vinyl"],
+      "reason": "normal runner and fixed harness agree; covers DDL, DML and NULL results"
+    }
+  ]
+}

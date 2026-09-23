@@ -1,0 +1,158 @@
+#!/usr/bin/env python3
+"""Inventory, capture and compare the explicitly reviewed SQL seed corpus.
+
+Capture consumes harness manifest v1; every test gets an empty database work
+directory, and the entire result tree is validated before it can be compared.
+"""
+
+import argparse
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+
+
+SUITES = ("sql", "sql-tap", "sql-luatest")
+HERE = Path(__file__).resolve().parent
+POLICY = json.loads((HERE / "corpus.json").read_text())
+
+
+def inventory(repo):
+    discovered = set()
+    for suite in SUITES:
+        suite_dir = repo / "test" / suite
+        patterns = ("*.test.lua", "*.test.sql") if suite != "sql-luatest" \
+                   else ("*_test.lua",)
+        for pattern in patterns:
+            discovered.update(f"{suite}/{path.name}" for path in suite_dir.glob(pattern))
+    included = {}
+    for entry in POLICY["included"]:
+        test = entry["test"]
+        if test in included or test not in discovered:
+            raise ValueError(f"duplicate or absent corpus test: {test}")
+        engines = entry["engines"]
+        if not engines or any(e not in ("memtx", "vinyl") for e in engines):
+            raise ValueError(f"invalid engine policy for {test}")
+        included[test] = entry
+    return [{"test": test,
+             "status": "included" if test in included else "pending",
+             "engines": included[test]["engines"] if test in included else [],
+             "reason": included[test]["reason"] if test in included else
+                       POLICY["pending_reason"]}
+            for test in sorted(discovered)]
+
+
+def run(*argv, env=None, cwd=None):
+    subprocess.run([str(item) for item in argv], check=True, env=env, cwd=cwd)
+
+
+def manifests(root):
+    result = {}
+    for path in sorted((root / "manifests").rglob("*.json")):
+        manifest = json.loads(path.read_text())
+        key = (manifest["test_file"], manifest["engine"])
+        if key in result:
+            raise ValueError(f"duplicate manifest identity: {key}")
+        result[key] = manifest
+    return result
+
+
+def check_coverage(root, rows, engine, mode):
+    expected = {(row["test"], engine) for row in rows
+                if row["status"] == "included" and engine in row["engines"]}
+    if not expected:
+        raise ValueError(f"empty reviewed corpus for engine {engine}")
+    actual = manifests(root)
+    if set(actual) != expected:
+        raise ValueError(f"manifest coverage mismatch: missing={sorted(expected - set(actual))}; "
+                         f"unexpected={sorted(set(actual) - expected)}")
+    for key, manifest in actual.items():
+        if manifest.get("manifest_version") != 1 or not manifest.get("accepted") or \
+           manifest.get("execution_mode") != mode or \
+           manifest.get("mode_executed") is not True:
+            raise ValueError(f"rejected or wrong-mode manifest: {key}")
+        counter = {"cnp": "cnp_exec_delta", "llvm": "llvm_exec_delta"}.get(mode)
+        if counter and (not isinstance(manifest.get(counter), (int, float)) or
+                        manifest[counter] <= 0):
+            raise ValueError(f"requested {mode} did not execute for {key}")
+    print(f"coverage: engine={engine} mode={mode} tests={len(actual)} "
+          f"queries={sum(m['captured_queries'] for m in actual.values())}")
+    return actual
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    sub = parser.add_subparsers(dest="command", required=True)
+    inv = sub.add_parser("inventory")
+    inv.add_argument("--repo", type=Path, required=True)
+    inv.add_argument("--out", type=Path)
+    cap = sub.add_parser("capture")
+    cap.add_argument("--repo", type=Path, required=True)
+    cap.add_argument("--binary", type=Path, required=True)
+    cap.add_argument("--out", type=Path, required=True)
+    cap.add_argument("--engine", choices=("memtx", "vinyl"), required=True)
+    cap.add_argument("--mode", choices=("generated", "cnp", "llvm"), required=True)
+    cmp = sub.add_parser("compare-coverage")
+    cmp.add_argument("--base", type=Path, required=True)
+    cmp.add_argument("--candidate", type=Path, required=True)
+    cmp.add_argument("--repo", type=Path, required=True)
+    cmp.add_argument("--engine", choices=("memtx", "vinyl"), required=True)
+    cmp.add_argument("--base-mode", choices=("generated", "cnp", "llvm"), default="generated")
+    cmp.add_argument("--candidate-mode", choices=("generated", "cnp", "llvm"), default="generated")
+    args = parser.parse_args()
+    rows = inventory(args.repo.resolve())
+    if args.command == "inventory":
+        report = {"policy_version": POLICY["policy_version"],
+                  "scope": POLICY["scope"], "tests": rows,
+                  "summary": {"total": len(rows),
+                              "included": sum(r["status"] == "included" for r in rows),
+                              "pending": sum(r["status"] == "pending" for r in rows)}}
+        encoded = json.dumps(report, indent=2) + "\n"
+        if args.out:
+            args.out.write_text(encoded)
+        else:
+            print(encoded, end="")
+    elif args.command == "capture":
+        repo, binary, out = args.repo.resolve(), args.binary.resolve(), args.out.resolve()
+        if not binary.is_file():
+            raise ValueError(f"binary does not exist: {binary}")
+        if out.exists() and any(out.iterdir()):
+            raise ValueError(f"capture output must be empty: {out}")
+        out.mkdir(parents=True, exist_ok=True)
+        selected = [r for r in rows if r["status"] == "included" and
+                    args.engine in r["engines"]]
+        if not selected:
+            raise ValueError(f"empty reviewed corpus for engine {args.engine}")
+        env = os.environ.copy()
+        env["VDBE_DISPATCHER"] = "cnp" if args.mode == "cnp" else "generated"
+        env["SQL_JIT_ENABLE"] = "1" if args.mode == "llvm" else "0"
+        harness = HERE / "harness" / "run.lua"
+        build_dir = binary.parent.parent
+        with tempfile.TemporaryDirectory(prefix="sql-corpus-work-") as temp:
+            for index, row in enumerate(selected):
+                work = Path(temp) / str(index)
+                work.mkdir()
+                run(binary, harness, repo / "test" / row["test"],
+                    f"--engine={args.engine}", f"--out={out}",
+                    f"--work-dir={work}", env=env, cwd=build_dir)
+        run(binary, HERE / "validate.lua", out, cwd=build_dir)
+        check_coverage(out, rows, args.engine, args.mode)
+    else:
+        base = check_coverage(args.base, rows, args.engine, args.base_mode)
+        candidate = check_coverage(args.candidate, rows, args.engine,
+                                   args.candidate_mode)
+        for key in base:
+            if base[key]["captured_queries"] != candidate[key]["captured_queries"]:
+                raise ValueError(f"query count changed for {key}: "
+                                 f"{base[key]['captured_queries']} -> "
+                                 f"{candidate[key]['captured_queries']}")
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (ValueError, OSError, subprocess.CalledProcessError, KeyError) as exc:
+        print(f"corpus: {exc}", file=sys.stderr)
+        sys.exit(1)

@@ -352,11 +352,14 @@ The manifest/schema owner integrates these tracks serially; S0 is complete.
 
 ## Resolved decisions
 
-- **Language: Lua, not Python.** Tarantool is a Lua shop with embedded LuaJIT.
-  Modern Tarantool tests use `luatest`. The harness, classifier, diff tool,
-  and CI integration are all written in Lua. The in-Tarantool capture helper
-  runs natively; the diff/classifier tools run via standalone `tarantool`
-  binary if needed outside the test harness. YAML serialization uses a
+- **Language: Lua for capture, schema and parity semantics; Python for the
+  outer batch runner.** Tarantool is a Lua shop with embedded LuaJIT. Modern
+  Tarantool tests use `luatest`. The harness, classifier, validator, and diff
+  tool run via the Tarantool binary. `corpus.py` uses only the Python standard
+  library to enumerate suite files, launch isolated Tarantool processes, and
+  check manifest identity and query counts. This matches the existing Python
+  test-run.py infrastructure while keeping result interpretation in Lua.
+  YAML serialization uses a
   vendored canonical-YAML implementation (or `lua-yaml` with explicit
   sort-keys pass) — NOT PyYAML.
 - **Feature tags: denormalized per snapshot** (full tag set copied from
