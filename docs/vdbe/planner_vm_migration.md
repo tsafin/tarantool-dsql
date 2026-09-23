@@ -36,6 +36,34 @@ The short answer is:
 This gives a gradual migration path. It avoids a flag day rewrite of the VM and
 lets the new planner prove itself behind compatibility gates.
 
+## Revised delivery boundary (2026-09-24)
+
+The first implementation boundary is a trustworthy M0-A seed corpus and
+capture contract, followed by M1's statement-level `path_class` and replay
+envelope. M3 consumes those interfaces. Its first single-table implementation
+can plan with the current estimates or a fixed test statistics provider;
+S1/S2 can develop concurrently. Production promotion waits for the full
+M0-B corpus and dispatcher parity, while the later enumerator evaluation
+waits for integrated S2 statistics.
+
+```mermaid
+flowchart LR
+    A["M0-A seed parity"] --> B["M1 path class and replay"]
+    B --> C["M3 logical and physical IR"]
+    C --> D["M3 VDBE lowering behind flag"]
+    E["S1/S2 statistics"] --> F["E1 bounded DP evaluation"]
+    D --> F
+    G["M0-B full parity CI"] --> H["production promotion"]
+    D --> H
+```
+
+The `path_class` producer is the statement/planner boundary, including
+fallbacks; the M0 harness must read it rather than hard-code
+`current_where_c`. The descriptor's optional `plan:` snapshot is introduced
+only when M3 can emit it. One owner integrates routing through the existing
+resolver and `where.c` paths after independently tested IR and lowering
+modules are ready.
+
 ## The Core Ordering Problem
 
 PostgreSQL has plan nodes such as:

@@ -3,8 +3,9 @@
 ## Purpose
 
 This document is the single source of truth for the analytics-focused SQL
-engine work on this machine and branch (`tsafin/llvm_jit` and its
-descendants).
+engine work on `tsafin/nextgen_sql` and its descendants. Status below was
+reconciled with the local tree on 2026-09-24; uncommitted files are evidence
+of work in progress, not completed deliverables.
 
 Scope is deliberately narrow:
 
@@ -44,13 +45,15 @@ roadmap accurately reflects how far an item has progressed past spec.
 | State | Meaning |
 |-------|---------|
 | `NOT-STARTED` | No work, no spec beyond a paragraph in this file. |
-| `SPEC-DRAFTED` | A focused spec doc exists; reviewers have signed off on shape. |
-| `PROTOTYPE` | Working code behind a feature flag, but not gated by CI. |
+| `SPEC-DRAFTED` | A focused spec exists; implementation has not started. |
+| `PROTOTYPE` | Working code or tooling exists, but acceptance/CI gates are incomplete. |
 | `FEATURE-GATED` | Default off in production builds; CI runs it on the parity corpus. |
 | `PRODUCTION` | Default on; old path removed or scheduled for removal. |
+| `COMPLETE` | A finite audit or decision deliverable is finished and recorded. |
 
-The migration path for any item is:
+The implementation maturity path is:
 `NOT-STARTED → SPEC-DRAFTED → PROTOTYPE → FEATURE-GATED → PRODUCTION`.
+Audits and decisions can instead end at `COMPLETE`.
 
 ## Execution model
 
@@ -66,85 +69,92 @@ worktrees. Implications:
 - Sub-tasks marked `parallel: no` need human attention or touch a shared
   contract (descriptor, system-space schema) and should run serially.
 
-## Timeline
+## Dependency and integration plan
 
-Calendar weeks, part-time effort, prototype lower bounds. Not commitments.
+The dates in the earlier Gantt were prototype estimates and are now stale.
+Use this dependency graph for scheduling. Arrows mean an accepted interface
+or gate. The M0 contract and a small trusted corpus unblock development;
+full-corpus coverage is required before production promotion.
 
 ```mermaid
-gantt
-    title Tarantool SQL Analytics Engine Roadmap
-    dateFormat YYYY-MM-DD
-    axisFormat %b %d
-
-    section M0 Parity Corpus
-    M0 Parity corpus + harness        :m0,    2026-06-22, 35d
-
-    section M1 Observability
-    M1 Planner snapshot + replay      :m1,    after m0,   42d
-
-    section Statistics
-    S0 Stats audit                    :s0,    after m0,   14d
-    S1 Relation/index stats           :s1,    after s0,   70d
-    S2 Column stats + sketches        :s2,    after s1,   56d
-
-    section Planner IR
-    M3 Single-table IR + lowering     :m3,    after m1,   56d
-    E1 Improved bounded DP baseline   :e1,    after m3,   28d
-
-    section Decisions
-    GATE Enumerator bake-off?         :crit,  gate, after e1, 14d
+flowchart LR
+    A["M0-A: validate harness and seed corpus"] --> B["M0-B: trusted baseline and CI"]
+    A --> C["M1: planner observability and replay"]
+    D["S0: audit complete"] --> E["S1: relation and index stats"]
+    A --> E
+    E --> F["S2: column stats and selectivity"]
+    C --> G["M3: single-table IR and VDBE lowering"]
+    A --> G
+    B --> H["promotion parity gate"]
+    F --> I["E1: bounded DP with properties"]
+    G --> I
+    I --> J["GATE: enumerator decision"]
+    H --> J
 ```
 
-Approximate calendar landing for the gate decision: **mid-2027**, assuming
-part-time effort and steady LLM-session parallelism. Faster if the human can
-batch reviews; slower if statistics validation reveals scope expansion.
+S1 and M1 can progress concurrently after the M0-A contract is stable.
+M3 may use the current estimates or a fixed test provider while S1/S2 are
+built. M3's first parity gate therefore does not depend on completed column
+statistics. E1 and the final decision require the real statistics path.
 
-## Worktree parallelism plan
+## Parallel work and integration ownership
 
-These pairs of tracks can run concurrently in separate worktrees. Each row
-identifies a worktree branch name suggestion and which other worktrees it
-conflicts with.
+Parallelism means separate branches or worktrees with one owner per shared
+interface. Each track must define a narrow contract before others consume it;
+integration runs serially. No simultaneous test-run.py or performance runs
+against shared build directories, ports, or databases.
 
-| Track | Branch suggestion | Conflicts with | Independent of |
-|-------|-------------------|----------------|----------------|
-| M0 harness/tooling | `m0/harness` | none (new files only) | everything |
-| M1 observability | `m1/explain-snapshot` | M3 (snapshot format) | S0, S1, S2 |
-| S0 audit | `s0/audit` | none (read-only) | everything |
-| S1 system spaces | `s1/stats-spaces` | M1 (sql.c hook points) | M0, S0, M3 |
-| S2 column stats | `s2/column-sketches` | S1 (schema sharing) | M0, M1, M3 |
-| M3 planner IR | `m3/single-table-ir` | M1 (path_class) | S1, S2 |
+| Track | Can start after | Independent work | Serial integration point |
+|-------|-----------------|------------------|--------------------------|
+| M0 harness validity | now | isolated test execution, capture manifest, failure propagation | SCHEMA.md semantics and harness API |
+| M0 corpus/CI | M0 harness contract | representative fixtures, coverage report, workflow wiring | CI gate and accepted snapshots |
+| M1 observability | M0-A contract | counters, replay serializer, EXPLAIN surface | one owner for `sql.c`, grammar and path-class API |
+| S1 statistics | S0 + M0-A contract | storage schema design, sampling adapters, immutable snapshot API | system-space IDs, `sql.c`, `where.c` adapter |
+| S2 algorithms | S1 snapshot contract | HLL, MCV, histogram and synthetic data | persistence schema and selectivity adapter |
+| M3 planner | M1 path-class and replay contract | logical IR, physical IR, lowering tests using fixed stats | resolver/`where.c` routing and feature flag |
+| E1 evaluation | S2 + M3 integrated | benchmark workload design and measurement tooling | `wherePathSolver` and decision report |
 
-LLM sessions are not allowed to merge to `master` themselves; the human
-reviews and merges. Long-lived worktrees should rebase on `master` weekly
-to avoid drift.
+Schema IDs and persistent formats need explicit review before implementation.
+Keep the owner of `where.c` integration singular at each merge point. Merge
+small, testable slices; do not hold a long-lived branch until an entire
+milestone finishes. Each track's changes must state the exact interface
+version and acceptance evidence in its review.
 
 ---
 
 ## M0 — Parity Corpus & Baseline Harness
 
 **Goal:** establish a queryable parity baseline so every later phase can be
-gated on "no result regression, no diagnostic regression, no path-class
-regression."
+gated on "no result regression, no diagnostic regression, and reviewed
+planner-path changes."
 
-**State:** `PROTOTYPE` — M0.1–M0.7 code landed on staging branch
-`tsafin/nextgen_sql` (mine-secret remote) as of 2026-07-11. M0.5/M0.6 CI
-workflows are wired but carry `TODO(m0.2-merge)` stubs where the harness
-invocation replaces the placeholder echo — one-line-per-stub edit at the
-llvm_jit integration point. M0.8 (snapshot bootstrap) is the remaining step
-that lifts M0 to `FEATURE-GATED`.
+**State:** `PROTOTYPE` — M0.1–M0.7 code is committed on
+`tsafin/nextgen_sql`. Both CI workflows still have placeholder capture steps.
+The local worktree has an uncommitted harness change and about 132,000
+untracked snapshots (roughly 528 MB), only for `sql-tap`/memtx. They are
+not an accepted baseline. The harness currently ignores test-file load errors
+and suppresses subsequent `box.cfg` errors; those paths can yield a green
+process with incomplete capture. The classifier supplies file-level tags,
+which must not be interpreted as query-level feature coverage. M0-A fixes
+capture validity; M0-B completes coverage and CI.
 
 **Scope (B-light):** capture L1 result rows, L2 diagnostic, L3 path_class
-per (test × engine). Dispatcher dimension is a runtime parity check, not a
-stored dimension. L7 latency goes to a separate perf-trail CSV. L4/L5 (plan
-shape) deferred to M3 when the descriptor exists naturally.
+per (test × engine), plus an external run manifest proving coverage and
+outcome. Dispatcher dimension is a runtime parity check, not a stored
+dimension. L7 latency goes to a separate perf-trail CSV. L4/L5 (plan shape)
+are deferred to M3 when the descriptor exists naturally.
 
 **Exit criteria:**
 
-- every `test/sql*` test classified by feature family;
-- snapshots exist for all in-corpus tests under (memtx, vinyl);
-- CI runs a snapshot diff on planner-touching PRs;
-- CI runs the dispatcher parity check (generated / CnP / LLVM agree on L1+L2)
-  on every PR.
+- every in-scope SQL test inventoried, with file-level feature tags and
+  explicit query-level coverage only where verified;
+- a reviewed inclusion/exclusion manifest identifies every test in the three
+  SQL suites and records each suite/engine run outcome;
+- accepted snapshots cover every runnable in-corpus test for its supported
+  engine(s), with stable query identity and a passing recapture comparison;
+- test failures, partial capture, missing snapshots, and unavailable
+  dispatchers fail closed rather than producing a success-shaped diff;
+- CI runs the real snapshot and dispatcher parity jobs on the defined corpus.
 
 **Subtasks:**
 
@@ -159,36 +169,59 @@ shape) deferred to M3 when the descriptor exists naturally.
   per captured query at `test/sql-baselines/snapshots/<suite>/<test>/q%02d.<engine>.yaml`
   per SCHEMA.md v1. Landed at nextgen_sql `4f8dc74e0b`. Verified end-to-end
   on a 7-statement mini SQL test.
-- [x] **M0.3** Forensic L6 capture — `test/sql-baselines/harness/forensic.lua`
-  writes a marked placeholder to `test/sql-baselines/forensics/`.
+- [ ] **M0.3** Forensic L6 capture — `test/sql-baselines/harness/forensic.lua`
+  currently writes a marked placeholder to `test/sql-baselines/forensics/`.
   Per-statement VDBE opcode trace requires a Lua-accessible hook in
   `src/box/sql/vdbe.c` that does not yet exist; module header documents three
-  C-side implementation options for follow-up work. Landed with M0.2.
+  C-side implementation options for follow-up work. The scaffold landed
+  with M0.2; real trace capture remains deferred and is not an M0-B gate.
 - [x] **M0.4** Diff tool — `test/sql-baselines/diff.lua`. Compares two
   snapshot trees, classifies drift as RESULT-REGRESSION / DIAGNOSTIC-CHANGE
-  / PATH-CLASS-SHIFT (hard gates) or SOFT-DRIFT (advisory). Emits text /
+  / PATH-CLASS-SHIFT (currently a hard gate) or SOFT-DRIFT (advisory). Emits text /
   yaml / json; exit 1 on any hard-gate. Landed at nextgen_sql `a3c6dbf191`.
   Verified: identical inputs → 0 hard, 0 soft, all-MATCH exit 0; mutated
-  row → RESULT-REGRESSION exit 1.
-- [x] **M0.5** CI: snapshot diff job — `.github/workflows/parity-corpus.yml`
+  row → RESULT-REGRESSION exit 1. M0.8b must replace blanket L3 equality
+  with the reviewed path policy before M3 can switch planners.
+- [ ] **M0.5** CI: snapshot diff job — `.github/workflows/parity-corpus.yml`
   builds PR head and merge-base, runs the harness on both, diffs via
   `diff.lua`. Landed with M0.4. Carries `TODO(m0.2-merge)` where the real
-  harness invocation replaces the stub echo.
-- [x] **M0.6** CI: dispatcher parity job —
+  harness invocation replaces the stub echo. Complete under M0.8d.
+- [ ] **M0.6** CI: dispatcher parity job —
   `.github/workflows/dispatcher-parity.yml`. Matrix
   `{memtx, vinyl} × {generated, cnp, llvm}`. Compares CnP and LLVM outputs
   against generated; fails with `JIT-CORRECTNESS-REGRESSION:<dispatcher>` on
   any L1 or L2 divergence. Landed with M0.4. Same `TODO(m0.2-merge)` stub
-  pattern as M0.5.
+  pattern as M0.5. Complete under M0.8d.
 - [x] **M0.7** Perf-trail emitter — `test/sql-baselines/perf/emit.lua`
   records timing via `fiber.clock64()`, writes one CSV per CI run at
   `test/sql-baselines/perf/<YYYY-MM-DD>-<sha>.csv`. Accompanying
   `perf/aggregate.lua` reads a directory of those CSVs and emits a markdown
   trend table. `sample.csv` aligned with SCHEMA.md §L7 exemplar. Landed at
   nextgen_sql `b33719055e` + `1a9c7933b6` (gitignore).
-- [ ] **M0.8** Snapshot bootstrap — run the harness against `master`, commit
-  initial snapshots as the parity baseline. *parallel: no* (single commit
-  ground-truth). This is the merge-point that closes M0.
+- [ ] **M0.8a / M0-A** Validate capture semantics on a small, representative
+  seed corpus: use the normal test runner or reproduce its setup faithfully,
+  preserve test failure and exit status, exercise generated/CnP/LLVM
+  selection, and reject incomplete captures. Record a manifest with expected
+  test/query counts and exclusion reasons. Do not accept the current
+  untracked snapshot tree as ground truth. The harness contract and manifest
+  format are serial integration points; fixtures and diagnostic probes may
+  be built independently.
+- [ ] **M0.8b** Reconcile SCHEMA.md and the tools: file-level versus
+  query-level tags, query identity, result order, diagnostic codes,
+  metadata that should not affect parity, and schema versioning. Verify
+  round-trip and repeat-capture stability on the seed corpus. *parallel: no*
+  for schema decisions; implementer work can fan out after the contract.
+- [ ] **M0.8c / M0-B** Capture the declared corpus under memtx and Vinyl
+  where supported, report coverage and failures, and review snapshot size
+  and storage strategy before committing any bulk baseline. Baseline against
+  a named integration commit rather than the moving local `master` branch.
+  *parallel: yes* for independent suite/engine shards after M0-A, but one
+  owner assembles and accepts the manifest and baseline.
+- [ ] **M0.8d** Replace workflow stubs with real isolated invocations.
+  Compare each PR head against the selected baseline with explicit coverage
+  equality; run dispatcher parity on both engines where supported. Keep CI
+  failing on a missing or empty corpus. *parallel: yes* after M0-A contract;
+  integrate once with the accepted baseline.
 
 ---
 
@@ -197,7 +230,7 @@ shape) deferred to M3 when the descriptor exists naturally.
 **Goal:** decide reuse/delete per file for the historical `_sql_stat1` /
 `_sql_stat4` scaffolding before designing the new system spaces.
 
-**State:** `SPEC-DRAFTED` — audit landed as `docs/vdbe/s0_audit_report.md`
+**State:** `COMPLETE` — audit landed as `docs/vdbe/s0_audit_report.md`
 on `tsafin/llvm_jit` at commit `de57e09edd` (2026-06-21). Report finds the
 historical `_sql_stat1` / `_sql_stat4` scaffolding is almost entirely
 vestigial text: no `analyze.c`, no ANALYZE grammar in `parse.y`, and
@@ -226,7 +259,10 @@ S1 can start against this baseline.
 **Goal:** make the *current* planner's decisions inspectable, replayable, and
 counter-gated before changing the planner.
 
-**State:** `NOT-STARTED`
+**State:** `NOT-STARTED`. Start implementation after the M0-A capture
+contract and seed corpus are accepted; full M0-B coverage can proceed in
+parallel. Freeze the planner event/path-class and replay envelope before M3
+consumes them.
 
 **Exit criteria:**
 
@@ -259,7 +295,9 @@ counter-gated before changing the planner.
 tables, and instead consumes real per-relation cardinality and average row
 width.
 
-**State:** `NOT-STARTED`. Depends on S0.
+**State:** `NOT-STARTED`. S0 is complete. Schema design and sampling
+prototypes can start alongside M1 after M0-A, but persisted system-space
+IDs/formats and the `where.c` adapter integrate serially.
 
 **Exit criteria:**
 
@@ -301,7 +339,9 @@ width.
 statistics that turn selectivity estimation from "guess 25%" into
 "estimate based on data."
 
-**State:** `NOT-STARTED`. Depends on S1.
+**State:** `NOT-STARTED`. Sketch algorithms and synthetic validation may
+start against a versioned S1 snapshot interface before S1 is end-to-end;
+persistence and the `where.c` selectivity adapter wait for that interface.
 
 **Exit criteria:**
 
@@ -333,7 +373,9 @@ statistics that turn selectivity estimation from "guess 25%" into
 equivalent (in result and diagnostic) to current `where.c` for a controlled
 single-table query class.
 
-**State:** `NOT-STARTED`. Depends on M1.
+**State:** `NOT-STARTED`. Depends on the M1 path-class/replay contract and
+M0-A seed parity gate, not on S2. Use fixed or current estimates while the
+statistics track is under construction; integrate the real snapshot later.
 
 **Scope (exact):**
 
@@ -382,7 +424,8 @@ hypothesis that most plan-quality gain comes from statistics + properties,
 not from a new enumerator. This is the cheap experiment that may save
 quarters of bake-off work.
 
-**State:** `NOT-STARTED`. Depends on M3 + S2.
+**State:** `NOT-STARTED`. Depends on integrated M3 + S2 and an accepted
+M0-B corpus for the evaluation workloads.
 
 **Exit criteria:**
 

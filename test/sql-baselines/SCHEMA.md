@@ -2,9 +2,11 @@
 
 ## Status
 
-`SPEC-DRAFTED` — initial v1. Once any code in `m0/harness`, `m0/classifier`,
-`m0/diff-and-ci`, or `m0/perf-trail` consumes or emits this schema, the spec
-is **locked**. Bumping `schema_version` invalidates all stored snapshots.
+`PROTOTYPE` — v1 has consumers and emitters, but no accepted corpus baseline.
+The 2026-09-24 M0-A/M0-B review in
+[`roadmap.md`](../../docs/vdbe/roadmap.md) must reconcile implementation and
+contract before accepting snapshots. After acceptance, semantic changes to
+required fields use the versioning policy below.
 
 ## Purpose
 
@@ -17,9 +19,9 @@ This document is the one-way-door contract for the roadmap M0 milestone
 - the canonical serialization rules that make snapshot diffs stable;
 - the perf-trail CSV format (separate from snapshots, not gated).
 
-Until this spec is committed, parallel worktrees implementing M0.2 / M0.4 /
-M0.5 / M0.6 must wait. After it is committed, they fan out cleanly because
-each touches different files.
+M0.1–M0.7 tooling was committed against this draft. The next parallel
+implementation wave follows the M0.8b manifest and comparison contract
+below.
 
 ## Scope (B-light)
 
@@ -29,7 +31,7 @@ Captured per `(test, engine)`:
 |-------|-----------|--------|
 | L1 — result rows | yes | hard gate (zero diffs) |
 | L2 — diagnostic / error | yes | hard gate (zero diffs) |
-| L3 — path_class | yes | hard gate (fallback must classify) |
+| L3 — path_class | yes | policy gate (planner switch/fallback reviewed) |
 | L4 — access summary | **deferred to M3** (descriptor exists) | — |
 | L5 — algorithm choice | **deferred to M3** | — |
 | L6 — VDBE opcode trace | yes (forensic only, on diff) | not gated |
@@ -78,8 +80,13 @@ test/sql-baselines/
 - `<dispatcher>` (forensics only) is `generated`, `cnp`, or `llvm`.
 
 Queries are numbered in the order the test file emits them to
-`box.execute()`. The classifier (M0.1) is responsible for emitting per-query
-indices into `classification.yaml`.
+`box.execute()`. The present classifier emits **file-level** feature tags;
+it does not assign query indices. `test.feature_tags` in current snapshots
+therefore describes the containing file, not necessarily that SQL statement.
+Do not use these tags as query-level coverage or an M3 eligibility oracle.
+M0.8b must decide whether to add a separately named query-level tag field or
+replace this field with a version bump, then validate that choice against
+captured SQL rather than file text.
 
 ## v1 snapshot schema
 
@@ -215,6 +222,16 @@ Stable values for `l3_path_class.reason` when `taken` starts with `fallback_`:
 
 Adding a reason code is append-only and does NOT bump `schema_version`.
 
+The current harness writes `current_where_c` unconditionally. It is a
+placeholder until M1 emits the actual statement path. A candidate using the
+new planner will intentionally change L3 from `current_where_c` to
+`new_planner`; a byte-for-byte L3 gate would reject the migration itself.
+M0.8b must define a path policy: verify L3 is sourced from execution,
+require explicit eligibility and fallback reasons, and review any increase
+in fallback count or unexpected path switch. L1/L2 remain hard parity gates.
+Until that policy is implemented, no CI result may claim to gate planner
+selection.
+
 ## L6 forensic trace format
 
 L6 traces are NOT in the snapshot YAML. They live under
@@ -264,20 +281,54 @@ not a parity gate. Schema changes to the CSV are tracked separately.
   changing semantics of an existing field DOES bump `schema_version`.
 - L3 reason codes and L6 forensic format are append-only / non-versioned.
 
+## Baseline acceptance contract (M0-A and M0-B)
+
+The snapshot schema alone cannot prove a complete run. A capture must also
+produce an external manifest covering each declared `(suite, test, engine)`
+attempt: included or excluded with reason, process exit status, test outcome,
+captured query count, written snapshot count, and dispatcher actually used.
+The manifest format is an M0.8b decision; it is separate from per-query v1
+YAML and must be versioned before CI consumes it.
+
+Acceptance requires:
+
+1. The normal test-runner setup is honored, or the standalone runner has a
+   demonstrated equivalent setup for that test. A load error, failed TAP
+   assertion, suppressed `box.cfg` error, write error, or early exit fails
+   the run; captured queries from that run are quarantined.
+2. The suite/engine coverage set and query IDs match the manifest on repeat
+   capture. Empty trees, missing tests, truncated runs, and unknown engines
+   fail the gate. A deliberate result or diagnostic mutation must fail CI.
+3. Required v1 fields are present. In particular, verify `rows_sorted` is
+   actually emitted, NULLs survive array serialization, diagnostics carry a
+   stable code when available, and order-sensitive queries keep row order.
+   These are known reconciliation points in the current prototype.
+4. `captured.at`, `captured.against_commit`, and runtime version are
+   provenance, not semantic parity keys. Compare L1/L2 and the applicable
+   L3 policy; report provenance separately. Compare the same query identity
+   and SQL text before comparing rows. A planned switch to `new_planner`
+   must not fail solely because the path string changed.
+5. Run generated, CnP, and LLVM modes only where the build supports them.
+   Record unsupported modes explicitly; do not report a skipped mode as
+   parity success. Both memtx and Vinyl need declared coverage.
+
+The uncommitted `sql-tap`/memtx snapshots observed on 2026-09-24 are an
+investigation artifact. They must not become the baseline until the above
+checks pass and their size/storage choice is reviewed.
+
 ## What this enables for parallel worktrees
 
-After this file is committed, the following can fan out without merge
-collisions:
+After M0.8b locks the manifest and query-identity contract, the following
+can fan out without merge collisions:
 
 | Worktree branch | Subtasks | Depends on this schema for |
 |-----------------|----------|----------------------------|
-| `m0/classifier` | M0.1 | `classification.yaml` shape |
-| `m0/harness` | M0.2, M0.3 | snapshot emission, forensic format |
-| `m0/diff-and-ci` | M0.4, M0.5, M0.6 | snapshot reading, parity check format |
-| `m0/perf-trail` | M0.7 | perf-trail CSV columns |
+| `m0/capture` | M0.8a | run outcome and manifest emission |
+| `m0/corpus` | M0.8c | suite/engine inventory and isolated capture shards |
+| `m0/ci` | M0.8d | manifest equality and snapshot/dispatcher comparison |
+| `m0/classification` | M0.8b follow-up | file/query tag distinction |
 
-`s0/audit` does NOT depend on this schema and can start in parallel
-without waiting.
+The manifest/schema owner integrates these tracks serially; S0 is complete.
 
 ## Resolved decisions
 

@@ -43,7 +43,8 @@ Two surfaces, one schema:
   Consumed by VDBE lowering; never persisted.
 - **Baseline form** — canonical YAML written to
   `test/sql-baselines/snapshots/.../q<N>.<engine>.yaml` under the
-  `plan:` key. Persisted, diffed, reviewed.
+  optional `plan:` key once M3 emits a descriptor. Persisted, diffed,
+  reviewed. M0-A/M0-B snapshots do not require this key.
 
 A round-trip is required: MsgPack → canonical YAML → MsgPack must produce
 byte-identical MsgPack. The canonical YAML is sort-keyed at every map
@@ -57,9 +58,17 @@ The descriptor carries a top-level `descriptor_version: <int>` field.
   query class (single-table SELECT).
 - **v2** adds joins (descriptor M3 follow-up).
 - **v3** adds aggregates and DISTINCT.
-- Bumping `descriptor_version` invalidates all stored baselines. The
-  M0 harness re-captures baselines on a bump. This is a one-way door per
-  version and requires a written changelog entry.
+- Bumping `descriptor_version` invalidates stored `plan:` comparisons and
+  requires recapture of snapshots containing that key. L1/L2 snapshots
+  without `plan:` remain valid if their own schema and query identity are
+  unchanged. Each bump requires a written changelog entry.
+
+M3 starts only after M1 owns statement-level `path_class` and replay
+identity. Descriptor authors can build and test the v1 in-memory form with
+fixed statistics while S1/S2 progress. A single integration owner then
+wires the descriptor to VDBE lowering and the snapshot emitter. This keeps
+the planner, lowerer, and statistics implementation independently testable
+without giving them competing ownership of `where.c` or the snapshot schema.
 
 ## v1 schema
 

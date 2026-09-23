@@ -30,9 +30,9 @@ statistics path:
 - table cardinality can use current primary-index size, with the cardinality
   semantics caveats described in `next_gen_sql_planner.md`.
 
-The first milestone is an audit: identify reusable scaffolding and obsolete
-SQLite-derived assumptions. The implementation must add active grammar,
-collection, persistence, loading, and planner consumption.
+S0 completed that audit in [`s0_audit_report.md`](s0_audit_report.md).
+The implementation must add active grammar, collection, persistence,
+loading, and planner consumption.
 
 ## Planner-Facing Contract
 
@@ -63,6 +63,23 @@ struct SqlRelationStats {
 
 The snapshot is compact, immutable, reference-counted at prepared-statement
 lifetime, and bounded by configuration. Planner inner loops only read it.
+
+### Parallel contract boundary
+
+Freeze a small, versioned read-only `SqlStatsSnapshot` API before multiple
+statistics tasks integrate. It must define ownership/lifetime, missing and
+stale values, cardinality semantics for memtx and Vinyl, confidence, and the
+fallback to current estimates. Unit tests may supply a fixed snapshot;
+neither M1 nor early M3 needs persisted statistics to start.
+
+S1 can be split into sampler adapters, snapshot reader, collection job, and
+schema proposal. The persistent system-space format and IDs are reviewed
+before writes; a single integrator joins those pieces and then wires the
+`where.c` adapter. S2 sketch algorithms and synthetic distributions can run
+against the frozen snapshot API in parallel with S1 persistence, but S2's
+payload format and selectivity integration wait for the S1 generation and
+staleness rules. This ordering prevents the storage schema and planner
+adapter from acquiring competing owners.
 
 ## Persistence
 
@@ -198,7 +215,7 @@ content for each.
 
 | Milestone | Scope | Status (see roadmap) |
 | --- | --- | --- |
-| S0 audit | inventory disabled/scaffold code and current estimates; documented reuse/delete decisions | SPEC-DRAFTED (report at `docs/vdbe/s0_audit_report.md`) |
+| S0 audit | inventory disabled/scaffold code and current estimates; documented reuse/delete decisions | COMPLETE (report at `docs/vdbe/s0_audit_report.md`) |
 | S1 relation/index basics | cardinality semantics, width, index-prefix facts; versioned persistence; snapshot API; budgets; current-planner compatibility adapter into `where.c` | NOT-STARTED |
 | S2 columns | null fraction, NDV (HLL), MCV (SpaceSaving), histograms; memtx/Vinyl sampling; stale/confidence policy; selectivity estimator | NOT-STARTED |
 
