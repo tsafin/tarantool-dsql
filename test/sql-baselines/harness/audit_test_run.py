@@ -14,7 +14,8 @@ import tempfile
 import time
 
 
-RESULT = re.compile(r"^(sql-tap/\S+\.test\.lua)\s+.*?\[\s*([^]]+?)\s*\]")
+RESULT = re.compile(r"^(?:\[\d+\]\s+)?(sql-tap/\S+\.test\.lua)\s+.*?"
+                    r"\[\s*([^]]+?)\s*\]")
 
 
 def main():
@@ -35,6 +36,7 @@ def main():
                    "--builddir", str(builddir), "--suite", "sql-tap",
                    "--conf", args.engine, "--force", "--long",
                    "--test-timeout", str(args.test_timeout),
+                   "--no-output-timeout", str(args.test_timeout + 20),
                    "--vardir", vardir, "-j", str(args.jobs)]
         report["command"] = command
         started = time.monotonic()
@@ -51,6 +53,13 @@ def main():
                     report["results"][test] = status
                     print(test, status, flush=True)
             report["returncode"] = process.wait()
+        # Reparse the durable log too, so the report remains complete even if
+        # progress printing or terminal output handling changes.
+        for line in log_path.read_text().splitlines():
+            match = RESULT.match(line)
+            if match:
+                test, status = match.groups()
+                report["results"][test] = status
         report["duration_seconds"] = round(time.monotonic() - started, 3)
     args.out.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
     print("runner:", args.out, "log:", log_path,
