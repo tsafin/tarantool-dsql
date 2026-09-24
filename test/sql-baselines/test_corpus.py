@@ -24,6 +24,7 @@ class CorpusPolicyTest(unittest.TestCase):
 
     def policy(self, scope="full-corpus", excluded=None):
         return {"scope": scope, "policy_version": 1,
+                "baseline_commit": "a" * 40,
                 "included": [{"test": "sql-tap/example.test.lua",
                  "engines": ["memtx"], "reason": "reviewed capture",
                  "category": "verified_parity",
@@ -69,6 +70,12 @@ class CorpusPolicyTest(unittest.TestCase):
         policy = self.policy(scope="seed-smoke")
         policy["included"][0]["reason"] = 42
         with self.assertRaisesRegex(ValueError, "invalid engine policy"):
+            corpus.inventory(self.repo, policy)
+
+    def test_full_policy_requires_named_baseline(self):
+        policy = self.policy()
+        policy["baseline_commit"] = "master"
+        with self.assertRaisesRegex(ValueError, "40-character baseline"):
             corpus.inventory(self.repo, policy)
 
     def test_overlapping_inclusion_and_exclusion_rejected(self):

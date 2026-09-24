@@ -9,6 +9,7 @@ import argparse
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -28,6 +29,9 @@ def inventory(repo, policy=POLICY):
        type(policy.get("policy_version")) is not int or \
        policy["policy_version"] < 1:
         raise ValueError("invalid corpus scope or policy version")
+    if policy["scope"] == "full-corpus" and not re.fullmatch(
+            r"[0-9a-f]{40}", policy.get("baseline_commit", "")):
+        raise ValueError("full corpus requires a 40-character baseline commit")
     discovered = set()
     for suite in SUITES:
         suite_dir = repo / "test" / suite
