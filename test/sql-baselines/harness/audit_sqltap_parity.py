@@ -22,6 +22,7 @@ def run(command, *, cwd, env=None, timeout=300):
         result = subprocess.run([str(item) for item in command], cwd=cwd,
                                 env=env, stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT, text=True,
+                                errors="replace",
                                 timeout=timeout)
         return result.returncode, result.stdout
     except subprocess.TimeoutExpired as exc:
