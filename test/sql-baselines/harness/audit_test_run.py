@@ -22,7 +22,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", type=Path, required=True)
     parser.add_argument("--builddir", type=Path, required=True)
-    parser.add_argument("--engine", choices=("memtx", "vinyl"), required=True)
+    parser.add_argument("--engine", choices=("memtx", "vinyl", "default"),
+                        required=True)
+    parser.add_argument("--test", action="append", default=[],
+                        help="restrict runner to this test filename")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--jobs", type=int, default=4)
     parser.add_argument("--test-timeout", type=int, default=300)
@@ -34,10 +37,13 @@ def main():
     with tempfile.TemporaryDirectory(prefix="m0-sqltap-runner-") as vardir:
         command = ["python3", str(repo / "test/test-run.py"),
                    "--builddir", str(builddir), "--suite", "sql-tap",
-                   "--conf", args.engine, "--force", "--long",
+                   "--force", "--long",
                    "--test-timeout", str(args.test_timeout),
                    "--no-output-timeout", str(args.test_timeout + 20),
                    "--vardir", vardir, "-j", str(args.jobs)]
+        if args.engine != "default":
+            command.extend(("--conf", args.engine))
+        command.extend(args.test)
         report["command"] = command
         started = time.monotonic()
         with log_path.open("w") as log:
