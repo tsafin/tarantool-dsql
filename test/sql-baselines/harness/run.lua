@@ -190,12 +190,26 @@ local function intercepted_execute(sql, bindings)
 
     -- box.execute distinguishes 1-arg from 2-arg-with-nil (it rejects nil
     -- bindings), so match the caller's argc rather than always passing 2.
+    local query_stat_before = box.stat.sql()
     local ok, res, returned_err
     if bindings ~= nil then
         ok, res, returned_err = pcall(_real_box_execute, sql, bindings)
     else
         ok, res, returned_err = pcall(_real_box_execute, sql)
     end
+    local query_stat_after = box.stat.sql()
+    local interpreter_delta = tonumber(query_stat_after.sql_interpreter_step_count or 0) -
+                              tonumber(query_stat_before.sql_interpreter_step_count or 0)
+    local native_prefix = execution_mode == 'llvm' and 'sql_jit_' or 'sql_cnp_'
+    local native_counter = native_prefix .. 'exec_count'
+    local native_delta = tonumber(query_stat_after[native_counter] or 0) -
+                         tonumber(query_stat_before[native_counter] or 0)
+    local compile_counter = native_prefix .. 'compile_count'
+    local compile_delta = tonumber(query_stat_after[compile_counter] or 0) -
+                          tonumber(query_stat_before[compile_counter] or 0)
+    local success_counter = native_prefix .. 'compile_success_count'
+    local success_delta = tonumber(query_stat_after[success_counter] or 0) -
+                          tonumber(query_stat_before[success_counter] or 0)
 
     local profile_delta = nil
     if cfg.forensic and profile_before then
@@ -224,6 +238,10 @@ local function intercepted_execute(sql, bindings)
         metadata = metadata,
         err = err,
         profile_delta = profile_delta,
+        interpreter_delta = interpreter_delta,
+        native_delta = native_delta,
+        compile_delta = compile_delta,
+        success_delta = success_delta,
     })
 
     -- Re-raise on error so the test file's pcall/catchsql sees it
@@ -361,6 +379,41 @@ local mode_executed = (execution_mode == 'generated' and
                        cnp_exec_delta == 0 and llvm_exec_delta == 0) or
                       (execution_mode == 'cnp' and cnp_exec_delta > 0) or
                       (execution_mode == 'llvm' and llvm_exec_delta > 0)
+-- Interpreter-only execution is not sufficient to claim native eligibility:
+-- LLVM intentionally declines tiny VDBE programs and unsupported shapes.
+-- A successful native compilation establishes eligibility; a positive native
+-- execution delta also covers statements served from the positive cache.
+local executed_query_indices = {}
+local native_compile_attempt_query_indices = {}
+local native_compile_success_query_indices = {}
+local native_participation_query_indices = {}
+local eligible_query_indices = {}
+local mode_miss_queries = {}
+for index, query in ipairs(captured_queries) do
+    if query.interpreter_delta > 0 or query.native_delta > 0 then
+        table.insert(executed_query_indices, index)
+    end
+    if execution_mode ~= 'generated' then
+        if query.compile_delta > 0 then
+            table.insert(native_compile_attempt_query_indices, index)
+        end
+        if query.success_delta > 0 then
+            table.insert(native_compile_success_query_indices, index)
+        end
+        if query.native_delta > 0 then
+            table.insert(native_participation_query_indices, index)
+        end
+        -- EXPLAIN may compile successfully without executing the compiled
+        -- program; only an actually executed query can miss native entry.
+        if (query.interpreter_delta > 0 or query.native_delta > 0) and
+           (query.success_delta > 0 or query.native_delta > 0) then
+            table.insert(eligible_query_indices, index)
+            if query.native_delta == 0 then
+                table.insert(mode_miss_queries, index)
+            end
+        end
+    end
+end
 if runtime_engine ~= cfg.engine then
     io.stderr:write('[harness] Runtime engine changed to ' .. tostring(runtime_engine) .. '\n')
 end
@@ -379,7 +432,8 @@ local errors_seen = 0
 local test_ok = ok_load and cfg_errors == 0 and test_exit_code == 0 and
                 test_finished and
                 #captured_queries > 0 and runtime_engine == cfg.engine and
-                not engine_mismatch and mode_executed
+                not engine_mismatch and mode_executed and
+                #mode_miss_queries == 0
 
 for seq, q in ipairs(test_ok and captured_queries or {}) do
     -- Skip empty or whitespace-only SQL
@@ -447,6 +501,14 @@ local manifest = {
     mode_executed = mode_executed,
     cnp_exec_delta = cnp_exec_delta,
     llvm_exec_delta = llvm_exec_delta,
+    executed_query_indices = executed_query_indices,
+    native_compile_attempt_query_indices = native_compile_attempt_query_indices,
+    native_compile_success_query_indices = native_compile_success_query_indices,
+    native_participation_query_indices = native_participation_query_indices,
+    eligible_queries = #eligible_query_indices,
+    eligible_query_indices = eligible_query_indices,
+    native_participation_queries = #native_participation_query_indices,
+    mode_miss_queries = mode_miss_queries,
     runtime_engine = runtime_engine,
     engine_mismatch = engine_mismatch,
     non_ddl_engine_mismatches = non_ddl_engine_mismatches,
