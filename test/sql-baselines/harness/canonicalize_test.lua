@@ -11,6 +11,17 @@ assert(result.column_names[1] == 'N' and result.column_names[2] == 'LABEL')
 assert(result.column_types[1] == 'integer' and result.column_types[2] == 'string')
 assert(result.rows[1][1] == 42 and result.rows[1][2] == 'answer')
 
+local aliases = canonicalize.canon_L1({}, false, {
+    {name = 'sql_sq_7ED763C32038.COLUMN_1', type = 'integer'},
+    {name = 'sql_sq_ABCDEF', type = 'integer'},
+    {name = 'sql_sq_abcd.COLUMN_1', type = 'integer'},
+    {name = 'user_sql_sq_ABC.COLUMN_1', type = 'integer'},
+})
+assert(aliases.column_names[1] == 'sql_sq_<generated>.COLUMN_1')
+assert(aliases.column_names[2] == 'sql_sq_<generated>')
+assert(aliases.column_names[3] == 'sql_sq_abcd.COLUMN_1')
+assert(aliases.column_names[4] == 'user_sql_sq_ABC.COLUMN_1')
+
 local dml = canonicalize.canon_L1(nil, false, nil)
 assert(dml.column_names == nil and dml.column_types == nil)
 

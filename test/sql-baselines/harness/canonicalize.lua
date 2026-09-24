@@ -169,6 +169,18 @@ end
 -- metadata: box.execute column descriptors (when the statement has columns)
 -- Returns: { rows = [...], rows_sorted = bool, column_names = [...],
 --            column_types = [...] }
+local function normalize_generated_column_name(name)
+    -- select.c:5015-5023 names anonymous FROM-subquery spaces by formatting
+    -- their address as sql_sq_%llX. A full column name can expose that
+    -- process-local address; preserve its suffix and all nonmatching names.
+    local suffix = name:match('^sql_sq_[0-9A-F]+(%..+)$')
+    if suffix then return 'sql_sq_<generated>' .. suffix end
+    if name:match('^sql_sq_[0-9A-F]+$') then
+        return 'sql_sq_<generated>'
+    end
+    return name
+end
+
 function M.canon_L1(rows, ordered, metadata, sql)
     local column_names, column_types = nil, nil
     if metadata ~= nil then
@@ -176,7 +188,7 @@ function M.canon_L1(rows, ordered, metadata, sql)
         for i, column in ipairs(metadata) do
             assert(type(column.name) == 'string', 'invalid SQL column name')
             assert(type(column.type) == 'string', 'invalid SQL column type')
-            column_names[i] = column.name
+            column_names[i] = normalize_generated_column_name(column.name)
             column_types[i] = column.type
         end
     end
