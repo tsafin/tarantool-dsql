@@ -48,6 +48,9 @@ box.cfg = setmetatable({}, {
         local engine_mismatch = false
         local observed_engines = {}
         local initialized_sessions = {}
+        local eligible_query_indices = {}
+        local native_participation_queries = 0
+        local mode_miss_queries = {}
 
         box.execute = function(sql, bindings)
             if type(sql) ~= 'string' then
@@ -68,6 +71,7 @@ box.cfg = setmetatable({}, {
             local setting = box.space._session_settings:get('sql_default_engine')
             observed_engines[#observed_engines + 1] = setting and setting[2] or 'missing'
             engine_mismatch = engine_mismatch or not setting or setting[2] ~= engine
+            local query_before = box.stat.sql()
             local ok, res, returned_err
             if bindings ~= nil then
                 ok, res, returned_err = pcall(original_execute, sql, bindings)
@@ -102,6 +106,23 @@ box.cfg = setmetatable({}, {
                 error(write_err, 0)
             end
             local after = box.stat.sql()
+            local query_cnp = tonumber(after.sql_cnp_exec_count or 0) -
+                              tonumber(query_before.sql_cnp_exec_count or 0)
+            local query_llvm = tonumber(after.sql_jit_exec_count or 0) -
+                               tonumber(query_before.sql_jit_exec_count or 0)
+            local query_interpreter =
+                tonumber(after.sql_interpreter_step_count or 0) -
+                tonumber(query_before.sql_interpreter_step_count or 0)
+            local selected_native = mode == 'cnp' and query_cnp or
+                                    (mode == 'llvm' and query_llvm or 0)
+            if selected_native > 0 or query_interpreter > 0 then
+                eligible_query_indices[#eligible_query_indices + 1] = count
+            end
+            if selected_native > 0 then
+                native_participation_queries = native_participation_queries + 1
+            elseif mode ~= 'generated' and query_interpreter > 0 then
+                mode_miss_queries[#mode_miss_queries + 1] = count
+            end
             local cnp_delta = tonumber(after.sql_cnp_exec_count or 0) -
                               tonumber(before.sql_cnp_exec_count or 0)
             local llvm_delta = tonumber(after.sql_jit_exec_count or 0) -
@@ -115,6 +136,10 @@ box.cfg = setmetatable({}, {
                 llvm_exec_delta = llvm_delta,
                 engine_mismatch = engine_mismatch,
                 observed_engines = observed_engines,
+                eligible_queries = #eligible_query_indices,
+                eligible_query_indices = eligible_query_indices,
+                native_participation_queries = native_participation_queries,
+                mode_miss_queries = mode_miss_queries,
             }
             local state_file = assert(io.open(out .. '/luatest-child-state.json', 'w'))
             state_file:write(json.encode(state), '\n')
