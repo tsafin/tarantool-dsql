@@ -39,6 +39,7 @@ local OUTPUT_FILE = REPO_ROOT .. "/test/sql-baselines/classification.yaml"
 
 local SUITES = {
     { name = "sql",          dir = REPO_ROOT .. "/test/sql",          pattern = "%.test%.lua$" },
+    { name = "sql",          dir = REPO_ROOT .. "/test/sql",          pattern = "%.test%.sql$" },
     { name = "sql-tap",      dir = REPO_ROOT .. "/test/sql-tap",      pattern = "%.test%.lua$" },
     { name = "sql-luatest",  dir = REPO_ROOT .. "/test/sql-luatest",  pattern = "_test%.lua$"  },
 }

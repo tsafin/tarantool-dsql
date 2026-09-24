@@ -54,6 +54,7 @@ local function load_classification()
     for _, t in ipairs(doc.tests) do
         if t.suite and t.file then
             local basename = t.file:match('^(.+)%.test%.lua$')
+                          or t.file:match('^(.+)%.test%.sql$')
                           or t.file:match('^(.+)%.lua$')
                           or t.file
             result[t.suite .. '/' .. basename] = t.feature_tags or {}

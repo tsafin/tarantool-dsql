@@ -3,7 +3,7 @@
 # Schema: test/sql-baselines/SCHEMA.md
 #
 classification_version: 1
-generated_at: '2026-07-10T21:49:32Z'
+generated_at: '2026-09-24T19:22:50Z'
 tests:
   - feature_tags: [ddl]
     file: autoincrement.test.lua
@@ -397,6 +397,62 @@ tests:
     suite: sql
   - feature_tags: [ddl]
     file: vinyl-opts.test.lua
+    suite: sql
+  - feature_tags:
+      - check_constraint
+      - collation
+      - ddl
+      - delete
+      - filter
+      - foreign_key
+      - insert
+      - projection
+      - single_table_select
+      - update
+      - values
+      - view
+    file: add-column.test.sql
+    suite: sql
+  - feature_tags:
+      - aggregate
+      - cast
+      - check_constraint
+      - correlated_subquery
+      - cross_join
+      - cte
+      - ddl
+      - delete
+      - derived_table
+      - distinct
+      - explain
+      - filter
+      - foreign_key
+      - group_by
+      - in_subquery
+      - inner_join
+      - insert
+      - intersect
+      - left_join
+      - limit
+      - offset
+      - order_by
+      - projection
+      - recursive_cte
+      - scalar_subquery
+      - single_table_select
+      - transaction
+      - trigger
+      - union
+      - update
+      - values
+      - view
+    file: boolean.test.sql
+    suite: sql
+  - feature_tags: [ddl, insert, projection, single_table_select, transaction, trigger, values]
+    file: gh-4256-do-not-change-order-during-insertion.test.sql
+    suite: sql
+  - feature_tags: [ddl, insert, order_by, projection, single_table_select, values]
+    file: gh-4697-scalar-bool-sort-cmp.test.sql
     suite: sql
   - feature_tags:
       - aggregate
@@ -3948,4 +4004,4 @@ tests:
       - values
     file: sql_stats_test.lua
     suite: sql-luatest
-total_tests: 381
+total_tests: 385
