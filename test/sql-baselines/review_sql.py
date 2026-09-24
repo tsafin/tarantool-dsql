@@ -19,13 +19,12 @@ REASONS = {
     "gh-4745-table-info-assertion.test.lua": ("native_mode_not_observed", "LLVM dispatcher has no native execution in this test"),
     "gh2483-remote-persistency-check.test.lua": ("server_restart", "test restarts default server"),
     "gh2808-inline-unique-persistency-check.test.lua": ("server_restart", "test restarts default server"),
-    "misc.test.lua": ("audit_timeout", "bounded normal-runner capture exceeded 35 seconds"),
+    "misc.test.lua": ("budget_exceeded", "source loops issue at least 20,480 SQL INSERTs, above the 10,000-query per-test cap"),
     "no-pk-space.test.lua": ("native_mode_not_observed", "CnP dispatcher has no native execution in this test"),
     "persistency.test.lua": ("server_restart", "test restarts default server"),
     "prepared.test.lua": ("no_engine_variant", "engine.cfg defines remote/local variants, not memtx/Vinyl"),
     "sql-statN-index-drop.test.lua": ("disabled", "suite.ini disables this test"),
     "tokenizer.test.lua": ("no_sql_capture", "normal runner passed but app hook observed no box.execute calls"),
-    "transition.test.lua": ("audit_timeout", "Vinyl generated capture exceeded 35 seconds"),
     "transitive-transactions.test.lua": ("transaction_capture_yield", "memtx capture I/O aborts open transaction"),
     "triggers.test.lua": ("engine_switch", "test deliberately switches sql_default_engine"),
     "upgrade.test.lua": ("secondary_server", "SQL runs in separately spawned upgrade servers, not default app"),
@@ -38,6 +37,12 @@ REASONS = {
 SQL_ONLY_INCLUDED = {
     "gh-4256-do-not-change-order-during-insertion.test.sql",
     "gh-4697-scalar-bool-sort-cmp.test.sql",
+}
+SUPPLEMENTAL_INCLUDED = {
+    # The initial 35s triage timed out. A targeted 300s normal-runner rerun
+    # captured 44 queries in each mode; CnP had 80 native executions, LLVM
+    # had 43, and strict generated/CnP/LLVM/repeat diffs matched all 44.
+    ("transition.test.lua", "vinyl"),
 }
 
 
@@ -56,7 +61,8 @@ def main():
         decision = {"test": test["test"], "engines": {}}
         for engine in ("memtx", "vinyl"):
             matrix_engine = matrix.get(test["test"], {}).get("engines", {}).get(engine, {})
-            if name in SQL_ONLY_INCLUDED or matrix_engine.get("status") == "accepted":
+            if name in SQL_ONLY_INCLUDED or matrix_engine.get("status") == "accepted" or \
+               (name, engine) in SUPPLEMENTAL_INCLUDED:
                 reason = ("normal runner and strict SQL-file adapter pass all native modes "
                           "with stable repeat capture" if name in SQL_ONLY_INCLUDED else
                           "normal runner, all native modes, and repeated generated capture "
