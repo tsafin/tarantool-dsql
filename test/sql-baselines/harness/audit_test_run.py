@@ -14,8 +14,25 @@ import tempfile
 import time
 
 
-RESULT = re.compile(r"^(?:\[\d+\]\s+)?(sql-tap/\S+\.test\.lua)\s+.*?"
+RESULT = re.compile(r"^(?:\[\d+\]\s+)?(sql-tap/\S+)\s+(\S*)\s*"
                     r"\[\s*([^]]+?)\s*\]")
+
+
+def decode_result(line, all_tests, engine):
+    match = RESULT.match(line)
+    if not match:
+        return None
+    raw_test, variant, status = match.groups()
+    if raw_test.endswith(">"):
+        candidates = [test for test in all_tests
+                      if test.startswith(raw_test[:-1])]
+        if len(candidates) != 1:
+            raise ValueError(f"ambiguous truncated runner name: {raw_test}")
+        test = candidates[0]
+    else:
+        test = raw_test
+    key = test if engine != "default" else test + ":" + (variant or "default")
+    return key, status
 
 
 def main():
@@ -31,6 +48,8 @@ def main():
     parser.add_argument("--test-timeout", type=int, default=300)
     args = parser.parse_args()
     repo, builddir = args.repo.resolve(), args.builddir.resolve()
+    all_tests = ["sql-tap/" + path.name
+                 for path in (repo / "test/sql-tap").glob("*.test.lua")]
     report = {"engine": args.engine, "repo": str(repo),
               "builddir": str(builddir), "results": {}}
     log_path = args.out.with_suffix(".log")
@@ -53,18 +72,18 @@ def main():
                                        text=True, bufsize=1)
             for line in process.stdout:
                 log.write(line)
-                match = RESULT.match(line)
-                if match:
-                    test, status = match.groups()
+                decoded = decode_result(line, all_tests, args.engine)
+                if decoded:
+                    test, status = decoded
                     report["results"][test] = status
                     print(test, status, flush=True)
             report["returncode"] = process.wait()
         # Reparse the durable log too, so the report remains complete even if
         # progress printing or terminal output handling changes.
         for line in log_path.read_text().splitlines():
-            match = RESULT.match(line)
-            if match:
-                test, status = match.groups()
+            decoded = decode_result(line, all_tests, args.engine)
+            if decoded:
+                test, status = decoded
                 report["results"][test] = status
         report["duration_seconds"] = round(time.monotonic() - started, 3)
     args.out.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
