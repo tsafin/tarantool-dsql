@@ -5,9 +5,23 @@ import argparse
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 import tempfile
+
+
+def unsupported_luatest_source(source):
+    """Reject SQL paths the one-child Lua box.execute hook cannot observe."""
+    if len(re.findall(r"\bserver:new\s*\(", source)) != 1:
+        return "capture requires exactly one child-server construction"
+    if re.search(r":restart\s*\(", source):
+        return "capture cannot preserve a restarted child's query sequence"
+    if "net_box" in source and re.search(r":execute\s*\(", source):
+        return "direct net.box SQL bypasses the child box.execute hook"
+    if re.search(r"\bbox\.prepare\s*\(", source):
+        return "prepared-statement execution bypasses the string SQL hook"
+    return None
 
 
 def capture(args):
@@ -21,6 +35,11 @@ def capture(args):
         raise ValueError(f"test must be a top-level {args.suite} *{suffix} file")
     if not (runner_repo / "test" / args.suite / test).is_file():
         raise ValueError("test file does not exist in runner repository")
+    if args.suite == "sql-luatest":
+        source = (runner_repo / "test" / args.suite / test).read_text()
+        unsupported = unsupported_luatest_source(source)
+        if unsupported:
+            raise ValueError(unsupported)
     if out.exists() and any(out.iterdir()):
         raise ValueError("output must be empty")
     out.mkdir(parents=True, exist_ok=True)
