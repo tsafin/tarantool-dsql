@@ -61,21 +61,85 @@ local function sort_rows(rows, ordered)
     return copy
 end
 
--- Detect ORDER BY in SQL text (simple regex, handles most cases)
--- Returns true if the SQL contains an ORDER BY clause.
+-- Detect a top-level ORDER BY. A nested sort does not order the outer result,
+-- and text in comments or quoted strings/identifiers is not SQL syntax.
 function M.has_order_by(sql)
     if type(sql) ~= 'string' then return false end
-    -- Case-insensitive search; skip ORDER BY inside string literals (best effort)
-    return sql:upper():find('ORDER%s+BY') ~= nil
+    local i, n, depth, order_seen = 1, #sql, 0, false
+    while i <= n do
+        local ch, next_ch = sql:sub(i, i), sql:sub(i + 1, i + 1)
+        if ch == '-' and next_ch == '-' then
+            i = i + 2
+            while i <= n and sql:sub(i, i) ~= '\n' do i = i + 1 end
+        elseif ch == '/' and next_ch == '*' then
+            i = i + 2
+            while i <= n and sql:sub(i, i + 1) ~= '*/' do i = i + 1 end
+            i = i + 2
+        elseif ch == "'" or ch == '"' or ch == '`' then
+            local quote = ch
+            order_seen = false
+            i = i + 1
+            while i <= n do
+                if sql:sub(i, i) == quote then
+                    if sql:sub(i + 1, i + 1) == quote then
+                        i = i + 2
+                    else
+                        i = i + 1
+                        break
+                    end
+                else
+                    i = i + 1
+                end
+            end
+        elseif ch == '[' then
+            order_seen = false
+            i = i + 1
+            while i <= n and sql:sub(i, i) ~= ']' do i = i + 1 end
+            i = i + 1
+        elseif ch == '(' then
+            depth = depth + 1
+            order_seen = false
+            i = i + 1
+        elseif ch == ')' then
+            depth = math.max(depth - 1, 0)
+            order_seen = false
+            i = i + 1
+        elseif ch:match('[%a_]') then
+            local start = i
+            repeat i = i + 1 until i > n or not sql:sub(i, i):match('[%w_]')
+            if depth == 0 then
+                local word = sql:sub(start, i - 1):upper()
+                if order_seen and word == 'BY' then return true end
+                order_seen = word == 'ORDER'
+            end
+        else
+            if not ch:match('%s') then order_seen = false end
+            i = i + 1
+        end
+    end
+    return false
 end
 
 -- Canonicalize L1: apply all 8 rules to result rows
 -- rows: list of rows from box.execute (may be box tuples)
 -- ordered: whether results are already ordered (true = don't sort)
--- Returns: { rows = [...], ordered = bool }
-function M.canon_L1(rows, ordered)
+-- metadata: box.execute column descriptors (when the statement has columns)
+-- Returns: { rows = [...], rows_sorted = bool, column_names = [...],
+--            column_types = [...] }
+function M.canon_L1(rows, ordered, metadata)
+    local column_names, column_types = nil, nil
+    if metadata ~= nil then
+        column_names, column_types = {}, {}
+        for i, column in ipairs(metadata) do
+            assert(type(column.name) == 'string', 'invalid SQL column name')
+            assert(type(column.type) == 'string', 'invalid SQL column type')
+            column_names[i] = column.name
+            column_types[i] = column.type
+        end
+    end
     if rows == nil then
-        return { rows = {}, rows_sorted = not ordered }
+        return { rows = {}, rows_sorted = not ordered,
+                 column_names = column_names, column_types = column_types }
     end
 
     -- Flatten box tuples to plain Lua tables
@@ -101,7 +165,8 @@ function M.canon_L1(rows, ordered)
     -- Rule 1: sort if not ordered
     local sorted = sort_rows(canon, ordered or false)
 
-    return { rows = sorted, rows_sorted = not ordered }
+    return { rows = sorted, rows_sorted = not ordered,
+             column_names = column_names, column_types = column_types }
 end
 
 -- Canonicalize L2: normalize error messages

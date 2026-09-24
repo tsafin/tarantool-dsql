@@ -151,7 +151,7 @@ local execution_mode = llvm_requested and 'llvm' or dispatcher_requested
 -- We intercept box.execute to capture every SQL statement the test file runs,
 -- along with results and errors.
 
-local captured_queries = {}  -- list of {sql, rows, err}
+local captured_queries = {}  -- list of {sql, rows, metadata, err}
 local _real_box_execute = box.execute
 local engine_mismatch = false
 
@@ -186,11 +186,15 @@ local function intercepted_execute(sql, bindings)
     end
 
     local rows = nil
+    local metadata = nil
     local err = nil
 
     if ok and returned_err == nil then
         if res ~= nil and res.rows ~= nil then
             rows = res.rows
+        end
+        if res ~= nil then
+            metadata = res.metadata
         end
     else
         err = ok and returned_err or res
@@ -200,6 +204,7 @@ local function intercepted_execute(sql, bindings)
     table.insert(captured_queries, {
         sql = sql,
         rows = rows,
+        metadata = metadata,
         err = err,
         profile_delta = profile_delta,
     })
@@ -337,6 +342,7 @@ for seq, q in ipairs(test_ok and captured_queries or {}) do
             engine         = cfg.engine,
             sql            = sql_trimmed,
             rows           = q.rows,
+            metadata       = q.metadata,
             err            = q.err,
         })
         if ok_w then

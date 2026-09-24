@@ -127,11 +127,12 @@ end
 --   engine          string  "memtx" or "vinyl"
 --   sql             string  original SQL text (already trimmed)
 --   rows            table   raw rows from box.execute (nil on error)
+--   metadata        table   column descriptors from box.execute (nil on DML/error)
 --   err             any     error value (nil on success)
 function M.write(params)
     local p = params
     local ordered = canonicalize.has_order_by(p.sql)
-    local L1 = canonicalize.canon_L1(p.rows, ordered)
+    local L1 = canonicalize.canon_L1(p.rows, ordered, p.metadata)
     local ok_flag = (p.err == nil)
     local status = ok_flag and 'success' or 'error'
     local L2 = canonicalize.canon_L2(status, p.err)
