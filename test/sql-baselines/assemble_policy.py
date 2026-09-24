@@ -51,13 +51,16 @@ def assemble(repo, review_paths, baseline_commit, policy_version=2):
                                for e in selected)
             included.append({"test": test, "engines": selected,
                              "reason": reason,
-                             "category": "verified_parity"})
+                             "category": "verified_parity",
+                             "evidence": {e: engines[e].get("evidence", {})
+                                          for e in selected}})
         for engine in corpus.ENGINES:
             entry = engines[engine]
             if entry["decision"] == "exclude":
                 excluded.append({"test": test, "engines": [engine],
                                  "category": entry["category"],
-                                 "reason": entry["reason"]})
+                                 "reason": entry["reason"],
+                                 "evidence": entry.get("evidence", {})})
     policy = {"policy_version": policy_version, "scope": "full-corpus",
               "baseline_commit": baseline_commit,
               "capture_limits": corpus.POLICY["capture_limits"],
