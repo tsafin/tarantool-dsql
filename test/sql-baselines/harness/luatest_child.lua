@@ -7,7 +7,10 @@ local out = assert(os.getenv('SQL_BASELINE_OUT'), 'missing SQL_BASELINE_OUT')
 local file = assert(os.getenv('SQL_BASELINE_TEST'), 'missing SQL_BASELINE_TEST')
 local engine = assert(os.getenv('SQL_BASELINE_ENGINE'), 'missing SQL_BASELINE_ENGINE')
 local mode = assert(os.getenv('SQL_BASELINE_MODE'), 'missing SQL_BASELINE_MODE')
-assert(out:sub(1, 1) == '/' and file:match('^sql%-luatest/[%w_.-]+_test%.lua$'))
+local suite, filename = file:match('^([^/]+)/([^/]+)$')
+assert(out:sub(1, 1) == '/' and
+       ((suite == 'sql-luatest' and filename:match('^[%w_.-]+_test%.lua$')) or
+        (suite == 'sql' and filename:match('^[%w_.-]+%.test%.lua$'))))
 assert(engine == 'memtx' or engine == 'vinyl')
 assert(mode == 'generated' or mode == 'cnp' or mode == 'llvm')
 local basename = file:match('/([^/]+)%.lua$')
@@ -74,7 +77,7 @@ box.cfg = setmetatable({}, {
             assert(trimmed ~= '', 'empty SQL query in luatest capture')
             local write_ok, write_err = pcall(snapshot.write, {
                 baselines_root = out,
-                suite = 'sql-luatest',
+                suite = suite,
                 test_basename = basename,
                 source_file = file,
                 seq = count,

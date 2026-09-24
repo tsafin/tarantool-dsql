@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture one single-child sql-luatest file through its normal runner."""
+"""Capture one SQL or single-child sql-luatest file through its normal runner."""
 
 import argparse
 import json
@@ -16,9 +16,10 @@ def capture(args):
     binary = args.binary.resolve()
     out = args.out.resolve()
     test = args.test
-    if not test.endswith("_test.lua") or "/" in test:
-        raise ValueError("test must be a top-level sql-luatest *_test.lua file")
-    if not (runner_repo / "test/sql-luatest" / test).is_file():
+    suffix = "_test.lua" if args.suite == "sql-luatest" else ".test.lua"
+    if not test.endswith(suffix) or "/" in test:
+        raise ValueError(f"test must be a top-level {args.suite} *{suffix} file")
+    if not (runner_repo / "test" / args.suite / test).is_file():
         raise ValueError("test file does not exist in runner repository")
     if out.exists() and any(out.iterdir()):
         raise ValueError("output must be empty")
@@ -29,21 +30,29 @@ def capture(args):
         "VDBE_DISPATCHER": "cnp" if args.mode == "cnp" else "generated",
         "SQL_JIT_ENABLE": "1" if args.mode == "llvm" else "0",
         "SQL_BASELINE_OUT": str(out),
-        "SQL_BASELINE_TEST": f"sql-luatest/{test}",
+        "SQL_BASELINE_TEST": f"{args.suite}/{test}",
         "SQL_BASELINE_ENGINE": args.engine,
         "SQL_BASELINE_MODE": args.mode,
-        "TARANTOOL_RUN_BEFORE_BOX_CFG": f"dofile({str(hook)!r})",
     })
+    if args.suite == "sql-luatest":
+        env["TARANTOOL_RUN_BEFORE_BOX_CFG"] = f"dofile({str(hook)!r})"
+    else:
+        env["SQL_BASELINE_HOOK"] = str(hook)
     with tempfile.TemporaryDirectory(prefix="sql-luatest-vardir-") as vardir:
         command = [sys.executable, str(runner_repo / "test/test-run.py"),
                    "--builddir", str(binary.parent.parent),
-                   "--vardir", vardir, "--suite", "sql-luatest",
-                   "-j", "-1", "--force", test]
+                   "--vardir", vardir, "--suite", args.suite,
+                   "-j", "-1", "--force"]
+        if args.suite == "sql":
+            command += ["--conf", args.engine]
+        command += [test]
         completed = subprocess.run(command, cwd=runner_repo, env=env,
                                    text=True, stdout=subprocess.PIPE,
                                    stderr=subprocess.STDOUT, timeout=300)
     if completed.returncode != 0:
         raise RuntimeError("normal runner failed:\n" + completed.stdout)
+    if "[ pass ]" not in completed.stdout:
+        raise RuntimeError("normal runner did not report a passing test")
     if (out / "luatest-capture-error").exists():
         raise RuntimeError("child snapshot write failed: " +
                            (out / "luatest-capture-error").read_text())
@@ -51,7 +60,7 @@ def capture(args):
     if not state_path.is_file():
         raise RuntimeError("normal runner passed without a captured child")
     state = json.loads(state_path.read_text())
-    identity = f"sql-luatest/{test}"
+    identity = f"{args.suite}/{test}"
     if state.get("test_file") != identity or state.get("engine") != args.engine or \
        state.get("execution_mode") != args.mode or \
        state.get("engine_mismatch") is not False or \
@@ -68,7 +77,7 @@ def capture(args):
     count = state["captured_queries"]
     manifest = {
         "manifest_version": 1,
-        "suite": "sql-luatest",
+        "suite": args.suite,
         "test_file": identity,
         "engine": args.engine,
         "dispatcher_requested": env["VDBE_DISPATCHER"],
@@ -89,7 +98,7 @@ def capture(args):
         "snapshot_errors": 0,
         "accepted": True,
     }
-    manifest_path = out / "manifests/sql-luatest" / \
+    manifest_path = out / "manifests" / args.suite / \
                     f"{test[:-len('.lua')]}.{args.engine}.json"
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(manifest) + "\n")
@@ -106,6 +115,8 @@ def main():
     parser.add_argument("--binary", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--test", required=True)
+    parser.add_argument("--suite", choices=("sql", "sql-luatest"),
+                        default="sql-luatest")
     parser.add_argument("--engine", choices=("memtx", "vinyl"), required=True)
     parser.add_argument("--mode", choices=("generated", "cnp", "llvm"),
                         required=True)
