@@ -49,6 +49,52 @@ if #manifests == 0 then reject('no manifests found') end
 
 local expected = {}
 local snapshots_checked = 0
+local function valid_indices(list, count)
+    if type(list) ~= 'table' then return false end
+    local previous = 0
+    for _, index in ipairs(list) do
+        if type(index) ~= 'number' or index % 1 ~= 0 or
+           index <= previous or index > count then return false end
+        previous = index
+    end
+    return true
+end
+
+local function valid_mode_proof(m)
+    local count = m.captured_queries
+    local fields = {'executed_query_indices',
+                    'native_compile_attempt_query_indices',
+                    'native_compile_success_query_indices',
+                    'native_participation_query_indices',
+                    'eligible_query_indices', 'mode_miss_queries'}
+    for _, field in ipairs(fields) do
+        if not valid_indices(m[field], count) then return false end
+    end
+    if m.eligible_queries ~= #m.eligible_query_indices or
+       m.native_participation_queries ~= #m.native_participation_query_indices or
+       #m.mode_miss_queries ~= 0 then return false end
+    local executed, success, participation, eligible = {}, {}, {}, {}
+    for _, i in ipairs(m.executed_query_indices) do executed[i] = true end
+    for _, i in ipairs(m.native_compile_success_query_indices) do success[i] = true end
+    for _, i in ipairs(m.native_participation_query_indices) do
+        if not executed[i] then return false end
+        participation[i] = true
+    end
+    for _, i in ipairs(m.eligible_query_indices) do eligible[i] = true end
+    for i = 1, count do
+        local expected_eligible = m.execution_mode ~= 'generated' and
+                                  executed[i] and (success[i] or participation[i])
+        if not not eligible[i] ~= not not expected_eligible then return false end
+        if eligible[i] and not participation[i] then return false end
+    end
+    if m.execution_mode == 'generated' and
+       (#m.native_compile_attempt_query_indices ~= 0 or
+        #m.native_compile_success_query_indices ~= 0 or
+        #m.native_participation_query_indices ~= 0 or
+        #m.eligible_query_indices ~= 0) then return false end
+    return true
+end
+
 for _, path in ipairs(manifests) do
     local m, err = read_document(path, json.decode)
     if not m then
@@ -62,7 +108,8 @@ for _, path in ipairs(manifests) do
            m.runtime_engine ~= m.engine or
            type(m.captured_queries) ~= 'number' or
            m.captured_queries < 1 or
-           m.written_snapshots ~= m.captured_queries then
+           m.written_snapshots ~= m.captured_queries or
+           not valid_mode_proof(m) then
         reject(path .. ': rejected or inconsistent run outcome')
     elseif (m.engine ~= 'memtx' and m.engine ~= 'vinyl') or
            (m.suite ~= 'sql' and m.suite ~= 'sql-tap' and

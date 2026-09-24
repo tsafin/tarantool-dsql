@@ -109,6 +109,37 @@ def enforce_budgets(root, actual, policy=POLICY):
                              f"{size} > {byte_limit}")
 
 
+def check_mode_proof(manifest):
+    count = manifest["captured_queries"]
+    names = ("executed_query_indices", "native_compile_attempt_query_indices",
+             "native_compile_success_query_indices",
+             "native_participation_query_indices", "eligible_query_indices",
+             "mode_miss_queries")
+    indices = {}
+    for name in names:
+        values = manifest.get(name)
+        if not isinstance(values, list) or any(type(i) is not int or i < 1 or
+                                               i > count for i in values) or \
+           values != sorted(set(values)):
+            raise ValueError(f"invalid {name} in {manifest['test_file']}")
+        indices[name] = set(values)
+    executed = indices["executed_query_indices"]
+    success = indices["native_compile_success_query_indices"]
+    participation = indices["native_participation_query_indices"]
+    eligible = indices["eligible_query_indices"]
+    expected = executed & (success | participation) if \
+               manifest["execution_mode"] != "generated" else set()
+    if manifest.get("eligible_queries") != len(eligible) or \
+       manifest.get("native_participation_queries") != len(participation) or \
+       not participation <= executed or eligible != expected or \
+       indices["mode_miss_queries"] != eligible - participation or \
+       indices["mode_miss_queries"]:
+        raise ValueError(f"invalid native participation in {manifest['test_file']}")
+    if manifest["execution_mode"] == "generated" and any(
+            indices[name] for name in names if name != "executed_query_indices"):
+        raise ValueError(f"generated run claims native work in {manifest['test_file']}")
+
+
 def check_coverage(root, rows, engine, mode):
     expected = {(row["test"], engine) for row in rows
                 if row["status"] == "included" and engine in row["engines"]}
@@ -127,6 +158,7 @@ def check_coverage(root, rows, engine, mode):
         if counter and (not isinstance(manifest.get(counter), (int, float)) or
                         manifest[counter] <= 0):
             raise ValueError(f"requested {mode} did not execute for {key}")
+        check_mode_proof(manifest)
     enforce_budgets(root, actual)
     print(f"coverage: engine={engine} mode={mode} tests={len(actual)} "
           f"queries={sum(m['captured_queries'] for m in actual.values())}")

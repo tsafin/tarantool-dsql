@@ -66,6 +66,36 @@ class CorpusPolicyTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "byte budget exceeded"):
             corpus.enforce_budgets(root, actual, policy)
 
+    def test_mode_proof_rejects_claim_without_native_execution(self):
+        manifest = {"test_file": "sql-tap/example.test.lua",
+                    "execution_mode": "llvm", "captured_queries": 3,
+                    "executed_query_indices": [1, 2],
+                    "native_compile_attempt_query_indices": [1, 2, 3],
+                    "native_compile_success_query_indices": [2, 3],
+                    "native_participation_query_indices": [2],
+                    "eligible_query_indices": [2], "eligible_queries": 1,
+                    "native_participation_queries": 1,
+                    "mode_miss_queries": []}
+        corpus.check_mode_proof(manifest)
+        manifest["native_participation_query_indices"] = []
+        with self.assertRaisesRegex(ValueError, "invalid native participation"):
+            corpus.check_mode_proof(manifest)
+
+    def test_generated_mode_proof_has_no_native_claims(self):
+        manifest = {"test_file": "sql-tap/example.test.lua",
+                    "execution_mode": "generated", "captured_queries": 1,
+                    "executed_query_indices": [1],
+                    "native_compile_attempt_query_indices": [],
+                    "native_compile_success_query_indices": [],
+                    "native_participation_query_indices": [],
+                    "eligible_query_indices": [], "eligible_queries": 0,
+                    "native_participation_queries": 0,
+                    "mode_miss_queries": []}
+        corpus.check_mode_proof(manifest)
+        manifest["native_compile_attempt_query_indices"] = [1]
+        with self.assertRaisesRegex(ValueError, "generated run claims native work"):
+            corpus.check_mode_proof(manifest)
+
 
 if __name__ == "__main__":
     unittest.main()
