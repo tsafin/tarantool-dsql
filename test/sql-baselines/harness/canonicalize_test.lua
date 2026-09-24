@@ -58,4 +58,20 @@ local yaml_lib = dofile(dir .. '/../lib/canonical_yaml.lua')
 local decoded = require('yaml').decode(yaml_lib.emit(extended))
 assert(decoded[1].sql_type == 'decimal' and decoded[1].value == '1.20')
 assert(decoded[2].sql_type == 'datetime' and type(decoded[2].value) == 'string')
+
+local explain_rows = {
+    {1, 'OpenTEphemeral', 2, 0, 0, string.char(0x80, 0x31), '00'},
+    {2, 'OpenTEphemeral', 3, 0, 0, string.char(0xff, 0x42), '00'},
+    {3, 'OpenTEphemeral', 4, 0, 0, '', '00'},
+    {4, 'String', 5, 0, 0, 'meaningful P4', '00'},
+}
+local explained = canonicalize.canon_L1(explain_rows, true, nil,
+                                        'EXPLAIN SELECT 1').rows
+assert(explained[1][6] == '<sql_space_info>')
+assert(explained[2][6] == '<sql_space_info>')
+assert(explained[3][6] == '')
+assert(explained[4][6] == 'meaningful P4')
+local ordinary = canonicalize.canon_L1(explain_rows, true, nil,
+                                       'SELECT 1').rows
+assert(ordinary[1][6] == string.char(0x80, 0x31))
 os.exit(0)

@@ -169,7 +169,7 @@ end
 -- metadata: box.execute column descriptors (when the statement has columns)
 -- Returns: { rows = [...], rows_sorted = bool, column_names = [...],
 --            column_types = [...] }
-function M.canon_L1(rows, ordered, metadata)
+function M.canon_L1(rows, ordered, metadata, sql)
     local column_names, column_types = nil, nil
     if metadata ~= nil then
         column_names, column_types = {}, {}
@@ -197,6 +197,21 @@ function M.canon_L1(rows, ordered, metadata)
             r[1] = row
         end
         table.insert(plain, r)
+    end
+
+    -- EXPLAIN's OpenTEphemeral P4 is a raw sql_space_info struct pointer,
+    -- not a printable semantic field: vdbeaux.c displayP4() returns p4.z
+    -- for this P4_DYNAMIC opcode. Its bytes vary per process. Keep every
+    -- other opcode/P4 intact, and only rewrite nonempty P4 in EXPLAIN output.
+    local is_explain = type(sql) == 'string' and
+                       sql:match('^%s*[Ee][Xx][Pp][Ll][Aa][Ii][Nn]%s') ~= nil
+    if is_explain then
+        for _, row in ipairs(plain) do
+            if row[2] == 'OpenTEphemeral' and row[6] ~= nil and
+               row[6] ~= '' then
+                row[6] = '<sql_space_info>'
+            end
+        end
     end
 
     -- Apply per-cell canonicalization
