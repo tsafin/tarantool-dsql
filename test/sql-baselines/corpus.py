@@ -19,7 +19,8 @@ import tempfile
 SUITES = ("sql", "sql-tap", "sql-luatest")
 ENGINES = ("memtx", "vinyl")
 PENDING_CATEGORIES = {"capture_pending", "parity_pending", "audit_pending",
-                      "unreviewed"}
+                      "unreviewed", "normal_runner_unverified",
+                      "capture_unmeasured"}
 HERE = Path(__file__).resolve().parent
 POLICY = json.loads((HERE / "corpus.json").read_text())
 
