@@ -128,19 +128,21 @@ version and acceptance evidence in its review.
 gated on "no result regression, no diagnostic regression, and reviewed
 planner-path changes."
 
-**State:** `PROTOTYPE` — the standalone capture and manifest-v1 contract are
-fail-closed, and the two CI workflows run a real three-test seed smoke gate.
-The seed policy (`test/sql-baselines/corpus.json`) inventories 385 tests:
-three reviewed inclusions and 382 pending decisions. Normal-runner and
-standalone outcomes agree for the two shared-engine seeds. The local seed
-matrix passes on memtx and Vinyl under generated, CnP, and LLVM dispatch,
-with 69/70 snapshots per mode respectively and zero cross-mode drift; a
-repeat memtx/generated capture also matches. This is **not** M0-B acceptance:
-the pending corpus, other suite adapters, schema/path-policy review, and
-baseline storage decision remain. The local worktree also contains about
-132,000 older untracked snapshots (roughly 528 MB), only for `sql-tap`/memtx;
-they are not an accepted baseline. The classifier supplies file-level tags,
-which must not be interpreted as query-level feature coverage.
+**State:** `PROTOTYPE` — manifest-v1 capture is fail-closed and both CI
+workflows run a real seven-test seed smoke gate across SQL TAP, SQL-language,
+and SQL-luatest. The policy inventories 385 tests; seven have reviewed
+inclusions, while the remaining suite/engine decisions are pending. The
+six-test matrix preceding the seventh seed passed on memtx and Vinyl under
+generated, CnP, and LLVM dispatch, with 83/84 snapshots per mode and zero
+cross-mode drift. The seven-test generated capture has 86/87 snapshots;
+its integrated native matrix and broad-corpus review are still in progress.
+Normal-runner adapters now cover SQL-luatest and `sql/*.test.lua`, and CI
+provisions a pinned published test runner. This is **not** M0-B acceptance:
+full engine-specific inclusion/exclusion review, stable recapture, per-query
+native participation evidence, and a named full-corpus baseline remain.
+The local worktree also contains about 132,000 older untracked snapshots
+(roughly 528 MB), only for `sql-tap`/memtx; they are not an accepted baseline.
+The classifier supplies file-level tags, not query-level feature coverage.
 
 **Scope (B-light):** capture L1 result rows, L2 diagnostic, L3 path_class
 per (test × engine), plus an external run manifest proving coverage and
