@@ -98,8 +98,10 @@ def capture(args):
         "snapshot_errors": 0,
         "accepted": True,
     }
+    stem = test[:-len(".test.lua")] if args.suite == "sql" else \
+           test[:-len(".lua")]
     manifest_path = out / "manifests" / args.suite / \
-                    f"{test[:-len('.lua')]}.{args.engine}.json"
+                    f"{stem}.{args.engine}.json"
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(manifest) + "\n")
     subprocess.run([str(binary), str(repo / "test/sql-baselines/validate.lua"),

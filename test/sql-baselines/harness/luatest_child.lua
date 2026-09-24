@@ -13,12 +13,20 @@ assert(out:sub(1, 1) == '/' and
         (suite == 'sql' and filename:match('^[%w_.-]+%.test%.lua$'))))
 assert(engine == 'memtx' or engine == 'vinyl')
 assert(mode == 'generated' or mode == 'cnp' or mode == 'llvm')
-local basename = file:match('/([^/]+)%.lua$')
+local basename = file:match('/([^/]+)%.test%.lua$') or
+                 file:match('/([^/]+)%.lua$')
 
 -- A second child or a restart would otherwise overwrite qNN files. Refuse
 -- the run until a per-server identity is part of the schema contract.
 local owner = out .. '/luatest-child-owner'
-assert(fio.mkdir(owner), 'capture requires exactly one luatest child server')
+if not fio.mkdir(owner) then
+    -- test-run starts the SQL app once for suite setup, then restarts it for
+    -- the selected test. No query ran in the setup instance, so reusing the
+    -- empty capture is safe. A second child after SQL was captured is not.
+    assert(suite == 'sql' and
+           not fio.stat(out .. '/luatest-child-state.json'),
+           'capture requires exactly one SQL execution server')
+end
 
 local harness_dir = debug.getinfo(1, 'S').source:sub(2):match('^(.+)/[^/]+$')
 package.path = harness_dir .. '/?.lua;' .. package.path
@@ -112,7 +120,10 @@ box.cfg = setmetatable({}, {
             state_file:write(json.encode(state), '\n')
             state_file:close()
             if not ok then error(res, 0) end
-            return res, returned_err
+            if returned_err ~= nil then
+                return res, returned_err
+            end
+            return res
         end
         return result
     end,
