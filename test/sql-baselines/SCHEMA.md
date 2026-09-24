@@ -180,8 +180,9 @@ variance, and floating-point formatting. The harness MUST:
 3. **Encode binary blobs as Base64** with explicit `!!binary` tag.
 4. **Encode NULL as YAML `null`** (not `~`, not empty).
 5. **Encode booleans as YAML `true` / `false`** (not `yes` / `no`).
-6. **UTF-8 text, no BOM.** Control bytes (including NUL) and invalid UTF-8
-   are emitted as Base64 binary, not as pointer-like or lossy text.
+6. **UTF-8 text, no BOM.** ASCII controls, C1 Unicode controls
+   (U+0080–U+009F), and invalid UTF-8 are emitted as Base64 binary, not as
+   pointer-like or lossy text.
 7. **Preserve SQL MAP and ARRAY values recursively.** SQL container values
    must never be converted to Lua pointer strings. Keep numeric and text map
    keys distinct and keep an empty MAP (`{}`) distinct from an empty ARRAY

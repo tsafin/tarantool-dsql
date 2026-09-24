@@ -101,8 +101,8 @@ local function valid_utf8(s)
     return true
 end
 
--- Emit control-byte or invalid-UTF-8 strings as binary. TAB, LF, CR are kept
--- as text, and valid Unicode remains UTF-8 text in YAML.
+-- Emit control-byte, C1-control, or invalid-UTF-8 strings as binary. TAB, LF,
+-- CR, and ordinary valid Unicode remain UTF-8 text in YAML.
 local function is_blob(s)
     for i = 1, #s do
         local b = s:byte(i)
