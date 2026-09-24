@@ -8,6 +8,14 @@ coverage is complete. The inventory command scans top-level `*.test.lua` and
 `*.test.sql` in `test/sql` and `test/sql-tap`, and `*_test.lua` in
 `test/sql-luatest`. Tests added to those suites become pending automatically.
 
+Promotion to `full-corpus` requires a reviewed decision for both engines of
+every discovered test. Every inclusion must be `verified_parity` with
+per-engine audit evidence; every exclusion needs a specific category, reason,
+and evidence. `capture_pending`, `parity_pending`, and other unreviewed states
+are rejected as full-corpus exclusions. The three suite reviews are assembled
+with `assemble_policy.py`; its output still requires review before the named
+baseline is promoted.
+
 ```sh
 python3 test/sql-baselines/corpus.py inventory --repo . --out /tmp/sql-corpus-inventory.json
 python3 test/sql-baselines/corpus.py capture --repo . \
@@ -56,7 +64,8 @@ the authoritative baseline. The `parity-corpus` workflow reads
 `baseline_commit` from `corpus.json`: once `scope` is no longer `seed-smoke`,
 the field is mandatory and must be a full 40-character SHA that is an
 ancestor of the PR head. The baseline commit must itself carry the same
-corpus scope and policy version. The workflow builds both commits, captures
+corpus scope, policy version, and reviewed decisions/evidence (except the
+`baseline_commit` pointer). The workflow builds both commits, captures
 the declared corpus, compares manifest coverage and snapshots, and uploads
 the diff, manifests, and a baseline provenance record containing the SHA,
 policy version, engine, and capture digest. No bulk YAML tree is required in
