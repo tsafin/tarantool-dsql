@@ -56,6 +56,26 @@ def clean(modes):
                ("cnp", "llvm", "generated-repeat"))
 
 
+def matrix_evidence(modes, source_guard):
+    """Retain reproducible outcomes without copying bulky runner/diff logs."""
+    evidence = {"modes": {}}
+    if source_guard:
+        evidence["source_guard"] = source_guard
+    for mode in ("generated", "cnp", "llvm", "generated-repeat"):
+        row = modes[mode]
+        outcome = {"status": row["status"]}
+        if "captured_queries" in row:
+            outcome["captured_queries"] = row["captured_queries"]
+        if mode in ("cnp", "llvm") and "eligible_queries" in row:
+            outcome["eligible_queries"] = row["eligible_queries"]
+            outcome["native_participation_queries"] = \
+                row["native_participation_queries"]
+        if "parity" in row:
+            outcome["parity"] = row["parity"]
+        evidence["modes"][mode] = outcome
+    return evidence
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", type=Path, required=True)
@@ -98,6 +118,7 @@ def main():
                 }
             else:
                 raise ValueError(f"unreviewed matrix failure: {test}/{engine}")
+            engines[engine]["evidence"] = matrix_evidence(modes, guard)
             counts[engines[engine]["decision"]] += 1
         reviews.append({"test": test, "engines": engines})
     result = {"review_version": 1, "suite": "sql-luatest", "tests": reviews,
