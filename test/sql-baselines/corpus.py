@@ -49,6 +49,12 @@ def inventory(repo, policy=POLICY):
         if policy["scope"] == "full-corpus" and \
            entry.get("category") != "verified_parity":
             raise ValueError(f"unverified full-corpus inclusion: {test}")
+        if policy["scope"] == "full-corpus" and \
+           (not isinstance(entry.get("evidence"), dict) or
+            set(entry["evidence"]) != set(engines) or
+            any(not isinstance(entry["evidence"][e], dict) or
+                not entry["evidence"][e] for e in engines)):
+            raise ValueError(f"missing full-corpus inclusion evidence: {test}")
         included[test] = entry
     excluded = {}
     for entry in policy.get("excluded", []):
@@ -63,6 +69,10 @@ def inventory(repo, policy=POLICY):
             not entry["category"].strip() or
             entry["category"] in PENDING_CATEGORIES):
             raise ValueError(f"unreviewed full-corpus exclusion: {test}")
+        if policy["scope"] == "full-corpus" and \
+           (not isinstance(entry.get("evidence"), dict) or
+            not entry["evidence"]):
+            raise ValueError(f"missing full-corpus exclusion evidence: {test}")
         excluded.setdefault(test, {})
         for engine in engines:
             if engine in excluded[test] or engine in included.get(test, {}).get("engines", []):

@@ -26,7 +26,8 @@ class CorpusPolicyTest(unittest.TestCase):
         return {"scope": scope, "policy_version": 1,
                 "included": [{"test": "sql-tap/example.test.lua",
                  "engines": ["memtx"], "reason": "reviewed capture",
-                 "category": "verified_parity"}],
+                 "category": "verified_parity",
+                 "evidence": {"memtx": {"matrix": "passed"}}}],
                 "excluded": excluded or []}
 
     def test_full_policy_requires_each_engine_decision(self):
@@ -37,16 +38,18 @@ class CorpusPolicyTest(unittest.TestCase):
         policy = self.policy(excluded=[{
             "test": "sql-tap/example.test.lua", "engines": ["vinyl"],
             "reason": "normal runner does not support this engine",
-            "category": "no_engine_variant"}])
+            "category": "no_engine_variant", "evidence": {"runner": "unscheduled"}}])
         (self.repo / "test/sql-tap/second.test.lua").touch()
         policy["included"].append({"test": "sql-tap/second.test.lua",
                                    "engines": ["vinyl"],
                                    "reason": "reviewed capture",
-                                   "category": "verified_parity"})
+                                   "category": "verified_parity",
+                                   "evidence": {"vinyl": {"matrix": "passed"}}})
         policy["excluded"].append({"test": "sql-tap/second.test.lua",
                                    "engines": ["memtx"],
                                    "reason": "unsupported engine",
-                                   "category": "no_engine_variant"})
+                                   "category": "no_engine_variant",
+                                   "evidence": {"runner": "unscheduled"}})
         rows = corpus.inventory(self.repo, policy)
         self.assertEqual(rows[0]["engines"], ["memtx"])
         self.assertEqual(rows[0]["pending_engines"], [])
@@ -55,7 +58,7 @@ class CorpusPolicyTest(unittest.TestCase):
         policy = self.policy(excluded=[{
             "test": "sql-tap/example.test.lua", "engines": ["vinyl"],
             "reason": "unsupported engine",
-            "category": "no_engine_variant"}])
+            "category": "no_engine_variant", "evidence": {"runner": "unscheduled"}}])
         with self.assertRaisesRegex(ValueError, "both engines"):
             corpus.inventory(self.repo, policy)
 
@@ -71,14 +74,29 @@ class CorpusPolicyTest(unittest.TestCase):
     def test_overlapping_inclusion_and_exclusion_rejected(self):
         with self.assertRaisesRegex(ValueError, "duplicate inclusion/exclusion"):
             corpus.inventory(self.repo, self.policy(excluded=[{
-            "test": "sql-tap/example.test.lua", "engines": ["memtx"],
-            "reason": "conflict", "category": "verified_parity"}]))
+                "test": "sql-tap/example.test.lua", "engines": ["memtx"],
+                "reason": "conflict", "category": "verified_parity",
+                "evidence": {"runner": "passed"}}]))
 
     def test_full_policy_rejects_pending_decision_category(self):
         policy = self.policy(excluded=[{
             "test": "sql-tap/example.test.lua", "engines": ["vinyl"],
-            "reason": "audit still running", "category": "parity_pending"}])
+            "reason": "audit still running", "category": "parity_pending",
+            "evidence": {"runner": "passed"}}])
         with self.assertRaisesRegex(ValueError, "unreviewed full-corpus exclusion"):
+            corpus.inventory(self.repo, policy)
+
+    def test_full_policy_requires_per_engine_evidence(self):
+        policy = self.policy(excluded=[{
+            "test": "sql-tap/example.test.lua", "engines": ["vinyl"],
+            "reason": "unsupported engine", "category": "no_engine_variant",
+            "evidence": {"runner": "unscheduled"}}])
+        policy["included"][0]["evidence"] = {}
+        with self.assertRaisesRegex(ValueError, "missing full-corpus inclusion evidence"):
+            corpus.inventory(self.repo, policy)
+        policy["included"][0]["evidence"] = {"memtx": {"matrix": "passed"}}
+        policy["excluded"][0]["evidence"] = {}
+        with self.assertRaisesRegex(ValueError, "missing full-corpus exclusion evidence"):
             corpus.inventory(self.repo, policy)
 
     def test_seed_policy_can_keep_unreviewed_engines(self):
