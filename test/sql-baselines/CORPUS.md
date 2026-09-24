@@ -36,6 +36,9 @@ is recorded as executed but not eligible. The seven-test seed passed all six
 engine/mode captures on the clean CI-style binary (86 memtx and 87 Vinyl
 snapshots per mode), with zero drift across dispatchers and a clean memtx
 repeat capture. This is seed evidence, not full-corpus acceptance.
+Per-test native totals are only a minimum sanity check: a test that executes
+native code for a setup statement and then disables the native mode for its
+workload is excluded during review, even if its aggregate counter is positive.
 
 The `gh-2884-forbid-rowid-syntax` seed relies on harness semantic fix
 `b1535bb0ba`: `box.execute` can return an error as its second result. The
