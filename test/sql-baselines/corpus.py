@@ -15,11 +15,12 @@ import tempfile
 
 
 SUITES = ("sql", "sql-tap", "sql-luatest")
+ENGINES = ("memtx", "vinyl")
 HERE = Path(__file__).resolve().parent
 POLICY = json.loads((HERE / "corpus.json").read_text())
 
 
-def inventory(repo):
+def inventory(repo, policy=POLICY):
     discovered = set()
     for suite in SUITES:
         suite_dir = repo / "test" / suite
@@ -28,20 +29,41 @@ def inventory(repo):
         for pattern in patterns:
             discovered.update(f"{suite}/{path.name}" for path in suite_dir.glob(pattern))
     included = {}
-    for entry in POLICY["included"]:
+    for entry in policy["included"]:
         test = entry["test"]
         if test in included or test not in discovered:
             raise ValueError(f"duplicate or absent corpus test: {test}")
         engines = entry["engines"]
-        if not engines or any(e not in ("memtx", "vinyl") for e in engines):
+        if not engines or len(engines) != len(set(engines)) or \
+           any(e not in ENGINES for e in engines) or not entry.get("reason"):
             raise ValueError(f"invalid engine policy for {test}")
         included[test] = entry
-    return [{"test": test,
-             "status": "included" if test in included else "pending",
-             "engines": included[test]["engines"] if test in included else [],
-             "reason": included[test]["reason"] if test in included else
-                       POLICY["pending_reason"]}
-            for test in sorted(discovered)]
+    excluded = {}
+    for entry in policy.get("excluded", []):
+        test, engines = entry["test"], entry["engines"]
+        if test not in discovered or not engines or not entry.get("reason") or \
+           len(engines) != len(set(engines)) or any(e not in ENGINES for e in engines):
+            raise ValueError(f"invalid exclusion policy for {test}")
+        excluded.setdefault(test, {})
+        for engine in engines:
+            if engine in excluded[test] or engine in included.get(test, {}).get("engines", []):
+                raise ValueError(f"duplicate inclusion/exclusion for {test}/{engine}")
+            excluded[test][engine] = entry["reason"]
+    rows = []
+    for test in sorted(discovered):
+        engines = included.get(test, {}).get("engines", [])
+        excluded_engines = excluded.get(test, {})
+        pending_engines = [e for e in ENGINES if e not in engines and
+                           e not in excluded_engines]
+        if policy["scope"] != "seed-smoke" and pending_engines:
+            raise ValueError(f"unreviewed corpus engine: {test}/{pending_engines}")
+        status = "included" if engines else "pending" if pending_engines else "excluded"
+        rows.append({"test": test, "status": status, "engines": engines,
+                     "excluded_engines": excluded_engines,
+                     "pending_engines": pending_engines,
+                     "reason": included[test]["reason"] if engines else
+                               policy.get("pending_reason", "reviewed exclusion")})
+    return rows
 
 
 def run(*argv, env=None, cwd=None):
@@ -108,6 +130,7 @@ def main():
                   "scope": POLICY["scope"], "tests": rows,
                   "summary": {"total": len(rows),
                               "included": sum(r["status"] == "included" for r in rows),
+                              "excluded": sum(r["status"] == "excluded" for r in rows),
                               "pending": sum(r["status"] == "pending" for r in rows)}}
         encoded = json.dumps(report, indent=2) + "\n"
         if args.out:
