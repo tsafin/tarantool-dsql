@@ -20,6 +20,8 @@ def main():
     parser.add_argument("--binary", type=Path, required=True)
     parser.add_argument("--out-root", type=Path, required=True)
     parser.add_argument("--test", default="gh_6575_assertion_in_modulo_test.lua")
+    parser.add_argument("--suite", choices=("sql", "sql-luatest"),
+                        default="sql-luatest")
     args = parser.parse_args()
     repo = args.repo.resolve()
     binary = args.binary.resolve()
@@ -36,11 +38,13 @@ def main():
             run("python3", repo / "test/sql-baselines/luatest_capture.py",
                 "--repo", repo, "--runner-repo", args.runner_repo,
                 "--binary", binary, "--out", out,
-                "--test", args.test, "--engine", engine,
+                "--test", args.test, "--suite", args.suite,
+                "--engine", engine,
                 "--mode", actual_mode)
             outputs[mode] = out
-            stem = args.test[:-len(".lua")]
-            manifest = json.loads((out / "manifests/sql-luatest" /
+            stem = args.test[:-len(".test.lua")] if args.suite == "sql" else \
+                   args.test[:-len(".lua")]
+            manifest = json.loads((out / "manifests" / args.suite /
                                    f"{stem}.{engine}.json").read_text())
             results.append({"engine": engine, "mode": mode,
                             "snapshots": manifest["written_snapshots"],
