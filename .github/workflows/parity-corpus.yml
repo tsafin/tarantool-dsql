@@ -3,8 +3,8 @@ name: parity-corpus
 # M0.5 — Reviewed seed snapshot smoke gate; full SQL corpus is pending.
 # Runs on PRs that touch SQL execution, SQL tests, build configuration, or
 # the baseline corpus itself.
-# Compares snapshots generated from PR head vs merge-base to detect
-# regressions or diagnostic changes in the SQL baseline corpus.
+# For an accepted full corpus, compares PR head with a named integration
+# commit from corpus.json. Seed smoke still uses the merge-base.
 
 on:
   pull_request:
@@ -15,12 +15,14 @@ on:
       - 'test/sql-tap/**'
       - 'test/sql-luatest/**'
       - 'test/sql-baselines/**'
+      - '.gitmodules'
+      - '.github/scripts/**'
       - '.github/workflows/parity-corpus.yml'
       - '.github/actions/install-deps-debian/**'
   workflow_dispatch:
     inputs:
       base_ref:
-        description: 'Base git ref to compare against (default: merge-base with master)'
+        description: 'Full 40-character baseline commit SHA override (manual runs only)'
         required: false
         default: ''
 
@@ -37,7 +39,7 @@ jobs:
 
     runs-on: ubuntu-20.04-self-hosted
 
-    timeout-minutes: 45
+    timeout-minutes: 120
 
     strategy:
       fail-fast: false
@@ -57,33 +59,65 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: recursive
+          submodules: false
           path: tarantool-head
 
-      # Determine the merge-base commit between PR head and master.
-      - name: Determine merge-base
-        id: mergebase
+      # The accepted full corpus must name an immutable ancestor commit.
+      # A moving merge-base is permitted only while the policy is seed-smoke.
+      - name: Select named baseline commit
+        id: baseline
         working-directory: tarantool-head
+        env:
+          MANUAL_BASE_SHA: ${{ inputs.base_ref }}
         run: |
-          BASE_REF="${{ inputs.base_ref }}"
-          if [ -z "$BASE_REF" ]; then
+          POLICY_SCOPE=$(python3 -c 'import json; print(json.load(open("test/sql-baselines/corpus.json"))["scope"])')
+          POLICY_SHA=$(python3 -c 'import json; print(json.load(open("test/sql-baselines/corpus.json")).get("baseline_commit") or "")')
+          if [ -n "$MANUAL_BASE_SHA" ]; then
+            BASE_SHA="$MANUAL_BASE_SHA"
+          elif [ -n "$POLICY_SHA" ]; then
+            BASE_SHA="$POLICY_SHA"
+          elif [ "$POLICY_SCOPE" = 'seed-smoke' ]; then
             git fetch origin master --depth=50
             BASE_SHA=$(git merge-base HEAD origin/master)
           else
-            git fetch origin "$BASE_REF" --depth=50
-            BASE_SHA=$(git rev-parse FETCH_HEAD)
+            echo 'Full corpus policy requires baseline_commit in corpus.json.' >&2
+            exit 1
+          fi
+          if [ "$POLICY_SCOPE" != 'seed-smoke' ] || [ -n "$POLICY_SHA" ] || [ -n "$MANUAL_BASE_SHA" ]; then
+            if ! [[ "$BASE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+              echo 'Accepted baseline must be a full 40-character commit SHA.' >&2
+              exit 1
+            fi
+          fi
+          git cat-file -e "$BASE_SHA^{commit}"
+          git merge-base --is-ancestor "$BASE_SHA" HEAD
+          if [ "$POLICY_SCOPE" != 'seed-smoke' ]; then
+            BASE_POLICY_SCOPE=$(git show "$BASE_SHA:test/sql-baselines/corpus.json" |
+              python3 -c 'import json, sys; print(json.load(sys.stdin)["scope"])')
+            BASE_POLICY_VERSION=$(git show "$BASE_SHA:test/sql-baselines/corpus.json" |
+              python3 -c 'import json, sys; print(json.load(sys.stdin)["policy_version"])')
+            HEAD_POLICY_VERSION=$(python3 -c 'import json; print(json.load(open("test/sql-baselines/corpus.json"))["policy_version"])')
+            if [ "$BASE_POLICY_SCOPE" != "$POLICY_SCOPE" ] ||
+               [ "$BASE_POLICY_VERSION" != "$HEAD_POLICY_VERSION" ]; then
+              echo 'Baseline and candidate corpus policy versions differ; promote a new baseline explicitly.' >&2
+              exit 1
+            fi
           fi
           echo "sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
-          echo "Merge-base: $BASE_SHA"
+          echo "Baseline: $BASE_SHA (scope=$POLICY_SCOPE)"
 
-      # Check out the merge-base separately.
-      - name: Checkout merge-base
+      - name: Checkout baseline commit
         uses: actions/checkout@v4
         with:
-          ref: ${{ steps.mergebase.outputs.sha }}
+          ref: ${{ steps.baseline.outputs.sha }}
           fetch-depth: 0
-          submodules: recursive
+          submodules: false
           path: tarantool-base
+
+      - name: Initialize build submodules
+        run: |
+          (cd tarantool-head && bash .github/scripts/init-parity-submodules.sh)
+          (cd tarantool-base && bash ../tarantool-head/.github/scripts/init-parity-submodules.sh)
 
       - name: Install deps
         uses: ./tarantool-head/.github/actions/install-deps-debian
@@ -107,27 +141,32 @@ jobs:
           cmake -S . -B build-head \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DENABLE_BACKTRACE=ON
-          cmake --build build-head --target tarantool -- -j$(nproc)
+          for target in tarantool decimal gh-2579-custom-aggregate \
+            gh-5938-wrong-string-length gh-6024-funcs-return-bin sql_uuid; do
+            cmake --build build-head --target "$target" --parallel 4
+          done
 
-      # Build merge-base.
-      - name: Build tarantool (merge-base)
+      - name: Build tarantool (baseline)
         working-directory: tarantool-base
         run: |
           cmake -S . -B build-base \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DENABLE_BACKTRACE=ON
-          cmake --build build-base --target tarantool -- -j$(nproc)
+          for target in tarantool decimal gh-2579-custom-aggregate \
+            gh-5938-wrong-string-length gh-6024-funcs-return-bin sql_uuid; do
+            cmake --build build-base --target "$target" --parallel 4
+          done
 
       # Use the head's manifest-v1 capture tool for both binaries. The
       # selected base may predate the tool; runtime incompatibility fails here.
-      - name: Capture reviewed ${{ matrix.engine }} seed against merge-base
+      - name: Capture reviewed ${{ matrix.engine }} corpus against baseline
         run: |
           python3 tarantool-head/test/sql-baselines/corpus.py capture \
             --repo=tarantool-base \
             --binary=tarantool-base/build-base/src/tarantool \
             --out=/tmp/snapshots-base --engine=${{ matrix.engine }} --mode=generated
 
-      - name: Capture reviewed ${{ matrix.engine }} seed against PR head
+      - name: Capture reviewed ${{ matrix.engine }} corpus against PR head
         run: |
           python3 tarantool-head/test/sql-baselines/corpus.py capture \
             --repo=tarantool-head \
@@ -139,6 +178,22 @@ jobs:
           python3 tarantool-head/test/sql-baselines/corpus.py compare-coverage \
             --repo=tarantool-head --base=/tmp/snapshots-base \
             --candidate=/tmp/snapshots-head --engine=${{ matrix.engine }}
+
+      - name: Record baseline capture provenance
+        run: |
+          set -euo pipefail
+          SNAPSHOT_DIGEST=$(
+            cd /tmp/snapshots-base/snapshots
+            find . -type f -name '*.yaml' -print0 |
+              LC_ALL=C sort -z | xargs -0 -r sha256sum | sha256sum | cut -d' ' -f1
+          )
+          {
+            echo 'baseline_commit=${{ steps.baseline.outputs.sha }}'
+            echo 'engine=${{ matrix.engine }}'
+            echo "policy_version=$(python3 -c 'import json; print(json.load(open("tarantool-head/test/sql-baselines/corpus.json"))["policy_version"])')"
+            echo "snapshot_tree_sha256=$SNAPSHOT_DIGEST"
+          } > /tmp/baseline-provenance.txt
+          cat /tmp/baseline-provenance.txt
 
       # Run the diff tool.  Fail on hard-gate mismatches; upload summary as artifact.
       - name: Run snapshot diff
@@ -163,7 +218,11 @@ jobs:
         if: always()
         with:
           name: snapshot-diff-summary-${{ matrix.engine }}
-          path: /tmp/diff-summary.json
+          path: |
+            /tmp/diff-summary.json
+            /tmp/baseline-provenance.txt
+            /tmp/snapshots-base/manifests/**
+            /tmp/snapshots-head/manifests/**
           retention-days: 14
 
       # Re-fail the job if the diff tool exited non-zero.

@@ -27,7 +27,7 @@ jobs:
 
     runs-on: ubuntu-20.04-self-hosted
 
-    timeout-minutes: 60
+    timeout-minutes: 120
 
     container:
       image: docker.io/tarantool/testing:ubuntu-focal
@@ -46,7 +46,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: recursive
+          submodules: false
+
+      - name: Initialize build submodules
+        run: bash .github/scripts/init-parity-submodules.sh
 
       - name: Set environment
         uses: ./.github/actions/environment
@@ -54,22 +57,24 @@ jobs:
       - name: Install deps
         uses: ./.github/actions/install-deps-debian
 
-      - name: Check native-dispatch build toolchains
+      # The testing:ubuntu-focal image does not include LLVM or Clang.
+      # JIT bitcode must use a Clang matching its LLVM libraries; CnP
+      # stencils separately require Clang 19's preserve_none support.
+      - name: Install native-dispatch toolchains
         run: |
-          cmake --version
-          found_clang=false
-          for compiler in clang-19 clang-20 clang-21 clang-22; do
-            if command -v "$compiler" >/dev/null 2>&1; then
-              "$compiler" --version
-              found_clang=true
-              break
-            fi
-          done
-          if [ "$found_clang" != true ]; then
-            echo 'CnP requires clang-19 or newer; the CI container does not provide it.'
-            exit 1
-          fi
-          python3 --version
+          set -euo pipefail
+          curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key |
+            gpg --dearmor -o /usr/share/keyrings/llvm-archive-keyring.gpg
+          echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] https://apt.llvm.org/focal/ llvm-toolchain-focal-11 main' \
+            > /etc/apt/sources.list.d/llvm-11.list
+          echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] https://apt.llvm.org/focal/ llvm-toolchain-focal-19 main' \
+            > /etc/apt/sources.list.d/llvm-19.list
+          apt-get update
+          apt-get install -y --no-install-recommends clang-11 llvm-11-dev clang-19
+          test -f /usr/lib/llvm-11/lib/cmake/llvm/LLVMConfig.cmake
+          clang-11 --version
+          clang-19 --version
+          llvm-config-11 --version
 
       # Build once; all dispatcher modes share the same binary.
       # The VDBE_DISPATCHER env var selects the dispatcher at runtime.
@@ -77,10 +82,14 @@ jobs:
         run: |
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DLLVM_DIR=/usr/lib/llvm-11/lib/cmake/llvm \
             -DENABLE_SQL_JIT=ON \
             -DENABLE_SQL_CNP=ON \
             -DENABLE_BACKTRACE=ON
-          cmake --build build --target tarantool -- -j$(nproc)
+          for target in tarantool decimal gh-2579-custom-aggregate \
+            gh-5938-wrong-string-length gh-6024-funcs-return-bin sql_uuid; do
+            cmake --build build --target "$target" --parallel 4
+          done
 
       - name: Run harness (generated dispatcher)
         run: |

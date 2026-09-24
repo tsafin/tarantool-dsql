@@ -38,19 +38,38 @@ only for `sql-tap`/memtx. It must not be added to Git or used as the CI
 reference. The reviewed seed generated captures occupy about 312 KiB for
 memtx and 324 KiB for Vinyl; these figures do not predict full-corpus size.
 
-For M0-B, prefer a *reproducible capture from a named integration commit* as
-the authoritative baseline, with the commit SHA, corpus policy version,
-engine, capture manifest, and snapshot digest recorded together. CI can
-build and capture that pinned commit, compare its manifest coverage with the
-candidate, and upload the diff and capture manifests as artifacts. A PR's
-moving merge-base is not an accepted baseline. Promotion to a new SHA must
-be explicit and include repeat-capture and normal-runner evidence, full
-suite/engine coverage, and a measured size/runtime review. This avoids
-committing an unreviewed bulk YAML tree while retaining a regenerable
-reference. Git-tracked snapshots or external object storage remain options
-if full-corpus measurement shows regeneration is impractical.
+For M0-B, use a *reproducible capture from a named integration commit* as
+the authoritative baseline. The `parity-corpus` workflow reads
+`baseline_commit` from `corpus.json`: once `scope` is no longer `seed-smoke`,
+the field is mandatory and must be a full 40-character SHA that is an
+ancestor of the PR head. The baseline commit must itself carry the same
+corpus scope and policy version. The workflow builds both commits, captures
+the declared corpus, compares manifest coverage and snapshots, and uploads
+the diff, manifests, and a baseline provenance record containing the SHA,
+policy version, engine, and capture digest. No bulk YAML tree is required in
+Git. A PR's moving merge-base remains permitted only for the seed smoke
+gate; it is not an accepted M0-B baseline.
 
-The current `parity-corpus` workflow still uses a merge-base and the current
-corpus policy is seed-only. The pinned-baseline workflow change is deferred
-until a full-corpus integration commit is accepted; do not describe the seed
-job as M0-B-complete.
+Promotion to a new SHA is an explicit policy change: include repeat-capture
+and normal-runner evidence, full suite/engine coverage, and a measured
+size/runtime review. The accepted corpus commit is named only after that
+review. Git-tracked snapshots or external object storage remain options if
+full-corpus measurement shows regeneration is impractical. The current
+policy is still seed-only and has no accepted `baseline_commit`; the seed
+job must not be described as M0-B-complete.
+
+Both CI jobs reserve 120 minutes for the full corpus because the current
+SQL-TAP sweep contains long tests and roughly 22,000 accepted SQL statements
+per engine. This is a capacity allowance, not a measured full-matrix runtime;
+record wall time and artifact size from the first integrated capture and
+revisit the timeout before marking the gate stable.
+
+The dispatcher workflow installs LLVM/Clang 11 and Clang 19 from the signed
+`apt.llvm.org` Focal repository because `tarantool/testing:ubuntu-focal`
+does not include either toolchain. JIT bitcode uses Clang 11 to match its LLVM
+libraries; CnP stencils use Clang 19. The `test-run` gitlink currently points
+to a commit unavailable from its public remote, so parity jobs initialize
+only build-required submodules and run the standalone harness. The missing
+`checkpatch` and `third_party/luarocks` mappings were restored in
+`.gitmodules`, but a full recursive checkout remains unsuitable until the
+`test-run` gitlink is published or replaced.
