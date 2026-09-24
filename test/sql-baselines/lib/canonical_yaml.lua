@@ -110,6 +110,15 @@ local function is_blob(s)
            b == 0x7f then
             return true
         end
+        -- C1 controls U+0080..U+009F are valid UTF-8 (C2 80..9F), but
+        -- libyaml rejects them as literal scalar characters. Preserve the
+        -- original bytes with an explicit binary scalar instead.
+        if b == 0xc2 then
+            local next_byte = s:byte(i + 1)
+            if next_byte and next_byte >= 0x80 and next_byte <= 0x9f then
+                return true
+            end
+        end
     end
     return not valid_utf8(s)
 end

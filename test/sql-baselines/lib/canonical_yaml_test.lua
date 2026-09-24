@@ -93,6 +93,9 @@ check("UTF-8 text is not a binary blob",
 check("invalid UTF-8 is a binary blob",
     yaml_lib.emit_nodoc("\xff") == "!!binary /w==\n")
 
+check("UTF-8 C1 control is a binary blob",
+    yaml_lib.emit_nodoc("\xc2\x9f") == "!!binary wp8=\n")
+
 -- ---------------------------------------------------------------------------
 -- Table emission — arrays and maps
 -- ---------------------------------------------------------------------------
