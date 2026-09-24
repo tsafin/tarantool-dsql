@@ -114,13 +114,16 @@ jobs:
           submodules: false
           path: tarantool-base
 
-      - name: Initialize build submodules
+      - name: Initialize build submodules and pinned test runner
         run: |
           (cd tarantool-head && bash .github/scripts/init-parity-submodules.sh)
           (cd tarantool-base && bash ../tarantool-head/.github/scripts/init-parity-submodules.sh)
 
       - name: Install deps
         uses: ./tarantool-head/.github/actions/install-deps-debian
+
+      - name: Install pinned test runner dependency
+        run: python3 -m pip install --no-cache-dir 'gevent==22.10.2'
 
       - name: Inventory SQL suite coverage
         run: |

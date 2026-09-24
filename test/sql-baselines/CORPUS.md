@@ -76,8 +76,16 @@ The dispatcher workflow installs LLVM/Clang 11 and Clang 19 from the signed
 `apt.llvm.org` Focal repository because `tarantool/testing:ubuntu-focal`
 does not include either toolchain. JIT bitcode uses Clang 11 to match its LLVM
 libraries; CnP stencils use Clang 19. The `test-run` gitlink currently points
-to a commit unavailable from its public remote, so parity jobs initialize
-only build-required submodules and run the standalone harness. The missing
+to a commit unavailable from its public remote. Parity jobs therefore
+initialize build-required submodules, then clone the public `test-run`
+revision `71c1373f9b64088cee1e8aba4d446bd42dca925c` and its nested
+submodules. This published revision still includes the luatest child runner
+used by the SQL-luatest capture hook; the newer public tip removed it.
+`test/test-run.py` resolves through the resulting pinned checkout, while
+ordinary SQL TAP tests still use the standalone harness. The missing
+runner Python dependency `gevent==22.10.2` is installed explicitly in both
+jobs; the Focal image already provides the pinned PyYAML 5.3.1. The missing
 `checkpatch` and `third_party/luarocks` mappings were restored in
-`.gitmodules`, but a full recursive checkout remains unsuitable until the
-`test-run` gitlink is published or replaced.
+`.gitmodules`, but a full recursive checkout of the repository's current
+gitlinks remains unsuitable until the `test-run` gitlink is published or
+replaced.

@@ -48,7 +48,7 @@ jobs:
           fetch-depth: 0
           submodules: false
 
-      - name: Initialize build submodules
+      - name: Initialize build submodules and pinned test runner
         run: bash .github/scripts/init-parity-submodules.sh
 
       - name: Set environment
@@ -56,6 +56,9 @@ jobs:
 
       - name: Install deps
         uses: ./.github/actions/install-deps-debian
+
+      - name: Install pinned test runner dependency
+        run: python3 -m pip install --no-cache-dir 'gevent==22.10.2'
 
       # The testing:ubuntu-focal image does not include LLVM or Clang.
       # JIT bitcode must use a Clang matching its LLVM libraries; CnP
