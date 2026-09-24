@@ -19,7 +19,7 @@ REASONS = {
     "gh-4745-table-info-assertion.test.lua": ("native_mode_not_observed", "LLVM dispatcher has no native execution in this test"),
     "gh2483-remote-persistency-check.test.lua": ("server_restart", "test restarts default server"),
     "gh2808-inline-unique-persistency-check.test.lua": ("server_restart", "test restarts default server"),
-    "misc.test.lua": ("budget_exceeded", "source loops issue at least 20,480 SQL INSERTs, above the 10,000-query per-test cap"),
+    "misc.test.lua": ("budget_exceeded", "normal runner passes both engines, but source loops issue at least 20,480 SQL INSERTs, above the 10,000-query per-test cap"),
     "no-pk-space.test.lua": ("native_mode_not_observed", "CnP dispatcher has no native execution in this test"),
     "persistency.test.lua": ("server_restart", "test restarts default server"),
     "prepared.test.lua": ("no_engine_variant", "engine.cfg defines remote/local variants, not memtx/Vinyl"),
