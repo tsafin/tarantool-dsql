@@ -186,7 +186,10 @@ variance, and floating-point formatting. The harness MUST:
    must never be converted to Lua pointer strings. Keep numeric and text map
    keys distinct and keep an empty MAP (`{}`) distinct from an empty ARRAY
    (`[]`). Sort map keys deterministically at every nesting depth.
-8. **LF line endings**, single trailing newline at EOF.
+8. **Normalize EXPLAIN's volatile `OpenTEphemeral` P4 only.** When this
+   opcode has a nonempty P4, its `sql_space_info` pointer bytes are replaced
+   with `<sql_space_info>`; every other opcode/P4 value remains gated.
+9. **LF line endings**, single trailing newline at EOF.
 
 Extended SQL scalars and containers use typed cell wrappers inside
 `l1_result.rows`, because Tarantool's YAML decoder otherwise turns DECIMAL
