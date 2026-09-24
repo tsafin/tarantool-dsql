@@ -28,10 +28,17 @@ def main():
                         default="generated")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--timeout", type=float, default=12)
+    parser.add_argument("--test", action="append", default=[],
+                        help="rerun only this test filename, replacing its prior result")
     args = parser.parse_args()
     repo, binary = args.repo.resolve(), args.binary.resolve()
     harness = repo / "test/sql-baselines/harness/run.lua"
     tests = sorted((repo / "test/sql-tap").glob("*.test.lua"))
+    if args.test:
+        unknown = set(args.test) - {test.name for test in tests}
+        if unknown:
+            raise ValueError(f"unknown SQL-TAP tests: {sorted(unknown)}")
+        tests = [test for test in tests if test.name in args.test]
     identity = {"repo": str(repo), "binary": str(binary),
                 "engine": args.engine, "mode": args.mode,
                 "timeout_seconds": args.timeout}
@@ -46,7 +53,7 @@ def main():
                SQL_JIT_ENABLE="1" if args.mode == "llvm" else "0",
                BUILDDIR=str(binary.parent.parent))
     for index, test in enumerate(tests, 1):
-        if test.name in report["results"]:
+        if test.name in report["results"] and not args.test:
             continue
         with tempfile.TemporaryDirectory(prefix="m0-sqltap-audit-") as dirname:
             root = Path(dirname)
@@ -56,11 +63,12 @@ def main():
             started = time.monotonic()
             timed_out = False
             try:
+                run_env = dict(env, LISTEN="unix/:" + str(work / "listen.sock"))
                 process = subprocess.run(
                     [str(binary), str(harness), str(test),
                      f"--engine={args.engine}", f"--out={out}",
                      f"--work-dir={work}"],
-                    env=env, cwd=work, stdout=subprocess.PIPE,
+                    env=run_env, cwd=work, stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT, text=True,
                     timeout=args.timeout)
                 output = process.stdout
