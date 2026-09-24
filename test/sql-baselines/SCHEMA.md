@@ -318,9 +318,25 @@ v1 contains `manifest_version: 1`, `suite`, `test_file`, `engine`,
 `execution_mode`, `mode_executed`, `cnp_exec_delta`, `llvm_exec_delta`,
 `test_exit_code` (integer or `"missing"`), `test_load_ok`,
 `test_load_error`, `cfg_errors`, `captured_queries`, `written_snapshots`,
-`skipped_queries`, `snapshot_errors`, and `accepted`. A manifest describes
-one test execution, not an entire suite or an exclusion. Suite inventory,
-explicit exclusion reasons, and per-query dispatcher proof are M0-B work.
+`skipped_queries`, `snapshot_errors`, and `accepted`. The current v1 capture
+also records sorted query-index arrays: `executed_query_indices`,
+`native_compile_attempt_query_indices`, `native_compile_success_query_indices`,
+`native_participation_query_indices`, `eligible_query_indices`, and
+`mode_miss_queries`, plus counts `eligible_queries` and
+`native_participation_queries`. A manifest describes one test execution,
+not an entire suite or an exclusion. Engine-specific inclusion/exclusion is
+defined by `corpus.json`.
+
+The per-query native proof distinguishes execution from structural native
+eligibility. An executed query has a positive interpreter-step or selected
+native-execution counter delta. A query is eligible only when it executed
+and either compiled successfully for the selected native mode or entered
+native code (including a cache hit). A mode miss is an eligible query with
+no native entry and rejects the capture. Compile-only `EXPLAIN` queries and
+deliberate short-program LLVM fallbacks are therefore recorded but not
+misreported as native mode misses. Generated mode records executed indices
+and empty native lists. The counters are process-global, so tests with
+concurrent, unattributable SQL execution need an explicit corpus exclusion.
 
 The harness requires `--work-dir=<absolute empty directory>` for database
 isolation. It exits nonzero and writes no snapshots when the test load fails,
@@ -328,7 +344,7 @@ TAP exits nonzero or never exits, `box.cfg` fails, no query was captured, or
 the runtime SQL default engine differs from `--engine` at any captured query
 or at test end. For CnP and LLVM modes, the appropriate execution counter
 must rise during the test; a build with LLVM disabled therefore cannot
-produce an accepted LLVM capture. Any skipped query or
+produce an accepted LLVM capture. Any mode miss, skipped query, or
 snapshot write failure also rejects the run. An unsuccessful run's manifest
 remains for diagnosis. The output tree is not accepted until
 `tarantool test/sql-baselines/validate.lua <capture-root>` succeeds; this

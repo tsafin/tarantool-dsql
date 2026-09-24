@@ -21,7 +21,13 @@ test fails, a dispatcher does not execute, or actual manifest coverage differs
 from the policy. `compare-coverage` checks test identities and query counts
 before `diff.lua` compares snapshots. The workflows run this sequence on both
 memtx and Vinyl. The dispatcher workflow also requires positive CnP/LLVM
-execution counters in manifest v1.
+execution counters and validates per-query native participation evidence in
+manifest v1. A successful compilation without native entry is a mode miss;
+an interpreter-only statement that the native compiler deliberately declined
+is recorded as executed but not eligible. The seven-test seed passed all six
+engine/mode captures on the clean CI-style binary (86 memtx and 87 Vinyl
+snapshots per mode), with zero drift across dispatchers and a clean memtx
+repeat capture. This is seed evidence, not full-corpus acceptance.
 
 The `gh-2884-forbid-rowid-syntax` seed relies on harness semantic fix
 `b1535bb0ba`: `box.execute` can return an error as its second result. The
