@@ -229,12 +229,20 @@ local _real_os_exit = os.exit
 local test_exit_code = nil
 local test_finished = false
 local test_exit_signal = {}
+local tap_check_count = 0
+local tap_check_failed = false
+local last_tap_check_query_count = nil
 os.exit = function(code)
     code = code or 0
     test_exit_code = code
     local caller = debug.getinfo(2, 'S')
-    test_finished = caller ~= nil and type(caller.source) == 'string' and
-                    caller.source:match('/sqltester%.lua$') ~= nil
+    local source = caller and caller.source or ''
+    local sqltester_finish = type(source) == 'string' and
+                             source:match('/sqltester%.lua$') ~= nil
+    local checked_direct_finish = source == '@' .. cfg.test_file and
+                                  tap_check_count > 0 and not tap_check_failed and
+                                  last_tap_check_query_count == #captured_queries
+    test_finished = sqltester_finish or checked_direct_finish
     error(test_exit_signal, 0)
 end
 
@@ -253,6 +261,24 @@ box.cfg = setmetatable({}, {
     __index = _real_box_cfg,
     __newindex = _real_box_cfg,
 })
+
+-- SQL TAP has two valid exit patterns: sqltester.finish_test() and a direct
+-- os.exit(test:check() and 0 or 1). Observe the latter's actual TAP check so
+-- a bare early os.exit(0) cannot masquerade as a completed test.
+local tap = require('tap')
+local _real_tap_test = tap.test
+tap.test = function(...)
+    local test = _real_tap_test(...)
+    local _real_check = test.check
+    test.check = function(self, ...)
+        local checked = _real_check(self, ...)
+        tap_check_count = tap_check_count + 1
+        tap_check_failed = tap_check_failed or checked ~= true
+        last_tap_check_query_count = #captured_queries
+        return checked
+    end
+    return test
+end
 
 -- Suppress tap output (sqltester uses tap module which writes to stdout)
 -- We redirect by providing a no-op print — actually keep stdout as-is for now;
@@ -325,6 +351,7 @@ end
 
 -- Restore os.exit
 os.exit = _real_os_exit
+tap.test = _real_tap_test
 
 io.write(string.format('[harness] Captured %d SQL statements\n', #captured_queries))
 

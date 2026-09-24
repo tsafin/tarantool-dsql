@@ -1,0 +1,6 @@
+local tap = require('tap')
+local test = tap.test('direct tap finish')
+test:plan(1)
+local result = box.execute('SELECT 1')
+test:is(result.rows[1][1], 1, 'query ran')
+os.exit(test:check() and 0 or 1)
