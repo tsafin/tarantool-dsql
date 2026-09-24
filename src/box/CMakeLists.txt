@@ -258,6 +258,7 @@ if(ENABLE_SQL_JIT)
                 ${PROJECT_SOURCE_DIR}/src/box/${handler_source}
                 -o ${bitcode_file}
             DEPENDS ${PROJECT_SOURCE_DIR}/src/box/${handler_source}
+                ${SQL_BIN_DIR}/parse.h ${SQL_BIN_DIR}/opcodes.h
             COMMENT "Generating LLVM bitcode for ${handler_name}"
         )
         
@@ -458,6 +459,7 @@ if(ENABLE_SQL_CNP)
             -c ${SORTER_WRITER_CNP_FRAGMENTS_C}
             -o ${SORTER_WRITER_CNP_FRAGMENTS_O}
         DEPENDS ${SORTER_WRITER_CNP_FRAGMENTS_C}
+            ${SQL_BIN_DIR}/parse.h
             ${PROJECT_SOURCE_DIR}/src/box/sql/vdbesort_templates.h
         COMMENT "Compiling sorter writer CnP fragment source to object file"
     )
