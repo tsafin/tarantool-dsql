@@ -6,6 +6,7 @@
 -- No external dependencies beyond Lua standard library + LuaJIT built-ins.
 
 local M = {}
+local json = require('json')
 
 -- Drift categories (returned per snapshot comparison).
 M.MATCH              = "MATCH"
@@ -38,12 +39,8 @@ local function val_to_str(v)
     if v == nil then
         return "<nil>"
     elseif type(v) == "table" then
-        -- Shallow pretty-print for small tables
-        local parts = {}
-        for k, vv in pairs(v) do
-            parts[#parts + 1] = tostring(k) .. "=" .. tostring(vv)
-        end
-        return "{" .. table.concat(parts, ", ") .. "}"
+        local ok, encoded = pcall(json.encode, v)
+        return ok and encoded or tostring(v)
     else
         return tostring(v)
     end
@@ -193,9 +190,8 @@ end
 
 local function json_val(v)
     if v == nil            then return "null" end
-    if type(v) == "boolean"then return tostring(v) end
-    if type(v) == "number" then return tostring(v) end
-    return json_str(tostring(v))
+    local ok, encoded = pcall(json.encode, v)
+    return ok and encoded or json_str(tostring(v))
 end
 
 --- Format a list of DiffRecord entries as JSON (for machine consumption).

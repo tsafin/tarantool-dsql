@@ -2,6 +2,7 @@
 """Regression checks for the fail-closed SQL snapshot comparison contract."""
 
 import os
+import json
 from pathlib import Path
 import subprocess
 import tempfile
@@ -73,6 +74,10 @@ class SnapshotDiffTest(unittest.TestCase):
         result = self.diff()
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertIn("l1_result.rows", result.stdout)
+        fields = json.loads(result.stdout)["diffs"][0]["fields"]
+        rows = next(field for field in fields if field["name"] == "l1_result.rows")
+        self.assertEqual(rows["baseline"], [[1]])
+        self.assertEqual(rows["candidate"], [["1"]])
 
     def test_column_type_is_hard_gate(self):
         self.write(snapshot(), snapshot(col_type="string"))
