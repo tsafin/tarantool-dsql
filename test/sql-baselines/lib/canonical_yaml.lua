@@ -61,17 +61,57 @@ local RESERVED = {
 -- Characters that, if present anywhere in a scalar, force quoting.
 local YAML_SPECIAL = "{}[],:#&*!|>'\"%@`"
 
--- Returns true when a string has non-printable / non-ASCII bytes and must be
--- emitted as an !!binary blob. TAB, LF, CR are kept as printable.
+-- Valid UTF-8 is text, not a blob. A byte >= 0x80 alone does not make a
+-- string binary: SQL TEXT commonly contains non-ASCII characters.
+local function valid_utf8(s)
+    local i = 1
+    while i <= #s do
+        local c = s:byte(i)
+        if c < 0x80 then
+            i = i + 1
+        else
+            local n, low, high
+            if c >= 0xc2 and c <= 0xdf then
+                n, low, high = 2, 0x80, 0xbf
+            elseif c == 0xe0 then
+                n, low, high = 3, 0xa0, 0xbf
+            elseif c >= 0xe1 and c <= 0xec or c >= 0xee and c <= 0xef then
+                n, low, high = 3, 0x80, 0xbf
+            elseif c == 0xed then
+                n, low, high = 3, 0x80, 0x9f
+            elseif c == 0xf0 then
+                n, low, high = 4, 0x90, 0xbf
+            elseif c >= 0xf1 and c <= 0xf3 then
+                n, low, high = 4, 0x80, 0xbf
+            elseif c == 0xf4 then
+                n, low, high = 4, 0x80, 0x8f
+            else
+                return false
+            end
+            local second = s:byte(i + 1)
+            if not second or second < low or second > high then return false end
+            for j = i + 2, i + n - 1 do
+                local continuation = s:byte(j)
+                if not continuation or continuation < 0x80 or
+                   continuation > 0xbf then return false end
+            end
+            i = i + n
+        end
+    end
+    return true
+end
+
+-- Emit control-byte or invalid-UTF-8 strings as binary. TAB, LF, CR are kept
+-- as text, and valid Unicode remains UTF-8 text in YAML.
 local function is_blob(s)
     for i = 1, #s do
         local b = s:byte(i)
-        if b < 0x20 and b ~= 0x09 and b ~= 0x0a and b ~= 0x0d then
+        if (b < 0x20 and b ~= 0x09 and b ~= 0x0a and b ~= 0x0d) or
+           b == 0x7f then
             return true
         end
-        if b > 0x7e then return true end
     end
-    return false
+    return not valid_utf8(s)
 end
 
 -- Returns true when a plain-scalar string must be quoted.

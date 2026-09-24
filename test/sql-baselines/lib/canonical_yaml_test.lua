@@ -78,6 +78,12 @@ check("embedded single-quote doubled",
 check("blob emitted as !!binary base64",
     yaml_lib.emit_nodoc("\x00\x01\xff") == "!!binary AAH/\n")
 
+check("UTF-8 text is not a binary blob",
+    yaml_lib.emit_nodoc("Привет") == "Привет\n")
+
+check("invalid UTF-8 is a binary blob",
+    yaml_lib.emit_nodoc("\xff") == "!!binary /w==\n")
+
 -- ---------------------------------------------------------------------------
 -- Table emission — arrays and maps
 -- ---------------------------------------------------------------------------
