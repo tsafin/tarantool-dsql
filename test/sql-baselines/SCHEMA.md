@@ -168,10 +168,12 @@ variance, and floating-point formatting. The harness MUST:
 1. **Sort `l1_result.rows`** lexicographically by stringified row form
    *unless* the original SQL contains an `ORDER BY`. With `ORDER BY`,
    preserve the original order; record `rows_sorted: false` in that case.
-2. **Normalize floating-point representation.** Each float is serialized as
-   a YAML string with the format `!!str "1.234560e+02"` (uppercase `E` or
-   lowercase consistent per file; pick lowercase). Floats that are exact
-   integers serialize as integers.
+2. **Normalize floating-point representation.** Finite Lua numbers use 17
+   significant digits so adjacent doubles remain distinct. Safe exact
+   integers serialize as YAML integers; larger numbers serialize as YAML
+   floats. Non-finite numbers reject the capture until v1 has a typed
+   representation for them; a quoted string would conflate SQL FLOAT with
+   SQL TEXT.
 3. **Encode binary blobs as Base64** with explicit `!!binary` tag.
 4. **Encode NULL as YAML `null`** (not `~`, not empty).
 5. **Encode booleans as YAML `true` / `false`** (not `yes` / `no`).

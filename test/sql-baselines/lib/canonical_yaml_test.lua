@@ -47,8 +47,17 @@ check("integer emits without dot",
 check("negative integer",
     yaml_lib.emit_nodoc(-7) == "-7\n")
 
-check("float emits with %.15g",
+check("float emits with round-trip precision",
     yaml_lib.emit_nodoc(1.5) == "1.5\n")
+
+check("neighboring doubles stay distinct",
+    yaml_lib.emit_nodoc(1) ~= yaml_lib.emit_nodoc(1 + 2^-52))
+
+check("large finite float is not mislabeled int64",
+    yaml_lib.emit_nodoc(1e20) == "1e+20\n")
+
+check("non-finite number fails closed",
+    not pcall(yaml_lib.emit_nodoc, math.huge))
 
 check("float 1e-6 keeps scientific form",
     (function()

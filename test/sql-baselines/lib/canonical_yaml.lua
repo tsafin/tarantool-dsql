@@ -8,7 +8,7 @@
 --       booleans as "true" / "false"
 --       nil and box.NULL as "null"
 --       integers as tostring(v); int64/uint64 cdata as "!int64 <n>"
---       floats as string.format("%.15g", v), forced to include "." or "e"
+--       finite floats as string.format("%.17g", v), forced to include "." or "e"
 --       strings quoted (single-quote style) when needed, base64-encoded
 --         with !!binary tag when they contain non-printable bytes
 --   - round-trip stable through Tarantool's yaml.decode
@@ -132,23 +132,20 @@ local function single_quote(s)
     return "'" .. s:gsub("'", "''") .. "'"
 end
 
--- Format a Lua number as either an integer or a %.15g float. Floats are
--- forced to contain "." or "e" so they can't be re-read as integers.
+-- Format a Lua number as either a safe integer or a round-trippable float.
+-- NaN/Inf are rejected until v1 defines a typed non-finite representation;
+-- silently emitting strings would conflate them with SQL TEXT.
 local function format_number(v)
-    local mt = math.type and math.type(v)
-    local is_float = mt == "float" or (v ~= math.floor(v))
-    if is_float then
-        local s = string.format("%.15g", v)
+    if v ~= v or v == math.huge or v == -math.huge then
+        error("canonical_yaml: non-finite SQL number is unsupported")
+    end
+    local safe_integer = v == math.floor(v) and math.abs(v) <= 2 ^ 53
+    if not safe_integer then
+        local s = string.format("%.17g", v)
         if not s:find("[%.e]") then
             s = s .. ".0"
         end
         return s
-    end
-    -- Integer path: use %d only when safely within 53-bit float range;
-    -- outside that, fall back to string form with an !int64 tag so
-    -- Tarantool's yaml.decode round-trips into int64.
-    if math.abs(v) > 2 ^ 53 then
-        return "!int64 " .. string.format("%.0f", v)
     end
     return tostring(math.floor(v))
 end
