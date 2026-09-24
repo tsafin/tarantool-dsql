@@ -45,6 +45,8 @@ def main():
     parser.add_argument("--capture-report", type=Path, action="append", required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--timeout", type=int, default=300)
+    parser.add_argument("--max-queries", type=int, default=10000)
+    parser.add_argument("--max-bytes", type=int, default=64 * 1024 * 1024)
     parser.add_argument("--test", action="append", default=[])
     args = parser.parse_args()
     repo, binary = args.repo.resolve(), args.binary.resolve()
@@ -57,7 +59,12 @@ def main():
             raise ValueError(f"capture report has wrong engine: {path}")
         tests.update(source["results"])
     names = sorted(name for name, result in tests.items()
-                   if result["status"] == "accepted")
+                   if result["status"] == "accepted" and
+                   0 < result["captured_queries"] <= args.max_queries and
+                   isinstance(result.get("snapshot_bytes"), int) and
+                   result["snapshot_bytes"] <= args.max_bytes)
+    if not names:
+        raise ValueError("no accepted tests with measured bytes inside budget")
     if args.test:
         missing = set(args.test) - set(names)
         if missing:
@@ -66,6 +73,8 @@ def main():
     identity = {"repo": str(repo), "binary": str(binary),
                 "commit": commit, "engine": args.engine,
                 "timeout_seconds": args.timeout,
+                "max_queries": args.max_queries,
+                "max_bytes": args.max_bytes,
                 "tests": names}
     if args.out.exists():
         report = json.loads(args.out.read_text())
