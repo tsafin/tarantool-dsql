@@ -1,0 +1,122 @@
+#!/usr/bin/env python3
+"""Capture one single-child sql-luatest file through its normal runner."""
+
+import argparse
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+
+
+def capture(args):
+    repo = args.repo.resolve()
+    runner_repo = args.runner_repo.resolve()
+    binary = args.binary.resolve()
+    out = args.out.resolve()
+    test = args.test
+    if not test.endswith("_test.lua") or "/" in test:
+        raise ValueError("test must be a top-level sql-luatest *_test.lua file")
+    if not (runner_repo / "test/sql-luatest" / test).is_file():
+        raise ValueError("test file does not exist in runner repository")
+    if out.exists() and any(out.iterdir()):
+        raise ValueError("output must be empty")
+    out.mkdir(parents=True, exist_ok=True)
+    hook = repo / "test/sql-baselines/harness/luatest_child.lua"
+    env = os.environ.copy()
+    env.update({
+        "VDBE_DISPATCHER": "cnp" if args.mode == "cnp" else "generated",
+        "SQL_JIT_ENABLE": "1" if args.mode == "llvm" else "0",
+        "SQL_BASELINE_OUT": str(out),
+        "SQL_BASELINE_TEST": f"sql-luatest/{test}",
+        "SQL_BASELINE_ENGINE": args.engine,
+        "SQL_BASELINE_MODE": args.mode,
+        "TARANTOOL_RUN_BEFORE_BOX_CFG": f"dofile({str(hook)!r})",
+    })
+    with tempfile.TemporaryDirectory(prefix="sql-luatest-vardir-") as vardir:
+        command = [sys.executable, str(runner_repo / "test/test-run.py"),
+                   "--builddir", str(binary.parent.parent),
+                   "--vardir", vardir, "--suite", "sql-luatest",
+                   "-j", "-1", "--force", test]
+        completed = subprocess.run(command, cwd=runner_repo, env=env,
+                                   text=True, stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT, timeout=300)
+    if completed.returncode != 0:
+        raise RuntimeError("normal runner failed:\n" + completed.stdout)
+    if (out / "luatest-capture-error").exists():
+        raise RuntimeError("child snapshot write failed: " +
+                           (out / "luatest-capture-error").read_text())
+    state_path = out / "luatest-child-state.json"
+    if not state_path.is_file():
+        raise RuntimeError("normal runner passed without a captured child")
+    state = json.loads(state_path.read_text())
+    identity = f"sql-luatest/{test}"
+    if state.get("test_file") != identity or state.get("engine") != args.engine or \
+       state.get("execution_mode") != args.mode or \
+       state.get("engine_mismatch") is not False or \
+       not isinstance(state.get("captured_queries"), int) or \
+       state["captured_queries"] < 1:
+        raise RuntimeError("child capture identity or engine mismatch")
+    cnp = state["cnp_exec_delta"]
+    llvm = state["llvm_exec_delta"]
+    mode_executed = (args.mode == "generated" and cnp == 0 and llvm == 0) or \
+                    (args.mode == "cnp" and cnp > 0) or \
+                    (args.mode == "llvm" and llvm > 0)
+    if not mode_executed:
+        raise RuntimeError("requested execution mode was not observed")
+    count = state["captured_queries"]
+    manifest = {
+        "manifest_version": 1,
+        "suite": "sql-luatest",
+        "test_file": identity,
+        "engine": args.engine,
+        "dispatcher_requested": env["VDBE_DISPATCHER"],
+        "sql_jit_enable": args.mode == "llvm",
+        "execution_mode": args.mode,
+        "mode_executed": True,
+        "cnp_exec_delta": cnp,
+        "llvm_exec_delta": llvm,
+        "runtime_engine": args.engine,
+        "engine_mismatch": False,
+        "test_exit_code": 0,
+        "test_load_ok": True,
+        "test_load_error": "",
+        "cfg_errors": 0,
+        "captured_queries": count,
+        "written_snapshots": count,
+        "skipped_queries": 0,
+        "snapshot_errors": 0,
+        "accepted": True,
+    }
+    manifest_path = out / "manifests/sql-luatest" / \
+                    f"{test[:-len('.lua')]}.{args.engine}.json"
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_text(json.dumps(manifest) + "\n")
+    subprocess.run([str(binary), str(repo / "test/sql-baselines/validate.lua"),
+                    str(out)], check=True, cwd=binary.parent.parent)
+    print(f"captured {identity} engine={args.engine} mode={args.mode} "
+          f"queries={count} cnp={cnp} llvm={llvm}")
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--repo", type=Path, required=True)
+    parser.add_argument("--runner-repo", type=Path, required=True)
+    parser.add_argument("--binary", type=Path, required=True)
+    parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--test", required=True)
+    parser.add_argument("--engine", choices=("memtx", "vinyl"), required=True)
+    parser.add_argument("--mode", choices=("generated", "cnp", "llvm"),
+                        required=True)
+    args = parser.parse_args()
+    try:
+        capture(args)
+    except (ValueError, OSError, subprocess.CalledProcessError, RuntimeError,
+            KeyError) as exc:
+        print(f"luatest capture: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
