@@ -1,6 +1,7 @@
 local source = debug.getinfo(1, 'S').source
 local dir = source:sub(2):match('^(.+)/[^/]+$')
-local repo = dir:match('^(.+)/test/sql%-baselines/harness$')
+local fio = require('fio')
+local repo = fio.abspath(dir .. '/../../..')
 local adapter = dofile(dir .. '/sql_file.lua')
 
 local function capture(path, expected)
