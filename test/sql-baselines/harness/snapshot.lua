@@ -98,13 +98,19 @@ local function utc_timestamp()
 end
 
 -- Return short git commit hash (first 10 chars) or "unknown".
+local commit_cache = nil
 local function git_commit()
+    if commit_cache ~= nil then return commit_cache end
     local f = io.popen('git -C ' .. string.format('%q', repository_dir) ..
                        ' rev-parse --short=10 HEAD 2>/dev/null')
-    if not f then return 'unknown' end
+    if not f then
+        commit_cache = 'unknown'
+        return commit_cache
+    end
     local s = f:read('*l') or 'unknown'
     f:close()
-    return s ~= '' and s or 'unknown'
+    commit_cache = s ~= '' and s or 'unknown'
+    return commit_cache
 end
 
 -- Return tarantool version string from box.info.version.
