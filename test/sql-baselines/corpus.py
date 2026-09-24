@@ -134,9 +134,14 @@ def main():
             for index, row in enumerate(selected):
                 work = Path(temp) / str(index)
                 work.mkdir()
+                test_env = env.copy()
+                # Several SQL TAP tests reconfigure box.cfg.listen and then
+                # connect through LISTEN. Give each test its own Unix socket;
+                # no shared TCP port or database directory is involved.
+                test_env["LISTEN"] = f"unix/:{work}/listen.sock"
                 run(binary, harness, repo / "test" / row["test"],
                     f"--engine={args.engine}", f"--out={out}",
-                    f"--work-dir={work}", env=env, cwd=build_dir)
+                    f"--work-dir={work}", env=test_env, cwd=build_dir)
         run(binary, HERE / "validate.lua", out, cwd=build_dir)
         check_coverage(out, rows, args.engine, args.mode)
     else:
