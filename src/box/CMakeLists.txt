@@ -821,6 +821,18 @@ add_custom_target(generate_sql_files DEPENDS
     ${SQL_BIN_DIR}/opcodes.h
     ${SQL_BIN_DIR}/opcodes.c)
 
+# Native artifacts include generated SQL headers. Order their independent
+# custom targets after the generator to avoid parallel parse.h writers.
+if(ENABLE_SQL_JIT)
+    add_dependencies(sql_jit_bitcode generate_sql_files)
+endif()
+if(ENABLE_SQL_CNP)
+    add_dependencies(cnp_stencils generate_sql_files)
+    add_dependencies(cnp_fragment_headers generate_sql_files)
+    add_dependencies(sorter_cnp_fragment_headers generate_sql_files)
+    add_dependencies(sorter_writer_cnp_fragment_headers generate_sql_files)
+endif()
+
 add_custom_command(OUTPUT ${SQL_BIN_DIR}/keywordhash.h
     COMMAND ${EXT_BIN_DIR}/mkkeywordhash > keywordhash.h.tmp
     COMMAND ${CMAKE_COMMAND} -E copy_if_different keywordhash.h.tmp keywordhash.h
