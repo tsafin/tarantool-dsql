@@ -17,6 +17,16 @@
       "test": "sql-tap/null.test.lua",
       "engines": ["memtx", "vinyl"],
       "reason": "normal runner and fixed harness agree; covers DDL, DML and NULL results"
+    },
+    {
+      "test": "sql/gh-4256-do-not-change-order-during-insertion.test.sql",
+      "engines": ["memtx", "vinyl"],
+      "reason": "normal runner and strict SQL-file adapter agree on both engines; five captured statements pass all dispatchers"
+    },
+    {
+      "test": "sql/gh-4697-scalar-bool-sort-cmp.test.sql",
+      "engines": ["memtx", "vinyl"],
+      "reason": "normal runner and strict SQL-file adapter agree on both engines; seven captured statements pass all dispatchers"
     }
   ]
 }
