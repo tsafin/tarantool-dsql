@@ -203,11 +203,26 @@ local function load_yaml_file(path)
         return nil, "YAML parse error in " .. path .. ": " .. tostring(data)
     end
     if type(data) ~= "table" or data.schema_version ~= 1 or
-       type(data.test) ~= "table" or type(data.test.query_sql) ~= "string" or
+       (data.engine ~= "memtx" and data.engine ~= "vinyl") or
+       type(data.test) ~= "table" or
+       type(data.test.suite) ~= "string" or
+       type(data.test.file) ~= "string" or
+       type(data.test.query_index) ~= "number" or
+       type(data.test.query_sql) ~= "string" or
+       data.test.query_sql == "" or
+       type(data.captured) ~= "table" or
        type(data.l1_result) ~= "table" or
+       type(data.l1_result.ok) ~= "boolean" or
+       type(data.l1_result.rows_sorted) ~= "boolean" or
        type(data.l1_result.rows) ~= "table" or
        type(data.l2_diagnostic) ~= "table" or
-       type(data.l2_diagnostic.status) ~= "string" or
+       (data.l2_diagnostic.status ~= "success" and
+        data.l2_diagnostic.status ~= "error") or
+       data.l1_result.ok ~= (data.l2_diagnostic.status == "success") or
+       (data.l2_diagnostic.status == "error" and
+        type(data.l2_diagnostic.error_code) ~= "string") or
+       ((data.l1_result.column_names == nil) ~=
+        (data.l1_result.column_types == nil)) or
        type(data.l3_path_class) ~= "table" or
        type(data.l3_path_class.taken) ~= "string" then
         return nil, "malformed v1 snapshot: " .. path
