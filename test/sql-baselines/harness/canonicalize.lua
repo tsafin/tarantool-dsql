@@ -2,18 +2,19 @@
 -- Applies the 8 canonicalization rules from SCHEMA.md to L1 rows and L2 diagnostics.
 
 local M = {}
+local source = debug.getinfo(1, 'S').source
+local dir = source:sub(1, 1) == '@' and source:sub(2):match('^(.+)/[^/]+$') or '.'
+local yaml_emitter = dofile(dir .. '/../lib/canonical_yaml.lua')
 
 -- Rule 1 helper: produce a sort key for a row
 local function row_sort_key(row)
-    local parts = {}
-    for _, v in ipairs(row) do
-        table.insert(parts, tostring(v))
-    end
-    return table.concat(parts, '\t')
+    -- SQL MAP/ARRAY values have pointer-like tostring() representations.
+    -- Sort by the same typed, canonical encoding used in snapshots instead.
+    return yaml_emitter.emit_nodoc(row)
 end
 
 -- Rule 3-7: canonicalize a single cell value
-local function canon_value(v)
+local function canon_value(v, seen)
     if v == nil or v == box.NULL then
         return box.NULL  -- preserve array positions; emitter writes null
     end
@@ -33,6 +34,21 @@ local function canon_value(v)
         -- Rule 5: blobs — pass through; emitter detects and base64-encodes
         return v
     end
+    if t == 'table' then
+        if seen[v] then error('cyclic SQL container cannot be snapshotted') end
+        seen[v] = true
+        local result = {}
+        for k, child in pairs(v) do
+            result[k] = canon_value(child, seen)
+        end
+        seen[v] = nil
+        local meta = getmetatable(v)
+        local kind = meta and meta.__serialize
+        if kind == 'map' or kind == 'seq' then
+            setmetatable(result, {__serialize = kind})
+        end
+        return result
+    end
     -- Fallback
     return tostring(v)
 end
@@ -41,7 +57,7 @@ end
 local function canon_row(row)
     local result = {}
     for i, v in ipairs(row) do
-        result[i] = canon_value(v)
+        result[i] = canon_value(v, {})
     end
     return result
 end

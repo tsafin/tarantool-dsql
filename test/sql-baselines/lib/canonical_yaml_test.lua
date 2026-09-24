@@ -112,6 +112,22 @@ check("nested map keys sorted",
     yaml_lib.emit_nodoc({outer = {b = 1, a = 2}}) ==
     "outer:\n  a: 2\n  b: 1\n")
 
+check("numeric and string map keys remain distinct",
+    (function()
+        local map = setmetatable({[1] = 'number', ['1'] = 'text'},
+                                 {__serialize = 'map'})
+        local emitted = yaml_lib.emit_nodoc(map)
+        local decoded = yaml.decode(yaml_lib.emit({container = map}))
+        return emitted:find('1: number', 1, true) and
+               emitted:find("'1': text", 1, true) and
+               decoded.container[1] == 'number' and
+               decoded.container['1'] == 'text'
+    end)())
+
+check("empty SQL map differs from empty SQL sequence",
+    yaml_lib.emit_nodoc(setmetatable({}, {__serialize = 'map'})) == '{}\n' and
+    yaml_lib.emit_nodoc(setmetatable({}, {__serialize = 'seq'})) == '[]\n')
+
 check("array of maps clean indent",
     yaml_lib.emit_nodoc({{k = 1}, {k = 2}}) ==
     "- k: 1\n- k: 2\n")

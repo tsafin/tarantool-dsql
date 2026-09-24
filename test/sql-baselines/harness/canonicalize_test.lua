@@ -25,4 +25,17 @@ assert(not canonicalize.has_order_by('SELECT * FROM t -- ORDER BY a'))
 assert(not canonicalize.has_order_by('SELECT * FROM (SELECT * FROM t ORDER BY a) AS x'))
 assert(not canonicalize.has_order_by('SELECT * FROM t /* ORDER BY a */'))
 assert(not canonicalize.has_order_by('SELECT * FROM t ORDER + BY a'))
+
+local nested = setmetatable({[1] = {11, 22}, ['1'] = 'text'},
+                        {__serialize = 'map'})
+local containers = canonicalize.canon_L1({{nested}}, false, nil)
+assert(type(containers.rows[1][1]) == 'table')
+assert(containers.rows[1][1][1][2] == 22)
+assert(containers.rows[1][1]['1'] == 'text')
+assert(getmetatable(containers.rows[1][1]).__serialize == 'map')
+local empty_map = setmetatable({}, {__serialize = 'map'})
+local empty_seq = setmetatable({}, {__serialize = 'seq'})
+local encoded = dofile(dir .. '/../lib/canonical_yaml.lua').emit_nodoc(
+    canonicalize.canon_L1({{empty_map, empty_seq}}, false, nil).rows)
+assert(encoded:find('{}', 1, true) and encoded:find('[]', 1, true))
 os.exit(0)

@@ -193,7 +193,9 @@ local function emit_value(v, indent_str)
 
     if type(v) == "table" then
         -- Array vs map: array only if keys are 1..N consecutive.
-        local is_array = true
+        local meta = getmetatable(v)
+        local kind = meta and meta.__serialize
+        local is_array = kind ~= "map"
         local max_int = 0
         for k in pairs(v) do
             if type(k) == "number" and k == math.floor(k) and k >= 1 then
@@ -204,6 +206,9 @@ local function emit_value(v, indent_str)
             end
         end
         if is_array and max_int ~= #v then is_array = false end
+        if kind == "seq" and not is_array then
+            error("canonical_yaml: invalid SQL sequence")
+        end
 
         if is_array and #v == 0 then
             lines[#lines + 1] = indent_str .. "[]"
@@ -233,6 +238,9 @@ local function emit_value(v, indent_str)
             local keys = {}
             for k in pairs(v) do keys[#keys + 1] = k end
             table.sort(keys, function(a, b)
+                if tostring(a) == tostring(b) then
+                    return type(a) < type(b)
+                end
                 return tostring(a) < tostring(b)
             end)
 
@@ -242,20 +250,22 @@ local function emit_value(v, indent_str)
                 local child_indent = indent_str .. "  "
                 for _, k in ipairs(keys) do
                     local val = v[k]
-                    local key_str = emit_scalar(tostring(k))
+                    local key_str = emit_scalar(k)
 
                     if type(val) == "table" then
                         local has_content = false
                         for _ in pairs(val) do has_content = true; break end
                         if not has_content then
-                            -- Empty table: emit as sequence [] by convention
-                            -- since almost all schema fields with lists default
-                            -- to empty sequences, not empty maps.
-                            lines[#lines + 1] = indent_str .. key_str .. ": []"
+                            local val_meta = getmetatable(val)
+                            local empty_kind = val_meta and val_meta.__serialize
+                            lines[#lines + 1] = indent_str .. key_str ..
+                                                 (empty_kind == 'map' and ': {}' or ': []')
                         else
                             -- Try inline [a, b, c] for scalar-only arrays.
                             local short_inline = true
-                            if #val > 0 then
+                            local val_meta = getmetatable(val)
+                            local val_kind = val_meta and val_meta.__serialize
+                            if #val > 0 and val_kind ~= 'map' then
                                 for _, elem in ipairs(val) do
                                     if type(elem) == "table" then
                                         short_inline = false; break
