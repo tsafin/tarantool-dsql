@@ -6,7 +6,8 @@
 -- Tests needing those features must use the normal runner or a richer adapter.
 local M = {}
 
-function M.run(path)
+function M.run(path, execute)
+    execute = execute or box.execute
     local file, open_err = io.open(path, 'r')
     if not file then
         error(open_err, 0)
@@ -20,7 +21,7 @@ function M.run(path)
                 error('unsupported SQL console directive in ' .. path .. ': ' ..
                       source_line, 0)
             end
-            local result, err = box.execute(source_line)
+            local result, err = execute(source_line)
             if result == nil then
                 file:close()
                 error('unexpected SQL error in ' .. path .. ': ' ..
