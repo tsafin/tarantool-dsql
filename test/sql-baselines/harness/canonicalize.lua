@@ -5,6 +5,11 @@ local M = {}
 local source = debug.getinfo(1, 'S').source
 local dir = source:sub(1, 1) == '@' and source:sub(2):match('^(.+)/[^/]+$') or '.'
 local yaml_emitter = dofile(dir .. '/../lib/canonical_yaml.lua')
+local ffi = require('ffi')
+local decimal = require('decimal')
+local datetime = require('datetime')
+local uuid = require('uuid')
+local varbinary = require('varbinary')
 
 -- Rule 1 helper: produce a sort key for a row
 local function row_sort_key(row)
@@ -27,8 +32,20 @@ local function canon_value(v, seen)
         return v
     end
     if t == 'cdata' then
-        -- int64/uint64 cdata — pass through; emitter handles Rule 7
-        return v
+        local kind
+        if ffi.istype('int64_t', v) then kind = 'int64'
+        elseif ffi.istype('uint64_t', v) then kind = 'uint64'
+        elseif decimal.is_decimal(v) then kind = 'decimal'
+        elseif datetime.is_datetime(v) then kind = 'datetime'
+        elseif ffi.istype('struct interval', v) then kind = 'interval'
+        elseif uuid.is_uuid(v) then kind = 'uuid'
+        elseif varbinary.is(v) then kind = 'varbinary'
+        else error('unsupported SQL cdata value: ' .. tostring(ffi.typeof(v))) end
+        local value = tostring(v)
+        if kind == 'int64' or kind == 'uint64' then
+            value = value:gsub('ULL$', ''):gsub('LL$', '')
+        end
+        return {sql_type = kind, value = value}
     end
     if t == 'string' then
         -- Rule 5: blobs — pass through; emitter detects and base64-encodes
@@ -37,17 +54,27 @@ local function canon_value(v, seen)
     if t == 'table' then
         if seen[v] then error('cyclic SQL container cannot be snapshotted') end
         seen[v] = true
-        local result = {}
-        for k, child in pairs(v) do
-            result[k] = canon_value(child, seen)
-        end
-        seen[v] = nil
         local meta = getmetatable(v)
         local kind = meta and meta.__serialize
-        if kind == 'map' or kind == 'seq' then
-            setmetatable(result, {__serialize = kind})
+        if kind == 'seq' or (kind ~= 'map' and #v > 0) then
+            local items = {}
+            for i = 1, #v do items[i] = canon_value(v[i], seen) end
+            seen[v] = nil
+            return {sql_type = 'array', items = items}
         end
-        return result
+        local entries = {}
+        for k, child in pairs(v) do
+            entries[#entries + 1] = {
+                key = canon_value(k, seen),
+                value = canon_value(child, seen),
+            }
+        end
+        table.sort(entries, function(a, b)
+            return yaml_emitter.emit_nodoc(a.key) <
+                   yaml_emitter.emit_nodoc(b.key)
+        end)
+        seen[v] = nil
+        return {sql_type = 'map', entries = entries}
     end
     -- Fallback
     return tostring(v)

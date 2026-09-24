@@ -185,6 +185,22 @@ variance, and floating-point formatting. The harness MUST:
    (`[]`). Sort map keys deterministically at every nesting depth.
 8. **LF line endings**, single trailing newline at EOF.
 
+Extended SQL scalars and containers use typed cell wrappers inside
+`l1_result.rows`, because Tarantool's YAML decoder otherwise turns DECIMAL
+into a Lua number and DATETIME into text. Examples:
+
+```yaml
+- {sql_type: decimal, value: '1.20'}
+- {sql_type: datetime, value: '2020-01-01T00:00:00Z'}
+- {sql_type: array, items: [11, 22]}
+- {sql_type: map, entries: [{key: 1, value: two}]}
+```
+
+The wrapper is reserved for captured SQL values; native SQL MAP/ARRAY cells
+are always wrapped, so their keys cannot collide with `sql_type` or `value`.
+Int64, uint64, UUID, INTERVAL, and VARBINARY also use `sql_type`/`value`.
+Unrecognized cdata fails the capture instead of silently losing type.
+
 A round-trip `parse(emit(parse(file))) == parse(file)` must hold. Semantic
 comparison uses typed decoded values; provenance and YAML formatting are not
 parity keys. Distinguish the SQL string `'1'` from the number `1`, and a
