@@ -75,21 +75,37 @@ def capture(args):
     if not mode_executed:
         raise RuntimeError("requested execution mode was not observed")
     count = state["captured_queries"]
-    eligible_indices = state.get("eligible_query_indices")
-    misses = state.get("mode_miss_queries")
-    native_queries = state.get("native_participation_queries")
-    if not isinstance(eligible_indices, list) or \
+    index_fields = (
+        "executed_query_indices",
+        "native_compile_attempt_query_indices",
+        "native_compile_success_query_indices",
+        "native_participation_query_indices",
+        "eligible_query_indices",
+        "mode_miss_queries",
+    )
+    indices = {}
+    for field in index_fields:
+        values = state.get(field)
+        if not isinstance(values, list) or \
+           any(type(i) is not int or i < 1 or i > count for i in values) or \
+           values != sorted(set(values)):
+            raise RuntimeError(f"invalid {field} in child capture")
+        indices[field] = values
+    eligible_indices = indices["eligible_query_indices"]
+    participation = indices["native_participation_query_indices"]
+    misses = indices["mode_miss_queries"]
+    expected_eligible = sorted(
+        set(indices["executed_query_indices"]) &
+        (set(indices["native_compile_success_query_indices"]) |
+         set(participation)))
+    expected_misses = sorted(set(eligible_indices) - set(participation)) \
+                      if args.mode != "generated" else []
+    if eligible_indices != expected_eligible or misses != expected_misses or \
        state.get("eligible_queries") != len(eligible_indices) or \
-       any(not isinstance(i, int) or i < 1 or i > count
-           for i in eligible_indices) or \
-       len(set(eligible_indices)) != len(eligible_indices) or \
-       not isinstance(misses, list) or \
-       any(i not in eligible_indices for i in misses) or \
-       not isinstance(native_queries, int) or \
-       native_queries < 0 or native_queries > len(eligible_indices):
-        raise RuntimeError("invalid per-query dispatcher participation evidence")
+       state.get("native_participation_queries") != len(participation):
+        raise RuntimeError("inconsistent per-query dispatcher participation evidence")
     if args.mode != "generated" and misses:
-        raise RuntimeError(f"interpreter-only mode misses at queries {misses}")
+        raise RuntimeError(f"native mode misses at queries {misses}")
     manifest = {
         "manifest_version": 1,
         "suite": args.suite,
@@ -101,9 +117,15 @@ def capture(args):
         "mode_executed": True,
         "cnp_exec_delta": cnp,
         "llvm_exec_delta": llvm,
+        "executed_query_indices": indices["executed_query_indices"],
+        "native_compile_attempt_query_indices":
+            indices["native_compile_attempt_query_indices"],
+        "native_compile_success_query_indices":
+            indices["native_compile_success_query_indices"],
         "eligible_queries": len(eligible_indices),
         "eligible_query_indices": eligible_indices,
-        "native_participation_queries": native_queries,
+        "native_participation_queries": len(participation),
+        "native_participation_query_indices": participation,
         "mode_miss_queries": misses,
         "runtime_engine": args.engine,
         "engine_mismatch": False,

@@ -48,8 +48,11 @@ box.cfg = setmetatable({}, {
         local engine_mismatch = false
         local observed_engines = {}
         local initialized_sessions = {}
+        local executed_query_indices = {}
+        local native_compile_attempt_query_indices = {}
+        local native_compile_success_query_indices = {}
+        local native_participation_query_indices = {}
         local eligible_query_indices = {}
-        local native_participation_queries = 0
         local mode_miss_queries = {}
 
         box.execute = function(sql, bindings)
@@ -115,12 +118,39 @@ box.cfg = setmetatable({}, {
                 tonumber(query_before.sql_interpreter_step_count or 0)
             local selected_native = mode == 'cnp' and query_cnp or
                                     (mode == 'llvm' and query_llvm or 0)
+            local compile_key = mode == 'cnp' and 'sql_cnp_compile_count' or
+                                'sql_jit_compile_count'
+            local success_key = mode == 'cnp' and
+                                'sql_cnp_compile_success_count' or
+                                'sql_jit_compile_success_count'
+            local query_compile = mode == 'generated' and 0 or
+                tonumber(after[compile_key] or 0) -
+                tonumber(query_before[compile_key] or 0)
+            local query_success = mode == 'generated' and 0 or
+                tonumber(after[success_key] or 0) -
+                tonumber(query_before[success_key] or 0)
             if selected_native > 0 or query_interpreter > 0 then
-                eligible_query_indices[#eligible_query_indices + 1] = count
+                executed_query_indices[#executed_query_indices + 1] = count
+            end
+            if query_compile > 0 then
+                native_compile_attempt_query_indices
+                    [#native_compile_attempt_query_indices + 1] = count
+            end
+            if query_success > 0 then
+                native_compile_success_query_indices
+                    [#native_compile_success_query_indices + 1] = count
             end
             if selected_native > 0 then
-                native_participation_queries = native_participation_queries + 1
-            elseif mode ~= 'generated' and query_interpreter > 0 then
+                native_participation_query_indices
+                    [#native_participation_query_indices + 1] = count
+            end
+            if (query_interpreter > 0 or selected_native > 0) and
+               (query_success > 0 or selected_native > 0) then
+                eligible_query_indices[#eligible_query_indices + 1] = count
+            end
+            if mode ~= 'generated' and query_interpreter > 0 and
+               query_success > 0 and
+               selected_native == 0 then
                 mode_miss_queries[#mode_miss_queries + 1] = count
             end
             local cnp_delta = tonumber(after.sql_cnp_exec_count or 0) -
@@ -136,9 +166,17 @@ box.cfg = setmetatable({}, {
                 llvm_exec_delta = llvm_delta,
                 engine_mismatch = engine_mismatch,
                 observed_engines = observed_engines,
+                executed_query_indices = executed_query_indices,
+                native_compile_attempt_query_indices =
+                    native_compile_attempt_query_indices,
+                native_compile_success_query_indices =
+                    native_compile_success_query_indices,
                 eligible_queries = #eligible_query_indices,
                 eligible_query_indices = eligible_query_indices,
-                native_participation_queries = native_participation_queries,
+                native_participation_queries =
+                    #native_participation_query_indices,
+                native_participation_query_indices =
+                    native_participation_query_indices,
                 mode_miss_queries = mode_miss_queries,
             }
             local state_file = assert(io.open(out .. '/luatest-child-state.json', 'w'))
