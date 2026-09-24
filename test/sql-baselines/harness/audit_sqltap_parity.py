@@ -49,6 +49,8 @@ def main():
     parser.add_argument("--max-queries", type=int, default=10000)
     parser.add_argument("--max-bytes", type=int, default=64 * 1024 * 1024)
     parser.add_argument("--test", action="append", default=[])
+    parser.add_argument("--exclude", action="append", default=[])
+    parser.add_argument("--engine-config", type=Path)
     args = parser.parse_args()
     repo, binary = args.repo.resolve(), args.binary.resolve()
     commit = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"],
@@ -64,6 +66,11 @@ def main():
                    0 < result["captured_queries"] <= args.max_queries and
                    isinstance(result.get("snapshot_bytes"), int) and
                    result["snapshot_bytes"] <= args.max_bytes)
+    if args.engine_config:
+        variants = json.loads(args.engine_config.read_text())
+        names = [name for name in names
+                 if args.engine in variants.get(name, variants.get("*", {}))]
+    names = [name for name in names if name not in args.exclude]
     if not names:
         raise ValueError("no accepted tests with measured bytes inside budget")
     if args.test:
@@ -119,7 +126,13 @@ def main():
                            "captured_queries": manifest.get("captured_queries", 0),
                            "cnp_exec_delta": manifest.get("cnp_exec_delta"),
                            "llvm_exec_delta": manifest.get("llvm_exec_delta"),
+                           "executed_queries": len(manifest.get("executed_query_indices", [])),
+                           "eligible_queries": manifest.get("eligible_queries"),
+                           "native_participation_queries": manifest.get("native_participation_queries"),
                            "error_tail": output[-500:] if rc != 0 else ""}
+                native_indices = manifest.get("native_participation_query_indices", [])
+                if len(native_indices) <= 20:
+                    capture["native_participation_query_indices"] = native_indices
                 if rc == 0:
                     validate_rc, validate_output = run(
                         [binary, validator, out], cwd=work, timeout=args.timeout)
