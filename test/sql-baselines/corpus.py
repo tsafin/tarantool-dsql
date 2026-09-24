@@ -185,25 +185,30 @@ def main():
         env["BUILDDIR"] = str(build_dir)
         with tempfile.TemporaryDirectory(prefix="sql-corpus-work-") as temp:
             for index, row in enumerate(selected):
-                if row["test"].startswith("sql-luatest/"):
-                    with tempfile.TemporaryDirectory(prefix="sql-luatest-capture-") as child_temp:
+                suite = row["test"].split("/", 1)[0]
+                if suite == "sql-luatest" or (suite == "sql" and
+                                               row["test"].endswith(".test.lua")):
+                    with tempfile.TemporaryDirectory(prefix="sql-runner-capture-") as child_temp:
                         child_out = Path(child_temp) / "capture"
-                        stem = Path(row["test"]).stem
+                        name = Path(row["test"]).name
+                        stem = name[:-len(".test.lua")] if suite == "sql" else \
+                               name[:-len(".lua")]
                         run(sys.executable, HERE / "luatest_capture.py",
                             "--repo", HERE.parent.parent,
                             "--runner-repo", repo,
                             "--binary", binary,
                             "--out", child_out,
-                            "--test", Path(row["test"]).name,
+                            "--test", name,
+                            "--suite", suite,
                             "--engine", args.engine,
                             "--mode", args.mode)
-                        child_snap = child_out / "snapshots/sql-luatest" / stem
-                        target_snap = out / "snapshots/sql-luatest" / stem
+                        child_snap = child_out / "snapshots" / suite / stem
+                        target_snap = out / "snapshots" / suite / stem
                         target_snap.parent.mkdir(parents=True, exist_ok=True)
                         shutil.copytree(child_snap, target_snap)
-                        child_manifest = child_out / "manifests/sql-luatest" / \
+                        child_manifest = child_out / "manifests" / suite / \
                                          f"{stem}.{args.engine}.json"
-                        target_manifest = out / "manifests/sql-luatest" / child_manifest.name
+                        target_manifest = out / "manifests" / suite / child_manifest.name
                         target_manifest.parent.mkdir(parents=True, exist_ok=True)
                         shutil.copy2(child_manifest, target_manifest)
                     continue

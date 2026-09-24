@@ -1,7 +1,7 @@
 # SQL parity corpus policy
 
 `corpus.json` is the reviewed inclusion policy for the current **seed smoke
-gate**. It includes six tests across SQL TAP, SQL-language, and luatest
+gate**. It includes seven tests across SQL TAP, SQL-language, and luatest
 suites. The remaining tests are inventoried as
 `pending`, with an explicit reason; this is not a claim that M0-B full corpus
 coverage is complete. The inventory command scans top-level `*.test.lua` and
