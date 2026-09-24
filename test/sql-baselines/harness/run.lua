@@ -269,6 +269,7 @@ package.path = test_dir .. '/?.lua;' ..
                test_dir .. '/lua/?.lua;' ..
                (repo_root and (repo_root .. '/test/sql/lua/?.lua;') or '') ..
                (repo_root and (repo_root .. '/test/sql-tap/lua/?.lua;') or '') ..
+               (repo_root and (repo_root .. '/test/box/lua/?.lua;') or '') ..
                (repo_root and (repo_root .. '/test/luatest/?.lua;') or '') ..
                package.path
 -- sqltester obtains its engine from test_run when present. Provide only the
