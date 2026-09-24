@@ -112,7 +112,8 @@ end
 -- Derive suite and test_basename from the test file path
 -- e.g. /path/test/sql-tap/select1.test.lua → suite=sql-tap, basename=select1
 local function derive_suite_and_basename(test_file, suite_hint)
-    local basename = test_file:match('/([^/]+)%.test%.lua$') or
+    local basename = test_file:match('/([^/]+)%.test%.sql$') or
+                     test_file:match('/([^/]+)%.test%.lua$') or
                      test_file:match('/([^/]+)%.lua$') or
                      test_file:match('/([^/]+)$')
     local suite = suite_hint
@@ -123,7 +124,7 @@ local function derive_suite_and_basename(test_file, suite_hint)
 end
 
 local suite, test_basename = derive_suite_and_basename(cfg.test_file, cfg.suite)
-local source_file = suite .. '/' .. test_basename .. '.test.lua'
+local source_file = suite .. '/' .. cfg.test_file:match('([^/]+)$')
 
 io.write(string.format('[harness] test_file=%s engine=%s suite=%s basename=%s\n',
     cfg.test_file, cfg.engine, suite, test_basename))
@@ -290,7 +291,16 @@ end
 -- convention for "not running under test-run.py."
 
 -- Execute the test file
-local ok_load, load_err = pcall(dofile, cfg.test_file)
+local function execute_test()
+    if cfg.test_file:match('%.test%.sql$') then
+        require('sql_file').run(cfg.test_file)
+        test_exit_code = 0
+        test_finished = true
+    else
+        dofile(cfg.test_file)
+    end
+end
+local ok_load, load_err = pcall(execute_test)
 local exited = not ok_load and load_err == test_exit_signal
 if not ok_load and not exited then
     io.stderr:write('[harness] Test file execution error: ' ..
