@@ -72,6 +72,13 @@ policy version, engine, and capture digest. No bulk YAML tree is required in
 Git. A PR's moving merge-base remains permitted only for the seed smoke
 gate; it is not an accepted M0-B baseline.
 
+The first full-policy commit is an anchor: it contains the complete decisions
+and capture contract. A following, separate promotion commit sets
+`baseline_commit` to that anchor's SHA after its baseline capture, repeat
+check, and size/runtime review. This two-commit sequence avoids pretending
+that a commit can contain its own SHA. CI compares the policies while ignoring
+only the pointer, so later decision or evidence changes require a new anchor.
+
 Promotion to a new SHA is an explicit policy change: include repeat-capture
 and normal-runner evidence, full suite/engine coverage, and a measured
 size/runtime review. The accepted corpus commit is named only after that
